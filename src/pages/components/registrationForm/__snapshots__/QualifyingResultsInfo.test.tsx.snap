@@ -6,14 +6,14 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-19u30f2-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
         data-testid="KeyboardArrowDownIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -30,7 +30,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
         class="MuiBox-root css-1jw9kr7"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
         >
           registration.qualifyingResults
         </p>
@@ -39,7 +39,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
         />
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
         style="min-height: 0px;"
       >
         <div
@@ -58,7 +58,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                   class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
                 >
                   <span
-                    class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                   >
                     registration.rankingTime: dateFormat.datespan start, end
                   </span>
@@ -74,10 +74,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                       data-testid="testResult.eventType"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":r0:"
                           id=":r0:-label"
@@ -85,7 +85,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           testResult.eventType
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -93,7 +93,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id=":r0:"
                             role="combobox"
@@ -106,7 +106,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
                               tabindex="-1"
                               title="Open"
@@ -114,7 +114,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -130,7 +130,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.eventType
@@ -149,10 +149,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                       data-testid="testResult.result"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":r2:"
                           id=":r2:-label"
@@ -160,7 +160,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           testResult.result
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -168,7 +168,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id=":r2:"
                             role="combobox"
@@ -181,7 +181,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
                               tabindex="-1"
                               title="Open"
@@ -189,7 +189,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -205,7 +205,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.result
@@ -220,13 +220,13 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-1i5z6dx-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth css-q8hpuo-MuiFormControl-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth css-1b5lkxe-MuiFormControl-root"
                     >
                       <div
                         class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":r4:"
                           id=":r4:-label"
@@ -234,12 +234,12 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           testResult.date
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-lxfshk-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id=":r4:"
                             inputmode="text"
@@ -248,18 +248,18 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             value="10.01.2021"
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                           >
                             <button
                               aria-label="Choose date, selected date is 10. tammi 2021"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                               disabled=""
                               tabindex="-1"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CalendarIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -275,7 +275,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.date
@@ -290,10 +290,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1xgjh20-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":r6:"
                         id=":r6:-label"
@@ -301,11 +301,11 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                         testResult.location
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
                           id=":r6:"
                           type="text"
@@ -316,7 +316,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.location
@@ -330,10 +330,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-1ot5j1e-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":r7:"
                         id=":r7:-label"
@@ -341,11 +341,11 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                         testResult.judge
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
                           id=":r7:"
                           type="text"
@@ -356,7 +356,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.judge
@@ -373,16 +373,16 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                       class="MuiStack-root css-r7bbd4-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1f5eo08-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1322g50-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="DeleteOutlineIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -393,16 +393,13 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           </svg>
                         </span>
                         registration.cta.deleteResult
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                       <div
                         class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-bbql3h-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-10mi8st-MuiSvgIcon-root-MuiAvatar-fallback"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-90uhd3-MuiSvgIcon-root-MuiAvatar-fallback"
                           data-testid="PersonIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -419,16 +416,16 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                   class="MuiStack-root css-1k3liqh-MuiStack-root"
                 >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-b4yaxo-MuiButtonBase-root-MuiButton-root"
                     tabindex="0"
                     type="button"
                   >
                     <span
-                      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                         data-testid="AddOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -439,15 +436,12 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                       </svg>
                     </span>
                     registration.cta.addResult
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                   <div
                     class="MuiStack-root css-1w9onfo-MuiStack-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                     >
                       Karsintapisteet yht.:
                     </span>
@@ -474,14 +468,14 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-19u30f2-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
         data-testid="KeyboardArrowDownIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -498,7 +492,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
         class="MuiBox-root css-1jw9kr7"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
         >
           registration.qualifyingResults
         </p>
@@ -507,7 +501,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
         />
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
         style="min-height: 0px;"
       >
         <div
@@ -526,7 +520,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
                 >
                   <span
-                    class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                   >
                     registration.rankingTime: dateFormat.datespan start, end
                   </span>
@@ -542,10 +536,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       data-testid="testResult.eventType"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":r8:"
                           id=":r8:-label"
@@ -553,7 +547,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.eventType
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -561,7 +555,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id=":r8:"
                             role="combobox"
@@ -574,7 +568,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
                               tabindex="-1"
                               title="Open"
@@ -582,7 +576,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -598,7 +592,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.eventType
@@ -617,10 +611,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       data-testid="testResult.result"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":ra:"
                           id=":ra:-label"
@@ -628,7 +622,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.result
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -636,7 +630,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id=":ra:"
                             role="combobox"
@@ -649,7 +643,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
                               tabindex="-1"
                               title="Open"
@@ -657,7 +651,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -673,7 +667,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.result
@@ -688,13 +682,13 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-1i5z6dx-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth css-q8hpuo-MuiFormControl-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth css-1b5lkxe-MuiFormControl-root"
                     >
                       <div
                         class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":rc:"
                           id=":rc:-label"
@@ -702,12 +696,12 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.date
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-lxfshk-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id=":rc:"
                             inputmode="text"
@@ -716,18 +710,18 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="10.01.2021"
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                           >
                             <button
                               aria-label="Choose date, selected date is 10. tammi 2021"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                               disabled=""
                               tabindex="-1"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CalendarIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -743,7 +737,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.date
@@ -758,10 +752,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1xgjh20-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":re:"
                         id=":re:-label"
@@ -769,11 +763,11 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         testResult.location
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
                           id=":re:"
                           type="text"
@@ -784,7 +778,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.location
@@ -798,10 +792,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-1ot5j1e-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":rf:"
                         id=":rf:-label"
@@ -809,11 +803,11 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         testResult.judge
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
                           id=":rf:"
                           type="text"
@@ -824,7 +818,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.judge
@@ -841,16 +835,16 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       class="MuiStack-root css-r7bbd4-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1f5eo08-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1322g50-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="DeleteOutlineIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -861,16 +855,13 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </svg>
                         </span>
                         registration.cta.deleteResult
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                       <div
                         class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-bbql3h-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-10mi8st-MuiSvgIcon-root-MuiAvatar-fallback"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-90uhd3-MuiSvgIcon-root-MuiAvatar-fallback"
                           data-testid="PersonIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -894,10 +885,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       data-testid="testResult.eventType"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":rg:"
                           id=":rg:-label"
@@ -905,7 +896,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.eventType
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -913,7 +904,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":rg:"
                             role="combobox"
                             spellcheck="false"
@@ -925,14 +916,14 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               tabindex="-1"
                               title="Open"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -941,9 +932,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                                   d="M7 10l5 5 5-5z"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                           <fieldset
@@ -951,7 +939,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.eventType
@@ -970,10 +958,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       data-testid="testResult.result"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":ri:"
                           id=":ri:-label"
@@ -981,7 +969,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.result
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -989,7 +977,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":ri:"
                             role="combobox"
                             spellcheck="false"
@@ -1001,14 +989,14 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               tabindex="-1"
                               title="Open"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1017,9 +1005,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                                   d="M7 10l5 5 5-5z"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                           <fieldset
@@ -1027,7 +1012,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.result
@@ -1042,13 +1027,13 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-1i5z6dx-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth css-q8hpuo-MuiFormControl-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth css-1b5lkxe-MuiFormControl-root"
                     >
                       <div
                         class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":rk:"
                           id=":rk:-label"
@@ -1056,12 +1041,12 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.date
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-lxfshk-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":rk:"
                             inputmode="text"
                             placeholder="DD.MM.YYYY"
@@ -1069,17 +1054,17 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="01.02.2021"
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                           >
                             <button
                               aria-label="Choose date, selected date is 1. helmi 2021"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CalendarIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1088,9 +1073,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                                   d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                           <fieldset
@@ -1098,7 +1080,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.date
@@ -1113,10 +1095,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1xgjh20-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":rm:"
                         id=":rm:-label"
@@ -1124,11 +1106,11 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         testResult.location
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           id=":rm:"
                           type="text"
                           value="Somewhere"
@@ -1138,7 +1120,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.location
@@ -1152,10 +1134,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-1ot5j1e-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":rn:"
                         id=":rn:-label"
@@ -1163,11 +1145,11 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         testResult.judge
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           id=":rn:"
                           type="text"
                           value="Manual Judge"
@@ -1177,7 +1159,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.judge
@@ -1194,16 +1176,16 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       class="MuiStack-root css-r7bbd4-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-b4yaxo-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="DeleteOutlineIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1214,16 +1196,13 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </svg>
                         </span>
                         registration.cta.deleteResult
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                       <div
                         class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-bbql3h-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-10mi8st-MuiSvgIcon-root-MuiAvatar-fallback"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-90uhd3-MuiSvgIcon-root-MuiAvatar-fallback"
                           data-testid="PersonIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -1247,10 +1226,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       data-testid="testResult.eventType"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":ro:"
                           id=":ro:-label"
@@ -1258,7 +1237,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.eventType
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -1266,7 +1245,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":ro:"
                             role="combobox"
                             spellcheck="false"
@@ -1278,14 +1257,14 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               tabindex="-1"
                               title="Open"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1294,9 +1273,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                                   d="M7 10l5 5 5-5z"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                           <fieldset
@@ -1304,7 +1280,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.eventType
@@ -1323,10 +1299,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       data-testid="testResult.result"
                     >
                       <div
-                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                        class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":rq:"
                           id=":rq:-label"
@@ -1334,7 +1310,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.result
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-autocomplete="list"
@@ -1342,7 +1318,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             aria-invalid="false"
                             autocapitalize="none"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":rq:"
                             role="combobox"
                             spellcheck="false"
@@ -1354,14 +1330,14 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               tabindex="-1"
                               title="Open"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="ArrowDropDownIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1370,9 +1346,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                                   d="M7 10l5 5 5-5z"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                           <fieldset
@@ -1380,7 +1353,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.result
@@ -1395,13 +1368,13 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-1i5z6dx-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth css-q8hpuo-MuiFormControl-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth css-1b5lkxe-MuiFormControl-root"
                     >
                       <div
                         class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                       >
                         <label
-                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                          class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
                           for=":rs:"
                           id=":rs:-label"
@@ -1409,12 +1382,12 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           testResult.date
                         </label>
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-lxfshk-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <input
                             aria-invalid="false"
                             autocomplete="off"
-                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                             id=":rs:"
                             inputmode="text"
                             placeholder="DD.MM.YYYY"
@@ -1422,17 +1395,17 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             value="01.02.2021"
                           />
                           <div
-                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                            class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                           >
                             <button
                               aria-label="Choose date, selected date is 1. helmi 2021"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CalendarIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1441,9 +1414,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                                   d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                           <fieldset
@@ -1451,7 +1421,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-14lo706"
+                              class="css-kg5swy"
                             >
                               <span>
                                 testResult.date
@@ -1466,10 +1436,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1xgjh20-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":ru:"
                         id=":ru:-label"
@@ -1477,11 +1447,11 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         testResult.location
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           id=":ru:"
                           type="text"
                           value="Somewhere Else"
@@ -1491,7 +1461,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.location
@@ -1505,10 +1475,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-1ot5j1e-MuiGrid-root"
                   >
                     <div
-                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                     >
                       <label
-                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1jy569b-MuiFormLabel-root-MuiInputLabel-root"
+                        class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-18pjc51-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
                         for=":rv:"
                         id=":rv:-label"
@@ -1516,11 +1486,11 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         testResult.judge
                       </label>
                       <div
-                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-md26zr-MuiInputBase-root-MuiOutlinedInput-root"
+                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl css-1o0kqxp-MuiInputBase-root-MuiOutlinedInput-root"
                       >
                         <input
                           aria-invalid="false"
-                          class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                          class="MuiInputBase-input MuiOutlinedInput-input css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                           id=":rv:"
                           type="text"
                           value="Manual Judge 2"
@@ -1530,7 +1500,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-14lo706"
+                            class="css-kg5swy"
                           >
                             <span>
                               testResult.judge
@@ -1547,16 +1517,16 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       class="MuiStack-root css-r7bbd4-MuiStack-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-b4yaxo-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="DeleteOutlineIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1567,16 +1537,13 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </svg>
                         </span>
                         registration.cta.deleteResult
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
                       </button>
                       <div
                         class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-bbql3h-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-10mi8st-MuiSvgIcon-root-MuiAvatar-fallback"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiAvatar-fallback css-90uhd3-MuiSvgIcon-root-MuiAvatar-fallback"
                           data-testid="PersonIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -1593,16 +1560,16 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   class="MuiStack-root css-1k3liqh-MuiStack-root"
                 >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-b4yaxo-MuiButtonBase-root-MuiButton-root"
                     tabindex="0"
                     type="button"
                   >
                     <span
-                      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                         data-testid="AddOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -1613,15 +1580,12 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       </svg>
                     </span>
                     registration.cta.addResult
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
                   </button>
                   <div
                     class="MuiStack-root css-1w9onfo-MuiStack-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                     >
                       Karsintapisteet yht.:
                     </span>
@@ -1648,14 +1612,14 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-19u30f2-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
         data-testid="KeyboardArrowDownIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -1672,7 +1636,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
         class="MuiBox-root css-1jw9kr7"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
         >
           registration.qualifyingResults
         </p>
@@ -1681,7 +1645,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
         />
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
         style="min-height: 0px;"
       >
         <div
@@ -1700,7 +1664,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                   class="MuiGrid-root MuiGrid-item css-1uydgkw-MuiGrid-root"
                 >
                   <span
-                    class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                   >
                     registration.rankingTime: dateFormat.datespan start, end
                   </span>
@@ -1709,17 +1673,17 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                   class="MuiStack-root css-1k3liqh-MuiStack-root"
                 >
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-b4yaxo-MuiButtonBase-root-MuiButton-root"
                     disabled=""
                     tabindex="-1"
                     type="button"
                   >
                     <span
-                      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                      class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                         data-testid="AddOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -1735,7 +1699,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                     class="MuiStack-root css-1w9onfo-MuiStack-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                     >
                       Karsintapisteet yht.:
                     </span>

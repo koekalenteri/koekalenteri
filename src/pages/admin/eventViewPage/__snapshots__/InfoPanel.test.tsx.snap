@@ -3,78 +3,77 @@
 exports[`InfoPanel> renders with event with closed entry and registrations 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-1afbal1-MuiPaper-root-MuiAccordion-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-97wm99-MuiPaper-root-MuiAccordion-root"
+    style="--Paper-shadow: none;"
   >
-    <div
-      aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
-      role="button"
-      tabindex="0"
+    <h3
+      class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
+        aria-expanded="true"
+        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+        role="button"
+        tabindex="0"
       >
         <div
-          class="MuiTabs-root css-1we33na-MuiTabs-root"
+          class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
         >
           <div
-            class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
-            style="overflow: hidden; margin-bottom: 0px;"
+            class="MuiTabs-root css-mvi6nx-MuiTabs-root"
           >
             <div
-              class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
-              role="tablist"
+              class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
+              style="overflow: hidden; margin-bottom: 0px;"
             >
-              <button
-                aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
-                role="tab"
-                tabindex="0"
-                type="button"
+              <div
+                class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+                role="tablist"
               >
-                Tapahtuman tilanne
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
-              <button
-                aria-selected="false"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
-                role="tab"
-                tabindex="-1"
-                type="button"
-              >
-                Tehtävälista
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
+                <button
+                  aria-selected="true"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19wsa2m-MuiButtonBase-root-MuiTab-root"
+                  role="tab"
+                  tabindex="0"
+                  type="button"
+                >
+                  Tapahtuman tilanne
+                </button>
+                <button
+                  aria-selected="false"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19wsa2m-MuiButtonBase-root-MuiTab-root"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  Tehtävälista
+                </button>
+              </div>
+              <span
+                class="MuiTabs-indicator css-1sj2jcg-MuiTabs-indicator"
+                style="left: 0px; width: 0px;"
+              />
             </div>
-            <span
-              class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
-              style="left: 0px; width: 0px;"
-            />
           </div>
         </div>
-      </div>
-      <div
-        class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-          data-testid="ExpandMoreIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
+        <div
+          class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
         >
-          <path
-            d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
-          />
-        </svg>
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </div>
       </div>
-    </div>
+    </h3>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
       style="min-height: 0px;"
     >
       <div
@@ -91,7 +90,8 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
               class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
+                style="--Paper-shadow: none;"
               >
                 <table
                   class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -103,11 +103,11 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                         colspan="3"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                         >
                           Osallistujat
                         </span>
@@ -117,19 +117,19 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           ALO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           0
                            / 
@@ -137,10 +137,10 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
@@ -154,19 +154,19 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           AVO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           0
                            / 
@@ -174,10 +174,10 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
@@ -191,11 +191,11 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                         colspan="3"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                         >
                           Varasijalla
                         </span>
@@ -205,35 +205,32 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           ALO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           2
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           LÄHETÄ VARASIJAILMOITUS
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
                         </button>
                       </td>
                     </tr>
@@ -241,35 +238,32 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           AVO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           2
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           LÄHETÄ VARASIJAILMOITUS
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
                         </button>
                       </td>
                     </tr>
@@ -277,8 +271,9 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                 </table>
               </div>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
                 hidden=""
+                style="--Paper-shadow: none;"
               >
                 <table
                   class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -290,7 +285,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
                     >
                       <th
-                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1t7lzbz-MuiTableCell-root"
                         colspan="3"
                         scope="col"
                       >
@@ -305,25 +300,25 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           Koekutsu
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption css-hdlvkj-MuiTypography-root"
                         >
                           Ei liitettyä tiedostoa
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                       >
                         <input
                           accept="application/pdf"
@@ -335,14 +330,11 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                           for="koekutsu-file"
                         >
                           <span
-                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                             role="button"
                             tabindex="0"
                           >
                             LIITÄ KOEKUTSU
-                            <span
-                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                            />
                           </span>
                         </label>
                       </td>
@@ -362,78 +354,77 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 exports[`InfoPanel> renders with event with closed entry and registrations with groups 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-1afbal1-MuiPaper-root-MuiAccordion-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-97wm99-MuiPaper-root-MuiAccordion-root"
+    style="--Paper-shadow: none;"
   >
-    <div
-      aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
-      role="button"
-      tabindex="0"
+    <h3
+      class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
+        aria-expanded="true"
+        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+        role="button"
+        tabindex="0"
       >
         <div
-          class="MuiTabs-root css-1we33na-MuiTabs-root"
+          class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
         >
           <div
-            class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
-            style="overflow: hidden; margin-bottom: 0px;"
+            class="MuiTabs-root css-mvi6nx-MuiTabs-root"
           >
             <div
-              class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
-              role="tablist"
+              class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
+              style="overflow: hidden; margin-bottom: 0px;"
             >
-              <button
-                aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
-                role="tab"
-                tabindex="0"
-                type="button"
+              <div
+                class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+                role="tablist"
               >
-                Tapahtuman tilanne
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
-              <button
-                aria-selected="false"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
-                role="tab"
-                tabindex="-1"
-                type="button"
-              >
-                Tehtävälista
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
+                <button
+                  aria-selected="true"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19wsa2m-MuiButtonBase-root-MuiTab-root"
+                  role="tab"
+                  tabindex="0"
+                  type="button"
+                >
+                  Tapahtuman tilanne
+                </button>
+                <button
+                  aria-selected="false"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19wsa2m-MuiButtonBase-root-MuiTab-root"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  Tehtävälista
+                </button>
+              </div>
+              <span
+                class="MuiTabs-indicator css-1sj2jcg-MuiTabs-indicator"
+                style="left: 0px; width: 0px;"
+              />
             </div>
-            <span
-              class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
-              style="left: 0px; width: 0px;"
-            />
           </div>
         </div>
-      </div>
-      <div
-        class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-          data-testid="ExpandMoreIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
+        <div
+          class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
         >
-          <path
-            d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
-          />
-        </svg>
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </div>
       </div>
-    </div>
+    </h3>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
       style="min-height: 0px;"
     >
       <div
@@ -450,7 +441,8 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
               class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
+                style="--Paper-shadow: none;"
               >
                 <table
                   class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -462,11 +454,11 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                         colspan="3"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                         >
                           Osallistujat
                         </span>
@@ -476,19 +468,19 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           ALO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           1
                            / 
@@ -496,18 +488,15 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           LÄHETÄ 
                           KOEPAIKKAILMOITUS
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
                         </button>
                       </td>
                     </tr>
@@ -515,19 +504,19 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           AVO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-b4hatb-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1r5wydt-MuiTypography-root"
                         >
                           2
                            / 
@@ -535,10 +524,10 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
@@ -552,11 +541,11 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                         colspan="3"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                         >
                           Varasijalla
                         </span>
@@ -566,35 +555,32 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           ALO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           1
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           tabindex="0"
                           type="button"
                         >
                           LÄHETÄ VARASIJAILMOITUS
-                          <span
-                            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                          />
                         </button>
                       </td>
                     </tr>
@@ -602,28 +588,28 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           AVO
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           0
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
@@ -636,8 +622,9 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                 </table>
               </div>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
                 hidden=""
+                style="--Paper-shadow: none;"
               >
                 <table
                   class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -649,7 +636,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
                     >
                       <th
-                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1t7lzbz-MuiTableCell-root"
                         colspan="3"
                         scope="col"
                       >
@@ -664,25 +651,25 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           Koekutsu
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption css-hdlvkj-MuiTypography-root"
                         >
                           Ei liitettyä tiedostoa
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                       >
                         <input
                           accept="application/pdf"
@@ -694,14 +681,11 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                           for="koekutsu-file"
                         >
                           <span
-                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                             role="button"
                             tabindex="0"
                           >
                             LIITÄ KOEKUTSU
-                            <span
-                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                            />
                           </span>
                         </label>
                       </td>
@@ -721,78 +705,77 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 exports[`InfoPanel> renders with no registrations 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-1afbal1-MuiPaper-root-MuiAccordion-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-97wm99-MuiPaper-root-MuiAccordion-root"
+    style="--Paper-shadow: none;"
   >
-    <div
-      aria-expanded="true"
-      class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
-      role="button"
-      tabindex="0"
+    <h3
+      class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
     >
       <div
-        class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
+        aria-expanded="true"
+        class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+        role="button"
+        tabindex="0"
       >
         <div
-          class="MuiTabs-root css-1we33na-MuiTabs-root"
+          class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
         >
           <div
-            class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
-            style="overflow: hidden; margin-bottom: 0px;"
+            class="MuiTabs-root css-mvi6nx-MuiTabs-root"
           >
             <div
-              class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
-              role="tablist"
+              class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
+              style="overflow: hidden; margin-bottom: 0px;"
             >
-              <button
-                aria-selected="true"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
-                role="tab"
-                tabindex="0"
-                type="button"
+              <div
+                class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+                role="tablist"
               >
-                Tapahtuman tilanne
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
-              <button
-                aria-selected="false"
-                class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1h9z7r5-MuiButtonBase-root-MuiTab-root"
-                role="tab"
-                tabindex="-1"
-                type="button"
-              >
-                Tehtävälista
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
-              </button>
+                <button
+                  aria-selected="true"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19wsa2m-MuiButtonBase-root-MuiTab-root"
+                  role="tab"
+                  tabindex="0"
+                  type="button"
+                >
+                  Tapahtuman tilanne
+                </button>
+                <button
+                  aria-selected="false"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19wsa2m-MuiButtonBase-root-MuiTab-root"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  Tehtävälista
+                </button>
+              </div>
+              <span
+                class="MuiTabs-indicator css-1sj2jcg-MuiTabs-indicator"
+                style="left: 0px; width: 0px;"
+              />
             </div>
-            <span
-              class="MuiTabs-indicator css-1aquho2-MuiTabs-indicator"
-              style="left: 0px; width: 0px;"
-            />
           </div>
         </div>
-      </div>
-      <div
-        class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-          data-testid="ExpandMoreIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
+        <div
+          class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
         >
-          <path
-            d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
-          />
-        </svg>
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+            data-testid="ExpandMoreIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+            />
+          </svg>
+        </div>
       </div>
-    </div>
+    </h3>
     <div
-      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+      class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
       style="min-height: 0px;"
     >
       <div
@@ -809,7 +792,8 @@ exports[`InfoPanel> renders with no registrations 1`] = `
               class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
+                style="--Paper-shadow: none;"
               >
                 <table
                   class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -821,11 +805,11 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                         colspan="3"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                         >
                           Osallistujat
                         </span>
@@ -835,19 +819,19 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           NOU
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           0
                            / 
@@ -855,10 +839,10 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
@@ -872,11 +856,11 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                         colspan="3"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                         >
                           Varasijalla
                         </span>
@@ -886,28 +870,28 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           NOU
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                         >
                           0
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
@@ -920,8 +904,9 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                 </table>
               </div>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
                 hidden=""
+                style="--Paper-shadow: none;"
               >
                 <table
                   class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -933,7 +918,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       class="MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"
                     >
                       <th
-                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1t7lzbz-MuiTableCell-root"
                         colspan="3"
                         scope="col"
                       >
@@ -948,25 +933,25 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       class="MuiTableRow-root css-1q1u3t4-MuiTableRow-root"
                     >
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                         >
                           Koekutsu
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                       >
                         <span
-                          class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-caption css-hdlvkj-MuiTypography-root"
                         >
                           Ei liitettyä tiedostoa
                         </span>
                       </td>
                       <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                       >
                         <input
                           accept="application/pdf"
@@ -978,14 +963,11 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                           for="koekutsu-file"
                         >
                           <span
-                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-10zzhxi-MuiButtonBase-root-MuiButton-root"
+                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-s83uo0-MuiButtonBase-root-MuiButton-root"
                             role="button"
                             tabindex="0"
                           >
                             LIITÄ KOEKUTSU
-                            <span
-                              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                            />
                           </span>
                         </label>
                       </td>

@@ -6,14 +6,14 @@ exports[`AdditionalInfoSection should render 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-2rshpx-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-19u30f2-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
     >
       <svg
         aria-hidden="true"
-        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
         data-testid="KeyboardArrowDownIcon"
         focusable="false"
         viewBox="0 0 24 24"
@@ -30,7 +30,7 @@ exports[`AdditionalInfoSection should render 1`] = `
         class="MuiBox-root css-1jw9kr7"
       >
         <p
-          class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
         >
           event.description
         </p>
@@ -39,7 +39,7 @@ exports[`AdditionalInfoSection should render 1`] = `
         />
       </div>
       <div
-        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+        class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
         style="min-height: 0px;"
       >
         <div
@@ -52,14 +52,14 @@ exports[`AdditionalInfoSection should render 1`] = `
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
               >
                 <div
-                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-8ewcdo-MuiInputBase-root-MuiOutlinedInput-root"
+                  class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-zfx7vw-MuiInputBase-root-MuiOutlinedInput-root"
                 >
                   <textarea
                     aria-invalid="false"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
                     id=":r0:"
                     rows="5"
                     style="height: 0px; overflow: hidden;"
@@ -68,7 +68,7 @@ exports[`AdditionalInfoSection should render 1`] = `
                   </textarea>
                   <textarea
                     aria-hidden="true"
-                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
+                    class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
                     readonly=""
                     style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                     tabindex="-1"
@@ -78,7 +78,7 @@ exports[`AdditionalInfoSection should render 1`] = `
                     class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                   >
                     <legend
-                      class="css-ihdtdm"
+                      class="css-gpjuor"
                     >
                       <span
                         class="notranslate"

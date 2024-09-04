@@ -6,10 +6,10 @@ exports[`EventClasses should render with classes 1`] = `
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
   >
     <div
-      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <input
           aria-autocomplete="list"
@@ -17,7 +17,7 @@ exports[`EventClasses should render with classes 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -29,14 +29,14 @@ exports[`EventClasses should render with classes 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             tabindex="-1"
             title="Open"
             type="button"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="ArrowDropDownIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -45,9 +45,6 @@ exports[`EventClasses should render with classes 1`] = `
                 d="M7 10l5 5 5-5z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </button>
         </div>
         <fieldset
@@ -55,7 +52,7 @@ exports[`EventClasses should render with classes 1`] = `
           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-ihdtdm"
+            class="css-gpjuor"
           >
             <span
               class="notranslate"
@@ -76,18 +73,18 @@ exports[`EventClasses should render with classes and value 1`] = `
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
   >
     <div
-      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1gywuxd-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bql6zh-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             ALO
           </span>
@@ -98,7 +95,7 @@ exports[`EventClasses should render with classes and value 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-chauvy-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -110,14 +107,14 @@ exports[`EventClasses should render with classes and value 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             tabindex="-1"
             title="Open"
             type="button"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="ArrowDropDownIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -126,9 +123,6 @@ exports[`EventClasses should render with classes and value 1`] = `
                 d="M7 10l5 5 5-5z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </button>
         </div>
         <fieldset
@@ -136,7 +130,7 @@ exports[`EventClasses should render with classes and value 1`] = `
           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-ihdtdm"
+            class="css-gpjuor"
           >
             <span
               class="notranslate"
@@ -157,29 +151,29 @@ exports[`EventClasses should render with classes and values 1`] = `
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
   >
     <div
-      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1gywuxd-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bql6zh-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             ALO
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="1"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             AVO x2
           </span>
@@ -190,7 +184,7 @@ exports[`EventClasses should render with classes and values 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-chauvy-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -202,14 +196,14 @@ exports[`EventClasses should render with classes and values 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             tabindex="-1"
             title="Open"
             type="button"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="ArrowDropDownIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -218,9 +212,6 @@ exports[`EventClasses should render with classes and values 1`] = `
                 d="M7 10l5 5 5-5z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </button>
         </div>
         <fieldset
@@ -228,7 +219,7 @@ exports[`EventClasses should render with classes and values 1`] = `
           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-ihdtdm"
+            class="css-gpjuor"
           >
             <span
               class="notranslate"
@@ -250,13 +241,13 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
   >
     <div
-      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1gywuxd-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bql6zh-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
@@ -266,13 +257,13 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
             eeeeee
           </div>
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             ALO
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="1"
           tabindex="-1"
         >
@@ -282,7 +273,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
             eeeeee
           </div>
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             AVO x2
           </span>
@@ -295,7 +286,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-chauvy-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -307,14 +298,14 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
         >
           <button
             aria-label="Close"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-z0g2be-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-1u79w6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             tabindex="-1"
             title="Close"
             type="button"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="ArrowDropDownIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -323,9 +314,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                 d="M7 10l5 5 5-5z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </button>
         </div>
         <fieldset
@@ -333,7 +321,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-ihdtdm"
+            class="css-gpjuor"
           >
             <span
               class="notranslate"
@@ -354,7 +342,8 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
     style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; transform: translate(0px, 0px);"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-9e5uuu-MuiPaper-root-MuiAutocomplete-paper"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1hkihtm-MuiPaper-root-MuiAutocomplete-paper"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
       <ul
         aria-labelledby="-label"
@@ -364,7 +353,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
       >
         <li>
           <div
-            class="MuiListSubheader-root MuiListSubheader-gutters MuiListSubheader-sticky MuiAutocomplete-groupLabel css-esv6et-MuiListSubheader-root-MuiAutocomplete-groupLabel"
+            class="MuiListSubheader-root MuiListSubheader-gutters MuiListSubheader-sticky MuiAutocomplete-groupLabel css-1dexbwf-MuiListSubheader-root-MuiAutocomplete-groupLabel"
           >
             eeeeee d.M.
           </div>
@@ -381,7 +370,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
               tabindex="-1"
             >
               <span
-                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1y5vrnu-MuiButtonBase-root-MuiCheckbox-root"
                 style="margin-right: 8px;"
               >
                 <input
@@ -392,7 +381,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
                   data-testid="CheckBoxIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -401,9 +390,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                     d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
                   />
                 </svg>
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
               </span>
               ALO
             </li>
@@ -417,7 +403,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
               tabindex="-1"
             >
               <span
-                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1y5vrnu-MuiButtonBase-root-MuiCheckbox-root"
                 style="margin-right: 8px;"
               >
                 <input
@@ -428,7 +414,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
                   data-testid="CheckBoxIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -437,9 +423,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                     d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
                   />
                 </svg>
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
               </span>
               AVO
             </li>
@@ -453,7 +436,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
               tabindex="-1"
             >
               <span
-                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1y5vrnu-MuiButtonBase-root-MuiCheckbox-root"
                 style="margin-right: 8px;"
               >
                 <input
@@ -463,7 +446,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
                   data-testid="CheckBoxOutlineBlankIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -472,9 +455,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
                     d="M19 5v14H5V5zm0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2"
                   />
                 </svg>
-                <span
-                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                />
               </span>
               AVO
             </li>
@@ -493,29 +473,29 @@ exports[`EventClasses should render with classes and values, open 1`] = `
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
   >
     <div
-      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1gywuxd-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bql6zh-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             ALO
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-n4kcu0-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-6q2zk3-MuiChip-root"
           data-tag-index="1"
           tabindex="-1"
         >
           <span
-            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
           >
             AVO x2
           </span>
@@ -528,7 +508,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-152mnda-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-chauvy-MuiInputBase-input-MuiOutlinedInput-input"
           id=""
           role="combobox"
           spellcheck="false"
@@ -540,14 +520,14 @@ exports[`EventClasses should render with classes and values, open 1`] = `
         >
           <button
             aria-label="Close"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-z0g2be-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-1u79w6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             tabindex="-1"
             title="Close"
             type="button"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="ArrowDropDownIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -556,9 +536,6 @@ exports[`EventClasses should render with classes and values, open 1`] = `
                 d="M7 10l5 5 5-5z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </button>
         </div>
         <fieldset
@@ -566,7 +543,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-ihdtdm"
+            class="css-gpjuor"
           >
             <span
               class="notranslate"
@@ -587,7 +564,8 @@ exports[`EventClasses should render with classes and values, open 1`] = `
     style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; transform: translate(0px, 0px);"
   >
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-9e5uuu-MuiPaper-root-MuiAutocomplete-paper"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1hkihtm-MuiPaper-root-MuiAutocomplete-paper"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
       <ul
         aria-labelledby="-label"
@@ -605,7 +583,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           tabindex="-1"
         >
           <span
-            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1y5vrnu-MuiButtonBase-root-MuiCheckbox-root"
             style="margin-right: 8px;"
           >
             <input
@@ -616,7 +594,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
             />
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
               data-testid="CheckBoxIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -625,9 +603,6 @@ exports[`EventClasses should render with classes and values, open 1`] = `
                 d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </span>
           ALO
         </li>
@@ -641,7 +616,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           tabindex="-1"
         >
           <span
-            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-12wnr2w-MuiButtonBase-root-MuiCheckbox-root"
+            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1y5vrnu-MuiButtonBase-root-MuiCheckbox-root"
             style="margin-right: 8px;"
           >
             <input
@@ -652,7 +627,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
             />
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
               data-testid="CheckBoxIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -661,9 +636,6 @@ exports[`EventClasses should render with classes and values, open 1`] = `
                 d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-9 14-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
               />
             </svg>
-            <span
-              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-            />
           </span>
           AVO
         </li>
@@ -679,10 +651,10 @@ exports[`EventClasses should render with minimal properties 1`] = `
     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
   >
     <div
-      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+      class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
     >
       <div
-        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-154xyx0-MuiInputBase-root-MuiOutlinedInput-root"
+        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wgn40h-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <input
           aria-autocomplete="list"
@@ -690,7 +662,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
           aria-invalid="false"
           autocapitalize="none"
           autocomplete="off"
-          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
           disabled=""
           id=""
           role="combobox"
@@ -703,7 +675,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             disabled=""
             tabindex="-1"
             title="Open"
@@ -711,7 +683,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="ArrowDropDownIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -727,7 +699,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-ihdtdm"
+            class="css-gpjuor"
           >
             <span
               class="notranslate"

@@ -15,7 +15,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
         >
           <h5
-            class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h5 css-iyqn9l-MuiTypography-root"
           >
             NOME-B
             , 
@@ -33,78 +33,77 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-i34fag-MuiPaper-root-MuiAccordion-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-l06xkd-MuiPaper-root-MuiAccordion-root"
+            style="--Paper-shadow: none;"
           >
-            <div
-              aria-expanded="true"
-              class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
-              role="button"
-              tabindex="0"
+            <h3
+              class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
             >
               <div
-                class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
+                aria-expanded="true"
+                class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+                role="button"
+                tabindex="0"
               >
                 <div
-                  class="MuiTabs-root css-1we33na-MuiTabs-root"
+                  class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
                 >
                   <div
-                    class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
-                    style="overflow: hidden; margin-bottom: 0px;"
+                    class="MuiTabs-root css-mvi6nx-MuiTabs-root"
                   >
                     <div
-                      class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
-                      role="tablist"
+                      class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
+                      style="overflow: hidden; margin-bottom: 0px;"
                     >
-                      <button
-                        aria-selected="true"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19yv3lq-MuiButtonBase-root-MuiTab-root"
-                        role="tab"
-                        tabindex="0"
-                        type="button"
+                      <div
+                        class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+                        role="tablist"
                       >
-                        Tapahtuman tilanne
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                      <button
-                        aria-selected="false"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19yv3lq-MuiButtonBase-root-MuiTab-root"
-                        role="tab"
-                        tabindex="-1"
-                        type="button"
-                      >
-                        Tehtävälista
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
+                        <button
+                          aria-selected="true"
+                          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-arg65s-MuiButtonBase-root-MuiTab-root"
+                          role="tab"
+                          tabindex="0"
+                          type="button"
+                        >
+                          Tapahtuman tilanne
+                        </button>
+                        <button
+                          aria-selected="false"
+                          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-arg65s-MuiButtonBase-root-MuiTab-root"
+                          role="tab"
+                          tabindex="-1"
+                          type="button"
+                        >
+                          Tehtävälista
+                        </button>
+                      </div>
+                      <span
+                        class="MuiTabs-indicator css-19ir8zf-MuiTabs-indicator"
+                        style="left: 0px; width: 0px;"
+                      />
                     </div>
-                    <span
-                      class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
-                      style="left: 0px; width: 0px;"
-                    />
                   </div>
                 </div>
-              </div>
-              <div
-                class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                  data-testid="ExpandMoreIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
+                <div
+                  class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
                 >
-                  <path
-                    d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
-                  />
-                </svg>
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                    data-testid="ExpandMoreIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                    />
+                  </svg>
+                </div>
               </div>
-            </div>
+            </h3>
             <div
-              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
               style="min-height: 0px;"
             >
               <div
@@ -121,7 +120,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
                     >
                       <div
-                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
+                        style="--Paper-shadow: none;"
                       >
                         <table
                           class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -133,11 +133,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                                 colspan="3"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                                 >
                                   Osallistujat
                                 </span>
@@ -147,19 +147,19 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                                 >
                                   ALO
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                                 >
                                   0
                                    / 
@@ -167,10 +167,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-52v901-MuiButtonBase-root-MuiButton-root"
                                   disabled=""
                                   tabindex="-1"
                                   type="button"
@@ -184,11 +184,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                                 colspan="3"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                                 >
                                   Varasijalla
                                 </span>
@@ -198,35 +198,32 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                                 >
                                   ALO
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                                 >
                                   1
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-52v901-MuiButtonBase-root-MuiButton-root"
                                   tabindex="0"
                                   type="button"
                                 >
                                   LÄHETÄ VARASIJAILMOITUS
-                                  <span
-                                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                  />
                                 </button>
                               </td>
                             </tr>
@@ -234,8 +231,9 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         </table>
                       </div>
                       <div
-                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
                         hidden=""
+                        style="--Paper-shadow: none;"
                       >
                         <table
                           class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -247,7 +245,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               class="MuiTableRow-root MuiTableRow-head css-1n6kcfq-MuiTableRow-root"
                             >
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1t7lzbz-MuiTableCell-root"
                                 colspan="3"
                                 scope="col"
                               >
@@ -262,25 +260,25 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                                 >
                                   Koekutsu
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption css-hdlvkj-MuiTypography-root"
                                 >
                                   Ei liitettyä tiedostoa
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                               >
                                 <input
                                   accept="application/pdf"
@@ -292,14 +290,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                   for="koekutsu-file"
                                 >
                                   <span
-                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
+                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-52v901-MuiButtonBase-root-MuiButton-root"
                                     role="button"
                                     tabindex="0"
                                   >
                                     LIITÄ KOEKUTSU
-                                    <span
-                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                    />
                                   </span>
                                 </label>
                               </td>
@@ -319,16 +314,16 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="FormatListBulletedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -339,21 +334,18 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </svg>
           </span>
           Näytä tapahtuman tiedot
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="EmailOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -364,25 +356,24 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </svg>
           </span>
           Lähetä viesti
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
-        <hr
-          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
+        <div
+          aria-orientation="vertical"
+          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-4d1wel-MuiDivider-root"
+          role="separator"
         />
         <a
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           href="/admin/event/startlist/test1-b"
           tabindex="0"
           target="_blank"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="FormatListNumberedOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -393,24 +384,23 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </svg>
           </span>
           Katso sihteerin starttilista
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </a>
-        <hr
-          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
+        <div
+          aria-orientation="vertical"
+          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-4d1wel-MuiDivider-root"
+          role="separator"
         />
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="AddCircleOutlineIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -421,22 +411,19 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </svg>
           </span>
           createRegistration
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="EditOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -456,10 +443,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiStack-root css-1jv2z0n-MuiStack-root"
         >
           <div
-            class="MuiTabs-root css-1ujnqem-MuiTabs-root"
+            class="MuiTabs-root css-113cboj-MuiTabs-root"
           >
             <div
-              class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+              class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
               style="overflow: hidden; margin-bottom: 0px;"
             >
               <div
@@ -468,39 +455,33 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <button
                   aria-selected="true"
-                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-3qq8tn-MuiButtonBase-root-MuiTab-root"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-ppm95q-MuiButtonBase-root-MuiTab-root"
                   id="tab-ALO"
                   role="tab"
                   tabindex="0"
                   type="button"
                 >
                   ALO
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
                 <button
                   aria-selected="false"
-                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-17bnk17-MuiButtonBase-root-MuiTab-root"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-12sxg8o-MuiButtonBase-root-MuiTab-root"
                   id="tab-AVO"
                   role="tab"
                   tabindex="-1"
                   type="button"
                 >
                   AVO
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
               <span
-                class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
+                class="MuiTabs-indicator css-19ir8zf-MuiTabs-indicator"
                 style="left: 0px; width: 0px;"
               />
             </div>
           </div>
           <span
-            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInfo css-t2edwa-MuiCircularProgress-root"
+            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInfo css-l3e66g-MuiCircularProgress-root"
             role="progressbar"
             style="width: 20px; height: 20px;"
           >
@@ -509,7 +490,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               viewBox="22 22 44 44"
             >
               <circle
-                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-1a8epmm-MuiCircularProgress-circle"
                 cx="44"
                 cy="44"
                 fill="none"
@@ -528,7 +509,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           style="width: 100%; min-height: 400px; display: block;"
         >
           <h6
-            class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
           >
             Osallistujat 
             ALO
@@ -613,7 +594,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -662,7 +643,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -711,7 +692,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -760,7 +741,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -809,7 +790,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -858,7 +839,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -907,7 +888,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -954,7 +935,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1001,7 +982,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1148,7 +1129,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1197,7 +1178,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1246,7 +1227,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1295,7 +1276,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1344,7 +1325,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1393,7 +1374,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1442,7 +1423,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1489,7 +1470,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1536,7 +1517,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1689,7 +1670,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1738,7 +1719,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1787,7 +1768,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1836,7 +1817,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1885,7 +1866,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1934,7 +1915,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1983,7 +1964,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2030,7 +2011,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2077,7 +2058,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2230,7 +2211,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2279,7 +2260,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2328,7 +2309,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2377,7 +2358,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2426,7 +2407,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2475,7 +2456,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2524,7 +2505,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2571,7 +2552,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2618,7 +2599,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2771,7 +2752,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2820,7 +2801,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2869,7 +2850,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2918,7 +2899,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -2967,7 +2948,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3016,7 +2997,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3065,7 +3046,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3112,7 +3093,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3159,7 +3140,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3227,7 +3208,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             class="MuiStack-root css-1n921lv-MuiStack-root"
           >
             <h6
-              class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
             >
               Ilmoittautuneet
             </h6>
@@ -3236,7 +3217,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             >
               <span
                 aria-disabled="true"
-                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                 tabindex="-1"
               >
                 <input
@@ -3247,7 +3228,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                   data-testid="CheckBoxOutlineBlankIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -3339,7 +3320,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3388,7 +3369,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3437,7 +3418,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3486,7 +3467,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3535,7 +3516,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3584,7 +3565,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3633,7 +3614,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3680,7 +3661,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3727,7 +3708,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3792,7 +3773,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </div>
           </div>
           <h6
-            class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
           >
             Peruneet
           </h6>
@@ -3875,7 +3856,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3924,7 +3905,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -3973,7 +3954,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4022,7 +4003,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4071,7 +4052,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4120,7 +4101,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4169,7 +4150,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4215,7 +4196,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                               >
                                 <button
                                   aria-label="Sort"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
                                   field="cancelReason"
                                   tabindex="-1"
                                   title="Sort"
@@ -4223,7 +4204,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 >
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
                                     data-testid="ArrowUpwardIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -4232,9 +4213,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                       d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
                                     />
                                   </svg>
-                                  <span
-                                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                  />
                                 </button>
                               </div>
                             </div>
@@ -4245,7 +4223,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4292,7 +4270,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4339,7 +4317,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -4429,7 +4407,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-17utxkx-MuiGrid-root"
         >
           <h5
-            class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h5 css-iyqn9l-MuiTypography-root"
           >
             NOU
             , 
@@ -4447,78 +4425,77 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto css-kcsfla-MuiGrid-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-i34fag-MuiPaper-root-MuiAccordion-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root Mui-expanded css-l06xkd-MuiPaper-root-MuiAccordion-root"
+            style="--Paper-shadow: none;"
           >
-            <div
-              aria-expanded="true"
-              class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
-              role="button"
-              tabindex="0"
+            <h3
+              class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
             >
               <div
-                class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
+                aria-expanded="true"
+                class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-ag2ckr-MuiButtonBase-root-MuiAccordionSummary-root"
+                role="button"
+                tabindex="0"
               >
                 <div
-                  class="MuiTabs-root css-1we33na-MuiTabs-root"
+                  class="MuiAccordionSummary-content Mui-expanded css-1betqn-MuiAccordionSummary-content"
                 >
                   <div
-                    class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
-                    style="overflow: hidden; margin-bottom: 0px;"
+                    class="MuiTabs-root css-mvi6nx-MuiTabs-root"
                   >
                     <div
-                      class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
-                      role="tablist"
+                      class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
+                      style="overflow: hidden; margin-bottom: 0px;"
                     >
-                      <button
-                        aria-selected="true"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-19yv3lq-MuiButtonBase-root-MuiTab-root"
-                        role="tab"
-                        tabindex="0"
-                        type="button"
+                      <div
+                        class="MuiTabs-flexContainer css-heg063-MuiTabs-flexContainer"
+                        role="tablist"
                       >
-                        Tapahtuman tilanne
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                      <button
-                        aria-selected="false"
-                        class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-19yv3lq-MuiButtonBase-root-MuiTab-root"
-                        role="tab"
-                        tabindex="-1"
-                        type="button"
-                      >
-                        Tehtävälista
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
+                        <button
+                          aria-selected="true"
+                          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-arg65s-MuiButtonBase-root-MuiTab-root"
+                          role="tab"
+                          tabindex="0"
+                          type="button"
+                        >
+                          Tapahtuman tilanne
+                        </button>
+                        <button
+                          aria-selected="false"
+                          class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-arg65s-MuiButtonBase-root-MuiTab-root"
+                          role="tab"
+                          tabindex="-1"
+                          type="button"
+                        >
+                          Tehtävälista
+                        </button>
+                      </div>
+                      <span
+                        class="MuiTabs-indicator css-19ir8zf-MuiTabs-indicator"
+                        style="left: 0px; width: 0px;"
+                      />
                     </div>
-                    <span
-                      class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
-                      style="left: 0px; width: 0px;"
-                    />
                   </div>
                 </div>
-              </div>
-              <div
-                class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
-              >
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
-                  data-testid="ExpandMoreIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
+                <div
+                  class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-yw020d-MuiAccordionSummary-expandIconWrapper"
                 >
-                  <path
-                    d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
-                  />
-                </svg>
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                    data-testid="ExpandMoreIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                    />
+                  </svg>
+                </div>
               </div>
-            </div>
+            </h3>
             <div
-              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+              class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
               style="min-height: 0px;"
             >
               <div
@@ -4535,7 +4512,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       class="MuiAccordionDetails-root css-nw01sv-MuiAccordionDetails-root"
                     >
                       <div
-                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
+                        style="--Paper-shadow: none;"
                       >
                         <table
                           class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -4547,11 +4525,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                                 colspan="3"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                                 >
                                   Osallistujat
                                 </span>
@@ -4561,19 +4539,19 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                                 >
                                   NOU
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                                 >
                                   0
                                    / 
@@ -4581,10 +4559,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-52v901-MuiButtonBase-root-MuiButton-root"
                                   disabled=""
                                   tabindex="-1"
                                   type="button"
@@ -4598,11 +4576,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                                 colspan="3"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-g98qyn-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1qvezp6-MuiTypography-root"
                                 >
                                   Varasijalla
                                 </span>
@@ -4612,35 +4590,32 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                                 >
                                   NOU
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-bcc4ko-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1vwg8q8-MuiTypography-root"
                                 >
                                   1
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-177gid-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-1tti7u1-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-52v901-MuiButtonBase-root-MuiButton-root"
                                   tabindex="0"
                                   type="button"
                                 >
                                   LÄHETÄ VARASIJAILMOITUS
-                                  <span
-                                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                  />
                                 </button>
                               </td>
                             </tr>
@@ -4648,8 +4623,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </table>
                       </div>
                       <div
-                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-zdf2ig-MuiPaper-root-MuiTableContainer-root"
+                        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-v73c9r-MuiPaper-root-MuiTableContainer-root"
                         hidden=""
+                        style="--Paper-shadow: none;"
                       >
                         <table
                           class="MuiTable-root css-rqglhn-MuiTable-root"
@@ -4661,7 +4637,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               class="MuiTableRow-root MuiTableRow-head css-1n6kcfq-MuiTableRow-root"
                             >
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1t7lzbz-MuiTableCell-root"
                                 colspan="3"
                                 scope="col"
                               >
@@ -4676,25 +4652,25 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                             >
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-174q18p-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-53bho8-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1y3uv1t-MuiTypography-root"
                                 >
                                   Koekutsu
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-caption css-182re6f-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-caption css-hdlvkj-MuiTypography-root"
                                 >
                                   Ei liitettyä tiedostoa
                                 </span>
                               </td>
                               <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-10ukr6t-MuiTableCell-root"
                               >
                                 <input
                                   accept="application/pdf"
@@ -4706,14 +4682,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   for="koekutsu-file"
                                 >
                                   <span
-                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1vnuxvz-MuiButtonBase-root-MuiButton-root"
+                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-52v901-MuiButtonBase-root-MuiButton-root"
                                     role="button"
                                     tabindex="0"
                                   >
                                     LIITÄ KOEKUTSU
-                                    <span
-                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                    />
                                   </span>
                                 </label>
                               </td>
@@ -4733,16 +4706,16 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="FormatListBulletedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -4753,21 +4726,18 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </svg>
           </span>
           Näytä tapahtuman tiedot
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="EmailOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -4778,25 +4748,24 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </svg>
           </span>
           Lähetä viesti
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
-        <hr
-          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
+        <div
+          aria-orientation="vertical"
+          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-4d1wel-MuiDivider-root"
+          role="separator"
         />
         <a
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           href="/admin/event/startlist/test1"
           tabindex="0"
           target="_blank"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="FormatListNumberedOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -4807,24 +4776,23 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </svg>
           </span>
           Katso sihteerin starttilista
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </a>
-        <hr
-          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-ftc7wc-MuiDivider-root"
+        <div
+          aria-orientation="vertical"
+          class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-4d1wel-MuiDivider-root"
+          role="separator"
         />
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="AddCircleOutlineIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -4835,22 +4803,19 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </svg>
           </span>
           createRegistration
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
               data-testid="EditOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -4870,10 +4835,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiStack-root css-1jv2z0n-MuiStack-root"
         >
           <div
-            class="MuiTabs-root css-1ujnqem-MuiTabs-root"
+            class="MuiTabs-root css-113cboj-MuiTabs-root"
           >
             <div
-              class="MuiTabs-scroller MuiTabs-fixed css-jpln7h-MuiTabs-scroller"
+              class="MuiTabs-scroller MuiTabs-fixed css-1yalo2m-MuiTabs-scroller"
               style="overflow: hidden; margin-bottom: 0px;"
             >
               <div
@@ -4882,26 +4847,23 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <button
                   aria-selected="true"
-                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-3qq8tn-MuiButtonBase-root-MuiTab-root"
+                  class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary Mui-selected css-ppm95q-MuiButtonBase-root-MuiTab-root"
                   id="tab-NOU"
                   role="tab"
                   tabindex="0"
                   type="button"
                 >
                   NOU
-                  <span
-                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                  />
                 </button>
               </div>
               <span
-                class="MuiTabs-indicator css-snoo6i-MuiTabs-indicator"
+                class="MuiTabs-indicator css-19ir8zf-MuiTabs-indicator"
                 style="left: 0px; width: 0px;"
               />
             </div>
           </div>
           <span
-            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInfo css-t2edwa-MuiCircularProgress-root"
+            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorInfo css-l3e66g-MuiCircularProgress-root"
             role="progressbar"
             style="width: 20px; height: 20px;"
           >
@@ -4910,7 +4872,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               viewBox="22 22 44 44"
             >
               <circle
-                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-1a8epmm-MuiCircularProgress-circle"
                 cx="44"
                 cy="44"
                 fill="none"
@@ -4929,7 +4891,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           style="width: 100%; min-height: 400px; display: block;"
         >
           <h6
-            class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
           >
             Osallistujat 
             NOU
@@ -5014,7 +4976,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5063,7 +5025,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5112,7 +5074,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5161,7 +5123,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5210,7 +5172,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5259,7 +5221,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5308,7 +5270,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5355,7 +5317,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5402,7 +5364,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5549,7 +5511,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5598,7 +5560,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5647,7 +5609,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5696,7 +5658,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5745,7 +5707,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5794,7 +5756,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5843,7 +5805,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5890,7 +5852,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -5937,7 +5899,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6090,7 +6052,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6139,7 +6101,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6188,7 +6150,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6237,7 +6199,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6286,7 +6248,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6335,7 +6297,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6384,7 +6346,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6431,7 +6393,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6478,7 +6440,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6631,7 +6593,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6680,7 +6642,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6729,7 +6691,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6778,7 +6740,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6827,7 +6789,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6876,7 +6838,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6925,7 +6887,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -6972,7 +6934,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7019,7 +6981,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7172,7 +7134,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7221,7 +7183,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7270,7 +7232,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7319,7 +7281,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7368,7 +7330,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7417,7 +7379,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7466,7 +7428,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7513,7 +7475,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7560,7 +7522,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7628,7 +7590,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             class="MuiStack-root css-1n921lv-MuiStack-root"
           >
             <h6
-              class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
             >
               Ilmoittautuneet
             </h6>
@@ -7637,7 +7599,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             >
               <span
                 aria-disabled="true"
-                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                 tabindex="-1"
               >
                 <input
@@ -7648,7 +7610,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                   data-testid="CheckBoxOutlineBlankIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -7740,7 +7702,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7789,7 +7751,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7838,7 +7800,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7887,7 +7849,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7936,7 +7898,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -7985,7 +7947,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8034,7 +7996,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8081,7 +8043,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8128,7 +8090,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8192,7 +8154,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                               data-testid="DragIndicatorOutlinedIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8310,7 +8272,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="StarBorderOutlinedIcon"
                                 focusable="false"
                                 opacity="0.1"
@@ -8322,7 +8284,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="PersonOutlineIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8333,7 +8295,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="EuroOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8344,7 +8306,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="CheckOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8355,7 +8317,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="MarkEmailReadOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8366,7 +8328,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="ErrorOutlineOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8377,7 +8339,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1dd31ne-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hblzot-MuiSvgIcon-root"
                                 data-testid="CommentOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8388,7 +8350,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="SpeakerNotesOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -8423,7 +8385,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 aria-expanded="false"
                                 aria-haspopup="menu"
                                 aria-label="more"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
                                 id=":r8l:"
                                 role="menuitem"
                                 tabindex="-1"
@@ -8431,7 +8393,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               >
                                 <svg
                                   aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
                                   data-testid="MoreVertIcon"
                                   focusable="false"
                                   viewBox="0 0 24 24"
@@ -8440,9 +8402,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                     d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
                                   />
                                 </svg>
-                                <span
-                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                />
                               </button>
                             </div>
                           </div>
@@ -8468,7 +8427,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </div>
           </div>
           <h6
-            class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
           >
             Peruneet
           </h6>
@@ -8551,7 +8510,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8600,7 +8559,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8649,7 +8608,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8698,7 +8657,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8747,7 +8706,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8796,7 +8755,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8845,7 +8804,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8891,7 +8850,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               >
                                 <button
                                   aria-label="Sort"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
                                   field="cancelReason"
                                   tabindex="-1"
                                   title="Sort"
@@ -8899,7 +8858,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 >
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-ptiqhd-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
                                     data-testid="ArrowUpwardIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -8908,9 +8867,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                       d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
                                     />
                                   </svg>
-                                  <span
-                                    class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                  />
                                 </button>
                               </div>
                             </div>
@@ -8921,7 +8877,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -8968,7 +8924,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -9015,7 +8971,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
                               data-testid="SeparatorIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -9079,7 +9035,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                               data-testid="DragIndicatorOutlinedIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -9207,7 +9163,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="StarBorderOutlinedIcon"
                                 focusable="false"
                                 opacity="0.1"
@@ -9219,7 +9175,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="PersonOutlineIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9230,7 +9186,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="EuroOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9241,7 +9197,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="CheckOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9252,7 +9208,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="MarkEmailReadOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9263,7 +9219,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="ErrorOutlineOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9274,7 +9230,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1dd31ne-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hblzot-MuiSvgIcon-root"
                                 data-testid="CommentOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9285,7 +9241,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               </svg>
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1zaak-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-a6ghhq-MuiSvgIcon-root"
                                 data-testid="SpeakerNotesOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -9320,7 +9276,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 aria-expanded="false"
                                 aria-haspopup="menu"
                                 aria-label="more"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
                                 id=":rab:"
                                 role="menuitem"
                                 tabindex="-1"
@@ -9328,7 +9284,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                               >
                                 <svg
                                   aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
                                   data-testid="MoreVertIcon"
                                   focusable="false"
                                   viewBox="0 0 24 24"
@@ -9337,9 +9293,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                     d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
                                   />
                                 </svg>
-                                <span
-                                  class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                />
                               </button>
                             </div>
                           </div>

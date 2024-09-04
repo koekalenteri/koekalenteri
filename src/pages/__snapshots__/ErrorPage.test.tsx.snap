@@ -6,12 +6,12 @@ exports[`ErrorPage should render 404 1`] = `
     class="MuiBox-root css-19703gc"
   >
     <h1
-      class="MuiTypography-root MuiTypography-h1 css-2c7tpz-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h1 css-1apjryh-MuiTypography-root"
     >
       404
     </h1>
     <p
-      class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
     >
       Not Found
     </p>
@@ -36,7 +36,7 @@ exports[`ErrorPage should render 500 1`] = `
     class="MuiBox-root css-19703gc"
   >
     <h1
-      class="MuiTypography-root MuiTypography-h1 css-2c7tpz-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h1 css-1apjryh-MuiTypography-root"
     >
       Oops
     </h1>

@@ -7,11 +7,11 @@ exports[`PlacesInput should render with positive number 1`] = `
     inputmode="numeric"
   >
     <div
-      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-j882ge-MuiInputBase-root-MuiOutlinedInput-root"
     >
       <input
         aria-invalid="false"
-        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1sh6wjw-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r1:"
         pattern="[0-9]{1,3}"
         style="text-align: right; padding: 4px;"
@@ -23,7 +23,7 @@ exports[`PlacesInput should render with positive number 1`] = `
         class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
       >
         <legend
-          class="css-ihdtdm"
+          class="css-gpjuor"
         >
           <span
             class="notranslate"
@@ -44,11 +44,11 @@ exports[`PlacesInput should render with zero 1`] = `
     inputmode="numeric"
   >
     <div
-      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-j882ge-MuiInputBase-root-MuiOutlinedInput-root"
     >
       <input
         aria-invalid="false"
-        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1sh6wjw-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r0:"
         pattern="[0-9]{1,3}"
         style="text-align: right; padding: 4px;"
@@ -60,7 +60,7 @@ exports[`PlacesInput should render with zero 1`] = `
         class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
       >
         <legend
-          class="css-ihdtdm"
+          class="css-gpjuor"
         >
           <span
             class="notranslate"
@@ -81,11 +81,11 @@ exports[`PlacesInput should rerender with new value 1`] = `
     inputmode="numeric"
   >
     <div
-      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-9ddj71-MuiInputBase-root-MuiOutlinedInput-root"
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall css-j882ge-MuiInputBase-root-MuiOutlinedInput-root"
     >
       <input
         aria-invalid="false"
-        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1sh6wjw-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r2:"
         pattern="[0-9]{1,3}"
         style="text-align: right; padding: 4px;"
@@ -97,7 +97,7 @@ exports[`PlacesInput should rerender with new value 1`] = `
         class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
       >
         <legend
-          class="css-ihdtdm"
+          class="css-gpjuor"
         >
           <span
             class="notranslate"

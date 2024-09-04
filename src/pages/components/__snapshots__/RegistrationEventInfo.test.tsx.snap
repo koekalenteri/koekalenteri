@@ -3,20 +3,21 @@
 exports[`RegistrationEventInfo does not render empty contact info 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1exk97n-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1p4v111-MuiPaper-root"
+    style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
   >
     <div
       class="MuiBox-root css-i357mj"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <svg
           aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
           data-testid="KeyboardArrowDownIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -33,7 +34,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
           class="MuiBox-root css-1jw9kr7"
         >
           <p
-            class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
           >
             NOU dateFormat.datespan start, end test location (test)
           </p>
@@ -42,7 +43,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
           />
         </div>
         <div
-          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
           style="min-height: 0px;"
         >
           <div
@@ -64,7 +65,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         entryTime
                       </span>
@@ -73,7 +74,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         <b>
                           dateFormat.datespan start, end
@@ -85,7 +86,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.organizer
                       </span>
@@ -94,7 +95,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         Suomen Noutajakoirajärjestö ry
                       </div>
@@ -103,7 +104,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.judges
                       </span>
@@ -112,7 +113,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         Tuomari 1
                       </div>
@@ -125,7 +126,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.cost
                       </span>
@@ -134,7 +135,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         123 €event.costMember 123 €
                       </div>
@@ -143,7 +144,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.priority
                       </span>
@@ -152,13 +153,13 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         <div
-                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
+                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-lkqxhd-MuiChip-root"
                         >
                           <span
-                            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
                           >
                             priority.members
                           </span>
@@ -169,7 +170,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.description
                       </span>
@@ -178,7 +179,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         test
                       </div>
@@ -198,20 +199,21 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
 exports[`RegistrationEventInfo renders 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1exk97n-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1p4v111-MuiPaper-root"
+    style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
   >
     <div
       class="MuiBox-root css-i357mj"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <svg
           aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
           data-testid="KeyboardArrowDownIcon"
           focusable="false"
           viewBox="0 0 24 24"
@@ -228,7 +230,7 @@ exports[`RegistrationEventInfo renders 1`] = `
           class="MuiBox-root css-1jw9kr7"
         >
           <p
-            class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
           >
             NOU dateFormat.datespan start, end test location (test)
           </p>
@@ -237,7 +239,7 @@ exports[`RegistrationEventInfo renders 1`] = `
           />
         </div>
         <div
-          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
           style="min-height: 0px;"
         >
           <div
@@ -259,7 +261,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         entryTime
                       </span>
@@ -268,7 +270,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         <b>
                           dateFormat.datespan start, end
@@ -280,7 +282,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.organizer
                       </span>
@@ -289,7 +291,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         Suomen Noutajakoirajärjestö ry
                       </div>
@@ -298,7 +300,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.judges
                       </span>
@@ -307,7 +309,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         Tuomari 1
                       </div>
@@ -316,7 +318,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.official
                       </span>
@@ -325,7 +327,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         Teemu Toimitsija, 040-official, official@example.com
                       </div>
@@ -334,7 +336,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.secretary
                       </span>
@@ -343,7 +345,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         Siiri Sihteeri, 040-secretary, secretary@example.com
                       </div>
@@ -356,7 +358,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.cost
                       </span>
@@ -365,7 +367,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         123 €event.costMember 123 €
                       </div>
@@ -374,7 +376,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.priority
                       </span>
@@ -383,13 +385,13 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         <div
-                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1kzz4rd-MuiChip-root"
+                          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-lkqxhd-MuiChip-root"
                         >
                           <span
-                            class="MuiChip-label MuiChip-labelSmall css-wjsjww-MuiChip-label"
+                            class="MuiChip-label MuiChip-labelSmall css-3fh3fk-MuiChip-label"
                           >
                             priority.members
                           </span>
@@ -400,7 +402,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-37visp-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
                       >
                         event.description
                       </span>
@@ -409,7 +411,7 @@ exports[`RegistrationEventInfo renders 1`] = `
                       class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-8 css-eva6pi-MuiGrid-root"
                     >
                       <div
-                        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body2 css-1nmqws6-MuiTypography-root"
                       >
                         test
                       </div>

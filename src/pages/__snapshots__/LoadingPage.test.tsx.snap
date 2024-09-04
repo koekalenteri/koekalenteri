@@ -6,7 +6,7 @@ exports[`LoadingPage should render 1`] = `
     class="MuiBox-root css-qiz0h"
   >
     <span
-      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-18lrjg1-MuiCircularProgress-root"
+      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1yonwsg-MuiCircularProgress-root"
       role="progressbar"
       style="width: 40px; height: 40px;"
     >
@@ -15,7 +15,7 @@ exports[`LoadingPage should render 1`] = `
         viewBox="22 22 44 44"
       >
         <circle
-          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-1a8epmm-MuiCircularProgress-circle"
           cx="44"
           cy="44"
           fill="none"

@@ -3,7 +3,8 @@
 exports[`EventEditPage renders properly when creating a new event 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-q8ljt1-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-176asqw-MuiPaper-root"
+    style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
   >
     <div
       class="MuiBox-root css-hpgf8j"
@@ -13,10 +14,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         data-testid="event.state"
       >
         <div
-          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
         >
           <label
-            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-191hsvz-MuiFormLabel-root-MuiInputLabel-root"
             data-shrink="true"
             for=":r0:"
             id=":r0:-label"
@@ -24,7 +25,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             event.state
           </label>
           <div
-            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
           >
             <input
               aria-autocomplete="list"
@@ -32,7 +33,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               aria-invalid="false"
               autocapitalize="none"
               autocomplete="off"
-              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
               disabled=""
               id=":r0:"
               role="combobox"
@@ -45,7 +46,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             >
               <button
                 aria-label="Open"
-                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                 disabled=""
                 tabindex="-1"
                 title="Open"
@@ -53,7 +54,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                   data-testid="ArrowDropDownIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -69,7 +70,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
             >
               <legend
-                class="css-14lo706"
+                class="css-kg5swy"
               >
                 <span>
                   event.state
@@ -87,13 +88,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowDownIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -102,9 +103,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M7.41 8.59 12 13.17l4.59-4.58L18 10l-6 6-6-6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -113,7 +111,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               Tapahtuman perustiedot
             </p>
@@ -124,7 +122,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             </p>
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-pwcg7p-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-wz2cs5-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -155,7 +153,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-191hsvz-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r2:"
                                 id=":r2:-label"
@@ -170,13 +168,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-14i7zmx-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-13il6e2-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-describedby=":r2:-helper-text"
                                   aria-invalid="true"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id=":r2:"
                                   inputmode="text"
@@ -186,18 +184,18 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value="23.04.2021"
                                 />
                                 <div
-                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                                 >
                                   <button
                                     aria-label="Choose date, selected date is 23. huhti 2021"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
                                     tabindex="-1"
                                     type="button"
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="CalendarIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -213,7 +211,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-14lo706"
+                                    class="css-kg5swy"
                                   >
                                     <span>
                                       event.startDate
@@ -224,7 +222,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </fieldset>
                               </div>
                               <p
-                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1d4k99f-MuiFormHelperText-root"
                                 id=":r2:-helper-text"
                               >
                                 validation.event.startDate field, state, type
@@ -238,7 +236,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-191hsvz-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r4:"
                                 id=":r4:-label"
@@ -253,13 +251,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-14i7zmx-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-13il6e2-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-describedby=":r4:-helper-text"
                                   aria-invalid="true"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id=":r4:"
                                   inputmode="text"
@@ -269,18 +267,18 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value="23.04.2021"
                                 />
                                 <div
-                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                                 >
                                   <button
                                     aria-label="Choose date, selected date is 23. huhti 2021"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
                                     tabindex="-1"
                                     type="button"
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="CalendarIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -296,7 +294,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-14lo706"
+                                    class="css-kg5swy"
                                   >
                                     <span>
                                       event.endDate
@@ -307,7 +305,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </fieldset>
                               </div>
                               <p
-                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled Mui-required css-1d4k99f-MuiFormHelperText-root"
                                 id=":r4:-helper-text"
                               >
                                 validation.event.endDate field, state, type
@@ -326,10 +324,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="kcId"
                                 id="kcId-label"
@@ -337,7 +335,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.kcId
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -345,7 +343,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="kcId"
                                   role="combobox"
@@ -358,7 +356,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.kcId
@@ -368,13 +366,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-oe81ji-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-69cvb4-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -383,9 +381,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -404,10 +399,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="eventType"
                                 id="eventType-label"
@@ -422,7 +417,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -431,7 +426,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="true"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="eventType"
                                   required=""
@@ -445,7 +440,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <button
                                     aria-label="Open"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
                                     tabindex="-1"
                                     title="Open"
@@ -453,7 +448,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="ArrowDropDownIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -469,7 +464,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.eventType
@@ -480,20 +475,20 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </fieldset>
                               </div>
                               <p
-                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1d4k99f-MuiFormHelperText-root"
                                 id="eventType-helper-text"
                               >
                                 validation.event.validationError field, state
                               </p>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -502,9 +497,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -516,10 +508,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         >
                           <div
-                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
                               for="class"
                               id="class-label"
@@ -527,7 +519,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               event.classes
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -535,7 +527,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="class"
                                 role="combobox"
@@ -548,7 +540,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               >
                                 <button
                                   aria-label="Open"
-                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
                                   tabindex="-1"
                                   title="Open"
@@ -556,7 +548,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                     data-testid="ArrowDropDownIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -572,7 +564,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-1pbc52w"
                                 >
                                   <span>
                                     event.classes
@@ -591,10 +583,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-15ghomv-MuiGrid-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":rc:"
                             id=":rc:-label"
@@ -602,11 +594,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             Tapahtuman nimi
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1dzzpow-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
                               id=":rc:"
                               type="text"
@@ -617,7 +609,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-1pbc52w"
                               >
                                 <span>
                                   Tapahtuman nimi
@@ -641,10 +633,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="organizer"
                                 id="organizer-label"
@@ -659,7 +651,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -668,7 +660,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="true"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="organizer"
                                   required=""
@@ -682,7 +674,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <button
                                     aria-label="Open"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
                                     tabindex="-1"
                                     title="Open"
@@ -690,7 +682,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="ArrowDropDownIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -706,7 +698,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.organizer
@@ -717,20 +709,20 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </fieldset>
                               </div>
                               <p
-                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1d4k99f-MuiFormHelperText-root"
                                 id="organizer-helper-text"
                               >
                                 validation.event.validationError field, state
                               </p>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -739,9 +731,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -756,10 +745,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="location"
                                 id="location-label"
@@ -767,7 +756,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.location
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -775,7 +764,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="location"
                                   role="combobox"
@@ -788,7 +777,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.location
@@ -798,13 +787,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -813,9 +802,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -834,10 +820,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="official"
                                 id="official-label"
@@ -845,7 +831,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.official
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -853,7 +839,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="official"
                                   role="combobox"
@@ -866,7 +852,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <button
                                     aria-label="Open"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
                                     tabindex="-1"
                                     title="Open"
@@ -874,7 +860,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="ArrowDropDownIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -890,7 +876,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.official
@@ -900,13 +886,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -915,9 +901,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -932,10 +915,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="secretary"
                                 id="secretary-label"
@@ -950,7 +933,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </span>
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -959,7 +942,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="true"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="secretary"
                                   required=""
@@ -973,7 +956,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <button
                                     aria-label="Open"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
                                     tabindex="-1"
                                     title="Open"
@@ -981,7 +964,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="ArrowDropDownIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -997,7 +980,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.secretary
@@ -1008,20 +991,20 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 </fieldset>
                               </div>
                               <p
-                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1vg31rc-MuiFormHelperText-root"
+                                class="MuiFormHelperText-root Mui-disabled Mui-error MuiFormHelperText-sizeMedium MuiFormHelperText-contained Mui-required css-1d4k99f-MuiFormHelperText-root"
                                 id="secretary-helper-text"
                               >
                                 validation.event.validationError field, state
                               </p>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1030,9 +1013,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -1049,13 +1029,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowRightIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -1064,9 +1044,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -1075,7 +1052,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               judges
             </p>
@@ -1084,7 +1061,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -1110,10 +1087,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           data-testid="judge 1"
                         >
                           <div
-                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
                               for=":rl:"
                               id=":rl:-label"
@@ -1121,7 +1098,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               judge 1
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -1129,7 +1106,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":rl:"
                                 role="combobox"
@@ -1142,7 +1119,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               >
                                 <button
                                   aria-label="Open"
-                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
                                   tabindex="-1"
                                   title="Open"
@@ -1150,7 +1127,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                     data-testid="ArrowDropDownIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -1166,7 +1143,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-1pbc52w"
                                 >
                                   <span>
                                     judge 1
@@ -1184,10 +1161,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1um6vq2-MuiAutocomplete-root"
                         >
                           <div
-                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
                               for="class0"
                               id="class0-label"
@@ -1195,7 +1172,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               Arvostelee luokat
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -1203,7 +1180,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id="class0"
                                 role="combobox"
@@ -1216,7 +1193,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               >
                                 <button
                                   aria-label="Open"
-                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
                                   tabindex="-1"
                                   title="Open"
@@ -1224,7 +1201,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                     data-testid="ArrowDropDownIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -1240,7 +1217,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-1pbc52w"
                                 >
                                   <span>
                                     Arvostelee luokat
@@ -1255,17 +1232,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
                           disabled=""
                           tabindex="-1"
                           type="button"
                         >
                           <span
-                            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                               data-testid="DeleteOutlineIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1283,17 +1260,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="AddOutlinedIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1306,17 +1283,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         Lisää tuomari
                       </button>
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-mvwufc-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="AddOutlinedIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1329,17 +1306,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         Lisää ulkomainen tuomari
                       </button>
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1k0243r-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-85pj53-MuiButtonBase-root-MuiButton-root"
                         disabled=""
                         tabindex="-1"
                         type="button"
                       >
                         <span
-                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+                          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                             data-testid="AddOutlinedIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1363,13 +1340,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowRightIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -1378,9 +1355,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -1389,7 +1363,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               Ilmoittautuminen
             </p>
@@ -1398,7 +1372,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -1429,7 +1403,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-191hsvz-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":rp:"
                                 id=":rp:-label"
@@ -1437,12 +1411,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 Ilmoittautumisaika alkaa
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-14i7zmx-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-13il6e2-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-invalid="false"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id=":rp:"
                                   inputmode="text"
@@ -1451,18 +1425,18 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value="23.03.2021"
                                 />
                                 <div
-                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                                 >
                                   <button
                                     aria-label="Choose date, selected date is 23. maalis 2021"
-                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                                    class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
                                     tabindex="-1"
                                     type="button"
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="CalendarIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -1478,7 +1452,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-14lo706"
+                                    class="css-kg5swy"
                                   >
                                     <span>
                                       Ilmoittautumisaika alkaa
@@ -1495,7 +1469,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-z3c6am-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1cwx9dy-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-191hsvz-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":rr:"
                                 id=":rr:-label"
@@ -1503,12 +1477,12 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 Ilmoittautumisaika päättyy
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-14i7zmx-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedEnd css-13il6e2-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-invalid="false"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   id=":rr:"
                                   inputmode="text"
                                   placeholder="DD.MM.YYYY"
@@ -1516,17 +1490,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value="09.04.2021"
                                 />
                                 <div
-                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                                 >
                                   <button
                                     aria-label="Choose date, selected date is 9. huhti 2021"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1yq5fb3-MuiButtonBase-root-MuiIconButton-root"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1a7z5rc-MuiButtonBase-root-MuiIconButton-root"
                                     tabindex="0"
                                     type="button"
                                   >
                                     <svg
                                       aria-hidden="true"
-                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                      class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                       data-testid="CalendarIcon"
                                       focusable="false"
                                       viewBox="0 0 24 24"
@@ -1535,9 +1509,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                         d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"
                                       />
                                     </svg>
-                                    <span
-                                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                                    />
                                   </button>
                                 </div>
                                 <fieldset
@@ -1545,7 +1516,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-14lo706"
+                                    class="css-kg5swy"
                                   >
                                     <span>
                                       Ilmoittautumisaika päättyy
@@ -1584,7 +1555,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiStack-root css-3xtvj9-MuiStack-root"
                             >
                               <h6
-                                class="MuiTypography-root MuiTypography-subtitle1 css-10wpov9-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-subtitle1 css-1ixrkmk-MuiTypography-root"
                               >
                                 Koepaikkojen määrä
                               </h6>
@@ -1593,7 +1564,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               >
                                 <span
                                   aria-disabled="true"
-                                  class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall css-1r5vzb3-MuiButtonBase-root-MuiCheckbox-root"
+                                  class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall css-12k3ej3-MuiButtonBase-root-MuiCheckbox-root"
                                   tabindex="-1"
                                 >
                                   <input
@@ -1605,7 +1576,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   />
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
                                     data-testid="CheckBoxOutlineBlankIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -1616,7 +1587,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   </svg>
                                 </span>
                                 <span
-                                  class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                                 >
                                   Luokittain
                                 </span>
@@ -1632,13 +1603,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiTableRow-root MuiTableRow-head css-1n6kcfq-MuiTableRow-root"
                                 >
                                   <th
-                                    class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-1howxi1-MuiTableCell-root"
+                                    class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-1tiq90p-MuiTableCell-root"
                                     scope="col"
                                   >
                                     date
                                   </th>
                                   <th
-                                    class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignCenter MuiTableCell-sizeSmall css-12q85cb-MuiTableCell-root"
+                                    class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignCenter MuiTableCell-sizeSmall css-bxnk95-MuiTableCell-root"
                                     scope="col"
                                   >
                                     Yhteensä
@@ -1652,37 +1623,37 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                                 >
                                   <th
-                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-abepwf-MuiTableCell-root"
                                     scope="row"
                                   >
                                     eeeeee d.M.
                                   </th>
                                   <td
-                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
+                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-1gzegn9-MuiTableCell-root"
                                   />
                                 </tr>
                                 <tr
                                   class="MuiTableRow-root css-1n6kcfq-MuiTableRow-root"
                                 >
                                   <th
-                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-dsuxgy-MuiTableCell-root"
+                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-abepwf-MuiTableCell-root"
                                     scope="row"
                                   >
                                     Yhteensä
                                   </th>
                                   <td
-                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-vtdehq-MuiTableCell-root"
+                                    class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-1gzegn9-MuiTableCell-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                                       inputmode="numeric"
                                     >
                                       <div
-                                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-sizeSmall css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                                        class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-sizeSmall css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                                       >
                                         <input
                                           aria-invalid="false"
-                                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1n4twyu-MuiInputBase-input-MuiOutlinedInput-input"
+                                          class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-1sh6wjw-MuiInputBase-input-MuiOutlinedInput-input"
                                           disabled=""
                                           id="event.places"
                                           pattern="[0-9]{1,3}"
@@ -1695,7 +1666,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                           class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                         >
                                           <legend
-                                            class="css-ihdtdm"
+                                            class="css-gpjuor"
                                           >
                                             <span
                                               class="notranslate"
@@ -1728,10 +1699,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           data-testid="Etusijat"
                         >
                           <div
-                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                            class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                           >
                             <label
-                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                               data-shrink="false"
                               for=":ru:"
                               id=":ru:-label"
@@ -1739,7 +1710,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               Etusijat
                             </label>
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-autocomplete="list"
@@ -1747,7 +1718,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 aria-invalid="false"
                                 autocapitalize="none"
                                 autocomplete="off"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":ru:"
                                 role="combobox"
@@ -1760,7 +1731,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               >
                                 <button
                                   aria-label="Open"
-                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-qzbt6i-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
                                   tabindex="-1"
                                   title="Open"
@@ -1768,7 +1739,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 >
                                   <svg
                                     aria-hidden="true"
-                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                     data-testid="ArrowDropDownIcon"
                                     focusable="false"
                                     viewBox="0 0 24 24"
@@ -1784,7 +1755,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-yjsfm1"
+                                  class="css-1pbc52w"
                                 >
                                   <span>
                                     Etusijat
@@ -1807,13 +1778,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowRightIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -1822,9 +1793,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -1833,7 +1801,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               paymentDetails
             </p>
@@ -1842,7 +1810,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -1870,10 +1838,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="cost"
                                 id="cost-label"
@@ -1881,7 +1849,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.cost
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -1889,7 +1857,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="cost"
                                   role="combobox"
@@ -1898,10 +1866,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                                 >
                                   <p
-                                    class="MuiTypography-root MuiTypography-body1 css-1pnmrwp-MuiTypography-root"
+                                    class="MuiTypography-root MuiTypography-body1 css-s619mj-MuiTypography-root"
                                   >
                                     €
                                   </p>
@@ -1911,7 +1879,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.cost
@@ -1921,13 +1889,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -1936,9 +1904,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -1953,10 +1918,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiBox-root css-91p3uw"
                           >
                             <div
-                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                              class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="false"
                                 for="costMember"
                                 id="costMember-label"
@@ -1964,7 +1929,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 event.costMember
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1tenv44-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
                                   aria-autocomplete="list"
@@ -1972,7 +1937,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   aria-invalid="false"
                                   autocapitalize="none"
                                   autocomplete="off"
-                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
+                                  class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
                                   id="costMember"
                                   role="combobox"
@@ -1981,10 +1946,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   value=""
                                 />
                                 <div
-                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1laqsz7-MuiInputAdornment-root"
+                                  class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1i2hsuj-MuiInputAdornment-root"
                                 >
                                   <p
-                                    class="MuiTypography-root MuiTypography-body1 css-1pnmrwp-MuiTypography-root"
+                                    class="MuiTypography-root MuiTypography-body1 css-s619mj-MuiTypography-root"
                                   >
                                     €
                                   </p>
@@ -1994,7 +1959,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-yjsfm1"
+                                    class="css-1pbc52w"
                                   >
                                     <span>
                                       event.costMember
@@ -2004,13 +1969,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </div>
                             </div>
                             <button
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-b11i70-MuiButtonBase-root-MuiIconButton-root"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-1n7quk2-MuiButtonBase-root-MuiIconButton-root"
                               tabindex="0"
                               type="button"
                             >
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="HelpOutlinedIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2019,9 +1984,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
                                 />
                               </svg>
-                              <span
-                                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                              />
                             </button>
                           </div>
                         </div>
@@ -2038,13 +2000,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowRightIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -2053,9 +2015,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -2064,7 +2023,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               event.headquarters.title
             </p>
@@ -2073,7 +2032,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -2095,10 +2054,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r14:"
                             id=":r14:-label"
@@ -2106,11 +2065,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             event.headquarters.name
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1dzzpow-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
                               id=":r14:"
                               type="text"
@@ -2121,7 +2080,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-1pbc52w"
                               >
                                 <span>
                                   event.headquarters.name
@@ -2135,10 +2094,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r15:"
                             id=":r15:-label"
@@ -2146,11 +2105,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             event.headquarters.address
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1dzzpow-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
                               id=":r15:"
                               type="text"
@@ -2161,7 +2120,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-1pbc52w"
                               >
                                 <span>
                                   event.headquarters.address
@@ -2179,10 +2138,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r16:"
                             id=":r16:-label"
@@ -2190,11 +2149,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             event.headquarters.zipCode
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1dzzpow-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
                               id=":r16:"
                               type="text"
@@ -2205,7 +2164,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-1pbc52w"
                               >
                                 <span>
                                   event.headquarters.zipCode
@@ -2219,10 +2178,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiGrid-root MuiGrid-item css-17sva53-MuiGrid-root"
                       >
                         <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-a5n9ke-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r17:"
                             id=":r17:-label"
@@ -2230,11 +2189,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             event.headquarters.postalDistrict
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-78sb4c-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl css-1dzzpow-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
                               aria-invalid="false"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
                               id=":r17:"
                               type="text"
@@ -2245,7 +2204,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-yjsfm1"
+                                class="css-1pbc52w"
                               >
                                 <span>
                                   event.headquarters.postalDistrict
@@ -2267,13 +2226,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowRightIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -2282,9 +2241,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -2293,7 +2249,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               event.contactInfo
             </p>
@@ -2302,7 +2258,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -2332,7 +2288,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           >
                             <span
                               aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                               tabindex="-1"
                             >
                               <input
@@ -2344,7 +2300,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               />
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CheckBoxOutlineBlankIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2355,7 +2311,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </svg>
                             </span>
                             <span
-                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                             >
                               contact.name
                             </span>
@@ -2365,7 +2321,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           >
                             <span
                               aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                               tabindex="-1"
                             >
                               <input
@@ -2377,7 +2333,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               />
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CheckBoxOutlineBlankIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2388,7 +2344,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </svg>
                             </span>
                             <span
-                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                             >
                               contact.email
                             </span>
@@ -2398,7 +2354,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           >
                             <span
                               aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                               tabindex="-1"
                             >
                               <input
@@ -2410,7 +2366,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               />
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CheckBoxOutlineBlankIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2421,7 +2377,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </svg>
                             </span>
                             <span
-                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                             >
                               contact.phone
                             </span>
@@ -2430,11 +2386,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                           >
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":r18:"
                                 name="name"
@@ -2446,7 +2402,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ihdtdm"
+                                  class="css-gpjuor"
                                 >
                                   <span
                                     class="notranslate"
@@ -2461,11 +2417,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                           >
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":r19:"
                                 name="email"
@@ -2477,7 +2433,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ihdtdm"
+                                  class="css-gpjuor"
                                 >
                                   <span
                                     class="notranslate"
@@ -2492,11 +2448,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                           >
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":r1a:"
                                 name="phone"
@@ -2508,7 +2464,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ihdtdm"
+                                  class="css-gpjuor"
                                 >
                                   <span
                                     class="notranslate"
@@ -2533,7 +2489,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           >
                             <span
                               aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                               tabindex="-1"
                             >
                               <input
@@ -2545,7 +2501,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               />
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CheckBoxOutlineBlankIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2556,7 +2512,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </svg>
                             </span>
                             <span
-                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                             >
                               contact.name
                             </span>
@@ -2566,7 +2522,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           >
                             <span
                               aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                               tabindex="-1"
                             >
                               <input
@@ -2578,7 +2534,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               />
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CheckBoxOutlineBlankIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2589,7 +2545,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </svg>
                             </span>
                             <span
-                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                             >
                               contact.email
                             </span>
@@ -2599,7 +2555,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                           >
                             <span
                               aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1aovigq-MuiButtonBase-root-MuiCheckbox-root"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
                               tabindex="-1"
                             >
                               <input
@@ -2611,7 +2567,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               />
                               <svg
                                 aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
                                 data-testid="CheckBoxOutlineBlankIcon"
                                 focusable="false"
                                 viewBox="0 0 24 24"
@@ -2622,7 +2578,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               </svg>
                             </span>
                             <span
-                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-ahj2mt-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
                             >
                               contact.phone
                             </span>
@@ -2631,11 +2587,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                           >
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":r1b:"
                                 name="name"
@@ -2647,7 +2603,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ihdtdm"
+                                  class="css-gpjuor"
                                 >
                                   <span
                                     class="notranslate"
@@ -2662,11 +2618,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                           >
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":r1c:"
                                 name="email"
@@ -2678,7 +2634,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ihdtdm"
+                                  class="css-gpjuor"
                                 >
                                   <span
                                     class="notranslate"
@@ -2693,11 +2649,11 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                             class="MuiFormControl-root MuiTextField-root css-1u3bzj6-MuiFormControl-root-MuiTextField-root"
                           >
                             <div
-                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-lzrvms-MuiInputBase-root-MuiOutlinedInput-root"
+                              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl css-12r6ju7-MuiInputBase-root-MuiOutlinedInput-root"
                             >
                               <input
                                 aria-invalid="false"
-                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+                                class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-1jk99ih-MuiInputBase-input-MuiOutlinedInput-input"
                                 disabled=""
                                 id=":r1d:"
                                 name="phone"
@@ -2709,7 +2665,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-ihdtdm"
+                                  class="css-gpjuor"
                                 >
                                   <span
                                     class="notranslate"
@@ -2734,13 +2690,13 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         class="MuiBox-root css-eo0ytz"
       >
         <button
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-tov16f-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
           tabindex="0"
           type="button"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="KeyboardArrowRightIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -2749,9 +2705,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
               d="M8.59 16.59 13.17 12 8.59 7.41 10 6l6 6-6 6z"
             />
           </svg>
-          <span
-            class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-          />
         </button>
         <div
           class="MuiBox-root css-1qbrvqz"
@@ -2760,7 +2713,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             class="MuiBox-root css-1jw9kr7"
           >
             <p
-              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-body1 css-1edfpdg-MuiTypography-root"
             >
               event.description
             </p>
@@ -2769,7 +2722,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
             />
           </div>
           <div
-            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-bz4dnt-MuiCollapse-root"
+            class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
             style="min-height: 0px;"
           >
             <div
@@ -2782,14 +2735,14 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                   class="MuiBox-root css-e1h6et"
                 >
                   <div
-                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
                   >
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-1skzf1s-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-12qosy6-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <textarea
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
                         id=":r1e:"
                         rows="5"
@@ -2797,7 +2750,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                       />
                       <textarea
                         aria-hidden="true"
-                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
                         style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
@@ -2807,7 +2760,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                         class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-ihdtdm"
+                          class="css-gpjuor"
                         >
                           <span
                             class="notranslate"
@@ -2829,17 +2782,17 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
       class="MuiStack-root css-1p6e05z-MuiStack-root"
     >
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1j214pj-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-nlyz4j-MuiButtonBase-root-MuiButton-root"
         disabled=""
         tabindex="-1"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="SaveIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -2852,16 +2805,16 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
         save
       </button>
       <button
-        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-q3vbvi-MuiButtonBase-root-MuiButton-root"
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1gp3wsk-MuiButtonBase-root-MuiButton-root"
         tabindex="0"
         type="button"
       >
         <span
-          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1d6wzja-MuiButton-startIcon"
+          class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
         >
           <svg
             aria-hidden="true"
-            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
             data-testid="CancelIcon"
             focusable="false"
             viewBox="0 0 24 24"
@@ -2872,9 +2825,6 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
           </svg>
         </span>
         cancel
-        <span
-          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-        />
       </button>
     </div>
   </div>

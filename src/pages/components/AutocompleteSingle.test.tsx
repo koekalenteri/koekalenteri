@@ -29,39 +29,39 @@ describe('AutocompleteSingle', () => {
     it('should render with selected option', () => {
       render(<AutocompleteSingle id="test-option" options={['A', 'B']} label={'test-label'} value="B" />)
       expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-<input
-  aria-autocomplete="list"
-  aria-expanded="false"
-  aria-invalid="false"
-  autocapitalize="none"
-  autocomplete="off"
-  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-  id="test-option"
-  role="combobox"
-  spellcheck="false"
-  type="text"
-  value="B"
-/>
-`)
+        <input
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-invalid="false"
+          autocapitalize="none"
+          autocomplete="off"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
+          id="test-option"
+          role="combobox"
+          spellcheck="false"
+          type="text"
+          value="B"
+        />
+      `)
     })
 
     it('should render with missing selected option', () => {
       render(<AutocompleteSingle id="test-option-missing" options={['A', 'B']} label={'test-label'} value="C" />)
       expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-<input
-  aria-autocomplete="list"
-  aria-expanded="false"
-  aria-invalid="false"
-  autocapitalize="none"
-  autocomplete="off"
-  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-  id="test-option-missing"
-  role="combobox"
-  spellcheck="false"
-  type="text"
-  value="C"
-/>
-`)
+        <input
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-invalid="false"
+          autocapitalize="none"
+          autocomplete="off"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
+          id="test-option-missing"
+          role="combobox"
+          spellcheck="false"
+          type="text"
+          value="C"
+        />
+      `)
     })
 
     it('should render helperText', () => {
@@ -155,20 +155,20 @@ describe('AutocompleteSingle', () => {
         />
       )
       expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-<input
-  aria-autocomplete="list"
-  aria-expanded="false"
-  aria-invalid="false"
-  autocapitalize="none"
-  autocomplete="off"
-  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-  id="test-option"
-  role="combobox"
-  spellcheck="false"
-  type="text"
-  value="B"
-/>
-`)
+        <input
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-invalid="false"
+          autocapitalize="none"
+          autocomplete="off"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
+          id="test-option"
+          role="combobox"
+          spellcheck="false"
+          type="text"
+          value="B"
+        />
+      `)
     })
 
     it('should render with missing selected option', () => {
@@ -182,20 +182,20 @@ describe('AutocompleteSingle', () => {
         />
       )
       expect(screen.getByRole('combobox')).toMatchInlineSnapshot(`
-<input
-  aria-autocomplete="list"
-  aria-expanded="false"
-  aria-invalid="false"
-  autocapitalize="none"
-  autocomplete="off"
-  class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-nxo287-MuiInputBase-input-MuiOutlinedInput-input"
-  id="test-option-missing"
-  role="combobox"
-  spellcheck="false"
-  type="text"
-  value="C"
-/>
-`)
+        <input
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-invalid="false"
+          autocapitalize="none"
+          autocomplete="off"
+          class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
+          id="test-option-missing"
+          role="combobox"
+          spellcheck="false"
+          type="text"
+          value="C"
+        />
+      `)
     })
 
     it('should render helperText', () => {

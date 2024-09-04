@@ -6,7 +6,7 @@ exports[`PaymentPage renders loading indicator while loader is pending 1`] = `
     class="MuiBox-root css-19703gc"
   >
     <span
-      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1pli01p-MuiCircularProgress-root"
+      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-12nid8a-MuiCircularProgress-root"
       role="progressbar"
       style="width: 40px; height: 40px;"
     >
@@ -15,7 +15,7 @@ exports[`PaymentPage renders loading indicator while loader is pending 1`] = `
         viewBox="22 22 44 44"
       >
         <circle
-          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-176wh8e-MuiCircularProgress-circle"
+          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-1a8epmm-MuiCircularProgress-circle"
           cx="44"
           cy="44"
           fill="none"
@@ -31,15 +31,16 @@ exports[`PaymentPage renders loading indicator while loader is pending 1`] = `
 exports[`PaymentPage renders properly 1`] = `
 <div>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-j6ia3m-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-74e1as-MuiPaper-root"
+    style="--Paper-shadow: none;"
   >
     <h5
-      class="MuiTypography-root MuiTypography-h5 css-11zemyq-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-h5 css-iyqn9l-MuiTypography-root"
     >
       Valitse maksutapa
     </h5>
     <span
-      class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-caption css-1gju9dp-MuiTypography-root"
     >
       <span>
         Valitsemalla maksutavan hyväksyt 
@@ -52,10 +53,11 @@ exports[`PaymentPage renders properly 1`] = `
       </span>
     </span>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1ea67fm-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-owg7k2-MuiPaper-root"
+      style="--Paper-shadow: none;"
     >
       <h6
-        class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
       >
         Pankkimaksutavat
       </h6>
@@ -975,10 +977,11 @@ exports[`PaymentPage renders properly 1`] = `
       </div>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1ea67fm-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-owg7k2-MuiPaper-root"
+      style="--Paper-shadow: none;"
     >
       <h6
-        class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
       >
         Korttimaksutavat
       </h6>
@@ -1596,10 +1599,11 @@ exports[`PaymentPage renders properly 1`] = `
       </div>
     </div>
     <div
-      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1ea67fm-MuiPaper-root"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-owg7k2-MuiPaper-root"
+      style="--Paper-shadow: none;"
     >
       <h6
-        class="MuiTypography-root MuiTypography-h6 css-6nwon9-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
       >
         Lasku- ja osamaksutavat
       </h6>

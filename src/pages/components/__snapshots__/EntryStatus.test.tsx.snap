@@ -4,7 +4,7 @@ exports[`EntryStatus renders 1`] = `null`;
 
 exports[`EntryStatus renders 2`] = `
 <p
-  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-150xto-MuiTypography-root"
 >
   (event.states.tentative_info)
 </p>
@@ -12,7 +12,7 @@ exports[`EntryStatus renders 2`] = `
 
 exports[`EntryStatus renders 3`] = `
 <p
-  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-150xto-MuiTypography-root"
 >
   (event.states.cancelled_info)
 </p>
@@ -22,7 +22,7 @@ exports[`EntryStatus renders 4`] = `null`;
 
 exports[`EntryStatus renders 5`] = `
 <p
-  class="MuiTypography-root MuiTypography-body1 css-14wzn0b-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-150xto-MuiTypography-root"
 >
   (event.states.extended_info)
 </p>
