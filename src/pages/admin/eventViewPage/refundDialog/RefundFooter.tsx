@@ -24,7 +24,9 @@ interface RefundFooterProps {
 }
 
 declare module '@mui/x-data-grid' {
-  interface FooterPropsOverrides extends RefundFooterProps {}
+  interface FooterPropsOverrides extends RefundFooterProps {
+    blah?: never
+  }
 }
 
 const ValueCell = styled(TableCell)(() => ({

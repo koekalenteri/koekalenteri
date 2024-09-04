@@ -51,10 +51,11 @@ export interface JsonRegistrationGroup extends Partial<JsonRegistrationDate> {
   key: string
 }
 
-export interface RegistrationGroupInfo
-  extends Pick<Registration, 'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'> {}
-export interface JsonRegistrationGroupInfo
-  extends Pick<JsonRegistration, 'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'> {}
+export type RegistrationGroupInfo = Pick<Registration, 'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'>
+export type JsonRegistrationGroupInfo = Pick<
+  JsonRegistration,
+  'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'
+>
 
 export interface ManualTestResult extends QualifyingResult {
   id: string
@@ -122,7 +123,7 @@ export interface JsonRegistrationDate {
   time?: RegistrationTime
 }
 
-export interface RegistrationDate extends Replace<JsonRegistrationDate, 'date', Date> {}
+export type RegistrationDate = Replace<JsonRegistrationDate, 'date', Date>
 
 export type RegistrationTime = 'ap' | 'ip' | 'kp'
 
@@ -130,7 +131,7 @@ export interface RegistrationPerson extends Person {
   membership: boolean
 }
 
-export interface RegistrationBreeder extends Omit<Person, 'email' | 'phone'> {}
+export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 

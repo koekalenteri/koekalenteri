@@ -129,7 +129,7 @@ export function EntryInfo({
     if (Object.keys(changes).length) {
       onChange?.(changes)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // TODO: re-eanble when react-hooks plugin is reinstalled: eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classes, className, event, filterDates, groups])
 
   const handleClassChange = useCallback((value: RegistrationClass) => onChange?.({ class: value }), [onChange])

@@ -14,7 +14,7 @@ import { applyNewGroupsToDogEventDates } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { adminEventTypeGroupsSelector } from '../../../../recoil'
 
-interface Props extends Pick<SectionProps, 'disabled' | 'event' | 'onChange'> {}
+type Props = Pick<SectionProps, 'disabled' | 'event' | 'onChange'>
 
 export const EventGroups = ({ disabled, event, onChange }: Readonly<Props>) => {
   const { t } = useTranslation()

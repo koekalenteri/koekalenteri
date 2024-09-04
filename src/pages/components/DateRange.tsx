@@ -60,11 +60,11 @@ export default function DateRange({
   const { t } = useTranslation()
   const startChanged = useDebouncedCallback((date: DateValue) => {
     const d = coerceToDateValue(date)
-    onChange && onChange(d, end)
+    onChange?.(d, end)
   })
   const endChanged = useDebouncedCallback((date: DateValue) => {
     const d = coerceToDateValue(date)
-    onChange && onChange(start, d)
+    onChange?.(start, d)
   })
 
   return (

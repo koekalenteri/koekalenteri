@@ -19,7 +19,6 @@ const updateOrCreateTemplate = async (template: Template) => {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     const res = await ses.updateTemplate({ Template: template }).promise()
     console.info(res)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e.code !== 'TemplateDoesNotExist') {
       console.error(e)

@@ -5,7 +5,7 @@ import { atom, atomFamily } from 'recoil'
 import { logEffect } from '../effects'
 import { localStorageEffect } from '../effects/storage'
 
-interface DogCachedBasePerson extends Omit<RegistrationPerson, 'membership'> {}
+type DogCachedBasePerson = Omit<RegistrationPerson, 'membership'>
 interface DogCachedHandlerPerson extends DogCachedBasePerson {
   membership: Record<string, boolean>
 }
