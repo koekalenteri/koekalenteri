@@ -58,7 +58,7 @@ exports[`OrganizerListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-qgncr1-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-fstpas-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 0; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 0px; --DataGrid-columnsTotalWidth: 0px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -222,7 +222,7 @@ exports[`OrganizerListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="kcId"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="0"
                   >
                     <div
@@ -239,7 +239,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             organizer.kcId
@@ -273,7 +273,7 @@ exports[`OrganizerListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -282,8 +282,11 @@ exports[`OrganizerListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -295,7 +298,7 @@ exports[`OrganizerListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -312,7 +315,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             organizer.name
@@ -346,7 +349,7 @@ exports[`OrganizerListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -355,8 +358,11 @@ exports[`OrganizerListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -368,7 +374,7 @@ exports[`OrganizerListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                     data-field="paytrailMerchantId"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -385,7 +391,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             organizer.paytrailMerchantId
@@ -419,7 +425,7 @@ exports[`OrganizerListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -428,8 +434,11 @@ exports[`OrganizerListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>

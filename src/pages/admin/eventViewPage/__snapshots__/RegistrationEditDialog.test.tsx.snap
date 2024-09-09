@@ -2558,7 +2558,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-e1h6et"
                     >
                       <div
-                        class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qgncr1-MuiDataGrid-root"
+                        class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
                         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 320px; --DataGrid-columnsTotalWidth: 320px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
@@ -2575,7 +2575,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                             role="presentation"
                           />
                           <div
-                            class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+                            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
                             role="presentation"
                             style="overflow-x: hidden; overflow-y: hidden;"
                           >
@@ -5263,7 +5263,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                       class="MuiBox-root css-e1h6et"
                     >
                       <div
-                        class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qgncr1-MuiDataGrid-root"
+                        class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
                         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 320px; --DataGrid-columnsTotalWidth: 320px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
@@ -5280,7 +5280,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                             role="presentation"
                           />
                           <div
-                            class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+                            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
                             role="presentation"
                             style="overflow-x: hidden; overflow-y: hidden;"
                           >

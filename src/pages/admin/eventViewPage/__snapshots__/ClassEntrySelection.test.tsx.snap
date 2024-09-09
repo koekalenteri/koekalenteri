@@ -13,7 +13,7 @@ exports[`ClassEntrySelection renders 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-8z535n-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-v3qf68-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -30,7 +30,7 @@ exports[`ClassEntrySelection renders 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -58,7 +58,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 39px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -75,7 +75,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -83,7 +83,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -92,8 +92,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -105,7 +108,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 39px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 39px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -122,7 +125,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -132,7 +135,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -141,8 +144,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -154,7 +160,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -171,7 +177,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -181,7 +187,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -190,8 +196,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -203,7 +212,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 39px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 39px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -220,7 +229,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -230,7 +239,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -239,8 +248,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -252,7 +264,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -269,7 +281,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -279,7 +291,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -288,8 +300,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -301,7 +316,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -318,7 +333,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -328,7 +343,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -337,8 +352,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -350,7 +368,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -367,7 +385,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -377,7 +395,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -386,8 +404,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -399,7 +420,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 39px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -416,7 +437,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -424,7 +445,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -433,8 +454,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -446,7 +470,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 39px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -463,7 +487,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -471,7 +495,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -480,8 +504,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -538,7 +565,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -565,7 +592,7 @@ exports[`ClassEntrySelection renders 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -593,7 +620,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 0px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -610,7 +637,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -618,7 +645,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -627,8 +654,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -640,7 +670,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 0px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 0px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -657,7 +687,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -667,7 +697,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -676,8 +706,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -689,7 +722,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -706,7 +739,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -716,7 +749,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -725,8 +758,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -738,7 +774,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 0px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 0px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -755,7 +791,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -765,7 +801,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -774,8 +810,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -787,7 +826,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 0px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 0px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -804,7 +843,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -814,7 +853,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -823,8 +862,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -836,7 +878,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -853,7 +895,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -863,7 +905,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -872,8 +914,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -885,7 +930,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -902,7 +947,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -912,7 +957,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -921,8 +966,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -934,7 +982,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 0px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -951,7 +999,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -959,7 +1007,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -968,8 +1016,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -981,7 +1032,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 0px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -998,7 +1049,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -1006,7 +1057,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1015,8 +1066,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1079,7 +1133,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -1106,7 +1160,7 @@ exports[`ClassEntrySelection renders 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -1134,7 +1188,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 0px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -1151,7 +1205,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -1159,7 +1213,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1168,8 +1222,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1181,7 +1238,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 0px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 0px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -1198,7 +1255,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -1208,7 +1265,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1217,8 +1274,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1230,7 +1290,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -1247,7 +1307,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -1257,7 +1317,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1266,8 +1326,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1279,7 +1342,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 0px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 0px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -1296,7 +1359,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -1306,7 +1369,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1315,8 +1378,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1328,7 +1394,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 0px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 0px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -1345,7 +1411,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -1355,7 +1421,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1364,8 +1430,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1377,7 +1446,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -1394,7 +1463,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -1404,7 +1473,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1413,8 +1482,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1426,7 +1498,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -1443,7 +1515,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -1453,7 +1525,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1462,8 +1534,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1475,7 +1550,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 0px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -1492,7 +1567,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -1500,7 +1575,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1509,8 +1584,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1522,7 +1600,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 0px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -1539,7 +1617,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -1547,7 +1625,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1556,8 +1634,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1657,7 +1738,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -1674,7 +1755,7 @@ exports[`ClassEntrySelection renders 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -1702,7 +1783,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 39px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -1719,7 +1800,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -1727,7 +1808,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1736,8 +1817,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1749,7 +1833,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 39px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 39px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -1766,7 +1850,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -1776,7 +1860,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1785,8 +1869,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1798,7 +1885,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -1815,7 +1902,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -1825,7 +1912,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1834,8 +1921,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1847,7 +1937,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 39px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 39px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -1864,7 +1954,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -1874,7 +1964,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1883,8 +1973,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1896,7 +1989,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -1913,7 +2006,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -1923,7 +2016,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1932,8 +2025,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1945,7 +2041,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -1962,7 +2058,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -1972,7 +2068,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -1981,8 +2077,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -1994,7 +2093,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -2011,7 +2110,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -2021,7 +2120,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2030,8 +2129,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2043,7 +2145,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 39px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -2060,7 +2162,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -2068,7 +2170,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2077,8 +2179,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2090,7 +2195,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 39px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -2107,7 +2212,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -2115,7 +2220,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2124,8 +2229,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2193,7 +2301,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -2210,7 +2318,7 @@ exports[`ClassEntrySelection renders 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -2238,7 +2346,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 39px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -2255,7 +2363,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -2263,7 +2371,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2272,8 +2380,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2285,7 +2396,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 39px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 39px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -2302,7 +2413,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -2312,7 +2423,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2321,8 +2432,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2334,7 +2448,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -2351,7 +2465,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -2361,7 +2475,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2370,8 +2484,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2383,7 +2500,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 39px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 39px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -2400,7 +2517,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -2410,7 +2527,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2419,8 +2536,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2432,7 +2552,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -2449,7 +2569,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -2459,7 +2579,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2468,8 +2588,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2481,7 +2604,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -2498,7 +2621,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -2508,7 +2631,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2517,8 +2640,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2530,7 +2656,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -2547,7 +2673,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -2557,7 +2683,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2566,8 +2692,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2579,7 +2708,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                   data-field="cancelReason"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -2596,7 +2725,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Perumisen syy
@@ -2630,7 +2759,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2639,8 +2768,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2652,7 +2784,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 39px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -2669,7 +2801,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -2677,7 +2809,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2686,8 +2818,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2699,7 +2834,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 39px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -2716,7 +2851,7 @@ exports[`ClassEntrySelection renders 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -2724,7 +2859,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2733,8 +2868,11 @@ exports[`ClassEntrySelection renders 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2808,7 +2946,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-8z535n-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-v3qf68-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -2825,7 +2963,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden;"
         >
@@ -2853,7 +2991,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 39px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -2870,7 +3008,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -2878,7 +3016,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2887,8 +3025,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2900,7 +3041,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 39px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 39px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -2917,7 +3058,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -2927,7 +3068,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2936,8 +3077,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2949,7 +3093,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -2966,7 +3110,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -2976,7 +3120,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -2985,8 +3129,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -2998,7 +3145,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 39px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 39px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -3015,7 +3162,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -3025,7 +3172,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3034,8 +3181,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3047,7 +3197,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -3064,7 +3214,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -3074,7 +3224,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3083,8 +3233,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3096,7 +3249,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -3113,7 +3266,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -3123,7 +3276,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3132,8 +3285,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3145,7 +3301,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -3162,7 +3318,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -3172,7 +3328,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3181,8 +3337,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3194,7 +3353,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 39px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -3211,7 +3370,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -3219,7 +3378,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3228,8 +3387,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3241,7 +3403,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 39px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -3258,7 +3420,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -3266,7 +3428,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3275,8 +3437,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3333,7 +3498,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -3360,7 +3525,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -3388,7 +3553,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 0px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -3405,7 +3570,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -3413,7 +3578,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3422,8 +3587,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3435,7 +3603,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 0px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 0px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -3452,7 +3620,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -3462,7 +3630,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3471,8 +3639,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3484,7 +3655,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -3501,7 +3672,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -3511,7 +3682,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3520,8 +3691,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3533,7 +3707,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 0px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 0px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -3550,7 +3724,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -3560,7 +3734,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3569,8 +3743,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3582,7 +3759,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 0px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 0px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -3599,7 +3776,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -3609,7 +3786,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3618,8 +3795,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3631,7 +3811,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -3648,7 +3828,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -3658,7 +3838,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3667,8 +3847,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3680,7 +3863,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -3697,7 +3880,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -3707,7 +3890,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3716,8 +3899,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3729,7 +3915,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 0px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -3746,7 +3932,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -3754,7 +3940,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3763,8 +3949,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3776,7 +3965,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 0px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -3793,7 +3982,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -3801,7 +3990,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3810,8 +3999,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3874,7 +4066,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -3901,7 +4093,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -3929,7 +4121,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 0px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 0px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -3946,7 +4138,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -3954,7 +4146,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -3963,8 +4155,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -3976,7 +4171,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 0px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 0px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -3993,7 +4188,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -4003,7 +4198,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4012,8 +4207,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4025,7 +4223,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -4042,7 +4240,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -4052,7 +4250,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4061,8 +4259,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4074,7 +4275,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 0px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 0px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -4091,7 +4292,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -4101,7 +4302,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4110,8 +4311,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4123,7 +4327,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 0px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 0px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -4140,7 +4344,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -4150,7 +4354,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4159,8 +4363,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4172,7 +4379,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -4189,7 +4396,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -4199,7 +4406,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4208,8 +4415,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4221,7 +4431,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 0px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 0px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -4238,7 +4448,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -4248,7 +4458,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4257,8 +4467,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4270,7 +4483,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 0px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 0px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -4287,7 +4500,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -4295,7 +4508,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4304,8 +4517,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4317,7 +4533,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 0px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 0px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -4334,7 +4550,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -4342,7 +4558,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 0; opacity: 1;"
+                    style="min-height: 0;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4351,8 +4567,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4452,7 +4671,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -4469,7 +4688,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -4497,7 +4716,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 39px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -4514,7 +4733,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -4522,7 +4741,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4531,8 +4750,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4544,7 +4766,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 39px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 39px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -4561,7 +4783,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -4571,7 +4793,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4580,8 +4802,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4593,7 +4818,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -4610,7 +4835,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -4620,7 +4845,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4629,8 +4854,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4642,7 +4870,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 39px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 39px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -4659,7 +4887,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -4669,7 +4897,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4678,8 +4906,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4691,7 +4922,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -4708,7 +4939,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -4718,7 +4949,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4727,8 +4958,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4740,7 +4974,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -4757,7 +4991,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -4767,7 +5001,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4776,8 +5010,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4789,7 +5026,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -4806,7 +5043,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -4816,7 +5053,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4825,8 +5062,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4838,7 +5078,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 39px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -4855,7 +5095,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -4863,7 +5103,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4872,8 +5112,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -4885,7 +5128,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 39px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -4902,7 +5145,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -4910,7 +5153,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -4919,8 +5162,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5204,7 +5450,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         aria-haspopup="menu"
                         aria-label="more"
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
-                        id=":rcv:"
+                        id=":reh:"
                         role="menuitem"
                         tabindex="-1"
                         type="button"
@@ -5254,7 +5500,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-tfa48v-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -5271,7 +5517,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           role="presentation"
         />
         <div
-          class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+          class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
           role="presentation"
           style="overflow-x: hidden; overflow-y: hidden;"
         >
@@ -5299,7 +5545,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
                   role="columnheader"
-                  style="height: 39px; width: 56px; min-width: 56px; max-width: 56px;"
+                  style="height: 39px; width: 56px;"
                   tabindex="0"
                 >
                   <div
@@ -5316,7 +5562,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -5324,7 +5570,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5333,8 +5579,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5346,7 +5595,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
                   role="columnheader"
-                  style="height: 39px; width: 20px; min-width: 20px; max-width: 20px;"
+                  style="height: 39px; width: 20px;"
                   tabindex="-1"
                 >
                   <div
@@ -5363,7 +5612,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           #
@@ -5373,7 +5622,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5382,8 +5631,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5395,7 +5647,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -5412,7 +5664,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.name
@@ -5422,7 +5674,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5431,8 +5683,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5444,7 +5699,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
                   role="columnheader"
-                  style="height: 39px; width: 130px; min-width: 130px; max-width: 130px;"
+                  style="height: 39px; width: 130px;"
                   tabindex="-1"
                 >
                   <div
@@ -5461,7 +5716,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.regNo
@@ -5471,7 +5726,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5480,8 +5735,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5493,7 +5751,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -5510,7 +5768,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           dog.breed
@@ -5520,7 +5778,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5529,8 +5787,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5542,7 +5803,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -5559,7 +5820,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           registration.handler
@@ -5569,7 +5830,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5578,8 +5839,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5591,7 +5855,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
                   role="columnheader"
-                  style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                  style="height: 39px; width: 0px;"
                   tabindex="-1"
                 >
                   <div
@@ -5608,7 +5872,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Viesti
@@ -5618,7 +5882,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5627,8 +5891,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5640,7 +5907,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                   data-field="cancelReason"
                   role="columnheader"
-                  style="height: 39px; width: 150px; min-width: 150px; max-width: 150px;"
+                  style="height: 39px; width: 150px;"
                   tabindex="-1"
                 >
                   <div
@@ -5657,7 +5924,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
                           Perumisen syy
@@ -5691,7 +5958,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5700,8 +5967,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5713,7 +5983,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
                   role="columnheader"
-                  style="height: 39px; width: 200px; min-width: 200px; max-width: 200px;"
+                  style="height: 39px; width: 200px;"
                   tabindex="-1"
                 >
                   <div
@@ -5730,7 +6000,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -5738,7 +6008,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5747,8 +6017,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>
@@ -5760,7 +6033,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
-                  style="height: 39px; width: 30px; min-width: 30px; max-width: 30px;"
+                  style="height: 39px; width: 30px;"
                   tabindex="-1"
                 >
                   <div
@@ -5777,7 +6050,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       >
                         <div
                           aria-label=""
-                          class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                          class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
                       </div>
@@ -5785,7 +6058,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   </div>
                   <div
                     class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                    style="min-height: 39px; opacity: 1;"
+                    style="min-height: 39px;"
                   >
                     <svg
                       aria-hidden="true"
@@ -5794,8 +6067,11 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       focusable="false"
                       viewBox="0 0 24 24"
                     >
-                      <path
-                        d="M11 19V5h2v14z"
+                      <rect
+                        height="24"
+                        rx="0.5"
+                        width="1"
+                        x="11.5"
                       />
                     </svg>
                   </div>

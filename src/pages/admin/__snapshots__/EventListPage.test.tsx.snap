@@ -127,7 +127,7 @@ exports[`EventListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-qgncr1-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 200px; --DataGrid-columnsTotalWidth: 200px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -350,7 +350,7 @@ exports[`EventListPage renders 1`] = `
             role="presentation"
           />
           <div
-            class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
             role="presentation"
             style="overflow-x: hidden;"
           >
@@ -378,7 +378,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="date"
                     role="columnheader"
-                    style="height: 39px; width: 120px; min-width: 120px; max-width: 120px;"
+                    style="height: 39px; width: 120px;"
                     tabindex="0"
                   >
                     <div
@@ -395,7 +395,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             date
@@ -429,7 +429,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -438,8 +438,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -451,7 +454,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="eventType"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -468,7 +471,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.eventType
@@ -502,7 +505,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -511,8 +514,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -524,7 +530,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="classes"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -541,7 +547,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.classes
@@ -575,7 +581,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -584,8 +590,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -597,7 +606,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="organizer"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -614,7 +623,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.organizer
@@ -648,7 +657,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -657,8 +666,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -670,7 +682,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -687,7 +699,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.name
@@ -721,7 +733,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -730,8 +742,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -743,7 +758,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="location"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -760,7 +775,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.location
@@ -794,7 +809,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -803,8 +818,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -816,7 +834,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="secretary"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -833,7 +851,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.secretary
@@ -867,7 +885,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -876,8 +894,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -889,7 +910,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="official"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -906,7 +927,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.official
@@ -940,7 +961,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -949,8 +970,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -962,7 +986,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="judges"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -979,7 +1003,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             judgeChief
@@ -1013,7 +1037,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -1022,8 +1046,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -1035,7 +1062,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="places"
                     role="columnheader"
-                    style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+                    style="height: 39px; width: 80px;"
                     tabindex="-1"
                   >
                     <div
@@ -1052,7 +1079,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             places
@@ -1086,7 +1113,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -1095,8 +1122,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -1108,7 +1138,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                     data-field="state"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -1125,7 +1155,7 @@ exports[`EventListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             event.state
@@ -1159,7 +1189,7 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -1168,8 +1198,11 @@ exports[`EventListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>

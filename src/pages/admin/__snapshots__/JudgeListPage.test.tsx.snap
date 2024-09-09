@@ -35,7 +35,7 @@ exports[`JudgeListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-qgncr1-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 470px; --DataGrid-columnsTotalWidth: 470px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -107,7 +107,7 @@ exports[`JudgeListPage renders 1`] = `
             role="presentation"
           />
           <div
-            class="MuiDataGrid-virtualScroller css-1793420-MuiDataGrid-virtualScroller"
+            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1793420-MuiDataGrid-virtualScroller"
             role="presentation"
             style="overflow-x: hidden;"
           >
@@ -135,7 +135,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="active"
                     role="columnheader"
-                    style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
+                    style="height: 39px; width: 90px;"
                     tabindex="0"
                   >
                     <div
@@ -152,7 +152,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             judgeActive
@@ -186,7 +186,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -195,8 +195,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -208,7 +211,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="official"
                     role="columnheader"
-                    style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+                    style="height: 39px; width: 80px;"
                     tabindex="-1"
                   >
                     <div
@@ -225,7 +228,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             official
@@ -259,7 +262,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -268,8 +271,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -281,7 +287,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -298,7 +304,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             name
@@ -332,7 +338,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -341,8 +347,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -354,7 +363,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="id"
                     role="columnheader"
-                    style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+                    style="height: 39px; width: 80px;"
                     tabindex="-1"
                   >
                     <div
@@ -371,7 +380,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             id
@@ -405,7 +414,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -414,8 +423,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -427,7 +439,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="location"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -444,7 +456,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             contact.city
@@ -478,7 +490,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -487,8 +499,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -500,7 +515,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="phone"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -517,7 +532,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             contact.phone
@@ -551,7 +566,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -560,8 +575,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -573,7 +591,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="email"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -590,7 +608,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             contact.email
@@ -624,7 +642,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -633,8 +651,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -646,7 +667,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="district"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -663,7 +684,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             Kennelpiiri
@@ -697,7 +718,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -706,8 +727,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -719,7 +743,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="eventTypes"
                     role="columnheader"
-                    style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+                    style="height: 39px; width: 0px;"
                     tabindex="-1"
                   >
                     <div
@@ -736,7 +760,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             eventTypes
@@ -770,7 +794,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -779,8 +803,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -792,7 +819,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
                     data-field="languages"
                     role="columnheader"
-                    style="height: 39px; width: 220px; min-width: 220px; max-width: 220px;"
+                    style="height: 39px; width: 220px;"
                     tabindex="-1"
                   >
                     <div
@@ -809,7 +836,7 @@ exports[`JudgeListPage renders 1`] = `
                         >
                           <div
                             aria-label=""
-                            class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             languages
@@ -843,7 +870,7 @@ exports[`JudgeListPage renders 1`] = `
                     </div>
                     <div
                       class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-                      style="min-height: 39px; opacity: 1;"
+                      style="min-height: 39px;"
                     >
                       <svg
                         aria-hidden="true"
@@ -852,8 +879,11 @@ exports[`JudgeListPage renders 1`] = `
                         focusable="false"
                         viewBox="0 0 24 24"
                       >
-                        <path
-                          d="M11 19V5h2v14z"
+                        <rect
+                          height="24"
+                          rx="0.5"
+                          width="1"
+                          x="11.5"
                         />
                       </svg>
                     </div>
@@ -1591,7 +1621,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="active"
       role="columnheader"
-      style="height: 39px; width: 90px; min-width: 90px; max-width: 90px;"
+      style="height: 39px; width: 90px;"
       tabindex="0"
     >
       <div
@@ -1608,7 +1638,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               judgeActive
@@ -1642,7 +1672,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -1651,8 +1681,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -1664,7 +1697,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="official"
       role="columnheader"
-      style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+      style="height: 39px; width: 80px;"
       tabindex="-1"
     >
       <div
@@ -1681,7 +1714,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               official
@@ -1715,7 +1748,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -1724,8 +1757,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -1737,7 +1773,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="name"
       role="columnheader"
-      style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+      style="height: 39px; width: 0px;"
       tabindex="-1"
     >
       <div
@@ -1754,7 +1790,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               name
@@ -1788,7 +1824,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -1797,8 +1833,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -1810,7 +1849,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="id"
       role="columnheader"
-      style="height: 39px; width: 80px; min-width: 80px; max-width: 80px;"
+      style="height: 39px; width: 80px;"
       tabindex="-1"
     >
       <div
@@ -1827,7 +1866,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               id
@@ -1861,7 +1900,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -1870,8 +1909,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -1883,7 +1925,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="location"
       role="columnheader"
-      style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+      style="height: 39px; width: 0px;"
       tabindex="-1"
     >
       <div
@@ -1900,7 +1942,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               contact.city
@@ -1934,7 +1976,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -1943,8 +1985,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -1956,7 +2001,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="phone"
       role="columnheader"
-      style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+      style="height: 39px; width: 0px;"
       tabindex="-1"
     >
       <div
@@ -1973,7 +2018,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               contact.phone
@@ -2007,7 +2052,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -2016,8 +2061,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -2029,7 +2077,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="email"
       role="columnheader"
-      style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+      style="height: 39px; width: 0px;"
       tabindex="-1"
     >
       <div
@@ -2046,7 +2094,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               contact.email
@@ -2080,7 +2128,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -2089,8 +2137,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -2102,7 +2153,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="district"
       role="columnheader"
-      style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+      style="height: 39px; width: 0px;"
       tabindex="-1"
     >
       <div
@@ -2119,7 +2170,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               Kennelpiiri
@@ -2153,7 +2204,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -2162,8 +2213,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -2175,7 +2229,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="eventTypes"
       role="columnheader"
-      style="height: 39px; width: 0px; min-width: 0; max-width: 0;"
+      style="height: 39px; width: 0px;"
       tabindex="-1"
     >
       <div
@@ -2192,7 +2246,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               eventTypes
@@ -2226,7 +2280,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -2235,8 +2289,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
@@ -2248,7 +2305,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
       data-field="languages"
       role="columnheader"
-      style="height: 39px; width: 220px; min-width: 220px; max-width: 220px;"
+      style="height: 39px; width: 220px;"
       tabindex="-1"
     >
       <div
@@ -2265,7 +2322,7 @@ exports[`JudgeListPage renders 2`] = `
           >
             <div
               aria-label=""
-              class="MuiDataGrid-columnHeaderTitle css-t89xny-MuiDataGrid-columnHeaderTitle"
+              class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
               languages
@@ -2299,7 +2356,7 @@ exports[`JudgeListPage renders 2`] = `
       </div>
       <div
         class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--resizable MuiDataGrid-columnSeparator--sideRight"
-        style="min-height: 39px; opacity: 1;"
+        style="min-height: 39px;"
       >
         <svg
           aria-hidden="true"
@@ -2308,8 +2365,11 @@ exports[`JudgeListPage renders 2`] = `
           focusable="false"
           viewBox="0 0 24 24"
         >
-          <path
-            d="M11 19V5h2v14z"
+          <rect
+            height="24"
+            rx="0.5"
+            width="1"
+            x="11.5"
           />
         </svg>
       </div>
