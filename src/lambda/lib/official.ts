@@ -44,7 +44,7 @@ export const fetchOfficialsForEventTypes = async (
         name,
         location,
         district: item.kennelpiiri,
-        email: item.sähköposti.toLocaleLowerCase(),
+        email: CONFIG.stageName === 'dev' ? 'sposti@example.com' : item.sähköposti.toLocaleLowerCase(),
         phone: item.puhelin,
         eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
       })
