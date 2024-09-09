@@ -46,7 +46,7 @@ const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegist
       // update cancellation status, so the counts get right in updateRegistrations
       reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
 
-      await saveGroup(reg, oldGroup, user, reason)
+      await saveGroup(reg, oldGroup, user, reg.cancelled ? reg.cancelReason : reason)
     }
   }
 

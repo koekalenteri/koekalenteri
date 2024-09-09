@@ -351,17 +351,22 @@ describe('putRegistrationGroupsLambda', () => {
     reg.group = { key: 'cancelled', number: 1 }
 
     const res = await putRegistrationGroupsLambda(
-      constructAPIGwEvent([{ eventId: event.id, id: reg.id, group: reg.group }] as JsonRegistrationGroupInfo[], {
-        pathParameters: { eventId: event.id },
-      })
+      constructAPIGwEvent(
+        [
+          { eventId: event.id, id: reg.id, group: reg.group, cancelled: true, cancelReason: 'test' },
+        ] as JsonRegistrationGroupInfo[],
+        {
+          pathParameters: { eventId: event.id },
+        }
+      )
     )
     expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       1,
       { eventId: 'testInvited', id: 'testInvited4' },
-      'set #grp = :value, #cancelled = :cancelled',
-      { '#cancelled': 'cancelled', '#grp': 'group' },
-      { ':cancelled': true, ':value': { key: 'cancelled', number: 1 } },
+      'set #grp = :value, #cancelled = :cancelled, #cancelReason = :cancelReason',
+      { '#cancelled': 'cancelled', '#grp': 'group', '#cancelReason': 'cancelReason' },
+      { ':cancelled': true, ':value': { key: 'cancelled', number: 1 }, ':cancelReason': 'test' },
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(

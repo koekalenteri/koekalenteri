@@ -145,19 +145,38 @@ export const saveGroup = async (
   reason: string = ''
 ) => {
   const registrationKey = { eventId, id }
-  await dynamoDB.update(
-    registrationKey,
-    'set #grp = :value, #cancelled = :cancelled',
-    {
-      '#grp': 'group',
-      '#cancelled': 'cancelled',
-    },
-    {
-      ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-      ':cancelled': group?.key === GROUP_KEY_CANCELLED,
-    },
-    registrationTable
-  )
+  const cancelled = group?.key === GROUP_KEY_CANCELLED
+  if (cancelled) {
+    await dynamoDB.update(
+      registrationKey,
+      'set #grp = :value, #cancelled = :cancelled, #cancelReason = :cancelReason',
+      {
+        '#grp': 'group',
+        '#cancelled': 'cancelled',
+        '#cancelReason': 'cancelReason',
+      },
+      {
+        ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+        ':cancelled': cancelled,
+        ':cancelReason': reason,
+      },
+      registrationTable
+    )
+  } else {
+    await dynamoDB.update(
+      registrationKey,
+      'set #grp = :value, #cancelled = :cancelled',
+      {
+        '#grp': 'group',
+        '#cancelled': 'cancelled',
+      },
+      {
+        ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+        ':cancelled': cancelled,
+      },
+      registrationTable
+    )
+  }
   const oldGroupInfo = previous ? `${formatGroupAuditInfo(previous)} -> ` : ''
   await audit({
     auditKey: registrationAuditKey(registrationKey),
