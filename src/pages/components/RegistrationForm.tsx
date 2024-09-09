@@ -322,7 +322,7 @@ export default function RegistrationForm({
           requirements={requirements}
           results={registration.results}
           qualifyingResults={registration.qualifyingResults}
-          error={!registration.qualifies}
+          error={!registration.qualifies || errorStates.qualifyingResults}
           helperText={helperTexts.qualifyingResults}
           onChange={handleChange}
           onOpenChange={(value) => handleOpenChange('qr', value)}
@@ -335,6 +335,7 @@ export default function RegistrationForm({
           onOpenChange={(value) => handleOpenChange('info', value)}
           open={open.info}
         />
+        <MembershipInfo reg={registration} orgId={event.organizer.id} onChange={handleChange} />
         <Box sx={{ p: 1, pl: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
@@ -366,7 +367,6 @@ export default function RegistrationForm({
           </FormControl>
           <FormHelperText error>{helperTexts.agreeToTerms}</FormHelperText>
         </Box>
-        <MembershipInfo reg={registration} orgId={event.organizer.id} onChange={handleChange} />
       </Box>
 
       <Stack

@@ -57,7 +57,7 @@ describe('OwnerInfo', () => {
     const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
     const emailInput = screen.getByRole('textbox', { name: 'contact.email' })
     const phoneInput = screen.getByRole('textbox', { name: 'contact.phone' })
-    const memberCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerIsMember' })
+    // const memberCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerIsMember' })
     const handlerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerHandles' })
     const payerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerPays' })
 
@@ -107,6 +107,7 @@ describe('OwnerInfo', () => {
     })
     onChange.mockClear()
 
+    /*
     await user.click(memberCheckbox)
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
@@ -120,13 +121,14 @@ describe('OwnerInfo', () => {
       ownerPays: true,
     })
     onChange.mockClear()
+    */
 
     await user.click(handlerCheckbox)
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
         email: 'test@exmaple.com',
         location: 'test city',
-        membership: true,
+        membership: false,
         name: 'test handler',
         phone: '+358 40 123456',
       },
@@ -140,7 +142,7 @@ describe('OwnerInfo', () => {
       owner: {
         email: 'test@exmaple.com',
         location: 'test city',
-        membership: true,
+        membership: false,
         name: 'test handler',
         phone: '+358 40 123456',
       },

@@ -2,8 +2,6 @@ import type { DeepPartial, Registration, RegistrationPerson } from '../../../typ
 
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
@@ -121,17 +119,6 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
           />
         </Grid2>
       </Grid2>
-      <FormControlLabel
-        disabled={disabled}
-        control={
-          <Checkbox
-            checked={reg.handler?.membership ?? false}
-            onChange={(e) => handleChange({ membership: e.target.checked })}
-          />
-        }
-        label={t('registration.handlerIsMember')}
-        name="handlerIsMember"
-      />
     </CollapsibleSection>
   )
 }

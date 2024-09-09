@@ -2,7 +2,6 @@ import type { DeepPartial, Registration, RegistrationPerson } from '../../../typ
 
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Grid2 from '@mui/material/Grid2'
@@ -129,19 +128,6 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
           />
         </Grid2>
       </Grid2>
-      <FormGroup>
-        <FormControlLabel
-          control={
-            <Checkbox
-              disabled={disabled}
-              checked={reg.owner?.membership ?? false}
-              onChange={(e) => handleChange({ membership: e.target.checked })}
-            />
-          }
-          label={t('registration.ownerIsMember')}
-          name="ownerIsMember"
-        />
-      </FormGroup>
       <FormGroup>
         <FormControlLabel
           disabled={disabled}

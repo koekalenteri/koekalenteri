@@ -1461,40 +1461,6 @@ exports[`RegistrationForm renders 1`] = `
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
-                      >
-                        <input
-                          class="PrivateSwitchBase-input css-1m9pwf3"
-                          data-indeterminate="false"
-                          name="ownerIsMember"
-                          type="checkbox"
-                        />
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
-                          data-testid="CheckBoxOutlineBlankIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                          />
-                        </svg>
-                      </span>
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
-                      >
-                        registration.ownerIsMember
-                      </span>
-                    </label>
-                  </div>
-                  <div
-                    class="MuiFormGroup-root css-dmmspl-MuiFormGroup-root"
-                  >
-                    <label
-                      class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-                    >
-                      <span
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                       >
                         <span
@@ -1820,36 +1786,6 @@ exports[`RegistrationForm renders 1`] = `
                             </div>
                           </div>
                         </div>
-                        <label
-                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-                        >
-                          <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
-                          >
-                            <input
-                              class="PrivateSwitchBase-input css-1m9pwf3"
-                              data-indeterminate="false"
-                              name="handlerIsMember"
-                              type="checkbox"
-                            />
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
-                              data-testid="CheckBoxOutlineBlankIcon"
-                              focusable="false"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                              />
-                            </svg>
-                          </span>
-                          <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
-                          >
-                            registration.handlerIsMember
-                          </span>
-                        </label>
                       </div>
                     </div>
                   </div>
@@ -2301,71 +2237,6 @@ exports[`RegistrationForm renders 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-2vk5rw"
-      >
-        <div
-          class="MuiFormControl-root css-1nrlq1o-MuiFormControl-root"
-        >
-          <label
-            class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-          >
-            <span
-              aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
-              tabindex="-1"
-            >
-              <input
-                checked=""
-                class="PrivateSwitchBase-input css-1m9pwf3"
-                data-indeterminate="false"
-                disabled=""
-                name="agreeToTerms"
-                type="checkbox"
-              />
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
-                data-testid="CheckBoxIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                />
-              </svg>
-            </span>
-            <span
-              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
-            >
-              Hyväksyn
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
-                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                rel="noopener"
-                target="_blank"
-              >
-                ilmoittautmisen ehdot
-              </a>
-               
-              ja
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
-                href="https://www.snj.fi/snj/tietosuojaseloste/"
-                rel="noopener"
-                target="_blank"
-              >
-                tietosuojaselosteen
-              </a>
-            </span>
-          </label>
-        </div>
-        <p
-          class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
-        />
-      </div>
-      <div
         class="MuiBox-root css-eo0ytz"
       >
         <button
@@ -2483,6 +2354,71 @@ exports[`RegistrationForm renders 1`] = `
             </div>
           </div>
         </div>
+      </div>
+      <div
+        class="MuiBox-root css-2vk5rw"
+      >
+        <div
+          class="MuiFormControl-root css-1nrlq1o-MuiFormControl-root"
+        >
+          <label
+            class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+          >
+            <span
+              aria-disabled="true"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
+              tabindex="-1"
+            >
+              <input
+                checked=""
+                class="PrivateSwitchBase-input css-1m9pwf3"
+                data-indeterminate="false"
+                disabled=""
+                name="agreeToTerms"
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                data-testid="CheckBoxIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+            >
+              Hyväksyn
+               
+              <a
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
+                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
+                rel="noopener"
+                target="_blank"
+              >
+                ilmoittautmisen ehdot
+              </a>
+               
+              ja
+               
+              <a
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
+                href="https://www.snj.fi/snj/tietosuojaseloste/"
+                rel="noopener"
+                target="_blank"
+              >
+                tietosuojaselosteen
+              </a>
+            </span>
+          </label>
+        </div>
+        <p
+          class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
+        />
       </div>
     </div>
     <div
@@ -4013,40 +3949,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
-                      >
-                        <input
-                          class="PrivateSwitchBase-input css-1m9pwf3"
-                          data-indeterminate="false"
-                          name="ownerIsMember"
-                          type="checkbox"
-                        />
-                        <svg
-                          aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
-                          data-testid="CheckBoxOutlineBlankIcon"
-                          focusable="false"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                          />
-                        </svg>
-                      </span>
-                      <span
-                        class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
-                      >
-                        registration.ownerIsMember
-                      </span>
-                    </label>
-                  </div>
-                  <div
-                    class="MuiFormGroup-root css-dmmspl-MuiFormGroup-root"
-                  >
-                    <label
-                      class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-                    >
-                      <span
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-julti5-MuiSwitch-root"
                       >
                         <span
@@ -4372,36 +4274,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                             </div>
                           </div>
                         </div>
-                        <label
-                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-                        >
-                          <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
-                          >
-                            <input
-                              class="PrivateSwitchBase-input css-1m9pwf3"
-                              data-indeterminate="false"
-                              name="handlerIsMember"
-                              type="checkbox"
-                            />
-                            <svg
-                              aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
-                              data-testid="CheckBoxOutlineBlankIcon"
-                              focusable="false"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
-                              />
-                            </svg>
-                          </span>
-                          <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
-                          >
-                            registration.handlerIsMember
-                          </span>
-                        </label>
                       </div>
                     </div>
                   </div>
@@ -4675,7 +4547,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
               registration.qualifyingResults
             </p>
             <p
-              class="MuiFormHelperText-root css-9tosq5-MuiFormHelperText-root"
+              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
             >
               validation.registration.choose field
             </p>
@@ -4853,71 +4725,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         </div>
       </div>
       <div
-        class="MuiBox-root css-2vk5rw"
-      >
-        <div
-          class="MuiFormControl-root css-1nrlq1o-MuiFormControl-root"
-        >
-          <label
-            class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
-          >
-            <span
-              aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
-              tabindex="-1"
-            >
-              <input
-                checked=""
-                class="PrivateSwitchBase-input css-1m9pwf3"
-                data-indeterminate="false"
-                disabled=""
-                name="agreeToTerms"
-                type="checkbox"
-              />
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
-                data-testid="CheckBoxIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
-                />
-              </svg>
-            </span>
-            <span
-              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
-            >
-              Hyväksyn
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
-                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                rel="noopener"
-                target="_blank"
-              >
-                ilmoittautmisen ehdot
-              </a>
-               
-              ja
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
-                href="https://www.snj.fi/snj/tietosuojaseloste/"
-                rel="noopener"
-                target="_blank"
-              >
-                tietosuojaselosteen
-              </a>
-            </span>
-          </label>
-        </div>
-        <p
-          class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
-        />
-      </div>
-      <div
         class="MuiBox-root css-eo0ytz"
       >
         <button
@@ -4950,8 +4757,10 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
               registration.membership
             </p>
             <p
-              class="MuiFormHelperText-root css-ml08u8-MuiFormHelperText-root"
-            />
+              class="MuiFormHelperText-root Mui-error css-9tosq5-MuiFormHelperText-root"
+            >
+              validation.registration.choose field
+            </p>
           </div>
           <div
             class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
@@ -5035,6 +4844,71 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </div>
           </div>
         </div>
+      </div>
+      <div
+        class="MuiBox-root css-2vk5rw"
+      >
+        <div
+          class="MuiFormControl-root css-1nrlq1o-MuiFormControl-root"
+        >
+          <label
+            class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+          >
+            <span
+              aria-disabled="true"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-ax5pta-MuiButtonBase-root-MuiCheckbox-root"
+              tabindex="-1"
+            >
+              <input
+                checked=""
+                class="PrivateSwitchBase-input css-1m9pwf3"
+                data-indeterminate="false"
+                disabled=""
+                name="agreeToTerms"
+                type="checkbox"
+              />
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                data-testid="CheckBoxIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                />
+              </svg>
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+            >
+              Hyväksyn
+               
+              <a
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
+                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
+                rel="noopener"
+                target="_blank"
+              >
+                ilmoittautmisen ehdot
+              </a>
+               
+              ja
+               
+              <a
+                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-q14miv-MuiTypography-root-MuiLink-root"
+                href="https://www.snj.fi/snj/tietosuojaseloste/"
+                rel="noopener"
+                target="_blank"
+              >
+                tietosuojaselosteen
+              </a>
+            </span>
+          </label>
+        </div>
+        <p
+          class="MuiFormHelperText-root Mui-error css-w5l3sh-MuiFormHelperText-root"
+        />
       </div>
     </div>
     <div

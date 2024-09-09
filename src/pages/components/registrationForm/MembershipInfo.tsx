@@ -65,8 +65,15 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
     [handlerCache, onChange, orgId, ownerCache, setHandlerCache, setOwnerCache]
   )
 
+  const open = !!reg.dog?.regNo
+
   return (
-    <CollapsibleSection title={t('registration.membership')} open={!!reg.dog?.regNo}>
+    <CollapsibleSection
+      title={t('registration.membership')}
+      open={open}
+      error={!open}
+      helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
+    >
       <FormGroup>
         <FormControlLabel
           control={
