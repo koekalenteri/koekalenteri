@@ -146,7 +146,7 @@ export const saveGroup = async (
 ) => {
   const registrationKey = { eventId, id }
   const cancelled = group?.key === GROUP_KEY_CANCELLED
-  if (cancelled) {
+  if (cancelled && previous?.key !== GROUP_KEY_CANCELLED) {
     await dynamoDB.update(
       registrationKey,
       'set #grp = :value, #cancelled = :cancelled, #cancelReason = :cancelReason',
