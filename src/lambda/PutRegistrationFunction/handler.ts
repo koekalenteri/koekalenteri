@@ -64,7 +64,6 @@ const sendMessages = async (
 
   // also notify secretary about cancellation (allowed to fail)
   try {
-    const oldTemplateData = registrationEmailTemplateData(existing ?? registration, confirmedEvent, origin, context)
     const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
     if (context === 'cancel' && secretaryEmail) {
       let template: EmailTemplateId | undefined = undefined
@@ -75,7 +74,15 @@ const sendMessages = async (
       }
 
       if (template) {
-        await sendTemplatedMail(template, 'fi', emailFrom, [secretaryEmail], oldTemplateData)
+        const cancelTemplateData = registrationEmailTemplateData(
+          registration,
+          confirmedEvent,
+          origin,
+          context,
+          '',
+          existing?.group
+        )
+        await sendTemplatedMail(template, 'fi', emailFrom, [secretaryEmail], cancelTemplateData)
       }
     }
   } catch (e) {

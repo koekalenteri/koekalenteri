@@ -3,6 +3,7 @@ import type {
   DogEvent,
   JsonConfirmedEvent,
   JsonRegistration,
+  JsonRegistrationGroup,
   PublicDogEvent,
   Registration,
   RegistrationTemplateContext,
@@ -132,7 +133,8 @@ export const getRegistrationEmailTemplateData = (
   origin: string | undefined,
   context: RegistrationTemplateContext,
   text: string | undefined,
-  t: TFunction
+  t: TFunction,
+  previousGroup?: JsonRegistrationGroup
 ) => {
   const eventDate = t('dateFormat.datespan', { start: confirmedEvent.startDate, end: confirmedEvent.endDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
@@ -146,9 +148,13 @@ export const getRegistrationEmailTemplateData = (
     ...r,
     date: t('dateFormat.date', { date: r.date }),
   }))
-  const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
-  const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
-  const groupNumber = registration.group?.number ?? '?'
+
+  // Group information. Use previous group when provided.
+  const group = previousGroup ?? registration.group
+  const groupDate = group?.date ? t('dateFormat.wdshort', { date: group.date }) : ''
+  const groupTime = group?.time ? t(`registration.timeLong.${group.time}`) : ''
+  const groupNumber = group?.number ?? '?'
+
   const invitationLink = `${origin}/r/${registration.eventId}/${registration.id}/invitation`
   const cancelReason = isPredefinedReason(registration.cancelReason)
     ? t(`registration.cancelReason.${registration.cancelReason}`)

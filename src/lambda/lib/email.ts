@@ -3,6 +3,7 @@ import type {
   EmailTemplateId,
   JsonConfirmedEvent,
   JsonRegistration,
+  JsonRegistrationGroup,
   Language,
   RegistrationTemplateContext,
 } from '../../types'
@@ -53,9 +54,10 @@ export function registrationEmailTemplateData(
   confirmedEvent: JsonConfirmedEvent,
   origin: string | undefined,
   context: RegistrationTemplateContext,
-  text: string = ''
+  text: string = '',
+  previousGroup?: JsonRegistrationGroup
 ) {
   const t = i18n.getFixedT(registration.language)
 
-  return getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t)
+  return getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t, previousGroup)
 }
