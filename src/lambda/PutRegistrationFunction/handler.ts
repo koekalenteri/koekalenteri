@@ -1,6 +1,5 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
 
-import { isPast } from 'date-fns'
 import { nanoid } from 'nanoid'
 
 import { getRegistrationChanges, GROUP_KEY_RESERVE } from '../../lib/registration'
@@ -54,7 +53,8 @@ const sendMessages = async (
   origin: string,
   context: RegistrationTemplateContext,
   registration: JsonRegistration,
-  confirmedEvent: JsonConfirmedEvent
+  confirmedEvent: JsonConfirmedEvent,
+  existing?: JsonRegistration
 ) => {
   // send update message when registration is updated, confirmed or cancelled
   const to = emailTo(registration)
@@ -67,12 +67,9 @@ const sendMessages = async (
     const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
     if (context === 'cancel' && secretaryEmail) {
       let template: EmailTemplateId | undefined = undefined
-      if (
-        registration.group?.key === GROUP_KEY_RESERVE &&
-        (registration.reserveNotified || isPast(confirmedEvent.entryEndDate))
-      ) {
+      if (existing?.group?.key === GROUP_KEY_RESERVE) {
         template = 'cancel-reserve'
-      } else if (isParticipantGroup(registration.group?.key ?? GROUP_KEY_RESERVE)) {
+      } else if (isParticipantGroup(existing?.group?.key ?? GROUP_KEY_RESERVE)) {
         template = 'cancel-picked'
       }
 
@@ -140,7 +137,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const context = getEmailContext(update, cancel, confirm, invitation)
   if (context && registration.handler?.email && registration.owner?.email) {
-    await sendMessages(origin, context, registration, confirmedEvent)
+    await sendMessages(origin, context, registration, confirmedEvent, existing)
   }
 
   return response(200, data, event)
