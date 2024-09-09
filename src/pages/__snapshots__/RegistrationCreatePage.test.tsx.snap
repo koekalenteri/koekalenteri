@@ -21,9 +21,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       class="MuiBox-root css-i357mj"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
-        disabled=""
-        tabindex="-1"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
         type="button"
       >
         <svg
@@ -2980,9 +2979,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       class="MuiBox-root css-i357mj"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
-        disabled=""
-        tabindex="-1"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
         type="button"
       >
         <svg

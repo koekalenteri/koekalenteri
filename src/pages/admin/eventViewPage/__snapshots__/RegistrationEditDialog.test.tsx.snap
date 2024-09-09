@@ -2583,9 +2583,8 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             class="MuiBox-root css-eo0ytz"
           >
             <button
-              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
-              disabled=""
-              tabindex="-1"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
+              tabindex="0"
               type="button"
             >
               <svg
@@ -5353,9 +5352,8 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             class="MuiBox-root css-eo0ytz"
           >
             <button
-              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
-              disabled=""
-              tabindex="-1"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
+              tabindex="0"
               type="button"
             >
               <svg

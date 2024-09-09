@@ -6,9 +6,8 @@ exports[`BreederInfo should render with minimal info 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-19u30f2-MuiButtonBase-root-MuiIconButton-root"
-      disabled=""
-      tabindex="-1"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-19u30f2-MuiButtonBase-root-MuiIconButton-root"
+      tabindex="0"
       type="button"
     >
       <svg

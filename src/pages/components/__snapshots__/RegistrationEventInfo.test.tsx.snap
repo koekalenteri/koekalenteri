@@ -10,9 +10,8 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
       class="MuiBox-root css-i357mj"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
-        disabled=""
-        tabindex="-1"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
         type="button"
       >
         <svg
@@ -206,9 +205,8 @@ exports[`RegistrationEventInfo renders 1`] = `
       class="MuiBox-root css-i357mj"
     >
       <button
-        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
-        disabled=""
-        tabindex="-1"
+        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1g8s8mk-MuiButtonBase-root-MuiIconButton-root"
+        tabindex="0"
         type="button"
       >
         <svg
