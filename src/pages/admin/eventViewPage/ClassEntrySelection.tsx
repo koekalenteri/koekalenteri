@@ -182,7 +182,8 @@ const ClassEntrySelection = ({
 
     // send all the updates to backend
     if (save.length) {
-      await actions.saveGroups(reg.eventId, save)
+      if (save.length === 1 && save[0].cancelled) handleCancel(save[0].id)
+      else await actions.saveGroups(reg.eventId, save)
     }
   }
 

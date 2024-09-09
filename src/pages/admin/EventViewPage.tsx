@@ -115,8 +115,8 @@ export default function EventViewPage() {
       const regs = registrations.filter(
         (r) => getRegistrationGroupKey(r) === GROUP_KEY_CANCELLED && r.id !== selectedRegistration.id
       )
-      await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason, regs.length + 1)
       setCancelOpen(false)
+      await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason, regs.length + 1)
     },
     [actions, registrations, selectedRegistration]
   )
