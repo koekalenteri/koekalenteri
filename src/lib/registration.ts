@@ -148,10 +148,11 @@ export const getRegistrationEmailTemplateData = (
   }))
   const groupDate = registration.group?.date ? t('dateFormat.wdshort', { date: registration.group.date }) : ''
   const groupTime = registration.group?.time ? t(`registration.timeLong.${registration.group.time}`) : ''
+  const groupNumber = registration.group?.number ?? '?'
   const invitationLink = `${origin}/r/${registration.eventId}/${registration.id}/invitation`
   const cancelReason = isPredefinedReason(registration.cancelReason)
     ? t(`registration.cancelReason.${registration.cancelReason}`)
-    : (registration.cancelled ?? '')
+    : (registration.cancelReason ?? '')
 
   return {
     subject: t('registration.email.subject', { context, defaultValue: '' }),
@@ -168,6 +169,7 @@ export const getRegistrationEmailTemplateData = (
     reserveText,
     groupDate,
     groupTime,
+    groupNumber,
     text,
     origin,
     cancelReason,
