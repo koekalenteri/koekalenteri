@@ -56,7 +56,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const actions = useRegistrationActions()
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
-    () => !event || allDisabled || subDays(event.startDate, 2) > new Date(),
+    () => !event || allDisabled || isPast(subDays(event.startDate, 2)),
     [allDisabled, event]
   )
 
