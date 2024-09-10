@@ -1,4 +1,4 @@
-import type { StandardTextFieldProps } from '@mui/material'
+import type { TextFieldProps } from '@mui/material'
 import type { ChangeEventHandler } from 'react'
 
 import { useCallback, useEffect, useState } from 'react'
@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField'
 
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
 
-interface Props extends Omit<StandardTextFieldProps, 'onChange'> {
+interface Props extends Omit<TextFieldProps<'standard'>, 'onChange'> {
   readonly formatValue?: (value: number | undefined) => string
   readonly parseInput?: (value: string) => number
   readonly pattern?: string
@@ -66,10 +66,11 @@ export const NumberInput = ({
       size="small"
       slotProps={{
         input: {
-          ...props.InputProps,
+          ...props.slotProps?.input,
           inputProps: {
             pattern,
-            style: { textAlign: 'right', padding: 4, ...props.InputProps?.inputProps },
+            // @ts-expect-error wtf
+            style: { textAlign: 'right', padding: 4, ...props.slotProps?.input?.inputProps?.style },
           },
         },
       }}

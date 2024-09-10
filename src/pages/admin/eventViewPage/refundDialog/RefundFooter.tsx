@@ -6,6 +6,7 @@ import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
 import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { GridFooterContainer } from '@mui/x-data-grid'
@@ -54,47 +55,51 @@ export const RefundFooter = ({
       <FooterCell></FooterCell>
       <FooterCell>
         <Table size="small">
-          <TableRow>
-            <TableCell align="right">Tapahtumat yhteensä:</TableCell>
-            <ValueCell align="right">{formatMoney(total / 100)}</ValueCell>
-          </TableRow>
-          <TableRow>
-            <TableCell align="right">Käsittelykulu:</TableCell>
-            <ValueCell align="right">
-              <NumberInput
-                disabled={!canHaveHandlingCosts}
-                formatValue={formatAmount}
-                parseInput={parseAmount}
-                pattern={`[0-9]{1,3},[0-9]{2}`}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end" disableTypography sx={{ m: 0, color: 'primary.main' }}>
-                      €
-                    </InputAdornment>
-                  ),
-                  inputProps: {
-                    style: { fontSize: 14 },
-                  },
+          <TableBody>
+            <TableRow>
+              <TableCell align="right">Tapahtumat yhteensä:</TableCell>
+              <ValueCell align="right">{formatMoney(total / 100)}</ValueCell>
+            </TableRow>
+            <TableRow>
+              <TableCell align="right">Käsittelykulu:</TableCell>
+              <ValueCell align="right">
+                <NumberInput
+                  disabled={!canHaveHandlingCosts}
+                  formatValue={formatAmount}
+                  parseInput={parseAmount}
+                  pattern={`[0-9]{1,3},[0-9]{2}`}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end" disableTypography sx={{ m: 0, color: 'primary.main' }}>
+                          €
+                        </InputAdornment>
+                      ),
+                      inputProps: {
+                        style: { fontSize: 14 },
+                      },
+                    },
+                  }}
+                  onChange={onHandlingCostChange}
+                  value={handlingCost}
+                  variant="standard"
+                  error={handlingCost < 0}
+                  sx={{ width: 60, fontSize: 14, '.MuiInputBase-root': { fontSize: 14 } }}
+                />
+              </ValueCell>
+            </TableRow>
+            <TableRow>
+              <TableCell align="right">Palautetaan:</TableCell>
+              <ValueCell
+                align="right"
+                sx={{
+                  color: refundTotal !== 0 && handlingCost > refundBase ? 'error.main' : undefined,
                 }}
-                onChange={onHandlingCostChange}
-                value={handlingCost}
-                variant="standard"
-                error={handlingCost < 0}
-                sx={{ width: 60, fontSize: 14, '.MuiInputBase-root': { fontSize: 14 } }}
-              />
-            </ValueCell>
-          </TableRow>
-          <TableRow>
-            <TableCell align="right">Palautetaan:</TableCell>
-            <ValueCell
-              align="right"
-              sx={{
-                color: refundTotal !== 0 && handlingCost > refundBase ? 'error.main' : undefined,
-              }}
-            >
-              <strong>{selectedTotal > 0 && refundTotal !== 0 ? formatMoney(refundTotal / 100) : '-'}</strong>
-            </ValueCell>
-          </TableRow>
+              >
+                <strong>{selectedTotal > 0 && refundTotal !== 0 ? formatMoney(refundTotal / 100) : '-'}</strong>
+              </ValueCell>
+            </TableRow>
+          </TableBody>
         </Table>
       </FooterCell>
     </GridFooterContainer>

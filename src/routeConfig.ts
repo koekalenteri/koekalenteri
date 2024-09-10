@@ -18,7 +18,8 @@ const getItemDateAndClass = (item: ConfirmedEvent | Registration): string => {
   } else {
     date = item.startDate
   }
-  return `${format(date, 'dd.MM.yyyy')}${cls ? `-${cls}` : ''}`
+  const c = cls ? `-${cls}` : ''
+  return `${format(date, 'dd.MM.yyyy')}${c}`
 }
 
 export const Path = {
