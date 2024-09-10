@@ -70,6 +70,7 @@
   "emailTemplates": "Viestipohjat",
   "emailTemplate": {
     "access": "Lisätty käyttäjäoikeus",
+    "cancel-early": "Peruutusilmoitus",
     "cancel-picked": "Peruutusilmoitus koepaikalta",
     "cancel-reserve": "Peruutusilmoitus varasijalta",
     "invitation": "Koekutsu",

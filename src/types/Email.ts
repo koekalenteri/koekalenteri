@@ -9,6 +9,7 @@ export type EmailTemplateId =
   | 'invitation'
   | 'access'
   | 'refund'
+  | 'cancel-early'
   | 'cancel-picked'
   | 'cancel-reserve'
 

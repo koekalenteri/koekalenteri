@@ -16,10 +16,17 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # fetch also previous commit
+
+      # workaround for https://github.com/dorny/paths-filter/issues/240
+      - id: previous-sha
+        run: 'echo "sha=$(git rev-list -n 1 ${{ github.ref }}^)" >> $GITHUB_OUTPUT'
+
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          base: ${{ github.ref }}
+          base: "${{ steps.previous-sha.outputs.sha }}"
           filters: |
             backend:
               - '.github/**'
@@ -40,16 +47,19 @@ jobs:
               - 'package-lock.json'
               - 'package.json'
               - 'tsconfig.json'
+
       - uses: actions/setup-node@v4
         with:
           cache: npm
           cache-dependency-path: package-lock.json
+
       - name: Cache node_modules
         id: cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci

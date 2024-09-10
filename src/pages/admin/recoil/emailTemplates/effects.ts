@@ -9,6 +9,7 @@ import { idTokenAtom } from '../../../recoil'
 
 const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'access',
+  'cancel-early',
   'cancel-picked',
   'cancel-reserve',
   'invitation',

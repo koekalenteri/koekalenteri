@@ -133,7 +133,17 @@ describe('putRegistrationLabmda', () => {
       ['handler@example.com', 'owner@example.com'],
       expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
     )
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'cancel-early',
+      'fi',
+      'koekalenteri@koekalenteri.snj.fi',
+      ['secretary@example.com'],
+      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
+    )
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
+
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toEqual(200)
@@ -178,6 +188,7 @@ describe('putRegistrationLabmda', () => {
       ['handler@example.com', 'owner@example.com'],
       expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
     )
+
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
       'cancel-reserve',
       'fi',
@@ -192,7 +203,7 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
-  it('should notify secretary when cancelling from reserve after entry end date', async () => {
+  it('should notify secretary when cancelling from reserve and it was not notified', async () => {
     jest.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
 
     const registration: Registration = {
@@ -231,13 +242,15 @@ describe('putRegistrationLabmda', () => {
       ['handler@example.com', 'owner@example.com'],
       expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
     )
+
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'cancel-reserve',
+      'cancel-early',
       'fi',
       'koekalenteri@koekalenteri.snj.fi',
       ['secretary@example.com'],
       expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
     )
+
     expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)

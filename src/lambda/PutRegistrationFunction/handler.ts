@@ -67,9 +67,11 @@ const sendMessages = async (
     const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
     if (context === 'cancel' && secretaryEmail) {
       let template: EmailTemplateId | undefined = undefined
-      if (existing?.group?.key === GROUP_KEY_RESERVE) {
-        template = 'cancel-reserve'
-      } else if (isParticipantGroup(existing?.group?.key ?? GROUP_KEY_RESERVE)) {
+
+      const groupKey = existing?.group?.key ?? GROUP_KEY_RESERVE
+      if (groupKey === GROUP_KEY_RESERVE) {
+        template = registration.reserveNotified ? 'cancel-reserve' : 'cancel-early'
+      } else if (isParticipantGroup(groupKey)) {
         template = 'cancel-picked'
       }
 
