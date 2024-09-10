@@ -142,11 +142,12 @@ export const saveGroup = async (
   { eventId, id, group }: JsonRegistrationGroupInfo,
   previous: JsonRegistrationGroupInfo['group'],
   user: JsonUser,
-  reason: string = ''
+  reason: string = '',
+  cancelReason?: string
 ) => {
   const registrationKey = { eventId, id }
   const cancelled = group?.key === GROUP_KEY_CANCELLED
-  if (cancelled && previous?.key !== GROUP_KEY_CANCELLED) {
+  if (cancelled && cancelReason) {
     await dynamoDB.update(
       registrationKey,
       'set #grp = :value, #cancelled = :cancelled, #cancelReason = :cancelReason',
@@ -158,7 +159,7 @@ export const saveGroup = async (
       {
         ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
         ':cancelled': cancelled,
-        ':cancelReason': reason,
+        ':cancelReason': cancelReason,
       },
       registrationTable
     )
