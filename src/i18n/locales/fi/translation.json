@@ -229,6 +229,11 @@
     "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
+  "paymentStatus": {
+    "success": "Olen maksanut",
+    "pending": "Odottaa maksun käsittelyä",
+    "missing": "Koemaksu puuttuu vielä"
+  },
   "places": "Paikkoja",
   "priority": {
     "members": "jäsenet",

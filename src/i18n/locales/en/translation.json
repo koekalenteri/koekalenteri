@@ -168,6 +168,11 @@
   "organizations": "Organizations",
   "organizer": "Organizer",
   "paymentDetails": "Payment details",
+  "paymentStatus": {
+    "success": "I have paid",
+    "pending": "Waiting for payment processing",
+    "missing": "Test payment is still missing"
+  },
   "places": "Places",
   "priority": {
     "members": "members",

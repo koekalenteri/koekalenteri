@@ -19,6 +19,7 @@ import { isPast, subDays } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { getPaymentStatus } from '../lib/payment'
 import { hasPriority } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
@@ -223,7 +224,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
                     <EuroOutlined fontSize="small" />
                   </ListItemIcon>
                   <ListItemText
-                    primary={paymentStatus(registration)}
+                    primary={t(getPaymentStatus(registration))}
                     primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
                   />
                 </ListItem>
@@ -282,12 +283,6 @@ function priorityStatus(event: PublicDogEvent, registration: Registration) {
 
 function paymentIconColor(registration: Registration) {
   return registration.paymentStatus === 'SUCCESS' ? 'primary.main' : 'transparent'
-}
-
-function paymentStatus(registration: Registration) {
-  if (registration.paymentStatus === 'SUCCESS') return 'Olen maksanut'
-  if (registration.paymentStatus === 'PENDING') return 'Odottaa maksun käsittelyä'
-  return 'Koemaksu puuttuu vielä'
 }
 
 function registrationStatus(registration: Registration) {

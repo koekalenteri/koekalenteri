@@ -1,3 +1,5 @@
+import type { Registration } from '../types'
+
 import { capitalize } from '../lambda/lib/string'
 
 export const PROVIDER_NAMES: Record<string, string> = {
@@ -32,3 +34,9 @@ const hasName = (provider?: string): provider is keyof typeof PROVIDER_NAMES => 
 
 export const getProviderName = (provider?: string) =>
   hasName(provider) ? PROVIDER_NAMES[provider] : capitalize(provider ?? '')
+
+export const getPaymentStatus = (registration: Pick<Registration, 'paymentStatus'>) => {
+  if (registration.paymentStatus === 'SUCCESS') return 'paymentStatus.success'
+  if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
+  return 'paymentStatus.missing'
+}

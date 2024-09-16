@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
+import { getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
@@ -28,14 +29,8 @@ interface Props {
   readonly onUnregister: (registration: Registration) => void
 }
 
-const paymentText = (registration: Registration) =>
-  registration.paymentStatus === 'SUCCESS'
-    ? 'Olen maksanut'
-    : registration.paymentStatus === 'PENDING'
-      ? 'Odottaa maksun käsittelyä'
-      : 'Koemaksu puuttuu vielä'
-
 const Icons = ({ event, registration }: { event: PublicDogEvent; registration: Registration }) => {
+  const { t } = useTranslation()
   const priority = hasPriority(event, registration)
   const items: TooltipContent[] = [
     {
@@ -43,7 +38,7 @@ const Icons = ({ event, registration }: { event: PublicDogEvent; registration: R
       icon: <PriorityIcon dim priority={priority} fontSize="small" />,
     },
     {
-      text: paymentText(registration),
+      text: t(getPaymentStatus(registration)),
       icon: <PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />,
     },
   ]
