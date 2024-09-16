@@ -35,7 +35,7 @@ exports[`JudgeListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-z1l5e6-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 470px; --DataGrid-columnsTotalWidth: 470px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -130,7 +130,6 @@ exports[`JudgeListPage renders 1`] = `
                   />
                   <div
                     aria-colindex="1"
-                    aria-label="judgeActive"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="active"
@@ -151,7 +150,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -206,7 +204,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="2"
-                    aria-label="official"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="official"
@@ -227,7 +224,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -282,7 +278,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="3"
-                    aria-label="name"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
@@ -303,7 +298,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -358,7 +352,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="4"
-                    aria-label="id"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="id"
@@ -379,7 +372,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -434,7 +426,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="5"
-                    aria-label="contact.city"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="location"
@@ -455,7 +446,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -510,7 +500,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="6"
-                    aria-label="contact.phone"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="phone"
@@ -531,7 +520,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -586,7 +574,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="7"
-                    aria-label="contact.email"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="email"
@@ -607,7 +594,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -662,7 +648,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="8"
-                    aria-label="Kennelpiiri"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="district"
@@ -683,7 +668,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -738,7 +722,6 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="9"
-                    aria-label="eventTypes"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="eventTypes"
@@ -759,7 +742,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -814,9 +796,8 @@ exports[`JudgeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="10"
-                    aria-label="languages"
                     aria-sort="none"
-                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                     data-field="languages"
                     role="columnheader"
                     style="height: 39px; width: 220px;"
@@ -835,7 +816,6 @@ exports[`JudgeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -1616,7 +1596,6 @@ exports[`JudgeListPage renders 2`] = `
     />
     <div
       aria-colindex="1"
-      aria-label="judgeActive"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="active"
@@ -1637,7 +1616,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -1692,7 +1670,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="2"
-      aria-label="official"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="official"
@@ -1713,7 +1690,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -1768,7 +1744,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="3"
-      aria-label="name"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="name"
@@ -1789,7 +1764,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -1844,7 +1818,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="4"
-      aria-label="id"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="id"
@@ -1865,7 +1838,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -1920,7 +1892,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="5"
-      aria-label="contact.city"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="location"
@@ -1941,7 +1912,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -1996,7 +1966,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="6"
-      aria-label="contact.phone"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="phone"
@@ -2017,7 +1986,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -2072,7 +2040,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="7"
-      aria-label="contact.email"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="email"
@@ -2093,7 +2060,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -2148,7 +2114,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="8"
-      aria-label="Kennelpiiri"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="district"
@@ -2169,7 +2134,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -2224,7 +2188,6 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="9"
-      aria-label="eventTypes"
       aria-sort="none"
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="eventTypes"
@@ -2245,7 +2208,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >
@@ -2300,9 +2262,8 @@ exports[`JudgeListPage renders 2`] = `
     </div>
     <div
       aria-colindex="10"
-      aria-label="languages"
       aria-sort="none"
-      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+      class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
       data-field="languages"
       role="columnheader"
       style="height: 39px; width: 220px;"
@@ -2321,7 +2282,6 @@ exports[`JudgeListPage renders 2`] = `
             class="MuiDataGrid-columnHeaderTitleContainerContent"
           >
             <div
-              aria-label=""
               class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
               data-mui-internal-clone-element="true"
             >

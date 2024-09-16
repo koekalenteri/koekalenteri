@@ -57,7 +57,7 @@ exports[`EventTypeListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-z1l5e6-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 340px; --DataGrid-columnsTotalWidth: 340px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -152,7 +152,6 @@ exports[`EventTypeListPage renders 1`] = `
                   />
                   <div
                     aria-colindex="1"
-                    aria-label="eventType.eventType"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="eventType"
@@ -173,7 +172,6 @@ exports[`EventTypeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -228,7 +226,6 @@ exports[`EventTypeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="2"
-                    aria-label="official"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="official"
@@ -249,7 +246,6 @@ exports[`EventTypeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -304,7 +300,6 @@ exports[`EventTypeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="3"
-                    aria-label="active"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="active"
@@ -325,7 +320,6 @@ exports[`EventTypeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -380,9 +374,8 @@ exports[`EventTypeListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="4"
-                    aria-label="eventType.description"
                     aria-sort="none"
-                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                     data-field="description"
                     role="columnheader"
                     style="height: 39px; width: 0px;"
@@ -401,7 +394,6 @@ exports[`EventTypeListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >

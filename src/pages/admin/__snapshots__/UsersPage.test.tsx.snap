@@ -58,7 +58,7 @@ exports[`OrganizerListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-slqvgp-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-z1l5e6-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 240px; --DataGrid-columnsTotalWidth: 240px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 35px;"
       >
         <div
@@ -259,7 +259,6 @@ exports[`OrganizerListPage renders 1`] = `
                   />
                   <div
                     aria-colindex="1"
-                    aria-label="name"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
@@ -280,7 +279,6 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -335,7 +333,6 @@ exports[`OrganizerListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="2"
-                    aria-label="roles"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="roles"
@@ -356,7 +353,6 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -411,7 +407,6 @@ exports[`OrganizerListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="3"
-                    aria-label="contact.phone"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="phone"
@@ -432,7 +427,6 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -487,7 +481,6 @@ exports[`OrganizerListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="4"
-                    aria-label="contact.email"
                     aria-sort="none"
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="email"
@@ -508,7 +501,6 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
@@ -563,9 +555,8 @@ exports[`OrganizerListPage renders 1`] = `
                   </div>
                   <div
                     aria-colindex="5"
-                    aria-label="user.lastSeen"
                     aria-sort="none"
-                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                     data-field="lastSeen"
                     role="columnheader"
                     style="height: 39px; width: 0px;"
@@ -584,7 +575,6 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            aria-label=""
                             class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >

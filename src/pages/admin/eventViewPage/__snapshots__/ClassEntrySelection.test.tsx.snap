@@ -13,7 +13,7 @@ exports[`ClassEntrySelection renders 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-v3qf68-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1noml1o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -53,7 +53,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -74,7 +73,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -103,7 +101,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -124,7 +121,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -155,7 +151,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -176,7 +171,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -207,7 +201,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -228,7 +221,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -259,7 +251,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -280,7 +271,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -311,7 +301,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -332,7 +321,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -363,7 +351,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -384,7 +371,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -415,7 +401,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -436,7 +421,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -465,9 +449,8 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 39px; width: 30px;"
@@ -486,7 +469,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -565,7 +547,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -615,7 +597,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -636,7 +617,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -665,7 +645,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -686,7 +665,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -717,7 +695,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -738,7 +715,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -769,7 +745,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -790,7 +765,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -821,7 +795,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -842,7 +815,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -873,7 +845,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -894,7 +865,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -925,7 +895,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -946,7 +915,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -977,7 +945,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -998,7 +965,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -1027,9 +993,8 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 0px; width: 30px;"
@@ -1048,7 +1013,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -1133,7 +1097,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -1183,7 +1147,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -1204,7 +1167,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -1233,7 +1195,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -1254,7 +1215,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1285,7 +1245,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -1306,7 +1265,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1337,7 +1295,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -1358,7 +1315,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1389,7 +1345,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -1410,7 +1365,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1441,7 +1395,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -1462,7 +1415,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1493,7 +1445,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -1514,7 +1465,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1545,7 +1495,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -1566,7 +1515,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -1595,9 +1543,8 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 0px; width: 30px;"
@@ -1616,7 +1563,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -1738,7 +1684,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -1778,7 +1724,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -1799,7 +1744,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -1828,7 +1772,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -1849,7 +1792,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1880,7 +1822,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -1901,7 +1842,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1932,7 +1872,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -1953,7 +1892,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -1984,7 +1922,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -2005,7 +1942,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2036,7 +1972,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -2057,7 +1992,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2088,7 +2022,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -2109,7 +2042,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2140,7 +2072,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -2161,7 +2092,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -2190,9 +2120,8 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 39px; width: 30px;"
@@ -2211,7 +2140,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -2301,7 +2229,7 @@ exports[`ClassEntrySelection renders 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -2341,7 +2269,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -2362,7 +2289,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -2391,7 +2317,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -2412,7 +2337,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2443,7 +2367,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -2464,7 +2387,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2495,7 +2417,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -2516,7 +2437,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2547,7 +2467,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -2568,7 +2487,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2599,7 +2517,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -2620,7 +2537,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2651,7 +2567,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -2672,7 +2587,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2703,7 +2617,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label="Perumisen syy"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                   data-field="cancelReason"
@@ -2724,7 +2637,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -2779,7 +2691,6 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -2800,7 +2711,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -2829,9 +2739,8 @@ exports[`ClassEntrySelection renders 1`] = `
                 </div>
                 <div
                   aria-colindex="10"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 39px; width: 30px;"
@@ -2850,7 +2759,6 @@ exports[`ClassEntrySelection renders 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -2946,7 +2854,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     class="MuiBox-root css-1hvfy3o"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-v3qf68-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1noml1o-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -2986,7 +2894,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -3007,7 +2914,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -3036,7 +2942,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -3057,7 +2962,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3088,7 +2992,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -3109,7 +3012,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3140,7 +3042,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -3161,7 +3062,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3192,7 +3092,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -3213,7 +3112,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3244,7 +3142,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -3265,7 +3162,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3296,7 +3192,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -3317,7 +3212,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3348,7 +3242,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -3369,7 +3262,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -3398,9 +3290,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 39px; width: 30px;"
@@ -3419,7 +3310,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -3498,7 +3388,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -3548,7 +3438,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -3569,7 +3458,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -3598,7 +3486,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -3619,7 +3506,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3650,7 +3536,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -3671,7 +3556,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3702,7 +3586,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -3723,7 +3606,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3754,7 +3636,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -3775,7 +3656,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3806,7 +3686,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -3827,7 +3706,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3858,7 +3736,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -3879,7 +3756,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -3910,7 +3786,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -3931,7 +3806,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -3960,9 +3834,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 0px; width: 30px;"
@@ -3981,7 +3854,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -4066,7 +3938,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -4116,7 +3988,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -4137,7 +4008,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -4166,7 +4036,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -4187,7 +4056,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4218,7 +4086,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -4239,7 +4106,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4270,7 +4136,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -4291,7 +4156,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4322,7 +4186,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -4343,7 +4206,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4374,7 +4236,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -4395,7 +4256,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4426,7 +4286,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -4447,7 +4306,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4478,7 +4336,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -4499,7 +4356,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -4528,9 +4384,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 0px; width: 30px;"
@@ -4549,7 +4404,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -4671,7 +4525,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -4711,7 +4565,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -4732,7 +4585,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -4761,7 +4613,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -4782,7 +4633,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4813,7 +4663,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -4834,7 +4683,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4865,7 +4713,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -4886,7 +4733,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4917,7 +4763,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -4938,7 +4783,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -4969,7 +4813,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -4990,7 +4833,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5021,7 +4863,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -5042,7 +4883,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5073,7 +4913,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -5094,7 +4933,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -5123,9 +4961,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 39px; width: 30px;"
@@ -5144,7 +4981,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -5500,7 +5336,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     style="display: flex; flex-grow: 1; width: 100%;"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-18n0s7o-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1tfryam-MuiDataGrid-root"
       style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -5540,7 +5376,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 />
                 <div
                   aria-colindex="1"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dates"
@@ -5561,7 +5396,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -5590,7 +5424,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="2"
-                  aria-label="#"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignRight MuiDataGrid-withBorderColor nopad"
                   data-field="number"
@@ -5611,7 +5444,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5642,7 +5474,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="3"
-                  aria-label="dog.name"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.name"
@@ -5663,7 +5494,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5694,7 +5524,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="4"
-                  aria-label="dog.regNo"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dog.regNo"
@@ -5715,7 +5544,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5746,7 +5574,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="5"
-                  aria-label="dog.breed"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="dob.breed"
@@ -5767,7 +5594,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5798,7 +5624,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="6"
-                  aria-label="registration.handler"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="handler"
@@ -5819,7 +5644,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5850,7 +5674,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="7"
-                  aria-label="Viesti"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="lastEmail"
@@ -5871,7 +5694,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5902,7 +5724,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="8"
-                  aria-label="Perumisen syy"
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                   data-field="cancelReason"
@@ -5923,7 +5744,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         >
@@ -5978,7 +5798,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="9"
-                  aria-label=""
                   aria-sort="none"
                   class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                   data-field="icons"
@@ -5999,7 +5818,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
@@ -6028,9 +5846,8 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 </div>
                 <div
                   aria-colindex="10"
-                  aria-label=""
                   aria-sort="none"
-                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--last"
+                  class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                   data-field="actions"
                   role="columnheader"
                   style="height: 39px; width: 30px;"
@@ -6049,7 +5866,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         class="MuiDataGrid-columnHeaderTitleContainerContent"
                       >
                         <div
-                          aria-label=""
                           class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
                           data-mui-internal-clone-element="true"
                         />
