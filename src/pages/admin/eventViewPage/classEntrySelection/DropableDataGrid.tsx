@@ -81,7 +81,7 @@ const DropableDataGrid = (props: Props) => {
               marginBottom: '3px',
             },
             '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5, color: 'error.main' },
-            '[data-field="dog.regNo"]:hover::after': {
+            '.MuiDataGrid-cell[data-field="dog.regNo"]:hover::after': {
               content: '""',
               width: '15px',
               height: '15px',

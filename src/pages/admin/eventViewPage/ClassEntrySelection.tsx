@@ -10,8 +10,6 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
-import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { isSameDay } from 'date-fns'
@@ -32,6 +30,7 @@ import { determineChangesFromDrop } from './classEntrySelection/dnd'
 import DragableDataGrid from './classEntrySelection/DropableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
+import UnlockArrange from './classEntrySelection/UnlockArrange'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySectionColumns'
 
 interface Props {
@@ -302,14 +301,7 @@ const ClassEntrySelection = ({
       ))}
       <Stack direction="row" justifyContent="space-between" gap={2}>
         <Typography variant="h6">Ilmoittautuneet</Typography>
-        <FormControlLabel
-          control={<Checkbox checked={unlockArrange} />}
-          disabled={reserveNotNotified}
-          disableTypography
-          label="Järjestä varasijoja, jo lähetetyistä varasijailmoituksista huolimatta"
-          onChange={(e, checked) => setUnlockArrange(checked)}
-          sx={{ fontSize: '0.82rem', lineHeight: 1, maxWidth: 240 }}
-        />
+        <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />
       </Stack>
       <DragableDataGrid
         autoHeight
