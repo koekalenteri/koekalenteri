@@ -287,7 +287,7 @@ export const DogInfo = ({
             disableClearable
             disabled={disabledByMode}
             error={!disabledByMode && !reg?.dog?.gender}
-            getOptionLabel={(o) => (o ? t(`dog.gender_choises.${o}`) : '')}
+            getOptionLabel={(o) => (o ? t(`dog.genderChoises.${o}`) : '')}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.gender')}
             onChange={(value) => handleChange({ dog: { gender: value ? value : undefined } })}

@@ -28,7 +28,7 @@
     },
     "dob": "Date of birth",
     "gender": "Gender",
-    "gender_choises": {
+    "genderChoises": {
       "F": "Bitch",
       "M": "Dog"
     },

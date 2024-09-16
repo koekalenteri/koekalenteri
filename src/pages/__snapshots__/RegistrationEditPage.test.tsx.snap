@@ -1040,7 +1040,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               role="combobox"
                               spellcheck="false"
                               type="text"
-                              value="dog.gender_choises.M"
+                              value="dog.genderChoises.M"
                             />
                             <div
                               class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"

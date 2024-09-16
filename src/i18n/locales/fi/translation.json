@@ -50,7 +50,7 @@
     },
     "dob": "Syntymäaika",
     "gender": "Sukupuoli",
-    "gender_choises": {
+    "genderChoises": {
       "F": "Narttu",
       "M": "Uros"
     },

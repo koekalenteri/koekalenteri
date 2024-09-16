@@ -863,7 +863,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                       role="combobox"
                                       spellcheck="false"
                                       type="text"
-                                      value="dog.gender_choises.M"
+                                      value="dog.genderChoises.M"
                                     />
                                     <div
                                       class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
@@ -3593,7 +3593,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       role="combobox"
                                       spellcheck="false"
                                       type="text"
-                                      value="dog.gender_choises.M"
+                                      value="dog.genderChoises.M"
                                     />
                                     <div
                                       class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
