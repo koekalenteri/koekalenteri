@@ -111,7 +111,7 @@
     "babel-preset-react-app": "^10.0.1",
     "browserslist": "^4.23.3",
     "camelcase": "^8.0.0",
-    "concurrently": "^8.2.2",
+    "concurrently": "^9.0.1",
     "core-js": "^3.38.1",
     "css-loader": "^7.1.2",
     "css-mediaquery": "^0.1.2",
