@@ -906,6 +906,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="active"
@@ -936,6 +937,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="1"
                     data-field="official"
@@ -958,6 +960,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="name"
@@ -971,6 +974,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="id"
@@ -984,6 +988,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="location"
@@ -997,6 +1002,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="phone"
@@ -1010,6 +1016,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="email"
@@ -1023,6 +1030,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="district"
@@ -1036,6 +1044,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="8"
                     data-field="eventTypes"
@@ -1047,6 +1056,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="9"
                     data-field="languages"
@@ -1105,6 +1115,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="active"
@@ -1135,6 +1146,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="1"
                     data-field="official"
@@ -1157,6 +1169,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="name"
@@ -1170,6 +1183,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="id"
@@ -1183,6 +1197,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="location"
@@ -1196,6 +1211,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="phone"
@@ -1209,6 +1225,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="email"
@@ -1222,6 +1239,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="district"
@@ -1235,6 +1253,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="8"
                     data-field="eventTypes"
@@ -1246,6 +1265,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="9"
                     data-field="languages"
@@ -1304,6 +1324,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="active"
@@ -1334,6 +1355,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="1"
                     data-field="official"
@@ -1356,6 +1378,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="name"
@@ -1369,6 +1392,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="id"
@@ -1382,6 +1406,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="location"
@@ -1395,6 +1420,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="phone"
@@ -1408,6 +1434,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="email"
@@ -1421,6 +1448,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="district"
@@ -1434,6 +1462,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="8"
                     data-field="eventTypes"
@@ -1445,6 +1474,7 @@ exports[`JudgeListPage renders 1`] = `
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="9"
                     data-field="languages"
@@ -2360,6 +2390,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="1"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="0"
       data-field="active"
@@ -2390,6 +2421,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="2"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
       data-colindex="1"
       data-field="official"
@@ -2412,6 +2444,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="3"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="2"
       data-field="name"
@@ -2425,6 +2458,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="4"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="3"
       data-field="id"
@@ -2438,6 +2472,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="5"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="4"
       data-field="location"
@@ -2451,6 +2486,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="6"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="5"
       data-field="phone"
@@ -2464,6 +2500,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="7"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="6"
       data-field="email"
@@ -2477,6 +2514,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="8"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="7"
       data-field="district"
@@ -2490,6 +2528,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="9"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="8"
       data-field="eventTypes"
@@ -2501,6 +2540,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="10"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="9"
       data-field="languages"
@@ -2559,6 +2599,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="1"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="0"
       data-field="active"
@@ -2589,6 +2630,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="2"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
       data-colindex="1"
       data-field="official"
@@ -2611,6 +2653,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="3"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="2"
       data-field="name"
@@ -2624,6 +2667,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="4"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="3"
       data-field="id"
@@ -2637,6 +2681,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="5"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="4"
       data-field="location"
@@ -2650,6 +2695,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="6"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="5"
       data-field="phone"
@@ -2663,6 +2709,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="7"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="6"
       data-field="email"
@@ -2676,6 +2723,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="8"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="7"
       data-field="district"
@@ -2689,6 +2737,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="9"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="8"
       data-field="eventTypes"
@@ -2700,6 +2749,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="10"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="9"
       data-field="languages"
@@ -2758,6 +2808,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="1"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="0"
       data-field="active"
@@ -2788,6 +2839,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="2"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
       data-colindex="1"
       data-field="official"
@@ -2810,6 +2862,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="3"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="2"
       data-field="name"
@@ -2823,6 +2876,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="4"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="3"
       data-field="id"
@@ -2836,6 +2890,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="5"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="4"
       data-field="location"
@@ -2849,6 +2904,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="6"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="5"
       data-field="phone"
@@ -2862,6 +2918,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="7"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="6"
       data-field="email"
@@ -2875,6 +2932,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="8"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="7"
       data-field="district"
@@ -2888,6 +2946,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="9"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="8"
       data-field="eventTypes"
@@ -2899,6 +2958,7 @@ exports[`JudgeListPage renders 2`] = `
     <div
       aria-colindex="10"
       aria-colspan="1"
+      aria-rowspan="1"
       class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
       data-colindex="9"
       data-field="languages"

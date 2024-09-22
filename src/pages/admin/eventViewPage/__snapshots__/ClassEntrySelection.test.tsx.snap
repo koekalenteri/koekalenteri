@@ -4995,6 +4995,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="nopad MuiDataGrid-cell--flex MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="dates"
@@ -5029,6 +5030,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="nopad MuiDataGrid-cell MuiDataGrid-cell--textRight"
                     data-colindex="1"
                     data-field="number"
@@ -5040,6 +5042,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="dog.name"
@@ -5053,6 +5056,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="dog.regNo"
@@ -5066,6 +5070,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="dob.breed"
@@ -5079,6 +5084,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="handler"
@@ -5092,6 +5098,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="lastEmail"
@@ -5103,6 +5110,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="7"
                     data-field="icons"
@@ -5213,6 +5221,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="nopad MuiDataGrid-cell--flex MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="8"
                     data-field="actions"
@@ -5880,6 +5889,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="1"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="nopad MuiDataGrid-cell--flex MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="0"
                     data-field="dates"
@@ -5914,6 +5924,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="2"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="nopad MuiDataGrid-cell MuiDataGrid-cell--textRight"
                     data-colindex="1"
                     data-field="number"
@@ -5925,6 +5936,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="3"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="2"
                     data-field="dog.name"
@@ -5938,6 +5950,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="4"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="3"
                     data-field="dog.regNo"
@@ -5951,6 +5964,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="5"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="4"
                     data-field="dob.breed"
@@ -5964,6 +5978,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="6"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="5"
                     data-field="handler"
@@ -5977,6 +5992,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="7"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="6"
                     data-field="lastEmail"
@@ -5988,6 +6004,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="8"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
                     data-colindex="7"
                     data-field="cancelReason"
@@ -5998,6 +6015,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="9"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="8"
                     data-field="icons"
@@ -6108,6 +6126,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="10"
                     aria-colspan="1"
+                    aria-rowspan="1"
                     class="nopad MuiDataGrid-cell--flex MuiDataGrid-cell MuiDataGrid-cell--textCenter"
                     data-colindex="9"
                     data-field="actions"
