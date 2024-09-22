@@ -46,7 +46,7 @@ export const newRegistrationAtom = atom<Registration | undefined>({
 export const registrationByIdsAtom = atomFamily<Registration | undefined | null, string>({
   key: 'registration/ids',
   default: undefined,
-  effects: [logEffect, sessionStorageEffect, remoteRegistrationEffect],
+  effects: (param) => [logEffect, sessionStorageEffect, remoteRegistrationEffect(param)],
 })
 
 export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined | null, string | undefined>({

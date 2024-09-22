@@ -20,7 +20,7 @@ export const adminRegistrationIdAtom = atom<string | undefined>({
 
 export const adminEventRegistrationsAtom = atomFamily<Registration[], string>({
   key: 'adminEventRegistrations',
-  effects: [logEffect, adminRemoteRegistrationsEffect],
+  effects: (eventId) => [logEffect, adminRemoteRegistrationsEffect(eventId)],
 })
 
 export const adminNewRegistrationAtom = atom<Registration | undefined>({
