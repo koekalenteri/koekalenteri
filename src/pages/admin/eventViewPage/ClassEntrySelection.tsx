@@ -8,6 +8,7 @@ import type { DragItem } from './classEntrySelection/dropableDataGrid/DragableRo
 import { useCallback, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
@@ -56,6 +57,8 @@ declare module '@mui/x-data-grid' {
     group: any // TODO: use proper type
   }
 }
+
+const ScrollDiv = withScrolling('div')
 
 const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
   const key = getRegistrationGroupKey(reg)
@@ -265,84 +268,95 @@ const ClassEntrySelection = ({
           }}
         />
       </Box>
-      {groups.map((group) => (
+      <ScrollDiv
+        style={{
+          overflowY: 'auto',
+          display: 'flex',
+          flexGrow: 1,
+          flexDirection: 'column',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        {groups.map((group) => (
+          <DragableDataGrid
+            autoHeight
+            canDrop={(item) => {
+              return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
+            }}
+            flex={registrationsByGroup[group.key]?.length}
+            key={group.key}
+            group={group.key}
+            columns={participantColumns}
+            hideFooter
+            columnHeaderHeight={0}
+            rows={registrationsByGroup[group.key] ?? []}
+            onRowSelectionModelChange={handleSelectionModeChange}
+            rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+            onCellClick={handleCellClick}
+            onRowDoubleClick={handleDoubleClick}
+            slots={{
+              toolbar: GroupHeader,
+              noRowsOverlay: NoRowsOverlay,
+            }}
+            slotProps={{
+              toolbar: {
+                available: groups,
+                group: group,
+              },
+              row: {
+                groupKey: group.key,
+              },
+            }}
+            onDrop={handleDrop(group)}
+            onReject={handleReject(group)}
+          />
+        ))}
+        <Stack direction="row" justifyContent="space-between" gap={2}>
+          <Typography variant="h6">Ilmoittautuneet</Typography>
+          <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />
+        </Stack>
         <DragableDataGrid
           autoHeight
-          canDrop={(item) => {
-            return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
+          canDrop={(item) =>
+            (state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
+            item?.groupKey === GROUP_KEY_CANCELLED ||
+            (item?.groupKey === GROUP_KEY_RESERVE && canArrangeReserve)
+          }
+          columns={entryColumns}
+          slotProps={{
+            row: {
+              groupKey: 'reserve',
+            },
           }}
-          flex={registrationsByGroup[group.key]?.length}
-          key={group.key}
-          group={group.key}
-          columns={participantColumns}
           hideFooter
-          columnHeaderHeight={0}
-          rows={registrationsByGroup[group.key] ?? []}
+          rows={registrationsByGroup.reserve}
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
           onCellClick={handleCellClick}
           onRowDoubleClick={handleDoubleClick}
-          slots={{
-            toolbar: GroupHeader,
-            noRowsOverlay: NoRowsOverlay,
-          }}
-          slotProps={{
-            toolbar: {
-              available: groups,
-              group: group,
-            },
-            row: {
-              groupKey: group.key,
-            },
-          }}
-          onDrop={handleDrop(group)}
-          onReject={handleReject(group)}
+          onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
+          onReject={handleReject({ key: 'reserve', number: 0 })}
         />
-      ))}
-      <Stack direction="row" justifyContent="space-between" gap={2}>
-        <Typography variant="h6">Ilmoittautuneet</Typography>
-        <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />
-      </Stack>
-      <DragableDataGrid
-        autoHeight
-        canDrop={(item) =>
-          (state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
-          item?.groupKey === GROUP_KEY_CANCELLED ||
-          (item?.groupKey === GROUP_KEY_RESERVE && canArrangeReserve)
-        }
-        columns={entryColumns}
-        slotProps={{
-          row: {
-            groupKey: 'reserve',
-          },
-        }}
-        hideFooter
-        rows={registrationsByGroup.reserve}
-        onRowSelectionModelChange={handleSelectionModeChange}
-        rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
-        onCellClick={handleCellClick}
-        onRowDoubleClick={handleDoubleClick}
-        onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
-        onReject={handleReject({ key: 'reserve', number: 0 })}
-      />
-      <Typography variant="h6">Peruneet</Typography>
-      <DragableDataGrid
-        autoHeight
-        canDrop={(item) => item?.groupKey !== GROUP_KEY_CANCELLED}
-        columns={cancelledColumns}
-        slotProps={{
-          row: {
-            groupKey: GROUP_KEY_CANCELLED,
-          },
-        }}
-        hideFooter
-        rows={registrationsByGroup.cancelled}
-        onRowSelectionModelChange={handleSelectionModeChange}
-        rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
-        onCellClick={handleCellClick}
-        onRowDoubleClick={handleDoubleClick}
-        onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
-      />
+        <Typography variant="h6">Peruneet</Typography>
+        <DragableDataGrid
+          autoHeight
+          canDrop={(item) => item?.groupKey !== GROUP_KEY_CANCELLED}
+          columns={cancelledColumns}
+          slotProps={{
+            row: {
+              groupKey: GROUP_KEY_CANCELLED,
+            },
+          }}
+          hideFooter
+          rows={registrationsByGroup.cancelled}
+          onRowSelectionModelChange={handleSelectionModeChange}
+          rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+          onCellClick={handleCellClick}
+          onRowDoubleClick={handleDoubleClick}
+          onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
+        />
+      </ScrollDiv>
     </DndProvider>
   )
 }

@@ -205,9 +205,9 @@ export default function EventViewPage() {
           sx={{
             display: 'flex',
             flexGrow: 1,
-            overflow: 'auto',
             width: '100%',
             height: '100%',
+            maxHeight: '70vh',
           }}
         >
           {allClasses.map((eventClass, index) => (
