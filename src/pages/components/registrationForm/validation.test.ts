@@ -1,4 +1,4 @@
-import type { BreedCode, ManualTestResult, Person } from '../../../types'
+import type { BreedCode, Dog, ManualTestResult, Person } from '../../../types'
 
 import {
   filterRelevantResults,
@@ -9,7 +9,8 @@ import {
   validateRegNo,
 } from './validation'
 
-const testDog = {
+const testDog: Dog = {
+  breedCode: '122',
   regNo: 'test-123',
   rfid: 'test-id',
   name: 'Test Dog',
@@ -154,13 +155,17 @@ describe('validateDog', () => {
     expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
   })
 
-  it.each<BreedCode>(['1', '13', '148.1P'])('should not allow breed %p for NOU event', (breedCode) => {
-    const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-    expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
-      key: 'dogBreed',
-      opts: { field: 'dog', type: breedCode.replace('.', '-') },
-    })
-  })
+  it.each<BreedCode | '' | undefined>(['1', '13', '148.1P', '', undefined])(
+    'should not allow breed %p for NOU event',
+    (testBreed) => {
+      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const breedCode = testBreed || '0'
+      expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
+        key: 'dogBreed',
+        opts: { field: 'dog', type: breedCode.replace('.', '-') },
+      })
+    }
+  )
 
   it.each([
     ['2021-01-01', { key: 'dogAge', opts: { field: 'dog', length: 9 } }],

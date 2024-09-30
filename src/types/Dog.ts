@@ -49,6 +49,7 @@ export interface TestResult extends Omit<JsonTestResult, 'date'> {
 
 export type RetrieverBreedCode = '110' | '111' | '121' | '122' | '263' | '312'
 export type BreedCode =
+  | '0'
   | '1'
   | '2'
   | '3'

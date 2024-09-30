@@ -134,8 +134,8 @@ const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { do
 const validateDogBreed = (event: { eventType: string }, dog: { breedCode?: BreedCode }) => {
   const requirements = REQUIREMENTS[event.eventType]
   const breeds = (requirements as EventRequirement)?.breedCode ?? []
-  if (breeds.length && dog.breedCode && !breeds.includes(dog.breedCode)) {
-    return dog.breedCode
+  if (breeds.length && (!dog.breedCode || !breeds.includes(dog.breedCode))) {
+    return dog.breedCode || '0'
   }
 }
 
@@ -158,15 +158,15 @@ export function validateDog(
   const forEvent = validateDogForEvent(event, dog)
   if (forEvent) return { key: forEvent, opts: { field: 'dog' } }
 
-  if (!dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
-    return 'required'
-  }
-
   const breedCode = validateDogBreed(event, dog)
   if (breedCode) return { key: 'dogBreed', opts: { field: 'dog', type: breedCode.replace('.', '-') } }
 
   const minAge = validateDogAge(event, dog)
   if (minAge) return { key: 'dogAge', opts: { field: 'dog', length: minAge } }
+
+  if (!dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
+    return 'required'
+  }
 
   return false
 }
