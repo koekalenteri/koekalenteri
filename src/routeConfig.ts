@@ -1,6 +1,6 @@
 import type { ConfirmedEvent, PublicDogEvent, Registration } from './types'
 
-import { format } from 'date-fns'
+import { formatDate } from './i18n/dates'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
 
@@ -19,7 +19,7 @@ const getItemDateAndClass = (item: ConfirmedEvent | Registration): string => {
     date = item.startDate
   }
   const c = cls ? `-${cls}` : ''
-  return `${format(date, 'dd.MM.yyyy')}${c}`
+  return `${formatDate(date, 'dd.MM.yyyy')}${c}`
 }
 
 export const Path = {

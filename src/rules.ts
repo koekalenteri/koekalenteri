@@ -1,8 +1,10 @@
 import type { EventResultRequirementFn } from './rules_ch'
 import type { Dog, Registration, TestResult } from './types'
 
+import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
 
+import { TIME_ZONE } from './i18n/dates'
 import { isModernFinnishRegNo } from './pages/components/registrationForm/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
 
@@ -52,7 +54,7 @@ export function getRuleDate(date: Date | string, available: RuleDate[] = Object.
   if (typeof date === 'string') {
     date = new Date(date)
   }
-  const asDates = available.map((v) => parseISO(v))
+  const asDates = available.map((v) => parseISO(v, { in: tz(TIME_ZONE) }))
   for (let i = 0; i < asDates.length; i++) {
     if (i > 0 && asDates[i] > date) {
       return available[i - 1]

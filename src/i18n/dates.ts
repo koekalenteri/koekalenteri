@@ -1,8 +1,10 @@
 import type { Locale } from 'date-fns'
 import type { Language } from '../types'
 
+import { tz } from '@date-fns/tz'
 import {
   endOfDay,
+  format,
   formatDistanceToNowStrict,
   isSameDay,
   isSameMonth,
@@ -12,21 +14,22 @@ import {
   startOfDay,
 } from 'date-fns'
 import { enGB as en, fi } from 'date-fns/locale'
-import { formatInTimeZone, fromZonedTime, toZonedTime } from 'date-fns-tz'
 
 export type DateType = Date | number | string
 
 export interface DateFormatOptions {
-  tz?: string
+  timeZone?: string
   locale?: Locale
 }
+
+export const TIME_ZONE = 'Europe/Helsinki'
 
 export const locales: Record<Language, Locale> = { en, fi }
 
 export function formatDate(
   date: Date | string,
-  format: string,
-  { tz = 'Europe/Helsinki', locale = fi }: DateFormatOptions = {}
+  formatStr: string,
+  { timeZone = TIME_ZONE, locale = fi }: DateFormatOptions = {}
 ): string {
   if (typeof date === 'string') {
     date = parseISO(date)
@@ -36,7 +39,7 @@ export function formatDate(
     return ''
   }
 
-  return formatInTimeZone(date, tz, format, { locale })
+  return format(date, formatStr, { in: tz(timeZone), locale })
 }
 
 export const getDateFormatter =
@@ -51,9 +54,10 @@ export function formatDateSpan(
   start: Date | string,
   lng: string | undefined,
   { end, noYear }: { end: Date | string; noYear?: boolean },
-  tz = 'Europe/Helsinki'
+  timeZone = TIME_ZONE
 ): string {
   const y = noYear ? '' : 'yyyy'
+  const opts = { in: tz(timeZone) }
   if (typeof start === 'string') {
     start = parseISO(start)
   }
@@ -66,16 +70,16 @@ export function formatDateSpan(
   if (!isValid(end)) {
     end = start
   }
-  if (isSameDay(start, end)) {
-    return formatInTimeZone(start, tz, `d.M.${y}`)
+  if (isSameDay(start, end, opts)) {
+    return format(start, `d.M.${y}`, opts)
   }
-  if (isSameMonth(start, end)) {
-    return formatInTimeZone(start, tz, 'd.') + '–' + formatInTimeZone(end, tz, `d.M.${y}`)
+  if (isSameMonth(start, end, opts)) {
+    return format(start, 'd.', opts) + '–' + format(end, `d.M.${y}`, opts)
   }
   if (isSameYear(start, end)) {
-    return formatInTimeZone(start, tz, 'd.M.') + '–' + formatInTimeZone(end, tz, `d.M.${y}`)
+    return format(start, 'd.M.', opts) + '–' + format(end, `d.M.${y}`, opts)
   }
-  return formatInTimeZone(start, tz, `d.M.${y}`) + '–' + formatInTimeZone(end, tz, `d.M.${y}`)
+  return format(start, `d.M.${y}`, opts) + '–' + format(end, `d.M.${y}`, opts)
 }
 
 export function formatDistance(date?: Date, lng?: string): string {
@@ -85,19 +89,5 @@ export function formatDistance(date?: Date, lng?: string): string {
 
 export const currentFinnishTime = (): string => formatDate(new Date(), "yyyy-MM-dd'T'HH:mm:ssxxx")
 
-const calcZonedDate = <
-  T extends (date: DateType, options?: any) => Date,
-  O = T extends (date: DateType, options?: infer U) => Date ? U : undefined,
->(
-  date: DateType,
-  tz: string,
-  fn: T,
-  options?: O
-): Date => {
-  const inputZoned = toZonedTime(date, tz)
-  const fnZoned = fn(inputZoned, options)
-  return fromZonedTime(fnZoned, tz)
-}
-
-export const zonedStartOfDay = (date: DateType, tz = 'Europe/Helsinki') => calcZonedDate(date, tz, startOfDay)
-export const zonedEndOfDay = (date: DateType, tz = 'Europe/Helsinki') => calcZonedDate(date, tz, endOfDay)
+export const zonedStartOfDay = (date: DateType, timeZone = TIME_ZONE) => startOfDay(date, { in: tz(timeZone) })
+export const zonedEndOfDay = (date: DateType, timeZone = TIME_ZONE) => endOfDay(date, { in: tz(timeZone) })

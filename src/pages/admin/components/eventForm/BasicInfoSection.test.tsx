@@ -1,12 +1,14 @@
 import type { PartialEvent } from '../EventForm'
 import type { Props } from './BasicInfoSection'
 
+import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen } from '@testing-library/react'
 import { add, format } from 'date-fns'
 
 import { locales } from '../../../../i18n'
+import { TIME_ZONE } from '../../../../i18n/dates'
 import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '../../../../lib/event'
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
 
@@ -31,8 +33,8 @@ describe('BasicInfoSection', () => {
     const testEvent = {
       id: 'test',
       judges: [],
-      startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
+      startDate: new TZDate('2022-06-01', TIME_ZONE),
+      endDate: new TZDate('2022-06-02', TIME_ZONE),
       classes: [],
       description: 'Test!',
     }

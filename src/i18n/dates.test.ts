@@ -42,14 +42,14 @@ describe('currentFinnishTime', () => {
 
 describe('zonedStartOfDay', () => {
   it('should use Europe/Helsinki by default', () => {
-    expect(zonedStartOfDay('2024-01-01').toISOString()).toEqual('2023-12-31T22:00:00.000Z')
-    expect(zonedStartOfDay('2024-06-02').toISOString()).toEqual('2024-06-01T21:00:00.000Z')
+    expect(zonedStartOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T00:00:00.000+02:00')
+    expect(zonedStartOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T00:00:00.000+03:00')
   })
 })
 
 describe('zonedEndOfDay', () => {
   it('should use Europe/Helsinki by default', () => {
-    expect(zonedEndOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T21:59:59.999Z')
-    expect(zonedEndOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T20:59:59.999Z')
+    expect(zonedEndOfDay('2024-01-01').toISOString()).toEqual('2024-01-01T23:59:59.999+02:00')
+    expect(zonedEndOfDay('2024-06-02').toISOString()).toEqual('2024-06-02T23:59:59.999+03:00')
   })
 })

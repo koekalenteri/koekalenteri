@@ -18,7 +18,7 @@ import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
 
-import { zonedStartOfDay } from '../../../../i18n/dates'
+import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import {
   defaultEntryEndDate,
   defaultEntryStartDate,
@@ -96,8 +96,8 @@ export default function BasicInfoSection({
   const hasEntries = (event.entries ?? 0) > 0
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
-      start = start ?? event.startDate
-      end = end ?? event.endDate
+      start = zonedStartOfDay(start ?? event.startDate)
+      end = zonedEndOfDay(end ?? event.endDate)
 
       let { entryEndDate, entryStartDate } = event
 
