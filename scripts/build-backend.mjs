@@ -56,7 +56,9 @@ const ctx = await esbuild[mode]({
               } else {
                 const full = join('node_modules', path)
                 if (existsSync(full) && lstatSync(full).isDirectory()) {
-                  if (existsSync(join(full, 'index.mjs'))) {
+                  if (full.includes('@date-fns/tz')) {
+                    // no change, handled in package.json
+                  } else if (existsSync(join(full, 'index.mjs'))) {
                     path = join(path, 'index.mjs')
                   } else if (existsSync(join(full, 'index.js'))) {
                     path = join(path, 'index.js')
