@@ -66,7 +66,7 @@ export const EventInfo = ({ event }: Props) => {
     [event.classes, event.eventType]
   )
   const judges = useMemo(() => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event)}`), [event, t])
-  const rankingPeriod = getRankingPeriod(event.eventType, event.entryEndDate)
+  const rankingPeriod = getRankingPeriod(event.eventType, event.entryOrigEndDate ?? event.entryEndDate)
 
   return (
     <Grid2 container columnSpacing={1} sx={{ py: 0.5 }}>

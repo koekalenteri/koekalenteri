@@ -971,6 +971,70 @@ describe('validateDog', () => {
         expect(filterRelevantResults(testEvent, undefined, [VOI1_1, VOI1_2]).qualifies).toEqual(false)
       })
     })
+
+    describe('NOME-A SM', () => {
+      it('Should include relevant results', function () {
+        const testEvent = {
+          eventType: 'NOME-A SM',
+          startDate: new Date('2022-06-01'),
+          entryEndDate: new Date('2022-05-20'),
+          entryOrigEndDate: new Date('2022-04-20'),
+        }
+
+        const OLD_A1 = {
+          type: 'NOME-A',
+          result: 'A1',
+          class: '',
+          date: new Date('2019-05-30'),
+          location: 'Test',
+          judge: 'Test Judge',
+        }
+        const A1 = {
+          type: 'NOME-A',
+          result: 'A1',
+          class: '',
+          date: new Date('2021-05-01'),
+          location: 'Test',
+          judge: 'Test Judge',
+        }
+        const A1_ORIG = {
+          type: 'NOME-A',
+          result: 'A1',
+          class: '',
+          date: new Date('2020-04-21'),
+          location: 'Test',
+          judge: 'Test Judge',
+        }
+        const result = filterRelevantResults(testEvent, undefined, [OLD_A1, A1, A1_ORIG])
+        expect(result.qualifies).toEqual(true)
+        expect(result.relevant).toMatchInlineSnapshot(`
+          [
+            {
+              "class": "",
+              "date": 2021-05-01T00:00:00.000Z,
+              "judge": "Test Judge",
+              "location": "Test",
+              "official": true,
+              "points": 4,
+              "qualifying": true,
+              "result": "A1",
+              "type": "NOME-A",
+            },
+            {
+              "class": "",
+              "date": 2020-04-21T00:00:00.000Z,
+              "judge": "Test Judge",
+              "location": "Test",
+              "official": true,
+              "points": 4,
+              "qualifying": true,
+              "result": "A1",
+              "type": "NOME-A",
+            },
+          ]
+        `)
+      })
+    })
   })
 })
 

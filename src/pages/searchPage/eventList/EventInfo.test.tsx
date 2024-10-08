@@ -58,6 +58,20 @@ describe('EventInfo', () => {
     expect(container).toMatchSnapshot()
   })
 
+  it('should render ranking period', async () => {
+    const event: DogEvent = { ...testEvent, eventType: 'NOME-A SM', entryOrigEndDate: new Date('2021-02-02') }
+    render(
+      <RecoilRoot>
+        <Suspense fallback={<div>loading...</div>}>
+          <EventInfo event={event} />
+        </Suspense>
+      </RecoilRoot>
+    )
+    await flushPromises()
+
+    expect(screen.getByText('registration.rankingTime')).toBeInTheDocument()
+  })
+
   it('should render contact info', async () => {
     const event: DogEvent = {
       ...testEvent,

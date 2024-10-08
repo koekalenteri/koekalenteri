@@ -173,7 +173,12 @@ export function validateDog(
 
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
 export function filterRelevantResults(
-  { eventType, startDate, entryEndDate }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate'>,
+  {
+    eventType,
+    startDate,
+    entryEndDate,
+    entryOrigEndDate,
+  }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate' | 'entryOrigEndDate'>,
   regClass: Registration['class'],
   officialResults?: TestResult[],
   manualResults?: ManualTestResult[]
@@ -188,13 +193,15 @@ export function filterRelevantResults(
     return test
   }
 
-  const check = checkRequiredResults(rules, officialResults, manualValid, entryEndDate)
+  const usedEntryEndDate = entryOrigEndDate ?? entryEndDate
+
+  const check = checkRequiredResults(rules, officialResults, manualValid, usedEntryEndDate)
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
     const dis =
       nextClass &&
-      checkRequiredResults(nextClassRules ?? undefined, officialNotThisYear, manulNotThisYear, entryEndDate, false)
+      checkRequiredResults(nextClassRules ?? undefined, officialNotThisYear, manulNotThisYear, usedEntryEndDate, false)
     if (dis?.qualifies) {
       return {
         relevant: check.relevant.concat(dis.relevant).sort(byDate),
