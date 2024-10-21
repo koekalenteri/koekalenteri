@@ -6,7 +6,7 @@
     "@aws-amplify/ui-react": "^6.5.4",
     "@date-fns/tz": "^1.1.2",
     "@mui/icons-material": "^6.1.2",
-    "@mui/material": "^6.1.2",
+    "@mui/material": "^6.1.4",
     "@mui/x-data-grid": "^7.19.0",
     "@mui/x-date-pickers": "^7.19.0",
     "aws-amplify": "^6.6.5",
