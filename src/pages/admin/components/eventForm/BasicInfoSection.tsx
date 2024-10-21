@@ -151,6 +151,7 @@ export default function BasicInfoSection({
     [onChange]
   )
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
+  const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
   const getName = useCallback((o?: string | { name?: string }) => (typeof o === 'string' ? o : (o?.name ?? '')), [])
   const getNameOrEmail = useCallback(
     (o?: string | Partial<Person>) => (typeof o === 'string' ? o : o?.name || o?.email || ''),
@@ -246,6 +247,7 @@ export default function BasicInfoSection({
               disabled={disabled}
               event={event}
               fields={fields}
+              getOptionKey={getId}
               getOptionLabel={getName}
               id="organizer"
               isOptionEqualToValue={isEqualId}
@@ -280,6 +282,7 @@ export default function BasicInfoSection({
               disabled={disabled}
               event={event}
               fields={fields}
+              getOptionKey={getId}
               getOptionLabel={getNameOrEmail}
               id="official"
               isOptionEqualToValue={isEqualId}
@@ -292,6 +295,7 @@ export default function BasicInfoSection({
               disabled={disabled}
               event={event}
               fields={fields}
+              getOptionKey={getId}
               getOptionLabel={getNameOrEmail}
               id="secretary"
               isOptionEqualToValue={isEqualId}
