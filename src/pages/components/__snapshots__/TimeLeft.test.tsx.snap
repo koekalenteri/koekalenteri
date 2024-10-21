@@ -2,7 +2,7 @@
 
 exports[`TimeLeft renders with date 1`] = `
 <p
-  class="MuiTypography-root MuiTypography-body1 css-150xto-MuiTypography-root"
+  class="MuiTypography-root MuiTypography-body1 css-17spemx-MuiTypography-root"
 >
   dateFormat.distanceLeft date
 </p>

@@ -3,11 +3,11 @@
 exports[`AdminLink should not render border when not active 1`] = `
 <div>
   <a
-    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-10iq408-MuiTypography-root-MuiLink-root"
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-10ueqj0-MuiTypography-root-MuiLink-root"
     href="/admin/event"
   >
     <div
-      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-wt9yue-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-2hh3d3-MuiTypography-root"
     >
       admin
     </div>
@@ -18,11 +18,11 @@ exports[`AdminLink should not render border when not active 1`] = `
 exports[`AdminLink should render active border 1`] = `
 <div>
   <a
-    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-6fbffs-MuiTypography-root-MuiLink-root"
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1yjuoko-MuiTypography-root-MuiLink-root"
     href="/admin/event"
   >
     <div
-      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-wt9yue-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-2hh3d3-MuiTypography-root"
     >
       admin
     </div>
@@ -33,11 +33,11 @@ exports[`AdminLink should render active border 1`] = `
 exports[`AdminLink should render with minimal properties 1`] = `
 <div>
   <a
-    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-10iq408-MuiTypography-root-MuiLink-root"
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-10ueqj0-MuiTypography-root-MuiLink-root"
     href="/admin/event"
   >
     <div
-      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-wt9yue-MuiTypography-root"
+      class="MuiTypography-root MuiTypography-subtitle1 MuiTypography-noWrap css-2hh3d3-MuiTypography-root"
     >
       admin
     </div>

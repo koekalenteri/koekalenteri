@@ -10,12 +10,12 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
     aria-hidden="true"
   />
   <div
-    class="MuiDialog-root MuiModal-root css-zw3mfo-MuiModal-root-MuiDialog-root"
+    class="MuiDialog-root MuiModal-root css-1424xw8-MuiModal-root-MuiDialog-root"
     role="presentation"
   >
     <div
       aria-hidden="true"
-      class="MuiBackdrop-root MuiModal-backdrop css-yiavyu-MuiBackdrop-root-MuiDialog-backdrop"
+      class="MuiBackdrop-root MuiModal-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
       style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     />
     <div
@@ -23,25 +23,25 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       tabindex="0"
     />
     <div
-      class="MuiDialog-container MuiDialog-scrollPaper css-1cvd0nv-MuiDialog-container"
+      class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
       role="presentation"
       style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
       tabindex="-1"
     >
       <div
         aria-labelledby=":r8:"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-1m9slkl-MuiPaper-root-MuiDialog-paper"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-18x6di2-MuiPaper-root-MuiDialog-paper"
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
       >
         <h2
-          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-1tsrfuq-MuiTypography-root-MuiDialogTitle-root"
+          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
           id=":r8:"
         >
           Viestin lähettäminen
         </h2>
         <div
-          class="MuiDialogContent-root css-1kxd7on-MuiDialogContent-root"
+          class="MuiDialogContent-root css-kw13he-MuiDialogContent-root"
         >
           <div
             class="MuiStack-root css-1o3p0tj-MuiStack-root"
@@ -50,30 +50,30 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
               class="MuiBox-root css-126n10b"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-4zytwg-MuiPaper-root-MuiAccordion-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-uub0ii-MuiPaper-root-MuiAccordion-root"
                 style="--Paper-shadow: none;"
               >
                 <h3
-                  class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
+                  class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
                 >
                   <div
                     aria-expanded="false"
-                    class="MuiButtonBase-root MuiAccordionSummary-root css-gqfqa5-MuiButtonBase-root-MuiAccordionSummary-root"
+                    class="MuiButtonBase-root MuiAccordionSummary-root css-rx8ubl-MuiButtonBase-root-MuiAccordionSummary-root"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiAccordionSummary-content css-1betqn-MuiAccordionSummary-content"
+                      class="MuiAccordionSummary-content css-1hbu1y9-MuiAccordionSummary-content"
                     >
                       Vastaanottajat: 
                       2
                     </div>
                     <div
-                      class="MuiAccordionSummary-expandIconWrapper css-yw020d-MuiAccordionSummary-expandIconWrapper"
+                      class="MuiAccordionSummary-expandIconWrapper css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-16x0dk6-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-jsls36-MuiSvgIcon-root"
                         data-testid="ArrowForwardIosSharpIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -86,56 +86,56 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                   </div>
                 </h3>
                 <div
-                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
+                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
                   style="min-height: 0px;"
                 >
                   <div
-                    class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+                    class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
                   >
                     <div
-                      class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                      class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                     >
                       <div
                         class="MuiAccordion-region"
                         role="region"
                       >
                         <div
-                          class="MuiAccordionDetails-root css-wzvdhu-MuiAccordionDetails-root"
+                          class="MuiAccordionDetails-root css-8bqz14-MuiAccordionDetails-root"
                         >
                           <ul
-                            class="MuiList-root MuiList-padding MuiList-dense css-127wja6-MuiList-root"
+                            class="MuiList-root MuiList-padding MuiList-dense css-2wvk20-MuiList-root"
                           >
                             <li
-                              class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-8an3zm-MuiListItem-root"
+                              class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-19mdzvj-MuiListItem-root"
                             >
                               <div
-                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-b8n15h-MuiListItemText-root"
+                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-14ln1j6-MuiListItemText-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-1nmqws6-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-7ctihp-MuiTypography-root"
                                 >
                                   Dog Name 10
                                 </span>
                                 <p
-                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-ihhumc-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-1a1whku-MuiTypography-root"
                                 >
                                   owner@example.com, handler@example.com
                                 </p>
                               </div>
                             </li>
                             <li
-                              class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-8an3zm-MuiListItem-root"
+                              class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-19mdzvj-MuiListItem-root"
                             >
                               <div
-                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-b8n15h-MuiListItemText-root"
+                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-14ln1j6-MuiListItemText-root"
                               >
                                 <span
-                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-1nmqws6-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-7ctihp-MuiTypography-root"
                                 >
                                   Dog Name 20
                                 </span>
                                 <p
-                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-ihhumc-MuiTypography-root"
+                                  class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary css-1a1whku-MuiTypography-root"
                                 >
                                   owner@example.com, handler@example.com
                                 </p>
@@ -149,23 +149,23 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                 </div>
               </div>
               <h6
-                class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
               >
                 Viesti
               </h6>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-nyqcqa-MuiPaper-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-jppeox-MuiPaper-root"
                 style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
               >
                 <div
-                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
+                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
                   data-testid="Viestin tyyppi"
                 >
                   <div
-                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-191hsvz-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
                       for=":r9:"
                       id=":r9:-label"
@@ -173,7 +173,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       Viestin tyyppi
                     </label>
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <input
                         aria-autocomplete="list"
@@ -181,7 +181,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         aria-invalid="false"
                         autocapitalize="none"
                         autocomplete="off"
-                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
                         id=":r9:"
                         role="combobox"
@@ -190,11 +190,11 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         value="emailTemplate.registration"
                       />
                       <div
-                        class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
+                        class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
                       >
                         <button
                           aria-label="Open"
-                          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                           disabled=""
                           tabindex="-1"
                           title="Open"
@@ -202,7 +202,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                             data-testid="ArrowDropDownIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -215,10 +215,10 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       </div>
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-kg5swy"
+                          class="css-w1u3ce"
                         >
                           <span>
                             Viestin tyyppi
@@ -229,39 +229,39 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                   </div>
                 </div>
                 <fieldset
-                  class="MuiFormControl-root MuiFormControl-fullWidth css-1b5lkxe-MuiFormControl-root"
+                  class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                 >
                   <legend
-                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                   >
                     Voit lisätä tähän halutessasi lisäviestin:
                   </legend>
                   <div
-                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                   >
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-12qosy6-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-5d0hat-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <textarea
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         id=":rb:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
                       <textarea
                         aria-hidden="true"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
                         style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-gpjuor"
+                          class="css-w4cd9x"
                         >
                           <span
                             class="notranslate"
@@ -274,41 +274,41 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                   </div>
                 </fieldset>
                 <fieldset
-                  class="MuiFormControl-root css-mo77jt-MuiFormControl-root"
+                  class="MuiFormControl-root css-vvuid3-MuiFormControl-root"
                 >
                   <legend
-                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                   >
                     Yhteystiedot:
                   </legend>
                   <div
-                    class="MuiFormGroup-root css-182q4zi-MuiFormGroup-root"
+                    class="MuiFormGroup-root css-rltjjn-MuiFormGroup-root"
                   >
                     <div>
                       <legend
-                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                       >
                         event.secretary
                       </legend>
                       <div
-                        class="MuiFormGroup-root MuiFormGroup-row css-1a7rtj9-MuiFormGroup-root"
+                        class="MuiFormGroup-root MuiFormGroup-row css-19ti15g-MuiFormGroup-root"
                       >
                         <label
-                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               name="secretary.name"
                               type="checkbox"
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -319,22 +319,22 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                           >
                             contact.name
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.email"
@@ -342,7 +342,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -353,22 +353,22 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.email
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.phone"
@@ -376,7 +376,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -387,7 +387,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.phone
                           </span>
@@ -396,29 +396,29 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     </div>
                     <div>
                       <legend
-                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                       >
                         event.official
                       </legend>
                       <div
-                        class="MuiFormGroup-root MuiFormGroup-row css-1a7rtj9-MuiFormGroup-root"
+                        class="MuiFormGroup-root MuiFormGroup-row css-19ti15g-MuiFormGroup-root"
                       >
                         <label
-                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               name="official.name"
                               type="checkbox"
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -429,22 +429,22 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                           >
                             contact.name
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="official.email"
@@ -452,7 +452,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -463,22 +463,22 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.email
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="official.phone"
@@ -486,7 +486,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -497,7 +497,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.phone
                           </span>
@@ -512,12 +512,12 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
               class="MuiBox-root css-a6rva7"
             >
               <h6
-                class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
               >
                 Esikatselu
               </h6>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1fog20v-MuiPaper-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1onidzl-MuiPaper-root"
                 style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
               >
                 Aihe: 
@@ -915,17 +915,17 @@ Vastaava koetoimitsija
           </div>
         </div>
         <div
-          class="MuiDialogActions-root MuiDialogActions-spacing css-19kok5i-MuiDialogActions-root"
+          class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-nlyz4j-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
             Lähetä
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1gp3wsk-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-xgx25g-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
@@ -950,12 +950,12 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
     aria-hidden="true"
   />
   <div
-    class="MuiDialog-root MuiModal-root css-zw3mfo-MuiModal-root-MuiDialog-root"
+    class="MuiDialog-root MuiModal-root css-1424xw8-MuiModal-root-MuiDialog-root"
     role="presentation"
   >
     <div
       aria-hidden="true"
-      class="MuiBackdrop-root MuiModal-backdrop css-yiavyu-MuiBackdrop-root-MuiDialog-backdrop"
+      class="MuiBackdrop-root MuiModal-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
       style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     />
     <div
@@ -963,25 +963,25 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
       tabindex="0"
     />
     <div
-      class="MuiDialog-container MuiDialog-scrollPaper css-1cvd0nv-MuiDialog-container"
+      class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
       role="presentation"
       style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
       tabindex="-1"
     >
       <div
         aria-labelledby=":r3:"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-1m9slkl-MuiPaper-root-MuiDialog-paper"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-18x6di2-MuiPaper-root-MuiDialog-paper"
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
       >
         <h2
-          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-1tsrfuq-MuiTypography-root-MuiDialogTitle-root"
+          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
           id=":r3:"
         >
           Viestin lähettäminen
         </h2>
         <div
-          class="MuiDialogContent-root css-1kxd7on-MuiDialogContent-root"
+          class="MuiDialogContent-root css-kw13he-MuiDialogContent-root"
         >
           <div
             class="MuiStack-root css-1o3p0tj-MuiStack-root"
@@ -990,30 +990,30 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
               class="MuiBox-root css-126n10b"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-4zytwg-MuiPaper-root-MuiAccordion-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAccordion-root css-uub0ii-MuiPaper-root-MuiAccordion-root"
                 style="--Paper-shadow: none;"
               >
                 <h3
-                  class="MuiAccordion-heading css-rolk5j-MuiAccordion-heading"
+                  class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
                 >
                   <div
                     aria-expanded="false"
-                    class="MuiButtonBase-root MuiAccordionSummary-root css-gqfqa5-MuiButtonBase-root-MuiAccordionSummary-root"
+                    class="MuiButtonBase-root MuiAccordionSummary-root css-rx8ubl-MuiButtonBase-root-MuiAccordionSummary-root"
                     role="button"
                     tabindex="0"
                   >
                     <div
-                      class="MuiAccordionSummary-content css-1betqn-MuiAccordionSummary-content"
+                      class="MuiAccordionSummary-content css-1hbu1y9-MuiAccordionSummary-content"
                     >
                       Vastaanottajat: 
                       0
                     </div>
                     <div
-                      class="MuiAccordionSummary-expandIconWrapper css-yw020d-MuiAccordionSummary-expandIconWrapper"
+                      class="MuiAccordionSummary-expandIconWrapper css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-16x0dk6-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-jsls36-MuiSvgIcon-root"
                         data-testid="ArrowForwardIosSharpIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -1026,24 +1026,24 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                   </div>
                 </h3>
                 <div
-                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-1ev76c2-MuiCollapse-root"
+                  class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
                   style="min-height: 0px;"
                 >
                   <div
-                    class="MuiCollapse-wrapper MuiCollapse-vertical css-smkl36-MuiCollapse-wrapper"
+                    class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
                   >
                     <div
-                      class="MuiCollapse-wrapperInner MuiCollapse-vertical css-9l5vo-MuiCollapse-wrapperInner"
+                      class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                     >
                       <div
                         class="MuiAccordion-region"
                         role="region"
                       >
                         <div
-                          class="MuiAccordionDetails-root css-wzvdhu-MuiAccordionDetails-root"
+                          class="MuiAccordionDetails-root css-8bqz14-MuiAccordionDetails-root"
                         >
                           <ul
-                            class="MuiList-root MuiList-padding MuiList-dense css-127wja6-MuiList-root"
+                            class="MuiList-root MuiList-padding MuiList-dense css-2wvk20-MuiList-root"
                           />
                         </div>
                       </div>
@@ -1052,23 +1052,23 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <h6
-                class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
               >
                 Viesti
               </h6>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-nyqcqa-MuiPaper-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-jppeox-MuiPaper-root"
                 style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
               >
                 <div
-                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-fzem9i-MuiAutocomplete-root"
+                  class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
                   data-testid="Viestin tyyppi"
                 >
                   <div
-                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1weq444-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
                       for=":r4:"
                       id=":r4:-label"
@@ -1076,7 +1076,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       Viestin tyyppi
                     </label>
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <input
                         aria-autocomplete="list"
@@ -1084,7 +1084,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         aria-invalid="false"
                         autocapitalize="none"
                         autocomplete="off"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                         id=":r4:"
                         role="combobox"
                         spellcheck="false"
@@ -1092,18 +1092,18 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         value=""
                       />
                       <div
-                        class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
+                        class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
                       >
                         <button
                           aria-label="Open"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                           tabindex="-1"
                           title="Open"
                           type="button"
                         >
                           <svg
                             aria-hidden="true"
-                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                             data-testid="ArrowDropDownIcon"
                             focusable="false"
                             viewBox="0 0 24 24"
@@ -1116,10 +1116,10 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       </div>
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-1pbc52w"
+                          class="css-81qg8w"
                         >
                           <span>
                             Viestin tyyppi
@@ -1130,39 +1130,39 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                   </div>
                 </div>
                 <fieldset
-                  class="MuiFormControl-root MuiFormControl-fullWidth css-1b5lkxe-MuiFormControl-root"
+                  class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                 >
                   <legend
-                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                   >
                     Voit lisätä tähän halutessasi lisäviestin:
                   </legend>
                   <div
-                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                    class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                   >
                     <div
-                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-12qosy6-MuiInputBase-root-MuiOutlinedInput-root"
+                      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline css-5d0hat-MuiInputBase-root-MuiOutlinedInput-root"
                     >
                       <textarea
                         aria-invalid="false"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         id=":r6:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
                       <textarea
                         aria-hidden="true"
-                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1eiam5b-MuiInputBase-input-MuiOutlinedInput-input"
+                        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         readonly=""
                         style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
                         tabindex="-1"
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-gpjuor"
+                          class="css-w4cd9x"
                         >
                           <span
                             class="notranslate"
@@ -1175,41 +1175,41 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                   </div>
                 </fieldset>
                 <fieldset
-                  class="MuiFormControl-root css-mo77jt-MuiFormControl-root"
+                  class="MuiFormControl-root css-vvuid3-MuiFormControl-root"
                 >
                   <legend
-                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                    class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                   >
                     Yhteystiedot:
                   </legend>
                   <div
-                    class="MuiFormGroup-root css-182q4zi-MuiFormGroup-root"
+                    class="MuiFormGroup-root css-rltjjn-MuiFormGroup-root"
                   >
                     <div>
                       <legend
-                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                       >
                         event.secretary
                       </legend>
                       <div
-                        class="MuiFormGroup-root MuiFormGroup-row css-1a7rtj9-MuiFormGroup-root"
+                        class="MuiFormGroup-root MuiFormGroup-row css-19ti15g-MuiFormGroup-root"
                       >
                         <label
-                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               name="secretary.name"
                               type="checkbox"
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1220,22 +1220,22 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                           >
                             contact.name
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.email"
@@ -1243,7 +1243,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1254,22 +1254,22 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.email
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.phone"
@@ -1277,7 +1277,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1288,7 +1288,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.phone
                           </span>
@@ -1297,29 +1297,29 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                     </div>
                     <div>
                       <legend
-                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-5u6vn8-MuiFormLabel-root"
+                        class="MuiFormLabel-root MuiFormLabel-colorPrimary css-1i1any7-MuiFormLabel-root"
                       >
                         event.official
                       </legend>
                       <div
-                        class="MuiFormGroup-root MuiFormGroup-row css-1a7rtj9-MuiFormGroup-root"
+                        class="MuiFormGroup-root MuiFormGroup-row css-19ti15g-MuiFormGroup-root"
                       >
                         <label
-                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               name="official.name"
                               type="checkbox"
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1330,22 +1330,22 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
                           >
                             contact.name
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="official.email"
@@ -1353,7 +1353,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1364,22 +1364,22 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.email
                           </span>
                         </label>
                         <label
-                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                          class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-doydwk-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-1m9pwf3"
+                              class="PrivateSwitchBase-input css-j8yymo"
                               data-indeterminate="false"
                               disabled=""
                               name="official.phone"
@@ -1387,7 +1387,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             />
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                               data-testid="CheckBoxIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -1398,7 +1398,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                             </svg>
                           </span>
                           <span
-                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-1edfpdg-MuiTypography-root"
+                            class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                           >
                             contact.phone
                           </span>
@@ -1413,12 +1413,12 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
               class="MuiBox-root css-a6rva7"
             >
               <h6
-                class="MuiTypography-root MuiTypography-h6 css-1mju1gc-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
               >
                 Esikatselu
               </h6>
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1fog20v-MuiPaper-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-1onidzl-MuiPaper-root"
                 style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
               >
                 Aihe: 
@@ -1430,10 +1430,10 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
           </div>
         </div>
         <div
-          class="MuiDialogActions-root MuiDialogActions-spacing css-19kok5i-MuiDialogActions-root"
+          class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-nlyz4j-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
             disabled=""
             tabindex="-1"
             type="button"
@@ -1441,7 +1441,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
             Lähetä
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1gp3wsk-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-xgx25g-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >

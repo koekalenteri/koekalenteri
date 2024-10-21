@@ -12,16 +12,16 @@ exports[`OrganizerListPage renders 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
               data-testid="AddCircleOutlineIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -34,17 +34,17 @@ exports[`OrganizerListPage renders 1`] = `
           create
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1qsu95a-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
           disabled=""
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
               data-testid="EditOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -58,7 +58,7 @@ exports[`OrganizerListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-o8b0l4-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-154nwxt-MuiDataGrid-root"
         style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 240px; --DataGrid-columnsTotalWidth: 240px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 35px;"
       >
         <div
@@ -68,18 +68,18 @@ exports[`OrganizerListPage renders 1`] = `
             aria-expanded="false"
             aria-haspopup="menu"
             aria-label="Select columns"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-mbe0hg-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1shiz0m-MuiButtonBase-root-MuiButton-root"
             data-mui-internal-clone-element="true"
             id=":r1:"
             tabindex="0"
             type="button"
           >
             <span
-              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-1tjwu2m-MuiButton-startIcon"
             >
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                 data-testid="ColumnIconIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -95,14 +95,14 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiDataGrid-toolbarContainer css-1wrr6qg-MuiDataGrid-toolbarContainer"
           >
             <div
-              class="MuiFormControl-root MuiTextField-root css-1pupl87-MuiFormControl-root-MuiTextField-root"
+              class="MuiFormControl-root MuiTextField-root css-zl6cqu-MuiFormControl-root-MuiTextField-root"
             >
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-11t8gxv-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-1624vf1-MuiInputBase-root-MuiInput-root"
               >
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
                   data-testid="SearchIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
@@ -113,7 +113,7 @@ exports[`OrganizerListPage renders 1`] = `
                 </svg>
                 <input
                   aria-invalid="false"
-                  class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1o3an4k-MuiInputBase-input-MuiInput-input"
+                  class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1yrc8ca-MuiInputBase-input-MuiInput-input"
                   id=":r4:"
                   placeholder="search.placeholder"
                   type="text"
@@ -121,7 +121,7 @@ exports[`OrganizerListPage renders 1`] = `
                 />
                 <button
                   aria-label="clear"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
                   style="visibility: hidden;"
                   tabindex="0"
                   title="clear"
@@ -129,7 +129,7 @@ exports[`OrganizerListPage renders 1`] = `
                 >
                   <svg
                     aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
                     data-testid="ClearIcon"
                     focusable="false"
                     viewBox="0 0 24 24"
@@ -149,14 +149,14 @@ exports[`OrganizerListPage renders 1`] = `
               class="MuiStack-root css-cnn9ag-MuiStack-root"
             >
               <div
-                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-hcdzbm-MuiAutocomplete-root"
+                class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1a86huh-MuiAutocomplete-root"
                 data-testid="Yhdistys"
               >
                 <div
-                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-y4n9bg-MuiFormControl-root-MuiTextField-root"
+                  class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                 >
                   <label
-                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-3lv336-MuiFormLabel-root-MuiInputLabel-root"
+                    class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-8kr4nd-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
                     for=":r5:"
                     id=":r5:-label"
@@ -164,7 +164,7 @@ exports[`OrganizerListPage renders 1`] = `
                     Yhdistys
                   </label>
                   <div
-                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-3pe1ax-MuiInputBase-root-MuiOutlinedInput-root"
+                    class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
                   >
                     <input
                       aria-autocomplete="list"
@@ -172,7 +172,7 @@ exports[`OrganizerListPage renders 1`] = `
                       aria-invalid="false"
                       autocapitalize="none"
                       autocomplete="off"
-                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1df20ln-MuiInputBase-input-MuiOutlinedInput-input"
+                      class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-13meb6w-MuiInputBase-input-MuiOutlinedInput-input"
                       disabled=""
                       id=":r5:"
                       role="combobox"
@@ -181,11 +181,11 @@ exports[`OrganizerListPage renders 1`] = `
                       value="Kaikki"
                     />
                     <div
-                      class="MuiAutocomplete-endAdornment css-p1olib-MuiAutocomplete-endAdornment"
+                      class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
                     >
                       <button
                         aria-label="Open"
-                        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2anpn7-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                        class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                         disabled=""
                         tabindex="-1"
                         title="Open"
@@ -193,7 +193,7 @@ exports[`OrganizerListPage renders 1`] = `
                       >
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                           data-testid="ArrowDropDownIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -206,10 +206,10 @@ exports[`OrganizerListPage renders 1`] = `
                     </div>
                     <fieldset
                       aria-hidden="true"
-                      class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                      class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
                     >
                       <legend
-                        class="css-kg5swy"
+                        class="css-w1u3ce"
                       >
                         <span>
                           Yhdistys
@@ -226,31 +226,31 @@ exports[`OrganizerListPage renders 1`] = `
           aria-colcount="5"
           aria-multiselectable="false"
           aria-rowcount="2"
-          class="MuiDataGrid-main css-1k1sjka-MuiDataGrid-main"
+          class="MuiDataGrid-main css-1bgckiu-MuiDataGrid-main"
           role="grid"
           tabindex="-1"
         >
           <div
-            class="css-qtdhae"
+            class="css-19vp370"
             data-id="gridPanelAnchor"
             role="presentation"
           />
           <div
-            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-mxjmbc-MuiDataGrid-virtualScroller"
+            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
             role="presentation"
             style="overflow-x: hidden;"
           >
             <div
-              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-2sp4oa"
+              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
               role="presentation"
             >
               <div
-                class="MuiDataGrid-columnHeaders css-1pmk00y-MuiDataGrid-columnHeaders"
+                class="MuiDataGrid-columnHeaders css-1gtv474-MuiDataGrid-columnHeaders"
                 role="presentation"
               >
                 <div
                   aria-rowindex="1"
-                  class="MuiDataGrid-row--borderBottom css-yrdy0g-MuiDataGrid-columnHeaderRow"
+                  class="MuiDataGrid-row--borderBottom css-yseucu-MuiDataGrid-columnHeaderRow"
                   role="row"
                 >
                   <div
@@ -279,7 +279,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             name
@@ -290,7 +290,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
                             field="name"
                             tabindex="-1"
                             title="Sort"
@@ -298,7 +298,7 @@ exports[`OrganizerListPage renders 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
                               data-testid="ArrowUpwardIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -317,7 +317,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
                         data-testid="SeparatorIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -353,7 +353,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             roles
@@ -364,7 +364,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
                             field="roles"
                             tabindex="-1"
                             title="Sort"
@@ -372,7 +372,7 @@ exports[`OrganizerListPage renders 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
                               data-testid="ArrowUpwardIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -391,7 +391,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
                         data-testid="SeparatorIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -427,7 +427,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             contact.phone
@@ -438,7 +438,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
                             field="phone"
                             tabindex="-1"
                             title="Sort"
@@ -446,7 +446,7 @@ exports[`OrganizerListPage renders 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
                               data-testid="ArrowUpwardIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -465,7 +465,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
                         data-testid="SeparatorIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -501,7 +501,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             contact.email
@@ -512,7 +512,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
                             field="email"
                             tabindex="-1"
                             title="Sort"
@@ -520,7 +520,7 @@ exports[`OrganizerListPage renders 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
                               data-testid="ArrowUpwardIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -539,7 +539,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
                         data-testid="SeparatorIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -575,7 +575,7 @@ exports[`OrganizerListPage renders 1`] = `
                           class="MuiDataGrid-columnHeaderTitleContainerContent"
                         >
                           <div
-                            class="MuiDataGrid-columnHeaderTitle css-1qb993p-MuiDataGrid-columnHeaderTitle"
+                            class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
                             user.lastSeen
@@ -586,7 +586,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-hizwh9-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
                             field="lastSeen"
                             tabindex="-1"
                             title="Sort"
@@ -594,7 +594,7 @@ exports[`OrganizerListPage renders 1`] = `
                           >
                             <svg
                               aria-hidden="true"
-                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-18w7uxr-MuiSvgIcon-root"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
                               data-testid="ArrowUpwardIcon"
                               focusable="false"
                               viewBox="0 0 24 24"
@@ -613,7 +613,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-20bmp1-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
                         data-testid="SeparatorIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -639,12 +639,12 @@ exports[`OrganizerListPage renders 1`] = `
               </div>
             </div>
             <div
-              class="MuiDataGrid-virtualScrollerContent css-1kwdphh-MuiDataGrid-virtualScrollerContent"
+              class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
               style="width: auto; height: 35px;"
             >
               <div
-                class="MuiDataGrid-virtualScrollerRenderZone css-s1v7zr-MuiDataGrid-virtualScrollerRenderZone"
+                class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
                 role="rowgroup"
                 style="transform: translate3d(0, 0px, 0);"
               >
@@ -693,7 +693,7 @@ exports[`OrganizerListPage renders 1`] = `
                     >
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-18w7uxr-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
                         data-testid="StarsOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -704,7 +704,7 @@ exports[`OrganizerListPage renders 1`] = `
                       </svg>
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-xmaow5-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-tcacbg-MuiSvgIcon-root"
                         data-testid="StarsOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -715,7 +715,7 @@ exports[`OrganizerListPage renders 1`] = `
                       </svg>
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-xmaow5-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-tcacbg-MuiSvgIcon-root"
                         data-testid="StarsOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -769,14 +769,14 @@ exports[`OrganizerListPage renders 1`] = `
               </div>
             </div>
             <div
-              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-14egwce"
+              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
               role="presentation"
               style="transform: translateY(0px);"
             />
           </div>
           <div
             aria-hidden="true"
-            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-r4hms9"
+            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-20a7a0"
             tabindex="-1"
           >
             <div
@@ -785,7 +785,7 @@ exports[`OrganizerListPage renders 1`] = `
           </div>
           <div
             aria-hidden="true"
-            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-w5zs33"
+            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
             tabindex="-1"
           >
             <div
@@ -794,20 +794,20 @@ exports[`OrganizerListPage renders 1`] = `
           </div>
         </div>
         <div
-          class="MuiDataGrid-footerContainer MuiDataGrid-withBorderColor css-wop1k0-MuiDataGrid-footerContainer"
+          class="MuiDataGrid-footerContainer MuiDataGrid-withBorderColor css-15lx25q-MuiDataGrid-footerContainer"
         >
           <div />
           <div
-            class="MuiTablePagination-root css-16mfp94-MuiTablePagination-root"
+            class="MuiTablePagination-root css-1hr2sou-MuiTablePagination-root"
           >
             <div
-              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-16og44m-MuiToolbar-root-MuiTablePagination-toolbar"
+              class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular MuiTablePagination-toolbar css-1gak8h1-MuiToolbar-root-MuiTablePagination-toolbar"
             >
               <div
-                class="MuiTablePagination-spacer css-1psng7p-MuiTablePagination-spacer"
+                class="MuiTablePagination-spacer css-1wtxofq-MuiTablePagination-spacer"
               />
               <p
-                class="MuiTablePagination-displayedRows css-levciy-MuiTablePagination-displayedRows"
+                class="MuiTablePagination-displayedRows css-11cfq65-MuiTablePagination-displayedRows"
               >
                 1–1 of 1
               </p>
@@ -816,7 +816,7 @@ exports[`OrganizerListPage renders 1`] = `
               >
                 <button
                   aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-1kcqes5-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-cdtzx3-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
                   tabindex="-1"
                   title="Go to previous page"
@@ -824,7 +824,7 @@ exports[`OrganizerListPage renders 1`] = `
                 >
                   <svg
                     aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                     data-testid="KeyboardArrowLeftIcon"
                     focusable="false"
                     viewBox="0 0 24 24"
@@ -836,7 +836,7 @@ exports[`OrganizerListPage renders 1`] = `
                 </button>
                 <button
                   aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-1kcqes5-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-cdtzx3-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
                   tabindex="-1"
                   title="Go to next page"
@@ -844,7 +844,7 @@ exports[`OrganizerListPage renders 1`] = `
                 >
                   <svg
                     aria-hidden="true"
-                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-20bmp1-MuiSvgIcon-root"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
                     data-testid="KeyboardArrowRightIcon"
                     focusable="false"
                     viewBox="0 0 24 24"
