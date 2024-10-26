@@ -345,7 +345,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
       style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
-      <ul
+      <div
         aria-labelledby="-label"
         class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
         id="-listbox"
@@ -460,7 +460,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
             </li>
           </ul>
         </li>
-      </ul>
+      </div>
     </div>
   </div>
 </div>
@@ -567,7 +567,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
       style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
-      <ul
+      <div
         aria-labelledby="-label"
         class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
         id="-listbox"
@@ -639,7 +639,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           </span>
           AVO
         </li>
-      </ul>
+      </div>
     </div>
   </div>
 </div>
