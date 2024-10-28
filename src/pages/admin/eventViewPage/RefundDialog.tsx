@@ -146,7 +146,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         handleClose()
       } else {
         enqueueSnackbar(
-          'MMaksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+          'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
           { variant: 'error' }
         )
       }
