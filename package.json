@@ -7,7 +7,7 @@
     "@date-fns/tz": "^1.2.0",
     "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
-    "@mui/x-data-grid": "^7.21.0",
+    "@mui/x-data-grid": "^7.22.0",
     "@mui/x-date-pickers": "^7.22.0",
     "aws-amplify": "^6.7.0",
     "aws-embedded-metrics": "^4.2.0",
