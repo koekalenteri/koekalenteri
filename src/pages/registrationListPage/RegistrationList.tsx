@@ -4,7 +4,7 @@ import type { BreedCode, PublicDogEvent, Registration } from '../../types'
 import type { TooltipContent } from '../components/IconsTooltip'
 
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'

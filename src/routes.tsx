@@ -1,6 +1,6 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'

@@ -2,7 +2,7 @@ import type { Language } from '../../i18n'
 
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'

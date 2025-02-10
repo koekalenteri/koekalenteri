@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { Link as SpaLink } from 'react-router-dom'
+import { Link as SpaLink } from 'react-router'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 

@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import ManageAccountsOutlined from '@mui/icons-material/ManageAccountsOutlined'
 import Menu from '@mui/icons-material/Menu'
 import AppBar from '@mui/material/AppBar'

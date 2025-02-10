@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'

@@ -107,7 +107,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             langOfCountryName={i18n.language}
             defaultCountry="FI"
             forceCallingCode
-            InputProps={{ autoComplete: 'tel' }}
+            autoComplete="tel"
             disabled={disabled}
             error={!reg.handler?.phone}
             fullWidth

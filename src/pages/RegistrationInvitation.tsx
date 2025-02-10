@@ -1,9 +1,9 @@
-import type { Params } from 'react-router-dom'
+import type { Params } from 'react-router'
 import type { DogEvent, Registration } from '../types'
 
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Await, defer, useLoaderData } from 'react-router-dom'
+import { Await, useLoaderData } from 'react-router'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -48,9 +48,9 @@ const deferredLoader = async (id?: string, registrationId?: string, signal?: Abo
 export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
   const { id, registrationId } = params
 
-  return defer({
+  return {
     data: deferredLoader(id, registrationId, request.signal),
-  })
+  }
 }
 
 export const Component = () => {

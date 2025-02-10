@@ -1,6 +1,6 @@
 import type { DogEvent } from '../../types'
 
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'

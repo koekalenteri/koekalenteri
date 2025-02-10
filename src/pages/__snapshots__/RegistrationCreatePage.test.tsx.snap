@@ -8,6 +8,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
   >
     <a
       class="link"
+      data-discover="true"
       href="/"
     >
       goHome
@@ -1754,7 +1755,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             <button
                               aria-expanded="false"
                               aria-haspopup="listbox"
-                              aria-label="Select country"
+                              aria-label="Open flags menu"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                               id=":r1a:"
                               tabindex="0"
@@ -2089,7 +2090,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Select country"
+                                    aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     id=":r1g:"
                                     tabindex="0"
@@ -2324,7 +2325,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Select country"
+                                    aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     id=":r1l:"
                                     tabindex="0"
@@ -2934,6 +2935,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
   >
     <a
       class="link"
+      data-discover="true"
       href="/"
     >
       goHome
@@ -4611,7 +4613,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             <button
                               aria-expanded="false"
                               aria-haspopup="listbox"
-                              aria-label="Select country"
+                              aria-label="Open flags menu"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                               id=":r56:"
                               tabindex="0"
@@ -4946,7 +4948,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Select country"
+                                    aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     id=":r5c:"
                                     tabindex="0"
@@ -5181,7 +5183,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Select country"
+                                    aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     id=":r5h:"
                                     tabindex="0"

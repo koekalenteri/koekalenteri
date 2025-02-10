@@ -1,7 +1,7 @@
 import type { DogEvent } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'

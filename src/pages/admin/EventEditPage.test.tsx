@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
 
 import { Suspense } from 'react'

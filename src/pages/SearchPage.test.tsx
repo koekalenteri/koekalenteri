@@ -1,7 +1,7 @@
 import type { Locale } from 'date-fns'
 
 import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -131,7 +131,7 @@ describe('SearchPage', () => {
     expect(screen.getAllByRole('article').length).toEqual(2)
   })
 
-  it('filters by entryOpen and entryUpcoming', async () => {
+  it('filters by both entryOpen and entryUpcoming', async () => {
     renderPage('/?b=o&b=u', locales.fi)
     await flushPromises()
     expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()

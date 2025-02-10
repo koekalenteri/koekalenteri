@@ -2,7 +2,7 @@ import type { GridRowSelectionModel } from '@mui/x-data-grid'
 
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'

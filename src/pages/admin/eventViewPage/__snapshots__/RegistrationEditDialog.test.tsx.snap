@@ -1428,7 +1428,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     <button
                                       aria-expanded="false"
                                       aria-haspopup="listbox"
-                                      aria-label="Select country"
+                                      aria-label="Open flags menu"
                                       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                       disabled=""
                                       id=":r3b:"
@@ -1774,7 +1774,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                           <button
                                             aria-expanded="false"
                                             aria-haspopup="listbox"
-                                            aria-label="Select country"
+                                            aria-label="Open flags menu"
                                             class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                             disabled=""
                                             id=":r3h:"
@@ -2013,7 +2013,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                           <button
                                             aria-expanded="false"
                                             aria-haspopup="listbox"
-                                            aria-label="Select country"
+                                            aria-label="Open flags menu"
                                             class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                             disabled=""
                                             id=":r3m:"
@@ -4198,7 +4198,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     <button
                                       aria-expanded="false"
                                       aria-haspopup="listbox"
-                                      aria-label="Select country"
+                                      aria-label="Open flags menu"
                                       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                       id=":r1e:"
                                       tabindex="0"
@@ -4533,7 +4533,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                           <button
                                             aria-expanded="false"
                                             aria-haspopup="listbox"
-                                            aria-label="Select country"
+                                            aria-label="Open flags menu"
                                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                             id=":r1k:"
                                             tabindex="0"
@@ -4768,7 +4768,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                           <button
                                             aria-expanded="false"
                                             aria-haspopup="listbox"
-                                            aria-label="Select country"
+                                            aria-label="Open flags menu"
                                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                             id=":r1p:"
                                             tabindex="0"

@@ -242,11 +242,6 @@ module.exports = function (webpackEnv) {
             priority: 1,
             test: /[\\/]node_modules[\\/]react-router/,
           },
-          remixRun: {
-            name: 'remix-run',
-            priority: 1,
-            test: /[\\/]node_modules[\\/]@remix-run/,
-          },
           xstate: {
             name: 'xstate',
             priority: 1,

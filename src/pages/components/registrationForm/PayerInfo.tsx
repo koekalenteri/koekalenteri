@@ -76,7 +76,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             langOfCountryName={i18n.language}
             defaultCountry="FI"
             forceCallingCode
-            InputProps={{ autoComplete: 'tel' }}
+            autoComplete="tel"
             disabled={disabled}
             error={!reg.payer?.phone}
             fullWidth

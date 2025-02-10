@@ -1,7 +1,7 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router'
 
 import { Suspense } from 'react'
-import { defer, useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -22,8 +22,8 @@ jest.mock('../api/event')
 jest.mock('../api/payment')
 jest.mock('../api/registration')
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: jest.fn(),
 }))
 const mockUseParams = useParams as jest.Mock
@@ -44,10 +44,9 @@ describe('PaymentPage', () => {
       {
         path,
         element: <PaymentPage />,
-        loader: async () =>
-          defer({
-            response: new Promise(() => {}),
-          }),
+        loader: async () => ({
+          response: new Promise(() => {}),
+        }),
       },
     ]
 
@@ -80,10 +79,9 @@ describe('PaymentPage', () => {
       {
         path,
         element: <PaymentPage />,
-        loader: async () =>
-          defer({
-            response: Promise.resolve(mockResponse),
-          }),
+        loader: async () => ({
+          response: Promise.resolve(mockResponse),
+        }),
       },
     ]
 

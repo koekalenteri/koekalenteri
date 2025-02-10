@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect, useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 import Box from '@mui/material/Box'
 import { useRecoilValue } from 'recoil'
 

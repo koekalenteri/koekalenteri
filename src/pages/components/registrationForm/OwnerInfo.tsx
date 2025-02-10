@@ -116,7 +116,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             langOfCountryName={i18n.language}
             defaultCountry="FI"
             forceCallingCode
-            InputProps={{ autoComplete: 'tel' }}
+            autoComplete="tel"
             disabled={disabled}
             error={!reg.owner?.phone}
             fullWidth

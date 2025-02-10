@@ -1,6 +1,6 @@
 import type { ComponentProps, MouseEventHandler } from 'react'
 
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import Box from '@mui/material/Box'
 
 interface Props extends Omit<ComponentProps<typeof Link>, 'className' | 'onClick'> {

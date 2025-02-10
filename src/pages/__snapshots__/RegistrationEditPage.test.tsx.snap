@@ -1605,7 +1605,7 @@ exports[`RegistrationEditPage should render 1`] = `
                             <button
                               aria-expanded="false"
                               aria-haspopup="listbox"
-                              aria-label="Select country"
+                              aria-label="Open flags menu"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                               disabled=""
                               id=":r18:"
@@ -1951,7 +1951,7 @@ exports[`RegistrationEditPage should render 1`] = `
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Select country"
+                                    aria-label="Open flags menu"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
                                     id=":r1e:"
@@ -2190,7 +2190,7 @@ exports[`RegistrationEditPage should render 1`] = `
                                   <button
                                     aria-expanded="false"
                                     aria-haspopup="listbox"
-                                    aria-label="Select country"
+                                    aria-label="Open flags menu"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
                                     id=":r1j:"

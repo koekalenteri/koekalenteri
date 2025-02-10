@@ -1,12 +1,11 @@
-import type { RouterInit } from '@remix-run/router'
 import type { RenderOptions, RenderResult } from '@testing-library/react'
 import type { Options } from '@testing-library/user-event/dist/types/options'
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject, RouterInit } from 'react-router'
 import type { RecoilValue } from 'recoil'
 
 import { act, useEffect } from 'react'
-import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom'
+import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router'
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import mediaQuery from 'css-mediaquery'
@@ -19,7 +18,6 @@ import { useRecoilValue } from 'recoil'
 export function DataMemoryRouter({
   basename,
   children,
-  fallbackElement,
   hydrationData,
   initialEntries,
   initialIndex,
@@ -39,7 +37,7 @@ export function DataMemoryRouter({
     initialEntries,
     initialIndex,
   })
-  return <RouterProvider router={router} fallbackElement={fallbackElement} />
+  return <RouterProvider router={router} />
 }
 
 export const flushPromises = async () => {

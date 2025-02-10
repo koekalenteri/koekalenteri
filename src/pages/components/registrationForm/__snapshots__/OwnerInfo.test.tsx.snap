@@ -206,7 +206,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                         <button
                           aria-expanded="false"
                           aria-haspopup="listbox"
-                          aria-label="Select country"
+                          aria-label="Open flags menu"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                           id=":r5:"
                           tabindex="0"

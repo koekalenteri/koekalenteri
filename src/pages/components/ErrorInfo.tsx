@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isRouteErrorResponse, useAsyncError, useRouteError } from 'react-router-dom'
+import { isRouteErrorResponse, useAsyncError, useRouteError } from 'react-router'
 import Typography from '@mui/material/Typography'
 
 import { rum } from '../../lib/client/rum'

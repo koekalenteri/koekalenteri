@@ -2,7 +2,7 @@ import type { Registration } from '../types'
 
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import Typography from '@mui/material/Typography'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 

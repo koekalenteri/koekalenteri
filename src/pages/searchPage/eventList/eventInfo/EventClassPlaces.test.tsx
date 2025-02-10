@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { MinimalEvent } from './EventClassPlaces'
 
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'

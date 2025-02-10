@@ -1,8 +1,8 @@
-import type { Params } from 'react-router-dom'
+import type { Params } from 'react-router'
 import type { PublicRegistration } from '../types'
 
 import { useTranslation } from 'react-i18next'
-import { useLoaderData, useParams } from 'react-router-dom'
+import { useLoaderData, useParams } from 'react-router'
 import Box from '@mui/material/Box'
 import Grid2 from '@mui/material/Grid2'
 import { styled } from '@mui/material/styles'

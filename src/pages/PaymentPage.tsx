@@ -1,8 +1,8 @@
-import type { Params } from 'react-router-dom'
+import type { Params } from 'react-router'
 import type { CreatePaymentResponse, PublicDogEvent, Registration } from '../types'
 
 import { Suspense } from 'react'
-import { Await, defer, Navigate, useLoaderData, useParams } from 'react-router-dom'
+import { Await, Navigate, useLoaderData, useParams } from 'react-router'
 import Grid2 from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -33,7 +33,7 @@ export const loader = async ({ params }: { params: Params<string> }) => {
     }
     return {}
   }
-  return defer({ response: createPaymentWrap() })
+  return { response: createPaymentWrap() }
 }
 
 interface Props {

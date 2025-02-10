@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { Suspense } from 'react'
-import { MemoryRouter, useParams } from 'react-router-dom'
+import { MemoryRouter, useParams } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -25,8 +25,8 @@ jest.mock('../api/official')
 jest.mock('../api/organizer')
 jest.mock('../api/registration')
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+jest.mock('react-router', () => ({
+  ...jest.requireActual('react-router'),
   useParams: jest.fn(),
 }))
 const mockUseParams = useParams as jest.Mock

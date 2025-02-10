@@ -25,8 +25,8 @@ export const isEntryUpcoming = ({ entryStartDate, state }: EventVitals, now = ne
 export const isEntryOpen = ({ entryStartDate, entryEndDate, state }: EventVitals, now = new Date()) =>
   !!entryStartDate &&
   !!entryEndDate &&
-  zonedStartOfDay(entryStartDate) <= now &&
-  zonedEndOfDay(entryEndDate) >= now &&
+  zonedStartOfDay(entryStartDate) <= zonedEndOfDay(now) &&
+  zonedEndOfDay(entryEndDate) >= zonedEndOfDay(now) &&
   isValidForEntry(state)
 
 export const isEntryClosing = (event: EventVitals, now = new Date()) =>
@@ -41,8 +41,8 @@ export const isEntryClosed = ({ startDate, entryEndDate }: EventVitals, now = ne
 export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now = new Date()) =>
   !!startDate &&
   !!endDate &&
-  zonedStartOfDay(startDate) <= now &&
-  zonedEndOfDay(endDate) >= now &&
+  zonedStartOfDay(startDate) <= zonedEndOfDay(now) &&
+  zonedEndOfDay(endDate) >= zonedEndOfDay(now) &&
   isValidForEntry(state) &&
   state !== 'confirmed'
 

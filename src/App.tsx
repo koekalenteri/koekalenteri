@@ -1,7 +1,7 @@
 import type { SnackbarKey } from 'notistack'
 
 import { Suspense, useCallback } from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'

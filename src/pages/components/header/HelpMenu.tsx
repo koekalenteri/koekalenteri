@@ -2,7 +2,7 @@ import type { MouseEvent } from 'react'
 
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import HelpOutlineOutlined from '@mui/icons-material/HelpOutlineOutlined'
 import Menu from '@mui/material/Menu'

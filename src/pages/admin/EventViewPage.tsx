@@ -2,7 +2,7 @@ import type { EmailTemplateId, Registration, RegistrationClass } from '../../typ
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'

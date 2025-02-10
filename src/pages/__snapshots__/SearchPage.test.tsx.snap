@@ -5973,6 +5973,7 @@ exports[`SearchPage filters by event class 1`] = `
               >
                 <a
                   class="link"
+                  data-discover="true"
                   href="/startlist/testInvited"
                 >
                   Katso osallistujalista
@@ -8505,6 +8506,7 @@ exports[`SearchPage filters by event type 1`] = `
               >
                 <a
                   class="link"
+                  data-discover="true"
                   href="/startlist/testInvited"
                 >
                   Katso osallistujalista

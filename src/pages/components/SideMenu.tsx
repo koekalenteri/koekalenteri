@@ -1,7 +1,7 @@
 import type { Theme } from '@mui/material'
 
 import { useTranslation } from 'react-i18next'
-import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router'
 import Accessibility from '@mui/icons-material/Accessibility'
 import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined'
 import Event from '@mui/icons-material/Event'
