@@ -2,7 +2,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 
 import { nanoid } from 'nanoid'
 
-import { getRegistrationChanges, GROUP_KEY_RESERVE } from '../../lib/registration'
+import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
@@ -14,6 +14,7 @@ import {
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getRegistration,
+  getRegistrationChanges,
   isParticipantGroup,
   saveRegistration,
 } from '../lib/registration'

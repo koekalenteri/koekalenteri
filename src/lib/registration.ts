@@ -9,10 +9,6 @@ import type {
   RegistrationTemplateContext,
 } from '../types'
 
-import { diff } from 'deep-object-diff'
-
-import { i18n } from '../i18n/lambda'
-
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
@@ -180,22 +176,6 @@ export const getRegistrationEmailTemplateData = (
     origin,
     cancelReason,
   }
-}
-
-export const getRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
-  const t = i18n.getFixedT('fi')
-  const changes: Partial<JsonRegistration> = diff(existing, data)
-  console.debug('Audit changes', changes)
-  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
-  const modified: string[] = []
-
-  for (const key of keys) {
-    if (changes[key]) {
-      modified.push(t(`registration.${key}`))
-    }
-  }
-
-  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
 }
 
 export const isPredefinedReason = (v?: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' =>

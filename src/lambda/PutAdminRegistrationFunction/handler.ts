@@ -2,7 +2,6 @@ import type { JsonRegistration } from '../../types'
 
 import { nanoid } from 'nanoid'
 
-import { getRegistrationChanges } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
@@ -10,7 +9,7 @@ import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../li
 import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
-import { getRegistration } from '../lib/registration'
+import { getRegistration, getRegistrationChanges } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { response } from '../utils/response'
 

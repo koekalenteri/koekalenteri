@@ -1,5 +1,7 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
 
+import { diff } from 'deep-object-diff'
+
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
@@ -140,4 +142,20 @@ export const getCancelAuditMessage = (data: JsonRegistration) => {
   }
 
   return `Ilmoittautuminen peruttiin, syy: ${data.cancelReason}`
+}
+
+export const getRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
+  const t = i18n.getFixedT('fi')
+  const changes: Partial<JsonRegistration> = diff(existing, data)
+  console.debug('Audit changes', changes)
+  const keys = ['class', 'dog', 'breeder', 'owner', 'handler', 'qualifyingResults', 'notes'] as const
+  const modified: string[] = []
+
+  for (const key of keys) {
+    if (changes[key]) {
+      modified.push(t(`registration.${key}`))
+    }
+  }
+
+  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
 }
