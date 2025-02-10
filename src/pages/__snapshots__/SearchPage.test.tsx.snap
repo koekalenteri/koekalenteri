@@ -12,22 +12,22 @@ exports[`SearchPage filters by date - no-results 1`] = `
       <h3
         class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
       >
-        <div
+        <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-jmxa3x-MuiButtonBase-root-MuiAccordionSummary-root"
-          role="button"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1molkxx-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
+          type="button"
         >
-          <div
-            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-7iurs7-MuiAccordionSummary-content"
+          <span
+            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <span
               class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
             >
               daterangeBoth: 1.–2.3.2021
             </span>
-          </div>
-          <div
+          </span>
+          <span
             class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
           >
             <svg
@@ -41,8 +41,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
               />
             </svg>
-          </div>
-        </div>
+          </span>
+        </button>
       </h3>
       <div
         class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -79,8 +79,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r1g:"
-                            id=":r1g:-label"
+                            for=":r33:"
+                            id=":r33:-label"
                           >
                             daterangeStart
                           </label>
@@ -91,7 +91,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1g:"
+                              id=":r33:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -102,7 +102,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 1. maalis 2021"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r35:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -143,8 +144,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r1i:"
-                            id=":r1i:-label"
+                            for=":r36:"
+                            id=":r36:-label"
                           >
                             daterangeEnd
                           </label>
@@ -155,7 +156,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1i:"
+                              id=":r36:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -166,7 +167,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 2. maalis 2021"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r38:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -213,8 +215,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1k:"
-                          id=":r1k:-label"
+                          for=":r39:"
+                          id=":r39:-label"
                         >
                           filter.eventType
                         </label>
@@ -229,7 +231,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r1k:"
+                            id=":r39:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -240,8 +242,9 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
+                              id=":r3b:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -288,8 +291,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1m:"
-                          id=":r1m:-label"
+                          for=":r3c:"
+                          id=":r3c:-label"
                         >
                           filter.eventClass
                         </label>
@@ -304,7 +307,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r1m:"
+                            id=":r3c:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -315,8 +318,9 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
+                              id=":r3e:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -363,8 +367,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1o:"
-                          id=":r1o:-label"
+                          for=":r3f:"
+                          id=":r3f:-label"
                         >
                           filter.organizer
                         </label>
@@ -379,7 +383,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r1o:"
+                            id=":r3f:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -390,8 +394,9 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
+                              id=":r3h:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -438,8 +443,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1q:"
-                          id=":r1q:-label"
+                          for=":r3i:"
+                          id=":r3i:-label"
                         >
                           judge
                         </label>
@@ -454,7 +459,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r1q:"
+                            id=":r3i:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -465,8 +470,9 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
+                              id=":r3k:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -576,7 +582,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         class="MuiGrid2-root MuiGrid2-direction-xs-row css-1ambz5g-MuiGrid2-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          id=":r3l:"
                           tabindex="0"
                           type="button"
                         >
@@ -613,22 +620,22 @@ exports[`SearchPage filters by date 1`] = `
       <h3
         class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
       >
-        <div
+        <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-jmxa3x-MuiButtonBase-root-MuiAccordionSummary-root"
-          role="button"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1molkxx-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
+          type="button"
         >
-          <div
-            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-7iurs7-MuiAccordionSummary-content"
+          <span
+            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <span
               class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
             >
               daterangeBoth: 1.1.–1.3.2021
             </span>
-          </div>
-          <div
+          </span>
+          <span
             class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
           >
             <svg
@@ -642,8 +649,8 @@ exports[`SearchPage filters by date 1`] = `
                 d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
               />
             </svg>
-          </div>
-        </div>
+          </span>
+        </button>
       </h3>
       <div
         class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -680,8 +687,8 @@ exports[`SearchPage filters by date 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r14:"
-                            id=":r14:-label"
+                            for=":r2c:"
+                            id=":r2c:-label"
                           >
                             daterangeStart
                           </label>
@@ -692,7 +699,7 @@ exports[`SearchPage filters by date 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r14:"
+                              id=":r2c:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -703,7 +710,8 @@ exports[`SearchPage filters by date 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 1. tammi 2021"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r2e:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -744,8 +752,8 @@ exports[`SearchPage filters by date 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r16:"
-                            id=":r16:-label"
+                            for=":r2f:"
+                            id=":r2f:-label"
                           >
                             daterangeEnd
                           </label>
@@ -756,7 +764,7 @@ exports[`SearchPage filters by date 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r16:"
+                              id=":r2f:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -767,7 +775,8 @@ exports[`SearchPage filters by date 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 1. maalis 2021"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r2h:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -814,8 +823,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r18:"
-                          id=":r18:-label"
+                          for=":r2i:"
+                          id=":r2i:-label"
                         >
                           filter.eventType
                         </label>
@@ -829,7 +838,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r18:"
+                            id=":r2i:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -840,7 +849,8 @@ exports[`SearchPage filters by date 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r2k:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -887,8 +897,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1a:"
-                          id=":r1a:-label"
+                          for=":r2l:"
+                          id=":r2l:-label"
                         >
                           filter.eventClass
                         </label>
@@ -902,7 +912,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r1a:"
+                            id=":r2l:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -913,7 +923,8 @@ exports[`SearchPage filters by date 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r2n:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -960,8 +971,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1c:"
-                          id=":r1c:-label"
+                          for=":r2o:"
+                          id=":r2o:-label"
                         >
                           filter.organizer
                         </label>
@@ -975,7 +986,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r1c:"
+                            id=":r2o:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -986,7 +997,8 @@ exports[`SearchPage filters by date 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r2q:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1033,8 +1045,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r1e:"
-                          id=":r1e:-label"
+                          for=":r2r:"
+                          id=":r2r:-label"
                         >
                           judge
                         </label>
@@ -1048,7 +1060,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r1e:"
+                            id=":r2r:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -1059,7 +1071,8 @@ exports[`SearchPage filters by date 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r2t:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1169,7 +1182,8 @@ exports[`SearchPage filters by date 1`] = `
                         class="MuiGrid2-root MuiGrid2-direction-xs-row css-1ambz5g-MuiGrid2-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          id=":r2u:"
                           tabindex="0"
                           type="button"
                         >
@@ -1199,7 +1213,8 @@ exports[`SearchPage filters by date 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r2v:"
           tabindex="0"
           type="button"
         >
@@ -1480,7 +1495,8 @@ exports[`SearchPage filters by date 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r30:"
           tabindex="0"
           type="button"
         >
@@ -1775,7 +1791,8 @@ exports[`SearchPage filters by date 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r31:"
           tabindex="0"
           type="button"
         >
@@ -2128,7 +2145,8 @@ exports[`SearchPage filters by date 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r32:"
           tabindex="0"
           type="button"
         >
@@ -2425,22 +2443,22 @@ exports[`SearchPage filters by date/end 1`] = `
       <h3
         class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
       >
-        <div
+        <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-jmxa3x-MuiButtonBase-root-MuiAccordionSummary-root"
-          role="button"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1molkxx-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
+          type="button"
         >
-          <div
-            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-7iurs7-MuiAccordionSummary-content"
+          <span
+            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <span
               class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
             >
               daterangeEnd: 01.03.2021
             </span>
-          </div>
-          <div
+          </span>
+          <span
             class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
           >
             <svg
@@ -2454,8 +2472,8 @@ exports[`SearchPage filters by date/end 1`] = `
                 d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
               />
             </svg>
-          </div>
-        </div>
+          </span>
+        </button>
       </h3>
       <div
         class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -2492,8 +2510,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":ro:"
-                            id=":ro:-label"
+                            for=":r1g:"
+                            id=":r1g:-label"
                           >
                             daterangeStart
                           </label>
@@ -2504,7 +2522,7 @@ exports[`SearchPage filters by date/end 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":ro:"
+                              id=":r1g:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -2515,7 +2533,8 @@ exports[`SearchPage filters by date/end 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r1i:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -2556,8 +2575,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rq:"
-                            id=":rq:-label"
+                            for=":r1j:"
+                            id=":r1j:-label"
                           >
                             daterangeEnd
                           </label>
@@ -2568,7 +2587,7 @@ exports[`SearchPage filters by date/end 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":rq:"
+                              id=":r1j:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -2579,7 +2598,8 @@ exports[`SearchPage filters by date/end 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 1. maalis 2021"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r1l:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -2626,8 +2646,8 @@ exports[`SearchPage filters by date/end 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":rs:"
-                          id=":rs:-label"
+                          for=":r1m:"
+                          id=":r1m:-label"
                         >
                           filter.eventType
                         </label>
@@ -2641,7 +2661,7 @@ exports[`SearchPage filters by date/end 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":rs:"
+                            id=":r1m:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -2652,7 +2672,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r1o:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2699,8 +2720,8 @@ exports[`SearchPage filters by date/end 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":ru:"
-                          id=":ru:-label"
+                          for=":r1p:"
+                          id=":r1p:-label"
                         >
                           filter.eventClass
                         </label>
@@ -2714,7 +2735,7 @@ exports[`SearchPage filters by date/end 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":ru:"
+                            id=":r1p:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -2725,7 +2746,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r1r:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2772,8 +2794,8 @@ exports[`SearchPage filters by date/end 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r10:"
-                          id=":r10:-label"
+                          for=":r1s:"
+                          id=":r1s:-label"
                         >
                           filter.organizer
                         </label>
@@ -2787,7 +2809,7 @@ exports[`SearchPage filters by date/end 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r10:"
+                            id=":r1s:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -2798,7 +2820,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r1u:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2845,8 +2868,8 @@ exports[`SearchPage filters by date/end 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r12:"
-                          id=":r12:-label"
+                          for=":r1v:"
+                          id=":r1v:-label"
                         >
                           judge
                         </label>
@@ -2860,7 +2883,7 @@ exports[`SearchPage filters by date/end 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r12:"
+                            id=":r1v:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -2871,7 +2894,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r21:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2981,7 +3005,8 @@ exports[`SearchPage filters by date/end 1`] = `
                         class="MuiGrid2-root MuiGrid2-direction-xs-row css-1ambz5g-MuiGrid2-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          id=":r22:"
                           tabindex="0"
                           type="button"
                         >
@@ -3011,7 +3036,8 @@ exports[`SearchPage filters by date/end 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r28:"
           tabindex="0"
           type="button"
         >
@@ -3292,7 +3318,8 @@ exports[`SearchPage filters by date/end 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r29:"
           tabindex="0"
           type="button"
         >
@@ -3587,7 +3614,8 @@ exports[`SearchPage filters by date/end 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r2a:"
           tabindex="0"
           type="button"
         >
@@ -3940,7 +3968,8 @@ exports[`SearchPage filters by date/end 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r2b:"
           tabindex="0"
           type="button"
         >
@@ -4237,22 +4266,22 @@ exports[`SearchPage filters by event class 1`] = `
       <h3
         class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
       >
-        <div
+        <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-jmxa3x-MuiButtonBase-root-MuiAccordionSummary-root"
-          role="button"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1molkxx-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
+          type="button"
         >
-          <div
-            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-7iurs7-MuiAccordionSummary-content"
+          <span
+            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <span
               class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
             >
               event.classes: AVO
             </span>
-          </div>
-          <div
+          </span>
+          <span
             class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
           >
             <svg
@@ -4266,8 +4295,8 @@ exports[`SearchPage filters by event class 1`] = `
                 d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
               />
             </svg>
-          </div>
-        </div>
+          </span>
+        </button>
       </h3>
       <div
         class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -4304,8 +4333,8 @@ exports[`SearchPage filters by event class 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r28:"
-                            id=":r28:-label"
+                            for=":r4j:"
+                            id=":r4j:-label"
                           >
                             daterangeStart
                           </label>
@@ -4316,7 +4345,7 @@ exports[`SearchPage filters by event class 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r28:"
+                              id=":r4j:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -4327,7 +4356,8 @@ exports[`SearchPage filters by event class 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r4l:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -4368,8 +4398,8 @@ exports[`SearchPage filters by event class 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2a:"
-                            id=":r2a:-label"
+                            for=":r4m:"
+                            id=":r4m:-label"
                           >
                             daterangeEnd
                           </label>
@@ -4380,7 +4410,7 @@ exports[`SearchPage filters by event class 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2a:"
+                              id=":r4m:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -4391,7 +4421,8 @@ exports[`SearchPage filters by event class 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r4o:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -4438,8 +4469,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2c:"
-                          id=":r2c:-label"
+                          for=":r4p:"
+                          id=":r4p:-label"
                         >
                           filter.eventType
                         </label>
@@ -4453,7 +4484,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2c:"
+                            id=":r4p:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -4464,7 +4495,8 @@ exports[`SearchPage filters by event class 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r4s:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4511,8 +4543,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":r2e:"
-                          id=":r2e:-label"
+                          for=":r4t:"
+                          id=":r4t:-label"
                         >
                           filter.eventClass
                         </label>
@@ -4549,7 +4581,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2e:"
+                            id=":r4t:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -4560,7 +4592,8 @@ exports[`SearchPage filters by event class 1`] = `
                           >
                             <button
                               aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-nykp2v-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                              id=":r5c:"
                               tabindex="-1"
                               title="Clear"
                               type="button"
@@ -4579,7 +4612,8 @@ exports[`SearchPage filters by event class 1`] = `
                             </button>
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r4v:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4626,8 +4660,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2g:"
-                          id=":r2g:-label"
+                          for=":r50:"
+                          id=":r50:-label"
                         >
                           filter.organizer
                         </label>
@@ -4641,7 +4675,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2g:"
+                            id=":r50:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -4652,7 +4686,8 @@ exports[`SearchPage filters by event class 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r52:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4699,8 +4734,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2i:"
-                          id=":r2i:-label"
+                          for=":r53:"
+                          id=":r53:-label"
                         >
                           judge
                         </label>
@@ -4714,7 +4749,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2i:"
+                            id=":r53:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -4725,7 +4760,8 @@ exports[`SearchPage filters by event class 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r55:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4835,7 +4871,8 @@ exports[`SearchPage filters by event class 1`] = `
                         class="MuiGrid2-root MuiGrid2-direction-xs-row css-1ambz5g-MuiGrid2-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          id=":r56:"
                           tabindex="0"
                           type="button"
                         >
@@ -4865,7 +4902,8 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r58:"
           tabindex="0"
           type="button"
         >
@@ -5218,7 +5256,8 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r59:"
           tabindex="0"
           type="button"
         >
@@ -5513,7 +5552,8 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r5a:"
           tabindex="0"
           type="button"
         >
@@ -5842,7 +5882,8 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r5b:"
           tabindex="0"
           type="button"
         >
@@ -6177,7 +6218,8 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r5d:"
           tabindex="0"
           type="button"
         >
@@ -6460,22 +6502,22 @@ exports[`SearchPage filters by event type 1`] = `
       <h3
         class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
       >
-        <div
+        <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-jmxa3x-MuiButtonBase-root-MuiAccordionSummary-root"
-          role="button"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1molkxx-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
+          type="button"
         >
-          <div
-            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-7iurs7-MuiAccordionSummary-content"
+          <span
+            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <span
               class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
             >
               eventTypes: NOME-B
             </span>
-          </div>
-          <div
+          </span>
+          <span
             class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
           >
             <svg
@@ -6489,8 +6531,8 @@ exports[`SearchPage filters by event type 1`] = `
                 d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
               />
             </svg>
-          </div>
-        </div>
+          </span>
+        </button>
       </h3>
       <div
         class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -6527,8 +6569,8 @@ exports[`SearchPage filters by event type 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r1s:"
-                            id=":r1s:-label"
+                            for=":r3q:"
+                            id=":r3q:-label"
                           >
                             daterangeStart
                           </label>
@@ -6539,7 +6581,7 @@ exports[`SearchPage filters by event type 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1s:"
+                              id=":r3q:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -6550,7 +6592,8 @@ exports[`SearchPage filters by event type 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r3s:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -6591,8 +6634,8 @@ exports[`SearchPage filters by event type 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r1u:"
-                            id=":r1u:-label"
+                            for=":r3t:"
+                            id=":r3t:-label"
                           >
                             daterangeEnd
                           </label>
@@ -6603,7 +6646,7 @@ exports[`SearchPage filters by event type 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r1u:"
+                              id=":r3t:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -6614,7 +6657,8 @@ exports[`SearchPage filters by event type 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r3v:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -6661,8 +6705,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":r20:"
-                          id=":r20:-label"
+                          for=":r40:"
+                          id=":r40:-label"
                         >
                           filter.eventType
                         </label>
@@ -6699,7 +6743,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r20:"
+                            id=":r40:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -6710,7 +6754,8 @@ exports[`SearchPage filters by event type 1`] = `
                           >
                             <button
                               aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-nykp2v-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                              id=":r4d:"
                               tabindex="-1"
                               title="Clear"
                               type="button"
@@ -6729,7 +6774,8 @@ exports[`SearchPage filters by event type 1`] = `
                             </button>
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r42:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -6776,8 +6822,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r22:"
-                          id=":r22:-label"
+                          for=":r43:"
+                          id=":r43:-label"
                         >
                           filter.eventClass
                         </label>
@@ -6791,7 +6837,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r22:"
+                            id=":r43:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -6802,7 +6848,8 @@ exports[`SearchPage filters by event type 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r45:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -6849,8 +6896,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r24:"
-                          id=":r24:-label"
+                          for=":r46:"
+                          id=":r46:-label"
                         >
                           filter.organizer
                         </label>
@@ -6864,7 +6911,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r24:"
+                            id=":r46:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -6875,7 +6922,8 @@ exports[`SearchPage filters by event type 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r48:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -6922,8 +6970,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r26:"
-                          id=":r26:-label"
+                          for=":r49:"
+                          id=":r49:-label"
                         >
                           judge
                         </label>
@@ -6937,7 +6985,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r26:"
+                            id=":r49:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -6948,7 +6996,8 @@ exports[`SearchPage filters by event type 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r4b:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -7058,7 +7107,8 @@ exports[`SearchPage filters by event type 1`] = `
                         class="MuiGrid2-root MuiGrid2-direction-xs-row css-1ambz5g-MuiGrid2-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          id=":r4c:"
                           tabindex="0"
                           type="button"
                         >
@@ -7088,7 +7138,8 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r4e:"
           tabindex="0"
           type="button"
         >
@@ -7383,7 +7434,8 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r4f:"
           tabindex="0"
           type="button"
         >
@@ -7736,7 +7788,8 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r4g:"
           tabindex="0"
           type="button"
         >
@@ -8031,7 +8084,8 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r4h:"
           tabindex="0"
           type="button"
         >
@@ -8360,7 +8414,8 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r4i:"
           tabindex="0"
           type="button"
         >
@@ -8697,22 +8752,22 @@ exports[`SearchPage filters by organizer 1`] = `
       <h3
         class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
       >
-        <div
+        <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-jmxa3x-MuiButtonBase-root-MuiAccordionSummary-root"
-          role="button"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1molkxx-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
+          type="button"
         >
-          <div
-            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-7iurs7-MuiAccordionSummary-content"
+          <span
+            class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
             <span
               class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
             >
               Järjestäjät: 1
             </span>
-          </div>
-          <div
+          </span>
+          <span
             class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
           >
             <svg
@@ -8726,8 +8781,8 @@ exports[`SearchPage filters by organizer 1`] = `
                 d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
               />
             </svg>
-          </div>
-        </div>
+          </span>
+        </button>
       </h3>
       <div
         class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -8764,8 +8819,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2k:"
-                            id=":r2k:-label"
+                            for=":r5e:"
+                            id=":r5e:-label"
                           >
                             daterangeStart
                           </label>
@@ -8776,7 +8831,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2k:"
+                              id=":r5e:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -8787,7 +8842,8 @@ exports[`SearchPage filters by organizer 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r5g:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -8828,8 +8884,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2m:"
-                            id=":r2m:-label"
+                            for=":r5h:"
+                            id=":r5h:-label"
                           >
                             daterangeEnd
                           </label>
@@ -8840,7 +8896,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2m:"
+                              id=":r5h:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -8851,7 +8907,8 @@ exports[`SearchPage filters by organizer 1`] = `
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r5j:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -8898,8 +8955,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2o:"
-                          id=":r2o:-label"
+                          for=":r5k:"
+                          id=":r5k:-label"
                         >
                           filter.eventType
                         </label>
@@ -8913,7 +8970,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2o:"
+                            id=":r5k:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -8924,7 +8981,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r5m:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -8971,8 +9029,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2q:"
-                          id=":r2q:-label"
+                          for=":r5n:"
+                          id=":r5n:-label"
                         >
                           filter.eventClass
                         </label>
@@ -8986,7 +9044,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2q:"
+                            id=":r5n:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -8997,7 +9055,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r5q:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9044,8 +9103,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":r2s:"
-                          id=":r2s:-label"
+                          for=":r5r:"
+                          id=":r5r:-label"
                         >
                           filter.organizer
                         </label>
@@ -9082,7 +9141,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2s:"
+                            id=":r5r:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -9093,7 +9152,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           >
                             <button
                               aria-label="Clear"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-nykp2v-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                              id=":r67:"
                               tabindex="-1"
                               title="Clear"
                               type="button"
@@ -9112,7 +9172,8 @@ exports[`SearchPage filters by organizer 1`] = `
                             </button>
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r5t:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9159,8 +9220,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2u:"
-                          id=":r2u:-label"
+                          for=":r5u:"
+                          id=":r5u:-label"
                         >
                           judge
                         </label>
@@ -9174,7 +9235,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2u:"
+                            id=":r5u:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -9185,7 +9246,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              id=":r60:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9295,7 +9357,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         class="MuiGrid2-root MuiGrid2-direction-xs-row css-1ambz5g-MuiGrid2-root"
                       >
                         <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+                          class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+                          id=":r61:"
                           tabindex="0"
                           type="button"
                         >
@@ -9325,7 +9388,8 @@ exports[`SearchPage filters by organizer 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r63:"
           tabindex="0"
           type="button"
         >

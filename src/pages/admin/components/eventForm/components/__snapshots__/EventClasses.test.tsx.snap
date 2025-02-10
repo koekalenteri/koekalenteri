@@ -29,7 +29,8 @@ exports[`EventClasses should render with classes 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            id=":r5:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -55,6 +56,7 @@ exports[`EventClasses should render with classes 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -107,7 +109,8 @@ exports[`EventClasses should render with classes and value 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            id=":r8:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -133,6 +136,7 @@ exports[`EventClasses should render with classes and value 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -196,7 +200,8 @@ exports[`EventClasses should render with classes and values 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            id=":rb:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -222,6 +227,7 @@ exports[`EventClasses should render with classes and values 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -298,7 +304,8 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
         >
           <button
             aria-label="Close"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-xogp0m-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            id=":rh:"
             tabindex="-1"
             title="Close"
             type="button"
@@ -324,6 +331,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -345,7 +353,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
       style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
-      <div
+      <ul
         aria-labelledby="-label"
         class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
         id="-listbox"
@@ -460,7 +468,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
             </li>
           </ul>
         </li>
-      </div>
+      </ul>
     </div>
   </div>
 </div>
@@ -520,7 +528,8 @@ exports[`EventClasses should render with classes and values, open 1`] = `
         >
           <button
             aria-label="Close"
-            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-xogp0m-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            id=":re:"
             tabindex="-1"
             title="Close"
             type="button"
@@ -546,6 +555,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -567,7 +577,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
       style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
     >
-      <div
+      <ul
         aria-labelledby="-label"
         class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
         id="-listbox"
@@ -639,7 +649,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           </span>
           AVO
         </li>
-      </div>
+      </ul>
     </div>
   </div>
 </div>
@@ -675,8 +685,9 @@ exports[`EventClasses should render with minimal properties 1`] = `
         >
           <button
             aria-label="Open"
-            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             disabled=""
+            id=":r2:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -702,6 +713,7 @@ exports[`EventClasses should render with minimal properties 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​

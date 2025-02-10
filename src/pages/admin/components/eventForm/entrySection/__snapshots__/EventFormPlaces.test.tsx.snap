@@ -116,6 +116,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
                       class="css-w4cd9x"
                     >
                       <span
+                        aria-hidden="true"
                         class="notranslate"
                       >
                         ​
@@ -166,6 +167,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
                       class="css-w4cd9x"
                     >
                       <span
+                        aria-hidden="true"
                         class="notranslate"
                       >
                         ​
@@ -218,6 +220,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
                       class="css-w4cd9x"
                     >
                       <span
+                        aria-hidden="true"
                         class="notranslate"
                       >
                         ​
@@ -360,6 +363,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
                       class="css-w4cd9x"
                     >
                       <span
+                        aria-hidden="true"
                         class="notranslate"
                       >
                         ​

@@ -3,6 +3,8 @@ import type { Judge } from '../../../types'
 
 import { useTranslation } from 'react-i18next'
 
+import { localeSortComparator } from '../../../lib/datagrid'
+
 import ActiveCell from './cells/ActiveCell'
 import LanguagesCell from './cells/LanguagesCell'
 import OfficialCell from './cells/OfficialCell'
@@ -29,6 +31,7 @@ export default function useJudgeListColumns(): GridColDef<Judge>[] {
       flex: 1,
       headerName: t('name'),
       minWidth: 150,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'id',
@@ -40,6 +43,7 @@ export default function useJudgeListColumns(): GridColDef<Judge>[] {
       field: 'location',
       flex: 1,
       headerName: t('contact.city'),
+      sortComparator: localeSortComparator,
     },
     {
       field: 'phone',
@@ -55,6 +59,7 @@ export default function useJudgeListColumns(): GridColDef<Judge>[] {
       field: 'district',
       flex: 1,
       headerName: 'Kennelpiiri',
+      sortComparator: localeSortComparator,
     },
     {
       field: 'eventTypes',

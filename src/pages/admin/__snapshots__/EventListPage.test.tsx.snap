@@ -12,12 +12,13 @@ exports[`EventListPage renders 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r3:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -34,13 +35,14 @@ exports[`EventListPage renders 1`] = `
           createEvent
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           disabled=""
+          id=":r4:"
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -57,13 +59,14 @@ exports[`EventListPage renders 1`] = `
           edit
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           disabled=""
+          id=":r5:"
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -80,13 +83,14 @@ exports[`EventListPage renders 1`] = `
           copy
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           disabled=""
+          id=":r6:"
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -103,13 +107,14 @@ exports[`EventListPage renders 1`] = `
           delete
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           disabled=""
+          id=":r7:"
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -127,8 +132,8 @@ exports[`EventListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-154nwxt-MuiDataGrid-root"
-        style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 200px; --DataGrid-columnsTotalWidth: 200px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-3wizzu-MuiDataGrid-root"
+        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 200px; --DataGrid-columnsTotalWidth: 200px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
           class="MuiStack-root css-k5y4k9-MuiStack-root"
@@ -137,14 +142,14 @@ exports[`EventListPage renders 1`] = `
             aria-expanded="false"
             aria-haspopup="menu"
             aria-label="Select columns"
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1shiz0m-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1iyi9w1-MuiButtonBase-root-MuiButton-root"
             data-mui-internal-clone-element="true"
-            id=":r4:"
+            id=":r8:"
             tabindex="0"
             type="button"
           >
             <span
-              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-1tjwu2m-MuiButton-startIcon"
+              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
             >
               <svg
                 aria-hidden="true"
@@ -183,14 +188,15 @@ exports[`EventListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1yrc8ca-MuiInputBase-input-MuiInput-input"
-                  id=":r7:"
+                  id=":rc:"
                   placeholder="search.placeholder"
                   type="text"
                   value=""
                 />
                 <button
                   aria-label="clear"
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                  id=":rd:"
                   style="visibility: hidden;"
                   tabindex="0"
                   title="clear"
@@ -227,8 +233,8 @@ exports[`EventListPage renders 1`] = `
                   <label
                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-8kr4nd-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
-                    for=":r8:"
-                    id=":r8:-label"
+                    for=":re:"
+                    id=":re:-label"
                   >
                     Yhdistys
                   </label>
@@ -242,7 +248,7 @@ exports[`EventListPage renders 1`] = `
                       autocapitalize="none"
                       autocomplete="off"
                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-13meb6w-MuiInputBase-input-MuiOutlinedInput-input"
-                      id=":r8:"
+                      id=":re:"
                       role="combobox"
                       spellcheck="false"
                       type="text"
@@ -253,7 +259,8 @@ exports[`EventListPage renders 1`] = `
                     >
                       <button
                         aria-label="Clear"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-nykp2v-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                        id=":rg:"
                         tabindex="-1"
                         title="Clear"
                         type="button"
@@ -272,7 +279,8 @@ exports[`EventListPage renders 1`] = `
                       </button>
                       <button
                         aria-label="Open"
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                        id=":rh:"
                         tabindex="-1"
                         title="Open"
                         type="button"
@@ -345,12 +353,12 @@ exports[`EventListPage renders 1`] = `
           tabindex="-1"
         >
           <div
-            class="css-19vp370"
+            class="css-18l11qw"
             data-id="gridPanelAnchor"
             role="presentation"
           />
           <div
-            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+            class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
             role="presentation"
             style="overflow-x: hidden;"
           >
@@ -404,8 +412,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="date"
+                            id=":rr:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -478,8 +487,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="eventType"
+                            id=":rv:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -552,8 +562,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="classes"
+                            id=":r13:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -626,8 +637,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="organizer"
+                            id=":r17:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -700,8 +712,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="name"
+                            id=":r1b:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -774,8 +787,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="location"
+                            id=":r1f:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -848,8 +862,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="secretary"
+                            id=":r1j:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -922,8 +937,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="official"
+                            id=":r1n:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -996,8 +1012,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="judges"
+                            id=":r1r:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -1070,8 +1087,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="places"
+                            id=":r1v:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -1144,8 +1162,9 @@ exports[`EventListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="state"
+                            id=":r23:"
                             tabindex="-1"
                             title="Sort"
                             type="button"
@@ -1199,7 +1218,7 @@ exports[`EventListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; height: 140px;"
+              style="width: auto; flex-shrink: 0; flex-basis: 140px;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1374,6 +1393,10 @@ exports[`EventListPage renders 1`] = `
                   >
                     event.states.confirmed_entryClosed
                   </div>
+                  <div
+                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                    role="presentation"
+                  />
                 </div>
                 <div
                   aria-rowindex="3"
@@ -1543,6 +1566,10 @@ exports[`EventListPage renders 1`] = `
                   >
                     event.states.invited
                   </div>
+                  <div
+                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                    role="presentation"
+                  />
                 </div>
                 <div
                   aria-rowindex="4"
@@ -1712,6 +1739,10 @@ exports[`EventListPage renders 1`] = `
                   >
                     event.states.confirmed_entryOpen
                   </div>
+                  <div
+                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                    role="presentation"
+                  />
                 </div>
                 <div
                   aria-rowindex="5"
@@ -1881,6 +1912,10 @@ exports[`EventListPage renders 1`] = `
                   >
                     event.states.confirmed
                   </div>
+                  <div
+                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                    role="presentation"
+                  />
                 </div>
                 <div
                   aria-rowindex="6"
@@ -2050,18 +2085,21 @@ exports[`EventListPage renders 1`] = `
                   >
                     event.states.confirmed_entryOpen
                   </div>
+                  <div
+                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                    role="presentation"
+                  />
                 </div>
               </div>
             </div>
             <div
               class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
               role="presentation"
-              style="transform: translateY(0px);"
             />
           </div>
           <div
             aria-hidden="true"
-            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-20a7a0"
+            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
             tabindex="-1"
           >
             <div
@@ -2070,7 +2108,7 @@ exports[`EventListPage renders 1`] = `
           </div>
           <div
             aria-hidden="true"
-            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-tewekw"
             tabindex="-1"
           >
             <div
@@ -2092,6 +2130,45 @@ exports[`EventListPage renders 1`] = `
                 class="MuiTablePagination-spacer css-1wtxofq-MuiTablePagination-spacer"
               />
               <p
+                class="MuiTablePagination-selectLabel css-s09cke-MuiTablePagination-selectLabel"
+                id=":rj:"
+              >
+                Rows per page:
+              </p>
+              <div
+                class="MuiInputBase-root MuiInputBase-colorPrimary MuiTablePagination-select MuiSelect-root MuiTablePagination-input css-oegngy-MuiInputBase-root-MuiTablePagination-select"
+              >
+                <div
+                  aria-expanded="false"
+                  aria-haspopup="listbox"
+                  aria-labelledby=":rj: :ri:"
+                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-mmygx2-MuiSelect-select-MuiInputBase-input"
+                  id=":ri:"
+                  role="combobox"
+                  tabindex="0"
+                >
+                  100
+                </div>
+                <input
+                  aria-hidden="true"
+                  aria-invalid="false"
+                  class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
+                  tabindex="-1"
+                  value="100"
+                />
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-1gpuzre-MuiSvgIcon-root-MuiSelect-icon"
+                  data-testid="ArrowDropDownIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M7 10l5 5 5-5z"
+                  />
+                </svg>
+              </div>
+              <p
                 class="MuiTablePagination-displayedRows css-11cfq65-MuiTablePagination-displayedRows"
               >
                 1–5 of 5
@@ -2101,8 +2178,9 @@ exports[`EventListPage renders 1`] = `
               >
                 <button
                   aria-label="Go to previous page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-cdtzx3-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-h7cjts-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
+                  id=":rl:"
                   tabindex="-1"
                   title="Go to previous page"
                   type="button"
@@ -2121,8 +2199,9 @@ exports[`EventListPage renders 1`] = `
                 </button>
                 <button
                   aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-cdtzx3-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-h7cjts-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
+                  id=":rm:"
                   tabindex="-1"
                   title="Go to next page"
                   type="button"

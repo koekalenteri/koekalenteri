@@ -4,6 +4,8 @@ import type { Official } from '../../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { localeSortComparator } from '../../../lib/datagrid'
+
 export const useOfficialListPageColumns = () => {
   const { t } = useTranslation()
 
@@ -14,6 +16,7 @@ export const useOfficialListPageColumns = () => {
         flex: 1,
         headerName: t('name'),
         minWidth: 150,
+        sortComparator: localeSortComparator,
       },
       {
         field: 'id',
@@ -26,6 +29,7 @@ export const useOfficialListPageColumns = () => {
         flex: 0,
         headerName: t('contact.city'),
         width: 120,
+        sortComparator: localeSortComparator,
       },
       {
         field: 'phone',
@@ -43,6 +47,7 @@ export const useOfficialListPageColumns = () => {
         field: 'district',
         flex: 1,
         headerName: t('district'),
+        sortComparator: localeSortComparator,
       },
       {
         field: 'eventTypes',

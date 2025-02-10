@@ -6,7 +6,8 @@ exports[`AdditionalInfo should render with minimal info 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -56,8 +57,8 @@ exports[`AdditionalInfo should render with minimal info 1`] = `
                 <label
                   class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root"
                   data-shrink="false"
-                  for=":r0:"
-                  id=":r0:-label"
+                  for=":r1:"
+                  id=":r1:-label"
                 >
                   registration.notes
                 </label>
@@ -67,7 +68,7 @@ exports[`AdditionalInfo should render with minimal info 1`] = `
                   <textarea
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r0:"
+                    id=":r1:"
                     name="notes"
                     rows="4"
                     style="height: 0px; overflow: hidden;"
@@ -108,7 +109,8 @@ exports[`AdditionalInfo should render with text 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      id=":r2:"
       tabindex="0"
       type="button"
     >
@@ -158,8 +160,8 @@ exports[`AdditionalInfo should render with text 1`] = `
                 <label
                   class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                   data-shrink="true"
-                  for=":r1:"
-                  id=":r1:-label"
+                  for=":r3:"
+                  id=":r3:-label"
                 >
                   registration.notes
                 </label>
@@ -169,7 +171,7 @@ exports[`AdditionalInfo should render with text 1`] = `
                   <textarea
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r1:"
+                    id=":r3:"
                     name="notes"
                     rows="4"
                     style="height: 0px; overflow: hidden;"
@@ -212,7 +214,8 @@ exports[`AdditionalInfo should rerender with new value 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      id=":r4:"
       tabindex="0"
       type="button"
     >
@@ -262,8 +265,8 @@ exports[`AdditionalInfo should rerender with new value 1`] = `
                 <label
                   class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                   data-shrink="true"
-                  for=":r2:"
-                  id=":r2:-label"
+                  for=":r5:"
+                  id=":r5:-label"
                 >
                   registration.notes
                 </label>
@@ -273,7 +276,7 @@ exports[`AdditionalInfo should rerender with new value 1`] = `
                   <textarea
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r2:"
+                    id=":r5:"
                     name="notes"
                     rows="4"
                     style="height: 0px; overflow: hidden;"

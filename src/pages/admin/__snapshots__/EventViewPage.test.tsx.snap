@@ -39,14 +39,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             <h3
               class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
             >
-              <div
+              <button
                 aria-expanded="true"
-                class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-3p1p57-MuiButtonBase-root-MuiAccordionSummary-root"
-                role="button"
+                class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-1vts57o-MuiButtonBase-root-MuiAccordionSummary-root"
                 tabindex="0"
+                type="button"
               >
-                <div
-                  class="MuiAccordionSummary-content Mui-expanded css-1hbu1y9-MuiAccordionSummary-content"
+                <span
+                  class="MuiAccordionSummary-content Mui-expanded css-18x5eyn-MuiAccordionSummary-content"
                 >
                   <div
                     class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -84,8 +84,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       />
                     </div>
                   </div>
-                </div>
-                <div
+                </span>
+                <span
                   class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
                 >
                   <svg
@@ -99,8 +99,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                       d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
                     />
                   </svg>
-                </div>
-              </div>
+                </span>
+              </button>
             </h3>
             <div
               class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -170,8 +170,9 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16qus8k-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
                                   disabled=""
+                                  id=":r6t:"
                                   tabindex="-1"
                                   type="button"
                                 >
@@ -219,7 +220,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16qus8k-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
+                                  id=":r6u:"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -290,7 +292,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                   for="koekutsu-file"
                                 >
                                   <span
-                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16qus8k-MuiButtonBase-root-MuiButton-root"
+                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
+                                    id=":r6v:"
                                     role="button"
                                     tabindex="0"
                                   >
@@ -314,12 +317,13 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r70:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -336,12 +340,13 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           Näytä tapahtuman tiedot
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r71:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -363,13 +368,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           role="separator"
         />
         <a
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           href="/admin/event/startlist/test1-b"
+          id=":r72:"
           tabindex="0"
           target="_blank"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -391,12 +397,13 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           role="separator"
         />
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r73:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -413,13 +420,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           createRegistration
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           disabled=""
+          id=":r74:"
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -490,7 +498,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               viewBox="22 22 44 44"
             >
               <circle
-                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-960umw-MuiCircularProgress-circle"
+                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
                 cx="44"
                 cy="44"
                 fill="none"
@@ -520,8 +528,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             class="MuiBox-root css-1hvfy3o"
           >
             <div
-              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-154nwxt-MuiDataGrid-root"
-              style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-3wizzu-MuiDataGrid-root"
+              style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
             >
               <div
                 aria-colcount="9"
@@ -532,12 +540,12 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="css-19vp370"
+                  class="css-18l11qw"
                   data-id="gridPanelAnchor"
                   role="presentation"
                 />
                 <div
-                  class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                  class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                   role="presentation"
                   style="overflow-x: hidden;"
                 >
@@ -1018,13 +1026,13 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                      style="height: -39px; width: 0px;"
+                      style="width: 0px;"
                     />
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 0px;"
+                    style="width: auto; flex-shrink: 0;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1035,12 +1043,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   <div
                     class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                     role="presentation"
-                    style="transform: translateY(0px);"
                   />
                 </div>
                 <div
                   aria-hidden="true"
-                  class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                  class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                   tabindex="-1"
                 >
                   <div
@@ -1058,8 +1065,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -1080,14 +1087,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -1578,7 +1585,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1589,12 +1596,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -1609,8 +1615,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -1631,14 +1637,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -2129,7 +2135,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2140,12 +2146,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -2160,8 +2165,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -2182,14 +2187,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -2680,7 +2685,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2691,12 +2696,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -2711,8 +2715,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -2733,14 +2737,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -3231,7 +3235,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -3242,12 +3246,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -3271,8 +3274,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   aria-colcount="9"
@@ -3283,14 +3286,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -3781,7 +3784,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -3792,12 +3795,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -3817,8 +3819,8 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   aria-colcount="10"
@@ -3829,14 +3831,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -4236,8 +4238,9 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                                 >
                                   <button
                                     aria-label="Sort"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                                     field="cancelReason"
+                                    id=":rd1:"
                                     tabindex="-1"
                                     title="Sort"
                                     type="button"
@@ -4401,7 +4404,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -4412,12 +4415,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -4478,14 +4480,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             <h3
               class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
             >
-              <div
+              <button
                 aria-expanded="true"
-                class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-3p1p57-MuiButtonBase-root-MuiAccordionSummary-root"
-                role="button"
+                class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded css-1vts57o-MuiButtonBase-root-MuiAccordionSummary-root"
                 tabindex="0"
+                type="button"
               >
-                <div
-                  class="MuiAccordionSummary-content Mui-expanded css-1hbu1y9-MuiAccordionSummary-content"
+                <span
+                  class="MuiAccordionSummary-content Mui-expanded css-18x5eyn-MuiAccordionSummary-content"
                 >
                   <div
                     class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -4523,8 +4525,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       />
                     </div>
                   </div>
-                </div>
-                <div
+                </span>
+                <span
                   class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
                 >
                   <svg
@@ -4538,8 +4540,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
                     />
                   </svg>
-                </div>
-              </div>
+                </span>
+              </button>
             </h3>
             <div
               class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
@@ -4609,8 +4611,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16qus8k-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
                                   disabled=""
+                                  id=":r2:"
                                   tabindex="-1"
                                   type="button"
                                 >
@@ -4658,7 +4661,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                               >
                                 <button
-                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16qus8k-MuiButtonBase-root-MuiButton-root"
+                                  class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
+                                  id=":r3:"
                                   tabindex="0"
                                   type="button"
                                 >
@@ -4729,7 +4733,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   for="koekutsu-file"
                                 >
                                   <span
-                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16qus8k-MuiButtonBase-root-MuiButton-root"
+                                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
+                                    id=":r4:"
                                     role="button"
                                     tabindex="0"
                                   >
@@ -4753,12 +4758,13 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r5:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -4775,12 +4781,13 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           Näytä tapahtuman tiedot
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r6:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -4802,13 +4809,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           role="separator"
         />
         <a
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           href="/admin/event/startlist/test1"
+          id=":r7:"
           tabindex="0"
           target="_blank"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -4830,12 +4838,13 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           role="separator"
         />
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          id=":r8:"
           tabindex="0"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -4852,13 +4861,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           createRegistration
         </button>
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-40qcym-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
           disabled=""
+          id=":r9:"
           tabindex="-1"
           type="button"
         >
           <span
-            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1jsm74t-MuiButton-startIcon"
+            class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
           >
             <svg
               aria-hidden="true"
@@ -4919,7 +4929,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               viewBox="22 22 44 44"
             >
               <circle
-                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-960umw-MuiCircularProgress-circle"
+                class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
                 cx="44"
                 cy="44"
                 fill="none"
@@ -4949,8 +4959,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             class="MuiBox-root css-1hvfy3o"
           >
             <div
-              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-154nwxt-MuiDataGrid-root"
-              style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+              class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-3wizzu-MuiDataGrid-root"
+              style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
             >
               <div
                 aria-colcount="9"
@@ -4961,12 +4971,12 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="css-19vp370"
+                  class="css-18l11qw"
                   data-id="gridPanelAnchor"
                   role="presentation"
                 />
                 <div
-                  class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                  class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                   role="presentation"
                   style="overflow-x: hidden;"
                 >
@@ -5447,13 +5457,13 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   >
                     <div
                       class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                      style="height: -39px; width: 0px;"
+                      style="width: 0px;"
                     />
                   </div>
                   <div
                     class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                     role="presentation"
-                    style="width: auto; height: 0px;"
+                    style="width: auto; flex-shrink: 0;"
                   >
                     <div
                       class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -5464,12 +5474,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   <div
                     class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                     role="presentation"
-                    style="transform: translateY(0px);"
                   />
                 </div>
                 <div
                   aria-hidden="true"
-                  class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                  class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                   tabindex="-1"
                 >
                   <div
@@ -5487,8 +5496,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -5509,14 +5518,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -6007,7 +6016,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -6018,12 +6027,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -6038,8 +6046,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -6060,14 +6068,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -6558,7 +6566,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -6569,12 +6577,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -6589,8 +6596,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -6611,14 +6618,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -7109,7 +7116,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -7120,12 +7127,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -7140,8 +7146,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   class="MuiStack-root header css-sf7yvk-MuiStack-root"
@@ -7162,14 +7168,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -7660,7 +7666,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto;"
+                      style="width: auto; flex-shrink: 0;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -7671,12 +7677,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
                     tabindex="-1"
                   >
                     <div
@@ -7700,8 +7705,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 586px; --DataGrid-columnsTotalWidth: 586px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   aria-colcount="9"
@@ -7712,14 +7717,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -8196,7 +8201,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto; height: 28px;"
+                      style="width: auto; flex-shrink: 0; flex-basis: 28px;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -8475,8 +8480,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   aria-expanded="false"
                                   aria-haspopup="menu"
                                   aria-label="more"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
-                                  id=":ra7:"
+                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                  id=":r5h:"
                                   role="menuitem"
                                   tabindex="-1"
                                   type="button"
@@ -8495,6 +8500,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 </button>
                               </div>
                             </div>
+                            <div
+                              class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                              role="presentation"
+                            />
                           </div>
                         </div>
                       </div>
@@ -8502,12 +8511,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="MuiDataGrid-scrollbarContent"
+                    />
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-tewekw"
                     tabindex="-1"
                   >
                     <div
@@ -8527,8 +8544,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               style="display: flex; flex-grow: 1; width: 100%;"
             >
               <div
-                class="MuiDataGrid-root MuiDataGrid-autoHeight MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-16b2qrl-MuiDataGrid-root"
-                style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-jca4uk-MuiDataGrid-root"
+                style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 736px; --DataGrid-columnsTotalWidth: 736px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
               >
                 <div
                   aria-colcount="10"
@@ -8539,14 +8556,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="css-19vp370"
+                    class="css-18l11qw"
                     data-id="gridPanelAnchor"
                     role="presentation"
                   />
                   <div
-                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1iqthua-MuiDataGrid-virtualScroller"
+                    class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                     role="presentation"
-                    style="overflow-x: hidden; overflow-y: hidden;"
+                    style="overflow-x: hidden;"
                   >
                     <div
                       class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
@@ -8946,8 +8963,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 >
                                   <button
                                     aria-label="Sort"
-                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
+                                    class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                                     field="cancelReason"
+                                    id=":r6b:"
                                     tabindex="-1"
                                     title="Sort"
                                     type="button"
@@ -9097,7 +9115,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                       role="presentation"
-                      style="width: auto; height: 28px;"
+                      style="width: auto; flex-shrink: 0; flex-basis: 28px;"
                     >
                       <div
                         class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -9387,8 +9405,8 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                   aria-expanded="false"
                                   aria-haspopup="menu"
                                   aria-label="more"
-                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-r363y4-MuiButtonBase-root-MuiIconButton-root"
-                                  id=":rab:"
+                                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                  id=":r6l:"
                                   role="menuitem"
                                   tabindex="-1"
                                   type="button"
@@ -9407,6 +9425,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                                 </button>
                               </div>
                             </div>
+                            <div
+                              class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                              role="presentation"
+                            />
                           </div>
                         </div>
                       </div>
@@ -9414,12 +9436,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     <div
                       class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
                       role="presentation"
-                      style="transform: translateY(0px);"
                     />
                   </div>
                   <div
                     aria-hidden="true"
-                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-ad8qk9"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
+                    tabindex="-1"
+                  >
+                    <div
+                      class="MuiDataGrid-scrollbarContent"
+                    />
+                  </div>
+                  <div
+                    aria-hidden="true"
+                    class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-tewekw"
                     tabindex="-1"
                   >
                     <div

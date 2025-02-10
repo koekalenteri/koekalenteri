@@ -190,7 +190,6 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
       <DialogContent>
         <DialogContentText sx={{ mb: 1 }}>{t('registration.refundDialog.text')}</DialogContentText>
         <StyledDataGrid
-          autoHeight
           loading={loading}
           checkboxSelection
           columns={columns}

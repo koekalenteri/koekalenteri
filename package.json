@@ -5,10 +5,10 @@
   "dependencies": {
     "@aws-amplify/ui-react": "^6.9.1",
     "@date-fns/tz": "^1.2.0",
-    "@mui/icons-material": "^6.1.7",
-    "@mui/material": "^6.1.6",
-    "@mui/x-data-grid": "^7.21.0",
-    "@mui/x-date-pickers": "^7.23.2",
+    "@mui/icons-material": "^6.4.3",
+    "@mui/material": "^6.4.3",
+    "@mui/x-data-grid": "^7.26.0",
+    "@mui/x-date-pickers": "^7.26.0",
     "aws-amplify": "^6.12.3",
     "aws-embedded-metrics": "^4.2.0",
     "aws-rum-web": "^1.19.0",
@@ -58,7 +58,8 @@
     "init-tables:nix": "./scripts/create_tables.sh",
     "init-tables:win32": "cd ./_test_data_/ && @powershell -NoProfile -ExecutionPolicy Unrestricted -Command ../scripts/create_tables.ps1",
     "lint-backend": "tsc --noEmit -p src/lambda/tsconfig.json",
-    "lint": "eslint \"src/**/*{.ts,.tsx}\" && npm run lint-backend",
+    "lint-frontend": "tsc --noEmit -p tsconfig.json && eslint \"src/**/*{.ts,.tsx}\"",
+    "lint": "npm run lint-frontend && npm run lint-backend",
     "start-backend-build": "npm run build-backend-watch",
     "start-backend-sam": "sam local start-api -p 8080 --docker-network lambda-local --warm-containers=LAZY 2>&1 | tr \"\r\" \"\n\"",
     "start-dynamodb": "docker start dynamodb && docker attach dynamodb",
@@ -66,7 +67,8 @@
     "start": "rimraf .aws-sam && concurrently -c auto npm:start-*",
     "test-backend": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --config=src/lambda/jest.config.ts",
     "test-frontend": "node scripts/test-frontend.js",
-    "test": "CI=1 npm run test-backend && CI=1 npm run test-frontend"
+    "test": "CI=1 npm run test-backend && CI=1 npm run test-frontend",
+    "typecheck": "tcp --noEmit -p tsconfig.json"
   },
   "engines": {
     "npm": ">=8.0.0",

@@ -38,6 +38,7 @@ export default function JudgeListPage() {
       </Stack>
 
       <StyledDataGrid
+        autoPageSize
         columns={columns}
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{

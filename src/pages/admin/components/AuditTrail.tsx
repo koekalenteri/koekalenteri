@@ -32,7 +32,6 @@ export const AuditTrail = ({ auditTrail }: Props) => {
           { field: 'message', flex: 1 },
         ]}
         density="compact"
-        autoHeight
         getRowId={(r) => r.timestamp.toISOString()}
         hideFooter
         rows={auditTrail}

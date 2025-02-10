@@ -280,7 +280,6 @@ const ClassEntrySelection = ({
       >
         {groups.map((group) => (
           <DragableDataGrid
-            autoHeight
             canDrop={(item) => {
               return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
             }}
@@ -317,7 +316,6 @@ const ClassEntrySelection = ({
           <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />
         </Stack>
         <DragableDataGrid
-          autoHeight
           canDrop={(item) =>
             (state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
             item?.groupKey === GROUP_KEY_CANCELLED ||
@@ -340,7 +338,6 @@ const ClassEntrySelection = ({
         />
         <Typography variant="h6">Peruneet</Typography>
         <DragableDataGrid
-          autoHeight
           canDrop={(item) => item?.groupKey !== GROUP_KEY_CANCELLED}
           columns={cancelledColumns}
           slotProps={{

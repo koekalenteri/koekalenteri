@@ -41,6 +41,7 @@ export default function OfficialListPage() {
       </Stack>
 
       <StyledDataGrid
+        autoPageSize
         columns={columns}
         columnVisibilityModel={{
           district: large,

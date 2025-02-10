@@ -5,6 +5,13 @@ import { useRef } from 'react'
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd'
 import { GridRow } from '@mui/x-data-grid'
 
+// augment the props for the row slot
+declare module '@mui/x-data-grid' {
+  interface RowPropsOverrides {
+    groupKey?: string
+  }
+}
+
 export interface DragItem {
   id: GridRowId
   index: number

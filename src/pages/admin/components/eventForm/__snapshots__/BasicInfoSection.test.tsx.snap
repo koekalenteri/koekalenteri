@@ -6,8 +6,9 @@ exports[`BasicInfoSection should render 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
+      id=":r0:"
       tabindex="-1"
       type="button"
     >
@@ -74,8 +75,8 @@ exports[`BasicInfoSection should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r0:"
-                            id=":r0:-label"
+                            for=":r1:"
+                            id=":r1:-label"
                           >
                             event.startDate
                             <span
@@ -93,7 +94,7 @@ exports[`BasicInfoSection should render 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r0:"
+                              id=":r1:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               required=""
@@ -105,7 +106,8 @@ exports[`BasicInfoSection should render 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 1. kesä 2022"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r3:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -148,8 +150,8 @@ exports[`BasicInfoSection should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled Mui-required MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r2:"
-                            id=":r2:-label"
+                            for=":r4:"
+                            id=":r4:-label"
                           >
                             event.endDate
                             <span
@@ -167,7 +169,7 @@ exports[`BasicInfoSection should render 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2:"
+                              id=":r4:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               required=""
@@ -179,7 +181,8 @@ exports[`BasicInfoSection should render 1`] = `
                             >
                               <button
                                 aria-label="Choose date, selected date is 2. kesä 2022"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                id=":r6:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -266,7 +269,8 @@ exports[`BasicInfoSection should render 1`] = `
                           </div>
                         </div>
                         <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-10a2pye-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-h37wsq-MuiButtonBase-root-MuiIconButton-root"
+                          id=":r9:"
                           tabindex="0"
                           type="button"
                         >
@@ -330,7 +334,8 @@ exports[`BasicInfoSection should render 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                id=":rc:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -363,7 +368,8 @@ exports[`BasicInfoSection should render 1`] = `
                           </div>
                         </div>
                         <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-igkznu-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+                          id=":rd:"
                           tabindex="0"
                           type="button"
                         >
@@ -421,8 +427,9 @@ exports[`BasicInfoSection should render 1`] = `
                           >
                             <button
                               aria-label="Open"
-                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                              class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
+                              id=":rg:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -469,8 +476,8 @@ exports[`BasicInfoSection should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-19qnlrw-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
-                        for=":ra:"
-                        id=":ra:-label"
+                        for=":rh:"
+                        id=":rh:-label"
                       >
                         Tapahtuman nimi
                       </label>
@@ -480,7 +487,7 @@ exports[`BasicInfoSection should render 1`] = `
                         <input
                           aria-invalid="false"
                           class="MuiInputBase-input MuiOutlinedInput-input css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
-                          id=":ra:"
+                          id=":rh:"
                           type="text"
                           value=""
                         />
@@ -544,7 +551,8 @@ exports[`BasicInfoSection should render 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                id=":rk:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -577,7 +585,8 @@ exports[`BasicInfoSection should render 1`] = `
                           </div>
                         </div>
                         <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-igkznu-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+                          id=":rl:"
                           tabindex="0"
                           type="button"
                         >
@@ -647,7 +656,8 @@ exports[`BasicInfoSection should render 1`] = `
                           </div>
                         </div>
                         <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-igkznu-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+                          id=":ro:"
                           tabindex="0"
                           type="button"
                         >
@@ -711,7 +721,8 @@ exports[`BasicInfoSection should render 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                id=":rr:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -744,7 +755,8 @@ exports[`BasicInfoSection should render 1`] = `
                           </div>
                         </div>
                         <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-igkznu-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+                          id=":rs:"
                           tabindex="0"
                           type="button"
                         >
@@ -804,7 +816,8 @@ exports[`BasicInfoSection should render 1`] = `
                             >
                               <button
                                 aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                id=":rv:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -837,7 +850,8 @@ exports[`BasicInfoSection should render 1`] = `
                           </div>
                         </div>
                         <button
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-igkznu-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
+                          id=":r10:"
                           tabindex="0"
                           type="button"
                         >

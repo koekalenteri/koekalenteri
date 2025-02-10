@@ -6,7 +6,8 @@ exports[`DogInfo should render 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -97,7 +98,8 @@ exports[`DogInfo should render 1`] = `
                             >
                               <button
                                 aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-nykp2v-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                id=":r3:"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -131,7 +133,8 @@ exports[`DogInfo should render 1`] = `
                         </div>
                       </div>
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1abvrni-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-74d805-MuiButtonBase-root-MuiButton-root"
+                        id=":r4:"
                         tabindex="0"
                         type="button"
                       >
@@ -147,7 +150,7 @@ exports[`DogInfo should render 1`] = `
                           viewBox="22 22 44 44"
                         >
                           <circle
-                            class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-960umw-MuiCircularProgress-circle"
+                            class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
                             cx="44"
                             cy="44"
                             fill="none"
@@ -173,8 +176,8 @@ exports[`DogInfo should render 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r2:"
-                      id=":r2:-label"
+                      for=":r5:"
+                      id=":r5:-label"
                     >
                       dog.rfid
                     </label>
@@ -185,7 +188,7 @@ exports[`DogInfo should render 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":r2:"
+                        id=":r5:"
                         type="text"
                         value="1234567890123456"
                       />
@@ -303,8 +306,8 @@ exports[`DogInfo should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r5:"
-                        id=":r5:-label"
+                        for=":r8:"
+                        id=":r8:-label"
                       >
                         dog.dob
                       </label>
@@ -316,7 +319,7 @@ exports[`DogInfo should render 1`] = `
                           autocomplete="off"
                           class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
-                          id=":r5:"
+                          id=":r8:"
                           inputmode="text"
                           placeholder="DD.MM.YYYY"
                           type="text"
@@ -327,8 +330,9 @@ exports[`DogInfo should render 1`] = `
                         >
                           <button
                             aria-label="Choose date, selected date is 10. huhti 2020"
-                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-oeq6yz-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                             disabled=""
+                            id=":ra:"
                             tabindex="-1"
                             type="button"
                           >
@@ -374,8 +378,8 @@ exports[`DogInfo should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r7:"
-                        id=":r7:-label"
+                        for=":rb:"
+                        id=":rb:-label"
                       >
                         dog.gender
                       </label>
@@ -390,7 +394,7 @@ exports[`DogInfo should render 1`] = `
                           autocomplete="off"
                           class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
-                          id=":r7:"
+                          id=":rb:"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -401,8 +405,9 @@ exports[`DogInfo should render 1`] = `
                         >
                           <button
                             aria-label="Open"
-                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                             disabled=""
+                            id=":rd:"
                             tabindex="-1"
                             title="Open"
                             type="button"
@@ -449,8 +454,8 @@ exports[`DogInfo should render 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-113d811-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
-                        for=":r9:"
-                        id=":r9:-label"
+                        for=":re:"
+                        id=":re:-label"
                       >
                         dog.breed
                       </label>
@@ -465,7 +470,7 @@ exports[`DogInfo should render 1`] = `
                           autocomplete="off"
                           class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                           disabled=""
-                          id=":r9:"
+                          id=":re:"
                           role="combobox"
                           spellcheck="false"
                           type="text"
@@ -476,8 +481,9 @@ exports[`DogInfo should render 1`] = `
                         >
                           <button
                             aria-label="Open"
-                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                            class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                             disabled=""
+                            id=":rg:"
                             tabindex="-1"
                             title="Open"
                             type="button"

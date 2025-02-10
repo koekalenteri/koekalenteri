@@ -4,6 +4,7 @@ import type { DogEvent, EventClass } from '../../../types'
 import { useTranslation } from 'react-i18next'
 
 import { getEventTitle } from '../../../hooks/useEventTitle'
+import { localeSortComparator } from '../../../lib/datagrid'
 
 type StartEndDate = { start: Date; end: Date }
 
@@ -48,18 +49,21 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       minWidth: 100,
       valueGetter: (_value, row) => row.organizer.name,
       flex: 2,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'name',
       headerName: t('event.name'),
       minWidth: 100,
       flex: 2,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'location',
       headerName: t('event.location'),
       minWidth: 100,
       flex: 1,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'secretary',
@@ -67,6 +71,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       minWidth: 100,
       flex: 1,
       valueGetter: (_value, row) => row.secretary?.name ?? '',
+      sortComparator: localeSortComparator,
     },
     {
       field: 'official',
@@ -74,6 +79,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       minWidth: 100,
       flex: 1,
       valueGetter: (_value, row) => row.official?.name,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'judges',
@@ -81,6 +87,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       minWidth: 100,
       flex: 1,
       valueGetter: (_value, row) => row.judges && row.judges[0]?.name,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'places',
@@ -96,6 +103,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       type: 'string',
       valueGetter: (_value, row) => getEventTitle(row, t),
       hideable: false,
+      sortComparator: localeSortComparator,
     },
   ]
 }

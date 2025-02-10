@@ -51,6 +51,7 @@ export default function EventTypeListPage() {
       </Stack>
 
       <StyledDataGrid
+        autoPageSize
         columns={columns}
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{

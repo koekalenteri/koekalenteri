@@ -160,6 +160,7 @@ export default function EventListPage() {
         />
       </Stack>
       <StyledDataGrid
+        autoPageSize
         columns={columns}
         columnVisibilityModel={visibilityModel}
         onColumnVisibilityModelChange={setVisibilityModel}

@@ -6,7 +6,8 @@ exports[`HadnlerInfo should render with minimal info 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -197,6 +198,7 @@ exports[`HadnlerInfo should render with minimal info 1`] = `
                         class="MuiInputAdornment-root MuiInputAdornment-positionStart MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-1be8vlw-MuiInputAdornment-root"
                       >
                         <span
+                          aria-hidden="true"
                           class="notranslate"
                         >
                           ​
@@ -205,7 +207,8 @@ exports[`HadnlerInfo should render with minimal info 1`] = `
                           aria-expanded="false"
                           aria-haspopup="listbox"
                           aria-label="Select country"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-1bfa977-MuiButtonBase-root-MuiIconButton-root"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
+                          id=":r5:"
                           tabindex="0"
                           type="button"
                         >

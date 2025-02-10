@@ -26,6 +26,7 @@ exports[`PlacesInput should render with positive number 1`] = `
           class="css-w4cd9x"
         >
           <span
+            aria-hidden="true"
             class="notranslate"
           >
             ​
@@ -63,6 +64,7 @@ exports[`PlacesInput should render with zero 1`] = `
           class="css-w4cd9x"
         >
           <span
+            aria-hidden="true"
             class="notranslate"
           >
             ​
@@ -100,6 +102,7 @@ exports[`PlacesInput should rerender with new value 1`] = `
           class="css-w4cd9x"
         >
           <span
+            aria-hidden="true"
             class="notranslate"
           >
             ​

@@ -6,8 +6,9 @@ exports[`AdditionalInfoSection should render 1`] = `
     class="MuiBox-root css-l530ik"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1mgprzk-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
+      id=":r0:"
       tabindex="-1"
       type="button"
     >
@@ -60,7 +61,7 @@ exports[`AdditionalInfoSection should render 1`] = `
                   <textarea
                     aria-invalid="false"
                     class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                    id=":r0:"
+                    id=":r1:"
                     rows="5"
                     style="height: 0px; overflow: hidden;"
                   >
@@ -81,6 +82,7 @@ exports[`AdditionalInfoSection should render 1`] = `
                       class="css-w4cd9x"
                     >
                       <span
+                        aria-hidden="true"
                         class="notranslate"
                       >
                         ​

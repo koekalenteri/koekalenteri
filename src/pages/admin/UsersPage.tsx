@@ -17,6 +17,7 @@ import { styled } from '@mui/material/styles'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { localeSortComparator } from '../../lib/datagrid'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isOrgAdminSelector, userSelector } from '../recoil'
@@ -115,6 +116,7 @@ export default function UsersPage() {
       field: 'name',
       flex: 1,
       headerName: t('name'),
+      sortComparator: localeSortComparator,
     },
     {
       field: 'roles',
@@ -134,6 +136,7 @@ export default function UsersPage() {
       flex: 0,
       headerName: t('contact.city'),
       width: 120,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'phone',
@@ -151,6 +154,7 @@ export default function UsersPage() {
       field: 'district',
       flex: 1,
       headerName: t('district'),
+      sortComparator: localeSortComparator,
     },
     {
       field: 'lastSeen',
@@ -196,6 +200,7 @@ export default function UsersPage() {
           />
         </Stack>
         <StyledDataGrid
+          autoPageSize
           columns={columns}
           columnVisibilityModel={visibilityModel}
           onColumnVisibilityModelChange={setVisibilityModel}

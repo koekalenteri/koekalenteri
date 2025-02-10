@@ -15,7 +15,8 @@ exports[`EventList should render 1`] = `
       >
         <button
           aria-label="expand row"
-          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1x7d5r7-MuiButtonBase-root-MuiIconButton-root"
+          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+          id=":r0:"
           tabindex="0"
           type="button"
         >

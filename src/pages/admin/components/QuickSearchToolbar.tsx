@@ -8,6 +8,13 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { GridToolbarColumnsButton, GridToolbarContainer } from '@mui/x-data-grid'
 
+// augment the props for the toolbar slot
+declare module '@mui/x-data-grid' {
+  interface ToolbarPropsOverrides {
+    columnSelector?: boolean
+  }
+}
+
 export interface QuickSearchToolbarProps {
   readonly clearSearch: () => void
   readonly onChange: (event: React.ChangeEvent<HTMLInputElement>) => void

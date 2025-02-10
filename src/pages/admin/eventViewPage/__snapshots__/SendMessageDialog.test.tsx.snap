@@ -29,7 +29,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r8:"
+        aria-labelledby=":rb:"
         aria-modal="true"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-18x6di2-MuiPaper-root-MuiDialog-paper"
         role="dialog"
@@ -37,7 +37,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
-          id=":r8:"
+          id=":rb:"
         >
           Viestin lähettäminen
         </h2>
@@ -57,19 +57,19 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                 <h3
                   class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
                 >
-                  <div
+                  <button
                     aria-expanded="false"
-                    class="MuiButtonBase-root MuiAccordionSummary-root css-rx8ubl-MuiButtonBase-root-MuiAccordionSummary-root"
-                    role="button"
+                    class="MuiButtonBase-root MuiAccordionSummary-root css-1hri02r-MuiButtonBase-root-MuiAccordionSummary-root"
                     tabindex="0"
+                    type="button"
                   >
-                    <div
-                      class="MuiAccordionSummary-content css-1hbu1y9-MuiAccordionSummary-content"
+                    <span
+                      class="MuiAccordionSummary-content css-18x5eyn-MuiAccordionSummary-content"
                     >
                       Vastaanottajat: 
                       2
-                    </div>
-                    <div
+                    </span>
+                    <span
                       class="MuiAccordionSummary-expandIconWrapper css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
                     >
                       <svg
@@ -83,8 +83,8 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                           d="M6.23 20.23 8 22l10-10L8 2 6.23 3.77 14.46 12z"
                         />
                       </svg>
-                    </div>
-                  </div>
+                    </span>
+                  </button>
                 </h3>
                 <div
                   class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
@@ -168,8 +168,8 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r9:"
-                      id=":r9:-label"
+                      for=":rc:"
+                      id=":rc:-label"
                     >
                       Viestin tyyppi
                     </label>
@@ -184,7 +184,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         autocomplete="off"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":r9:"
+                        id=":rc:"
                         role="combobox"
                         spellcheck="false"
                         type="text"
@@ -195,8 +195,9 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       >
                         <button
                           aria-label="Open"
-                          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                          class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                           disabled=""
+                          id=":re:"
                           tabindex="-1"
                           title="Open"
                           type="button"
@@ -246,7 +247,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":rb:"
+                        id=":rf:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -265,6 +266,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                           class="css-w4cd9x"
                         >
                           <span
+                            aria-hidden="true"
                             class="notranslate"
                           >
                             ​
@@ -919,14 +921,16 @@ Vastaava koetoimitsija
           class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+            id=":rg:"
             tabindex="0"
             type="button"
           >
             Lähetä
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-xgx25g-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
+            id=":rh:"
             tabindex="0"
             type="button"
           >
@@ -998,19 +1002,19 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                 <h3
                   class="MuiAccordion-heading css-cy7rkm-MuiAccordion-heading"
                 >
-                  <div
+                  <button
                     aria-expanded="false"
-                    class="MuiButtonBase-root MuiAccordionSummary-root css-rx8ubl-MuiButtonBase-root-MuiAccordionSummary-root"
-                    role="button"
+                    class="MuiButtonBase-root MuiAccordionSummary-root css-1hri02r-MuiButtonBase-root-MuiAccordionSummary-root"
                     tabindex="0"
+                    type="button"
                   >
-                    <div
-                      class="MuiAccordionSummary-content css-1hbu1y9-MuiAccordionSummary-content"
+                    <span
+                      class="MuiAccordionSummary-content css-18x5eyn-MuiAccordionSummary-content"
                     >
                       Vastaanottajat: 
                       0
-                    </div>
-                    <div
+                    </span>
+                    <span
                       class="MuiAccordionSummary-expandIconWrapper css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
                     >
                       <svg
@@ -1024,8 +1028,8 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                           d="M6.23 20.23 8 22l10-10L8 2 6.23 3.77 14.46 12z"
                         />
                       </svg>
-                    </div>
-                  </div>
+                    </span>
+                  </button>
                 </h3>
                 <div
                   class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-hidden css-cwrbtg-MuiCollapse-root"
@@ -1098,7 +1102,8 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       >
                         <button
                           aria-label="Open"
-                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-1puztro-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                          class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                          id=":r6:"
                           tabindex="-1"
                           title="Open"
                           type="button"
@@ -1148,7 +1153,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r6:"
+                        id=":r7:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -1167,6 +1172,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                           class="css-w4cd9x"
                         >
                           <span
+                            aria-hidden="true"
                             class="notranslate"
                           >
                             ​
@@ -1435,15 +1441,17 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
           class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-fza4hl-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
             disabled=""
+            id=":r8:"
             tabindex="-1"
             type="button"
           >
             Lähetä
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-xgx25g-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
+            id=":r9:"
             tabindex="0"
             type="button"
           >

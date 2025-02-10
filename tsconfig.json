@@ -24,8 +24,12 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "es6",
-    "useUnknownInCatchVariables": true,  },
+    "useUnknownInCatchVariables": true,
+  },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/lambda"
   ]
 }

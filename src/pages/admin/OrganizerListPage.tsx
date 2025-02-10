@@ -10,6 +10,7 @@ import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { localeSortComparator } from '../../lib/datagrid'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isAdminSelector } from '../recoil'
 
@@ -55,6 +56,7 @@ export default function OrganizerListPage() {
       field: 'name',
       headerName: t('organizer.name'),
       flex: 3,
+      sortComparator: localeSortComparator,
     },
     {
       field: 'paytrailMerchantId',
@@ -108,6 +110,7 @@ export default function OrganizerListPage() {
         </Stack>
 
         <StyledDataGrid
+          autoPageSize
           columns={columns}
           columnVisibilityModel={visibilityModel}
           onColumnVisibilityModelChange={setVisibilityModel}

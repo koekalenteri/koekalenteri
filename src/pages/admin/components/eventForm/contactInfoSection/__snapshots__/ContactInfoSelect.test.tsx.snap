@@ -117,6 +117,7 @@ exports[`PersonContactInfo should render 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -147,6 +148,7 @@ exports[`PersonContactInfo should render 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​
@@ -177,6 +179,7 @@ exports[`PersonContactInfo should render 1`] = `
             class="css-w4cd9x"
           >
             <span
+              aria-hidden="true"
               class="notranslate"
             >
               ​

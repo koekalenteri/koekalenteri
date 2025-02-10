@@ -3,8 +3,8 @@
 exports[`RefundFooter renders 1`] = `
 <div>
   <div
-    class="MuiDataGrid-root MuiDataGrid-root--densityStandard MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1fxkmyt-MuiDataGrid-root"
-    style="--DataGrid-width: 0px; --DataGrid-hasScrollX: 0; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 0px; --DataGrid-columnsTotalWidth: 0px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 56px; --DataGrid-headersTotalHeight: 56px; --DataGrid-topContainerHeight: 56px; --DataGrid-bottomContainerHeight: 0px; --height: 52px;"
+    class="MuiDataGrid-root MuiDataGrid-root--densityStandard MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1r7svyj-MuiDataGrid-root"
+    style="--DataGrid-hasScrollX: 0; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 0px; --DataGrid-columnsTotalWidth: 0px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 56px; --DataGrid-headersTotalHeight: 56px; --DataGrid-topContainerHeight: 56px; --DataGrid-bottomContainerHeight: 0px; --height: 52px;"
   >
     <div
       aria-colcount="0"
@@ -15,12 +15,12 @@ exports[`RefundFooter renders 1`] = `
       tabindex="-1"
     >
       <div
-        class="css-19vp370"
+        class="css-18l11qw"
         data-id="gridPanelAnchor"
         role="presentation"
       />
       <div
-        class="MuiDataGrid-virtualScroller css-1iqthua-MuiDataGrid-virtualScroller"
+        class="MuiDataGrid-virtualScroller css-1vigakz-MuiDataGrid-virtualScroller"
         role="presentation"
         style="overflow-x: hidden;"
       >
@@ -57,7 +57,7 @@ exports[`RefundFooter renders 1`] = `
         >
           <div
             class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-            style="height: -56px; width: 0px;"
+            style="width: 0px;"
           >
             <div
               class="MuiDataGrid-overlay css-ok32b7-MuiDataGrid-overlay"
@@ -69,7 +69,7 @@ exports[`RefundFooter renders 1`] = `
         <div
           class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
           role="presentation"
-          style="width: auto; height: 0px;"
+          style="width: auto; flex-shrink: 0;"
         >
           <div
             class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -80,7 +80,6 @@ exports[`RefundFooter renders 1`] = `
         <div
           class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
           role="presentation"
-          style="transform: translateY(0px);"
         />
       </div>
     </div>

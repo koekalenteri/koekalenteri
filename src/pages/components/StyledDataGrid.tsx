@@ -7,6 +7,11 @@ import { DataGrid } from '@mui/x-data-grid'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
   const [page, setPage] = useState(0)
+
+  if (props.autoPageSize) {
+    return <DataGrid initialState={{ density: 'compact' }} disableColumnMenu {...props} />
+  }
+
   return (
     <DataGrid
       paginationModel={{ page, pageSize: 100 }}
