@@ -25,7 +25,7 @@ jobs:
         run: |
           if gh pr checks "$PR_URL" --required --watch --fail-fast; then
             gh pr review --approve "$PR_URL"
-            gh pr merge --squash "$PR_URL"
+            gh pr merge --auto "$PR_URL"
           else
             echo "Status checks failed, skipping."
           fi
