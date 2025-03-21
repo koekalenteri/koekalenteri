@@ -9,7 +9,7 @@
     "@mui/material": "^6.4.3",
     "@mui/x-data-grid": "^7.27.3",
     "@mui/x-date-pickers": "^7.28.0",
-    "aws-amplify": "^6.13.5",
+    "aws-amplify": "^6.13.6",
     "aws-embedded-metrics": "^4.2.0",
     "aws-rum-web": "^1.21.0",
     "aws-sdk": "^2.1692.0",
