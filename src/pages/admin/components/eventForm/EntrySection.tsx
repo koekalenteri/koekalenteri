@@ -89,6 +89,7 @@ export default function EntrySection(props: Props) {
               start={event.entryStartDate ?? null}
               defaultStart={sub(event.startDate, { weeks: 6 })}
               end={event.entryEndDate ?? null}
+              endDisabled={disabled}
               defaultEnd={sub(event.startDate, { weeks: 3 })}
               range={{ start: event.createdAt ?? sub(event.startDate, { weeks: 9 }), end: event.startDate }}
               required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
