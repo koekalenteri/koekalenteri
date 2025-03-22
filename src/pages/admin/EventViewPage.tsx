@@ -9,7 +9,6 @@ import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Alert from '@mui/material/Alert'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
@@ -26,7 +25,6 @@ import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 
-import FullPageFlex from './components/FullPageFlex'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
@@ -133,106 +131,92 @@ export default function EventViewPage() {
 
   return (
     <>
-      <FullPageFlex minWidth={900}>
-        <Grid2 container justifyContent="end">
-          <Grid2 flexGrow={1}>
-            <Title event={event} />
-          </Grid2>
-          <Grid2>
-            <InfoPanel event={event} registrations={allRegistrations} onOpenMessageDialog={handleOpenMsgDialog} />
-          </Grid2>
+      <Grid2 container justifyContent="end">
+        <Grid2 flexGrow={1}>
+          <Title event={event} />
         </Grid2>
+        <Grid2>
+          <InfoPanel event={event} registrations={allRegistrations} onOpenMessageDialog={handleOpenMsgDialog} />
+        </Grid2>
+      </Grid2>
 
-        <Stack direction="row" spacing={2}>
-          <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
-            Näytä tapahtuman tiedot
-          </Button>
-          <Button
-            startIcon={<EmailOutlined />}
-            onClick={() => handleOpenMsgDialog(selectedRegistration ? [selectedRegistration] : [])}
-          >
-            Lähetä viesti
-          </Button>
-          <Divider orientation="vertical"></Divider>
-          <Button startIcon={<FormatListNumberedOutlined />} href={Path.admin.startList(eventId)} target="_blank">
-            Katso sihteerin starttilista
-          </Button>
-          <Divider orientation="vertical"></Divider>
-          <Button
-            startIcon={<AddCircleOutline />}
-            onClick={() => {
-              setCreateOpen(true)
-            }}
-          >
-            {t('createRegistration')}
-          </Button>
-          <Button
-            startIcon={<EditOutlined />}
-            disabled={!selectedRegistrationId}
-            onClick={() => {
-              setOpen(true)
-            }}
-          >
-            {t('editRegistration')}
-          </Button>
-        </Stack>
-
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', mr: 2 }}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Tabs value={activeTab} onChange={handleTabChange}>
-              {allClasses.map((eventClass) => (
-                <Tab
-                  key={`tab-${eventClass}`}
-                  id={`tab-${eventClass}`}
-                  sx={{
-                    borderLeft: '1px solid',
-                    borderLeftColor: 'divider',
-                    bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
-                  }}
-                  label={eventClass}
-                ></Tab>
-              ))}
-            </Tabs>
-            <CircularProgress
-              size={20}
-              color="info"
-              sx={{ opacity: backgroundActionsRunning ? 1 : 0, transition: 'opacity 0.1s ease-in-out' }}
-            />
-          </Stack>
-        </Box>
-
-        <Box
-          sx={{
-            display: 'flex',
-            flexGrow: 1,
-            width: '100%',
-            height: '100%',
-            maxHeight: '70vh',
+      <Stack direction="row" spacing={2}>
+        <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
+          Näytä tapahtuman tiedot
+        </Button>
+        <Button
+          startIcon={<EmailOutlined />}
+          onClick={() => handleOpenMsgDialog(selectedRegistration ? [selectedRegistration] : [])}
+        >
+          Lähetä viesti
+        </Button>
+        <Divider orientation="vertical"></Divider>
+        <Button startIcon={<FormatListNumberedOutlined />} href={Path.admin.startList(eventId)} target="_blank">
+          Katso sihteerin starttilista
+        </Button>
+        <Divider orientation="vertical"></Divider>
+        <Button
+          startIcon={<AddCircleOutline />}
+          onClick={() => {
+            setCreateOpen(true)
           }}
         >
-          {allClasses.map((eventClass, index) => (
-            <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
-              {missingClasses.includes(eventClass) ? (
-                <Alert severity="info" sx={{ m: 1 }}>
-                  Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy
-                  korjata.
-                </Alert>
-              ) : null}
-              <ClassEntrySelection
-                event={event}
-                eventClass={eventClass}
-                registrations={registrations}
-                setOpen={setOpen}
-                setCancelOpen={setCancelOpen}
-                setRefundOpen={setRefundOpen}
-                selectedRegistrationId={selectedRegistrationId}
-                setSelectedRegistrationId={setSelectedRegistrationId}
-                state={stateByClass[eventClass]}
-              />
-            </TabPanel>
+          {t('createRegistration')}
+        </Button>
+        <Button
+          startIcon={<EditOutlined />}
+          disabled={!selectedRegistrationId}
+          onClick={() => {
+            setOpen(true)
+          }}
+        >
+          {t('editRegistration')}
+        </Button>
+      </Stack>
+
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Tabs value={activeTab} onChange={handleTabChange}>
+          {allClasses.map((eventClass) => (
+            <Tab
+              key={`tab-${eventClass}`}
+              id={`tab-${eventClass}`}
+              sx={{
+                borderLeft: '1px solid',
+                borderLeftColor: 'divider',
+                bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
+              }}
+              label={eventClass}
+            ></Tab>
           ))}
-        </Box>
-      </FullPageFlex>
+        </Tabs>
+        <CircularProgress
+          size={20}
+          color="info"
+          sx={{ opacity: backgroundActionsRunning ? 1 : 0, transition: 'opacity 0.1s ease-in-out' }}
+        />
+      </Stack>
+
+      {allClasses.map((eventClass, index) => (
+        <TabPanel key={`tabPanel-${eventClass}`} index={index} activeTab={activeTab}>
+          {missingClasses.includes(eventClass) ? (
+            <Alert severity="info" sx={{ m: 1 }}>
+              Nämä ilmoittautumiset ovat koeluokassa, jota ei enää ole kokeessa. Ilmoittautumisten luokat täytyy
+              korjata.
+            </Alert>
+          ) : null}
+          <ClassEntrySelection
+            event={event}
+            eventClass={eventClass}
+            registrations={registrations}
+            setOpen={setOpen}
+            setCancelOpen={setCancelOpen}
+            setRefundOpen={setRefundOpen}
+            selectedRegistrationId={selectedRegistrationId}
+            setSelectedRegistrationId={setSelectedRegistrationId}
+            state={stateByClass[eventClass]}
+          />
+        </TabPanel>
+      ))}
       <Suspense
         fallback={
           <Modal open>

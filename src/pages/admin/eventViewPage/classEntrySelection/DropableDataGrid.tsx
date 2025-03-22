@@ -68,6 +68,17 @@ const DropableDataGrid = (props: Props) => {
   return (
     <div ref={ref} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
       <StyledDataGrid
+        disableVirtualization
+        disableAutosize
+        disableColumnResize
+        disableColumnFilter
+        disableColumnSorting
+        disableColumnMenu
+        disableColumnSelector
+        disableDensitySelector
+        disableEval
+        disableMultipleRowSelection
+        rowHeight={40}
         {...props}
         slots={{
           ...props.slots,
@@ -76,7 +87,9 @@ const DropableDataGrid = (props: Props) => {
         sx={[
           {
             minHeight: 100,
-            overflow: 'visible',
+            '& .MuiDataGrid-virtualScroller': {
+              overflow: 'hidden',
+            },
             '& .MuiDataGrid-virtualScrollerContent': {
               marginBottom: '3px',
             },

@@ -287,7 +287,7 @@ const ClassEntrySelection = ({
             key={group.key}
             group={group.key}
             columns={participantColumns}
-            hideFooter
+            hideFooter={(registrationsByGroup[group.key] ?? []).length < 101}
             columnHeaderHeight={0}
             rows={registrationsByGroup[group.key] ?? []}
             onRowSelectionModelChange={handleSelectionModeChange}
@@ -327,7 +327,7 @@ const ClassEntrySelection = ({
               groupKey: 'reserve',
             },
           }}
-          hideFooter
+          hideFooter={registrationsByGroup.reserve.length < 101}
           rows={registrationsByGroup.reserve}
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
@@ -345,7 +345,7 @@ const ClassEntrySelection = ({
               groupKey: GROUP_KEY_CANCELLED,
             },
           }}
-          hideFooter
+          hideFooter={registrationsByGroup.cancelled.length < 101}
           rows={registrationsByGroup.cancelled}
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}

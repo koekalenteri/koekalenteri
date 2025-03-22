@@ -13,7 +13,8 @@ const TabPanel = ({ index, activeTab, children }: Props) => {
       style={{
         width: '100%',
         minHeight: 400,
-        display: activeTab === index ? 'block' : 'none',
+        display: activeTab === index ? 'flex' : 'none',
+        flexDirection: 'column',
       }}
     >
       {index === activeTab && <>{children}</>}

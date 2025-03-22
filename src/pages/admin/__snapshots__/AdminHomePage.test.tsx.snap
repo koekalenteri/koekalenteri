@@ -208,7 +208,7 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
     </div>
   </header>
   <div
-    class="MuiBox-root css-ab8yd1"
+    class="MuiBox-root css-1c84wtl"
   >
     <div
       class="MuiBox-root css-f1a6ef"
@@ -427,7 +427,7 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
     </div>
   </header>
   <div
-    class="MuiBox-root css-ab8yd1"
+    class="MuiBox-root css-1c84wtl"
   >
     <div
       class="MuiBox-root css-f1a6ef"
