@@ -16,6 +16,7 @@ import { locales } from '../i18n'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 
+import LoadingIndicator from './components/LoadingIndicator'
 import { Component as PaymentPage } from './PaymentPage'
 
 jest.mock('../api/event')
@@ -44,6 +45,7 @@ describe('PaymentPage', () => {
       {
         path,
         element: <PaymentPage />,
+        hydrateFallbackElement: <LoadingIndicator />,
         loader: async () => ({
           response: new Promise(() => {}),
         }),
@@ -79,6 +81,7 @@ describe('PaymentPage', () => {
       {
         path,
         element: <PaymentPage />,
+        hydrateFallbackElement: <LoadingIndicator />,
         loader: async () => ({
           response: Promise.resolve(mockResponse),
         }),
