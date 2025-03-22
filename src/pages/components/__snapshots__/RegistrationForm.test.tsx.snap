@@ -14,7 +14,6 @@ exports[`RegistrationForm renders 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r0:"
           tabindex="0"
           type="button"
         >
@@ -103,7 +102,6 @@ exports[`RegistrationForm renders 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":r3:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -178,7 +176,6 @@ exports[`RegistrationForm renders 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":r6:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -282,7 +279,6 @@ exports[`RegistrationForm renders 1`] = `
                               <button
                                 aria-label="Clear"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                id=":r9:"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -302,7 +298,6 @@ exports[`RegistrationForm renders 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":ra:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -406,7 +401,6 @@ exports[`RegistrationForm renders 1`] = `
                               <button
                                 aria-label="Clear"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                id=":rd:"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -426,7 +420,6 @@ exports[`RegistrationForm renders 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":re:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -478,7 +471,6 @@ exports[`RegistrationForm renders 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":rf:"
           tabindex="0"
           type="button"
         >
@@ -572,7 +564,6 @@ exports[`RegistrationForm renders 1`] = `
                                   <button
                                     aria-label="Clear"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                    id=":ri:"
                                     tabindex="-1"
                                     title="Clear"
                                     type="button"
@@ -607,7 +598,6 @@ exports[`RegistrationForm renders 1`] = `
                           </div>
                           <button
                             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                            id=":rj:"
                             tabindex="0"
                             type="button"
                           >
@@ -805,7 +795,6 @@ exports[`RegistrationForm renders 1`] = `
                                 aria-label="Choose date, selected date is 10. huhti 2020"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 disabled=""
-                                id=":rp:"
                                 tabindex="-1"
                                 type="button"
                               >
@@ -880,7 +869,6 @@ exports[`RegistrationForm renders 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":rs:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -956,7 +944,6 @@ exports[`RegistrationForm renders 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":rv:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -1080,7 +1067,6 @@ exports[`RegistrationForm renders 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r12:"
           tabindex="0"
           type="button"
         >
@@ -1219,7 +1205,6 @@ exports[`RegistrationForm renders 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r15:"
           tabindex="0"
           type="button"
         >
@@ -1422,7 +1407,6 @@ exports[`RegistrationForm renders 1`] = `
                               aria-haspopup="listbox"
                               aria-label="Open flags menu"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r1a:"
                               tabindex="0"
                               type="button"
                             >
@@ -1554,7 +1538,6 @@ exports[`RegistrationForm renders 1`] = `
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                id=":r1b:"
                 tabindex="0"
                 type="button"
               >
@@ -1757,7 +1740,6 @@ exports[`RegistrationForm renders 1`] = `
                                     aria-haspopup="listbox"
                                     aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                    id=":r1g:"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -1830,7 +1812,6 @@ exports[`RegistrationForm renders 1`] = `
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                id=":r1h:"
                 tabindex="0"
                 type="button"
               >
@@ -1992,7 +1973,6 @@ exports[`RegistrationForm renders 1`] = `
                                     aria-haspopup="listbox"
                                     aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                    id=":r1l:"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -2055,7 +2035,6 @@ exports[`RegistrationForm renders 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1m:"
           tabindex="0"
           type="button"
         >
@@ -2119,7 +2098,6 @@ exports[`RegistrationForm renders 1`] = `
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
                         disabled=""
-                        id=":r1n:"
                         tabindex="-1"
                         type="button"
                       >
@@ -2167,7 +2145,6 @@ exports[`RegistrationForm renders 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1o:"
           tabindex="0"
           type="button"
         >
@@ -2268,7 +2245,6 @@ exports[`RegistrationForm renders 1`] = `
         <button
           class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
           disabled=""
-          id=":r1q:"
           tabindex="-1"
           type="button"
         >
@@ -2464,7 +2440,6 @@ exports[`RegistrationForm renders 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""
-        id=":r1r:"
         tabindex="-1"
         type="button"
       >
@@ -2487,7 +2462,6 @@ exports[`RegistrationForm renders 1`] = `
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
-        id=":r1s:"
         tabindex="0"
         type="button"
       >
@@ -2527,7 +2501,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1t:"
           tabindex="0"
           type="button"
         >
@@ -2616,7 +2589,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":r20:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2691,7 +2663,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":r23:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2795,7 +2766,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <button
                                 aria-label="Clear"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                id=":r26:"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -2815,7 +2785,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":r27:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2919,7 +2888,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <button
                                 aria-label="Clear"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                id=":r2a:"
                                 tabindex="-1"
                                 title="Clear"
                                 type="button"
@@ -2939,7 +2907,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":r2b:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -2991,7 +2958,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2c:"
           tabindex="0"
           type="button"
         >
@@ -3085,7 +3051,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                   <button
                                     aria-label="Clear"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                    id=":r2f:"
                                     tabindex="-1"
                                     title="Clear"
                                     type="button"
@@ -3121,7 +3086,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                           <button
                             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
                             disabled=""
-                            id=":r2g:"
                             tabindex="-1"
                             type="button"
                           >
@@ -3320,7 +3284,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 disabled=""
-                                id=":r2m:"
                                 tabindex="-1"
                                 type="button"
                               >
@@ -3395,7 +3358,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":r2p:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -3471,7 +3433,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":r2s:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -3597,7 +3558,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2v:"
           tabindex="0"
           type="button"
         >
@@ -3736,7 +3696,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r32:"
           tabindex="0"
           type="button"
         >
@@ -3939,7 +3898,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               aria-haspopup="listbox"
                               aria-label="Open flags menu"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r37:"
                               tabindex="0"
                               type="button"
                             >
@@ -4071,7 +4029,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                id=":r38:"
                 tabindex="0"
                 type="button"
               >
@@ -4274,7 +4231,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                     aria-haspopup="listbox"
                                     aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                    id=":r3d:"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -4347,7 +4303,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                id=":r3e:"
                 tabindex="0"
                 type="button"
               >
@@ -4509,7 +4464,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                                     aria-haspopup="listbox"
                                     aria-label="Open flags menu"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                    id=":r3i:"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -4572,7 +4526,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r3j:"
           tabindex="0"
           type="button"
         >
@@ -4636,7 +4589,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
                         disabled=""
-                        id=":r3k:"
                         tabindex="-1"
                         type="button"
                       >
@@ -4684,7 +4636,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r3l:"
           tabindex="0"
           type="button"
         >
@@ -4785,7 +4736,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         <button
           class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
           disabled=""
-          id=":r3n:"
           tabindex="-1"
           type="button"
         >
@@ -4983,7 +4933,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""
-        id=":r3o:"
         tabindex="-1"
         type="button"
       >
@@ -5006,7 +4955,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
-        id=":r3p:"
         tabindex="0"
         type="button"
       >

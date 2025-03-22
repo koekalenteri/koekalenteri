@@ -15,7 +15,6 @@ exports[`RegistrationEditPage should render 1`] = `
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-        id=":r0:"
         tabindex="0"
         type="button"
       >
@@ -245,7 +244,6 @@ exports[`RegistrationEditPage should render 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1:"
           tabindex="0"
           type="button"
         >
@@ -336,7 +334,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":r4:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -413,7 +410,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":r7:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -519,7 +515,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":ra:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -625,7 +620,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":rd:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -677,7 +671,6 @@ exports[`RegistrationEditPage should render 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":re:"
           tabindex="0"
           type="button"
         >
@@ -784,7 +777,6 @@ exports[`RegistrationEditPage should render 1`] = `
                           <button
                             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
                             disabled=""
-                            id=":rh:"
                             tabindex="-1"
                             type="button"
                           >
@@ -983,7 +975,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Choose date, selected date is 10. huhti 2020"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 disabled=""
-                                id=":rn:"
                                 tabindex="-1"
                                 type="button"
                               >
@@ -1058,7 +1049,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":rq:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -1134,7 +1124,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                 aria-label="Open"
                                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                 disabled=""
-                                id=":rt:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -1260,7 +1249,6 @@ exports[`RegistrationEditPage should render 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r10:"
           tabindex="0"
           type="button"
         >
@@ -1401,7 +1389,6 @@ exports[`RegistrationEditPage should render 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r13:"
           tabindex="0"
           type="button"
         >
@@ -1608,7 +1595,6 @@ exports[`RegistrationEditPage should render 1`] = `
                               aria-label="Open flags menu"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                               disabled=""
-                              id=":r18:"
                               tabindex="-1"
                               type="button"
                             >
@@ -1747,7 +1733,6 @@ exports[`RegistrationEditPage should render 1`] = `
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                id=":r19:"
                 tabindex="0"
                 type="button"
               >
@@ -1954,7 +1939,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                     aria-label="Open flags menu"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
-                                    id=":r1e:"
                                     tabindex="-1"
                                     type="button"
                                   >
@@ -2028,7 +2012,6 @@ exports[`RegistrationEditPage should render 1`] = `
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                id=":r1f:"
                 tabindex="0"
                 type="button"
               >
@@ -2193,7 +2176,6 @@ exports[`RegistrationEditPage should render 1`] = `
                                     aria-label="Open flags menu"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
-                                    id=":r1j:"
                                     tabindex="-1"
                                     type="button"
                                   >
@@ -2257,7 +2239,6 @@ exports[`RegistrationEditPage should render 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1k:"
           tabindex="0"
           type="button"
         >
@@ -2321,7 +2302,6 @@ exports[`RegistrationEditPage should render 1`] = `
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
                         disabled=""
-                        id=":r1l:"
                         tabindex="-1"
                         type="button"
                       >
@@ -2369,7 +2349,6 @@ exports[`RegistrationEditPage should render 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1m:"
           tabindex="0"
           type="button"
         >
@@ -2471,7 +2450,6 @@ exports[`RegistrationEditPage should render 1`] = `
         <button
           class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
           disabled=""
-          id=":r1o:"
           tabindex="-1"
           type="button"
         >
@@ -2667,7 +2645,6 @@ exports[`RegistrationEditPage should render 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""
-        id=":r1p:"
         tabindex="-1"
         type="button"
       >
@@ -2690,7 +2667,6 @@ exports[`RegistrationEditPage should render 1`] = `
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
-        id=":r1q:"
         tabindex="0"
         type="button"
       >

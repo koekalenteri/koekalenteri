@@ -11,7 +11,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-2tlue4-MuiButtonBase-root-MuiIconButton-root"
-        id=":rm:"
         tabindex="0"
         type="button"
       >
@@ -30,7 +29,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       <button
         aria-label="home"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":rn:"
         tabindex="0"
         type="button"
       >
@@ -54,7 +52,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       <button
         aria-label="admin"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1cnkerp-MuiButtonBase-root-MuiButton-root"
-        id=":ro:"
         tabindex="0"
         type="button"
       >
@@ -85,7 +82,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       <button
         aria-label="languageMenu"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":rp:"
         tabindex="0"
         type="button"
       >
@@ -128,7 +124,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       <button
         aria-label="user"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":rq:"
         tabindex="0"
         type="button"
       >
@@ -171,7 +166,6 @@ exports[`AdminHomePage renders the child page content when user is logged in 1`]
       <button
         aria-label="support"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":rr:"
         tabindex="0"
         type="button"
       >
@@ -236,7 +230,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorSecondary MuiIconButton-sizeMedium css-2tlue4-MuiButtonBase-root-MuiIconButton-root"
-        id=":r6:"
         tabindex="0"
         type="button"
       >
@@ -255,7 +248,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       <button
         aria-label="home"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":r7:"
         tabindex="0"
         type="button"
       >
@@ -279,7 +271,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       <button
         aria-label="admin"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-1cnkerp-MuiButtonBase-root-MuiButton-root"
-        id=":r8:"
         tabindex="0"
         type="button"
       >
@@ -310,7 +301,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       <button
         aria-label="languageMenu"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":r9:"
         tabindex="0"
         type="button"
       >
@@ -353,7 +343,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       <button
         aria-label="user"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":ra:"
         tabindex="0"
         type="button"
       >
@@ -396,7 +385,6 @@ exports[`AdminHomePage renders the page when user is logged in 1`] = `
       <button
         aria-label="support"
         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary MuiButton-root MuiButton-text MuiButton-textSecondary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorSecondary css-cxoj73-MuiButtonBase-root-MuiButton-root"
-        id=":rb:"
         tabindex="0"
         type="button"
       >

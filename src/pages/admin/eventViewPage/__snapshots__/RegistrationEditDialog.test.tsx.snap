@@ -68,7 +68,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r24:"
                   tabindex="0"
                   type="button"
                 >
@@ -159,7 +158,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r27:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -236,7 +234,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r2a:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -342,7 +339,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r2d:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -448,7 +444,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r2g:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -500,7 +495,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r2h:"
                   tabindex="0"
                   type="button"
                 >
@@ -607,7 +601,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                   <button
                                     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
                                     disabled=""
-                                    id=":r2k:"
                                     tabindex="-1"
                                     type="button"
                                   >
@@ -806,7 +799,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Choose date, selected date is 10. kesä 2019"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                         disabled=""
-                                        id=":r2q:"
                                         tabindex="-1"
                                         type="button"
                                       >
@@ -881,7 +873,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r2t:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -957,7 +948,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r30:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -1083,7 +1073,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r33:"
                   tabindex="0"
                   type="button"
                 >
@@ -1224,7 +1213,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r36:"
                   tabindex="0"
                   type="button"
                 >
@@ -1431,7 +1419,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                       aria-label="Open flags menu"
                                       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                       disabled=""
-                                      id=":r3b:"
                                       tabindex="-1"
                                       type="button"
                                     >
@@ -1570,7 +1557,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                        id=":r3c:"
                         tabindex="0"
                         type="button"
                       >
@@ -1777,7 +1763,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                             aria-label="Open flags menu"
                                             class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                             disabled=""
-                                            id=":r3h:"
                                             tabindex="-1"
                                             type="button"
                                           >
@@ -1851,7 +1836,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                        id=":r3i:"
                         tabindex="0"
                         type="button"
                       >
@@ -2016,7 +2000,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                             aria-label="Open flags menu"
                                             class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
                                             disabled=""
-                                            id=":r3m:"
                                             tabindex="-1"
                                             type="button"
                                           >
@@ -2080,7 +2063,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r3n:"
                   tabindex="0"
                   type="button"
                 >
@@ -2144,7 +2126,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               <button
                                 class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
                                 disabled=""
-                                id=":r3o:"
                                 tabindex="-1"
                                 type="button"
                               >
@@ -2192,7 +2173,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r3p:"
                   tabindex="0"
                   type="button"
                 >
@@ -2294,7 +2274,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 <button
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
-                  id=":r3r:"
                   tabindex="-1"
                   type="button"
                 >
@@ -2490,7 +2469,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
                 disabled=""
-                id=":r3s:"
                 tabindex="-1"
                 type="button"
               >
@@ -2513,7 +2491,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               </button>
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
-                id=":r3t:"
                 tabindex="0"
                 type="button"
               >
@@ -2541,7 +2518,6 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-              id=":r3u:"
               tabindex="0"
               type="button"
             >
@@ -2586,7 +2562,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-e1h6et"
                     >
                       <div
-                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-3wizzu-MuiDataGrid-root"
+                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-yjmkqo-MuiDataGrid-root"
                         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 320px; --DataGrid-columnsTotalWidth: 320px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
@@ -2608,7 +2584,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                             style="overflow-x: hidden;"
                           >
                             <div
-                              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
+                              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
                               role="presentation"
                             />
                             <div
@@ -2685,13 +2661,13 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
+                              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
                               role="presentation"
                             />
                           </div>
                           <div
                             aria-hidden="true"
-                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
+                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-2n9dey"
                             tabindex="-1"
                           >
                             <div
@@ -2700,7 +2676,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                           </div>
                           <div
                             aria-hidden="true"
-                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-tewekw"
+                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-1ir2opr"
                             tabindex="-1"
                           >
                             <div
@@ -2792,7 +2768,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r4:"
                   tabindex="0"
                   type="button"
                 >
@@ -2881,7 +2856,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <button
                                         aria-label="Open"
                                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                        id=":r7:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -2956,7 +2930,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <button
                                         aria-label="Open"
                                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                        id=":ra:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -3060,7 +3033,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <button
                                         aria-label="Clear"
                                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                        id=":rd:"
                                         tabindex="-1"
                                         title="Clear"
                                         type="button"
@@ -3080,7 +3052,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <button
                                         aria-label="Open"
                                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                        id=":re:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -3184,7 +3155,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <button
                                         aria-label="Clear"
                                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                        id=":rh:"
                                         tabindex="-1"
                                         title="Clear"
                                         type="button"
@@ -3204,7 +3174,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <button
                                         aria-label="Open"
                                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                        id=":ri:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -3256,7 +3225,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":rj:"
                   tabindex="0"
                   type="button"
                 >
@@ -3350,7 +3318,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                           <button
                                             aria-label="Clear"
                                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                            id=":rm:"
                                             tabindex="-1"
                                             title="Clear"
                                             type="button"
@@ -3385,7 +3352,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                   </div>
                                   <button
                                     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                                    id=":rn:"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -3583,7 +3549,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                         aria-label="Choose date, selected date is 10. huhti 2020"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                         disabled=""
-                                        id=":rt:"
                                         tabindex="-1"
                                         type="button"
                                       >
@@ -3658,7 +3623,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r10:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -3734,7 +3698,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                         aria-label="Open"
                                         class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                         disabled=""
-                                        id=":r13:"
                                         tabindex="-1"
                                         title="Open"
                                         type="button"
@@ -3858,7 +3821,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r16:"
                   tabindex="0"
                   type="button"
                 >
@@ -3997,7 +3959,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r19:"
                   tabindex="0"
                   type="button"
                 >
@@ -4200,7 +4161,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       aria-haspopup="listbox"
                                       aria-label="Open flags menu"
                                       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                      id=":r1e:"
                                       tabindex="0"
                                       type="button"
                                     >
@@ -4332,7 +4292,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                        id=":r1f:"
                         tabindex="0"
                         type="button"
                       >
@@ -4535,7 +4494,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                             aria-haspopup="listbox"
                                             aria-label="Open flags menu"
                                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                            id=":r1k:"
                                             tabindex="0"
                                             type="button"
                                           >
@@ -4608,7 +4566,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                        id=":r1l:"
                         tabindex="0"
                         type="button"
                       >
@@ -4770,7 +4727,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                             aria-haspopup="listbox"
                                             aria-label="Open flags menu"
                                             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiTelInput-IconButton css-mbzyvd-MuiButtonBase-root-MuiIconButton-root"
-                                            id=":r1p:"
                                             tabindex="0"
                                             type="button"
                                           >
@@ -4833,7 +4789,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r1q:"
                   tabindex="0"
                   type="button"
                 >
@@ -4897,7 +4852,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               <button
                                 class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
                                 disabled=""
-                                id=":r1r:"
                                 tabindex="-1"
                                 type="button"
                               >
@@ -4945,7 +4899,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-                  id=":r1s:"
                   tabindex="0"
                   type="button"
                 >
@@ -5046,7 +4999,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 <button
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
-                  id=":r1u:"
                   tabindex="-1"
                   type="button"
                 >
@@ -5242,7 +5194,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
                 disabled=""
-                id=":r1v:"
                 tabindex="-1"
                 type="button"
               >
@@ -5265,7 +5216,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               </button>
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
-                id=":r20:"
                 tabindex="0"
                 type="button"
               >
@@ -5293,7 +5243,6 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-              id=":r21:"
               tabindex="0"
               type="button"
             >
@@ -5338,7 +5287,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                       class="MuiBox-root css-e1h6et"
                     >
                       <div
-                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-3wizzu-MuiDataGrid-root"
+                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-yjmkqo-MuiDataGrid-root"
                         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 320px; --DataGrid-columnsTotalWidth: 320px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
@@ -5360,7 +5309,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                             style="overflow-x: hidden;"
                           >
                             <div
-                              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-9dbfce"
+                              class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
                               role="presentation"
                             />
                             <div
@@ -5437,13 +5386,13 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-kkb6k7"
+                              class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
                               role="presentation"
                             />
                           </div>
                           <div
                             aria-hidden="true"
-                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-16z8vpz"
+                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-2n9dey"
                             tabindex="-1"
                           >
                             <div
@@ -5452,7 +5401,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                           </div>
                           <div
                             aria-hidden="true"
-                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-tewekw"
+                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-1ir2opr"
                             tabindex="-1"
                           >
                             <div

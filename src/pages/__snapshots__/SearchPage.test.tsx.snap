@@ -103,7 +103,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 1. maalis 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r35:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -168,7 +167,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 2. maalis 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r38:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -244,7 +242,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r3b:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -320,7 +317,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r3e:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -396,7 +392,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r3h:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -472,7 +467,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r3k:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -583,7 +577,6 @@ exports[`SearchPage filters by date - no-results 1`] = `
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                          id=":r3l:"
                           tabindex="0"
                           type="button"
                         >
@@ -711,7 +704,6 @@ exports[`SearchPage filters by date 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r2e:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -776,7 +768,6 @@ exports[`SearchPage filters by date 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 1. maalis 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r2h:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -850,7 +841,6 @@ exports[`SearchPage filters by date 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r2k:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -924,7 +914,6 @@ exports[`SearchPage filters by date 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r2n:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -998,7 +987,6 @@ exports[`SearchPage filters by date 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r2q:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1072,7 +1060,6 @@ exports[`SearchPage filters by date 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r2t:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1183,7 +1170,6 @@ exports[`SearchPage filters by date 1`] = `
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                          id=":r2u:"
                           tabindex="0"
                           type="button"
                         >
@@ -1214,7 +1200,6 @@ exports[`SearchPage filters by date 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2v:"
           tabindex="0"
           type="button"
         >
@@ -1496,7 +1481,6 @@ exports[`SearchPage filters by date 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r30:"
           tabindex="0"
           type="button"
         >
@@ -1792,7 +1776,6 @@ exports[`SearchPage filters by date 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r31:"
           tabindex="0"
           type="button"
         >
@@ -2146,7 +2129,6 @@ exports[`SearchPage filters by date 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r32:"
           tabindex="0"
           type="button"
         >
@@ -2534,7 +2516,6 @@ exports[`SearchPage filters by date/end 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r1i:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -2599,7 +2580,6 @@ exports[`SearchPage filters by date/end 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 1. maalis 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r1l:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -2673,7 +2653,6 @@ exports[`SearchPage filters by date/end 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r1o:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2747,7 +2726,6 @@ exports[`SearchPage filters by date/end 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r1r:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2821,7 +2799,6 @@ exports[`SearchPage filters by date/end 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r1u:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2895,7 +2872,6 @@ exports[`SearchPage filters by date/end 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r21:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -3006,7 +2982,6 @@ exports[`SearchPage filters by date/end 1`] = `
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                          id=":r22:"
                           tabindex="0"
                           type="button"
                         >
@@ -3037,7 +3012,6 @@ exports[`SearchPage filters by date/end 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r28:"
           tabindex="0"
           type="button"
         >
@@ -3319,7 +3293,6 @@ exports[`SearchPage filters by date/end 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r29:"
           tabindex="0"
           type="button"
         >
@@ -3615,7 +3588,6 @@ exports[`SearchPage filters by date/end 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2a:"
           tabindex="0"
           type="button"
         >
@@ -3969,7 +3941,6 @@ exports[`SearchPage filters by date/end 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2b:"
           tabindex="0"
           type="button"
         >
@@ -4357,7 +4328,6 @@ exports[`SearchPage filters by event class 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r4l:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -4422,7 +4392,6 @@ exports[`SearchPage filters by event class 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r4o:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -4496,7 +4465,6 @@ exports[`SearchPage filters by event class 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r4s:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4593,7 +4561,6 @@ exports[`SearchPage filters by event class 1`] = `
                             <button
                               aria-label="Clear"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              id=":r5c:"
                               tabindex="-1"
                               title="Clear"
                               type="button"
@@ -4613,7 +4580,6 @@ exports[`SearchPage filters by event class 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r4v:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4687,7 +4653,6 @@ exports[`SearchPage filters by event class 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r52:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4761,7 +4726,6 @@ exports[`SearchPage filters by event class 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r55:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -4872,7 +4836,6 @@ exports[`SearchPage filters by event class 1`] = `
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                          id=":r56:"
                           tabindex="0"
                           type="button"
                         >
@@ -4903,7 +4866,6 @@ exports[`SearchPage filters by event class 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r58:"
           tabindex="0"
           type="button"
         >
@@ -5257,7 +5219,6 @@ exports[`SearchPage filters by event class 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r59:"
           tabindex="0"
           type="button"
         >
@@ -5553,7 +5514,6 @@ exports[`SearchPage filters by event class 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r5a:"
           tabindex="0"
           type="button"
         >
@@ -5883,7 +5843,6 @@ exports[`SearchPage filters by event class 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r5b:"
           tabindex="0"
           type="button"
         >
@@ -6220,7 +6179,6 @@ exports[`SearchPage filters by event class 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r5d:"
           tabindex="0"
           type="button"
         >
@@ -6594,7 +6552,6 @@ exports[`SearchPage filters by event type 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r3s:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -6659,7 +6616,6 @@ exports[`SearchPage filters by event type 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r3v:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -6756,7 +6712,6 @@ exports[`SearchPage filters by event type 1`] = `
                             <button
                               aria-label="Clear"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              id=":r4d:"
                               tabindex="-1"
                               title="Clear"
                               type="button"
@@ -6776,7 +6731,6 @@ exports[`SearchPage filters by event type 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r42:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -6850,7 +6804,6 @@ exports[`SearchPage filters by event type 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r45:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -6924,7 +6877,6 @@ exports[`SearchPage filters by event type 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r48:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -6998,7 +6950,6 @@ exports[`SearchPage filters by event type 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r4b:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -7109,7 +7060,6 @@ exports[`SearchPage filters by event type 1`] = `
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                          id=":r4c:"
                           tabindex="0"
                           type="button"
                         >
@@ -7140,7 +7090,6 @@ exports[`SearchPage filters by event type 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r4e:"
           tabindex="0"
           type="button"
         >
@@ -7436,7 +7385,6 @@ exports[`SearchPage filters by event type 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r4f:"
           tabindex="0"
           type="button"
         >
@@ -7790,7 +7738,6 @@ exports[`SearchPage filters by event type 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r4g:"
           tabindex="0"
           type="button"
         >
@@ -8086,7 +8033,6 @@ exports[`SearchPage filters by event type 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r4h:"
           tabindex="0"
           type="button"
         >
@@ -8416,7 +8362,6 @@ exports[`SearchPage filters by event type 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r4i:"
           tabindex="0"
           type="button"
         >
@@ -8845,7 +8790,6 @@ exports[`SearchPage filters by organizer 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r5g:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -8910,7 +8854,6 @@ exports[`SearchPage filters by organizer 1`] = `
                               <button
                                 aria-label="Choose date"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r5j:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -8984,7 +8927,6 @@ exports[`SearchPage filters by organizer 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r5m:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9058,7 +9000,6 @@ exports[`SearchPage filters by organizer 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r5q:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9155,7 +9096,6 @@ exports[`SearchPage filters by organizer 1`] = `
                             <button
                               aria-label="Clear"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                              id=":r67:"
                               tabindex="-1"
                               title="Clear"
                               type="button"
@@ -9175,7 +9115,6 @@ exports[`SearchPage filters by organizer 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r5t:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9249,7 +9188,6 @@ exports[`SearchPage filters by organizer 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r60:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -9360,7 +9298,6 @@ exports[`SearchPage filters by organizer 1`] = `
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
-                          id=":r61:"
                           tabindex="0"
                           type="button"
                         >
@@ -9391,7 +9328,6 @@ exports[`SearchPage filters by organizer 1`] = `
         <button
           aria-label="expand row"
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r63:"
           tabindex="0"
           type="button"
         >

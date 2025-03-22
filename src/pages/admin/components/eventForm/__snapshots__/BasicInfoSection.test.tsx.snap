@@ -8,7 +8,6 @@ exports[`BasicInfoSection should render 1`] = `
     <button
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
-      id=":r0:"
       tabindex="-1"
       type="button"
     >
@@ -107,7 +106,6 @@ exports[`BasicInfoSection should render 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 1. kesä 2022"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r3:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -182,7 +180,6 @@ exports[`BasicInfoSection should render 1`] = `
                               <button
                                 aria-label="Choose date, selected date is 2. kesä 2022"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                id=":r6:"
                                 tabindex="0"
                                 type="button"
                               >
@@ -270,7 +267,6 @@ exports[`BasicInfoSection should render 1`] = `
                         </div>
                         <button
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-h37wsq-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r9:"
                           tabindex="0"
                           type="button"
                         >
@@ -335,7 +331,6 @@ exports[`BasicInfoSection should render 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":rc:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -369,7 +364,6 @@ exports[`BasicInfoSection should render 1`] = `
                         </div>
                         <button
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rd:"
                           tabindex="0"
                           type="button"
                         >
@@ -429,7 +423,6 @@ exports[`BasicInfoSection should render 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":rg:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -552,7 +545,6 @@ exports[`BasicInfoSection should render 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":rk:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -586,7 +578,6 @@ exports[`BasicInfoSection should render 1`] = `
                         </div>
                         <button
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rl:"
                           tabindex="0"
                           type="button"
                         >
@@ -657,7 +648,6 @@ exports[`BasicInfoSection should render 1`] = `
                         </div>
                         <button
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                          id=":ro:"
                           tabindex="0"
                           type="button"
                         >
@@ -722,7 +712,6 @@ exports[`BasicInfoSection should render 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":rr:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -756,7 +745,6 @@ exports[`BasicInfoSection should render 1`] = `
                         </div>
                         <button
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rs:"
                           tabindex="0"
                           type="button"
                         >
@@ -817,7 +805,6 @@ exports[`BasicInfoSection should render 1`] = `
                               <button
                                 aria-label="Open"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                id=":rv:"
                                 tabindex="-1"
                                 title="Open"
                                 type="button"
@@ -851,7 +838,6 @@ exports[`BasicInfoSection should render 1`] = `
                         </div>
                         <button
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r10:"
                           tabindex="0"
                           type="button"
                         >

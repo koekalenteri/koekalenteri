@@ -48,7 +48,6 @@ exports[`EventEditPage renders properly 1`] = `
                 aria-label="Open"
                 class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                 disabled=""
-                id=":r2:"
                 tabindex="-1"
                 title="Open"
                 type="button"
@@ -90,7 +89,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r3:"
           tabindex="0"
           type="button"
         >
@@ -192,7 +190,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Choose date, selected date is 10. helmi 2021"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
-                                    id=":r6:"
                                     tabindex="-1"
                                     type="button"
                                   >
@@ -276,7 +273,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Choose date, selected date is 11. helmi 2021"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
-                                    id=":r9:"
                                     tabindex="-1"
                                     type="button"
                                   >
@@ -371,7 +367,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-h37wsq-MuiButtonBase-root-MuiIconButton-root"
-                              id=":rc:"
                               tabindex="0"
                               type="button"
                             >
@@ -446,7 +441,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Open"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
-                                    id=":rf:"
                                     tabindex="-1"
                                     title="Open"
                                     type="button"
@@ -482,7 +476,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":rg:"
                               tabindex="0"
                               type="button"
                             >
@@ -542,7 +535,6 @@ exports[`EventEditPage renders properly 1`] = `
                                   aria-label="Open"
                                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
-                                  id=":rj:"
                                   tabindex="-1"
                                   title="Open"
                                   type="button"
@@ -676,7 +668,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Open"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
-                                    id=":rn:"
                                     tabindex="-1"
                                     title="Open"
                                     type="button"
@@ -712,7 +703,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":ro:"
                               tabindex="0"
                               type="button"
                             >
@@ -794,7 +784,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":rr:"
                               tabindex="0"
                               type="button"
                             >
@@ -869,7 +858,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Open"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
-                                    id=":ru:"
                                     tabindex="-1"
                                     title="Open"
                                     type="button"
@@ -905,7 +893,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":rv:"
                               tabindex="0"
                               type="button"
                             >
@@ -976,7 +963,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Open"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
-                                    id=":r12:"
                                     tabindex="-1"
                                     title="Open"
                                     type="button"
@@ -1012,7 +998,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r13:"
                               tabindex="0"
                               type="button"
                             >
@@ -1044,7 +1029,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r14:"
           tabindex="0"
           type="button"
         >
@@ -1174,7 +1158,6 @@ exports[`EventEditPage renders properly 1`] = `
                                   aria-label="Open"
                                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
-                                  id=":r18:"
                                   tabindex="-1"
                                   title="Open"
                                   type="button"
@@ -1250,7 +1233,6 @@ exports[`EventEditPage renders properly 1`] = `
                                   aria-label="Open"
                                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
-                                  id=":r1b:"
                                   tabindex="-1"
                                   title="Open"
                                   type="button"
@@ -1290,7 +1272,6 @@ exports[`EventEditPage renders properly 1`] = `
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":r1c:"
                           tabindex="-1"
                           type="button"
                         >
@@ -1319,7 +1300,6 @@ exports[`EventEditPage renders properly 1`] = `
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
                         disabled=""
-                        id=":r1d:"
                         tabindex="-1"
                         type="button"
                       >
@@ -1343,7 +1323,6 @@ exports[`EventEditPage renders properly 1`] = `
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
                         disabled=""
-                        id=":r1e:"
                         tabindex="-1"
                         type="button"
                       >
@@ -1367,7 +1346,6 @@ exports[`EventEditPage renders properly 1`] = `
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-16hcudv-MuiButtonBase-root-MuiButton-root"
                         disabled=""
-                        id=":r1f:"
                         tabindex="-1"
                         type="button"
                       >
@@ -1401,7 +1379,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1g:"
           tabindex="0"
           type="button"
         >
@@ -1500,7 +1477,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Choose date, selected date is 1. helmi 2021"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                     disabled=""
-                                    id=":r1j:"
                                     tabindex="-1"
                                     type="button"
                                   >
@@ -1575,7 +1551,6 @@ exports[`EventEditPage renders properly 1`] = `
                                   <button
                                     aria-label="Choose date, selected date is 7. helmi 2021"
                                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                    id=":r1m:"
                                     tabindex="0"
                                     type="button"
                                   >
@@ -1755,7 +1730,6 @@ exports[`EventEditPage renders properly 1`] = `
                                     aria-label="Open"
                                     class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                     disabled=""
-                                    id=":r1p:"
                                     tabindex="-1"
                                     title="Open"
                                     type="button"
@@ -2022,7 +1996,6 @@ exports[`EventEditPage renders properly 1`] = `
                                   aria-label="Open"
                                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                                   disabled=""
-                                  id=":r1t:"
                                   tabindex="-1"
                                   title="Open"
                                   type="button"
@@ -2069,7 +2042,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r1u:"
           tabindex="0"
           type="button"
         >
@@ -2191,7 +2163,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r21:"
                               tabindex="0"
                               type="button"
                             >
@@ -2282,7 +2253,6 @@ exports[`EventEditPage renders properly 1`] = `
                             </div>
                             <button
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r24:"
                               tabindex="0"
                               type="button"
                             >
@@ -2314,7 +2284,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r25:"
           tabindex="0"
           type="button"
         >
@@ -2541,7 +2510,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2a:"
           tabindex="0"
           type="button"
         >
@@ -3018,7 +2986,6 @@ exports[`EventEditPage renders properly 1`] = `
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-          id=":r2h:"
           tabindex="0"
           type="button"
         >
@@ -3115,7 +3082,6 @@ exports[`EventEditPage renders properly 1`] = `
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""
-        id=":r2j:"
         tabindex="-1"
         type="button"
       >
@@ -3138,7 +3104,6 @@ exports[`EventEditPage renders properly 1`] = `
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
-        id=":r2k:"
         tabindex="0"
         type="button"
       >

@@ -26,7 +26,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
               style="overflow: hidden; margin-bottom: 0px;"
             >
               <div
-                class="MuiTabs-flexContainer css-1wxkzlj-MuiTabs-flexContainer"
+                class="MuiTabs-list MuiTabs-flexContainer css-hzcega-MuiTabs-list"
                 role="tablist"
               >
                 <button
@@ -142,7 +142,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":r3:"
                           tabindex="-1"
                           type="button"
                         >
@@ -180,7 +179,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":r4:"
                           tabindex="-1"
                           type="button"
                         >
@@ -229,7 +227,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                          id=":r5:"
                           tabindex="0"
                           type="button"
                         >
@@ -263,7 +260,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                          id=":r6:"
                           tabindex="0"
                           type="button"
                         >
@@ -335,7 +331,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                         >
                           <span
                             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                            id=":r7:"
                             role="button"
                             tabindex="0"
                           >
@@ -382,7 +377,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
               style="overflow: hidden; margin-bottom: 0px;"
             >
               <div
-                class="MuiTabs-flexContainer css-1wxkzlj-MuiTabs-flexContainer"
+                class="MuiTabs-list MuiTabs-flexContainer css-hzcega-MuiTabs-list"
                 role="tablist"
               >
                 <button
@@ -497,7 +492,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                          id=":r8:"
                           tabindex="0"
                           type="button"
                         >
@@ -535,7 +529,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":r9:"
                           tabindex="-1"
                           type="button"
                         >
@@ -584,7 +577,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       >
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                          id=":ra:"
                           tabindex="0"
                           type="button"
                         >
@@ -619,7 +611,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":rb:"
                           tabindex="-1"
                           type="button"
                         >
@@ -691,7 +682,6 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                         >
                           <span
                             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                            id=":rc:"
                             role="button"
                             tabindex="0"
                           >
@@ -738,7 +728,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
               style="overflow: hidden; margin-bottom: 0px;"
             >
               <div
-                class="MuiTabs-flexContainer css-1wxkzlj-MuiTabs-flexContainer"
+                class="MuiTabs-list MuiTabs-flexContainer css-hzcega-MuiTabs-list"
                 role="tablist"
               >
                 <button
@@ -854,7 +844,6 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":r0:"
                           tabindex="-1"
                           type="button"
                         >
@@ -904,7 +893,6 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                         <button
                           class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                           disabled=""
-                          id=":r1:"
                           tabindex="-1"
                           type="button"
                         >
@@ -976,7 +964,6 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                         >
                           <span
                             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
-                            id=":r2:"
                             role="button"
                             tabindex="0"
                           >

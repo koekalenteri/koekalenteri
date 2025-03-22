@@ -68,7 +68,7 @@
     "test-backend": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --config=src/lambda/jest.config.ts",
     "test-frontend": "node scripts/test-frontend.js",
     "test": "CI=1 npm run test-backend && CI=1 npm run test-frontend",
-    "typecheck": "tcp --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "engines": {
     "npm": ">=8.0.0",
