@@ -196,7 +196,7 @@ export const filterJudgesSelector = selector({
     const usedJudges = uniqueFn<PublicJudge>(
       events.reduce<PublicJudge[]>((acc, cur) => [...acc, ...cur.judges], []),
       (a, b) => a.name === b.name
-    )
+    ).filter((j) => j.name) // remove empty
     usedJudges.sort((a, b) => {
       const level = Number(filter.judge.includes(a.name)) - Number(filter.judge.includes(b.name))
 
