@@ -1,5 +1,6 @@
 import type { JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGroup } from '../../types'
 
+import { isStartListAvailable } from '../../lib/event'
 import { CONFIG } from '../config'
 import { getEvent } from '../lib/event'
 import { getParam, lambda } from '../lib/lambda'
@@ -13,7 +14,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   const confirmedEvent = await getEvent(eventId)
   let publicRegs: JsonPublicRegistration[] = []
 
-  if (['invited', 'started', 'ended', 'completed'].includes(confirmedEvent?.state ?? '')) {
+  if (isStartListAvailable(confirmedEvent)) {
     const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
       ':eventId': eventId,
     })

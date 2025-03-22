@@ -41,6 +41,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   secretary: Partial<User>
   startDate: string
   state: EventState
+  startListPublished?: boolean
 }
 
 export type EventRequiredDates = 'startDate' | 'endDate'

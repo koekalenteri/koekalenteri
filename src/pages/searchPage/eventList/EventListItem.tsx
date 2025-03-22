@@ -132,7 +132,12 @@ export const EventListItem = ({ event, odd }: Props) => {
                 {isEntryOpen(event) ? (
                   <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
                 ) : (
-                  <EventStateInfo id={event.id} state={event.state} text={infoText} />
+                  <EventStateInfo
+                    id={event.id}
+                    state={event.state}
+                    startListPublished={event.startListPublished}
+                    text={infoText}
+                  />
                 )}
               </Typography>
             </Grid2>

@@ -3,19 +3,21 @@ import type { EventState } from '../../../types'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 
+import { isStartListAvailable } from '../../../lib/event'
 import { Path } from '../../../routeConfig'
 import LinkButton from '../../components/LinkButton'
 
 interface Props {
   readonly id: string
   readonly state: EventState
+  readonly startListPublished?: boolean
   readonly text?: string | null
 }
 
-export function EventStateInfo({ id, state, text = null }: Props) {
+export function EventStateInfo({ id, state, startListPublished, text = null }: Props) {
   const { t } = useTranslation()
 
-  if (state === 'invited' || state === 'started') {
+  if (isStartListAvailable({ state, startListPublished })) {
     return <LinkButton to={Path.startList(id)} text="Katso osallistujalista" />
   }
 

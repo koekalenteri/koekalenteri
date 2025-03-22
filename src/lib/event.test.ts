@@ -1,4 +1,4 @@
-import type { DogEvent, EventClass, RegistrationDate, RegistrationTime } from '../types'
+import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
 
 import { addDays } from 'date-fns'
 
@@ -11,12 +11,37 @@ import {
   getEventClassesByDays,
   getEventDays,
   getUniqueEventClasses,
+  isStartListAvailable,
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
 } from './event'
 
 describe('lib/event', () => {
+  describe('isStartListPublished', () => {
+    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
+      'Should return true when state is %p and startListPublished is undefined or true',
+      (state) => {
+        expect(isStartListAvailable({ state })).toEqual(true)
+        expect(isStartListAvailable({ state, startListPublished: true })).toEqual(true)
+      }
+    )
+
+    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
+      'Should return false when state is %p and startListPublished is false',
+      (state) => {
+        expect(isStartListAvailable({ state, startListPublished: false })).toEqual(false)
+      }
+    )
+
+    it.each<EventState>(['draft', 'tentative', 'cancelled', 'confirmed', 'picked'])(
+      'Should return false when state is %p',
+      (state) => {
+        expect(isStartListAvailable({ state })).toEqual(false)
+      }
+    )
+  })
+
   describe('eventDays', () => {
     it.each`
       startDate                | endDate                  | expected

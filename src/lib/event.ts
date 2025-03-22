@@ -26,6 +26,13 @@ export const newEventStartDate = zonedStartOfDay(nextSaturday(addDays(Date.now()
 export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
 export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
 
+export const isStartListAvailable = ({
+  state,
+  startListPublished,
+}: Pick<JsonDogEvent, 'state' | 'startListPublished'>) =>
+  (state === 'invited' || state === 'started' || state === 'ended' || state === 'completed') &&
+  startListPublished !== false
+
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
   !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
