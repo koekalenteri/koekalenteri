@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router'
 
 import { Navigate } from 'react-router'
 
+import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
 import { paymentResultLoader } from './pages/PaymentResultPage'
@@ -27,11 +28,13 @@ const routes: RouteObject[] = [
         (path) => ({
           path,
           lazy: () => import('./pages/RegistrationCreatePage'),
+          hydrateFallbackElement: <LoadingIndicator />,
         })
       ),
       {
         path: 'p/:id/:registrationId',
         lazy: () => import('./pages/PaymentPage'),
+        hydrateFallbackElement: <LoadingIndicator />,
       },
       {
         path: 'p/success',
@@ -68,11 +71,13 @@ const routes: RouteObject[] = [
   {
     path: 'r/:id/:registrationId/invitation',
     lazy: () => import('./pages/RegistrationInvitation'),
+    hydrateFallbackElement: <LoadingIndicator />,
     errorElement: <ErrorPage />,
   },
   {
     path: Path.login,
     lazy: () => import('./pages/LoginPage'),
+    hydrateFallbackElement: <LoadingIndicator />,
     errorElement: <ErrorPage />,
   },
   { path: Path.logout, element: <Navigate to="/" replace />, errorElement: <ErrorPage /> },
@@ -82,6 +87,7 @@ const routes: RouteObject[] = [
       Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/AdminHomePage')).default,
     }),
     errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingIndicator />,
     children: [
       {
         index: true,

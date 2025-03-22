@@ -9,18 +9,22 @@ exports[`routes should match a snapshot 1`] = `
         "index": true,
       },
       {
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
         "path": "event/:eventType/:id/:class/:date",
       },
       {
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
         "path": "event/:eventType/:id/:class",
       },
       {
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
         "path": "event/:eventType/:id",
       },
       {
+        "hydrateFallbackElement": <ForwardRef />,
         "lazy": [Function],
         "path": "p/:id/:registrationId",
       },
@@ -69,11 +73,13 @@ exports[`routes should match a snapshot 1`] = `
   },
   {
     "errorElement": <ErrorPage />,
+    "hydrateFallbackElement": <ForwardRef />,
     "lazy": [Function],
     "path": "r/:id/:registrationId/invitation",
   },
   {
     "errorElement": <ErrorPage />,
+    "hydrateFallbackElement": <ForwardRef />,
     "lazy": [Function],
     "path": "/login",
   },
@@ -136,6 +142,7 @@ exports[`routes should match a snapshot 1`] = `
       },
     ],
     "errorElement": <ErrorPage />,
+    "hydrateFallbackElement": <ForwardRef />,
     "lazy": [Function],
     "path": "/admin",
   },
