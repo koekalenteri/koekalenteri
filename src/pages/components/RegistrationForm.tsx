@@ -374,7 +374,6 @@ export default function RegistrationForm({
         direction="row"
         justifyContent="flex-end"
         sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
-        useFlexGap
       >
         <Box my="auto">
           <b>Maksettava:</b> {paymentAmount - (registration.paidAmount ?? 0)} €

@@ -2,12 +2,14 @@ import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { DogEvent, EmailTemplateId, Registration } from '../../../types'
 
 import { useCallback, useState } from 'react'
-import ExpandMore from '@mui/icons-material/ExpandMore'
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import Accordion from '@mui/material/Accordion'
-import AccordionDetails from '@mui/material/AccordionDetails'
-import AccordionSummary from '@mui/material/AccordionSummary'
+import { Grid2 } from '@mui/material'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Collapse from '@mui/material/Collapse'
+import IconButton from '@mui/material/IconButton'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Tab from '@mui/material/Tab'
@@ -43,9 +45,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
     event,
     registrations
   )
-  const handleExpandedChange = useCallback((event: React.SyntheticEvent, value: boolean) => {
-    setExpanded(value)
-  }, [])
+  const toggle = useCallback(() => setExpanded((old) => !old), [])
   const handleTabChange = useCallback((e: SyntheticEvent, v: number) => {
     e.stopPropagation()
     setTab(v)
@@ -61,44 +61,40 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   )
 
   return (
-    <Accordion
-      square
-      disableGutters
-      elevation={0}
-      expanded={expanded}
+    <Box
       sx={{
+        width: 400,
         backgroundColor: 'background.selected',
-        width: '340px',
         '& .MuiTableContainer-root': {
           backgroundColor: 'background.selected',
           width: '100%',
-          p: 0,
+          p: 1,
           '& .MuiTableCell-root': { py: 0, px: 1 },
         },
       }}
-      onChange={handleExpandedChange}
     >
-      <AccordionSummary
-        expandIcon={<ExpandMore />}
-        sx={{
-          minHeight: '28px',
-          '& .MuiAccordionSummary-content': { m: 0.5 },
-        }}
-      >
-        {expanded ? (
+      <Grid2 container alignItems="center">
+        <Grid2 size="grow">
           <Tabs
+            variant="fullWidth"
             value={tab}
             onChange={handleTabChange}
-            sx={{ minHeight: '24px', '& .MuiTab-root': { p: '4px 16px', minHeight: '24px', fontWeight: 'bold' } }}
+            sx={{
+              minHeight: '24px',
+              '& .MuiTab-root': { p: '4px 16px', minHeight: '24px', fontWeight: 'bold' },
+            }}
           >
             <Tab label="Tapahtuman tilanne" />
             <Tab label="Tehtävälista" />
           </Tabs>
-        ) : (
-          <Typography variant="body1">Tehtäviä tekemättä: ?/?</Typography>
-        )}
-      </AccordionSummary>
-      <AccordionDetails sx={{ p: '0px 8px 8px' }}>
+        </Grid2>
+        <Grid2 size="auto">
+          <IconButton size="small" color={'primary'} onClick={toggle}>
+            {expanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+          </IconButton>
+        </Grid2>
+      </Grid2>
+      <Collapse in={expanded} timeout="auto">
         <TableContainer component={Paper} elevation={0} hidden={tab !== 0}>
           <Table>
             <TableBody>
@@ -230,8 +226,8 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
             </TableBody>
           </Table>
         </TableContainer>
-      </AccordionDetails>
-    </Accordion>
+      </Collapse>
+    </Box>
   )
 }
 

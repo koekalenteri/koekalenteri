@@ -134,11 +134,11 @@ export default function EventViewPage() {
   return (
     <>
       <FullPageFlex minWidth={900}>
-        <Grid2 container justifyContent="space-between">
-          <Grid2>
+        <Grid2 container justifyContent="end">
+          <Grid2 flexGrow={1}>
             <Title event={event} />
           </Grid2>
-          <Grid2 size="auto">
+          <Grid2>
             <InfoPanel event={event} registrations={allRegistrations} onOpenMessageDialog={handleOpenMsgDialog} />
           </Grid2>
         </Grid2>
