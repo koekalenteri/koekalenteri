@@ -1543,9 +1543,9 @@ exports[`EventListPage renders 1`] = `
                     role="gridcell"
                     style="--width: 0px;"
                     tabindex="-1"
-                    title="event.states.invited"
+                    title="event.states.confirmed_entryClosed"
                   >
-                    event.states.invited
+                    event.states.confirmed_entryClosed
                   </div>
                   <div
                     class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
