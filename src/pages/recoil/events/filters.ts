@@ -2,14 +2,14 @@ import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './atoms'
 
-import { format, formatISO } from 'date-fns'
+import { format } from 'date-fns'
 
-import { formatDateSpan, zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
+import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
 import { isRegistrationClass } from '../../admin/EventViewPage'
 
-export const readDate = (date: string | null) => (date ? new Date(date) : null)
-export const writeDate = (date: Date | null) => (date ? formatISO(date, { representation: 'date' }) : '')
+export const readDate = (date: string | null) => (date ? zonedParseDate(date) : null)
+export const writeDate = (date: Date | null) => (date ? zonedDateString(date) : '')
 
 export function withinDateFilters(
   event: Partial<Pick<PublicDogEvent, 'startDate' | 'endDate'>>,

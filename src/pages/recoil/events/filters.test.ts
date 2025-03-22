@@ -4,18 +4,17 @@ import { readDate, withinDateFilters, writeDate } from './filters'
 
 describe('recoil.events.filters', () => {
   describe('readDate', () => {
-    it('should produce a date in local timezone', () => {
-      expect(readDate('2024-01-01')?.getDate()).toEqual(1)
-      expect(readDate('2024-01-01')?.getUTCDate()).toEqual(1)
-      expect(readDate('2024-01-01')?.getHours()).toBeCloseTo(new Date('2024-01-01').getTimezoneOffset() / -60, 10)
-      expect(readDate('2024-06-01')?.getHours()).toBeCloseTo(new Date('2024-06-01').getTimezoneOffset() / -60, 10)
+    it('should produce a date in finnish timezone', () => {
+      expect(readDate('2024-01-01')?.valueOf()).toEqual(1704060000000)
+      expect(readDate('2024-06-15')?.valueOf()).toEqual(1718398800000)
     })
   })
 
   describe('writeDate', () => {
-    it('should produce a date string from date', () => {
-      expect(writeDate(new Date(2024, 0, 1, 0, 0, 0))).toEqual('2024-01-01')
-      expect(writeDate(new Date(2024, 0, 1, 23, 59, 59))).toEqual('2024-01-01')
+    it('should produce a date string in finnish timezone', () => {
+      expect(writeDate(new Date(1704060000000))).toEqual('2024-01-01')
+      expect(writeDate(new Date(1704146399000))).toEqual('2024-01-01')
+      expect(writeDate(new Date(1718398800000))).toEqual('2024-06-15')
     })
   })
 

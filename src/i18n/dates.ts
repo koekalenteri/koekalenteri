@@ -10,6 +10,7 @@ import {
   isSameMonth,
   isSameYear,
   isValid,
+  parse,
   parseISO,
   startOfDay,
 } from 'date-fns'
@@ -91,3 +92,6 @@ export const currentFinnishTime = (): string => formatDate(new Date(), "yyyy-MM-
 
 export const zonedStartOfDay = (date: DateType, timeZone = TIME_ZONE) => startOfDay(date, { in: tz(timeZone) })
 export const zonedEndOfDay = (date: DateType, timeZone = TIME_ZONE) => endOfDay(date, { in: tz(timeZone) })
+export const zonedDateString = (date: Date, timeZone = TIME_ZONE) => formatDate(date, 'yyyy-MM-dd', { timeZone })
+export const zonedParseDate = (dateStr: string, timeZone = TIME_ZONE) =>
+  parse(dateStr, 'yyyy-MM-dd', new Date(), { in: tz(timeZone) })
