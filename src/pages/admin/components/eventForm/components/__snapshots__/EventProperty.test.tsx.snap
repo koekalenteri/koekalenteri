@@ -41,7 +41,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
             <button
               aria-label="Open"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-              id=":r12:"
               tabindex="-1"
               title="Open"
               type="button"
@@ -75,7 +74,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":r13:"
         tabindex="0"
         type="button"
       >
@@ -99,7 +97,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 exports[`EventProperty freeSolo=false should display options when typing and fire onChange when selecting an option or clearing input 2`] = `
 <div>
   <div
-    aria-owns="eventType-listbox"
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
   >
     <div
@@ -139,7 +136,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
             <button
               aria-label="Close"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-              id=":r12:"
               tabindex="-1"
               title="Close"
               type="button"
@@ -173,7 +169,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":r13:"
         tabindex="0"
         type="button"
       >
@@ -197,7 +192,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
 exports[`EventProperty freeSolo=false should display options when typing and fire onChange when selecting an option or clearing input 3`] = `
 <div>
   <div
-    aria-owns="eventType-listbox"
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasPopupIcon css-1tlcqt-MuiAutocomplete-root"
   >
     <div
@@ -237,7 +231,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
             <button
               aria-label="Close"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-              id=":r12:"
               tabindex="-1"
               title="Close"
               type="button"
@@ -271,7 +264,6 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":r13:"
         tabindex="0"
         type="button"
       >
@@ -333,7 +325,6 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
             <button
               aria-label="Clear"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-              id=":rp:"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -353,7 +344,6 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
             <button
               aria-label="Open"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-              id=":rq:"
               tabindex="-1"
               title="Open"
               type="button"
@@ -387,7 +377,6 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":rr:"
         tabindex="0"
         type="button"
       >
@@ -449,7 +438,6 @@ exports[`EventProperty freeSolo=false should render with undefined property and 
             <button
               aria-label="Open"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-              id=":ru:"
               tabindex="-1"
               title="Open"
               type="button"
@@ -483,7 +471,6 @@ exports[`EventProperty freeSolo=false should render with undefined property and 
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":rv:"
         tabindex="0"
         type="button"
       >
@@ -545,7 +532,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
             <button
               aria-label="Clear"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-              id=":rl:"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -579,7 +565,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":rm:"
         tabindex="0"
         type="button"
       >
@@ -641,7 +626,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
             <button
               aria-label="Clear"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-              id=":rl:"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -675,7 +659,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":rm:"
         tabindex="0"
         type="button"
       >
@@ -699,7 +682,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
 exports[`EventProperty freeSolo=true should display options when typing and fire onChange when selecting an option or clearing input 3`] = `
 <div>
   <div
-    aria-owns="name-listbox"
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-hasClearIcon css-1tlcqt-MuiAutocomplete-root"
   >
     <div
@@ -739,7 +721,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
             <button
               aria-label="Clear"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-              id=":rl:"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -773,7 +754,6 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":rm:"
         tabindex="0"
         type="button"
       >
@@ -835,7 +815,6 @@ exports[`EventProperty freeSolo=true should render with minimal information 1`] 
             <button
               aria-label="Clear"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-              id=":r2:"
               tabindex="-1"
               title="Clear"
               type="button"
@@ -869,7 +848,6 @@ exports[`EventProperty freeSolo=true should render with minimal information 1`] 
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":r3:"
         tabindex="0"
         type="button"
       >
@@ -941,7 +919,6 @@ exports[`EventProperty freeSolo=true should render with undefined property and o
       </div>
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium css-va91pz-MuiButtonBase-root-MuiIconButton-root"
-        id=":r6:"
         tabindex="0"
         type="button"
       >

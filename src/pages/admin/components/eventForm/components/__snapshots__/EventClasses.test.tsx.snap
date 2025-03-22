@@ -30,7 +30,6 @@ exports[`EventClasses should render with classes 1`] = `
           <button
             aria-label="Open"
             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-            id=":r5:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -110,7 +109,6 @@ exports[`EventClasses should render with classes and value 1`] = `
           <button
             aria-label="Open"
             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-            id=":r8:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -201,7 +199,6 @@ exports[`EventClasses should render with classes and values 1`] = `
           <button
             aria-label="Open"
             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-            id=":rb:"
             tabindex="-1"
             title="Open"
             type="button"
@@ -243,7 +240,6 @@ exports[`EventClasses should render with classes and values 1`] = `
 exports[`EventClasses should render with classes and values for 2 day event, open 1`] = `
 <div>
   <div
-    aria-owns="-listbox"
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
   >
     <div
@@ -305,7 +301,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           <button
             aria-label="Close"
             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-            id=":rh:"
             tabindex="-1"
             title="Close"
             type="button"
@@ -477,7 +472,6 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
 exports[`EventClasses should render with classes and values, open 1`] = `
 <div>
   <div
-    aria-owns="-listbox"
     class="MuiAutocomplete-root Mui-expanded Mui-focused MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
   >
     <div
@@ -529,7 +523,6 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           <button
             aria-label="Close"
             class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator MuiAutocomplete-popupIndicatorOpen css-dmsga6-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-            id=":re:"
             tabindex="-1"
             title="Close"
             type="button"
@@ -687,7 +680,6 @@ exports[`EventClasses should render with minimal properties 1`] = `
             aria-label="Open"
             class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
             disabled=""
-            id=":r2:"
             tabindex="-1"
             title="Open"
             type="button"

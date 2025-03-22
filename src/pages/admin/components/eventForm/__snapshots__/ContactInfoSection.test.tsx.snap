@@ -7,7 +7,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -459,7 +458,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r70:"
       tabindex="0"
       type="button"
     >
@@ -912,7 +910,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r3g:"
       tabindex="0"
       type="button"
     >
@@ -1365,7 +1362,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rag:"
       tabindex="0"
       type="button"
     >
@@ -1819,7 +1815,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r1o:"
       tabindex="0"
       type="button"
     >
@@ -2272,7 +2267,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r8o:"
       tabindex="0"
       type="button"
     >
@@ -2726,7 +2720,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r58:"
       tabindex="0"
       type="button"
     >
@@ -3180,7 +3173,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rc8:"
       tabindex="0"
       type="button"
     >
@@ -3635,7 +3627,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rs:"
       tabindex="0"
       type="button"
     >
@@ -4088,7 +4079,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r7s:"
       tabindex="0"
       type="button"
     >
@@ -4542,7 +4532,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r4c:"
       tabindex="0"
       type="button"
     >
@@ -4996,7 +4985,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rbc:"
       tabindex="0"
       type="button"
     >
@@ -5451,7 +5439,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r2k:"
       tabindex="0"
       type="button"
     >
@@ -5905,7 +5892,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r9k:"
       tabindex="0"
       type="button"
     >
@@ -6360,7 +6346,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r64:"
       tabindex="0"
       type="button"
     >
@@ -6815,7 +6800,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rd4:"
       tabindex="0"
       type="button"
     >
@@ -7271,7 +7255,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":re:"
       tabindex="0"
       type="button"
     >
@@ -7724,7 +7707,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r7e:"
       tabindex="0"
       type="button"
     >
@@ -8178,7 +8160,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r3u:"
       tabindex="0"
       type="button"
     >
@@ -8632,7 +8613,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rau:"
       tabindex="0"
       type="button"
     >
@@ -9087,7 +9067,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r26:"
       tabindex="0"
       type="button"
     >
@@ -9541,7 +9520,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r96:"
       tabindex="0"
       type="button"
     >
@@ -9996,7 +9974,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r5m:"
       tabindex="0"
       type="button"
     >
@@ -10451,7 +10428,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rcm:"
       tabindex="0"
       type="button"
     >
@@ -10907,7 +10883,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r1a:"
       tabindex="0"
       type="button"
     >
@@ -11361,7 +11336,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r8a:"
       tabindex="0"
       type="button"
     >
@@ -11816,7 +11790,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r4q:"
       tabindex="0"
       type="button"
     >
@@ -12271,7 +12244,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rbq:"
       tabindex="0"
       type="button"
     >
@@ -12727,7 +12699,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r32:"
       tabindex="0"
       type="button"
     >
@@ -13182,7 +13153,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":ra2:"
       tabindex="0"
       type="button"
     >
@@ -13638,7 +13608,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r6i:"
       tabindex="0"
       type="button"
     >
@@ -14094,7 +14063,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rdi:"
       tabindex="0"
       type="button"
     >
@@ -14551,7 +14519,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r7:"
       tabindex="0"
       type="button"
     >
@@ -15004,7 +14971,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r77:"
       tabindex="0"
       type="button"
     >
@@ -15458,7 +15424,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r3n:"
       tabindex="0"
       type="button"
     >
@@ -15912,7 +15877,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":ran:"
       tabindex="0"
       type="button"
     >
@@ -16367,7 +16331,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r1v:"
       tabindex="0"
       type="button"
     >
@@ -16821,7 +16784,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r8v:"
       tabindex="0"
       type="button"
     >
@@ -17276,7 +17238,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r5f:"
       tabindex="0"
       type="button"
     >
@@ -17731,7 +17692,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rcf:"
       tabindex="0"
       type="button"
     >
@@ -18187,7 +18147,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r13:"
       tabindex="0"
       type="button"
     >
@@ -18641,7 +18600,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r83:"
       tabindex="0"
       type="button"
     >
@@ -19096,7 +19054,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r4j:"
       tabindex="0"
       type="button"
     >
@@ -19551,7 +19508,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rbj:"
       tabindex="0"
       type="button"
     >
@@ -20007,7 +19963,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r2r:"
       tabindex="0"
       type="button"
     >
@@ -20462,7 +20417,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r9r:"
       tabindex="0"
       type="button"
     >
@@ -20918,7 +20872,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r6b:"
       tabindex="0"
       type="button"
     >
@@ -21374,7 +21327,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rdb:"
       tabindex="0"
       type="button"
     >
@@ -21831,7 +21783,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rl:"
       tabindex="0"
       type="button"
     >
@@ -22285,7 +22236,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r7l:"
       tabindex="0"
       type="button"
     >
@@ -22740,7 +22690,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r45:"
       tabindex="0"
       type="button"
     >
@@ -23195,7 +23144,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rb5:"
       tabindex="0"
       type="button"
     >
@@ -23651,7 +23599,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r2d:"
       tabindex="0"
       type="button"
     >
@@ -24106,7 +24053,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r9d:"
       tabindex="0"
       type="button"
     >
@@ -24562,7 +24508,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r5t:"
       tabindex="0"
       type="button"
     >
@@ -25018,7 +24963,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rct:"
       tabindex="0"
       type="button"
     >
@@ -25475,7 +25419,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r1h:"
       tabindex="0"
       type="button"
     >
@@ -25930,7 +25873,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r8h:"
       tabindex="0"
       type="button"
     >
@@ -26386,7 +26328,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r51:"
       tabindex="0"
       type="button"
     >
@@ -26842,7 +26783,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rc1:"
       tabindex="0"
       type="button"
     >
@@ -27299,7 +27239,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r39:"
       tabindex="0"
       type="button"
     >
@@ -27755,7 +27694,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":ra9:"
       tabindex="0"
       type="button"
     >
@@ -28212,7 +28150,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r6p:"
       tabindex="0"
       type="button"
     >
@@ -28669,7 +28606,6 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rdp:"
       tabindex="0"
       type="button"
     >

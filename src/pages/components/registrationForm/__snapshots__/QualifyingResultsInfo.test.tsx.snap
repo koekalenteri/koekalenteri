@@ -7,7 +7,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r2:"
       tabindex="0"
       type="button"
     >
@@ -108,7 +107,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r5:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -184,7 +182,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r8:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -256,7 +253,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                               aria-label="Choose date, selected date is 10. tammi 2021"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                               disabled=""
-                              id=":rb:"
                               tabindex="-1"
                               type="button"
                             >
@@ -377,7 +373,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     >
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-xay930-MuiButtonBase-root-MuiButton-root"
-                        id=":re:"
                         tabindex="0"
                         type="button"
                       >
@@ -421,7 +416,6 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
-                    id=":rf:"
                     tabindex="0"
                     type="button"
                   >
@@ -474,7 +468,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rg:"
       tabindex="0"
       type="button"
     >
@@ -575,7 +568,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":rj:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -651,7 +643,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":rm:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -723,7 +714,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                               aria-label="Choose date, selected date is 10. tammi 2021"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                               disabled=""
-                              id=":rp:"
                               tabindex="-1"
                               type="button"
                             >
@@ -844,7 +834,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     >
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-xay930-MuiButtonBase-root-MuiButton-root"
-                        id=":rs:"
                         tabindex="0"
                         type="button"
                       >
@@ -926,7 +915,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":rv:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1000,7 +988,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r12:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1070,7 +1057,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             <button
                               aria-label="Choose date, selected date is 1. helmi 2021"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r15:"
                               tabindex="0"
                               type="button"
                             >
@@ -1189,7 +1175,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     >
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
-                        id=":r18:"
                         tabindex="0"
                         type="button"
                       >
@@ -1271,7 +1256,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r1b:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1345,7 +1329,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r1e:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1415,7 +1398,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                             <button
                               aria-label="Choose date, selected date is 1. helmi 2021"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                              id=":r1h:"
                               tabindex="0"
                               type="button"
                             >
@@ -1534,7 +1516,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     >
                       <button
                         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
-                        id=":r1k:"
                         tabindex="0"
                         type="button"
                       >
@@ -1578,7 +1559,6 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
-                    id=":r1l:"
                     tabindex="0"
                     type="button"
                   >
@@ -1631,7 +1611,6 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -1693,7 +1672,6 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1blvszr-MuiButtonBase-root-MuiButton-root"
                     disabled=""
-                    id=":r1:"
                     tabindex="-1"
                     type="button"
                   >

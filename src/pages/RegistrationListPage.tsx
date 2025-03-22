@@ -186,7 +186,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         }}
       >
         <Grid2 container direction="row" flexWrap="nowrap" justifyContent="space-between">
-          <Grid2>
+          <Grid2 sx={{ maxWidth: { xs: '100%', md: 'calc(100% - 366px)' } }}>
             <Box pl={1}>
               <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
               <Typography variant="h5">Ilmoittautumistiedot</Typography>

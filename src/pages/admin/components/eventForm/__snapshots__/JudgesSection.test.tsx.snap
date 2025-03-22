@@ -7,7 +7,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r28:"
       tabindex="0"
       type="button"
     >
@@ -135,7 +134,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                             <button
                               aria-label="Open"
                               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                              id=":r2c:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -211,7 +209,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r2f:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -250,7 +247,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":r2g:"
                       tabindex="0"
                       type="button"
                     >
@@ -278,7 +274,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r2h:"
                     tabindex="0"
                     type="button"
                   >
@@ -301,7 +296,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                   </button>
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r2i:"
                     tabindex="0"
                     type="button"
                   >
@@ -325,7 +319,6 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-16a3zkk-MuiButtonBase-root-MuiButton-root"
                     disabled=""
-                    id=":r2j:"
                     tabindex="-1"
                     type="button"
                   >
@@ -364,7 +357,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r1s:"
       tabindex="0"
       type="button"
     >
@@ -494,7 +486,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r20:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -570,7 +561,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r23:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -609,7 +599,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":r24:"
                       tabindex="0"
                       type="button"
                     >
@@ -637,7 +626,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r25:"
                     tabindex="0"
                     type="button"
                   >
@@ -660,7 +648,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                   </button>
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r26:"
                     tabindex="0"
                     type="button"
                   >
@@ -684,7 +671,6 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-16a3zkk-MuiButtonBase-root-MuiButton-root"
                     disabled=""
-                    id=":r27:"
                     tabindex="-1"
                     type="button"
                   >
@@ -723,7 +709,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -853,7 +838,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r4:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -929,7 +913,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r7:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -968,7 +951,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":r8:"
                       tabindex="0"
                       type="button"
                     >
@@ -996,7 +978,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r9:"
                     tabindex="0"
                     type="button"
                   >
@@ -1019,7 +1000,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                   </button>
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":ra:"
                     tabindex="0"
                     type="button"
                   >
@@ -1043,7 +1023,6 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-16a3zkk-MuiButtonBase-root-MuiButton-root"
                     disabled=""
-                    id=":rb:"
                     tabindex="-1"
                     type="button"
                   >
@@ -1082,7 +1061,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r10:"
       tabindex="0"
       type="button"
     >
@@ -1212,7 +1190,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r14:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1288,7 +1265,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r17:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1327,7 +1303,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":r18:"
                       tabindex="0"
                       type="button"
                     >
@@ -1433,7 +1408,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r1c:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1509,7 +1483,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r1f:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1548,7 +1521,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":r1g:"
                       tabindex="0"
                       type="button"
                     >
@@ -1654,7 +1626,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r1k:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1730,7 +1701,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":r1n:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -1769,7 +1739,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":r1o:"
                       tabindex="0"
                       type="button"
                     >
@@ -1797,7 +1766,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r1p:"
                     tabindex="0"
                     type="button"
                   >
@@ -1820,7 +1788,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   </button>
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":r1q:"
                     tabindex="0"
                     type="button"
                   >
@@ -1844,7 +1811,6 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-16a3zkk-MuiButtonBase-root-MuiButton-root"
                     disabled=""
-                    id=":r1r:"
                     tabindex="-1"
                     type="button"
                   >
@@ -1883,7 +1849,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":rc:"
       tabindex="0"
       type="button"
     >
@@ -2013,7 +1978,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":rg:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2089,7 +2053,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":rj:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2128,7 +2091,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":rk:"
                       tabindex="0"
                       type="button"
                     >
@@ -2234,7 +2196,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":ro:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2310,7 +2271,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                               aria-label="Open"
                               class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
                               disabled=""
-                              id=":rr:"
                               tabindex="-1"
                               title="Open"
                               type="button"
@@ -2349,7 +2309,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                      id=":rs:"
                       tabindex="0"
                       type="button"
                     >
@@ -2377,7 +2336,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                 >
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":rt:"
                     tabindex="0"
                     type="button"
                   >
@@ -2400,7 +2358,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                   </button>
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1uent87-MuiButtonBase-root-MuiButton-root"
-                    id=":ru:"
                     tabindex="0"
                     type="button"
                   >
@@ -2424,7 +2381,6 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                   <button
                     class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-16a3zkk-MuiButtonBase-root-MuiButton-root"
                     disabled=""
-                    id=":rv:"
                     tabindex="-1"
                     type="button"
                   >

@@ -8,7 +8,6 @@ exports[`AdditionalInfoSection should render 1`] = `
     <button
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
-      id=":r0:"
       tabindex="-1"
       type="button"
     >

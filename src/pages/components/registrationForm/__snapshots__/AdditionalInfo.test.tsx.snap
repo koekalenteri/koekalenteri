@@ -7,7 +7,6 @@ exports[`AdditionalInfo should render with minimal info 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r0:"
       tabindex="0"
       type="button"
     >
@@ -110,7 +109,6 @@ exports[`AdditionalInfo should render with text 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r2:"
       tabindex="0"
       type="button"
     >
@@ -215,7 +213,6 @@ exports[`AdditionalInfo should rerender with new value 1`] = `
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
-      id=":r4:"
       tabindex="0"
       type="button"
     >

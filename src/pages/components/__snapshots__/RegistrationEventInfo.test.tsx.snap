@@ -11,7 +11,6 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-        id=":r1:"
         tabindex="0"
         type="button"
       >
@@ -207,7 +206,6 @@ exports[`RegistrationEventInfo renders 1`] = `
     >
       <button
         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-        id=":r0:"
         tabindex="0"
         type="button"
       >
