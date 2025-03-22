@@ -160,7 +160,11 @@ Resources:
             AttributeType: S
           - AttributeName: season
             AttributeType: S
+          - AttributeName: eventType
+            AttributeType: S
           - AttributeName: modifiedAt
+            AttributeType: S
+          - AttributeName: entryEndDate
             AttributeType: S
       GlobalSecondaryIndexes:
         - IndexName: gsiModifiedAt # TODO: remove after 1.1.8 release
@@ -177,6 +181,17 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+        - IndexName: gsiEventTypeEntryEndDate
+          KeySchema:
+            - AttributeName: eventType
+              KeyType: HASH
+            - AttributeName: entryEndDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - origEntryEndDate
+              - entryEndDate
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName

@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 
 import { isValidForEntry } from '../../lib/utils'
 import { authorize } from '../lib/auth'
-import { getEvent, saveEvent, updateRegistrations } from '../lib/event'
+import { findPreviousOrigEntryEndDate, getEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import { response } from '../utils/response'
@@ -52,6 +52,10 @@ const putEventLambda = lambda('putEvent', async (event) => {
   ) {
     // entry period was extended, use additional field to store the original entry end date
     item.entryOrigEndDate = existing.entryEndDate
+  }
+
+  if (item.eventType === 'NOME-B SM' && !item.qualificationStartDate) {
+    item.qualificationStartDate = await findPreviousOrigEntryEndDate(item.eventType, item.entryEndDate)
   }
 
   // modification info is always updated

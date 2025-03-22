@@ -36,6 +36,27 @@ export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string
   return jsonEvent
 }
 
+type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
+
+export const findPreviousOrigEntryEndDate = async (
+  eventType: string,
+  entryEndDate: string
+): Promise<string | undefined> => {
+  const result = await dynamoDB.query<EventEntryEndDates>(
+    'eventType = :eventType AND entryEndDate < :entryEndDate',
+    { ':eventType': eventType, ':entryEndDate': entryEndDate },
+    CONFIG.eventTable,
+    'gsiEventTypeEntryEndDate',
+    undefined,
+    false,
+    1
+  )
+
+  if (result && result.length === 1) {
+    return result[0].entryOrigEndDate || result[0].entryEndDate
+  }
+}
+
 export const saveEvent = async (data: JsonDogEvent) => dynamoDB.write(data, eventTable)
 
 export const markParticipants = async (

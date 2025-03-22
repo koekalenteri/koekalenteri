@@ -3,12 +3,13 @@ import type { ManualTestResult, QualifyingResult, QualifyingResults, TestResult 
 import { subYears } from 'date-fns'
 
 import { zonedEndOfDay } from './i18n/dates'
-import { NOME_B_CH_qualification_start_date } from './lib/registration'
+import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
 
 export type EventResultRequirementFn = (
   officialResults: TestResult[],
   manualResults: ManualTestResult[],
-  entryEndDate: Date | undefined
+  entryEndDate: Date | undefined,
+  qualificationStartDate: Date | undefined
 ) => QualifyingResults
 
 const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
@@ -21,9 +22,9 @@ const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   return bPoints - aPoints
 }
 
-const getNOME_B_CH_RankingPeriod = (entryEndDate: Date) => ({
+const getNOME_B_CH_RankingPeriod = (entryEndDate?: Date, qualificationStartDate?: Date) => ({
   maxResultDate: zonedEndOfDay(entryEndDate ?? new Date()),
-  minResultDate: NOME_B_CH_qualification_start_date,
+  minResultDate: qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023,
 })
 
 const getNOME_A_CH_RankingPeriod = (entryEndDate: Date) => {
@@ -44,12 +45,16 @@ const getNOWT_CH_RankingPeriod = (entryEndDate: Date) => {
   }
 }
 
-export const getRankingPeriod = (eventType: string, entryEndDate?: Date) => {
+export const getRankingPeriod = (
+  eventType: string,
+  entryEndDate: Date | undefined,
+  qualificationStartDate: Date | undefined
+) => {
   if (!entryEndDate) return
 
   switch (eventType) {
     case 'NOME-B SM':
-      return getNOME_B_CH_RankingPeriod(entryEndDate)
+      return getNOME_B_CH_RankingPeriod(entryEndDate, qualificationStartDate)
     case 'NOME-A SM':
       return getNOME_A_CH_RankingPeriod(entryEndDate)
     case 'NOWT SM':
@@ -60,10 +65,14 @@ export const getRankingPeriod = (eventType: string, entryEndDate?: Date) => {
 export const NOME_B_CH_requirements: EventResultRequirementFn = (
   officialResults,
   manualResults,
-  entryEndDate
+  entryEndDate,
+  qualificationStartDate
 ): QualifyingResults => {
   const maxResults = 5
-  const { maxResultDate, minResultDate } = getNOME_B_CH_RankingPeriod(entryEndDate ?? new Date())
+  const { maxResultDate, minResultDate } = getNOME_B_CH_RankingPeriod(
+    entryEndDate ?? new Date(),
+    qualificationStartDate
+  )
 
   const resultFilter = (r: TestResult | ManualTestResult) =>
     r.type === 'NOME-B' &&

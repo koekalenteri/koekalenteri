@@ -37,6 +37,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   organizer: PublicOrganizer
   places: number
   priority?: string[]
+  qualificationStartDate?: string
   season?: string
   secretary: Partial<User>
   startDate: string
@@ -46,7 +47,7 @@ export interface JsonDogEvent extends JsonDbRecord {
 
 export type EventRequiredDates = 'startDate' | 'endDate'
 export type EventEntryDates = 'entryStartDate' | 'entryEndDate'
-export type EventOptionalDates = EventEntryDates | 'entryOrigEndDate'
+export type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
 export type EventDates = EventRequiredDates | EventOptionalDates
 export type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
 export type DogEvent = DbRecord &

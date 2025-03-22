@@ -63,7 +63,9 @@ export default class CustomDynamoClient {
     values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap,
     table?: string,
     index?: string,
-    names?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap
+    names?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap,
+    forward?: boolean,
+    limit?: number
   ): Promise<T[] | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.query: no key provided, returning undefined')
@@ -75,6 +77,8 @@ export default class CustomDynamoClient {
       KeyConditionExpression: key,
       ExpressionAttributeValues: values,
       ExpressionAttributeNames: names,
+      ScanIndexForward: forward,
+      Limit: limit,
     }
     console.log('DB.query', params)
     const data = await this.docClient.query(params).promise()

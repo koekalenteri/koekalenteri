@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import type {
   DogEvent,
   JsonConfirmedEvent,
+  JsonPublicDogEvent,
   JsonRegistration,
   JsonRegistrationGroup,
   PublicDogEvent,
@@ -14,7 +15,7 @@ import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
 
-export const NOME_B_CH_qualification_start_date = new Date('2023-08-17T21:00:00Z') // TODO: get this date from last NOME-B SM event
+export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:00Z')
 
 const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
 
@@ -25,8 +26,8 @@ type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation'> & {
   qualifyingResults?: Registration['qualifyingResults'] | JsonRegistration['qualifyingResults']
 }
 
-type PriorityCheckFn<T> = (
-  event: Partial<Pick<PublicDogEvent, 'eventType' | 'priority'>>,
+type PriorityCheckFn<T, E extends PublicDogEvent | JsonPublicDogEvent = PublicDogEvent | JsonPublicDogEvent> = (
+  event: Partial<Pick<E, 'eventType' | 'priority' | 'qualificationStartDate'>>,
   registration: RegistrationPriorityFields
 ) => T
 
@@ -44,10 +45,16 @@ const hasBreedPriority: PriorityCheckFn<boolean> = (event, registration) =>
 const hasNomeBSMPriority: PriorityCheckFn<false | 'b-sm.2' | 'b-sm.3'> = (event, registration) => {
   if (event.eventType === 'NOME-B SM') {
     const count = registration.qualifyingResults?.reduce((acc, r) => acc + (r.result === 'VOI1' ? 1 : 0), 0) ?? 0
+    if (count >= 3) return 'b-sm.3'
+
     const kvaDateOrString = registration.qualifyingResults?.find((r) => r.result === 'FI KVA-B')?.date
     const kvaDate = typeof kvaDateOrString === 'string' ? new Date(kvaDateOrString) : kvaDateOrString
-    if (count >= 3) return 'b-sm.3'
-    if (kvaDate && kvaDate.valueOf() < NOME_B_CH_qualification_start_date.valueOf() && count === 2) return 'b-sm.2'
+    if (kvaDate && count === 2) {
+      const qStartDateOrString = event.qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023
+      const qStartDate = typeof qStartDateOrString === 'string' ? new Date(qStartDateOrString) : qStartDateOrString
+
+      if (kvaDate.valueOf() < qStartDate.valueOf()) return 'b-sm.2'
+    }
   }
   return false
 }

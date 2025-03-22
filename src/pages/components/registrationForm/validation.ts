@@ -178,7 +178,8 @@ export function filterRelevantResults(
     startDate,
     entryEndDate,
     entryOrigEndDate,
-  }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate' | 'entryOrigEndDate'>,
+    qualificationStartDate,
+  }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate' | 'entryOrigEndDate' | 'qualificationStartDate'>,
   regClass: Registration['class'],
   officialResults?: TestResult[],
   manualResults?: ManualTestResult[]
@@ -195,13 +196,20 @@ export function filterRelevantResults(
 
   const usedEntryEndDate = entryOrigEndDate ?? entryEndDate
 
-  const check = checkRequiredResults(rules, officialResults, manualValid, usedEntryEndDate)
+  const check = checkRequiredResults(rules, officialResults, manualValid, usedEntryEndDate, qualificationStartDate)
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
     const dis =
       nextClass &&
-      checkRequiredResults(nextClassRules ?? undefined, officialNotThisYear, manulNotThisYear, usedEntryEndDate, false)
+      checkRequiredResults(
+        nextClassRules ?? undefined,
+        officialNotThisYear,
+        manulNotThisYear,
+        usedEntryEndDate,
+        qualificationStartDate,
+        false
+      )
     if (dis?.qualifies) {
       return {
         relevant: check.relevant.concat(dis.relevant).sort(byDate),
@@ -237,6 +245,7 @@ function checkRequiredResults(
   officialResults: TestResult[] = [],
   manualResults: ManualTestResult[] = [],
   entryEndDate: Date | undefined,
+  qualificationStartDate: Date | undefined,
   qualifying = true
 ): QualifyingResults {
   if (!requirements) {
@@ -264,7 +273,7 @@ function checkRequiredResults(
   }
 
   if (typeof requirements.rules === 'function') {
-    return requirements.rules(officialResults, manualResults, entryEndDate)
+    return requirements.rules(officialResults, manualResults, entryEndDate, qualificationStartDate)
   }
 
   for (const resultRules of requirements.rules) {
