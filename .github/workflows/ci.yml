@@ -43,6 +43,7 @@ jobs:
             frontend:
               - '.github/**'
               - 'scripts/**'
+              - 'public/**'
               - 'src/!(lambda)/**'
               - 'package-lock.json'
               - 'package.json'
