@@ -24,7 +24,7 @@ interface Props {
   readonly manualResults?: ManualTestResult[]
   readonly disabled?: boolean
   readonly requirements?: EventResultRequirementsByDate
-  readonly onChange?: (result: ManualTestResult, props: Partial<TestResult>) => void
+  readonly onChange?: (result: ManualTestResult, props: Partial<ManualTestResult>) => void
   readonly onRemove?: (result: ManualTestResult) => void
 }
 
@@ -75,8 +75,8 @@ export default function QualifyingResultRow({
 }: Props) {
   const { t } = useTranslation()
   const handleChange = useCallback(
-    (result: QualifyingResult | ManualTestResult, props: Partial<TestResult>) => {
-      if (isManualResult(result)) onChange?.(result, { ...props, points: undefined })
+    (result: QualifyingResult | ManualTestResult, props: Partial<ManualTestResult>) => {
+      if (isManualResult(result)) onChange?.(result, { ...props, rankingPoints: undefined })
     },
     [onChange]
   )
@@ -88,7 +88,7 @@ export default function QualifyingResultRow({
   const minDate = date9Months < maxDate ? date9Months : maxDate
 
   return (
-    <Grid2 container spacing={1} alignItems="center">
+    <Grid2 container spacing={1} alignItems="center" width="100%">
       <Grid2 size={{ xs: 6, sm: 3.5, md: 2 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
@@ -172,7 +172,7 @@ export default function QualifyingResultRow({
           >
             {t('registration.cta.deleteResult')}
           </Button>
-          <RankingPoints points={result.points} />
+          <RankingPoints points={result.rankingPoints} />
         </Stack>
       </Grid2>
     </Grid2>

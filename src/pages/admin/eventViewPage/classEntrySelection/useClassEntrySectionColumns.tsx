@@ -39,7 +39,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
     () => reg.qualifyingResults.filter((r) => !r.official).length,
     [reg.qualifyingResults]
   )
-  const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.points ?? 0), 0), [reg])
+  const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.rankingPoints ?? 0), 0), [reg])
 
   const tooltipContent: TooltipContent[] = useMemo(() => {
     const result: TooltipContent[] = []

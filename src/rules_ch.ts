@@ -13,8 +13,8 @@ export type EventResultRequirementFn = (
 ) => QualifyingResults
 
 const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
-  const aPoints = a.points ?? 0
-  const bPoints = b.points ?? 0
+  const aPoints = a.rankingPoints ?? 0
+  const bPoints = b.rankingPoints ?? 0
 
   if (aPoints === bPoints) {
     return b.date.valueOf() - a.date.valueOf()
@@ -87,11 +87,11 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
   // 5 best results after last NOME-B SM event's registrationEndDate are considered
   const relevant: QualifyingResult[] = officialResults
     .filter(resultFilter)
-    .map((r) => ({ ...r, qualifying: true, official: true, points: resultPoints(r) }))
+    .map((r) => ({ ...r, qualifying: true, official: true, rankingPoints: resultPoints(r) }))
     .concat(
       manualResults
         .filter(resultFilter)
-        .map((r) => ({ ...r, qualifying: true, official: false, points: resultPoints(r) }))
+        .map((r) => ({ ...r, qualifying: true, official: false, rankingPoints: resultPoints(r) }))
     )
     .sort(byPointsAndDate)
 
@@ -161,11 +161,11 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
 
   const relevant: QualifyingResult[] = officialResults
     .filter(resultFilter)
-    .map((r) => ({ ...r, qualifying: true, official: true, points: resultPoints(r) }))
+    .map((r) => ({ ...r, qualifying: true, official: true, rankingPoints: resultPoints(r) }))
     .concat(
       manualResults
         .filter(resultFilter)
-        .map((r) => ({ ...r, qualifying: true, official: false, points: resultPoints(r) }))
+        .map((r) => ({ ...r, qualifying: true, official: false, rankingPoints: resultPoints(r) }))
     )
     .sort(byPointsAndDate)
 
@@ -221,11 +221,11 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
 
   const relevant: QualifyingResult[] = officialResults
     .filter(resultFilter)
-    .map((r) => ({ ...r, qualifying: true, official: true, points: resultPoints(r) }))
+    .map((r) => ({ ...r, qualifying: true, official: true, rankingPoints: resultPoints(r) }))
     .concat(
       manualResults
         .filter(resultFilter)
-        .map((r) => ({ ...r, qualifying: true, official: false, points: resultPoints(r) }))
+        .map((r) => ({ ...r, qualifying: true, official: false, rankingPoints: resultPoints(r) }))
     )
     .sort(byPointsAndDate)
 

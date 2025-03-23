@@ -104,11 +104,12 @@ export interface JsonQualifyingResult extends JsonTestResult {
 export interface QualifyingResult extends TestResult {
   official: boolean
   qualifying?: boolean
-  points?: number
   // for component
   id?: string
   // for manual results
   regNo?: string
+  // for ranking
+  rankingPoints?: number
 }
 
 export type QualifyingResults = {

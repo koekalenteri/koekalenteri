@@ -97,7 +97,7 @@ export default function QualifyingResultsInfo({
     [onChange, results]
   )
 
-  const totalPoints = useMemo(() => qualifying.reduce((acc, r) => acc + (r.points ?? 0), 0), [qualifying])
+  const totalPoints = useMemo(() => qualifying.reduce((acc, r) => acc + (r.rankingPoints ?? 0), 0), [qualifying])
 
   return (
     <CollapsibleSection

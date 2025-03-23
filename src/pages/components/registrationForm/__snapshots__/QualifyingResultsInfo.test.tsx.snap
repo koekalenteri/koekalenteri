@@ -63,7 +63,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                   </span>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 MuiGrid2-grid-sm-3.5 MuiGrid2-grid-md-2 css-i752ni-MuiGrid2-root"
@@ -524,7 +524,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   </span>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 MuiGrid2-grid-sm-3.5 MuiGrid2-grid-md-2 css-i752ni-MuiGrid2-root"
@@ -873,7 +873,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   </div>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 MuiGrid2-grid-sm-3.5 MuiGrid2-grid-md-2 css-i752ni-MuiGrid2-root"
@@ -1214,7 +1214,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   </div>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 MuiGrid2-grid-sm-3.5 MuiGrid2-grid-md-2 css-i752ni-MuiGrid2-root"
