@@ -9,7 +9,6 @@ import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import { useMediaQuery } from '@mui/material'
-import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
 import { GridActionsCellItem } from '@mui/x-data-grid'
@@ -141,9 +140,9 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
   const columns = allColumns.filter((c) => c.type !== 'custom')
 
   return (
-    <Paper sx={{ p: { xs: 0.5, md: 1 }, mb: 1, width: '100%' }} elevation={2}>
+    <Box sx={{ p: { xs: 0.5, md: 1 }, mb: 1, width: '100%' }}>
       <Typography variant="h5">Ilmoitetut koirat</Typography>
-      <Box sx={{ height: 120, '& .cancelled': { opacity: 0.75 } }}>
+      <Box sx={{ height: 120, '& .cancelled': { opacity: 0.75 }, width: '100%' }}>
         <StyledDataGrid
           hideFooter={true}
           columns={columns}
@@ -159,6 +158,6 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
           }}
         />
       </Box>
-    </Paper>
+    </Box>
   )
 }

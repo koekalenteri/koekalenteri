@@ -3,7 +3,7 @@
 exports[`EventList should render 1`] = `
 <div>
   <article
-    class="MuiBox-root css-1s97hps"
+    class="MuiBox-root css-hntlws"
   >
     <div
       aria-level="2"
@@ -36,7 +36,7 @@ exports[`EventList should render 1`] = `
         class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-k08dai-MuiGrid2-root"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 css-swy4hr-MuiGrid2-root"
+          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 css-xzrkfy-MuiGrid2-root"
         >
           <div
             class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-jn8rgo-MuiGrid2-root"
@@ -58,7 +58,7 @@ exports[`EventList should render 1`] = `
           </div>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-auto css-117npqc-MuiGrid2-root"
+          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-auto css-re87i7-MuiGrid2-root"
         >
           <div
             class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
@@ -81,7 +81,7 @@ exports[`EventList should render 1`] = `
           </div>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-grow css-mh4jw3-MuiGrid2-root"
+          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-grow css-1zge94-MuiGrid2-root"
         >
           <div
             class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"

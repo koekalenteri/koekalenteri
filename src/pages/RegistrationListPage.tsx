@@ -1,26 +1,13 @@
-import type { PublicDogEvent, Registration } from '../types'
-
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import CheckOutlined from '@mui/icons-material/CheckOutlined'
-import EuroOutlined from '@mui/icons-material/EuroOutlined'
-import PersonOutline from '@mui/icons-material/PersonOutline'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Grid2 from '@mui/material/Grid2'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
-import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { isPast, subDays } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
-import { getPaymentStatus } from '../lib/payment'
-import { hasPriority } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 
@@ -30,6 +17,7 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
+import { InfoBox } from './registrationListPage/InfoBox'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
 import { eventSelector, registrationSelector, spaAtom } from './recoil'
@@ -185,62 +173,22 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           alignItems: 'flex-start',
         }}
       >
-        <Grid2 container direction="row" flexWrap="nowrap" justifyContent="space-between">
-          <Grid2 sx={{ maxWidth: { xs: '100%', md: 'calc(100% - 366px)' } }}>
-            <Box pl={1}>
-              <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-              <Typography variant="h5">Ilmoittautumistiedot</Typography>
-            </Box>
-            <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
+        <Grid2
+          container
+          direction="row"
+          justifyContent="end"
+          width="100%"
+          sx={{ borderBottom: '2px solid', borderColor: 'background.hover' }}
+        >
+          <Grid2 sx={{ pl: 1 }} flexGrow={1}>
+            <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
+            <Typography variant="h5">{t('entryList')}</Typography>
           </Grid2>
-          <Grid2 sx={{ display: { xs: 'none', sm: 'none', md: 'unset' } }}>
-            <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1, width: 350 }}>
-              <List disablePadding>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: 32, color: priorityIconColor(event, registration) }}>
-                    <PersonOutline fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={priorityStatus(event, registration)}
-                    primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
-                  />
-                </ListItem>
-                <ListItem
-                  disablePadding
-                  secondaryAction={
-                    !registration.cancelled &&
-                    registration.paymentStatus !== 'SUCCESS' &&
-                    registration.paymentStatus !== 'PENDING' ? (
-                      <Button
-                        aria-label={t('registration.cta.pay')}
-                        onClick={() => navigate(Path.payment(registration))}
-                      >
-                        {t('registration.cta.pay')}
-                      </Button>
-                    ) : null
-                  }
-                >
-                  <ListItemIcon sx={{ minWidth: 32, color: paymentIconColor(registration) }}>
-                    <EuroOutlined fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={t(getPaymentStatus(registration))}
-                    primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
-                  />
-                </ListItem>
-                <ListItem disablePadding>
-                  <ListItemIcon sx={{ minWidth: 32, color: 'primary.main' }}>
-                    <CheckOutlined fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={registrationStatus(registration)}
-                    primaryTypographyProps={{ variant: 'subtitle1', fontWeight: 'bold' }}
-                  />
-                </ListItem>
-              </List>
-            </Paper>
+          <Grid2>
+            <InfoBox event={event} registration={registration} />
           </Grid2>
         </Grid2>
+        <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
         <RegistrationList
           disabled={allDisabled}
           event={event}
@@ -265,29 +213,4 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       </Box>
     </>
   )
-}
-
-function priorityIconColor(event: PublicDogEvent, registration: Registration) {
-  if (hasPriority(event, registration)) {
-    return 'primary.main'
-  }
-  return 'transparent'
-}
-
-function priorityStatus(event: PublicDogEvent, registration: Registration) {
-  if (hasPriority(event, registration)) {
-    return 'Olen etusijalla'
-  }
-  return 'En ole etusijalla'
-}
-
-function paymentIconColor(registration: Registration) {
-  return registration.paymentStatus === 'SUCCESS' ? 'primary.main' : 'transparent'
-}
-
-function registrationStatus(registration: Registration) {
-  if (registration.cancelled) {
-    return 'Olen perunut ilmoittautumiseni'
-  }
-  return registration.confirmed ? 'Olen vahvistanut osallistumiseni' : 'Ilmoittautuminen vastaanotettu'
 }

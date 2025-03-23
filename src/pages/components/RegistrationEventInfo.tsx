@@ -1,20 +1,20 @@
-import type { ReactNode } from 'react'
 import type { ConfirmedEvent, PublicDogEvent } from '../../types'
 
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid2 from '@mui/material/Grid2'
 import Link from '@mui/material/Link'
-import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 
-import CollapsibleSection from './CollapsibleSection'
+import { CollapsibleEvent } from './CollapsibleEvent'
 import CostInfo from './CostInfo'
 import { EntryStatus } from './EntryStatus'
+import { ItemWithCaption } from './ItemWithCaption'
 import { PriorityChips } from './PriorityChips'
 
 interface Props {
@@ -22,97 +22,83 @@ interface Props {
   readonly invitationAttachment?: string | undefined
 }
 
-const Header = ({ children }: { children: ReactNode }) => (
-  <Grid2 size={{ xs: 4 }} alignContent="top" sx={{ borderRight: '1px dashed #eee', borderBottom: '1px solid #eee' }}>
-    <Typography variant="caption">{children}</Typography>
-  </Grid2>
-)
-
-const Data = ({ children }: { children: ReactNode }) => (
-  <Grid2 size={{ xs: 7 }} alignContent="center" sx={{ borderBottom: '1px solid #eee' }}>
-    <Typography variant="body2" component="div">
-      {children}
-    </Typography>
-  </Grid2>
-)
-
-export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
+const Header = ({ event }: Props) => {
   const { t } = useTranslation()
+
   const title = `${event.eventType} ${t('dateFormat.datespan', { start: event.startDate, end: event.endDate })} ${
     event.location + (event.name ? ` (${event.name})` : '')
   }`
 
   return (
-    <Paper sx={{ p: { xs: 0, sm: 1 }, mb: 1, width: '100%' }} elevation={2}>
-      <CollapsibleSection title={title} border={false}>
-        <Grid2
-          container
-          justifyContent="space-between"
-          alignItems="flex-start"
-          sx={{ '& .MuiGrid2-root': { overflow: 'hidden', textOverflow: 'ellipsis' } }}
-        >
-          <Grid2 container size={{ sm: 12, md: 6, lg: 4 }} columnSpacing={1}>
-            <Header>{t('entryTime')}</Header>
-            <Data>
-              <b>{t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}</b>&nbsp;
-              <EntryStatus event={event} />
-            </Data>
-            <Header>{t('event.organizer')}</Header>
-            <Data>{event.organizer?.name}</Data>
-            <Header>{t('event.judges')}</Header>
-            <Data>{event.judges.map((j) => judgeName(j, t)).join(', ')}</Data>
-            {printContactInfo(event.contactInfo?.official) ? (
-              <>
-                <Header>{t('event.official')}</Header>
-                <Data>{printContactInfo(event.contactInfo?.official)}</Data>
-              </>
-            ) : null}
-            {printContactInfo(event.contactInfo?.secretary) ? (
-              <>
-                <Header>{t('event.secretary')}</Header>
-                <Data>{printContactInfo(event.contactInfo?.secretary)}</Data>
-              </>
-            ) : null}
-          </Grid2>
-          <Grid2 container size={{ sm: 12, md: 6, lg: 4 }} columnSpacing={1}>
-            <Header>{t('event.cost')}</Header>
-            <Data>
-              <CostInfo event={event} />
-            </Data>
-            {event.priority ? (
-              <>
-                <Header>{t('event.priority')}</Header>
-                <Data>
-                  <PriorityChips priority={event.priority} />
-                </Data>
-              </>
-            ) : null}
-            {event.description ? (
-              <>
-                <Header>{t('event.description')}</Header>
-                <Data>{event.description}</Data>
-              </>
-            ) : null}
-            {invitationAttachment && event.state === 'invited' ? (
-              <>
-                <Header>{t('event.attachments')}</Header>
-                <Data>
-                  <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
-                  <Link
-                    href={Path.invitationAttachment({ ...event, invitationAttachment } as ConfirmedEvent)}
-                    rel="noopener"
-                    target="_blank"
-                    type="application/pdf"
-                    variant="caption"
-                  >
-                    Kutsu.pdf
-                  </Link>
-                </Data>
-              </>
-            ) : null}
-          </Grid2>
+    <>
+      <Grid2 container columnSpacing={1} size={12}>
+        <Grid2 overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
+          <Typography variant="caption" color="text.secondary">
+            {event.organizer.name}
+          </Typography>
         </Grid2>
-      </CollapsibleSection>
-    </Paper>
+      </Grid2>
+      <Grid2
+        container
+        columnSpacing={1}
+        size={{
+          xs: 12,
+          sm: 'auto',
+        }}
+      >
+        {title}
+      </Grid2>
+    </>
+  )
+}
+
+export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
+  const { t } = useTranslation()
+  const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges])
+
+  return (
+    <CollapsibleEvent eventId={event.id} header={<Header event={event} />}>
+      <Grid2 container justifyContent="space-between" alignItems="flex-start" columnSpacing={1}>
+        <ItemWithCaption label={t('entryTime')}>
+          {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
+          <EntryStatus event={event} />
+        </ItemWithCaption>
+        <ItemWithCaption label={t('event.organizer')}>{event.organizer?.name}</ItemWithCaption>
+        <ItemWithCaption label={t('event.judges')}>{judges}</ItemWithCaption>
+        {printContactInfo(event.contactInfo?.official) ? (
+          <ItemWithCaption label={t('event.official')}>{printContactInfo(event.contactInfo?.official)}</ItemWithCaption>
+        ) : null}
+        {printContactInfo(event.contactInfo?.secretary) ? (
+          <ItemWithCaption label={t('event.secretary')}>
+            {printContactInfo(event.contactInfo?.secretary)}
+          </ItemWithCaption>
+        ) : null}
+        <ItemWithCaption label={t('event.cost')}>
+          <CostInfo event={event} />
+        </ItemWithCaption>
+        {event.priority ? (
+          <ItemWithCaption label={t('event.priority')}>
+            <PriorityChips priority={event.priority} />
+          </ItemWithCaption>
+        ) : null}
+        {event.description ? (
+          <ItemWithCaption label={t('event.description')}>{event.description}</ItemWithCaption>
+        ) : null}
+        {invitationAttachment && event.state === 'invited' ? (
+          <ItemWithCaption label={t('event.attachments')}>
+            <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
+            <Link
+              href={Path.invitationAttachment({ ...event, invitationAttachment } as ConfirmedEvent)}
+              rel="noopener"
+              target="_blank"
+              type="application/pdf"
+              variant="caption"
+            >
+              Kutsu.pdf
+            </Link>
+          </ItemWithCaption>
+        ) : null}
+      </Grid2>
+    </CollapsibleEvent>
   )
 }
