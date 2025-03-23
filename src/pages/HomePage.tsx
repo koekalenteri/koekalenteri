@@ -21,7 +21,7 @@ export function HomePage() {
       <Header />
       <Banner />
       <Box component="main">
-        <Suspense fallback={<LoadingIndicator />}>
+        <Suspense fallback={<LoadingIndicator />} key={location.key}>
           <Outlet />
         </Suspense>
       </Box>
