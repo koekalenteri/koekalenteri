@@ -135,7 +135,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             count: emails.length,
             to: emails.join('\n'),
           }),
-          { variant: 'success', style: { whiteSpace: 'pre-line' } }
+          { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
         )
       }
       navigate(Path.registration(registration), { replace: true })

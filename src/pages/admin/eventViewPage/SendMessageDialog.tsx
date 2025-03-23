@@ -136,13 +136,13 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       if (ok.length) {
         enqueueSnackbar('Viesti lähetetty onnistuneesti\n\n' + ok.join('\n'), {
           variant: 'success',
-          style: { whiteSpace: 'pre-line' },
+          style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
         })
       }
       if (failed.length) {
         enqueueSnackbar('Viestin lähetys epäonnistui 💩\n\n' + failed.join('\n'), {
           variant: 'success',
-          style: { whiteSpace: 'pre-line' },
+          style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
         })
       }
       setEvent({ ...event, state, classes })

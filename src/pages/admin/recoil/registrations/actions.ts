@@ -97,49 +97,49 @@ export const useAdminRegistrationActions = (eventId: string) => {
         if (pickedOk.length) {
           enqueueSnackbar('Koepaikkailmoitus lähetetty onnistuneesti\n\n' + pickedOk.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (invitedOk.length) {
           enqueueSnackbar('Koekutsu lähetetty onnistuneesti\n\n' + invitedOk.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (reserveOk.length) {
           enqueueSnackbar('Varasijailmoitus lähetetty onnistuneesti\n\n' + reserveOk.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (cancelledOk.length) {
           enqueueSnackbar('Peruutusilmoitus lähetetty onnistuneesti\n\n' + reserveOk.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (pickedFailed.length) {
           enqueueSnackbar('Koepaikkailmoituksen lähetys epäonnistui 💩\n\n' + pickedFailed.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (invitedFailed.length) {
           enqueueSnackbar('Koekutsun lähetys epäonnistui 💩\n\n' + invitedFailed.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (pickedFailed.length) {
           enqueueSnackbar('Varasijailmoituksen lähetys epäonnistui 💩\n\n' + reserveFailed.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (cancelledFailed.length) {
           enqueueSnackbar('Peruutusilmoitukse lähetys epäonnistui 💩\n\n' + reserveFailed.join('\n'), {
             variant: 'success',
-            style: { whiteSpace: 'pre-line' },
+            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         setEventRegistrations(items)

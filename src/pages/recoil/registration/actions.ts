@@ -27,7 +27,7 @@ export function useRegistrationActions() {
             count: emails.length,
             to: emails.join('\n'),
           }),
-          { variant: 'success', style: { whiteSpace: 'pre-line' } }
+          { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
         )
       }
       return saved
