@@ -8,7 +8,9 @@ import type {
   Registration,
 } from '../../types'
 
-import { formatDate } from '../../i18n/dates'
+import { addDays } from 'date-fns'
+
+import { formatDate, zonedStartOfDay } from '../../i18n/dates'
 import {
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
@@ -38,7 +40,7 @@ export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string
 
 type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
 
-export const findPreviousOrigEntryEndDate = async (
+export const findQualificationStartDate = async (
   eventType: string,
   entryEndDate: string
 ): Promise<string | undefined> => {
@@ -52,8 +54,10 @@ export const findPreviousOrigEntryEndDate = async (
     1
   )
 
-  if (result && result.length === 1) {
-    return result[0].entryOrigEndDate || result[0].entryEndDate
+  if (result && result.length === 1 && result[0].entryEndDate) {
+    const date = new Date(result[0].entryOrigEndDate || result[0].entryEndDate)
+    const qualificationStartDate = zonedStartOfDay(addDays(date, 1))
+    return qualificationStartDate.toISOString()
   }
 }
 
