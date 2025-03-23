@@ -16,6 +16,7 @@ import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
+import CircularProgress from '@mui/material/CircularProgress'
 import Stack from '@mui/material/Stack'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
@@ -186,7 +187,12 @@ export function useClassEntrySelectionColumns(
         width: 30,
         minWidth: 30,
         sortable: false,
-        valueGetter: (_value, row) => (row.group?.number ? `${row.group.number}.` : ''),
+        renderCell: (p) => {
+          const n = p.row.group?.number
+          if (!n) return ''
+          if (Number.isInteger(n)) return `${n}`
+          return <CircularProgress size={10} thickness={5} />
+        },
       },
       {
         field: 'dog.name',

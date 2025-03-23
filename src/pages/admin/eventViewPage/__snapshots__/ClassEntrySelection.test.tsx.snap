@@ -5016,7 +5016,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     role="gridcell"
                     style="--width: 30px;"
                     tabindex="-1"
-                    title=""
                   />
                   <div
                     aria-colindex="3"
@@ -5894,7 +5893,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     role="gridcell"
                     style="--width: 30px;"
                     tabindex="-1"
-                    title=""
                   />
                   <div
                     aria-colindex="3"
