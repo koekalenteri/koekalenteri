@@ -283,7 +283,7 @@ export function useClassEntrySelectionColumns(
     cancelledColumns.splice(cancelledColumns.length - 2, 0, {
       field: 'cancelReason',
       headerName: 'Perumisen syy',
-      width: 150,
+      width: 144,
       valueFormatter: (v: string) => (isPredefinedReason(v) ? t(`registration.cancelReason.${v}`) : v),
     })
 
