@@ -78,6 +78,7 @@ const EventHeader = ({ event }: Props) => {
       </Grid2>
       <Grid2
         container
+        columnSpacing={1}
         size={{
           xs: 12,
           sm: 'grow',
