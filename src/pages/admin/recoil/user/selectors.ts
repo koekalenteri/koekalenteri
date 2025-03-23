@@ -1,7 +1,7 @@
 import type { User, UserWithRoles } from '../../../../types'
 
 import i18next from 'i18next'
-import { selector, selectorFamily } from 'recoil'
+import { selector, selectorFamily, waitForAll } from 'recoil'
 
 import { unique } from '../../../../lib/utils'
 import { adminUserOrgIdsSelector, isAdminSelector, userSelector } from '../../../recoil'
@@ -13,8 +13,7 @@ import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
 export const adminUsersOrganizersSelector = selector({
   key: 'adminUserOrganizersSelector',
   get: ({ get }) => {
-    const users = get(adminUsersAtom)
-    const orgs = get(adminOrganizersAtom)
+    const [users, orgs] = get(waitForAll([adminUsersAtom, adminOrganizersAtom]))
 
     const orgIds = unique(users.filter((u): u is UserWithRoles => !!u.roles).flatMap((u) => Object.keys(u.roles)))
 
