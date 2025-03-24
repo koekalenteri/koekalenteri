@@ -1,6 +1,6 @@
 import { zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
 
-import { readDate, withinDateFilters, writeDate } from './filters'
+import { deserializeFilter, readDate, serializeFilter, withinDateFilters, writeDate } from './filters'
 
 describe('recoil.events.filters', () => {
   describe('readDate', () => {
@@ -15,6 +15,78 @@ describe('recoil.events.filters', () => {
       expect(writeDate(new Date(1704060000000))).toEqual('2024-01-01')
       expect(writeDate(new Date(1704146399000))).toEqual('2024-01-01')
       expect(writeDate(new Date(1718398800000))).toEqual('2024-06-15')
+    })
+  })
+
+  describe('serializeFilter', () => {
+    it('serializes empty filter', () => {
+      expect(
+        serializeFilter({
+          start: null,
+          end: null,
+          eventType: [],
+          eventClass: [],
+          judge: [],
+          organizer: [],
+        })
+      ).toEqual('s=')
+    })
+
+    it('serializes all fields', () => {
+      expect(
+        serializeFilter({
+          end: zonedEndOfDay(new Date(1743449533000)),
+          eventClass: ['ALO'],
+          eventType: ['NOME-B'],
+          judge: ['Tuomari Risto'],
+          organizer: ['bOkL76mduc'],
+          start: zonedStartOfDay(new Date(1742844733000)),
+          withClosingEntry: true,
+          withFreePlaces: true,
+          withOpenEntry: true,
+          withUpcomingEntry: true,
+        })
+      ).toEqual('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u')
+    })
+  })
+
+  describe('deserializeFilter', () => {
+    const today = new Date()
+    const startOfToday = zonedStartOfDay(today)
+    it('ignores unknown params', () => {
+      expect(deserializeFilter('fblcid=asdf')).toEqual({
+        end: null,
+        eventClass: [],
+        eventType: [],
+        judge: [],
+        organizer: [],
+        start: startOfToday,
+        withClosingEntry: false,
+        withFreePlaces: false,
+        withOpenEntry: false,
+        withUpcomingEntry: false,
+      })
+    })
+
+    it('deseriealizes all filds', () => {
+      expect(
+        deserializeFilter('s=2025-03-24&e=2025-03-31&c=ALO&t=NOME-B&j=Tuomari+Risto&o=bOkL76mduc&b=c&b=f&b=o&b=u')
+      ).toEqual({
+        end: zonedEndOfDay(new Date(1743449533000)),
+        eventClass: ['ALO'],
+        eventType: ['NOME-B'],
+        judge: ['Tuomari Risto'],
+        organizer: ['bOkL76mduc'],
+        start: zonedStartOfDay(new Date(1742844733000)),
+        withClosingEntry: true,
+        withFreePlaces: true,
+        withOpenEntry: true,
+        withUpcomingEntry: true,
+      })
+    })
+
+    it('deserializes empty start', () => {
+      expect(deserializeFilter('s=')).toEqual(expect.objectContaining({ start: null }))
     })
   })
 

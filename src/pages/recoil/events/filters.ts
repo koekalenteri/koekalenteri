@@ -90,9 +90,7 @@ export function serializeFilter(eventFilter: FilterProps): string {
   if (eventFilter.withUpcomingEntry) {
     bits.push('u')
   }
-  if (eventFilter.start) {
-    params.append('s', writeDate(eventFilter.start))
-  }
+  params.append('s', eventFilter.start ? writeDate(eventFilter.start) : '')
   if (eventFilter.end) {
     params.append('e', writeDate(eventFilter.end))
   }
@@ -108,13 +106,15 @@ export function serializeFilter(eventFilter: FilterProps): string {
 export function deserializeFilter(input: string) {
   const searchParams = new URLSearchParams(input)
   const bits = searchParams.getAll('b')
+  const end = searchParams.get('e')
+  const start = searchParams.has('s') ? searchParams.get('s') : writeDate(new Date())
   const result: FilterProps = {
-    end: readDate(searchParams.get('e')),
+    end: end ? zonedEndOfDay(end) : null,
     eventClass: searchParams.getAll('c').filter(isRegistrationClass),
     eventType: searchParams.getAll('t'),
     judge: searchParams.getAll('j'),
     organizer: searchParams.getAll('o'),
-    start: readDate(searchParams.get('s')),
+    start: start ? zonedStartOfDay(start) : null,
     withClosingEntry: bits.includes('c'),
     withFreePlaces: bits.includes('f'),
     withOpenEntry: bits.includes('o'),
