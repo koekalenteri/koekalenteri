@@ -47,6 +47,10 @@ describe('utils', () => {
   describe('parseJSON', () => {
     it('should parse empty string, null and undefined to undefined', () => {
       expect(parseJSON('')).toBeUndefined()
+      // @ts-expect-error Argument of type null is not assignable to parameter of type string
+      expect(parseJSON(null)).toBeUndefined()
+      // @ts-expect-error Argument of type undefined is not assignable to parameter of type string
+      expect(parseJSON(undefined)).toBeUndefined()
     })
 
     it('should revive dates', () => {
@@ -54,6 +58,10 @@ describe('utils', () => {
         pvm: new Date('2021-05-10T09:05:12.000Z'),
       })
       expect(parseJSON('{"date":"2021-05-10T00:00:00"}').date).toBeInstanceOf(Date)
+    })
+
+    it('should not revive dates when 2nd argument is false', () => {
+      expect(parseJSON('{"date":"2021-05-10T00:00:00"}', false).date).toBe('2021-05-10T00:00:00')
     })
   })
 

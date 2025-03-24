@@ -35,7 +35,7 @@ export const StartListPage = () => {
   const { t } = useTranslation()
   const { id } = useParams()
   const event = useRecoilValue(confirmedEventSelector(id))
-  const participants = useLoaderData() as PublicRegistration[]
+  const participants: PublicRegistration[] = useLoaderData()
   const now = new Date()
 
   if (!event) {

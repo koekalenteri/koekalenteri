@@ -15,5 +15,9 @@ describe('lib/judge', () => {
     it('should return name and country for foreing judge', () => {
       expect(judgeName({ name: 'Testi Tuomari', foreing: true, country: 'IT' }, t)).toEqual('Testi Tuomari (Italia)')
     })
+
+    it('should return name when no country for foreing judge', () => {
+      expect(judgeName({ name: 'Testi Tuomari', foreing: true }, t)).toEqual('Testi Tuomari')
+    })
   })
 })

@@ -89,7 +89,7 @@ export function Component() {
   const { id, registrationId } = useParams()
   const event = useRecoilValue(confirmedEventSelector(id))
   const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
-  const data = useLoaderData() as { response: Promise<CreatePaymentResponse | undefined> }
+  const data: { response: Promise<CreatePaymentResponse | undefined> } = useLoaderData()
 
   return (
     <Suspense fallback={<LoadingPage />}>

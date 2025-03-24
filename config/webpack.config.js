@@ -273,7 +273,7 @@ module.exports = function (webpackEnv) {
           styles: {
             priority: 10,
             name(module) {
-              const match = module.context.match(/[\\/](.*).css/)
+              const match = /[\\/](.*).css/.exec(module.context)
 
               if (!match) {
                 return false

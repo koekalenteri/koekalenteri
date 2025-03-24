@@ -13,12 +13,12 @@ export const validEmail = (email: string): boolean => {
   }
 
   const [user, domain] = parts
-  if (user.match(USEREXP) === null) {
+  if (USEREXP.exec(user) === null) {
     return false
   }
 
   const asciiDomain = toASCII(domain) // allow internationalized domain name
-  if (asciiDomain.match(DOMAINEXP) === null) {
+  if (DOMAINEXP.exec(asciiDomain) === null) {
     return false
   }
 

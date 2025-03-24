@@ -111,8 +111,13 @@ function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
   return value
 }
 
-export const parseJSON = (json: string, reviveDates: boolean = true) =>
-  json ? JSON.parse(json, reviveDates ? dateReviver : undefined) : undefined
+export const parseJSON = (json: string, reviveDates: boolean = true) => {
+  if (!json) return undefined
+
+  const reviver = reviveDates ? dateReviver : undefined
+
+  return JSON.parse(json, reviver)
+}
 
 export type AnyObject = Record<string, any>
 export type EmptyObject = Record<string, never>

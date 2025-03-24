@@ -45,7 +45,7 @@ function toURLParams(params: Record<string, string | number | undefined> = {}): 
 }
 export default class KLAPI {
   private _config?: KLAPIConfig
-  private _loadConfig: () => Promise<KLAPIConfig>
+  private readonly _loadConfig: () => Promise<KLAPIConfig>
 
   public constructor(loadConfig: () => Promise<KLAPIConfig>) {
     this._loadConfig = loadConfig

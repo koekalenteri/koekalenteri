@@ -54,7 +54,7 @@ export const loader = async ({ params, request }: { params: Params<string>; requ
 }
 
 export const Component = () => {
-  const loaderData = useLoaderData() as { data: Promise<DeferredData> }
+  const loaderData: { data: Promise<DeferredData> } = useLoaderData()
   const { t } = useTranslation()
 
   return (
