@@ -13,7 +13,7 @@ interface Options {
 
 const DEFAULT_OPTIONS = { method: 'GET' as const, headers: {}, query: {}, path: '/' }
 
-export function constructAPIGwEvent(message: unknown, options: Options = DEFAULT_OPTIONS): APIGatewayProxyEvent {
+export function constructAPIGwEvent<T = unknown>(message: T, options: Options = DEFAULT_OPTIONS): APIGatewayProxyEvent {
   const opts = { ...DEFAULT_OPTIONS, ...options }
   return {
     httpMethod: opts.method,
