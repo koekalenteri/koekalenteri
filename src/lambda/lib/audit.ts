@@ -10,7 +10,7 @@ export const registrationAuditKey = (reg: Pick<JsonRegistration, 'eventId' | 'id
 
 export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   try {
-    dynamoDB.write({ ...item, timestamp: new Date().toISOString() }, auditTable)
+    await dynamoDB.write({ ...item, timestamp: new Date().toISOString() }, auditTable)
   } catch (e) {
     console.error(e)
   }
