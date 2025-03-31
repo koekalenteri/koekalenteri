@@ -16,7 +16,7 @@ const { userTable, userLinkTable, organizerTable, emailFrom } = CONFIG
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
-export const userIsMemberOf = (user: JsonUser): string[] =>
+export const userIsMemberOf = (user: Pick<JsonUser, 'roles'>): string[] =>
   Object.keys(user?.roles ?? {}).filter((orgId) => !!user?.roles?.[orgId])
 
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) => {
