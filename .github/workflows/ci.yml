@@ -8,6 +8,11 @@ on:
   merge_group:
     branches: [ main ]
 
+# when merging multiple merge reuests from queue, cancel previous jobs to prevent concurrent deployments
+concurrency:
+  group: queue-${{ github.event_name == 'merge_group' && 'merge-group' || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   setup:
     runs-on: ubuntu-latest
