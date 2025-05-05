@@ -131,6 +131,24 @@ describe('auth', () => {
       expect(updateUser).toHaveBeenCalledWith(expectedUser)
     })
 
+    it('should trim whitespace from email', async () => {
+      await getAndUpdateUserByEmail(' AddReSS@DoMaIn.COM\n', {})
+
+      const expectedUser: JsonUser = {
+        id: 'test-id',
+        name: '',
+        email: 'address@domain.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      }
+
+      expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
+      expect(logSpy).toHaveBeenCalledWith('creating user', expectedUser)
+      expect(updateUser).toHaveBeenCalledWith(expectedUser)
+    })
+
     it('should update lastSeen when requested', async () => {
       await getAndUpdateUserByEmail('user@example.com', {}, false, true)
 
