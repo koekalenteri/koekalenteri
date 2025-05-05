@@ -204,6 +204,7 @@ export default function UsersPage() {
           columns={columns}
           columnVisibilityModel={visibilityModel}
           onColumnVisibilityModelChange={setVisibilityModel}
+          onRowDoubleClick={editAction}
           slots={{ toolbar: QuickSearchToolbar }}
           slotProps={{
             toolbar: {

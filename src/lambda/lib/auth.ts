@@ -67,7 +67,7 @@ export async function getAndUpdateUserByEmail(
 ) {
   const modifiedBy = 'system'
   const dateString = new Date().toISOString()
-  const email = rawEmail.toLocaleLowerCase()
+  const email = rawEmail.toLocaleLowerCase().trim()
   const existing = await findUserByEmail(email)
   const newUser: JsonUser = {
     id: nanoid(10),
