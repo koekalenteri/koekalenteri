@@ -11,6 +11,7 @@ import {
   getEventClassesByDays,
   getEventDays,
   getUniqueEventClasses,
+  isEventDeletable,
   isStartListAvailable,
   newEventEntryEndDate,
   newEventEntryStartDate,
@@ -40,6 +41,21 @@ describe('lib/event', () => {
         expect(isStartListAvailable({ state })).toEqual(false)
       }
     )
+  })
+
+  describe('isEventDeletable', () => {
+    it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
+      expect(isEventDeletable({ state })).toEqual(true)
+    })
+    it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
+      'Should return false when event state is %p',
+      (state) => {
+        expect(isEventDeletable({ state })).toEqual(false)
+      }
+    )
+    it('should return false when event is undefined', () => {
+      expect(isEventDeletable()).toEqual(false)
+    })
   })
 
   describe('eventDays', () => {

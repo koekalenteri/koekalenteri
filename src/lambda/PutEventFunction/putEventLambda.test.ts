@@ -126,6 +126,28 @@ describe('putEventLambda', () => {
     expect(res2.statusCode).toEqual(403)
   })
 
+  it('should return 403 when trying to delete non-deletable event', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', deletedAt: new Date().toISOString() })
+    )
+
+    expect(res.statusCode).toEqual(403)
+  })
+
+  it('should allow deleting a draft event', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'draft' })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', deletedAt: new Date().toISOString() })
+    )
+
+    expect(res.statusCode).toEqual(200)
+  })
+
   it('should allow admin to edit any organizers events', async () => {
     authorizeMock.mockResolvedValueOnce(mockAdmin)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'no-access', name: 'some org' } })

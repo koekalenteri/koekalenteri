@@ -16,6 +16,7 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { formatDistance } from '../../i18n/dates'
 import { isDevEnv } from '../../lib/env'
+import { isEventDeletable } from '../../lib/event'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -148,7 +149,7 @@ export default function EventListPage() {
         )}
         <AutoButton
           startIcon={<DeleteOutline />}
-          disabled={!selectedEventID}
+          disabled={!selectedEventID || !isEventDeletable(selectedEvent)}
           onClick={deleteAction}
           text={t('delete')}
         />
