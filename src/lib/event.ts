@@ -33,6 +33,9 @@ export const isStartListAvailable = ({
   (state === 'invited' || state === 'started' || state === 'ended' || state === 'completed') &&
   startListPublished !== false
 
+export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
+  state === 'draft' || state === 'tentative' || state === 'cancelled'
+
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
   !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>

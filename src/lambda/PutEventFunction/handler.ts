@@ -2,6 +2,7 @@ import type { JsonConfirmedEvent, JsonUser } from '../../types'
 
 import { nanoid } from 'nanoid'
 
+import { isEventDeletable } from '../../lib/event'
 import { isValidForEntry } from '../../lib/utils'
 import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, saveEvent, updateRegistrations } from '../lib/event'
@@ -33,6 +34,11 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
   if (isUserForbidden(user, existing, item)) {
+    return response(403, 'Forbidden', event)
+  }
+
+  if (item.deletedAt && !isEventDeletable(existing)) {
+    console.log('Event is not deletable', { existing, item })
     return response(403, 'Forbidden', event)
   }
 
