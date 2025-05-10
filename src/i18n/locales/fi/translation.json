@@ -26,8 +26,8 @@
     "isodate": "{{ date, isodate }}",
     "long": "{{ date, long }}",
     "short": "{{ date, short }}",
-    "weekday": "{{ date, weekday }}",
-    "wdshort": "{{ date, wdshort }}"
+    "wdshort": "{{ date, wdshort }}",
+    "weekday": "{{ date, weekday }}"
   },
   "dateFormatString": {
     "long": "dd.MM.yyyy",
@@ -64,10 +64,9 @@
     "titles": "Tittelit"
   },
   "edit": "Muokkaa",
-  "editWhat": "Muokkaa {{what}}",
   "editRegistration": "Muokkaa ilmoittautumista",
   "editRoles": "Muokkaa rooleja",
-  "emailTemplates": "Viestipohjat",
+  "editWhat": "Muokkaa {{what}}",
   "emailTemplate": {
     "access": "Lisätty käyttäjäoikeus",
     "cancel-early": "Peruutusilmoitus",
@@ -76,32 +75,33 @@
     "invitation": "Koekutsu",
     "picked": "Koepaikkailmoitus",
     "receipt": "Kuitti",
+    "refund": "Maksun palautus",
     "registration": "Vahvistusviesti",
-    "reserve": "Varasijailmoitus",
-    "refund": "Maksun palautus"
+    "reserve": "Varasijailmoitus"
   },
+  "emailTemplates": "Viestipohjat",
+  "entryEditTitle": "Muokkaa ilmoittautumista",
+  "entryList": "Ilmoittautumistiedot",
+  "entryOpen": "Ilmoittautuminen auki",
+  "entryTime": "Ilmoittautumisaika",
+  "entryTitle": "Ilmoittaudu tapahtumaan",
+  "entryTitle_test": "Ilmoittaudu kokeeseen",
+  "entryUpcoming": "Ilmoittautuminen tulossa",
   "error": {
     "eventNotFound": "Tapahtumaa ei löydy",
     "registrationNotFound": "Ilmoittautumista ei löydy"
   },
-  "entryEditTitle": "Muokkaa ilmoittautumista",
-  "entryList": "Ilmoittautumistiedot",
-  "entryOpen": "Ilmoittautuminen auki",
-  "entryUpcoming": "Ilmoittautuminen tulossa",
-  "entryTime": "Ilmoittautumisaika",
-  "entryTitle": "Ilmoittaudu tapahtumaan",
-  "entryTitle_test": "Ilmoittaudu kokeeseen",
   "event": {
     "attachments": "Liitteet",
-    "classes": "Koeluokat",
     "classPlaces": "Koepaikat",
     "classPlacesHeader": {
-      "name": "luokka",
       "dates": "päivä(t)",
       "entries": "ilmoja",
-      "places": "paikkoja",
-      "members": "etusijalla"
+      "members": "etusijalla",
+      "name": "luokka",
+      "places": "paikkoja"
     },
+    "classes": "Koeluokat",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksutiedot",
     "costMember": ", jäsenille",
@@ -137,6 +137,7 @@
     "organizer": "Järjestäjä",
     "places": "Paikkoja",
     "priority": "Etusijat",
+    "saved": "Muutokset tallennettu",
     "secretary": "Koesihteeri",
     "startDate": "Tapahtuman alkamispäivä",
     "state": "Tila",
@@ -144,10 +145,11 @@
       "cancelled": "Peruttu",
       "cancelled_info": "Peruttu",
       "cancelled_save": "Tapahtuma on peruttu",
+      "completed": "Valmis",
       "confirmed": "Julkaistu",
-      "confirmed_entryOpen": "Ilmoittautuminen käynnissä",
       "confirmed_entryClosed": "Ilmoittautuminen on päättynyt",
       "confirmed_entryClosed_info": "Ilmoittautuminen päättynyt",
+      "confirmed_entryOpen": "Ilmoittautuminen käynnissä",
       "confirmed_eventOngoing": "Tapahtuma on menossa",
       "confirmed_eventOver": "Tapahtuma on päättynyt",
       "confirmed_save": "Tapahtuma on julkaistu",
@@ -155,15 +157,13 @@
       "draft_save": "Tapahtuma on tallennettu luonnoksena",
       "ended": "Päättynyt",
       "extended_info": "Jatkettu",
-      "picked": "Osallistujat valittu",
       "invited": "Koekutsut lähetetty",
-      "completed": "Valmis",
+      "picked": "Osallistujat valittu",
       "started": "Käynnissä",
       "tentative": "Julkaistu alustavana",
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"
     },
-    "saved": "Muutokset tallennettu",
     "statusText": ""
   },
   "eventInfo": "Tapahtuman tiedot",
@@ -172,13 +172,13 @@
     "create": "Lisää uusi tapahtumatyyppi",
     "createDialog": {
       "cta": "Lisää tapahtumatyyppi",
-      "done": "Tapahtumatyyppi lisätty",
-      "eventType": "Lyhenne",
       "description": {
-        "fi": "Kuvaus suomeksi",
         "en": "Kuvaus englanniksi",
+        "fi": "Kuvaus suomeksi",
         "sv": "Kuvaus ruotsiksi"
       },
+      "done": "Tapahtumatyyppi lisätty",
+      "eventType": "Lyhenne",
       "title": "Tapahtumatyypin lisäys"
     },
     "description": "Kuvaus",
@@ -206,6 +206,7 @@
   },
   "languageMenu": "Kieli",
   "languages": "Arvostelukielet",
+  "loading": "Ladataan",
   "locale": {
     "en": "In English",
     "fi": "Suomeksi"
@@ -214,6 +215,7 @@
   "loginFailed": "Kirjautuminen epäonnistui",
   "logout": "Kirjaudu ulos",
   "name": "Nimi",
+  "noData": "Ei tietoja",
   "noResults": "Tekemälläsi haulla ei löytynyt tapahtumia. Poista joku hakusuodattimista.",
   "official": "Virallinen",
   "officials": "Koetoimitsijat",
@@ -222,29 +224,29 @@
     "editDialog": {
       "title": "Järjestäjän [{{organizer.name}}] muokkaus"
     },
+    "editWhat": "yhdistyksen tietoja",
     "id": "ID",
     "kcId": "Kennelliiton tunnus",
     "name": "Nimi",
-    "editWhat": "yhdistyksen tietoja",
     "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
   "paymentStatus": {
-    "success": "Olen maksanut",
+    "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
-    "missing": "Koemaksu puuttuu vielä"
+    "success": "Olen maksanut"
   },
   "places": "Paikkoja",
   "priority": {
-    "members": "jäsenet",
-    "invited": "kutsutut"
+    "invited": "kutsutut",
+    "members": "jäsenet"
   },
   "priorityDescription": {
+    "b-sm.2": "2xVOI1 (KVA-B)",
+    "b-sm.3": "3xVOI1",
     "breed": "rotu",
     "invited": "kutsuttu",
-    "member": "jäsenyys",
-    "b-sm.3": "3xVOI1",
-    "b-sm.2": "2xVOI1 (KVA-B)"
+    "member": "jäsenyys"
   },
   "priorityGroup": {
     "breed": "Nimetyt rodut",
@@ -257,35 +259,35 @@
     "agreeToTerms": "Ehdot ja tietosuojaseloste",
     "breeder": "Kasvattajan tiedot",
     "cancelDialog": {
+      "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
       "cta": "Peru ilmoittautuminen",
       "done": "Ilmoittautumisesi on peruttu",
-      "title": "Ilmoittautumisen peruminen",
-      "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
       "lateText": "Ilmoittautumisen voi perua kokeen alkamispäivänä ja kokeen alkamista edeltävänä päivänä vain ottamalla yhteyttä suoraan koesihteeriin {{event.contactInfo.secretary.name}} {{contact}}",
-      "confirmation": "Oletko varma, että haluat perua ilmoittautumisen?",
-      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>",
       "reason": "Perumisen syy",
-      "reason_other": "Kerro tarkemmin mikä"
+      "reason_other": "Kerro tarkemmin mikä",
+      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>",
+      "text": "Olet perumassa koiran {{registration.dog.regNo}} {{registration.dog.name}} ilmoittautumista kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Ilmoittautumisen peruminen"
     },
     "cancelReason": {
       "dog-heat": "Koiran juoksut",
-      "handler-sick": "Ohjaajan sairastuminen",
-      "handler-sick-info": "Maksun palautusta varten sairastapauksista on lähetettävä lääkärintodistus koesihteerille",
       "dog-sick": "Koiran sairastuminen",
       "dog-sick-info": "Maksun palautusta varten sairastapauksista on lähetettävä eläinlääkärintodistus koesihteerille",
-      "other": "Muu syy",
-      "gdpr": "En halua kertoa"
-    },
-    "confirmDialog": {
-      "alreadyConfirmed": "Koepaikka on jo vahvistettu",
-      "cta": "Vahvista koepaikka",
-      "done": "Koepaikkasi on vahvistettu",
-      "title": "Vahvista koepaikka",
-      "text": "Olet vahvistamassa koiran {{registration.dog.regNo}} {{registration.dog.name}} koepaikkaa kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
-      "confirmation": "Haluatko vahvistaa koepaikan?"
+      "gdpr": "En halua kertoa",
+      "handler-sick": "Ohjaajan sairastuminen",
+      "handler-sick-info": "Maksun palautusta varten sairastapauksista on lähetettävä lääkärintodistus koesihteerille",
+      "other": "Muu syy"
     },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
+    "confirmDialog": {
+      "alreadyConfirmed": "Koepaikka on jo vahvistettu",
+      "confirmation": "Haluatko vahvistaa koepaikan?",
+      "cta": "Vahvista koepaikka",
+      "done": "Koepaikkasi on vahvistettu",
+      "text": "Olet vahvistamassa koiran {{registration.dog.regNo}} {{registration.dog.name}} koepaikkaa kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Vahvista koepaikka"
+    },
     "createdAt": "Ilmoittautumisaika",
     "cta": {
       "addResult": "Lisää tulos",
@@ -355,19 +357,18 @@
     "rankingTime": "Karsinta-aika",
     "refundDialog": {
       "columns": {
-        "provider": "Maksutapa",
-        "status": "Tila",
+        "amount": "Summa",
         "bankReference": "Paytrailin viite",
+        "provider": "Maksutapa",
         "reference": "Koekalenterin viite",
-        "type": "Tyyppi",
+        "status": "Tila",
         "statusAt": "Aikaleima",
-        "amount": "Summa"
-
+        "type": "Tyyppi"
       },
-      "title": "Maksun palautus, {{regNo}} / {{payer}}",
-      "text": "Valitse palautettava maksu.",
       "costsText": "Jos palautuksesta peritään käsittelykulu, täytä kulun määrä sille varattuun kohtaan.",
-      "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta."
+      "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
+      "text": "Valitse palautettava maksu.",
+      "title": "Maksun palautus, {{regNo}} / {{payer}}"
     },
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {
@@ -397,12 +398,12 @@
   "registrations": "Ilmoittautumiset",
   "roles": "Roolit",
   "save": "Tallenna",
-  "size": {
-    "fi": "Koko suomeksi",
-    "en": "Koko englanniksi"
-  },
   "search": {
     "placeholder": "Hae..."
+  },
+  "size": {
+    "en": "Koko englanniksi",
+    "fi": "Koko suomeksi"
   },
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
@@ -431,8 +432,8 @@
     "editRolesDialog": {
       "cta": "Tallenna roolit",
       "done": "Roolit tallennettu",
-      "title": "Käyttäjän [{{user.name}}] roolien muokkaus",
-      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>"
+      "terms": "Katso tarkemmat peruutusehdot <2>säännöistä</2>",
+      "title": "Käyttäjän [{{user.name}}] roolien muokkaus"
     },
     "lastSeen": "Viimeinen kirjautuminen",
     "roles": {
@@ -458,8 +459,8 @@
       "judges_one": "tuomari",
       "judges_other": "tuomaria",
       "placesClass": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu koepaikat.",
-      "startDate": "Alkamispäivä ei voi olla menneisyydessä",
       "secretaryEmail": "Koesihteerin sähköpostiosoite täytyy olla yhteystiedoissa.",
+      "startDate": "Alkamispäivä ei voi olla menneisyydessä",
       "validationError": "Tila \"$t(event.states.{{state}})\": $t(event.{{field}}) on vaadittu tieto.",
       "zipCode": "Virheellinen postinumero"
     },

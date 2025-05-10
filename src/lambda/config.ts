@@ -15,6 +15,8 @@ export const CONFIG = {
   judgeTable: process.env.JUDGE_TABLE_NAME ?? 'judge-table-not-found-in-env',
   officialTable: process.env.OFFICIAL_TABLE_NAME ?? 'official-table-not-found-in-env',
   organizerTable: process.env.ORGANIZER_TABLE_NAME ?? 'organizer-table-not-found-in-env',
+  organizerEventStatsTable:
+    process.env.ORGANIZER_EVENT_STATS_TABLE_NAME ?? 'organizer-event-stats-table-not-found-in-env',
   registrationTable: process.env.REGISTRATION_TABLE_NAME ?? 'registration-table-not-found-in-env',
   transactionTable: process.env.TRANSACTION_TABLE_NAME ?? 'transaction-table-not-found-in-env',
   userLinkTable: process.env.USER_LINK_TABLE_NAME ?? 'user-link-table-not-found-in-env',

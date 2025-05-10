@@ -4,6 +4,7 @@
   "cancel": "Cancel",
   "clear": "Clear",
   "close": "Close",
+  "confirmTitle": "Confirmation",
   "contact": {
     "city": "City",
     "email": "Email",
@@ -11,14 +12,35 @@
     "phone": "Phone"
   },
   "copy": "Copy",
+  "copyTest": "Copy with entries",
   "create": "Create",
   "createEvent": "Create event",
+  "createRegistration": "Add new registration",
   "date": "Date",
+  "dateFormat": {
+    "date": "{{ date, date }}",
+    "datespan": "{{ start, datespan(end: undefined) }}",
+    "distance": "{{ date, distance }}",
+    "distanceLeft": "{{ date, distance }} left",
+    "dtshort": "{{ date, dtshort }}",
+    "isodate": "{{ date, isodate }}",
+    "long": "{{ date, long }}",
+    "short": "{{ date, short }}",
+    "wdshort": "{{ date, wdshort }}",
+    "weekday": "{{ date, weekday }}"
+  },
+  "dateFormatString": {
+    "long": "dd.MM.yyyy",
+    "short": "dd.MM."
+  },
+  "datemask": "__.__.____",
   "daterangeBoth": "Events between",
   "daterangeEnd": "Events to",
   "daterangeStart": "Events from",
   "delete": "Delete",
-  "distanceLeft": "{{ date, distance }} left",
+  "deleteEventComplete": "Event deleted",
+  "deleteEventText": "Are you sure you want to delete the event?",
+  "deleteUserText": "Are you sure you want to delete the user?",
   "district": "District",
   "dog": {
     "breed": "Breed",
@@ -43,6 +65,8 @@
   },
   "edit": "Edit",
   "editRegistration": "Edit registration",
+  "editRoles": "Edit roles",
+  "editWhat": "Edit {{what}}",
   "emailTemplate": {
     "access": "Access granted",
     "cancel-early": "Cancel notice",
@@ -51,15 +75,11 @@
     "invitation": "Invitation",
     "picked": "Picked notification",
     "receipt": "Receipt",
+    "refund": "Refund",
     "registration": "Confirmation",
-    "reserve": "Reserve notification",
-    "refund": "Refund"
+    "reserve": "Reserve notification"
   },
   "emailTemplates": "Email templates",
-  "error": {
-    "eventNotFound": "Event not found",
-    "registrationNotFound": "Registration not found"
-  },
   "entryEditTitle": "Edit registration",
   "entryList": "Registration list",
   "entryOpen": "Registration open",
@@ -67,21 +87,27 @@
   "entryTitle": "Register to event",
   "entryTitle_test": "Register to test",
   "entryUpcoming": "Upcoming registration",
+  "error": {
+    "eventNotFound": "Event not found",
+    "registrationNotFound": "Registration not found"
+  },
   "event": {
-    "classes": "Classes",
+    "attachments": "Attachments",
     "classPlaces": "Places",
     "classPlacesHeader": {
-      "name": "class",
       "dates": "date(s)",
       "entries": "entries",
-      "places": "places",
-      "members": "priorized"
+      "members": "priorized",
+      "name": "class",
+      "places": "places"
     },
+    "classes": "Classes",
     "contactInfo": "Contact information",
     "cost": "Fee",
     "costMember": ", members",
     "createdAt": "Created at",
     "createdBy": "Created by",
+    "dates": "Groups",
     "deletedAt": "Deleted at",
     "deletedBy": "Deleted by",
     "description": "Description",
@@ -92,13 +118,14 @@
     "entryStartDate": "Entry start date",
     "eventType": "Event type",
     "headquarters": {
-      "address": "Address",
+      "address": "Street address",
       "name": "Name",
       "postalDistrict": "Postal district",
-      "title": "Headquarters",
-      "zipCode": "Postcode"
+      "title": "Headquarters information",
+      "zipCode": "Postal code"
     },
     "id": "ID",
+    "invitationAttachment": "Invitation attachment",
     "judges": "Judges",
     "kcId": "Kennel Club ID",
     "kcId_info": "Kennel Klub ID is received from Omakoira, when the test application is sent and approved. The ID is needed for submitting results.",
@@ -110,6 +137,7 @@
     "organizer": "Organizer",
     "places": "Places",
     "priority": "Priorities",
+    "saved": "Changes saved",
     "secretary": "Secretary",
     "startDate": "Starting date",
     "state": "State",
@@ -117,16 +145,21 @@
       "cancelled": "Cancelled",
       "cancelled_info": "Cancelled",
       "cancelled_save": "Event was cancelled",
+      "completed": "Completed",
       "confirmed": "Published",
-      "confirmed_entryOpen": "Entry is open",
       "confirmed_entryClosed": "Entry is closed",
       "confirmed_entryClosed_info": "Entry closed",
+      "confirmed_entryOpen": "Entry is open",
       "confirmed_eventOngoing": "Event is ongoing",
       "confirmed_eventOver": "Event is over",
       "confirmed_save": "Event was published",
       "draft": "Draft",
       "draft_save": "Event was saved as draft",
+      "ended": "Ended",
       "extended_info": "Continued",
+      "invited": "Invitations sent",
+      "picked": "Participants selected",
+      "started": "Started",
       "tentative": "Published tentative",
       "tentative_info": "Tentative",
       "tentative_save": "Event was published as tentative"
@@ -135,7 +168,22 @@
   },
   "eventInfo": "Event information",
   "eventTime": "Event time",
-  "eventType_short": "Abbreviation",
+  "eventType": {
+    "create": "Add new event type",
+    "createDialog": {
+      "cta": "Add event type",
+      "description": {
+        "en": "Description in English",
+        "fi": "Description in Finnish",
+        "sv": "Description in Swedish"
+      },
+      "done": "Event type added",
+      "eventType": "Abbreviation",
+      "title": "Add event type"
+    },
+    "description": "Description",
+    "eventType": "Abbreviation"
+  },
   "eventTypes": "Event types",
   "events": "Events",
   "filter": {
@@ -146,10 +194,10 @@
   "goBack": "Back",
   "goBackToSearch": "Back to search results",
   "goHome": "Home",
-  "headquarters": "Headquarters info",
   "id": "ID",
   "judge": "Judge",
   "judgeActive": "Active",
+  "judgeChief": "Chief judge",
   "judges": "Judges",
   "language": {
     "en": "english",
@@ -158,30 +206,47 @@
   },
   "languageMenu": "Language",
   "languages": "Judging languages",
+  "locale": {
+    "en": "In English",
+    "fi": "In Finnish"
+  },
+  "loading": "Loading...",
   "login": "Login",
   "loginFailed": "Login failed",
   "logout": "Logout",
   "name": "Name",
+  "noData": "No data available",
   "noResults": "Your search returned no events. Please remove one of the search filters.",
   "official": "Official",
   "officials": "Officers",
   "organizations": "Organizations",
-  "organizer": "Organizer",
+  "organizer": {
+    "editDialog": {
+      "title": "Edit organizer [{{organizer.name}}]"
+    },
+    "editWhat": "organization information",
+    "id": "ID",
+    "kcId": "Kennel Club ID",
+    "name": "Name",
+    "paytrailMerchantId": "Paytrail merchant ID"
+  },
   "paymentDetails": "Payment details",
   "paymentStatus": {
-    "success": "I have paid",
+    "missing": "Test payment is still missing",
     "pending": "Waiting for payment processing",
-    "missing": "Test payment is still missing"
+    "success": "I have paid"
   },
   "places": "Places",
   "priority": {
-    "members": "members",
-    "invited": "invited"
+    "invited": "invited",
+    "members": "members"
   },
   "priorityDescription": {
+    "b-sm.2": "2xVOI1 (KVA-B)",
+    "b-sm.3": "3xVOI1",
     "breed": "breed",
     "invited": "invitation",
-    "members": "membership"
+    "member": "membership"
   },
   "priorityGroup": {
     "breed": "Priority breeds",
@@ -190,36 +255,47 @@
   },
   "register": "Register",
   "registration": {
+    "agreeToTerms": "Terms and privacy policy",
     "breeder": "Breeder information",
     "cancelDialog": {
+      "confirmation": "Are you sure you want to cancel your registration?",
       "cta": "Cancel registration",
       "done": "Your registration has been canceled",
-      "title": "Cancellation of registration",
-      "text": "You are canceling the registration of the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
       "lateText": "You can cancel your registration on the day of the trial and the day before the trial only by directly contacting the trial secretary {{event.contactInfo.secretary.name}} {{contact}}.",
-      "confirmation": "Are you sure you want to cancel your registration?",
-      "terms": "See detailed cancellation terms in the <2>rules</2>",
       "reason": "Reason for cancellation",
-      "reason_other": "Please specify"
+      "reason_other": "Please specify",
+      "terms": "See detailed cancellation terms in the <2>rules</2>",
+      "text": "You are canceling the registration of the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Cancellation of registration"
     },
     "cancelReason": {
       "dog-heat": "The dog being in heat",
-      "handler-sick": "The handler falling ill",
-      "handler-sick-info": "For refunds due to handler illness, a medical certificate must be sent to the secretary",
       "dog-sick": "The dog falling ill",
       "dog-sick-info": "For refunds due to dog illness, a veterinary certificate must be sent to the secretary",
-      "other": "Other reason",
-      "gdpr": "I don't want to disclose"
+      "gdpr": "I don't want to disclose",
+      "handler-sick": "The handler falling ill",
+      "handler-sick-info": "For refunds due to handler illness, a medical certificate must be sent to the secretary",
+      "other": "Other reason"
     },
     "class": "Event class",
     "classesDetails": "Event class details",
+    "confirmDialog": {
+      "alreadyConfirmed": "The trial place has already been confirmed",
+      "confirmation": "Do you want to confirm the trial place?",
+      "cta": "Confirm trial place",
+      "done": "Your trial place has been confirmed",
+      "text": "You are confirming the trial place for the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Confirm trial place"
+    },
     "createdAt": "Created at",
     "cta": {
       "addResult": "Add result",
+      "autofetch": "Fetch dog information",
       "deleteResult": "Remove result",
       "error": "Input dog information manually",
       "fetch": "Fetch information",
       "helper": {
+        "autofetch": "Automatically fetch dog information",
         "error": "Error fetching dog information. Please fill the form manually.",
         "fetch": " ",
         "invalid": "Invalid registration number",
@@ -234,6 +310,8 @@
       "update": "Update"
     },
     "dates": "Dates",
+    "datesFilter": "Days",
+    "datesFilterInfo": "Select the days that suit you",
     "datesInfo": "Select all suitable dates for your participation.",
     "dog": "Dog",
     "email": {
@@ -250,8 +328,11 @@
       "title_receipt": "Receipt of your payment",
       "title_update": "Your registration has been modified"
     },
+    "eventId": "Event ID",
+    "eventType": "Type",
     "handler": "Handler",
     "handlerIsMember": "Handler is a member of the organizing society",
+    "internalNotes": "Internal comment (not visible to registrant)",
     "member": "Member",
     "membership": "Membership",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
@@ -267,11 +348,27 @@
     "ownerIsMember": "Owner is a member of the organizing society",
     "ownerPays": "Owner pays",
     "paid": "Paid",
+    "payer": "Payer information",
     "qualifyingResults": "Qualifying results",
     "qualifyingResultsInfo": "Bases on the results, dog {{qualifies}} qualify to the {{eventType}} {{class}}-class.",
     "qualifyingResultsNo": "does not",
     "qyalifyingResultsYes": "does",
     "rankingTime": "Qualifying time",
+    "refundDialog": {
+      "columns": {
+        "amount": "Amount",
+        "bankReference": "Paytrail reference",
+        "provider": "Payment method",
+        "reference": "Koekalenteri reference",
+        "status": "Status",
+        "statusAt": "Timestamp",
+        "type": "Type"
+      },
+      "costsText": "If a handling fee is charged for the refund, enter the amount in the designated field.",
+      "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
+      "text": "Select the payment to be refunded.",
+      "title": "Refund, {{regNo}} / {{payer}}"
+    },
     "reserve": "Reserve",
     "reserveChoises": {
       "ANY": "Yes",
@@ -279,6 +376,7 @@
       "NO": "No",
       "WEEK": "Yes, by week's notice"
     },
+    "reserveHelp": "Select how short a notice you can still attend the trial if you get a place from the reserve list.",
     "saved_one": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "saved_other": "Registration saved.\nConfirmation email was sent to:\n{{to}}",
     "state": {
@@ -287,7 +385,13 @@
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",
     "time": {
       "ap": "(am)",
-      "ip": "(pm)"
+      "ip": "(pm)",
+      "kp": ""
+    },
+    "timeLong": {
+      "ap": "morning",
+      "ip": "afternoon",
+      "kp": "no groups"
     }
   },
   "registrations": "Registrations",
@@ -296,11 +400,12 @@
     "placeholder": "Search..."
   },
   "size": {
-    "fi": "Koko suomeksi",
-    "en": "Koko englanniksi"
+    "en": "Koko englanniksi",
+    "fi": "Koko suomeksi"
   },
   "support": "Support",
   "supportContact": "Send feedback",
+  "refund": "Refund",
   "templateId": "Message name",
   "testResult": {
     "date": "Date",
@@ -312,6 +417,31 @@
   "toltaPlaces": "places",
   "updateData": "Update $t({{data}}) from The Finnish Kennel Club API",
   "users": "Users",
+  "user": {
+    "admin": "Koekalenteri administrator",
+    "adminRoles": "The Koekalenteri administrator has admin rights to all organizations",
+    "createDialog": {
+      "cta": "Save",
+      "done": "User added",
+      "email": "Email",
+      "name": "Name (first name last name)",
+      "organization": "Organization",
+      "role": "Role",
+      "title": "Add new user role"
+    },
+    "editRolesDialog": {
+      "cta": "Save roles",
+      "done": "Roles saved",
+      "terms": "See detailed cancellation terms in the <2>rules</2>",
+      "title": "Edit roles for user [{{user.name}}]"
+    },
+    "lastSeen": "Last login",
+    "roles": {
+      "admin": "Organization administrator",
+      "secretary": "Secretary"
+    }
+  },
+  "withdraw": "Withdraw",
   "validation": {
     "event": {
       "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",
@@ -323,11 +453,16 @@
       "email": "The email address is invalid",
       "errors": "Information is incomplete",
       "judge": "Judge {{id}} is not available",
+      "judgeCount": "{{type}}: At least {{length}} $t(validation.event.judges, {\"count\": {{length}} }) are needed",
       "judges_one": "judge",
       "judges_other": "judges",
-      "judgeCount": "{{type}}: At least {{length}} $t(validation.event.judges, {\"count\": {{length}} }) are needed",
       "placesClass": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing places.",
-      "validationError": "State \"$t(event.states.{{state}})\": $t(event.{{field}}) is required."
+      "validationError": "State \"$t(event.states.{{state}})\": $t(event.{{field}}) is required.",
+      "effectiveRules": "Effective rules: {{date, date}}",
+      "endDate": "End date cannot be in the past",
+      "secretaryEmail": "Secretary's email address must be in the contact information.",
+      "startDate": "Start date cannot be in the past",
+      "zipCode": "Invalid postal code"
     },
     "registration": {
       "choose": "Choose $t(registration.{{field}},lowercase)",
@@ -336,6 +471,7 @@
       "dogResults": "Dog is missing required results for entry.",
       "dogSM": "Only dogs registered in Finland are eligible to enter the Finnish Championship test",
       "email": "The email address is invalid",
+      "phone": "The phone number is invalid",
       "required": "$t(registration.{{field}}) is incomplete",
       "reserve": "Select participation from reserve position",
       "terms": "It is mandatory to accept registration terms and the data protection statement."
