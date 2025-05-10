@@ -7,7 +7,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { getEvent, updateRegistrations } from '../lib/event'
+import { getEvent, updateEventStatsForRegistration, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import {
@@ -132,6 +132,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const data: JsonRegistration = { ...existing, ...registration }
   await saveRegistration(data)
+  // Update organizer event stats after registration change
+  await updateEventStatsForRegistration(data, existing, confirmedEvent)
 
   if (cancel) {
     await updateRegistrations(registration.eventId)

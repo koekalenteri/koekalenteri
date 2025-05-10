@@ -6,15 +6,13 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { updateRegistrations } from '../lib/event'
+import { updateEventStatsForRegistration, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
-import { getRegistration, getRegistrationChanges } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { getRegistration, getRegistrationChanges, saveRegistration } from '../lib/registration'
 import { response } from '../utils/response'
 
-const { emailFrom, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
+const { emailFrom } = CONFIG
 
 const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) => {
   const user = await authorize(event)
@@ -43,9 +41,12 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration.modifiedBy = user.name
 
   const data: JsonRegistration = { ...existing, ...registration }
-  await dynamoDB.write(data)
+  await saveRegistration(data)
 
   const confirmedEvent = await updateRegistrations(registration.eventId)
+
+  // Update organizer event stats after registration change
+  await updateEventStatsForRegistration(data, existing, confirmedEvent)
 
   const message = getAuditMessage(data, existing)
   if (message) {

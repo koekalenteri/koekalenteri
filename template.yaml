@@ -30,6 +30,7 @@ Globals:
         TRANSACTION_TABLE_NAME: !Ref TransactionTable
         USER_LINK_TABLE_NAME: !Ref UserLinkTable
         USER_TABLE_NAME: !Ref UserTable
+        ORGANIZER_EVENT_STATS_TABLE_NAME: !Ref OrganizerEventStatsTable
   Api:
     Auth:
       UsagePlan:
@@ -251,6 +252,37 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
+
+  OrganizerEventStatsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [organizer-event-stats, !Ref AWS::StackName]]
+      KeySchema:
+        - AttributeName: organizerId
+          KeyType: HASH
+        - AttributeName: eventId
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: organizerId
+          AttributeType: S
+        - AttributeName: eventId
+          AttributeType: S
+        - AttributeName: eventName
+          AttributeType: S
+        - AttributeName: eventStartDate
+          AttributeType: S
+        - AttributeName: eventEndDate
+          AttributeType: S
+        - AttributeName: updatedAt
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
 
   UserTable:
     Type: AWS::DynamoDB::Table
@@ -910,6 +942,8 @@ Resources:
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrganizerEventStatsTable
         - CloudWatchPutMetricPolicy: {}
         - Statement:
             - Sid: SESSendEmailPolicy
@@ -933,6 +967,65 @@ Resources:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationFunction]]
       RetentionInDays: 30
 
+  BackfillOrganizerEventStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/lambda/BackfillOrganizerEventStatsFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Timeout: 900
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrganizerEventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+    Metadata:
+      BuildMethod: makefile
+
+  BackfillOrganizerEventStatsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref BackfillOrganizerEventStatsFunction]]
+      RetentionInDays: 30
+
+  GetOrganizerEventStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/lambda/GetOrganizerEventStatsFunction/handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Environment:
+        Variables:
+          ORGANIZER_EVENT_STATS_TABLE_NAME: !Ref OrganizerEventStatsTable
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerEventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+      Events:
+        GetOrganizerEventStatsApi:
+          Type: Api
+          Properties:
+            Path: /admin/organizer-event-stats
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+    Metadata:
+      BuildMethod: makefile
+
+  GetOrganizerEventStatsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetOrganizerEventStatsFunction]]
+      RetentionInDays: 30
+
   PutAdminRegistrationFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -947,6 +1040,8 @@ Resources:
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OrganizerEventStatsTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
