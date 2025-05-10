@@ -10,10 +10,12 @@ import { ISO8601DateTimeRE } from '../test-utils/constants'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonRegistration>>()
+const mockUpdateEventStatsForRegistration = jest.fn()
 const mockUpdateRegistrations = jest.fn()
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
+  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
   updateRegistrations: mockUpdateRegistrations,
 }))
 
@@ -81,6 +83,7 @@ describe('putRegistrationLabmda', () => {
       })
     )
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({ auditKey: expect.any(String), message: 'Ilmoittautui', user: 'anonymous' })
@@ -116,6 +119,7 @@ describe('putRegistrationLabmda', () => {
       modifiedBy: 'anonymous',
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -171,6 +175,7 @@ describe('putRegistrationLabmda', () => {
       modifiedBy: 'anonymous',
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -225,6 +230,7 @@ describe('putRegistrationLabmda', () => {
       modifiedBy: 'anonymous',
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -280,6 +286,7 @@ describe('putRegistrationLabmda', () => {
       modifiedBy: 'anonymous',
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockAudit).toHaveBeenCalledWith(
       expect.objectContaining({
