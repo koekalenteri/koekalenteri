@@ -13,7 +13,6 @@ export default async function handler(): Promise<void> {
   type Stats = {
     organizerId: string
     eventId: string
-    eventName: string
     eventStartDate: string
     eventEndDate: string
     totalRegistrations: number
@@ -39,7 +38,6 @@ export default async function handler(): Promise<void> {
       stats = {
         organizerId,
         eventId: evt.id,
-        eventName: evt.name,
         eventStartDate: evt.startDate,
         eventEndDate: evt.endDate,
         totalRegistrations: 0,

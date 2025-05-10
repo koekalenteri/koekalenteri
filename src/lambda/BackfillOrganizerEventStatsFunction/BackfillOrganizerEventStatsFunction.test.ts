@@ -67,7 +67,6 @@ describe('BackfillOrganizerEventStatsFunction', () => {
     expect(stats).toMatchObject({
       organizerId: 'org1',
       eventId: 'event1',
-      eventName: 'Test Event',
       eventStartDate: '2025-01-01',
       eventEndDate: '2025-01-02',
       totalRegistrations: 1,
@@ -88,7 +87,6 @@ describe('BackfillOrganizerEventStatsFunction', () => {
     ]
     const event = {
       id: 'event1',
-      name: 'Test Event',
       startDate: '2025-01-01',
       endDate: '2025-01-02',
       organizer: { id: 'org1' },
@@ -101,7 +99,6 @@ describe('BackfillOrganizerEventStatsFunction', () => {
     expect(stats).toMatchObject({
       organizerId: 'org1',
       eventId: 'event1',
-      eventName: 'Test Event',
       eventStartDate: '2025-01-01',
       eventEndDate: '2025-01-02',
       totalRegistrations: 3,
