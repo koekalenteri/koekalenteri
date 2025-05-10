@@ -58,7 +58,7 @@ exports[`OrganizerListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-yjmkqo-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-lsvk8p-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 240px; --DataGrid-columnsTotalWidth: 240px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 35px;"
       >
         <div
@@ -290,7 +290,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="name"
                             tabindex="-1"
                             title="Sort"
@@ -364,7 +364,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="roles"
                             tabindex="-1"
                             title="Sort"
@@ -438,7 +438,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="phone"
                             tabindex="-1"
                             title="Sort"
@@ -512,7 +512,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="email"
                             tabindex="-1"
                             title="Sort"
@@ -586,7 +586,7 @@ exports[`OrganizerListPage renders 1`] = `
                         >
                           <button
                             aria-label="Sort"
-                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
                             field="lastSeen"
                             tabindex="-1"
                             title="Sort"
