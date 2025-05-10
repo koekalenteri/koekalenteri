@@ -962,7 +962,7 @@ Resources:
   BackfillOrganizerEventStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/lambda/BackfillOrganizerEventStatsFunction/handler.default
+      Handler: lambda/BackfillOrganizerEventStatsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
@@ -986,7 +986,7 @@ Resources:
   GetOrganizerEventStatsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: src/lambda/GetOrganizerEventStatsFunction/handler.default
+      Handler: lambda/GetOrganizerEventStatsFunction/handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
