@@ -1,10 +1,12 @@
 import type { ConfirmedEvent } from '../types'
 
-import { addDays, parseISO, startOfDay } from 'date-fns'
+import { addDays, parseISO } from 'date-fns'
+
+import { zonedStartOfDay } from '../i18n/dates'
 
 import { emptyEvent } from './emptyEvent'
 
-const today = startOfDay(new Date())
+const today = zonedStartOfDay(new Date())
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,
