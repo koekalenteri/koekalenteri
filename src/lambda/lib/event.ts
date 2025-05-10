@@ -263,8 +263,7 @@ export const updateEventStatsForRegistration = async (
 
   const key = { organizerId: event.organizer.id, eventId: event.id }
   const expression = [
-    'SET eventName = :eventName',
-    'eventStartDate = :eventStartDate',
+    'SET eventStartDate = :eventStartDate',
     'eventEndDate = :eventEndDate',
     'updatedAt = :updatedAt',
     'ADD totalRegistrations :totalDelta',
@@ -276,7 +275,6 @@ export const updateEventStatsForRegistration = async (
   ].join(' ')
   const names = {}
   const values = {
-    ':eventName': event.name,
     ':eventStartDate': event.startDate,
     ':eventEndDate': event.endDate,
     ':updatedAt': new Date().toISOString(),

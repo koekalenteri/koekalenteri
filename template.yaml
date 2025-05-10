@@ -267,14 +267,6 @@ Resources:
           AttributeType: S
         - AttributeName: eventId
           AttributeType: S
-        - AttributeName: eventName
-          AttributeType: S
-        - AttributeName: eventStartDate
-          AttributeType: S
-        - AttributeName: eventEndDate
-          AttributeType: S
-        - AttributeName: updatedAt
-          AttributeType: S
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
