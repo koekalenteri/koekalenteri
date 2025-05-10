@@ -214,7 +214,6 @@ describe('lib/event', () => {
       const event = {
         organizer: { id: 'org1' },
         id: 'e5',
-        name: 'Event',
         startDate: '2024-01-01',
         endDate: '2024-01-02',
       } as JsonConfirmedEvent
@@ -223,7 +222,7 @@ describe('lib/event', () => {
         { organizerId: 'org1', eventId: 'e5' },
         expect.any(String),
         expect.any(Object),
-        expect.objectContaining({ ':eventName': 'Event' }),
+        expect.objectContaining({ ':eventStartDate': '2024-01-01' }),
         expect.anything()
       )
     })

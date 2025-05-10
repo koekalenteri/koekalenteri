@@ -127,6 +127,7 @@ describe('putEventLambda', () => {
   })
 
   it('should return 403 when trying to delete non-deletable event', async () => {
+    jest.spyOn(console, 'log').mockImplementationOnce(() => undefined)
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
 

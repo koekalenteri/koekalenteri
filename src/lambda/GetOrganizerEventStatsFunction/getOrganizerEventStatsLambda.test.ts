@@ -48,6 +48,8 @@ jest.unstable_mockModule('../utils/response', () => ({
 const { default: getOrganizerEventStatsLambda } = await import('./handler')
 
 describe('getOrganizerEventStatsLambda', () => {
+  jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+
   beforeEach(() => {
     jest.clearAllMocks()
   })
