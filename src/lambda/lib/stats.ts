@@ -1,6 +1,8 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type { EventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 
+import crypto from 'crypto'
+
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -291,16 +293,33 @@ export async function updateEntityStats(
 }
 
 /**
+ * Hash an email address for privacy in statistics
+ * Uses SHA-256 to create a one-way hash of the email,
+ * taking only 12 bytes of the digest and encoding as base64
+ * for a shorter representation while maintaining uniqueness
+ */
+export function hashEmail(email: string): string {
+  const fullDigest = crypto.createHash('sha256').update(email.toLowerCase().trim()).digest()
+
+  // Use first 12 bytes of the digest, convert to base64 and remove padding characters
+  return fullDigest.subarray(0, 12).toString('base64').replace(/=+$/, '')
+}
+
+/**
  * Update yearly participation stats for official event types
  */
 export async function updateYearlyParticipationStats(registration: JsonRegistration, year: number): Promise<void> {
+  // Hash email addresses for privacy
+  const hashedHandlerEmail = hashEmail(registration.handler.email)
+  const hashedOwnerEmail = hashEmail(registration.owner.email)
+
   const identifiers: Record<YearlyStatTypes, string> = {
     eventType: registration.eventType,
     dog: registration.dog.regNo,
     breed: registration.dog.breedCode ?? 'unknown',
-    handler: registration.handler.email,
-    owner: registration.owner.email,
-    'dog#handler': `${registration.dog.regNo}#${registration.handler.email}`,
+    handler: hashedHandlerEmail,
+    owner: hashedOwnerEmail,
+    'dog#handler': `${registration.dog.regNo}#${hashedHandlerEmail}`,
   }
 
   for (const [type, entityId] of Object.entries(identifiers)) {
