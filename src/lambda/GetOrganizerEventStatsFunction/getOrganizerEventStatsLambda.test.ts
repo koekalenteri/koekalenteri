@@ -77,7 +77,12 @@ describe('getOrganizerEventStatsLambda', () => {
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
-    expect(mockReadAll).toHaveBeenCalledWith(undefined, 'begins_with(PK, :orgPrefix)', { ':orgPrefix': 'ORG#' }, {})
+    expect(mockReadAll).toHaveBeenCalledWith(
+      undefined,
+      'begins_with(#pk, :orgPrefix)',
+      { ':orgPrefix': 'ORG#' },
+      { '#pk': 'PK' }
+    )
     expect(JSON.parse(result.body)).toEqual(statsWithPK)
     expect(result.statusCode).toBe(200)
   })
@@ -92,11 +97,11 @@ describe('getOrganizerEventStatsLambda', () => {
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
     expect(mockQuery).toHaveBeenCalledWith(
-      'PK = :pk',
+      '#pk = :pk',
       { ':pk': 'ORG#org2' },
       undefined,
       undefined,
-      undefined,
+      { '#pk': 'PK' },
       undefined,
       undefined,
       undefined
@@ -130,13 +135,13 @@ describe('getOrganizerEventStatsLambda', () => {
 
     expect(mockReadAll).toHaveBeenCalledWith(
       undefined,
-      'begins_with(PK, :orgPrefix) AND SK >= :from AND SK <= :to',
+      'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
       {
         ':orgPrefix': 'ORG#',
         ':from': '2024-02-01',
         ':to': '2024-02-28',
       },
-      {}
+      { '#pk': 'PK' }
     )
 
     // The result should only include the item that matches the date filters
@@ -162,7 +167,12 @@ describe('getOrganizerEventStatsLambda', () => {
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
-    expect(mockReadAll).toHaveBeenCalledWith(undefined, 'begins_with(PK, :orgPrefix)', { ':orgPrefix': 'ORG#' }, {})
+    expect(mockReadAll).toHaveBeenCalledWith(
+      undefined,
+      'begins_with(#pk, :orgPrefix)',
+      { ':orgPrefix': 'ORG#' },
+      { '#pk': 'PK' }
+    )
     expect(JSON.parse(result.body)).toEqual([])
     expect(result.statusCode).toBe(200)
   })

@@ -25,6 +25,8 @@ export async function getOrganizerStats(
     for (const organizerId of organizerIds) {
       // Build filter expression for date range filtering
       const filterExpressions: string[] = []
+      const keyCondition = '#pk = :pk'
+      const expressionNames: Record<string, string> = { '#pk': 'PK' }
       const expressionValues: Record<string, any> = { ':pk': `ORG#${organizerId}` }
 
       if (from) {
@@ -43,14 +45,13 @@ export async function getOrganizerStats(
       // Query for this organizerId with date filters using the new PK/SK pattern
       // PK: ORG#<organizerId>
       // SK: <startDate>#<eventId>
-      const keyCondition = 'PK = :pk'
 
       const items = await dynamoDB.query<EventStatsItem>(
         keyCondition,
         expressionValues,
         undefined,
         undefined,
-        undefined,
+        expressionNames,
         undefined,
         undefined,
         filterExpression
@@ -63,9 +64,9 @@ export async function getOrganizerStats(
   } else {
     // For admin users, we need to get all stats
     // Use readAll with filtering capabilities
-    const filterExpressions: string[] = ['begins_with(PK, :orgPrefix)']
+    const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
+    const expressionNames: Record<string, string> = { '#pk': 'PK' }
     const expressionValues: Record<string, any> = { ':orgPrefix': 'ORG#' }
-    const expressionNames: Record<string, string> = {}
 
     // Apply date range filters if provided
     if (from) {
