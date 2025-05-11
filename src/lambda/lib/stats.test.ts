@@ -33,7 +33,7 @@ const {
   updateBucketStats,
   updateEntityStats,
   updateYearlyParticipationStats,
-  hashEmail,
+  hashStatValue,
 } = await import('./stats')
 
 describe('lib/stats', () => {
@@ -573,13 +573,13 @@ describe('lib/stats', () => {
   describe('hashEmail', () => {
     it('should hash email addresses consistently', () => {
       const email = 'test@example.com'
-      const hashed = hashEmail(email)
+      const hashed = hashStatValue(email)
 
       // Hash should be a base64 string (12 bytes of SHA-256)
       expect(hashed).toMatch(/^[A-Za-z0-9+/]{16}$/)
 
       // Same email should produce the same hash
-      expect(hashEmail(email)).toBe(hashed)
+      expect(hashStatValue(email)).toBe(hashed)
     })
 
     it('should normalize email addresses before hashing', () => {
@@ -588,15 +588,15 @@ describe('lib/stats', () => {
       const email2 = 'TEST@example.com'
       const email3 = ' test@example.com '
 
-      expect(hashEmail(email1)).toBe(hashEmail(email2))
-      expect(hashEmail(email1)).toBe(hashEmail(email3))
+      expect(hashStatValue(email1)).toBe(hashStatValue(email2))
+      expect(hashStatValue(email1)).toBe(hashStatValue(email3))
     })
 
     it('should produce different hashes for different emails', () => {
       const email1 = 'test1@example.com'
       const email2 = 'test2@example.com'
 
-      expect(hashEmail(email1)).not.toBe(hashEmail(email2))
+      expect(hashStatValue(email1)).not.toBe(hashStatValue(email2))
     })
   })
 
@@ -614,8 +614,9 @@ describe('lib/stats', () => {
       } as unknown as JsonRegistration
 
       // Calculate expected hash values
-      const hashedHandlerEmail = hashEmail('handler@example.com')
-      const hashedOwnerEmail = hashEmail('owner@example.com')
+      const hashedHandlerEmail = hashStatValue(registration.handler.email)
+      const hashedOwnerEmail = hashStatValue(registration.owner.email)
+      const hashedRegNo = hashStatValue(registration.dog.regNo)
 
       await updateYearlyParticipationStats(registration, 2024)
 
@@ -636,11 +637,11 @@ describe('lib/stats', () => {
       const skValues = mockUpdate.mock.calls.map((call) => call[0].SK)
 
       expect(skValues).toContain('NOME')
-      expect(skValues).toContain('DOG123')
+      expect(skValues).toContain(hashedRegNo)
       expect(skValues).toContain('BC')
       expect(skValues).toContain(hashedHandlerEmail)
       expect(skValues).toContain(hashedOwnerEmail)
-      expect(skValues).toContain(`DOG123#${hashedHandlerEmail}`)
+      expect(skValues).toContain(`${hashedRegNo}#${hashedHandlerEmail}`)
     })
 
     it('uses "unknown" for missing breed code', async () => {
@@ -652,7 +653,8 @@ describe('lib/stats', () => {
       } as unknown as JsonRegistration
 
       // Calculate expected hash values
-      const hashedHandlerEmail = hashEmail('handler@example.com')
+      const hashedHandlerEmail = hashStatValue(registration.handler.email)
+      const hashedRegNo = hashStatValue(registration.dog.regNo)
 
       await updateYearlyParticipationStats(registration, 2024)
 
@@ -663,7 +665,7 @@ describe('lib/stats', () => {
       const dogHandlerCall = mockUpdate.mock.calls.find((call) => call[0].PK === 'STAT#2024#dog#handler')
 
       expect(breedCall?.[0].SK).toBe('unknown')
-      expect(dogHandlerCall?.[0].SK).toBe(`DOG123#${hashedHandlerEmail}`)
+      expect(dogHandlerCall?.[0].SK).toBe(`${hashedRegNo}#${hashedHandlerEmail}`)
     })
   })
 })

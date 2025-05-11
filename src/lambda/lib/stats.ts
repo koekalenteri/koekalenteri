@@ -294,13 +294,13 @@ export async function updateEntityStats(
 }
 
 /**
- * Hash an email address for privacy in statistics
- * Uses SHA-256 to create a one-way hash of the email,
+ * Hash an value for privacy in statistics
+ * Uses SHA-256 to create a one-way hash of the value,
  * taking only 12 bytes of the digest and encoding as base64
  * for a shorter representation while maintaining uniqueness
  */
-export function hashEmail(email: string): string {
-  const fullDigest = crypto.createHash('sha256').update(email.toLowerCase().trim()).digest()
+export function hashStatValue(value: string): string {
+  const fullDigest = crypto.createHash('sha256').update(value.toLowerCase().trim()).digest()
 
   // Use first 12 bytes of the digest, convert to base64 and remove padding characters
   return fullDigest.subarray(0, 12).toString('base64').replace(/=+$/, '')
@@ -311,16 +311,17 @@ export function hashEmail(email: string): string {
  */
 export async function updateYearlyParticipationStats(registration: JsonRegistration, year: number): Promise<void> {
   // Hash email addresses for privacy
-  const hashedHandlerEmail = hashEmail(registration.handler.email)
-  const hashedOwnerEmail = hashEmail(registration.owner.email)
+  const hashedHandlerEmail = hashStatValue(registration.handler.email)
+  const hashedOwnerEmail = hashStatValue(registration.owner.email)
+  const hashedRegNo = hashStatValue(registration.dog.regNo)
 
   const identifiers: Record<YearlyStatTypes, string> = {
     eventType: registration.eventType,
-    dog: registration.dog.regNo,
+    dog: hashedRegNo,
     breed: registration.dog.breedCode ?? 'unknown',
     handler: hashedHandlerEmail,
     owner: hashedOwnerEmail,
-    'dog#handler': `${registration.dog.regNo}#${hashedHandlerEmail}`,
+    'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
   }
 
   for (const [type, entityId] of Object.entries(identifiers)) {
