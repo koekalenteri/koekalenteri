@@ -54,8 +54,8 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        'SET #organizerId = :organizerId, date = :date, updatedAt = :updatedAt ADD count :totalDelta, paidRegistrations :paidDelta, cancelledRegistrations :cancelledDelta, refundedRegistrations :refundedDelta, paidAmount :paidAmountDelta, refundedAmount :refundedAmountDelta',
-        expect.objectContaining({ '#organizerId': 'organizerId' }),
+        'SET #organizerId = :organizerId, #date = :date, updatedAt = :updatedAt ADD count :totalDelta, paidRegistrations :paidDelta, cancelledRegistrations :cancelledDelta, refundedRegistrations :refundedDelta, paidAmount :paidAmountDelta, refundedAmount :refundedAmountDelta',
+        expect.objectContaining({ '#organizerId': 'organizerId', '#date': 'date' }),
         expect.objectContaining({
           ':date': '2024-01-01',
           ':totalDelta': 1,
@@ -363,7 +363,7 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { PK: 'ORG#org123', SK: '2024-06-15#event456' },
         expect.stringContaining('SET #organizerId = :organizerId'),
-        { '#organizerId': 'organizerId' },
+        { '#organizerId': 'organizerId', '#date': 'date' },
         expect.objectContaining({
           ':organizerId': 'org123',
           ':date': '2024-06-15',

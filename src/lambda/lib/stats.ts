@@ -169,7 +169,7 @@ export async function updateOrganizerEventStats(
   }
 
   const expression = [
-    ['SET #organizerId = :organizerId', 'date = :date', 'updatedAt = :updatedAt'].join(', '),
+    ['SET #organizerId = :organizerId', '#date = :date', 'updatedAt = :updatedAt'].join(', '),
     [
       'ADD count :totalDelta',
       'paidRegistrations :paidDelta',
@@ -181,7 +181,7 @@ export async function updateOrganizerEventStats(
   ].join(' ')
 
   // names must not be empty
-  const names = { '#organizerId': 'organizerId' }
+  const names = { '#organizerId': 'organizerId', '#date': 'date' }
   const values = {
     ':organizerId': event.organizer.id,
     ':date': event.startDate,
