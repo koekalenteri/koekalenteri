@@ -3,6 +3,7 @@ import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
 import type { PartialEvent } from '../EventForm'
 
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
 import { unique } from '../../../../lib/utils'
 
 type EventCallback = (event: PartialEvent) => boolean
@@ -31,8 +32,6 @@ const STATE_INCLUSION: Record<EventState, EventState[]> = {
   ended: ['confirmed'],
   completed: ['confirmed'],
 }
-
-export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
   draft: {

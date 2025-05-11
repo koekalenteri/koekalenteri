@@ -7,7 +7,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getOrigin, getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { getEvent, updateEventStatsForRegistration, updateRegistrations } from '../lib/event'
+import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import {
@@ -18,6 +18,7 @@ import {
   isParticipantGroup,
   saveRegistration,
 } from '../lib/registration'
+import { updateEventStatsForRegistration } from '../lib/stats'
 import { response } from '../utils/response'
 
 const { emailFrom } = CONFIG

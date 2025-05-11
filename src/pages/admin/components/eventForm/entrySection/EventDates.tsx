@@ -4,8 +4,7 @@ import type { SectionProps } from '../../EventForm'
 import { useMemo } from 'react'
 import Stack from '@mui/material/Stack'
 
-import { getUniqueEventClasses } from '../../../../../lib/event'
-import { OFFICIAL_EVENT_TYPES } from '../validation'
+import { getUniqueEventClasses, OFFICIAL_EVENT_TYPES } from '../../../../../lib/event'
 
 import { ClassGroups } from './eventDates/ClassGroups'
 import { EventGroups } from './eventDates/EventGroups'

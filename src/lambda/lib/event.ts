@@ -26,7 +26,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
 
-const { eventTable, organizerEventStatsTable, registrationTable } = CONFIG
+const { eventTable, eventStatsTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
 
 export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string): Promise<T> => {
@@ -241,50 +241,4 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(
   }
 
   return items
-}
-
-/**
- * Updates organizer event stats in DynamoDB after a registration change.
- * @param {JsonRegistration} registration - The new/updated registration
- * @param {JsonRegistration | undefined} existingRegistration - The previous registration, if any
- * @param {JsonConfirmedEvent} event - The event object
- */
-export const updateEventStatsForRegistration = async (
-  registration: JsonRegistration,
-  existingRegistration: JsonRegistration | undefined,
-  event: JsonConfirmedEvent
-): Promise<void> => {
-  const totalDelta = existingRegistration ? 0 : 1
-  const paidDelta = (registration.paidAmount ? 1 : 0) - (existingRegistration?.paidAmount ? 1 : 0)
-  const cancelledDelta = (registration.cancelled ? 1 : 0) - (existingRegistration?.cancelled ? 1 : 0)
-  const refundedDelta = (registration.refundAmount ? 1 : 0) - (existingRegistration?.refundAmount ? 1 : 0)
-  const paidAmountDelta = (registration.paidAmount ?? 0) - (existingRegistration?.paidAmount ?? 0)
-  const refundedAmountDelta = (registration.refundAmount ?? 0) - (existingRegistration?.refundAmount ?? 0)
-
-  const key = { organizerId: event.organizer.id, eventId: event.id }
-  const expression = [
-    'SET eventStartDate = :eventStartDate',
-    'eventEndDate = :eventEndDate',
-    'updatedAt = :updatedAt',
-    'ADD totalRegistrations :totalDelta',
-    'paidRegistrations :paidDelta',
-    'cancelledRegistrations :cancelledDelta',
-    'refundedRegistrations :refundedDelta',
-    'paidAmount :paidAmountDelta',
-    'refundedAmount :refundedAmountDelta',
-  ].join(' ')
-  const names = {}
-  const values = {
-    ':eventStartDate': event.startDate,
-    ':eventEndDate': event.endDate,
-    ':updatedAt': new Date().toISOString(),
-    ':totalDelta': totalDelta,
-    ':paidDelta': paidDelta,
-    ':cancelledDelta': cancelledDelta,
-    ':refundedDelta': refundedDelta,
-    ':paidAmountDelta': paidAmountDelta,
-    ':refundedAmountDelta': refundedAmountDelta,
-  }
-
-  await dynamoDB.update(key, expression, names, values, organizerEventStatsTable)
 }

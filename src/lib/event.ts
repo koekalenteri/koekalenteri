@@ -16,6 +16,8 @@ import { zonedStartOfDay } from '../i18n/dates'
 
 import { unique } from './utils'
 
+export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
+
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3
 

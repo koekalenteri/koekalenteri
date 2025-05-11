@@ -15,8 +15,11 @@ const mockUpdateRegistrations = jest.fn()
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
-  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
   updateRegistrations: mockUpdateRegistrations,
+}))
+
+jest.unstable_mockModule('../lib/stats', () => ({
+  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
 const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()

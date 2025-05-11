@@ -32,7 +32,6 @@ const {
   markParticipants,
   saveEvent,
   saveGroup,
-  updateEventStatsForRegistration,
   updateRegistrations,
 } = await import('./event')
 
@@ -201,30 +200,6 @@ describe('lib/event', () => {
       expect(result[0].group?.number).toBe(1)
       expect(result[1].group?.number).toBe(2)
       expect(mockAudit).toHaveBeenCalled()
-    })
-  })
-
-  // updateEventStatsForRegistration
-  describe('updateEventStatsForRegistration', () => {
-    beforeEach(() => {
-      mockUpdate.mockReset()
-    })
-    it('calls update with correct keys and values', async () => {
-      const reg = { paidAmount: 10, cancelled: false, refundAmount: 0 } as JsonRegistration
-      const event = {
-        organizer: { id: 'org1' },
-        id: 'e5',
-        startDate: '2024-01-01',
-        endDate: '2024-01-02',
-      } as JsonConfirmedEvent
-      await updateEventStatsForRegistration(reg, undefined, event)
-      expect(mockUpdate).toHaveBeenCalledWith(
-        { organizerId: 'org1', eventId: 'e5' },
-        expect.any(String),
-        expect.any(Object),
-        expect.objectContaining({ ':eventStartDate': '2024-01-01' }),
-        expect.anything()
-      )
     })
   })
 

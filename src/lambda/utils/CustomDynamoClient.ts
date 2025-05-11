@@ -1,6 +1,5 @@
 // Create a DocumentClient that represents the query to add an item
 import type { UpdateExpression } from 'aws-sdk/clients/dynamodb.js'
-import type { JsonObject } from '../../types'
 
 import AWS from 'aws-sdk'
 
@@ -17,13 +16,11 @@ export default class CustomDynamoClient {
   constructor(tableName: string) {
     const options: AWS.DynamoDB.DocumentClient.DocumentClientOptions & AWS.DynamoDB.Types.ClientConfiguration = {}
 
-    this.table = tableName
+    this.table = fromSamLocalTable(tableName)
 
     if (process.env.AWS_SAM_LOCAL) {
       // Override endpoint when in local development
       options.endpoint = 'http://dynamodb:8000'
-
-      this.table = fromSamLocalTable(this.table)
 
       console.info('SAM LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table)
     }
@@ -31,14 +28,39 @@ export default class CustomDynamoClient {
     this.docClient = new AWS.DynamoDB.DocumentClient(options)
   }
 
-  async readAll<T extends object>(table?: string): Promise<T[] | undefined> {
-    // TODO should this be improved with a query? Or create a query version of this?
-    const params = {
+  async readAll<T extends object>(
+    table?: string,
+    filterExpression?: string,
+    expressionAttributeValues?: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap,
+    expressionAttributeNames?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap
+  ): Promise<T[] | undefined> {
+    const params: AWS.DynamoDB.DocumentClient.ScanInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
     }
+
+    // Create or extend filter expression to filter out deleted items
+    let finalFilterExpression = 'attribute_not_exists(deletedAt)'
+
+    if (filterExpression) {
+      finalFilterExpression = `(${finalFilterExpression}) AND (${filterExpression})`
+    }
+
+    params.FilterExpression = finalFilterExpression
+
+    // Add expression attribute values if provided
+    if (expressionAttributeValues) {
+      params.ExpressionAttributeValues = expressionAttributeValues
+    }
+
+    // Add expression attribute names if provided
+    if (expressionAttributeNames) {
+      params.ExpressionAttributeNames = expressionAttributeNames
+    }
+
     console.log('DB.scan', params)
     const data = await this.docClient.scan(params).promise()
-    return data.Items?.filter((item: JsonObject) => !item.deletedAt) as T[]
+
+    return data.Items as T[]
   }
 
   async read<T extends object>(
@@ -65,7 +87,8 @@ export default class CustomDynamoClient {
     index?: string,
     names?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap,
     forward?: boolean,
-    limit?: number
+    limit?: number,
+    filterExpression?: string
   ): Promise<T[] | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.query: no key provided, returning undefined')
@@ -79,6 +102,7 @@ export default class CustomDynamoClient {
       ExpressionAttributeNames: names,
       ScanIndexForward: forward,
       Limit: limit,
+      FilterExpression: filterExpression,
     }
     console.log('DB.query', params)
     const data = await this.docClient.query(params).promise()
@@ -120,7 +144,8 @@ export default class CustomDynamoClient {
     expression: UpdateExpression,
     names: { [key: string]: string },
     values: T,
-    table?: string
+    table?: string,
+    returnValues?: AWS.DynamoDB.DocumentClient.ReturnValue
   ) {
     const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
@@ -128,6 +153,9 @@ export default class CustomDynamoClient {
       UpdateExpression: expression,
       ExpressionAttributeNames: names,
       ExpressionAttributeValues: values,
+    }
+    if (returnValues) {
+      params.ReturnValues = returnValues
     }
     console.log('DB.update', params)
     return this.docClient.update(params).promise()

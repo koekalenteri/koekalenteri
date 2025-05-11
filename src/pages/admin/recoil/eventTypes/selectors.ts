@@ -3,7 +3,7 @@ import type { Language, RegistrationTime } from '../../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
 
-import { OFFICIAL_EVENT_TYPES } from '../../components/eventForm/validation'
+import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
 
 import { adminEventTypeFilterAtom, adminEventTypeGroupsAtom, adminEventTypesAtom } from './atoms'
 

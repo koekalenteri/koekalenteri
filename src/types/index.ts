@@ -11,6 +11,8 @@ export * from './Organizer'
 export * from './Registration'
 export * from './Transaction'
 
+export * from './Stats'
+
 export * from './paytrail'
 
 export type Language = 'fi' | 'en'

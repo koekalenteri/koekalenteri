@@ -24,6 +24,7 @@ import {
   defaultEntryStartDate,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
+  OFFICIAL_EVENT_TYPES,
 } from '../../../../lib/event'
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -32,7 +33,6 @@ import DateRange from '../../../components/DateRange'
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
-import { OFFICIAL_EVENT_TYPES } from './validation'
 
 export interface Props extends Readonly<SectionProps> {
   readonly event: PartialEvent

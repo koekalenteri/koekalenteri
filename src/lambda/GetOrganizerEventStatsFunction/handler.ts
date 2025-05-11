@@ -1,13 +1,9 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonObject } from '../../types'
 
-import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lambda } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { getOrganizerStats } from '../lib/stats'
 import { response } from '../utils/response'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.organizerEventStatsTable)
 
 const getOrganizerEventStatsLambda = lambda(
   'getOrganizerEventStats',
@@ -23,20 +19,10 @@ const getOrganizerEventStatsLambda = lambda(
     const from = event.queryStringParameters?.from
     const to = event.queryStringParameters?.to
 
-    // Read all stats and filter by organizer membership
-    const items = (await dynamoDB.readAll<JsonObject>()) || []
-    let stats = items as any[]
-    if (!user.admin) {
-      stats = stats.filter((s) => memberOf.includes(s.organizerId))
-    }
-
-    // Apply optional date filters
-    if (from) {
-      stats = stats.filter((s) => s.eventStartDate >= from)
-    }
-    if (to) {
-      stats = stats.filter((s) => s.eventEndDate <= to)
-    }
+    // Get stats based on user role
+    // If admin, get all stats; otherwise, filter by memberOf
+    const organizerIds = user.admin ? undefined : memberOf
+    const stats = await getOrganizerStats(organizerIds, from, to)
 
     return response(200, stats, event)
   }

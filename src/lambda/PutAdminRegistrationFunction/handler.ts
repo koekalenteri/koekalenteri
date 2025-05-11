@@ -6,10 +6,11 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize, getOrigin } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { updateEventStatsForRegistration, updateRegistrations } from '../lib/event'
+import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import { getRegistration, getRegistrationChanges, saveRegistration } from '../lib/registration'
+import { updateEventStatsForRegistration } from '../lib/stats'
 import { response } from '../utils/response'
 
 const { emailFrom } = CONFIG
