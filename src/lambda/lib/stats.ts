@@ -135,7 +135,7 @@ export async function getAvailableYears(): Promise<number[]> {
   }
 
   // Convert SK (year as string) to numbers and sort
-  return items.map((item) => parseInt(item.SK, 10)).sort()
+  return items.map((item) => parseInt(item.SK, 10)).sort((a, b) => a - b)
 }
 
 /**
