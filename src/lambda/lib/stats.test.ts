@@ -46,8 +46,8 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        expect.stringContaining('SET organizerId = :organizerId'),
-        expect.any(Object),
+        expect.stringContaining('SET #organizerId = :organizerId'),
+        expect.objectContaining({ '#organizerId': 'organizerId' }),
         expect.objectContaining({
           ':eventStartDate': '2024-01-01',
           ':eventEndDate': '2024-01-02',
@@ -64,8 +64,8 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'YEARS', SK: '2024' },
-        'SET updatedAt = :updatedAt',
-        {},
+        'SET #updatedAt = :updatedAt',
+        { '#updatedAt': 'updatedAt' },
         expect.objectContaining({
           ':updatedAt': expect.any(String),
         })
@@ -88,8 +88,8 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        expect.stringContaining('SET organizerId = :organizerId'),
-        expect.any(Object),
+        expect.stringContaining('SET #organizerId = :organizerId'),
+        expect.objectContaining({ '#organizerId': 'organizerId' }),
         expect.objectContaining({
           ':totalDelta': 0,
           ':paidDelta': 0,
@@ -104,8 +104,8 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'YEARS', SK: '2024' },
-        'SET updatedAt = :updatedAt',
-        {},
+        'SET #updatedAt = :updatedAt',
+        { '#updatedAt': 'updatedAt' },
         expect.objectContaining({
           ':updatedAt': expect.any(String),
         })

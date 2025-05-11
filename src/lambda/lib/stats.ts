@@ -167,7 +167,7 @@ async function updateOrganizerEventStats(
 
   // Include the original fields for backward compatibility
   const expression = [
-    'SET organizerId = :organizerId',
+    'SET #organizerId = :organizerId',
     'eventId = :eventId',
     'eventStartDate = :eventStartDate',
     'eventEndDate = :eventEndDate',
@@ -180,7 +180,8 @@ async function updateOrganizerEventStats(
     'refundedAmount :refundedAmountDelta',
   ].join(' ')
 
-  const names = {}
+  // names must not be empty
+  const names = { '#organizerId': 'organizerId' }
   const values = {
     ':organizerId': event.organizer.id,
     ':eventId': event.id,
@@ -204,8 +205,8 @@ async function updateOrganizerEventStats(
 async function updateYearRecord(year: number): Promise<void> {
   await dynamoDB.update(
     { PK: 'YEARS', SK: year.toString() },
-    'SET updatedAt = :updatedAt',
-    {},
+    'SET #updatedAt = :updatedAt',
+    { '#updatedAt': 'updatedAt' },
     { ':updatedAt': new Date().toISOString() }
   )
 }
