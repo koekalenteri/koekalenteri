@@ -56,9 +56,9 @@ describe('getOrganizerEventStatsLambda', () => {
   })
 
   const baseStats = [
-    { organizerId: 'org1', eventStartDate: '2024-01-01', value: 1 },
-    { organizerId: 'org2', eventStartDate: '2024-02-01', value: 2 },
-    { organizerId: 'org3', eventStartDate: '2024-03-01', value: 3 },
+    { organizerId: 'org1', date: '2024-01-01', value: 1 },
+    { organizerId: 'org2', date: '2024-02-01', value: 2 },
+    { organizerId: 'org3', date: '2024-03-01', value: 3 },
   ]
 
   it('returns all stats for admin user', async () => {
@@ -68,7 +68,7 @@ describe('getOrganizerEventStatsLambda', () => {
     const statsWithPK = baseStats.map((stat) => ({
       ...stat,
       PK: `ORG#${stat.organizerId}`,
-      SK: `${stat.eventStartDate}#event-id`,
+      SK: `${stat.date}#event-id`,
     }))
     mockReadAll.mockResolvedValueOnce(statsWithPK)
 
@@ -117,7 +117,7 @@ describe('getOrganizerEventStatsLambda', () => {
     const statsWithPK = baseStats.map((stat) => ({
       ...stat,
       PK: `ORG#${stat.organizerId}`,
-      SK: `${stat.eventStartDate}#event-id`,
+      SK: `${stat.date}#event-id`,
     }))
 
     // Since we're now filtering at the database level with readAll,

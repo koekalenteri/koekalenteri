@@ -20,7 +20,7 @@ export async function getOrganizerStats(
   from?: string,
   to?: string
 ): Promise<EventStatsItem[]> {
-  let allStats: EventStatsItem[] = []
+  let allStats: Required<EventStatsItem>[] = []
 
   // If organizerIds is provided, query for each organizerId
   if (organizerIds && organizerIds.length > 0) {
@@ -48,7 +48,7 @@ export async function getOrganizerStats(
       // PK: ORG#<organizerId>
       // SK: <startDate>#<eventId>
 
-      const items = await dynamoDB.query<EventStatsItem>(
+      const items = await dynamoDB.query<Required<EventStatsItem>>(
         keyCondition,
         expressionValues,
         undefined,
@@ -85,7 +85,7 @@ export async function getOrganizerStats(
     const filterExpression = filterExpressions.join(' AND ')
 
     // Use the new filtering capabilities of readAll
-    const filteredItems = await dynamoDB.readAll<EventStatsItem>(
+    const filteredItems = await dynamoDB.readAll<Required<EventStatsItem>>(
       undefined,
       filterExpression,
       expressionValues,
@@ -97,6 +97,7 @@ export async function getOrganizerStats(
     }
   }
 
+  allStats.sort((a, b) => a.date.localeCompare(b.date))
   return allStats
 }
 
