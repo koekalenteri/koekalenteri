@@ -142,7 +142,10 @@ export async function getAvailableYears(): Promise<number[]> {
 /**
  * Calculate the deltas for various statistics based on registration changes
  */
-function calculateStatDeltas(registration: JsonRegistration, existingRegistration: JsonRegistration | undefined) {
+export function calculateStatDeltas(
+  registration: JsonRegistration,
+  existingRegistration: JsonRegistration | undefined
+) {
   return {
     totalDelta: existingRegistration ? 0 : 1,
     paidDelta: (registration.paidAmount ? 1 : 0) - (existingRegistration?.paidAmount ? 1 : 0),
@@ -156,7 +159,7 @@ function calculateStatDeltas(registration: JsonRegistration, existingRegistratio
 /**
  * Update the organizer event stats in DynamoDB
  */
-async function updateOrganizerEventStats(
+export async function updateOrganizerEventStats(
   event: JsonConfirmedEvent,
   deltas: ReturnType<typeof calculateStatDeltas>
 ): Promise<void> {
@@ -165,15 +168,8 @@ async function updateOrganizerEventStats(
     SK: `${event.startDate}#${event.id}`,
   }
 
-  // Include the original fields for backward compatibility
   const expression = [
-    [
-      'SET #organizerId = :organizerId',
-      'eventId = :eventId',
-      'eventStartDate = :eventStartDate',
-      'eventEndDate = :eventEndDate',
-      'updatedAt = :updatedAt',
-    ].join(', '),
+    ['SET #organizerId = :organizerId', 'date = :date', 'updatedAt = :updatedAt'].join(', '),
     [
       'ADD count :totalDelta',
       'paidRegistrations :paidDelta',
@@ -188,9 +184,7 @@ async function updateOrganizerEventStats(
   const names = { '#organizerId': 'organizerId' }
   const values = {
     ':organizerId': event.organizer.id,
-    ':eventId': event.id,
-    ':eventStartDate': event.startDate,
-    ':eventEndDate': event.endDate,
+    ':date': event.startDate,
     ':updatedAt': new Date().toISOString(),
     ':totalDelta': deltas.totalDelta,
     ':paidDelta': deltas.paidDelta,
@@ -206,7 +200,7 @@ async function updateOrganizerEventStats(
 /**
  * Add the year to a separate record for easy querying of available years
  */
-async function updateYearRecord(year: number): Promise<void> {
+export async function updateYearRecord(year: number): Promise<void> {
   await dynamoDB.update(
     { PK: 'YEARS', SK: year.toString() },
     'SET #updatedAt = :updatedAt',
@@ -218,9 +212,9 @@ async function updateYearRecord(year: number): Promise<void> {
 /**
  * Helper for bucket calculation
  */
-function bucketForCount(count: number | undefined): string | undefined {
+export function bucketForCount(count: number | undefined): string | undefined {
   if (count === undefined) return undefined
-  if (count < 5) return `${count}`
+  if (count > 0 && count < 5) return `${count}`
   if (count >= 5 && count <= 9) return '5-9'
   if (count >= 10) return '10+'
   return undefined
@@ -229,7 +223,7 @@ function bucketForCount(count: number | undefined): string | undefined {
 /**
  * Update bucket stats for dog#handler
  */
-async function updateBucketStats(year: number, oldCount: number | undefined, newCount: number): Promise<void> {
+export async function updateBucketStats(year: number, oldCount: number | undefined, newCount: number): Promise<void> {
   const prevCount = oldCount ?? 0
   const oldBucket = bucketForCount(prevCount)
   const newBucket = bucketForCount(newCount)
@@ -257,7 +251,12 @@ async function updateBucketStats(year: number, oldCount: number | undefined, new
 /**
  * Update yearly participation stats for a specific entity type
  */
-async function updateEntityStats(year: number, type: string, entityId: string, isDogHandler: boolean): Promise<void> {
+export async function updateEntityStats(
+  year: number,
+  type: string,
+  entityId: string,
+  isDogHandler: boolean
+): Promise<void> {
   if (!entityId) return
 
   // Step 1: Add per-entity row if not exists (ADD count :incr, ReturnValues: "UPDATED_OLD")
@@ -291,11 +290,12 @@ async function updateEntityStats(year: number, type: string, entityId: string, i
 /**
  * Update yearly participation stats for official event types
  */
-async function updateYearlyParticipationStats(registration: JsonRegistration, year: number): Promise<void> {
+export async function updateYearlyParticipationStats(registration: JsonRegistration, year: number): Promise<void> {
   const identifiers: Record<YearlyStatTypes, string> = {
-    handler: registration.handler.email,
+    eventType: registration.eventType,
     dog: registration.dog.regNo,
     breed: registration.dog.breedCode ?? 'unknown',
+    handler: registration.handler.email,
     owner: registration.owner.email,
     'dog#handler': `${registration.dog.regNo}#${registration.handler.email}`,
   }

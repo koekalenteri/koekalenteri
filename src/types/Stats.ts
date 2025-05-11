@@ -1,7 +1,7 @@
 export interface OrganizerEventStats {
   organizerId: string
   eventId: string
-  eventStartDate: string
+  date: string
   count: number // total registrations
   reserveRegistrations: number
   cancelledRegistrations: number
@@ -12,7 +12,7 @@ export interface OrganizerEventStats {
   updatedAt: string
 }
 
-export type YearlyStatTypes = 'dog' | 'breed' | 'handler' | 'owner' | 'dog#handler'
+export type YearlyStatTypes = 'eventType' | 'dog' | 'breed' | 'handler' | 'owner' | 'dog#handler'
 
 export interface YearlyTotalStat {
   year: number

@@ -1,10 +1,11 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
+import type CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
+const mockUpdate = jest.fn<CustomDynamoClient['update']>()
 const mockWrite = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 
@@ -25,6 +26,13 @@ const {
   getYearlyTotalStats,
   getAvailableYears,
   getDogHandlerBuckets,
+  calculateStatDeltas,
+  bucketForCount,
+  updateOrganizerEventStats,
+  updateYearRecord,
+  updateBucketStats,
+  updateEntityStats,
+  updateYearlyParticipationStats,
 } = await import('./stats')
 
 describe('lib/stats', () => {
@@ -46,11 +54,10 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        expect.stringContaining('SET #organizerId = :organizerId'),
+        'SET #organizerId = :organizerId, date = :date, updatedAt = :updatedAt ADD count :totalDelta, paidRegistrations :paidDelta, cancelledRegistrations :cancelledDelta, refundedRegistrations :refundedDelta, paidAmount :paidAmountDelta, refundedAmount :refundedAmountDelta',
         expect.objectContaining({ '#organizerId': 'organizerId' }),
         expect.objectContaining({
-          ':eventStartDate': '2024-01-01',
-          ':eventEndDate': '2024-01-02',
+          ':date': '2024-01-01',
           ':totalDelta': 1,
           ':paidDelta': 1,
           ':cancelledDelta': 0,
@@ -146,8 +153,6 @@ describe('lib/stats', () => {
           PK: 'ORG#org1',
           SK: '2024-02-01#e1',
           organizerId: 'org1',
-          eventId: 'e1',
-          eventStartDate: '2024-02-01',
           count: 10,
         },
       ]
@@ -261,6 +266,334 @@ describe('lib/stats', () => {
       const result = await getDogHandlerBuckets(2023)
 
       expect(result).toEqual([])
+    })
+  })
+
+  // Tests for previously untested functions
+  describe('calculateStatDeltas', () => {
+    it('calculates correct deltas for new registration', () => {
+      const registration = {
+        paidAmount: 50,
+        cancelled: false,
+        refundAmount: 0,
+      } as JsonRegistration
+
+      const deltas = calculateStatDeltas(registration, undefined)
+
+      expect(deltas).toEqual({
+        totalDelta: 1,
+        paidDelta: 1,
+        cancelledDelta: 0,
+        refundedDelta: 0,
+        paidAmountDelta: 50,
+        refundedAmountDelta: 0,
+      })
+    })
+
+    it('calculates correct deltas for updated registration', () => {
+      const existingRegistration = {
+        paidAmount: 50,
+        cancelled: false,
+        refundAmount: 0,
+      } as JsonRegistration
+
+      const updatedRegistration = {
+        paidAmount: 50,
+        cancelled: true,
+        refundAmount: 25,
+      } as JsonRegistration
+
+      const deltas = calculateStatDeltas(updatedRegistration, existingRegistration)
+
+      expect(deltas).toEqual({
+        totalDelta: 0,
+        paidDelta: 0,
+        cancelledDelta: 1,
+        refundedDelta: 1,
+        paidAmountDelta: 0,
+        refundedAmountDelta: 25,
+      })
+    })
+
+    it('handles null values correctly', () => {
+      const existingRegistration = {
+        paidAmount: null,
+        cancelled: false,
+        refundAmount: null,
+      } as unknown as JsonRegistration
+
+      const updatedRegistration = {
+        paidAmount: 50,
+        cancelled: false,
+        refundAmount: null,
+      } as unknown as JsonRegistration
+
+      const deltas = calculateStatDeltas(updatedRegistration, existingRegistration)
+
+      expect(deltas).toEqual({
+        totalDelta: 0,
+        paidDelta: 1,
+        cancelledDelta: 0,
+        refundedDelta: 0,
+        paidAmountDelta: 50,
+        refundedAmountDelta: 0,
+      })
+    })
+  })
+
+  describe('updateOrganizerEventStats', () => {
+    it('calls update with correct parameters', async () => {
+      const event = {
+        organizer: { id: 'org123' },
+        id: 'event456',
+        startDate: '2024-06-15',
+      } as JsonConfirmedEvent
+
+      const deltas = {
+        totalDelta: 1,
+        paidDelta: 1,
+        cancelledDelta: 0,
+        refundedDelta: 0,
+        paidAmountDelta: 50,
+        refundedAmountDelta: 0,
+      }
+
+      await updateOrganizerEventStats(event, deltas)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { PK: 'ORG#org123', SK: '2024-06-15#event456' },
+        expect.stringContaining('SET #organizerId = :organizerId'),
+        { '#organizerId': 'organizerId' },
+        expect.objectContaining({
+          ':organizerId': 'org123',
+          ':date': '2024-06-15',
+          ':totalDelta': 1,
+          ':paidDelta': 1,
+          ':cancelledDelta': 0,
+          ':refundedDelta': 0,
+          ':paidAmountDelta': 50,
+          ':refundedAmountDelta': 0,
+        })
+      )
+    })
+  })
+
+  describe('updateYearRecord', () => {
+    it('calls update with correct parameters', async () => {
+      await updateYearRecord(2024)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { PK: 'YEARS', SK: '2024' },
+        'SET #updatedAt = :updatedAt',
+        { '#updatedAt': 'updatedAt' },
+        expect.objectContaining({
+          ':updatedAt': expect.any(String),
+        })
+      )
+    })
+  })
+
+  describe('bucketForCount', () => {
+    it('returns correct bucket for counts less than 5', () => {
+      expect(bucketForCount(1)).toBe('1')
+      expect(bucketForCount(2)).toBe('2')
+      expect(bucketForCount(3)).toBe('3')
+      expect(bucketForCount(4)).toBe('4')
+    })
+
+    it('returns 5-9 bucket for counts between 5 and 9', () => {
+      expect(bucketForCount(5)).toBe('5-9')
+      expect(bucketForCount(7)).toBe('5-9')
+      expect(bucketForCount(9)).toBe('5-9')
+    })
+
+    it('returns 10+ bucket for counts 10 or greater', () => {
+      expect(bucketForCount(10)).toBe('10+')
+      expect(bucketForCount(15)).toBe('10+')
+      expect(bucketForCount(100)).toBe('10+')
+    })
+
+    it('returns undefined for undefined input', () => {
+      expect(bucketForCount(undefined)).toBeUndefined()
+    })
+  })
+
+  describe('updateBucketStats', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('decrements old bucket and increments new bucket when bucket changes', async () => {
+      await updateBucketStats(2024, 2, 6)
+
+      // Should decrement the '2' bucket
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        1,
+        { PK: 'BUCKETS#2024#dog#handler', SK: '2' },
+        'ADD #count :decr',
+        { '#count': 'count' },
+        { ':decr': -1 }
+      )
+
+      // Should increment the '5-9' bucket
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        2,
+        { PK: 'BUCKETS#2024#dog#handler', SK: '5-9' },
+        'ADD #count :incr',
+        { '#count': 'count' },
+        { ':incr': 1 }
+      )
+    })
+
+    it('only increments new bucket when old count is undefined', async () => {
+      // @ts-expect-error partoal return value
+      mockUpdate.mockResolvedValueOnce({ Attributes: { count: undefined } })
+
+      await updateBucketStats(2024, undefined, 3)
+
+      // Should only increment the '3' bucket
+      expect(mockUpdate).toHaveBeenCalledTimes(1)
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { PK: 'BUCKETS#2024#dog#handler', SK: '3' },
+        'ADD #count :incr',
+        { '#count': 'count' },
+        { ':incr': 1 }
+      )
+    })
+
+    it('does nothing when bucket does not change', async () => {
+      await updateBucketStats(2024, 5, 6)
+
+      // Both are in the same bucket, so no updates should happen
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('updateEntityStats', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('updates entity stats and increments total for new entity', async () => {
+      await updateEntityStats(2024, 'dog', 'DOG123', false)
+
+      // First call should update the entity count
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        1,
+        { PK: 'STAT#2024#dog', SK: 'DOG123' },
+        'ADD #count :incr',
+        { '#count': 'count' },
+        { ':incr': 1 },
+        undefined,
+        'UPDATED_OLD'
+      )
+
+      // Second call should increment the total count for this type
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        2,
+        { PK: 'TOTALS#2024', SK: 'dog' },
+        'ADD #count :incr',
+        { '#count': 'count' },
+        { ':incr': 1 }
+      )
+    })
+
+    it('updates dog#handler entity stats and bucket stats', async () => {
+      // Reset the mock implementation to simulate an existing entity
+      // @ts-expect-error partoal return value
+      mockUpdate.mockResolvedValueOnce({ Attributes: { count: 2 } })
+
+      await updateEntityStats(2024, 'dog#handler', 'DOG123#HANDLER456', true)
+
+      // First call should update the entity count
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        1,
+        { PK: 'STAT#2024#dog#handler', SK: 'DOG123#HANDLER456' },
+        'ADD #count :incr',
+        { '#count': 'count' },
+        { ':incr': 1 },
+        undefined,
+        'UPDATED_OLD'
+      )
+
+      // Should call updateBucketStats with oldCount=2, newCount=3
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        2,
+        { PK: 'BUCKETS#2024#dog#handler', SK: '2' },
+        'ADD #count :decr',
+        { '#count': 'count' },
+        { ':decr': -1 }
+      )
+
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        3,
+        { PK: 'BUCKETS#2024#dog#handler', SK: '3' },
+        'ADD #count :incr',
+        { '#count': 'count' },
+        { ':incr': 1 }
+      )
+    })
+
+    it('does nothing when entityId is empty', async () => {
+      await updateEntityStats(2024, 'dog', '', false)
+
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('updateYearlyParticipationStats', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('updates stats for all entity types', async () => {
+      const registration = {
+        eventType: 'NOME',
+        dog: { regNo: 'DOG123', breedCode: 'BC' },
+        handler: { email: 'handler@example.com' },
+        owner: { email: 'owner@example.com' },
+      } as unknown as JsonRegistration
+
+      await updateYearlyParticipationStats(registration, 2024)
+
+      // Should call updateEntityStats for each entity type
+      expect(mockUpdate).toHaveBeenCalledTimes(13) // 6 entity types * 2 calls per type (entity + total) + handler#dog
+
+      // Verify calls for each entity type
+      const pkCalls = mockUpdate.mock.calls.map((call) => call[0].PK)
+
+      expect(pkCalls).toContain('STAT#2024#eventType')
+      expect(pkCalls).toContain('STAT#2024#dog')
+      expect(pkCalls).toContain('STAT#2024#breed')
+      expect(pkCalls).toContain('STAT#2024#handler')
+      expect(pkCalls).toContain('STAT#2024#owner')
+      expect(pkCalls).toContain('STAT#2024#dog#handler')
+
+      // Verify the SK values for each entity type
+      const skValues = mockUpdate.mock.calls.map((call) => call[0].SK)
+
+      expect(skValues).toContain('NOME')
+      expect(skValues).toContain('DOG123')
+      expect(skValues).toContain('BC')
+      expect(skValues).toContain('handler@example.com')
+      expect(skValues).toContain('owner@example.com')
+      expect(skValues).toContain('DOG123#handler@example.com')
+    })
+
+    it('uses "unknown" for missing breed code', async () => {
+      const registration = {
+        eventType: 'NOME',
+        dog: { regNo: 'DOG123', breedCode: null },
+        handler: { email: 'handler@example.com' },
+        owner: { email: 'owner@example.com' },
+      } as unknown as JsonRegistration
+
+      await updateYearlyParticipationStats(registration, 2024)
+
+      // Find the call for breed
+      const breedCall = mockUpdate.mock.calls.find((call) => call[0].PK === 'STAT#2024#breed')
+
+      expect(breedCall?.[0].SK).toBe('unknown')
     })
   })
 })
