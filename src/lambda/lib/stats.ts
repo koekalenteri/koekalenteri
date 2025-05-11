@@ -167,18 +167,22 @@ async function updateOrganizerEventStats(
 
   // Include the original fields for backward compatibility
   const expression = [
-    'SET #organizerId = :organizerId',
-    'eventId = :eventId',
-    'eventStartDate = :eventStartDate',
-    'eventEndDate = :eventEndDate',
-    'updatedAt = :updatedAt',
-    'ADD count :totalDelta',
-    'paidRegistrations :paidDelta',
-    'cancelledRegistrations :cancelledDelta',
-    'refundedRegistrations :refundedDelta',
-    'paidAmount :paidAmountDelta',
-    'refundedAmount :refundedAmountDelta',
-  ].join(', ')
+    [
+      'SET #organizerId = :organizerId',
+      'eventId = :eventId',
+      'eventStartDate = :eventStartDate',
+      'eventEndDate = :eventEndDate',
+      'updatedAt = :updatedAt',
+    ].join(', '),
+    [
+      'ADD count :totalDelta',
+      'paidRegistrations :paidDelta',
+      'cancelledRegistrations :cancelledDelta',
+      'refundedRegistrations :refundedDelta',
+      'paidAmount :paidAmountDelta',
+      'refundedAmount :refundedAmountDelta',
+    ].join(', '),
+  ].join(' ')
 
   // names must not be empty
   const names = { '#organizerId': 'organizerId' }
