@@ -1,5 +1,6 @@
 import type { KLAPIConfig } from '../types/KLAPI'
 import type { PaytrailConfig } from '../types/paytrail'
+import type { UpstashConfig } from '../types/upstash'
 
 import AWS from 'aws-sdk'
 
@@ -41,5 +42,18 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
     throw new Error('Missing Paytrail Config!')
   }
   console.log('merchantId: ' + cfg.PAYTRAIL_MERCHANT_ID)
+  return cfg
+}
+
+export const getUpstashConfig = async (): Promise<UpstashConfig> => {
+  const ssmParams = await getSSMParams([`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`])
+  const cfg: UpstashConfig = {
+    UPSTASH_REDIS_REST_URL: ssmParams[`UPSTASH_REDIS_REST_URL`],
+    UPSTASH_REDIS_REST_TOKEN: ssmParams[`UPSTASH_REDIS_REST_TOKEN`],
+  }
+  if (!cfg.UPSTASH_REDIS_REST_URL || !cfg.UPSTASH_REDIS_REST_TOKEN) {
+    throw new Error('Missing Upstash Config!')
+  }
+
   return cfg
 }

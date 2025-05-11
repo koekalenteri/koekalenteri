@@ -24,6 +24,12 @@ jest.unstable_mockModule('./audit', () => ({
   registrationAuditKey: jest.fn(() => 'audit-key'),
 }))
 
+const mockSSE = jest.fn()
+jest.unstable_mockModule('./sse', () => ({
+  __esModule: true,
+  sse: mockSSE,
+}))
+
 const {
   findQualificationStartDate,
   fixRegistrationGroups,

@@ -25,6 +25,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
+import { sse } from './sse'
 
 const { eventTable, eventStatsTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
@@ -141,6 +142,8 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
   confirmedEvent.entries = entries
   confirmedEvent.members = members
+
+  sse({ eventId, classes, entries, members })
 
   return confirmedEvent
 }
