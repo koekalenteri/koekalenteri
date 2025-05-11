@@ -178,7 +178,7 @@ async function updateOrganizerEventStats(
     'refundedRegistrations :refundedDelta',
     'paidAmount :paidAmountDelta',
     'refundedAmount :refundedAmountDelta',
-  ].join(' ')
+  ].join(', ')
 
   // names must not be empty
   const names = { '#organizerId': 'organizerId' }
