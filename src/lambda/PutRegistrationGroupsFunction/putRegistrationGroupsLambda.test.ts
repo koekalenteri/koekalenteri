@@ -123,23 +123,26 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       1,
       { eventId: 'testInvited', id: 'testInvited5' },
-      'set #grp = :value, #cancelled = :cancelled',
-      { '#cancelled': 'cancelled', '#grp': 'group' },
-      { ':cancelled': false, ':value': { key: 'reserve', number: 3 } },
+      {
+        set: {
+          cancelled: false,
+          group: { key: 'reserve', number: 3 },
+        },
+      },
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       2,
       { id: 'testInvited' },
-      'set #entries = :entries, #members = :members, #classes = :classes',
-      { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
       {
-        ':classes': [
-          { class: 'ALO', date: expect.any(String), entries: 5, members: 0, places: 3 },
-          { class: 'AVO', date: expect.any(String), entries: 2, members: 0, places: 1 },
-        ],
-        ':entries': 7,
-        ':members': 0,
+        set: {
+          classes: [
+            { class: 'ALO', date: expect.any(String), entries: 5, members: 0, places: 3 },
+            { class: 'AVO', date: expect.any(String), entries: 2, members: 0, places: 1 },
+          ],
+          entries: 7,
+          members: 0,
+        },
       },
       'event-table-not-found-in-env'
     )
@@ -179,31 +182,37 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       1,
       { eventId: 'testInvited', id: 'testInvited7' },
-      'set #grp = :value, #cancelled = :cancelled',
-      { '#cancelled': 'cancelled', '#grp': 'group' },
-      { ':cancelled': false, ':value': { key: 'reserve', number: 1 } },
+      {
+        set: {
+          cancelled: false,
+          group: { key: 'reserve', number: 1 },
+        },
+      },
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       2,
       { eventId: 'testInvited', id: 'testInvited6' },
-      'set #grp = :value, #cancelled = :cancelled',
-      { '#cancelled': 'cancelled', '#grp': 'group' },
-      { ':cancelled': false, ':value': { key: 'reserve', number: 2 } },
+      {
+        set: {
+          cancelled: false,
+          group: { key: 'reserve', number: 2 },
+        },
+      },
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       3,
       { id: 'testInvited' },
-      'set #entries = :entries, #members = :members, #classes = :classes',
-      { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
       {
-        ':classes': [
-          { class: 'ALO', date: expect.any(String), entries: 4, members: 0, places: 3 },
-          { class: 'AVO', date: expect.any(String), entries: 2, members: 0, places: 1 },
-        ],
-        ':entries': 6,
-        ':members': 0,
+        set: {
+          classes: [
+            { class: 'ALO', date: expect.any(String), entries: 4, members: 0, places: 3 },
+            { class: 'AVO', date: expect.any(String), entries: 2, members: 0, places: 1 },
+          ],
+          entries: 6,
+          members: 0,
+        },
       },
       'event-table-not-found-in-env'
     )
@@ -364,23 +373,27 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       1,
       { eventId: 'testInvited', id: 'testInvited4' },
-      'set #grp = :value, #cancelled = :cancelled, #cancelReason = :cancelReason',
-      { '#cancelled': 'cancelled', '#grp': 'group', '#cancelReason': 'cancelReason' },
-      { ':cancelled': true, ':value': { key: 'cancelled', number: 1 }, ':cancelReason': 'test' },
+      {
+        set: {
+          cancelled: true,
+          group: { key: 'cancelled', number: 1 },
+          cancelReason: 'test',
+        },
+      },
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       2,
       { id: 'testInvited' },
-      'set #entries = :entries, #members = :members, #classes = :classes',
-      { '#classes': 'classes', '#entries': 'entries', '#members': 'members' },
       {
-        ':classes': [
-          { class: 'ALO', date: expect.any(String), entries: 4, members: 0, places: 3 },
-          { class: 'AVO', date: expect.any(String), entries: 1, members: 0, places: 1 },
-        ],
-        ':entries': 5,
-        ':members': 0,
+        set: {
+          classes: [
+            { class: 'ALO', date: expect.any(String), entries: 4, members: 0, places: 3 },
+            { class: 'AVO', date: expect.any(String), entries: 1, members: 0, places: 1 },
+          ],
+          entries: 5,
+          members: 0,
+        },
       },
       'event-table-not-found-in-env'
     )

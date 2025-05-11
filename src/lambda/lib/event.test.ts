@@ -128,9 +128,12 @@ describe('lib/event', () => {
       expect(event.classes.every((c) => c.state === 'invited')).toBe(true)
       expect(mockUpdate).toHaveBeenCalledWith(
         { id: 'e1' },
-        'set #classes = :classes, #state = :state',
-        { '#classes': 'classes', '#state': 'state' },
-        { ':classes': event.classes, ':state': event.state },
+        {
+          set: {
+            classes: event.classes,
+            state: event.state,
+          },
+        },
         expect.anything()
       )
     })

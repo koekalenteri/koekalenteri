@@ -31,18 +31,13 @@ const handleSuccessfulPayment = async (
 
   await dynamoDB.update(
     { eventId, id: registrationId },
-    'set #paidAmount = :paidAmount, #paidAt = :paidAt, #paymentStatus = :paymentStatus, #state = :state',
     {
-      '#paidAmount': 'paidAmount',
-      '#paidAt': 'paidAt',
-      '#paymentStatus': 'paymentStatus',
-      '#state': 'state',
-    },
-    {
-      ':paidAmount': (registration.paidAmount ?? 0) + amount,
-      ':paidAt': new Date().toISOString(),
-      ':paymentStatus': 'SUCCESS',
-      ':state': 'ready',
+      set: {
+        paidAmount: (registration.paidAmount ?? 0) + amount,
+        paidAt: new Date().toISOString(),
+        paymentStatus: 'SUCCESS',
+        state: 'ready',
+      },
     },
     registrationTable
   )

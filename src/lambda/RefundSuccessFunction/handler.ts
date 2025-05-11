@@ -58,16 +58,12 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
 
     await dynamoDB.update(
       { eventId, id: registrationId },
-      'set #refundAmount = :refundAmount, #refundAt = :refundAt, #refundStatus = :refundStatus',
       {
-        '#refundAmount': 'refundAmount',
-        '#refundAt': 'refundAt',
-        '#refundStatus': 'refundStatus',
-      },
-      {
-        ':refundAmount': changes.refundAmount,
-        ':refundAt': changes.refundAt,
-        ':refundStatus': changes.refundStatus,
+        set: {
+          refundAmount: changes.refundAmount,
+          refundAt: changes.refundAt,
+          refundStatus: changes.refundStatus,
+        },
       },
       registrationTable
     )

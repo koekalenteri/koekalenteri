@@ -304,33 +304,106 @@ describe('CustomDynamoClient', () => {
   })
 
   describe('update', () => {
-    it('updates an item with expression', async () => {
+    it('updates an item with SET operations', async () => {
       const client = new CustomDynamoClient('TestTable')
       mockUpdate.mockResolvedValueOnce({})
 
-      await client.update({ id: '1' }, 'SET #name = :name', { '#name': 'name' }, { ':name': 'Updated' })
+      await client.update({ id: '1' }, { set: { name: 'Updated', status: 'active' } })
 
       expect(mockDocumentClient.update).toHaveBeenCalledWith({
         TableName: 'test-table',
         Key: { id: '1' },
-        UpdateExpression: 'SET #name = :name',
-        ExpressionAttributeNames: { '#name': 'name' },
-        ExpressionAttributeValues: { ':name': 'Updated' },
+        UpdateExpression: 'SET #name = :name, #status = :status',
+        ExpressionAttributeNames: { '#name': 'name', '#status': 'status' },
+        ExpressionAttributeValues: { ':name': 'Updated', ':status': 'active' },
       })
+    })
+
+    it('updates an item with ADD operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockUpdate.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { add: { count: 1, points: 5 } })
+
+      expect(mockDocumentClient.update).toHaveBeenCalledWith({
+        TableName: 'test-table',
+        Key: { id: '1' },
+        UpdateExpression: 'ADD #count :count, #points :points',
+        ExpressionAttributeNames: { '#count': 'count', '#points': 'points' },
+        ExpressionAttributeValues: { ':count': 1, ':points': 5 },
+      })
+    })
+
+    it('updates an item with both SET and ADD operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockUpdate.mockResolvedValueOnce({})
+
+      await client.update(
+        { id: '1' },
+        {
+          set: { name: 'Updated', status: 'active' },
+          add: { count: 1, points: 5 },
+        }
+      )
+
+      expect(mockDocumentClient.update).toHaveBeenCalledWith({
+        TableName: 'test-table',
+        Key: { id: '1' },
+        UpdateExpression: 'SET #name = :name, #status = :status ADD #count :count, #points :points',
+        ExpressionAttributeNames: {
+          '#name': 'name',
+          '#status': 'status',
+          '#count': 'count',
+          '#points': 'points',
+        },
+        ExpressionAttributeValues: {
+          ':name': 'Updated',
+          ':status': 'active',
+          ':count': 1,
+          ':points': 5,
+        },
+      })
+    })
+
+    it('handles field name conflicts between SET and ADD operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockUpdate.mockResolvedValueOnce({})
+
+      await client.update(
+        { id: '1' },
+        {
+          set: { count: 10 },
+          add: { count: 1 },
+        }
+      )
+
+      expect(mockDocumentClient.update).toHaveBeenCalledWith({
+        TableName: 'test-table',
+        Key: { id: '1' },
+        UpdateExpression: 'SET #count = :count ADD #count_add :count_add',
+        ExpressionAttributeNames: {
+          '#count': 'count',
+          '#count_add': 'count',
+        },
+        ExpressionAttributeValues: {
+          ':count': 10,
+          ':count_add': 1,
+        },
+      })
+    })
+
+    it('throws an error when no operations are provided', async () => {
+      const client = new CustomDynamoClient('TestTable')
+
+      await expect(client.update({ id: '1' }, {})).rejects.toThrow('No update operations provided')
+      await expect(client.update({ id: '1' }, { set: {}, add: {} })).rejects.toThrow('No update operations provided')
     })
 
     it('includes ReturnValues when provided', async () => {
       const client = new CustomDynamoClient('TestTable')
       mockUpdate.mockResolvedValueOnce({})
 
-      await client.update(
-        { id: '1' },
-        'SET #name = :name',
-        { '#name': 'name' },
-        { ':name': 'Updated' },
-        undefined,
-        'ALL_NEW'
-      )
+      await client.update({ id: '1' }, { set: { name: 'Updated' } }, undefined, 'ALL_NEW')
 
       expect(mockDocumentClient.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -343,7 +416,7 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockUpdate.mockResolvedValueOnce({})
 
-      await client.update({ id: '1' }, 'SET #name = :name', { '#name': 'name' }, { ':name': 'Updated' }, 'CustomTable')
+      await client.update({ id: '1' }, { set: { name: 'Updated' } }, 'CustomTable')
 
       expect(mockDocumentClient.update).toHaveBeenCalledWith(
         expect.objectContaining({

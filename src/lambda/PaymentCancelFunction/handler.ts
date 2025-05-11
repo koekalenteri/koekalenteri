@@ -33,10 +33,10 @@ const paymentCancelLambda = lambda('paymentCancel', async (event) => {
     if (registration.paymentStatus === 'PENDING') {
       await dynamoDB.update(
         { eventId, id: registrationId },
-        'set #paymentStatus = :paymentStatus',
-        { '#paymentStatus': 'paymentStatus' },
         {
-          ':paymentStatus': 'CANCEL',
+          set: {
+            paymentStatus: 'CANCEL',
+          },
         },
         registrationTable
       )

@@ -84,14 +84,11 @@ export const markParticipants = async (
 
   await dynamoDB.update(
     eventKey,
-    'set #classes = :classes, #state = :state',
     {
-      '#classes': 'classes',
-      '#state': 'state',
-    },
-    {
-      ':classes': confirmedEvent.classes,
-      ':state': confirmedEvent.state,
+      set: {
+        classes: confirmedEvent.classes,
+        state: confirmedEvent.state,
+      },
     },
     eventTable
   )
@@ -132,16 +129,12 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   const members = registrations?.filter(priorityFilter).length ?? 0
   await dynamoDB.update(
     eventKey,
-    'set #entries = :entries, #members = :members, #classes = :classes',
     {
-      '#entries': 'entries',
-      '#members': 'members',
-      '#classes': 'classes',
-    },
-    {
-      ':entries': entries,
-      ':members': members,
-      ':classes': classes,
+      set: {
+        entries,
+        members,
+        classes,
+      },
     },
     eventTable
   )
@@ -175,30 +168,23 @@ export const saveGroup = async (
   if (cancelled && cancelReason) {
     await dynamoDB.update(
       registrationKey,
-      'set #grp = :value, #cancelled = :cancelled, #cancelReason = :cancelReason',
       {
-        '#grp': 'group',
-        '#cancelled': 'cancelled',
-        '#cancelReason': 'cancelReason',
-      },
-      {
-        ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-        ':cancelled': cancelled,
-        ':cancelReason': cancelReason,
+        set: {
+          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+          cancelled,
+          cancelReason,
+        },
       },
       registrationTable
     )
   } else {
     await dynamoDB.update(
       registrationKey,
-      'set #grp = :value, #cancelled = :cancelled',
       {
-        '#grp': 'group',
-        '#cancelled': 'cancelled',
-      },
-      {
-        ':value': { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
-        ':cancelled': cancelled,
+        set: {
+          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+          cancelled,
+        },
       },
       registrationTable
     )

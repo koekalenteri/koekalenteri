@@ -129,12 +129,12 @@ describe('getEventTypesLambda', () => {
 
     expect(mockDynamoDB.update).toHaveBeenCalledWith(
       { eventType: 'y' },
-      'set #description = :description, #modifiedAt = :modifiedAt, #modifiedBy = :modifiedBy',
-      { '#description': 'description', '#modifiedAt': 'modifiedAt', '#modifiedBy': 'modifiedBy' },
       {
-        ':description': { en: 'new en', fi: 'new fi', sv: 'old sv' },
-        ':modifiedAt': expect.any(String),
-        ':modifiedBy': 'Test User',
+        set: {
+          description: { en: 'new en', fi: 'new fi', sv: 'old sv' },
+          modifiedAt: expect.any(String),
+          modifiedBy: 'Test User',
+        },
       }
     )
     expect(mockDynamoDB.update).toHaveBeenCalledTimes(1)

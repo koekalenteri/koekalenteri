@@ -54,28 +54,32 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        'SET #organizerId = :organizerId, #date = :date, updatedAt = :updatedAt ADD count :totalDelta, paidRegistrations :paidDelta, cancelledRegistrations :cancelledDelta, refundedRegistrations :refundedDelta, paidAmount :paidAmountDelta, refundedAmount :refundedAmountDelta',
-        expect.objectContaining({ '#organizerId': 'organizerId', '#date': 'date' }),
-        expect.objectContaining({
-          ':date': '2024-01-01',
-          ':totalDelta': 1,
-          ':paidDelta': 1,
-          ':cancelledDelta': 0,
-          ':refundedDelta': 0,
-          ':paidAmountDelta': 10,
-          ':refundedAmountDelta': 0,
-        })
+        {
+          set: {
+            organizerId: 'org1',
+            date: '2024-01-01',
+            updatedAt: expect.any(String),
+          },
+          add: {
+            count: 1,
+            paidRegistrations: 1,
+            cancelledRegistrations: 0,
+            refundedRegistrations: 0,
+            paidAmount: 10,
+            refundedAmount: 0,
+          },
+        }
       )
 
       // Second call should add the year to the YEARS record
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'YEARS', SK: '2024' },
-        'SET #updatedAt = :updatedAt',
-        { '#updatedAt': 'updatedAt' },
-        expect.objectContaining({
-          ':updatedAt': expect.any(String),
-        })
+        {
+          set: {
+            updatedAt: expect.any(String),
+          },
+        }
       )
     })
 
@@ -95,27 +99,32 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
-        expect.stringContaining('SET #organizerId = :organizerId'),
-        expect.objectContaining({ '#organizerId': 'organizerId' }),
-        expect.objectContaining({
-          ':totalDelta': 0,
-          ':paidDelta': 0,
-          ':cancelledDelta': 1,
-          ':refundedDelta': 1,
-          ':paidAmountDelta': 5,
-          ':refundedAmountDelta': 2,
-        })
+        {
+          set: {
+            organizerId: 'org1',
+            date: '2024-01-01',
+            updatedAt: expect.any(String),
+          },
+          add: {
+            count: 0,
+            paidRegistrations: 0,
+            cancelledRegistrations: 1,
+            refundedRegistrations: 1,
+            paidAmount: 5,
+            refundedAmount: 2,
+          },
+        }
       )
 
       // Second call should add the year to the YEARS record
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'YEARS', SK: '2024' },
-        'SET #updatedAt = :updatedAt',
-        { '#updatedAt': 'updatedAt' },
-        expect.objectContaining({
-          ':updatedAt': expect.any(String),
-        })
+        {
+          set: {
+            updatedAt: expect.any(String),
+          },
+        }
       )
     })
   })
@@ -362,18 +371,21 @@ describe('lib/stats', () => {
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { PK: 'ORG#org123', SK: '2024-06-15#event456' },
-        expect.stringContaining('SET #organizerId = :organizerId'),
-        { '#organizerId': 'organizerId', '#date': 'date' },
-        expect.objectContaining({
-          ':organizerId': 'org123',
-          ':date': '2024-06-15',
-          ':totalDelta': 1,
-          ':paidDelta': 1,
-          ':cancelledDelta': 0,
-          ':refundedDelta': 0,
-          ':paidAmountDelta': 50,
-          ':refundedAmountDelta': 0,
-        })
+        {
+          set: {
+            organizerId: 'org123',
+            date: '2024-06-15',
+            updatedAt: expect.any(String),
+          },
+          add: {
+            count: 1,
+            paidRegistrations: 1,
+            cancelledRegistrations: 0,
+            refundedRegistrations: 0,
+            paidAmount: 50,
+            refundedAmount: 0,
+          },
+        }
       )
     })
   })
@@ -384,11 +396,11 @@ describe('lib/stats', () => {
 
       expect(mockUpdate).toHaveBeenCalledWith(
         { PK: 'YEARS', SK: '2024' },
-        'SET #updatedAt = :updatedAt',
-        { '#updatedAt': 'updatedAt' },
-        expect.objectContaining({
-          ':updatedAt': expect.any(String),
-        })
+        {
+          set: {
+            updatedAt: expect.any(String),
+          },
+        }
       )
     })
   })
@@ -430,18 +442,22 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'BUCKETS#2024#dog#handler', SK: '2' },
-        'ADD #count :decr',
-        { '#count': 'count' },
-        { ':decr': -1 }
+        {
+          add: {
+            count: -1,
+          },
+        }
       )
 
       // Should increment the '5-9' bucket
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'BUCKETS#2024#dog#handler', SK: '5-9' },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 }
+        {
+          add: {
+            count: 1,
+          },
+        }
       )
     })
 
@@ -455,9 +471,11 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenCalledTimes(1)
       expect(mockUpdate).toHaveBeenCalledWith(
         { PK: 'BUCKETS#2024#dog#handler', SK: '3' },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 }
+        {
+          add: {
+            count: 1,
+          },
+        }
       )
     })
 
@@ -481,9 +499,11 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'STAT#2024#dog', SK: 'DOG123' },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 },
+        {
+          add: {
+            count: 1,
+          },
+        },
         undefined,
         'UPDATED_OLD'
       )
@@ -492,9 +512,11 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'TOTALS#2024', SK: 'dog' },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 }
+        {
+          add: {
+            count: 1,
+          },
+        }
       )
     })
 
@@ -509,9 +531,11 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         1,
         { PK: 'STAT#2024#dog#handler', SK: 'DOG123#HANDLER456' },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 },
+        {
+          add: {
+            count: 1,
+          },
+        },
         undefined,
         'UPDATED_OLD'
       )
@@ -520,17 +544,21 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenNthCalledWith(
         2,
         { PK: 'BUCKETS#2024#dog#handler', SK: '2' },
-        'ADD #count :decr',
-        { '#count': 'count' },
-        { ':decr': -1 }
+        {
+          add: {
+            count: -1,
+          },
+        }
       )
 
       expect(mockUpdate).toHaveBeenNthCalledWith(
         3,
         { PK: 'BUCKETS#2024#dog#handler', SK: '3' },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 }
+        {
+          add: {
+            count: 1,
+          },
+        }
       )
     })
 

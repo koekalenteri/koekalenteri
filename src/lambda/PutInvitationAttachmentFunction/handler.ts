@@ -47,12 +47,10 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
 
   await dynamoDB.update(
     { id: eventId },
-    'set #attachment = :attachment',
     {
-      '#attachment': 'invitationAttachment',
-    },
-    {
-      ':attachment': key,
+      set: {
+        invitationAttachment: key,
+      },
     }
   )
 

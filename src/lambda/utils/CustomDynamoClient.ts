@@ -1,5 +1,4 @@
 // Create a DocumentClient that represents the query to add an item
-import type { UpdateExpression } from 'aws-sdk/clients/dynamodb.js'
 
 import AWS from 'aws-sdk'
 
@@ -139,24 +138,110 @@ export default class CustomDynamoClient {
     }
   }
 
-  async update<T extends object>(
+  /**
+   * Updates an item in the table using a structured object format
+   * @param key - The key of the item to update
+   * @param updates - Object containing set and/or add operations
+   * @param table - Optional table name
+   * @param returnValues - Optional return values specification
+   * @returns Promise with the update result
+   *
+   * Example:
+   * ```
+   * await client.update(
+   *   { id: '123' },
+   *   {
+   *     set: { name: 'New Name', status: 'active' },
+   *     add: { count: 1, points: 5 }
+   *   }
+   * )
+   * ```
+   */
+  async update(
     key: AWS.DynamoDB.DocumentClient.Key,
-    expression: UpdateExpression,
-    names: { [key: string]: string },
-    values: T,
+    updates: {
+      set?: Record<string, any>
+      add?: Record<string, any>
+    },
     table?: string,
     returnValues?: AWS.DynamoDB.DocumentClient.ReturnValue
   ) {
+    // Initialize expression parts and attribute maps
+    const expressionParts: string[] = []
+    const names: Record<string, string> = {}
+    const values: Record<string, any> = {}
+
+    // Process SET operations
+    if (updates.set && Object.keys(updates.set).length > 0) {
+      const setParts: string[] = []
+
+      for (const [field, value] of Object.entries(updates.set)) {
+        const nameKey = `#${field}`
+        const valueKey = `:${field}`
+
+        names[nameKey] = field
+        values[valueKey] = value
+
+        setParts.push(`${nameKey} = ${valueKey}`)
+      }
+
+      if (setParts.length > 0) {
+        expressionParts.push(`SET ${setParts.join(', ')}`)
+      }
+    }
+
+    // Process ADD operations
+    if (updates.add && Object.keys(updates.add).length > 0) {
+      const addParts: string[] = []
+
+      for (const [field, value] of Object.entries(updates.add)) {
+        const nameKey = `#${field}`
+        const valueKey = `:${field}`
+
+        // If the field is already in names from SET, use a different key for ADD
+        if (names[nameKey]) {
+          const addNameKey = `#${field}_add`
+          const addValueKey = `:${field}_add`
+
+          names[addNameKey] = field
+          values[addValueKey] = value
+
+          addParts.push(`${addNameKey} ${addValueKey}`)
+        } else {
+          names[nameKey] = field
+          values[valueKey] = value
+
+          addParts.push(`${nameKey} ${valueKey}`)
+        }
+      }
+
+      if (addParts.length > 0) {
+        expressionParts.push(`ADD ${addParts.join(', ')}`)
+      }
+    }
+
+    // If no operations were provided, throw an error
+    if (expressionParts.length === 0) {
+      throw new Error('No update operations provided')
+    }
+
+    // Combine all expression parts
+    const updateExpression = expressionParts.join(' ')
+
+    // Create params object for the update operation
     const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
-      UpdateExpression: expression,
+      UpdateExpression: updateExpression,
       ExpressionAttributeNames: names,
       ExpressionAttributeValues: values,
     }
+
+    // Add ReturnValues if provided
     if (returnValues) {
       params.ReturnValues = returnValues
     }
+
     console.log('DB.update', params)
     return this.docClient.update(params).promise()
   }

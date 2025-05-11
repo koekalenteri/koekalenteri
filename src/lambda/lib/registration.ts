@@ -39,12 +39,10 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
 ) =>
   dynamoDB.update(
     { eventId, id },
-    'set #field = :value',
     {
-      '#field': field,
-    },
-    {
-      ':value': value,
+      set: {
+        [field]: value,
+      },
     }
   )
 

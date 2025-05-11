@@ -33,12 +33,10 @@ const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
         console.log(`Organizer ${old.kcId} name changed from ${old.name} to ${item.strYhdistys}`, old, item)
         await dynamoDB.update(
           { id: old.id },
-          'set #name = :name',
           {
-            '#name': 'name',
-          },
-          {
-            ':name': item.strYhdistys,
+            set: {
+              name: item.strYhdistys,
+            },
           }
         )
       }

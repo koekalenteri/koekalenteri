@@ -66,16 +66,12 @@ const refreshEventTypes = async (user: JsonUser) => {
     console.log(`description changed for ${updated.eventType}`, ex?.description, updated.description)
     await dynamoDB.update(
       { eventType: updated.eventType },
-      'set #description = :description, #modifiedAt = :modifiedAt, #modifiedBy = :modifiedBy',
       {
-        '#description': 'description',
-        '#modifiedAt': 'modifiedAt',
-        '#modifiedBy': 'modifiedBy',
-      },
-      {
-        ':description': updated.description,
-        ':modifiedAt': updated.modifiedAt,
-        ':modifiedBy': updated.modifiedBy,
+        set: {
+          description: updated.description,
+          modifiedAt: updated.modifiedAt,
+          modifiedBy: updated.modifiedBy,
+        },
       }
     )
   }

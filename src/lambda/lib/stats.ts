@@ -168,33 +168,21 @@ export async function updateOrganizerEventStats(
     SK: `${event.startDate}#${event.id}`,
   }
 
-  const expression = [
-    ['SET #organizerId = :organizerId', '#date = :date', 'updatedAt = :updatedAt'].join(', '),
-    [
-      'ADD count :totalDelta',
-      'paidRegistrations :paidDelta',
-      'cancelledRegistrations :cancelledDelta',
-      'refundedRegistrations :refundedDelta',
-      'paidAmount :paidAmountDelta',
-      'refundedAmount :refundedAmountDelta',
-    ].join(', '),
-  ].join(' ')
-
-  // names must not be empty
-  const names = { '#organizerId': 'organizerId', '#date': 'date' }
-  const values = {
-    ':organizerId': event.organizer.id,
-    ':date': event.startDate,
-    ':updatedAt': new Date().toISOString(),
-    ':totalDelta': deltas.totalDelta,
-    ':paidDelta': deltas.paidDelta,
-    ':cancelledDelta': deltas.cancelledDelta,
-    ':refundedDelta': deltas.refundedDelta,
-    ':paidAmountDelta': deltas.paidAmountDelta,
-    ':refundedAmountDelta': deltas.refundedAmountDelta,
-  }
-
-  await dynamoDB.update(key, expression, names, values)
+  await dynamoDB.update(key, {
+    set: {
+      organizerId: event.organizer.id,
+      date: event.startDate,
+      updatedAt: new Date().toISOString(),
+    },
+    add: {
+      count: deltas.totalDelta,
+      paidRegistrations: deltas.paidDelta,
+      cancelledRegistrations: deltas.cancelledDelta,
+      refundedRegistrations: deltas.refundedDelta,
+      paidAmount: deltas.paidAmountDelta,
+      refundedAmount: deltas.refundedAmountDelta,
+    },
+  })
 }
 
 /**
@@ -203,9 +191,11 @@ export async function updateOrganizerEventStats(
 export async function updateYearRecord(year: number): Promise<void> {
   await dynamoDB.update(
     { PK: 'YEARS', SK: year.toString() },
-    'SET #updatedAt = :updatedAt',
-    { '#updatedAt': 'updatedAt' },
-    { ':updatedAt': new Date().toISOString() }
+    {
+      set: {
+        updatedAt: new Date().toISOString(),
+      },
+    }
   )
 }
 
@@ -232,17 +222,21 @@ export async function updateBucketStats(year: number, oldCount: number | undefin
     if (oldBucket) {
       await dynamoDB.update(
         { PK: `BUCKETS#${year}#dog#handler`, SK: oldBucket },
-        'ADD #count :decr',
-        { '#count': 'count' },
-        { ':decr': -1 }
+        {
+          add: {
+            count: -1,
+          },
+        }
       )
     }
     if (newBucket) {
       await dynamoDB.update(
         { PK: `BUCKETS#${year}#dog#handler`, SK: newBucket },
-        'ADD #count :incr',
-        { '#count': 'count' },
-        { ':incr': 1 }
+        {
+          add: {
+            count: 1,
+          },
+        }
       )
     }
   }
@@ -266,9 +260,11 @@ export async function updateEntityStats(
 
   const updateResult = await dynamoDB.update(
     { PK: pk, SK: sk },
-    'ADD #count :incr',
-    { '#count': 'count' },
-    { ':incr': 1 },
+    {
+      add: {
+        count: 1,
+      },
+    },
     undefined,
     'UPDATED_OLD'
   )
@@ -277,7 +273,14 @@ export async function updateEntityStats(
 
   // Step 2: If first occurrence, increment corresponding total
   if (oldCount === undefined) {
-    await dynamoDB.update({ PK: `TOTALS#${year}`, SK: type }, 'ADD #count :incr', { '#count': 'count' }, { ':incr': 1 })
+    await dynamoDB.update(
+      { PK: `TOTALS#${year}`, SK: type },
+      {
+        add: {
+          count: 1,
+        },
+      }
+    )
   }
 
   // Step 3: Update bucket stats for dog#handler

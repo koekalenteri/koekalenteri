@@ -69,16 +69,12 @@ export const setUserRole = async (
 
   await dynamoDB.update(
     { id: user.id },
-    'set #roles = :roles, #modAt = :modAt, #modBy = :modBy',
     {
-      '#roles': 'roles',
-      '#modAt': 'modifiedAt',
-      '#modBy': 'modifiedBy',
-    },
-    {
-      ':roles': roles,
-      ':modAt': timestamp,
-      ':modBy': modifiedBy,
+      set: {
+        roles,
+        modifiedAt: timestamp,
+        modifiedBy,
+      },
     },
     userTable
   )

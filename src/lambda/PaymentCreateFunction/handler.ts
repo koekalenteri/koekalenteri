@@ -98,9 +98,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   await dynamoDB.update(
     { eventId, id: registrationId },
-    'set #paymentStatus = :paymentStatus',
-    { '#paymentStatus': 'paymentStatus' },
-    { ':paymentStatus': 'PENDING' },
+    {
+      set: {
+        paymentStatus: 'PENDING',
+      },
+    },
     registrationTable
   )
 

@@ -33,16 +33,12 @@ const setAdminLambda = lambda('setAdmin', async (event) => {
 
   await dynamoDB.update(
     { id: item.userId },
-    'set #admin = :admin, #modAt = :modAt, #modBy = :modBy',
     {
-      '#admin': 'admin',
-      '#modAt': 'modifiedAt',
-      '#modBy': 'modifiedBy',
-    },
-    {
-      ':admin': item.admin,
-      ':modAt': new Date().toISOString(),
-      ':modBy': user.name,
+      set: {
+        admin: item.admin,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: user.name,
+      },
     }
   )
 

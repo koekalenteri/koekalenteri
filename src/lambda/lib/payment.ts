@@ -54,31 +54,26 @@ export const updateTransactionStatus = async (
 ): Promise<boolean> => {
   if (!transaction || !status) return false
 
-  const expression = provider
-    ? 'set #status = :status, #statusAt = :statusAt, #provider = :provider'
-    : 'set #status = :status, #statusAt = :statusAt'
-
-  const names: Record<string, string> = {
-    '#status': 'status',
-    '#statusAt': 'statusAt',
-  }
-
-  const values: Record<string, string> = {
-    ':status': status,
-    ':statusAt': new Date().toISOString(),
-  }
-
-  if (provider) {
-    names['#provider'] = 'provider'
-    values[':provider'] = provider
-  }
-
+  // Skip update if no changes
   if (transaction.statusAt && transaction.status === status && (!provider || transaction.provider === provider)) {
     console.log('skipping no-op transaction status/provider update')
     return false
   }
 
-  await dynamoDB.update({ transactionId: transaction.transactionId }, expression, names, values, transactionTable)
+  // Prepare update object with set operations
+  const updateObj: { set: Record<string, any> } = {
+    set: {
+      status,
+      statusAt: new Date().toISOString(),
+    },
+  }
+
+  // Add provider if provided
+  if (provider) {
+    updateObj.set.provider = provider
+  }
+
+  await dynamoDB.update({ transactionId: transaction.transactionId }, updateObj, transactionTable)
 
   return true
 }

@@ -115,10 +115,10 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
 
   await dynamoDB.update(
     { eventId, id: registrationId },
-    'set #refundStatus = :refundStatus',
-    { '#refundStatus': 'refundStatus' },
     {
-      ':refundStatus': result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+      set: {
+        refundStatus: result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+      },
     },
     registrationTable
   )
