@@ -690,6 +690,13 @@ Resources:
             TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
         - CloudWatchPutMetricPolicy: {}
       Events:
         PutEvent:
@@ -938,6 +945,13 @@ Resources:
               Action:
               - ses:sendTemplatedEmail
               Resource: '*'
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
       Events:
         PutRegistration:
           Type: Api
@@ -1063,6 +1077,13 @@ Resources:
               Action:
               - ses:sendTemplatedEmail
               Resource: '*'
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
       Events:
         PutAdminRegistration:
           Type: Api
@@ -1104,6 +1125,13 @@ Resources:
               Effect: Allow
               Action:
               - ses:sendTemplatedEmail
+              Resource: '*'
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
               Resource: '*'
         - CloudWatchPutMetricPolicy: {}
       Events:
@@ -2004,6 +2032,13 @@ Resources:
               Effect: Allow
               Action:
               - ses:sendTemplatedEmail
+              Resource: '*'
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
               Resource: '*'
       Events:
         PutEvent:
