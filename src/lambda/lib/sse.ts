@@ -12,7 +12,9 @@ let cfg: UpstashConfig
 export const sse = async (data: AnyObject) => {
   if (!cfg) cfg = await getUpstashConfig()
 
-  fetch(`${cfg.UPSTASH_REDIS_REST_URL}/publish/${stackName}`, {
+  console.log(`Sending event to clients listening "${stackName}", with:`, data)
+
+  await fetch(`${cfg.UPSTASH_REDIS_REST_URL}/publish/${stackName}`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${cfg.UPSTASH_REDIS_REST_TOKEN}`,
