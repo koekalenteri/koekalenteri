@@ -120,14 +120,27 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
   const priorityFilter = (r: JsonRegistration) => hasPriority(confirmedEvent, r)
 
+  let classesChanged = false
   const classes = confirmedEvent.classes || []
   for (const cls of classes) {
     const regsToClass = registrations?.filter((r) => r.class === cls.class)
-    cls.entries = regsToClass?.length
-    cls.members = regsToClass?.filter(priorityFilter).length
+    const entries = regsToClass?.length
+    const members = regsToClass?.filter(priorityFilter).length
+
+    if (entries !== cls.entries || members != cls.members) {
+      cls.entries = entries
+      cls.members = members
+      classesChanged = true
+    }
   }
   const entries = registrations?.length ?? 0
   const members = registrations?.filter(priorityFilter).length ?? 0
+
+  // avoid noop updates
+  if (!classesChanged && confirmedEvent.entries === entries && confirmedEvent.members === members) {
+    return confirmedEvent
+  }
+
   await dynamoDB.update(
     eventKey,
     {

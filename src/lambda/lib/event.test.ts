@@ -2,6 +2,8 @@ import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, JsonUser } fro
 
 import { jest } from '@jest/globals'
 
+import { PRIORITY_MEMBER } from '../../lib/priority'
+
 const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
@@ -164,6 +166,7 @@ describe('lib/event', () => {
       mockUpdate.mockReset()
       mockQuery.mockReset()
       mockRead.mockReset()
+      mockSSE.mockReset()
     })
     it('updates event entries and members', async () => {
       const event = { id: 'e3', classes: [{ class: 'A' }], state: 'ready' }
@@ -176,6 +179,36 @@ describe('lib/event', () => {
       const result = await updateRegistrations('e3')
       expect(result.entries).toBe(2)
       expect(mockUpdate).toHaveBeenCalled()
+    })
+
+    it('avoids noop updates when no changes are detected', async () => {
+      // Set up an event with existing entries and members
+      const event = {
+        id: 'e4',
+        entries: 2,
+        members: 1,
+        classes: [
+          { class: 'ALO', entries: 1, members: 0 },
+          { class: 'AVO', entries: 1, members: 1 },
+        ],
+        priority: [PRIORITY_MEMBER],
+        state: 'confirmed',
+      }
+      mockRead.mockResolvedValueOnce(event)
+
+      // Set up registrations that would result in the same counts
+      const regs = [
+        { class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
+        { class: 'AVO', state: 'ready', cancelled: false, paidAmount: 0, handler: { membership: true } },
+      ]
+      mockQuery.mockResolvedValueOnce(regs)
+
+      // Call updateRegistrations
+      const result = await updateRegistrations('e4')
+
+      // Verify that no update was performed
+      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockSSE).not.toHaveBeenCalled()
     })
   })
 
