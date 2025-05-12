@@ -153,5 +153,22 @@ export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
   return result
 }
 
+// This function merges a patch object into a base object, but only creates new objects for paths that actually change
+export const patchMerge = <T extends AnyObject, P extends DeepPartial<T>>(base: T, patch: P): T & P => {
+  if (!isObject(base) || !isObject(patch)) return patch as T & P
+
+  let changed = false
+  const result = { ...base } as T & P
+  for (const key of Object.keys(patch)) {
+    const merged = patchMerge(base[key], (patch as any)[key])
+    if (merged !== base[key]) {
+      ;(result as any)[key] = merged
+      changed = true
+    }
+  }
+
+  return changed ? result : (base as T & P)
+}
+
 export const printContactInfo = (info?: PublicContactInfo) =>
   [info?.name, info?.phone, info?.email].filter(Boolean).join(', ')

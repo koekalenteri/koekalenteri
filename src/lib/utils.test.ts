@@ -12,6 +12,7 @@ import {
   isObject,
   merge,
   parseJSON,
+  patchMerge,
   placesForClass,
   registrationDates,
 } from './utils'
@@ -302,5 +303,128 @@ describe('utils', () => {
         expect(placesForClass({ places, classes }, cls)).toEqual(expected)
       }
     )
+  })
+
+  describe('patchMerge', () => {
+    it('should merge objects', () => {
+      const base = { a: 1, b: 2 }
+      const patch = { b: 3, c: 4 }
+      const result = patchMerge(base, patch)
+
+      expect(result).toEqual({ a: 1, b: 3, c: 4 })
+      expect(result).not.toBe(base)
+    })
+
+    it('should handle nested objects', () => {
+      const base = { a: 1, nested: { x: 10, y: 20 } }
+      const patch = { nested: { y: 30, z: 40 } }
+      const result = patchMerge(base, patch)
+
+      expect(result).toEqual({ a: 1, nested: { x: 10, y: 30, z: 40 } })
+      expect(result).not.toBe(base)
+      expect(result.nested).not.toBe(base.nested)
+    })
+
+    it('should replace arrays instead of merging them', () => {
+      const base = { arr: [1, 2, 3], other: 'value' }
+      const patch = { arr: [4, 5] }
+      const result = patchMerge(base, patch)
+
+      expect(result).toEqual({ arr: [4, 5], other: 'value' })
+      expect(result.arr).toBe(patch.arr)
+    })
+
+    it('should return the original object when no changes are made', () => {
+      const base = { a: 1, b: { c: 2 } }
+      const patch = { a: 1, b: { c: 2 } }
+      const result = patchMerge(base, patch)
+
+      expect(result).toBe(base)
+    })
+
+    it('should return a new object when changes are made', () => {
+      const base = { a: 1, b: { c: 2 } }
+      const patch = { a: 1, b: { c: 3 } }
+      const result = patchMerge(base, patch)
+
+      expect(result).not.toBe(base)
+      expect(result.b).not.toBe(base.b)
+    })
+
+    it('should handle non-object base values', () => {
+      // @ts-expect-error Testing with non-object base
+      const result = patchMerge(null, { a: 1 })
+      expect(result).toEqual({ a: 1 })
+
+      // @ts-expect-error Testing with non-object base
+      expect(patchMerge(undefined, { a: 1 })).toEqual({ a: 1 })
+
+      // @ts-expect-error Testing with non-object base
+      expect(patchMerge('string', { a: 1 })).toEqual({ a: 1 })
+    })
+
+    it('should handle non-object patch values', () => {
+      const base = { a: 1 }
+
+      // @ts-expect-error Testing with non-object patch
+      expect(patchMerge(base, null)).toEqual(null)
+
+      // @ts-expect-error Testing with non-object patch
+      expect(patchMerge(base, undefined)).toEqual(undefined)
+
+      // @ts-expect-error Testing with non-object patch
+      expect(patchMerge(base, 'string')).toEqual('string')
+    })
+
+    it('should handle deep nested structures', () => {
+      const base = {
+        level1: {
+          level2: {
+            level3: { value: 'original' },
+            unchanged: true,
+          },
+        },
+      }
+
+      const patch = {
+        level1: {
+          level2: {
+            level3: { value: 'updated' },
+          },
+        },
+      }
+
+      const result = patchMerge(base, patch)
+
+      expect(result).toEqual({
+        level1: {
+          level2: {
+            level3: { value: 'updated' },
+            unchanged: true,
+          },
+        },
+      })
+
+      expect(result).not.toBe(base)
+      expect(result.level1).not.toBe(base.level1)
+      expect(result.level1.level2).not.toBe(base.level1.level2)
+      expect(result.level1.level2.level3).not.toBe(base.level1.level2.level3)
+    })
+
+    it('should only create new objects for changed paths', () => {
+      const base = {
+        changed: { value: 1 },
+        unchanged: { value: 2 },
+      }
+
+      const patch = {
+        changed: { value: 3 },
+      }
+
+      const result = patchMerge(base, patch)
+
+      expect(result.changed).not.toBe(base.changed)
+      expect(result.unchanged).toBe(base.unchanged)
+    })
   })
 })
