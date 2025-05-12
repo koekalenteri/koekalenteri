@@ -18,22 +18,29 @@ export default {
     const { searchParams } = new URL(req.url)
     const channel = searchParams.get('channel')
 
-    if (!channel) {
-      return new Response('Missing ?channel= parameter', { status: 400 })
+    if (!channel || !/^[a-zA-Z0-9-_]+$/.test(channel)) {
+      return new Response('Invalid channel name', { status: 400 })
     }
 
 		const { readable, writable } = new TransformStream()
 		const writer = writable.getWriter()
 		const encoder = new TextEncoder()
 
-		const streamSSE = async () => {
-			const sub = redis.subscribe(channel)
-			for await (const msg of sub as unknown as AsyncIterable<unknown>) {
-				await writer.write(encoder.encode(`data: ${JSON.stringify(msg)}\n\n`))
-			}
-		}
+    // Redis subscription loop
+    ctx.waitUntil((async () => {
+      const sub = redis.subscribe(channel)
+      for await (const msg of sub as unknown as AsyncIterable<unknown>) {
+        await writer.write(encoder.encode(`data: {"type": "message", "text": "${JSON.stringify(msg)}"}\n\n`))
+      }
+    })())
 
-		streamSSE()
+    // Keep-alive pings every 30s
+    ctx.waitUntil((async () => {
+      while (true) {
+        await new Promise((r) => setTimeout(r, 30000))
+        await writer.write(encoder.encode(`: ping\n\n`))
+      }
+    })())
 
 		return new Response(readable, {
 			headers: {

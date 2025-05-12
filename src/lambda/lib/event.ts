@@ -143,7 +143,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   confirmedEvent.entries = entries
   confirmedEvent.members = members
 
-  sse({ eventId, classes, entries, members })
+  await sse({ eventId, classes, entries, members })
 
   return confirmedEvent
 }
