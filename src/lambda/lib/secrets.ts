@@ -13,7 +13,8 @@ const ssm = new AWS.SSM()
 type ValuesOf<T extends string[]> = T[number]
 type ParamsFromKeys<T extends string[]> = { [key in ValuesOf<T>]: string }
 
-async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof names>> {
+// Exported for testing purposes
+export async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof names>> {
   console.log('getSSMParams', names)
   const result = await ssm.getParameters({ Names: names }).promise()
   const values: ParamsFromKeys<typeof names> = {}

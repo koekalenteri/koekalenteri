@@ -36,9 +36,6 @@ jest.mock('aws-sdk', () => {
   }
 })
 
-// Set AWS region to prevent "Missing region in config" error
-process.env.AWS_REGION = 'us-east-1'
-
 // Import the class dynamically after mocking
 const { default: CustomDynamoClient } = await import('./CustomDynamoClient')
 
