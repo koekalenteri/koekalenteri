@@ -8,8 +8,8 @@ const mockGetParameters = jest.fn().mockImplementation(() => Promise.resolve({} 
 jest.mock('aws-sdk', () => ({
   __esModule: true,
   SSM: jest.fn().mockImplementation(() => ({
-    getParameters: () => ({
-      promise: mockGetParameters,
+    getParameters: (params: unknown) => ({
+      promise: () => mockGetParameters(params),
     }),
   })),
 }))
@@ -23,11 +23,14 @@ jest.unstable_mockModule('../config', () => ({
 }))
 
 // Import the module after mocking
-const { getKLAPIConfig, getPaytrailConfig, getSSMParams, getUpstashConfig } = await import('./secrets')
+const { getKLAPIConfig, getPaytrailConfig, getSSMParams, getUpstashConfig, resetCache } = await import('./secrets')
 
 describe('secrets', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockGetParameters.mockReset()
+    // Reset the cache before each test
+    resetCache()
     // Mock console.log to avoid cluttering test output
     jest.spyOn(console, 'log').mockImplementation(() => {})
   })
@@ -48,6 +51,7 @@ describe('secrets', () => {
       const result = await getSSMParams(['param1', 'param2'])
 
       // Verify the SSM service was called with the correct parameters
+      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1', 'param2'] })
 
       // Verify the result
       expect(result).toEqual({
@@ -98,6 +102,147 @@ describe('secrets', () => {
         param1: '',
         param2: '',
       })
+    })
+  })
+
+  describe('caching behavior', () => {
+    // Save the original Date.now function
+    const originalNow = Date.now
+    beforeEach(() => {
+      // Restore the original Date.now function before each test
+      Date.now = originalNow
+    })
+
+    afterAll(() => {
+      // Ensure Date.now is restored after all tests
+      Date.now = originalNow
+    })
+
+    it('should cache parameters and not call SSM again for the same parameters', async () => {
+      // Setup mock response for first call
+      mockGetParameters.mockImplementationOnce(() =>
+        Promise.resolve({
+          Parameters: [
+            { Name: 'param1', Value: 'value1' },
+            { Name: 'param2', Value: 'value2' },
+          ],
+        } as GetParametersResult)
+      )
+
+      // First call should fetch from SSM
+      const result1 = await getSSMParams(['param1', 'param2'])
+      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(result1).toEqual({
+        param1: 'value1',
+        param2: 'value2',
+      })
+
+      // Second call with the same parameters should use cache
+      const result2 = await getSSMParams(['param1', 'param2'])
+      // SSM should not be called again
+      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(result2).toEqual({
+        param1: 'value1',
+        param2: 'value2',
+      })
+    })
+
+    it('should fetch new parameters even when some are cached', async () => {
+      // Setup mock response for first call
+      mockGetParameters.mockImplementationOnce(() =>
+        Promise.resolve({
+          Parameters: [{ Name: 'param1', Value: 'value1' }],
+        } as GetParametersResult)
+      )
+
+      // First call to cache param1
+      await getSSMParams(['param1'])
+      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+
+      // Reset mock call count but keep the implementation
+      mockGetParameters.mockClear()
+
+      // Setup mock response for second call
+      mockGetParameters.mockImplementationOnce(() =>
+        Promise.resolve({
+          Parameters: [{ Name: 'param2', Value: 'value2' }],
+        } as GetParametersResult)
+      )
+
+      // Second call with param1 (cached) and param2 (not cached)
+      const result = await getSSMParams(['param1', 'param2'])
+
+      // SSM should be called again, but only for param2
+      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param2'] })
+
+      expect(result).toEqual({
+        param1: 'value1',
+        param2: 'value2',
+      })
+    })
+
+    it('should handle concurrent requests for the same parameters', async () => {
+      // Setup mock response
+      mockGetParameters.mockImplementationOnce(() =>
+        Promise.resolve({
+          Parameters: [{ Name: 'param1', Value: 'value1' }],
+        } as GetParametersResult)
+      )
+
+      // Start two concurrent requests
+      const promise1 = getSSMParams(['param1'])
+      const promise2 = getSSMParams(['param1'])
+
+      // Both should resolve with the same value
+      const [result1, result2] = await Promise.all([promise1, promise2])
+
+      // SSM should only be called once
+      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(result1).toEqual({ param1: 'value1' })
+      expect(result2).toEqual({ param1: 'value1' })
+    })
+
+    it('should refresh cache after TTL expires', async () => {
+      // Mock Date.now to control time
+      let mockTime = 1000000
+      Date.now = jest.fn(() => mockTime)
+
+      // Setup mock responses
+      mockGetParameters.mockImplementationOnce(() =>
+        Promise.resolve({
+          Parameters: [{ Name: 'param1', Value: 'value1' }],
+        } as GetParametersResult)
+      )
+
+      // First call should fetch from SSM
+      const result1 = await getSSMParams(['param1'])
+      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(result1).toEqual({ param1: 'value1' })
+
+      // Second call with the same parameters should use cache
+      const result2 = await getSSMParams(['param1'])
+      expect(mockGetParameters).toHaveBeenCalledTimes(1) // Still 1, using cache
+      expect(result2).toEqual({ param1: 'value1' })
+
+      // Advance time beyond TTL (60 minutes + 1 second)
+      mockTime += 60 * 60 * 1000 + 1000
+
+      // Setup mock for the second fetch after TTL expiration
+      mockGetParameters.mockImplementationOnce(() =>
+        Promise.resolve({
+          Parameters: [{ Name: 'param1', Value: 'updated-value1' }],
+        } as GetParametersResult)
+      )
+
+      // Third call should fetch from SSM again because cache expired
+      const result3 = await getSSMParams(['param1'])
+      expect(mockGetParameters).toHaveBeenCalledTimes(2) // Now 2, fetched again
+      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(result3).toEqual({ param1: 'updated-value1' })
     })
   })
 
