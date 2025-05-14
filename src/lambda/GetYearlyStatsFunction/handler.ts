@@ -4,7 +4,7 @@ import { lambda } from '../lib/lambda'
 import { getAvailableYears, getDogHandlerBuckets, getYearlyTotalStats } from '../lib/stats'
 import { response } from '../utils/response'
 
-export const handler = lambda('getYearlyStatsLambda', async (event) => {
+const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
   // Optional year parameter (?year=2025)
   const yearParam = event.queryStringParameters?.year
 
@@ -46,3 +46,5 @@ export const handler = lambda('getYearlyStatsLambda', async (event) => {
 
   return response(200, result, event)
 })
+
+export default getYearlyStatsLambda

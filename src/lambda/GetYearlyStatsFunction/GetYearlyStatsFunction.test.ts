@@ -31,7 +31,7 @@ describe('GetYearlyStatsFunction', () => {
     jest.clearAllMocks()
     // Import the handler after mocking dependencies
     const module = await import('./handler')
-    handler = module.handler
+    handler = module.default
 
     // Default mock responses
     mockResponse.mockImplementation((status, body) => ({ status, body }))
