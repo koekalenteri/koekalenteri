@@ -15,6 +15,93 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
  * If organizerIds is provided, only stats for those organizers are returned
  * If organizerIds is not provided, stats for all organizers are returned
  */
+/**
+ * Build date range filter expressions for DynamoDB queries
+ */
+function buildDateRangeFilters(from?: string, to?: string) {
+  const filterExpressions: string[] = []
+  const expressionValues: Record<string, any> = {}
+
+  if (from) {
+    filterExpressions.push('SK >= :from')
+    expressionValues[':from'] = from
+  }
+
+  if (to) {
+    filterExpressions.push('SK <= :to')
+    expressionValues[':to'] = to
+  }
+
+  return { filterExpressions, expressionValues }
+}
+
+/**
+ * Query stats for a single organizer with optional date filtering
+ */
+async function queryOrganizerStats(
+  organizerId: string,
+  from?: string,
+  to?: string
+): Promise<Required<EventStatsItem>[]> {
+  const keyCondition = '#pk = :pk'
+  const expressionNames: Record<string, string> = { '#pk': 'PK' }
+  const expressionValues: Record<string, any> = { ':pk': `ORG#${organizerId}` }
+
+  // Add date range filters
+  const { filterExpressions, expressionValues: dateValues } = buildDateRangeFilters(from, to)
+  Object.assign(expressionValues, dateValues)
+
+  // Combine filter expressions if any
+  const filterExpression = filterExpressions.length > 0 ? filterExpressions.join(' AND ') : undefined
+
+  // Query for this organizerId with date filters
+  const items = await dynamoDB.query<Required<EventStatsItem>>(
+    keyCondition,
+    expressionValues,
+    undefined,
+    undefined,
+    expressionNames,
+    undefined,
+    undefined,
+    filterExpression
+  )
+
+  return items || []
+}
+
+/**
+ * Query stats for all organizers with optional date filtering
+ */
+async function queryAllOrganizerStats(from?: string, to?: string): Promise<Required<EventStatsItem>[]> {
+  // Start with the base filter for all organizer records
+  const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
+  const expressionNames: Record<string, string> = { '#pk': 'PK' }
+  const expressionValues: Record<string, any> = { ':orgPrefix': 'ORG#' }
+
+  // Add date range filters
+  const { filterExpressions: dateFilters, expressionValues: dateValues } = buildDateRangeFilters(from, to)
+  filterExpressions.push(...dateFilters)
+  Object.assign(expressionValues, dateValues)
+
+  // Combine filter expressions
+  const filterExpression = filterExpressions.join(' AND ')
+
+  // Use readAll with filtering
+  const items = await dynamoDB.readAll<Required<EventStatsItem>>(
+    undefined,
+    filterExpression,
+    expressionValues,
+    expressionNames
+  )
+
+  return items || []
+}
+
+/**
+ * Get stats for organizers, optionally filtered by date range
+ * If organizerIds is provided, only stats for those organizers are returned
+ * If organizerIds is not provided, stats for all organizers are returned
+ */
 export async function getOrganizerStats(
   organizerIds?: string[],
   from?: string,
@@ -22,81 +109,18 @@ export async function getOrganizerStats(
 ): Promise<EventStatsItem[]> {
   let allStats: Required<EventStatsItem>[] = []
 
-  // If organizerIds is provided, query for each organizerId
-  if (organizerIds && organizerIds.length > 0) {
+  if (organizerIds?.length) {
+    // Query for specific organizers
     for (const organizerId of organizerIds) {
-      // Build filter expression for date range filtering
-      const filterExpressions: string[] = []
-      const keyCondition = '#pk = :pk'
-      const expressionNames: Record<string, string> = { '#pk': 'PK' }
-      const expressionValues: Record<string, any> = { ':pk': `ORG#${organizerId}` }
-
-      if (from) {
-        filterExpressions.push('SK >= :from')
-        expressionValues[':from'] = from
-      }
-
-      if (to) {
-        filterExpressions.push('SK <= :to')
-        expressionValues[':to'] = to
-      }
-
-      // Combine filter expressions if any
-      const filterExpression = filterExpressions.length > 0 ? filterExpressions.join(' AND ') : undefined
-
-      // Query for this organizerId with date filters using the new PK/SK pattern
-      // PK: ORG#<organizerId>
-      // SK: <startDate>#<eventId>
-
-      const items = await dynamoDB.query<Required<EventStatsItem>>(
-        keyCondition,
-        expressionValues,
-        undefined,
-        undefined,
-        expressionNames,
-        undefined,
-        undefined,
-        filterExpression
-      )
-
-      if (items) {
-        allStats = [...allStats, ...items]
-      }
+      const items = await queryOrganizerStats(organizerId, from, to)
+      allStats = [...allStats, ...items]
     }
   } else {
-    // For admin users, we need to get all stats
-    // Use readAll with filtering capabilities
-    const filterExpressions: string[] = ['begins_with(#pk, :orgPrefix)']
-    const expressionNames: Record<string, string> = { '#pk': 'PK' }
-    const expressionValues: Record<string, any> = { ':orgPrefix': 'ORG#' }
-
-    // Apply date range filters if provided
-    if (from) {
-      filterExpressions.push('SK >= :from')
-      expressionValues[':from'] = from
-    }
-
-    if (to) {
-      filterExpressions.push('SK <= :to')
-      expressionValues[':to'] = to
-    }
-
-    // Combine filter expressions
-    const filterExpression = filterExpressions.join(' AND ')
-
-    // Use the new filtering capabilities of readAll
-    const filteredItems = await dynamoDB.readAll<Required<EventStatsItem>>(
-      undefined,
-      filterExpression,
-      expressionValues,
-      expressionNames
-    )
-
-    if (filteredItems && filteredItems.length > 0) {
-      allStats = filteredItems
-    }
+    // Query for all organizers
+    allStats = await queryAllOrganizerStats(from, to)
   }
 
+  // Sort by date
   allStats.sort((a, b) => a.date.localeCompare(b.date))
   return allStats
 }
