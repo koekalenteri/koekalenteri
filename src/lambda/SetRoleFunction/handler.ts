@@ -1,7 +1,8 @@
 import type { JsonUser, UserRole } from '../../types'
 
 import { CONFIG } from '../config'
-import { authorize, getOrigin } from '../lib/auth'
+import { getOrigin } from '../lib/api-gw'
+import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
 import { setUserRole } from '../lib/user'

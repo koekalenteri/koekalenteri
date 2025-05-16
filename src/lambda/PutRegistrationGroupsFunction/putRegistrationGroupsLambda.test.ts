@@ -10,9 +10,12 @@ import {
 } from '../../__mockData__/registrations'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+jest.unstable_mockModule('../lib/api-gw', () => ({
+  getOrigin: jest.fn(),
+}))
+
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
-  getOrigin: jest.fn(),
 }))
 
 const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {

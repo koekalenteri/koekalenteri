@@ -2,8 +2,9 @@ import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistration
 
 import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
 import { CONFIG } from '../config'
+import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { authorize, getOrigin } from '../lib/auth'
+import { authorize } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda } from '../lib/lambda'

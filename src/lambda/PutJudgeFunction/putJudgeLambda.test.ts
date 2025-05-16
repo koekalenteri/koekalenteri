@@ -4,9 +4,12 @@ import { jest } from '@jest/globals'
 
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+jest.unstable_mockModule('../lib/api-gw', () => ({
+  getOrigin: jest.fn(),
+}))
+
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
-  getOrigin: jest.fn(),
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({

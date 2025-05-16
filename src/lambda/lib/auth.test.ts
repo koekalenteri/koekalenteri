@@ -26,7 +26,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const logSpy = jest.spyOn(console, 'log').mockImplementation(() => null)
 
 const { findUserByEmail, updateUser } = await import('./user')
-const { authorize, getAndUpdateUserByEmail, getOrigin, getUsername } = await import('./auth')
+const { authorize, getAndUpdateUserByEmail, getUsername } = await import('./auth')
 
 describe('auth', () => {
   afterEach(() => {
@@ -204,28 +204,6 @@ describe('auth', () => {
 
       const user = await getAndUpdateUserByEmail('user@email.com', { name: 'new name' }, true)
       expect(user.name).toEqual('new name')
-    })
-  })
-
-  describe('getOrigin', () => {
-    it.each`
-      event                | expected
-      ${null}              | ${''}
-      ${undefined}         | ${''}
-      ${{}}                | ${''}
-      ${{ headers: null }} | ${''}
-    `('when event is $event, it should return "$expected"', ({ event, expected }) => {
-      expect(getOrigin(event)).toEqual(expected)
-    })
-
-    it.each`
-      event                                        | expected
-      ${{ headers: null }}                         | ${''}
-      ${{ headers: { origin: 'test' } }}           | ${'test'}
-      ${{ headers: { Origin: 'test' } }}           | ${'test'}
-      ${{ headers: { origin: 'a', Origin: 'b' } }} | ${'a'}
-    `('when headers are $event.headers, it should return "$expected"', ({ event, expected }) => {
-      expect(getOrigin(event)).toEqual(expected)
     })
   })
 

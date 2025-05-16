@@ -1,7 +1,8 @@
 import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
 
 import { CONFIG } from '../config'
-import { authorize, getOrigin } from '../lib/auth'
+import { getOrigin } from '../lib/api-gw'
+import { authorize } from '../lib/auth'
 import { markParticipants } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'

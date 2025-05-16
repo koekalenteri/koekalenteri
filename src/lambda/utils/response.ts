@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { gzipSync } from 'zlib'
 
-import { getOrigin } from '../lib/auth'
+import { getOrigin } from '../lib/api-gw'
 
 export const allowOrigin = (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)

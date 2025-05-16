@@ -9,9 +9,12 @@ jest.setSystemTime(new Date('2025-03-22T12:45:33+0200'))
 
 jest.unstable_mockModule('nanoid', () => ({ nanoid: () => 'new-id' }))
 
+jest.unstable_mockModule('../lib/api-gw', () => ({
+  getOrigin: jest.fn(),
+}))
+
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
-  getOrigin: jest.fn(),
 }))
 
 jest.unstable_mockModule('../lib/event', () => ({

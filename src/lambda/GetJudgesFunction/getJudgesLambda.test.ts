@@ -8,9 +8,12 @@ jest.unstable_mockModule('../lib/KLAPI', () => ({
   default: jest.fn(() => ({})),
 }))
 
+jest.unstable_mockModule('../lib/api-gw', () => ({
+  getOrigin: jest.fn(),
+}))
+
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
-  getOrigin: jest.fn(),
   getAndUpdateUserByEmail: jest.fn(),
 }))
 

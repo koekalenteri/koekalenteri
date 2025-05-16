@@ -104,10 +104,6 @@ export async function getAndUpdateUserByEmail(
   return final
 }
 
-export function getOrigin(event?: Partial<APIGatewayProxyEvent>) {
-  return event?.headers?.origin ?? event?.headers?.Origin ?? ''
-}
-
 export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
   const user = await getOrCreateUserFromEvent(event)
   return user?.name ?? 'anonymous'
