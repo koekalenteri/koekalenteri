@@ -16,8 +16,6 @@ export const useEventSource = () => {
     }
 
     eventSource.onmessage = (event) => {
-      // setMessages((prev) => [...prev, event.data])
-      console.log('SSE:', event)
       const messageData = event.data
       const firstComma = messageData.indexOf(',')
       const secondComma = messageData.indexOf(',', firstComma + 1)
@@ -26,21 +24,22 @@ export const useEventSource = () => {
         return
       }
       const payload = JSON.parse(messageData.slice(secondComma + 1))
-      if (payload?.data?.eventId) {
-        const { eventId, ...patch } = payload.data
 
-        setEvents((current) => {
-          let changed = false
-          const next = current.map((e) => {
-            if (e.id !== eventId) return e
-            const merged = patchMerge(e, patch)
-            if (merged !== e) changed = true
-            return merged
-          })
-          console.log('changed:', changed)
-          return changed ? next : current
+      if (!payload?.data?.eventId) return
+
+      const { eventId, ...patch } = payload.data
+
+      setEvents((current) => {
+        let changed = false
+        const next = current.map((e) => {
+          if (e.id !== eventId) return e
+          const merged = patchMerge(e, patch)
+          if (merged !== e) changed = true
+          return merged
         })
-      }
+
+        return changed ? next : current
+      })
     }
 
     eventSource.onerror = (err) => {
