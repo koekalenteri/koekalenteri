@@ -75,38 +75,60 @@ export function wrap(nodes: Element[], loose: boolean) {
   return result
 }
 
+/**
+ * Removes leading whitespace from a node that follows a break
+ */
+function removeLeadingWhitespace(result: ElementContent | ElementContent[]): void {
+  if (!Array.isArray(result)) {
+    if (result.type === 'text') {
+      result.value = result.value.replace(/^\s+/, '')
+    } else if (result.type === 'element') {
+      const head = result.children[0]
+      if (head && head.type === 'text') {
+        head.value = head.value.replace(/^\s+/, '')
+      }
+    }
+  }
+}
+
+/**
+ * Adds a result to the values array, handling arrays by spreading them
+ */
+function addResultToValues(values: ElementContent[], result: ElementContent | ElementContent[]): void {
+  if (Array.isArray(result)) {
+    values.push(...result)
+  } else {
+    values.push(result)
+  }
+}
+
+/**
+ * Process all children of a parent node
+ */
 export function all(state: State, parent: MdastParents) {
   const values: ElementContent[] = []
 
-  if ('children' in parent) {
-    const nodes = parent.children
-    let index = -1
+  if (!('children' in parent)) {
+    return values
+  }
 
-    while (++index < nodes.length) {
-      const result = one(state, nodes[index], parent)
+  const nodes = parent.children
+  let index = -1
 
-      if (result) {
-        if (index && nodes[index - 1].type === 'break') {
-          if (!Array.isArray(result) && result.type === 'text') {
-            result.value = result.value.replace(/^\s+/, '')
-          }
+  while (++index < nodes.length) {
+    const result = one(state, nodes[index], parent)
 
-          if (!Array.isArray(result) && result.type === 'element') {
-            const head = result.children[0]
-
-            if (head && head.type === 'text') {
-              head.value = head.value.replace(/^\s+/, '')
-            }
-          }
-        }
-
-        if (Array.isArray(result)) {
-          values.push(...result)
-        } else {
-          values.push(result)
-        }
-      }
+    if (!result) {
+      continue
     }
+
+    // Handle whitespace after breaks
+    if (index && nodes[index - 1].type === 'break') {
+      removeLeadingWhitespace(result)
+    }
+
+    // Add result to values
+    addResultToValues(values, result)
   }
 
   return values
