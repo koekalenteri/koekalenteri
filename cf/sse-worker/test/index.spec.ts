@@ -63,10 +63,15 @@ describe('SSE Worker', () => {
   })
 
   it('returns SSE stream for valid channel', async () => {
+    vi.useFakeTimers()
+    const encoder = new TextEncoder()
+    const decoder = new TextDecoder()
+
     // Mock the Upstash Redis response
     const mockBody = new ReadableStream({
       start(controller) {
-        controller.enqueue(new TextEncoder().encode('data: {"message":"test"}\n\n'))
+        controller.enqueue(encoder.encode('data: {"message":"test"}\n\n'))
+        // Leave stream open
       },
     })
 
@@ -76,16 +81,34 @@ describe('SSE Worker', () => {
       text: () => Promise.resolve(''),
     })
 
-    const request = new Request('http://example.com?channel=valid-channel')
+    const ac = new AbortController()
+    const request = new Request('http://example.com?channel=valid-channel', {
+      signal: ac.signal,
+    })
     const ctx = createExecutionContext()
     const response = await worker.fetch(request, env, ctx)
-    await waitOnExecutionContext(ctx)
 
     expect(response.status).toBe(200)
     expect(response.headers.get('Content-Type')).toBe('text/event-stream')
     expect(response.headers.get('Cache-Control')).toBe('no-cache')
     expect(response.headers.get('Connection')).toBe('keep-alive')
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+
+    const reader = response.body!.getReader()
+
+    // Read one message to ensure it's correctly streamed
+    const { value, done } = await reader.read()
+    expect(done).toBe(false)
+    expect(decoder.decode(value)).toContain('data: {"message":"test"}')
+
+    // Abort the request to stop pinger loop (loop has 5s inverval)
+    ac.abort()
+    vi.advanceTimersByTime(5000)
+
+    // Cancel reader to end stream cleanly
+    await reader.cancel()
+
+    await waitOnExecutionContext(ctx)
 
     // Verify the Upstash Redis URL was called with correct parameters
     expect(mockFetch).toHaveBeenCalledWith(
@@ -98,6 +121,7 @@ describe('SSE Worker', () => {
         }),
       })
     )
+    vi.useRealTimers()
   })
 
   it('returns 502 when upstream fails', async () => {
@@ -116,29 +140,15 @@ describe('SSE Worker', () => {
   })
 
   it('verifies keep-alive functionality', async () => {
-    // Create a spy on Date.now to control time
-    const dateSpy = vi.spyOn(Date, 'now')
+    vi.useFakeTimers()
+    const encoder = new TextEncoder()
+    const decoder = new TextDecoder()
 
-    // Set up a sequence of timestamps
-    // First few calls should return the initial time (1000)
-    // This ensures the first message is the data message, not a keep-alive
-    dateSpy.mockReturnValueOnce(1000) // start() call
-    dateSpy.mockReturnValueOnce(1000) // first pull() call - check for keep-alive
-    dateSpy.mockReturnValueOnce(1000) // first pull() call - update last message time
-
-    // Later calls should return a time past the keep-alive interval
-    dateSpy.mockReturnValueOnce(35000) // second pull() call - check for keep-alive
-    dateSpy.mockReturnValueOnce(35000) // second pull() call - update last message time
-
-    // Create a simple mock for the upstream body
+    // Mock upstream ReadableStream with one message
     const mockBody = new ReadableStream({
       start(controller) {
-        // Send one message and then keep the stream open
-        controller.enqueue(new TextEncoder().encode('data: {"message":"test"}\n\n'))
-      },
-      pull() {
-        // Keep the stream open without sending more data
-        return new Promise(() => {})
+        controller.enqueue(encoder.encode('data: {"message":"test"}\n\n'))
+        // Leave stream open
       },
     })
 
@@ -148,26 +158,35 @@ describe('SSE Worker', () => {
       text: () => Promise.resolve(''),
     })
 
-    // Make the request
-    const request = new Request('http://example.com?channel=valid-channel')
+    const ac = new AbortController()
+    const request = new Request('http://example.com?channel=valid-channel', { signal: ac.signal })
     const ctx = createExecutionContext()
     const response = await worker.fetch(request, env, ctx)
 
-    // Get a reader for the response body
     const reader = response.body!.getReader()
 
-    // First read should get the initial message
-    const initialResult = await reader.read()
-    expect(initialResult.done).toBe(false)
-    expect(new TextDecoder().decode(initialResult.value)).toContain('data: {"message":"test"}')
+    // First read: expect the real data
+    const first = await reader.read()
+    expect(first.done).toBe(false)
+    expect(decoder.decode(first.value)).toContain('data: {"message":"test"}')
 
-    // Second read should get the keep-alive message
-    // This works because our implementation checks the time when pull is called
-    const keepAliveResult = await reader.read()
-    expect(keepAliveResult.done).toBe(false)
-    expect(new TextDecoder().decode(keepAliveResult.value)).toBe(':ping\n\n')
+    // Advance time by 30 seconds to trigger ping
+    await vi.advanceTimersByTimeAsync(30000)
 
-    // Clean up
-    reader.cancel()
+    // Second read: expect the :ping keep-alive
+    const second = await reader.read()
+    expect(second.done).toBe(false)
+    expect(decoder.decode(second.value)).toBe(':ping\n\n')
+
+    // Abort the request to stop pinger loop (loop has 5s inverval)
+    ac.abort()
+    vi.advanceTimersByTime(5000)
+
+    // Cancel reader to end stream cleanly
+    await reader.cancel()
+
+    await waitOnExecutionContext(ctx)
+
+    vi.useRealTimers()
   })
 })

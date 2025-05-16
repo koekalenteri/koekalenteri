@@ -31,12 +31,17 @@ export default {
       return new Response('Invalid channel name', { status: 400 })
     }
 
+    const controller = new AbortController()
+    req.signal.addEventListener('abort', () => controller.abort())
+
+    // Pass client abort signal to upstream fetch to abort if client disconnects
     const upstream = await fetch(`${env.UPSTASH_REDIS_REST_URL}/subscribe/${channel}`, {
       method: 'POST', // Upstash expects POST for SUBSCRIBE
       headers: {
         Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`,
         Accept: 'text/event-stream',
       },
+      signal: req.signal,
     })
 
     if (!upstream.ok || !upstream.body) {
@@ -44,45 +49,62 @@ export default {
       return new Response(`Upstream error: ${await upstream.text()}`, { status: 502 })
     }
 
-    // Create a ReadableStream with keep-alive functionality
-    const reader = upstream.body!.getReader()
+    const reader = upstream.body.getReader()
     const encoder = new TextEncoder()
     const pingMsg = encoder.encode(':ping\n\n')
     let lastMessageTime = Date.now()
-    const keepAliveInterval = 30000 // 30 seconds
 
-    const stream = new ReadableStream<Uint8Array>({
-      async pull(controller) {
-        try {
-          // Check if we need to send a keep-alive
-          const now = Date.now()
-          if (now - lastMessageTime > keepAliveInterval) {
-            controller.enqueue(pingMsg)
-            lastMessageTime = now
-            return
-          }
+    const { readable, writable } = new TransformStream()
+    const writer = writable.getWriter()
 
-          // Otherwise read from the upstream
-          const { value, done } = await reader.read()
-
-          if (done) {
-            controller.close()
-            return
-          }
-
-          controller.enqueue(value)
-          lastMessageTime = Date.now()
-        } catch (error) {
-          controller.error(error)
-        }
-      },
-
-      cancel() {
-        reader.cancel()
-      }
+    req.signal.addEventListener('abort', () => {
+      reader.cancel().catch(() => {})
+      writer.close().catch(() => {})
     })
 
-    return new Response(stream, {
+    const pump = async () => {
+      try {
+        while (!req.signal.aborted) {
+          const { done, value } = await reader.read()
+          if (done) break
+          lastMessageTime = Date.now()
+          await writer.write(value)
+        }
+      } catch (err) {
+        // Ignore abort errors from cancellation
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error('Upstream read error:', err)
+        }
+      } finally {
+        try {
+          await writer.close()
+        } catch {
+          // eat
+        }
+      }
+    }
+
+    const pinger = async () => {
+      try {
+        while (!req.signal.aborted) {
+          await new Promise((r) => setTimeout(r, 1000))
+          if (Date.now() - lastMessageTime >= 30000) {
+            await writer.write(pingMsg)
+            lastMessageTime = Date.now()
+          }
+        }
+      } catch (err) {
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error('Ping loop error:', err)
+        }
+      }
+    }
+
+    ctx.waitUntil(pump())
+    ctx.waitUntil(pinger())
+
+
+    return new Response(readable, {
       status: 200,
       headers: {
         'Content-Type': 'text/event-stream',
