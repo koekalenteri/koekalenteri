@@ -44,8 +44,45 @@ export default {
       return new Response(`Upstream error: ${await upstream.text()}`, { status: 502 })
     }
 
-    // Pipe the SSE stream verbatim to the client.
-    return new Response(upstream.body, {
+    // Create a ReadableStream with keep-alive functionality
+    const reader = upstream.body!.getReader()
+    const encoder = new TextEncoder()
+    const pingMsg = encoder.encode(':ping\n\n')
+    let lastMessageTime = Date.now()
+    const keepAliveInterval = 30000 // 30 seconds
+
+    const stream = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        try {
+          // Check if we need to send a keep-alive
+          const now = Date.now()
+          if (now - lastMessageTime > keepAliveInterval) {
+            controller.enqueue(pingMsg)
+            lastMessageTime = now
+            return
+          }
+
+          // Otherwise read from the upstream
+          const { value, done } = await reader.read()
+
+          if (done) {
+            controller.close()
+            return
+          }
+
+          controller.enqueue(value)
+          lastMessageTime = Date.now()
+        } catch (error) {
+          controller.error(error)
+        }
+      },
+
+      cancel() {
+        reader.cancel()
+      }
+    })
+
+    return new Response(stream, {
       status: 200,
       headers: {
         'Content-Type': 'text/event-stream',
@@ -54,6 +91,5 @@ export default {
         ...getCorsHeaders
       },
     })
-
 	},
 }
