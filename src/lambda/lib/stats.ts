@@ -303,7 +303,7 @@ export function hashStatValue(value: string): string {
   const fullDigest = crypto.createHash('sha256').update(value.toLowerCase().trim()).digest()
 
   // Use first 12 bytes of the digest, convert to base64 and remove padding characters
-  return fullDigest.subarray(0, 12).toString('base64').replace(/=+$/, '')
+  return fullDigest.subarray(0, 12).toString('base64').split('=')[0]
 }
 
 /**
