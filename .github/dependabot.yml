@@ -31,3 +31,19 @@ updates:
         exclude-patterns:
           - "camelcase"
           - "@mui/*"
+
+  - package-ecosystem: "npm"
+    directory: "/cf/sse-worker"
+    schedule:
+      interval: "daily"
+    labels:
+      - "dependencies"
+      - "automerge"
+      - "daily"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      deps:
+        patterns:
+          - "*"
