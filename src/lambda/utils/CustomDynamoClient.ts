@@ -8,6 +8,35 @@ function fromSamLocalTable(table: string) {
   return table.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
 }
 
+const processOperations = (
+  operations: Record<string, any> | undefined,
+  names: Record<string, string>,
+  values: Record<string, string>,
+  type: 'SET' | 'ADD'
+): string | null => {
+  if (!operations || Object.keys(operations).length === 0) {
+    return null
+  }
+  const operand = type === 'SET' ? ' = ' : ' '
+  const parts: string[] = []
+
+  for (const [field, value] of Object.entries(operations)) {
+    const nameKey = `#${field}`
+    const valueKey = `:${field}`
+
+    if (names[nameKey]) {
+      throw new Error(`DynamoDB: can not SET and ADD same field: ${field}`)
+    }
+
+    names[nameKey] = field
+    values[valueKey] = value
+
+    parts.push(`${nameKey}${operand}${valueKey}`)
+  }
+
+  return parts.length > 0 ? `${type} ${parts.join(', ')}` : null
+}
+
 export default class CustomDynamoClient {
   table: string
   docClient: AWS.DynamoDB.DocumentClient
@@ -166,58 +195,18 @@ export default class CustomDynamoClient {
     table?: string,
     returnValues?: AWS.DynamoDB.DocumentClient.ReturnValue
   ) {
-    // Initialize expression parts and attribute maps
-    const expressionParts: string[] = []
     const names: Record<string, string> = {}
     const values: Record<string, any> = {}
+    const expressionParts: string[] = []
 
-    // Process SET operations
-    if (updates.set && Object.keys(updates.set).length > 0) {
-      const setParts: string[] = []
-
-      for (const [field, value] of Object.entries(updates.set)) {
-        const nameKey = `#${field}`
-        const valueKey = `:${field}`
-
-        names[nameKey] = field
-        values[valueKey] = value
-
-        setParts.push(`${nameKey} = ${valueKey}`)
-      }
-
-      if (setParts.length > 0) {
-        expressionParts.push(`SET ${setParts.join(', ')}`)
-      }
+    const setExpression = processOperations(updates.set, names, values, 'SET')
+    if (setExpression) {
+      expressionParts.push(setExpression)
     }
 
-    // Process ADD operations
-    if (updates.add && Object.keys(updates.add).length > 0) {
-      const addParts: string[] = []
-
-      for (const [field, value] of Object.entries(updates.add)) {
-        const nameKey = `#${field}`
-        const valueKey = `:${field}`
-
-        // If the field is already in names from SET, use a different key for ADD
-        if (names[nameKey]) {
-          const addNameKey = `#${field}_add`
-          const addValueKey = `:${field}_add`
-
-          names[addNameKey] = field
-          values[addValueKey] = value
-
-          addParts.push(`${addNameKey} ${addValueKey}`)
-        } else {
-          names[nameKey] = field
-          values[valueKey] = value
-
-          addParts.push(`${nameKey} ${valueKey}`)
-        }
-      }
-
-      if (addParts.length > 0) {
-        expressionParts.push(`ADD ${addParts.join(', ')}`)
-      }
+    const addExpression = processOperations(updates.add, names, values, 'ADD')
+    if (addExpression) {
+      expressionParts.push(addExpression)
     }
 
     // If no operations were provided, throw an error
@@ -225,14 +214,11 @@ export default class CustomDynamoClient {
       throw new Error('No update operations provided')
     }
 
-    // Combine all expression parts
-    const updateExpression = expressionParts.join(' ')
-
     // Create params object for the update operation
     const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
-      UpdateExpression: updateExpression,
+      UpdateExpression: expressionParts.join(' '),
       ExpressionAttributeNames: names,
       ExpressionAttributeValues: values,
     }

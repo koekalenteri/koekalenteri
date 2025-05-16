@@ -362,38 +362,19 @@ describe('CustomDynamoClient', () => {
       })
     })
 
-    it('handles field name conflicts between SET and ADD operations', async () => {
-      const client = new CustomDynamoClient('TestTable')
-      mockUpdate.mockResolvedValueOnce({})
-
-      await client.update(
-        { id: '1' },
-        {
-          set: { count: 10 },
-          add: { count: 1 },
-        }
-      )
-
-      expect(mockDocumentClient.update).toHaveBeenCalledWith({
-        TableName: 'test-table',
-        Key: { id: '1' },
-        UpdateExpression: 'SET #count = :count ADD #count_add :count_add',
-        ExpressionAttributeNames: {
-          '#count': 'count',
-          '#count_add': 'count',
-        },
-        ExpressionAttributeValues: {
-          ':count': 10,
-          ':count_add': 1,
-        },
-      })
-    })
-
     it('throws an error when no operations are provided', async () => {
       const client = new CustomDynamoClient('TestTable')
 
       await expect(client.update({ id: '1' }, {})).rejects.toThrow('No update operations provided')
       await expect(client.update({ id: '1' }, { set: {}, add: {} })).rejects.toThrow('No update operations provided')
+    })
+
+    it('throws an error when set and add operations are attempted for same field', async () => {
+      const client = new CustomDynamoClient('TestTable')
+
+      await expect(client.update({ id: '1', cnt: 1 }, { set: { cnt: 3 }, add: { cnt: 1 } })).rejects.toThrow(
+        'DynamoDB: can not SET and ADD same field: cnt'
+      )
     })
 
     it('includes ReturnValues when provided', async () => {
