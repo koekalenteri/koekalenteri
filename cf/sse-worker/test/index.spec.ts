@@ -22,6 +22,21 @@ describe('SSE Worker', () => {
     mockFetch.mockReset()
   })
 
+  it('handles OPTIONS requests with CORS headers', async () => {
+    const request = new Request('http://example.com', {
+      method: 'OPTIONS',
+    })
+    const ctx = createExecutionContext()
+    const response = await worker.fetch(request, env, ctx)
+    await waitOnExecutionContext(ctx)
+
+    expect(response.status).toBe(204)
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
+    expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, OPTIONS')
+    expect(response.headers.get('Access-Control-Allow-Headers')).toBe('Content-Type')
+    expect(response.headers.get('Access-Control-Max-Age')).toBe('86400')
+  })
+
   it('returns 400 for missing channel parameter', async () => {
     const request = new Request('http://example.com')
     const ctx = createExecutionContext()

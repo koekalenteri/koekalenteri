@@ -4,8 +4,26 @@ export interface Env {
 	UPSTASH_REDIS_REST_TOKEN: string;
 }
 
+const getCorsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+}
+
+const optionsCorsHeaders = {
+  ...getCorsHeaders,
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Max-Age': '86400',
+}
+
 export default {
 	async fetch(req: Request, env: Env, ctx: ExecutionContext) {
+    if (req.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: optionsCorsHeaders,
+      })
+    }
+
     const { searchParams } = new URL(req.url)
     const channel = searchParams.get('channel')
 
@@ -33,8 +51,7 @@ export default {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
-        // Simple public CORS – adjust as needed.
-        'Access-Control-Allow-Origin': '*',
+        ...getCorsHeaders
       },
     })
 
