@@ -23,6 +23,30 @@ import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 import { RefundFooter } from './refundDialog/RefundFooter'
 import { useRefundColumns } from './refundDialog/useRefundColumns'
 
+// Types for refund message handling
+type RefundStatus = 'ok' | 'pending' | 'default'
+type RefundProvider = 'email refund' | 'default'
+
+const successMessages: Record<string, string> = {
+  // Format: [status]_[provider]
+  'ok_email refund':
+    'Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
+  ok_default: 'Maksu palautettu',
+  'pending_email refund':
+    'Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
+  pending_default: 'Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.',
+  default:
+    'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+}
+
+const errorMessages = {
+  '404': 'Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.',
+  refund_balance: (remainingAmount: string) =>
+    `Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: ${remainingAmount}`,
+  default:
+    'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+}
+
 interface Props {
   readonly registration: Registration
   readonly open?: boolean
@@ -117,70 +141,118 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     onClose?.()
   }, [onClose])
 
-  const handleRefund = useCallback(async () => {
-    const transaction = selectedTransactions[0]
-    try {
-      const amount = Math.min(total, transaction.amount) - handlingCost
-      const response = await actions.refund(registration, transaction.transactionId, amount)
-      if (response?.status === 'ok') {
-        if (response.provider === 'email refund') {
-          enqueueSnackbar(
-            'Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
-            { variant: 'success' }
-          )
-        } else {
-          enqueueSnackbar('Maksu palautettu', { variant: 'success' })
-        }
-        handleClose()
-      } else if (response?.status === 'pending') {
-        if (response.provider === 'email refund') {
-          enqueueSnackbar(
-            'Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
-            { variant: 'success' }
-          )
-        } else {
-          enqueueSnackbar('Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.', {
-            variant: 'success',
-          })
-        }
-        handleClose()
+  const showSuccessMessage = useCallback(
+    (response: any) => {
+      // Cast to our defined types for better type safety
+      const status = (response?.status || 'default') as RefundStatus
+      const provider = (response?.provider || 'default') as RefundProvider
+
+      // Try specific key first
+      const messageKey = `${status}_${provider}`
+
+      // Use a safer approach with explicit fallback chain
+      let message: string
+
+      // Check if the specific key exists in our messages
+      if (messageKey in successMessages) {
+        message = successMessages[messageKey]
+      } else if (`${status}_default` in successMessages) {
+        // Try the default provider for this status
+        message = successMessages[`${status}_default`]
       } else {
-        enqueueSnackbar(
-          'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-          { variant: 'error' }
-        )
+        // Fall back to the default message
+        message = successMessages.default
       }
-    } catch (e) {
-      if (e instanceof APIError) {
-        if (e.status === 404) {
-          enqueueSnackbar('Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.', {
-            variant: 'error',
-          })
+
+      // Only show success variant for ok or pending status
+      const variant = status === 'ok' || status === 'pending' ? 'success' : 'error'
+      enqueueSnackbar(message, { variant })
+
+      // Close dialog for successful refunds
+      if (status === 'ok' || status === 'pending') {
+        handleClose()
+      }
+    },
+    [successMessages, enqueueSnackbar, handleClose]
+  )
+
+  // Helper function to extract remaining balance from error details
+  const extractRemainingBalance = useCallback((errorBody?: string): string | null => {
+    if (!errorBody) return null
+
+    try {
+      const details = JSON.parse(errorBody)
+
+      if (details?.message === 'Refund amount exceeds the remaining refund balance') {
+        const remaining = details?.meta?.invalidRefunds?.[0]?.remainingRefundBalance
+        // The remaining balance is in cents, so divide by 100 to get euros
+        return remaining ? formatMoney(remaining / 100) : '(ei tiedossa)'
+      }
+
+      return null
+    } catch {
+      return null
+    }
+  }, [])
+
+  const handleRefundError = useCallback(
+    (error: unknown) => {
+      // Early return if not an API error
+      if (!(error instanceof APIError)) return
+
+      // Handle specific error types
+      switch (error.status) {
+        case 404: {
+          // Transaction not found error
+          enqueueSnackbar(errorMessages['404'], { variant: 'error' })
           return
         }
-        if (e.status === 400) {
-          const details = JSON.parse(e.body?.error)
-          if (details?.message === 'Refund amount exceeds the remaining refund balance') {
-            const remaining = details?.meta?.invalidRefunds?.[0].remainingRefundBalance
-            const remainingAmount = remaining ? formatMoney(remaining / 100) : '(ei tiedossa)'
-            enqueueSnackbar(
-              `Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: ${remainingAmount}`,
-              {
-                variant: 'error',
-              }
-            )
+
+        case 400: {
+          // Check for refund balance error
+          const remainingAmount = extractRemainingBalance(error.body?.error)
+          if (remainingAmount) {
+            enqueueSnackbar(errorMessages.refund_balance(remainingAmount), { variant: 'error' })
             return
           }
+          break
         }
-        enqueueSnackbar(
-          'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-          {
-            variant: 'error',
-          }
-        )
       }
+
+      // Default error message for all other cases
+      enqueueSnackbar(errorMessages.default, { variant: 'error' })
+    },
+    [errorMessages, enqueueSnackbar, extractRemainingBalance]
+  )
+
+  const handleRefund = useCallback(async () => {
+    if (!selectedTransactions.length) return
+
+    const transaction = selectedTransactions[0]
+    const amount = Math.min(total, transaction.amount) - handlingCost
+
+    try {
+      const response = await actions.refund(registration, transaction.transactionId, amount)
+      if (!response || response.status === 'fail') {
+        // For failed refunds, show the default error message
+        enqueueSnackbar(errorMessages.default, { variant: 'error' })
+      } else {
+        showSuccessMessage(response)
+      }
+    } catch (error) {
+      handleRefundError(error)
     }
-  }, [selectedTransactions, total, handlingCost, actions, registration, enqueueSnackbar, handleClose])
+  }, [
+    selectedTransactions,
+    total,
+    handlingCost,
+    actions,
+    registration,
+    showSuccessMessage,
+    handleRefundError,
+    enqueueSnackbar,
+    errorMessages,
+  ])
 
   return (
     <Dialog open={!!open} maxWidth="md" fullWidth>

@@ -1,0 +1,1088 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RefundDialog renders hidden when open is false 1`] = `<div />`;
+
+exports[`RefundDialog renders with open dialog 1`] = `
+<body
+  style="padding-right: 1024px; overflow: hidden;"
+>
+  <div
+    aria-hidden="true"
+  />
+  <div
+    class="MuiDialog-root MuiModal-root css-1424xw8-MuiModal-root-MuiDialog-root"
+    role="presentation"
+  >
+    <div
+      aria-hidden="true"
+      class="MuiBackdrop-root MuiModal-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
+      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+    />
+    <div
+      data-testid="sentinelStart"
+      tabindex="0"
+    />
+    <div
+      class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
+      role="presentation"
+      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      tabindex="-1"
+    >
+      <div
+        aria-labelledby=":r2:"
+        aria-modal="true"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthMd MuiDialog-paperFullWidth css-1peo4km-MuiPaper-root-MuiDialog-paper"
+        role="dialog"
+        style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
+      >
+        <h2
+          class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
+          id=":r2:"
+        >
+          registration.refundDialog.title regNo, payer
+        </h2>
+        <div
+          class="MuiDialogContent-root css-kw13he-MuiDialogContent-root"
+        >
+          <p
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1j2f62z-MuiTypography-root-MuiDialogContentText-root"
+          >
+            registration.refundDialog.text
+          </p>
+          <div
+            class="MuiDataGrid-root MuiDataGrid-root--densityStandard MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-lsvk8p-MuiDataGrid-root"
+            style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 550px; --DataGrid-columnsTotalWidth: 550px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 56px; --DataGrid-headersTotalHeight: 56px; --DataGrid-topContainerHeight: 56px; --DataGrid-bottomContainerHeight: 0px; --height: 40px;"
+          >
+            <div
+              aria-colcount="7"
+              aria-multiselectable="false"
+              aria-rowcount="3"
+              class="MuiDataGrid-main css-1bgckiu-MuiDataGrid-main"
+              role="grid"
+              tabindex="-1"
+            >
+              <div
+                class="css-18l11qw"
+                data-id="gridPanelAnchor"
+                role="presentation"
+              />
+              <div
+                class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
+                role="presentation"
+                style="overflow-x: hidden;"
+              >
+                <div
+                  class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
+                  role="presentation"
+                >
+                  <div
+                    class="MuiDataGrid-columnHeaders css-1gtv474-MuiDataGrid-columnHeaders"
+                    role="presentation"
+                  >
+                    <div
+                      aria-rowindex="1"
+                      class="MuiDataGrid-row--borderBottom css-yseucu-MuiDataGrid-columnHeaderRow"
+                      role="row"
+                    >
+                      <div
+                        role="presentation"
+                        style="width: 0px;"
+                      />
+                      <div
+                        aria-colindex="1"
+                        aria-sort="none"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--alignCenter MuiDataGrid-withBorderColor MuiDataGrid-columnHeaderCheckbox"
+                        data-field="__check__"
+                        role="columnheader"
+                        style="height: 56px; width: 50px;"
+                        tabindex="0"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <span
+                                aria-disabled="true"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                                tabindex="-1"
+                              >
+                                <input
+                                  aria-label="Unselect all rows"
+                                  class="PrivateSwitchBase-input css-j8yymo"
+                                  data-indeterminate="true"
+                                  disabled=""
+                                  name="select_all_rows"
+                                  tabindex="-1"
+                                  type="checkbox"
+                                />
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="IndeterminateCheckBoxIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10H7v-2h10v2z"
+                                  />
+                                </svg>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="2"
+                        aria-sort="ascending"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-columnHeader--sorted MuiDataGrid-withBorderColor"
+                        data-field="createdAt"
+                        role="columnheader"
+                        style="height: 56px; width: 140px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <div
+                                class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
+                                data-mui-internal-clone-element="true"
+                              >
+                                registration.refundDialog.columns.statusAt
+                              </div>
+                            </div>
+                            <div
+                              class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                            >
+                              <button
+                                aria-label="Sort"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                field="createdAt"
+                                tabindex="-1"
+                                title="Sort"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                                  data-testid="ArrowUpwardIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="3"
+                        aria-sort="none"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                        data-field="provider"
+                        role="columnheader"
+                        style="height: 56px; width: 0px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <div
+                                class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
+                                data-mui-internal-clone-element="true"
+                              >
+                                registration.refundDialog.columns.provider
+                              </div>
+                            </div>
+                            <div
+                              class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                            >
+                              <button
+                                aria-label="Sort"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                field="provider"
+                                tabindex="-1"
+                                title="Sort"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                                  data-testid="ArrowUpwardIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="4"
+                        aria-sort="none"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                        data-field="status"
+                        role="columnheader"
+                        style="height: 56px; width: 60px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <div
+                                class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
+                                data-mui-internal-clone-element="true"
+                              >
+                                registration.refundDialog.columns.status
+                              </div>
+                            </div>
+                            <div
+                              class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                            >
+                              <button
+                                aria-label="Sort"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                field="status"
+                                tabindex="-1"
+                                title="Sort"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                                  data-testid="ArrowUpwardIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="5"
+                        aria-sort="none"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                        data-field="bankReference"
+                        role="columnheader"
+                        style="height: 56px; width: 120px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <div
+                                class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
+                                data-mui-internal-clone-element="true"
+                              >
+                                registration.refundDialog.columns.bankReference
+                              </div>
+                            </div>
+                            <div
+                              class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                            >
+                              <button
+                                aria-label="Sort"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                field="bankReference"
+                                tabindex="-1"
+                                title="Sort"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                                  data-testid="ArrowUpwardIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="6"
+                        aria-sort="none"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                        data-field="type"
+                        role="columnheader"
+                        style="height: 56px; width: 80px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <div
+                                class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
+                                data-mui-internal-clone-element="true"
+                              >
+                                registration.refundDialog.columns.type
+                              </div>
+                            </div>
+                            <div
+                              class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                            >
+                              <button
+                                aria-label="Sort"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                field="type"
+                                tabindex="-1"
+                                title="Sort"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                                  data-testid="ArrowUpwardIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        aria-colindex="7"
+                        aria-sort="none"
+                        class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
+                        data-field="amount"
+                        role="columnheader"
+                        style="height: 56px; width: 100px;"
+                        tabindex="-1"
+                      >
+                        <div
+                          class="MuiDataGrid-columnHeaderDraggableContainer"
+                          draggable="false"
+                          role="presentation"
+                        >
+                          <div
+                            class="MuiDataGrid-columnHeaderTitleContainer"
+                            role="presentation"
+                          >
+                            <div
+                              class="MuiDataGrid-columnHeaderTitleContainerContent"
+                            >
+                              <div
+                                class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
+                                data-mui-internal-clone-element="true"
+                              >
+                                registration.refundDialog.columns.amount
+                              </div>
+                            </div>
+                            <div
+                              class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                            >
+                              <button
+                                aria-label="Sort"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                                field="amount"
+                                tabindex="-1"
+                                title="Sort"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                                  data-testid="ArrowUpwardIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-columnSeparator MuiDataGrid-columnSeparator--sideRight"
+                          style="min-height: 56px;"
+                        >
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiDataGrid-iconSeparator css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="SeparatorIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <rect
+                              height="24"
+                              rx="0.5"
+                              width="1"
+                              x="11.5"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div
+                        class="MuiDataGrid-filler"
+                        role="presentation"
+                      />
+                      <div
+                        class="MuiDataGrid-scrollbarFiller MuiDataGrid-scrollbarFiller--header"
+                        role="presentation"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
+                  role="presentation"
+                  style="width: auto; flex-shrink: 0; flex-basis: 80px;"
+                >
+                  <div
+                    class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
+                    role="rowgroup"
+                    style="transform: translate3d(0, 0px, 0);"
+                  >
+                    <div
+                      aria-rowindex="2"
+                      aria-selected="true"
+                      class="MuiDataGrid-row Mui-selected MuiDataGrid-row--firstVisible"
+                      data-id="payment-123"
+                      data-rowindex="0"
+                      role="row"
+                      style="max-height: 40px; min-height: 40px; --height: 40px;"
+                    >
+                      <div
+                        class="MuiDataGrid-cellOffsetLeft"
+                        role="presentation"
+                        style="width: 0px;"
+                      />
+                      <div
+                        aria-colindex="1"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-cellCheckbox MuiDataGrid-cell--flex"
+                        data-colindex="0"
+                        data-field="__check__"
+                        role="gridcell"
+                        style="--width: 50px;"
+                        tabindex="-1"
+                      >
+                        <span
+                          class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        >
+                          <input
+                            aria-label="Unselect row"
+                            checked=""
+                            class="PrivateSwitchBase-input css-j8yymo"
+                            data-indeterminate="false"
+                            name="select_row"
+                            tabindex="-1"
+                            type="checkbox"
+                            value="true"
+                          />
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="CheckBoxIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                            />
+                          </svg>
+                        </span>
+                      </div>
+                      <div
+                        aria-colindex="2"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="1"
+                        data-field="createdAt"
+                        role="gridcell"
+                        style="--width: 140px;"
+                        tabindex="-1"
+                        title="01.01.24 14:00:00"
+                      >
+                        01.01.24 14:00:00
+                      </div>
+                      <div
+                        aria-colindex="3"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="2"
+                        data-field="provider"
+                        role="gridcell"
+                        style="--width: 0px;"
+                        tabindex="-1"
+                        title="Nordea"
+                      >
+                        Nordea
+                      </div>
+                      <div
+                        aria-colindex="4"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="3"
+                        data-field="status"
+                        role="gridcell"
+                        style="--width: 60px;"
+                        tabindex="-1"
+                        title="ok"
+                      >
+                        ok
+                      </div>
+                      <div
+                        aria-colindex="5"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="4"
+                        data-field="bankReference"
+                        role="gridcell"
+                        style="--width: 120px;"
+                        tabindex="-1"
+                      />
+                      <div
+                        aria-colindex="6"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="5"
+                        data-field="type"
+                        role="gridcell"
+                        style="--width: 80px;"
+                        tabindex="-1"
+                        title="Maksu"
+                      >
+                        Maksu
+                      </div>
+                      <div
+                        aria-colindex="7"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textRight"
+                        data-colindex="6"
+                        data-field="amount"
+                        role="gridcell"
+                        style="--width: 100px;"
+                        tabindex="-1"
+                        title="50,00 €"
+                      >
+                        50,00 €
+                      </div>
+                      <div
+                        class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                        role="presentation"
+                      />
+                    </div>
+                    <div
+                      aria-rowindex="3"
+                      class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
+                      data-id="refund-123"
+                      data-rowindex="1"
+                      role="row"
+                      style="max-height: 40px; min-height: 40px; --height: 40px;"
+                    >
+                      <div
+                        class="MuiDataGrid-cellOffsetLeft"
+                        role="presentation"
+                        style="width: 0px;"
+                      />
+                      <div
+                        aria-colindex="1"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textCenter MuiDataGrid-cellCheckbox MuiDataGrid-cell--flex"
+                        data-colindex="0"
+                        data-field="__check__"
+                        role="gridcell"
+                        style="--width: 50px;"
+                        tabindex="-1"
+                      >
+                        <span
+                          aria-disabled="true"
+                          class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                          tabindex="-1"
+                        >
+                          <input
+                            aria-label="Select row"
+                            class="PrivateSwitchBase-input css-j8yymo"
+                            data-indeterminate="false"
+                            disabled=""
+                            name="select_row"
+                            tabindex="-1"
+                            type="checkbox"
+                            value="false"
+                          />
+                          <svg
+                            aria-hidden="true"
+                            class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                            data-testid="CheckBoxOutlineBlankIcon"
+                            focusable="false"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"
+                            />
+                          </svg>
+                        </span>
+                      </div>
+                      <div
+                        aria-colindex="2"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="1"
+                        data-field="createdAt"
+                        role="gridcell"
+                        style="--width: 140px;"
+                        tabindex="-1"
+                        title="02.01.24 14:00:00"
+                      >
+                        02.01.24 14:00:00
+                      </div>
+                      <div
+                        aria-colindex="3"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="2"
+                        data-field="provider"
+                        role="gridcell"
+                        style="--width: 0px;"
+                        tabindex="-1"
+                        title="Nordea"
+                      >
+                        Nordea
+                      </div>
+                      <div
+                        aria-colindex="4"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="3"
+                        data-field="status"
+                        role="gridcell"
+                        style="--width: 60px;"
+                        tabindex="-1"
+                        title="ok"
+                      >
+                        ok
+                      </div>
+                      <div
+                        aria-colindex="5"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="4"
+                        data-field="bankReference"
+                        role="gridcell"
+                        style="--width: 120px;"
+                        tabindex="-1"
+                      />
+                      <div
+                        aria-colindex="6"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                        data-colindex="5"
+                        data-field="type"
+                        role="gridcell"
+                        style="--width: 80px;"
+                        tabindex="-1"
+                        title="Palautus"
+                      >
+                        Palautus
+                      </div>
+                      <div
+                        aria-colindex="7"
+                        aria-colspan="1"
+                        aria-rowspan="1"
+                        class="MuiDataGrid-cell MuiDataGrid-cell--textRight"
+                        data-colindex="6"
+                        data-field="amount"
+                        role="gridcell"
+                        style="--width: 100px;"
+                        tabindex="-1"
+                        title="−20,00 €"
+                      >
+                        −20,00 €
+                      </div>
+                      <div
+                        class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
+                        role="presentation"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
+                  role="presentation"
+                />
+              </div>
+              <div
+                aria-hidden="true"
+                class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-2n9dey"
+                tabindex="-1"
+              >
+                <div
+                  class="MuiDataGrid-scrollbarContent"
+                />
+              </div>
+              <div
+                aria-hidden="true"
+                class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-1ir2opr"
+                tabindex="-1"
+              >
+                <div
+                  class="MuiDataGrid-scrollbarContent"
+                />
+              </div>
+            </div>
+            <div
+              class="MuiDataGrid-footerContainer MuiDataGrid-withBorderColor css-15lx25q-MuiDataGrid-footerContainer"
+            >
+              <div
+                class="MuiBox-root css-4y84eq"
+              />
+              <div
+                class="MuiBox-root css-4y84eq"
+              >
+                <table
+                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
+                >
+                  <tbody
+                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
+                  >
+                    <tr
+                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-17j8okc-MuiTableCell-root"
+                      >
+                        Tapahtumat yhteensä:
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-tbmtkq-MuiTableCell-root"
+                      >
+                        30,00 €
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-17j8okc-MuiTableCell-root"
+                      >
+                        Käsittelykulu:
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-tbmtkq-MuiTableCell-root"
+                      >
+                        <div
+                          class="MuiFormControl-root MuiTextField-root css-1v38dg5-MuiFormControl-root-MuiTextField-root"
+                          inputmode="numeric"
+                        >
+                          <div
+                            class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd css-1624vf1-MuiInputBase-root-MuiInput-root"
+                          >
+                            <input
+                              aria-invalid="false"
+                              class="MuiInputBase-input MuiInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd css-1wd3yy0-MuiInputBase-input-MuiInput-input"
+                              id=":r4:"
+                              pattern="[0-9]{1,3},[0-9]{2}"
+                              style="text-align: right; padding: 4px; font-size: 14px;"
+                              type="text"
+                              value="0,00"
+                            />
+                            <div
+                              class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-standard MuiInputAdornment-sizeSmall css-1mr6rte-MuiInputAdornment-root"
+                            >
+                              €
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr
+                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-17j8okc-MuiTableCell-root"
+                      >
+                        Palautetaan:
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeSmall css-tbmtkq-MuiTableCell-root"
+                      >
+                        <strong>
+                          30,00 €
+                        </strong>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <p
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-184azvz-MuiTypography-root-MuiDialogContentText-root"
+          >
+            registration.refundDialog.costsText
+          </p>
+          <div
+            class="MuiFormControl-root MuiTextField-root css-zin0rh-MuiFormControl-root-MuiTextField-root"
+          >
+            <label
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+              data-shrink="false"
+              for=":r5:"
+              id=":r5:-label"
+            >
+              registration.internalNotes
+            </label>
+            <div
+              class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-multiline css-cpt9gs-MuiInputBase-root-MuiOutlinedInput-root"
+            >
+              <textarea
+                aria-invalid="false"
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                id=":r5:"
+                name="internalNotes"
+                rows="2"
+                style="height: 0px; overflow: hidden;"
+              />
+              <textarea
+                aria-hidden="true"
+                class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
+                readonly=""
+                style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding-top: 0px; padding-bottom: 0px; width: 100%;"
+                tabindex="-1"
+              />
+              <fieldset
+                aria-hidden="true"
+                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+              >
+                <legend
+                  class="css-81qg8w"
+                >
+                  <span>
+                    registration.internalNotes
+                  </span>
+                </legend>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+        <div
+          class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
+        >
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            refund
+          </button>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      data-testid="sentinelEnd"
+      tabindex="0"
+    />
+  </div>
+</body>
+`;
