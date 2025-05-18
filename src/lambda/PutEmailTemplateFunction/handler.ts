@@ -1,7 +1,12 @@
-import type { Template } from 'aws-sdk/clients/ses'
+import type { Template } from '@aws-sdk/client-ses'
 import type { JsonEmailTemplate } from '../../types'
 
-import AWS from 'aws-sdk'
+import {
+  CreateTemplateCommand,
+  SESClient,
+  TemplateDoesNotExistException,
+  UpdateTemplateCommand,
+} from '@aws-sdk/client-ses'
 
 import { CONFIG } from '../config'
 import { authorize, getUsername } from '../lib/auth'
@@ -12,21 +17,24 @@ import { markdownToTemplate } from '../utils/email/markdown'
 import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.emailTemplateTable)
-const ses = new AWS.SES()
+const ses = new SESClient()
 
 const updateOrCreateTemplate = async (template: Template) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    const res = await ses.updateTemplate({ Template: template }).promise()
+    const command = new UpdateTemplateCommand({ Template: template })
+    const res = await ses.send(command)
     console.info(res)
-  } catch (e: any) {
-    if (e.code !== 'TemplateDoesNotExist') {
+  } catch (e) {
+    if (e instanceof TemplateDoesNotExistException) {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const command = new CreateTemplateCommand({ Template: template })
+      const res = await ses.send(command)
+      console.info(res)
+    } else {
       console.error(e)
       throw e
     }
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    const res = await ses.createTemplate({ Template: template }).promise()
-    console.info(res)
   }
 }
 
@@ -54,8 +62,10 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
     en: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-en`, data.en),
   }
 
-  await updateOrCreateTemplate(data.ses.fi)
-  await updateOrCreateTemplate(data.ses.en)
+  if (data.ses) {
+    await updateOrCreateTemplate(data.ses.fi)
+    await updateOrCreateTemplate(data.ses.en)
+  }
 
   await dynamoDB.write(data)
 

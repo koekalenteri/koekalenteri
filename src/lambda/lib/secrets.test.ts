@@ -1,17 +1,16 @@
-import type { GetParametersResult } from 'aws-sdk/clients/ssm'
+import type { GetParametersCommandOutput } from '@aws-sdk/client-ssm'
 
 import { jest } from '@jest/globals'
 
 // Mock AWS SDK with proper typing
-const mockGetParameters = jest.fn().mockImplementation(() => Promise.resolve({} as GetParametersResult))
+const mockSend = jest.fn().mockImplementation(() => Promise.resolve({} as GetParametersCommandOutput))
 
-jest.mock('aws-sdk', () => ({
+jest.mock('@aws-sdk/client-ssm', () => ({
   __esModule: true,
-  SSM: jest.fn().mockImplementation(() => ({
-    getParameters: (params: unknown) => ({
-      promise: () => mockGetParameters(params),
-    }),
+  SSMClient: jest.fn().mockImplementation(() => ({
+    send: mockSend,
   })),
+  GetParametersCommand: jest.fn().mockImplementation((params) => params),
 }))
 
 // Mock CONFIG
@@ -28,7 +27,7 @@ const { getKLAPIConfig, getPaytrailConfig, getSSMParams, getUpstashConfig, reset
 describe('secrets', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    mockGetParameters.mockReset()
+    mockSend.mockReset()
     // Reset the cache before each test
     resetCache()
     // Mock console.log to avoid cluttering test output
@@ -38,20 +37,20 @@ describe('secrets', () => {
   describe('getSSMParams', () => {
     it('should retrieve parameters from SSM', async () => {
       // Setup mock response
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'param1', Value: 'value1' },
             { Name: 'param2', Value: 'value2' },
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Call the function
       const result = await getSSMParams(['param1', 'param2'])
 
       // Verify the SSM service was called with the correct parameters
-      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1', 'param2'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1', 'param2'] })
 
       // Verify the result
       expect(result).toEqual({
@@ -62,10 +61,10 @@ describe('secrets', () => {
 
     it('should handle missing parameters', async () => {
       // Setup mock response with only one parameter found
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [{ Name: 'param1', Value: 'value1' }],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Call the function
@@ -88,10 +87,10 @@ describe('secrets', () => {
 
     it('should handle null response from SSM', async () => {
       // Setup mock response with undefined Parameters
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: undefined,
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Call the function
@@ -120,18 +119,18 @@ describe('secrets', () => {
 
     it('should cache parameters and not call SSM again for the same parameters', async () => {
       // Setup mock response for first call
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'param1', Value: 'value1' },
             { Name: 'param2', Value: 'value2' },
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // First call should fetch from SSM
       const result1 = await getSSMParams(['param1', 'param2'])
-      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledTimes(1)
       expect(result1).toEqual({
         param1: 'value1',
         param2: 'value2',
@@ -140,7 +139,7 @@ describe('secrets', () => {
       // Second call with the same parameters should use cache
       const result2 = await getSSMParams(['param1', 'param2'])
       // SSM should not be called again
-      expect(mockGetParameters).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledTimes(1)
       expect(result2).toEqual({
         param1: 'value1',
         param2: 'value2',
@@ -149,33 +148,33 @@ describe('secrets', () => {
 
     it('should fetch new parameters even when some are cached', async () => {
       // Setup mock response for first call
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [{ Name: 'param1', Value: 'value1' }],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // First call to cache param1
       await getSSMParams(['param1'])
-      expect(mockGetParameters).toHaveBeenCalledTimes(1)
-      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
 
       // Reset mock call count but keep the implementation
-      mockGetParameters.mockClear()
+      mockSend.mockClear()
 
       // Setup mock response for second call
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [{ Name: 'param2', Value: 'value2' }],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Second call with param1 (cached) and param2 (not cached)
       const result = await getSSMParams(['param1', 'param2'])
 
       // SSM should be called again, but only for param2
-      expect(mockGetParameters).toHaveBeenCalledTimes(1)
-      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param2'] })
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param2'] })
 
       expect(result).toEqual({
         param1: 'value1',
@@ -185,10 +184,10 @@ describe('secrets', () => {
 
     it('should handle concurrent requests for the same parameters', async () => {
       // Setup mock response
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [{ Name: 'param1', Value: 'value1' }],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Start two concurrent requests
@@ -199,8 +198,8 @@ describe('secrets', () => {
       const [result1, result2] = await Promise.all([promise1, promise2])
 
       // SSM should only be called once
-      expect(mockGetParameters).toHaveBeenCalledTimes(1)
-      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
       expect(result1).toEqual({ param1: 'value1' })
       expect(result2).toEqual({ param1: 'value1' })
     })
@@ -211,37 +210,37 @@ describe('secrets', () => {
       Date.now = jest.fn(() => mockTime)
 
       // Setup mock responses
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [{ Name: 'param1', Value: 'value1' }],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // First call should fetch from SSM
       const result1 = await getSSMParams(['param1'])
-      expect(mockGetParameters).toHaveBeenCalledTimes(1)
-      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledTimes(1)
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
       expect(result1).toEqual({ param1: 'value1' })
 
       // Second call with the same parameters should use cache
       const result2 = await getSSMParams(['param1'])
-      expect(mockGetParameters).toHaveBeenCalledTimes(1) // Still 1, using cache
+      expect(mockSend).toHaveBeenCalledTimes(1) // Still 1, using cache
       expect(result2).toEqual({ param1: 'value1' })
 
       // Advance time beyond TTL (60 minutes + 1 second)
       mockTime += 60 * 60 * 1000 + 1000
 
       // Setup mock for the second fetch after TTL expiration
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [{ Name: 'param1', Value: 'updated-value1' }],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Third call should fetch from SSM again because cache expired
       const result3 = await getSSMParams(['param1'])
-      expect(mockGetParameters).toHaveBeenCalledTimes(2) // Now 2, fetched again
-      expect(mockGetParameters).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledTimes(2) // Now 2, fetched again
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
       expect(result3).toEqual({ param1: 'updated-value1' })
     })
   })
@@ -249,14 +248,14 @@ describe('secrets', () => {
   describe('getKLAPIConfig', () => {
     it('should retrieve KLAPI configuration', async () => {
       // Setup mock response
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'KL_API_URL', Value: 'https://api.example.com' },
             { Name: 'KL_API_UID', Value: 'test-uid' },
             { Name: 'KL_API_PWD', Value: 'test-pwd' },
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Call the function
@@ -272,13 +271,13 @@ describe('secrets', () => {
 
     it('should throw error when KL_API_URL is missing', async () => {
       // Setup mock response with missing URL
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'KL_API_UID', Value: 'test-uid' },
             { Name: 'KL_API_PWD', Value: 'test-pwd' },
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Verify that the function throws an error
@@ -289,13 +288,13 @@ describe('secrets', () => {
   describe('getPaytrailConfig', () => {
     it('should retrieve Paytrail configuration', async () => {
       // Setup mock response
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'test-stack-PAYTRAIL_MERCHANT_ID', Value: 'merchant-123' },
             { Name: 'test-stack-PAYTRAIL_SECRET', Value: 'secret-456' },
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Call the function
@@ -310,13 +309,13 @@ describe('secrets', () => {
 
     it('should throw error when Paytrail config is missing', async () => {
       // Setup mock response with missing values
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'test-stack-PAYTRAIL_MERCHANT_ID', Value: 'merchant-123' },
             // Missing PAYTRAIL_SECRET
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Verify that the function throws an error
@@ -327,13 +326,13 @@ describe('secrets', () => {
   describe('getUpstashConfig', () => {
     it('should retrieve Upstash configuration', async () => {
       // Setup mock response
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'UPSTASH_REDIS_REST_URL', Value: 'https://redis.upstash.com' },
             { Name: 'UPSTASH_REDIS_REST_TOKEN', Value: 'token-789' },
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Call the function
@@ -348,13 +347,13 @@ describe('secrets', () => {
 
     it('should throw error when Upstash config is missing', async () => {
       // Setup mock response with missing values
-      mockGetParameters.mockImplementationOnce(() =>
+      mockSend.mockImplementationOnce(() =>
         Promise.resolve({
           Parameters: [
             { Name: 'UPSTASH_REDIS_REST_URL', Value: 'https://redis.upstash.com' },
             // Missing UPSTASH_REDIS_REST_TOKEN
           ],
-        } as GetParametersResult)
+        } as GetParametersCommandOutput)
       )
 
       // Verify that the function throws an error

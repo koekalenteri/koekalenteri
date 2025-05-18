@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
 import type { JsonUser } from '../../types'
 
+import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
 
 import { response } from '../utils/response'
@@ -61,6 +61,10 @@ export const lambda = (service: string, handler: LambdaHandler) =>
         return response(err.status, { error: err.error }, event)
       }
 
-      return response((err as AWSError).statusCode ?? 501, err, event)
+      if (err instanceof ServiceException) {
+        return response(err.$metadata?.httpStatusCode ?? 501, err.message, event)
+      }
+
+      return response(501, err, event)
     }
   })

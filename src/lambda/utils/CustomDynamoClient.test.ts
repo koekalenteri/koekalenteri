@@ -1,40 +1,31 @@
 import { jest } from '@jest/globals'
 
-// Mock AWS SDK
-const mockScan = jest.fn<any>()
-const mockGet = jest.fn<any>()
-const mockQuery = jest.fn<any>()
-const mockPut = jest.fn<any>()
-const mockBatchWrite = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-const mockDelete = jest.fn<any>()
+// Mock AWS SDK v3
+const mockSend = jest.fn<any>()
+const mockDynamoDBClient = jest.fn().mockImplementation(() => ({
+  send: mockSend,
+}))
+const mockFrom = jest.fn().mockImplementation((client) => ({
+  send: mockSend,
+}))
 
-// Mock the DocumentClient
-const mockDocumentClient = {
-  scan: jest.fn(() => ({ promise: mockScan })),
-  get: jest.fn(() => ({ promise: mockGet })),
-  query: jest.fn(() => ({ promise: mockQuery })),
-  put: jest.fn(() => ({ promise: mockPut })),
-  batchWrite: jest.fn(() => ({ promise: mockBatchWrite })),
-  update: jest.fn(() => ({ promise: mockUpdate })),
-  delete: jest.fn(() => ({ promise: mockDelete })),
-}
+// Mock the DynamoDB client and commands
+jest.mock('@aws-sdk/client-dynamodb', () => ({
+  DynamoDBClient: mockDynamoDBClient,
+}))
 
-const mockConstructor = jest.fn(() => mockDocumentClient)
-
-// Mock AWS SDK
-jest.mock('aws-sdk', () => {
-  const mockConfig = {
-    update: jest.fn(),
-  }
-
-  return {
-    config: mockConfig,
-    DynamoDB: {
-      DocumentClient: mockConstructor,
-    },
-  }
-})
+jest.mock('@aws-sdk/lib-dynamodb', () => ({
+  DynamoDBDocumentClient: {
+    from: mockFrom,
+  },
+  ScanCommand: jest.fn().mockImplementation((params) => params),
+  GetCommand: jest.fn().mockImplementation((params) => params),
+  QueryCommand: jest.fn().mockImplementation((params) => params),
+  PutCommand: jest.fn().mockImplementation((params) => params),
+  BatchWriteCommand: jest.fn().mockImplementation((params) => params),
+  UpdateCommand: jest.fn().mockImplementation((params) => params),
+  DeleteCommand: jest.fn().mockImplementation((params) => params),
+}))
 
 // Import the class dynamically after mocking
 const { default: CustomDynamoClient } = await import('./CustomDynamoClient')
@@ -49,6 +40,10 @@ describe('CustomDynamoClient', () => {
     jest.spyOn(console, 'log').mockImplementation(() => {})
     jest.spyOn(console, 'info').mockImplementation(() => {})
     jest.spyOn(console, 'warn').mockImplementation(() => {})
+    // Reset mockSend for each test
+    mockSend.mockReset()
+    mockDynamoDBClient.mockClear()
+    mockFrom.mockClear()
   })
 
   afterEach(() => {
@@ -63,13 +58,12 @@ describe('CustomDynamoClient', () => {
     })
 
     it('handles SAM local environment', () => {
-      // Set SAM_LOCAL env var
       process.env = { ...originalEnv, AWS_SAM_LOCAL: 'true' }
 
       const client = new CustomDynamoClient('TestTable')
 
-      // Should set endpoint for local DynamoDB
-      expect(mockConstructor).toHaveBeenCalledWith(
+      // Should create DynamoDBClient with endpoint for local DynamoDB
+      expect(mockDynamoDBClient).toHaveBeenCalledWith(
         expect.objectContaining({
           endpoint: 'http://dynamodb:8000',
         })
@@ -80,11 +74,11 @@ describe('CustomDynamoClient', () => {
   describe('readAll', () => {
     it('scans the table with default parameters', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockScan.mockResolvedValueOnce({ Items: [{ id: '1' }, { id: '2' }] })
+      mockSend.mockResolvedValueOnce({ Items: [{ id: '1' }, { id: '2' }] })
 
       const result = await client.readAll()
 
-      expect(mockDocumentClient.scan).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         FilterExpression: 'attribute_not_exists(deletedAt)',
       })
@@ -93,11 +87,11 @@ describe('CustomDynamoClient', () => {
 
     it('scans with custom filter expression', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockScan.mockResolvedValueOnce({ Items: [{ id: '1' }] })
+      mockSend.mockResolvedValueOnce({ Items: [{ id: '1' }] })
 
       await client.readAll(undefined, 'attribute = :value', { ':value': 'test' })
 
-      expect(mockDocumentClient.scan).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         FilterExpression: '(attribute_not_exists(deletedAt)) AND (attribute = :value)',
         ExpressionAttributeValues: { ':value': 'test' },
@@ -106,11 +100,11 @@ describe('CustomDynamoClient', () => {
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockScan.mockResolvedValueOnce({ Items: [] })
+      mockSend.mockResolvedValueOnce({ Items: [] })
 
       await client.readAll('CustomTable')
 
-      expect(mockDocumentClient.scan).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           TableName: 'custom-table',
         })
@@ -119,11 +113,11 @@ describe('CustomDynamoClient', () => {
 
     it('includes expression attribute names when provided', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockScan.mockResolvedValueOnce({ Items: [] })
+      mockSend.mockResolvedValueOnce({ Items: [] })
 
       await client.readAll(undefined, '#attr = :value', { ':value': 'test' }, { '#attr': 'attribute' })
 
-      expect(mockDocumentClient.scan).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           ExpressionAttributeNames: { '#attr': 'attribute' },
         })
@@ -134,11 +128,11 @@ describe('CustomDynamoClient', () => {
   describe('read', () => {
     it('gets an item by key', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockGet.mockResolvedValueOnce({ Item: { id: '1', name: 'Test' } })
+      mockSend.mockResolvedValueOnce({ Item: { id: '1', name: 'Test' } })
 
       const result = await client.read({ id: '1' })
 
-      expect(mockDocumentClient.get).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         Key: { id: '1' },
       })
@@ -150,17 +144,17 @@ describe('CustomDynamoClient', () => {
 
       const result = await client.read(null)
 
-      expect(mockDocumentClient.get).not.toHaveBeenCalled()
+      expect(mockSend).not.toHaveBeenCalled()
       expect(result).toBeUndefined()
     })
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockGet.mockResolvedValueOnce({ Item: {} })
+      mockSend.mockResolvedValueOnce({ Item: {} })
 
       await client.read({ id: '1' }, 'CustomTable')
 
-      expect(mockDocumentClient.get).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           TableName: 'custom-table',
         })
@@ -171,11 +165,11 @@ describe('CustomDynamoClient', () => {
   describe('query', () => {
     it('queries items with key condition', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockQuery.mockResolvedValueOnce({ Items: [{ id: '1' }, { id: '2' }] })
+      mockSend.mockResolvedValueOnce({ Items: [{ id: '1' }, { id: '2' }] })
 
       const result = await client.query('id = :id', { ':id': '1' })
 
-      expect(mockDocumentClient.query).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         KeyConditionExpression: 'id = :id',
         ExpressionAttributeValues: { ':id': '1' },
@@ -193,13 +187,13 @@ describe('CustomDynamoClient', () => {
 
       const result = await client.query('', { ':id': '1' })
 
-      expect(mockDocumentClient.query).not.toHaveBeenCalled()
+      expect(mockSend).not.toHaveBeenCalled()
       expect(result).toBeUndefined()
     })
 
     it('includes all optional parameters', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockQuery.mockResolvedValueOnce({ Items: [] })
+      mockSend.mockResolvedValueOnce({ Items: [] })
 
       await client.query(
         'id = :id',
@@ -212,7 +206,7 @@ describe('CustomDynamoClient', () => {
         '#attr = :value'
       )
 
-      expect(mockDocumentClient.query).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'custom-table',
         KeyConditionExpression: 'id = :id',
         ExpressionAttributeValues: { ':id': '1' },
@@ -228,12 +222,12 @@ describe('CustomDynamoClient', () => {
   describe('write', () => {
     it('puts an item into the table', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockPut.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       const item = { id: '1', name: 'Test' }
       await client.write(item)
 
-      expect(mockDocumentClient.put).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         Item: item,
       })
@@ -241,11 +235,11 @@ describe('CustomDynamoClient', () => {
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockPut.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       await client.write({ id: '1' }, 'CustomTable')
 
-      expect(mockDocumentClient.put).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           TableName: 'custom-table',
         })
@@ -256,17 +250,17 @@ describe('CustomDynamoClient', () => {
   describe('batchWrite', () => {
     it('writes items in batches of 25', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockBatchWrite.mockResolvedValue({})
+      mockSend.mockResolvedValue({})
 
       // Create 30 items to test batching
       const items = Array.from({ length: 30 }, (_, i) => ({ id: `${i}` }))
       await client.batchWrite(items)
 
       // Should be called twice (25 items in first batch, 5 in second)
-      expect(mockDocumentClient.batchWrite).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenCalledTimes(2)
 
       // First batch should have 25 items
-      expect(mockDocumentClient.batchWrite).toHaveBeenNthCalledWith(1, {
+      expect(mockSend).toHaveBeenNthCalledWith(1, {
         RequestItems: {
           'test-table': expect.arrayContaining([
             expect.objectContaining({
@@ -278,19 +272,19 @@ describe('CustomDynamoClient', () => {
         },
       })
 
-      // We've already verified that batchWrite was called twice,
+      // We've already verified that mockSend was called twice,
       // which confirms our batching logic is working
     })
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockBatchWrite.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       // Create a typed array to avoid TypeScript errors
       const items = [{ id: '1' }]
       await client.batchWrite(items, 'CustomTable')
 
-      expect(mockDocumentClient.batchWrite).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           RequestItems: {
             'custom-table': expect.any(Array),
@@ -303,11 +297,11 @@ describe('CustomDynamoClient', () => {
   describe('update', () => {
     it('updates an item with SET operations', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockUpdate.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       await client.update({ id: '1' }, { set: { name: 'Updated', status: 'active' } })
 
-      expect(mockDocumentClient.update).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         Key: { id: '1' },
         UpdateExpression: 'SET #name = :name, #status = :status',
@@ -318,11 +312,11 @@ describe('CustomDynamoClient', () => {
 
     it('updates an item with ADD operations', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockUpdate.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       await client.update({ id: '1' }, { add: { count: 1, points: 5 } })
 
-      expect(mockDocumentClient.update).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         Key: { id: '1' },
         UpdateExpression: 'ADD #count :count, #points :points',
@@ -333,7 +327,7 @@ describe('CustomDynamoClient', () => {
 
     it('updates an item with both SET and ADD operations', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockUpdate.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       await client.update(
         { id: '1' },
@@ -343,7 +337,7 @@ describe('CustomDynamoClient', () => {
         }
       )
 
-      expect(mockDocumentClient.update).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         Key: { id: '1' },
         UpdateExpression: 'SET #name = :name, #status = :status ADD #count :count, #points :points',
@@ -379,11 +373,11 @@ describe('CustomDynamoClient', () => {
 
     it('includes ReturnValues when provided', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockUpdate.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       await client.update({ id: '1' }, { set: { name: 'Updated' } }, undefined, 'ALL_NEW')
 
-      expect(mockDocumentClient.update).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           ReturnValues: 'ALL_NEW',
         })
@@ -392,11 +386,11 @@ describe('CustomDynamoClient', () => {
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockUpdate.mockResolvedValueOnce({})
+      mockSend.mockResolvedValueOnce({})
 
       await client.update({ id: '1' }, { set: { name: 'Updated' } }, 'CustomTable')
 
-      expect(mockDocumentClient.update).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           TableName: 'custom-table',
         })
@@ -407,11 +401,11 @@ describe('CustomDynamoClient', () => {
   describe('delete', () => {
     it('deletes an item by key', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockDelete.mockResolvedValueOnce({ $response: { error: null } })
+      mockSend.mockResolvedValueOnce({})
 
       const result = await client.delete({ id: '1' })
 
-      expect(mockDocumentClient.delete).toHaveBeenCalledWith({
+      expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
         Key: { id: '1' },
       })
@@ -423,26 +417,29 @@ describe('CustomDynamoClient', () => {
 
       const result = await client.delete(null)
 
-      expect(mockDocumentClient.delete).not.toHaveBeenCalled()
+      expect(mockSend).not.toHaveBeenCalled()
       expect(result).toBe(false)
     })
 
     it('returns false when there is an error', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementationOnce(() => {})
       const client = new CustomDynamoClient('TestTable')
-      mockDelete.mockResolvedValueOnce({ $response: { error: new Error('Failed to delete') } })
+      const error = new Error('Failed to delete')
+      mockSend.mockRejectedValueOnce(error)
 
       const result = await client.delete({ id: '1' })
 
       expect(result).toBe(false)
+      expect(errorSpy).toHaveBeenCalledWith('Error deleting item:', error)
     })
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockDelete.mockResolvedValueOnce({ $response: { error: null } })
+      mockSend.mockResolvedValueOnce({})
 
       await client.delete({ id: '1' }, 'CustomTable')
 
-      expect(mockDocumentClient.delete).toHaveBeenCalledWith(
+      expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           TableName: 'custom-table',
         })

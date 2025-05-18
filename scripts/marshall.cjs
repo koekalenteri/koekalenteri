@@ -1,7 +1,7 @@
-const AWS = require('aws-sdk')
+const { marshall } = require('@aws-sdk/util-dynamodb')
 const { writeFileSync } = require('fs')
 
-const marshalled = AWS.DynamoDB.Converter.marshall({
+const marshalled = marshall({
   allowHandlerMembershipPriority: true,
   contactInfo: {
     secretary: {

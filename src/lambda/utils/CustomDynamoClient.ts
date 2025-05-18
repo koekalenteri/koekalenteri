@@ -1,6 +1,27 @@
 // Create a DocumentClient that represents the query to add an item
 
-import AWS from 'aws-sdk'
+import type { ReturnValue } from '@aws-sdk/client-dynamodb'
+import type {
+  BatchWriteCommandInput,
+  DeleteCommandInput,
+  GetCommandInput,
+  PutCommandInput,
+  QueryCommandInput,
+  ScanCommandInput,
+  UpdateCommandInput,
+} from '@aws-sdk/lib-dynamodb'
+
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import {
+  BatchWriteCommand,
+  DeleteCommand,
+  DynamoDBDocumentClient,
+  GetCommand,
+  PutCommand,
+  QueryCommand,
+  ScanCommand,
+  UpdateCommand,
+} from '@aws-sdk/lib-dynamodb'
 
 function fromSamLocalTable(table: string) {
   // sam local does not provide proper table name as env variable
@@ -39,10 +60,11 @@ const processOperations = (
 
 export default class CustomDynamoClient {
   table: string
-  docClient: AWS.DynamoDB.DocumentClient
+  client: DynamoDBClient
+  docClient: DynamoDBDocumentClient
 
   constructor(tableName: string) {
-    const options: AWS.DynamoDB.DocumentClient.DocumentClientOptions & AWS.DynamoDB.Types.ClientConfiguration = {}
+    const options: { endpoint?: string } = {}
 
     this.table = fromSamLocalTable(tableName)
 
@@ -50,19 +72,20 @@ export default class CustomDynamoClient {
       // Override endpoint when in local development
       options.endpoint = 'http://dynamodb:8000'
 
-      console.info('SAM LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table)
+      console.info('LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table)
     }
 
-    this.docClient = new AWS.DynamoDB.DocumentClient(options)
+    this.client = new DynamoDBClient(options)
+    this.docClient = DynamoDBDocumentClient.from(this.client)
   }
 
   async readAll<T extends object>(
     table?: string,
     filterExpression?: string,
-    expressionAttributeValues?: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap,
-    expressionAttributeNames?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap
+    expressionAttributeValues?: Record<string, any>,
+    expressionAttributeNames?: Record<string, string>
   ): Promise<T[] | undefined> {
-    const params: AWS.DynamoDB.DocumentClient.ScanInput = {
+    const params: ScanCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
     }
 
@@ -86,7 +109,7 @@ export default class CustomDynamoClient {
     }
 
     console.log('DB.scan', params)
-    const data = await this.docClient.scan(params).promise()
+    const data = await this.docClient.send(new ScanCommand(params))
 
     return data.Items as T[]
   }
@@ -96,24 +119,24 @@ export default class CustomDynamoClient {
     table?: string
   ): Promise<T | undefined> {
     if (!key) {
-      console.warn('CustomDynamoClient.read: no key provoded, returning undefined')
+      console.warn('CustomDynamoClient.read: no key provided, returning undefined')
       return
     }
-    const params = {
+    const params: GetCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
     }
     console.log('DB.get', params)
-    const data = await this.docClient.get(params).promise()
+    const data = await this.docClient.send(new GetCommand(params))
     return data.Item as T
   }
 
   async query<T extends object>(
-    key: AWS.DynamoDB.DocumentClient.KeyExpression,
-    values: AWS.DynamoDB.DocumentClient.ExpressionAttributeValueMap,
+    key: string,
+    values: Record<string, any>,
     table?: string,
     index?: string,
-    names?: AWS.DynamoDB.DocumentClient.ExpressionAttributeNameMap,
+    names?: Record<string, string>,
     forward?: boolean,
     limit?: number,
     filterExpression?: string
@@ -122,7 +145,7 @@ export default class CustomDynamoClient {
       console.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
     }
-    const params: AWS.DynamoDB.DocumentClient.QueryInput = {
+    const params: QueryCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       IndexName: index,
       KeyConditionExpression: key,
@@ -133,17 +156,17 @@ export default class CustomDynamoClient {
       FilterExpression: filterExpression,
     }
     console.log('DB.query', params)
-    const data = await this.docClient.query(params).promise()
+    const data = await this.docClient.send(new QueryCommand(params))
     return data.Items as T[]
   }
 
   async write<T extends object>(Item: T, table?: string): Promise<unknown> {
-    const params = {
+    const params: PutCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Item,
     }
     console.log('DB.write', params)
-    return this.docClient.put(params).promise()
+    return this.docClient.send(new PutCommand(params))
   }
 
   async batchWrite<T extends object>(items: T[], table?: string) {
@@ -156,13 +179,13 @@ export default class CustomDynamoClient {
           Item: item,
         },
       }))
-      const params = {
+      const params: BatchWriteCommandInput = {
         RequestItems: {
           [tableName]: chunk,
         },
       }
       console.log('DB.batchWrite', params)
-      const result = await this.docClient.batchWrite(params).promise()
+      const result = await this.docClient.send(new BatchWriteCommand(params))
       console.log(result)
     }
   }
@@ -187,13 +210,13 @@ export default class CustomDynamoClient {
    * ```
    */
   async update(
-    key: AWS.DynamoDB.DocumentClient.Key,
+    key: Record<string, any>,
     updates: {
       set?: Record<string, any>
       add?: Record<string, any>
     },
     table?: string,
-    returnValues?: AWS.DynamoDB.DocumentClient.ReturnValue
+    returnValues?: ReturnValue
   ) {
     const names: Record<string, string> = {}
     const values: Record<string, any> = {}
@@ -215,7 +238,7 @@ export default class CustomDynamoClient {
     }
 
     // Create params object for the update operation
-    const params: AWS.DynamoDB.DocumentClient.UpdateItemInput = {
+    const params: UpdateCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
       UpdateExpression: expressionParts.join(' '),
@@ -229,7 +252,7 @@ export default class CustomDynamoClient {
     }
 
     console.log('DB.update', params)
-    return this.docClient.update(params).promise()
+    return this.docClient.send(new UpdateCommand(params))
   }
 
   async delete<T extends object>(
@@ -237,16 +260,21 @@ export default class CustomDynamoClient {
     table?: string
   ): Promise<boolean> {
     if (!key) {
-      console.warn('CustomDynamoClient.delete: no key provoded, returning false')
+      console.warn('CustomDynamoClient.delete: no key provided, returning false')
       return false
     }
-    const params = {
+    const params: DeleteCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
     }
     console.log('DB.delete', params)
 
-    const data = await this.docClient.delete(params).promise()
-    return !data.$response.error
+    try {
+      await this.docClient.send(new DeleteCommand(params))
+      return true
+    } catch (error) {
+      console.error('Error deleting item:', error)
+      return false
+    }
   }
 }

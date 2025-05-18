@@ -1,4 +1,4 @@
-import type { SendTemplatedEmailRequest } from 'aws-sdk/clients/ses'
+import type { SendTemplatedEmailCommandInput } from '@aws-sdk/client-ses'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
@@ -8,13 +8,13 @@ import type {
   RegistrationTemplateContext,
 } from '../../types'
 
-import AWS from 'aws-sdk'
+import { SendTemplatedEmailCommand, SESClient } from '@aws-sdk/client-ses'
 
 import { i18n } from '../../i18n/lambda'
 import { getRegistrationEmailTemplateData } from '../../lib/registration'
 import { CONFIG } from '../config'
 
-const ses = new AWS.SES()
+const ses = new SESClient()
 
 export async function sendTemplatedMail(
   template: EmailTemplateId,
@@ -23,7 +23,7 @@ export async function sendTemplatedMail(
   to: string[],
   data: Record<string, unknown>
 ) {
-  const params: SendTemplatedEmailRequest = {
+  const params: SendTemplatedEmailCommandInput = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {
       ToAddresses: to,
@@ -35,7 +35,7 @@ export async function sendTemplatedMail(
 
   try {
     console.log(`Sending email ${from} -> ${to} (template=${template}) `)
-    return ses.sendTemplatedEmail(params).promise()
+    return ses.send(new SendTemplatedEmailCommand(params))
   } catch (e) {
     console.log('Failed to send email', e)
   }

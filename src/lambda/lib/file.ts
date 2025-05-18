@@ -1,15 +1,19 @@
+import type {
+  DeleteObjectCommandInput,
+  GetObjectCommandInput,
+  GetObjectOutput,
+  PutObjectCommandInput,
+} from '@aws-sdk/client-s3'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
-import type S3 from 'aws-sdk/clients/s3'
-import type { GetObjectOutput } from 'aws-sdk/clients/s3'
 import type { FileInfo } from 'busboy'
 import type { Readable } from 'stream'
 
-import s3client from 'aws-sdk/clients/s3'
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import Busboy from 'busboy'
 
 import { CONFIG } from '../config'
 
-const s3 = new s3client()
+const s3 = new S3Client()
 const { fileBucket } = CONFIG
 
 interface ParseResult {
@@ -69,44 +73,49 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
     console.log('parse end')
   })
 
-export const uploadFile = (key: string, buffer: S3.Body) =>
-  new Promise<void>((resolve, reject) => {
-    console.log(`Uploading file to S3 bucket "${fileBucket}" with key "${key}"`)
-    const data: S3.Types.PutObjectRequest = {
-      Bucket: fileBucket,
-      Key: key,
-      Body: buffer,
-      ContentType: 'application/pdf',
-    }
-    s3.putObject(data, (error) => {
-      if (error) {
-        console.error(error)
-        return reject(error)
-      }
-      resolve()
-    })
-  })
+export const uploadFile = async (key: string, buffer: PutObjectCommandInput['Body']): Promise<void> => {
+  console.log(`Uploading file to S3 bucket "${fileBucket}" with key "${key}"`)
+  const params: PutObjectCommandInput = {
+    Bucket: fileBucket,
+    Key: key,
+    Body: buffer,
+    ContentType: 'application/pdf',
+  }
 
-export const downloadFile = (key: string) =>
-  new Promise<GetObjectOutput>((resolve, reject) => {
-    console.log(`Downloading file from S3 bucket "${fileBucket}" with key "${key}"`)
-    s3.getObject({ Bucket: fileBucket, Key: key }, (error, data) => {
-      if (error) {
-        console.error(error)
-        return reject(error)
-      }
-      resolve(data)
-    })
-  })
+  try {
+    await s3.send(new PutObjectCommand(params))
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
 
-export const deleteFile = (key: string) =>
-  new Promise((resolve, reject) => {
-    console.log(`Deleting form from S3 bucket "${fileBucket}" with key "${key}"`)
-    s3.deleteObject({ Bucket: fileBucket, Key: key }, (error, data) => {
-      if (error) {
-        console.error(error)
-        return reject(error)
-      }
-      resolve(data)
-    })
-  })
+export const downloadFile = async (key: string): Promise<GetObjectOutput> => {
+  console.log(`Downloading file from S3 bucket "${fileBucket}" with key "${key}"`)
+  const params: GetObjectCommandInput = {
+    Bucket: fileBucket,
+    Key: key,
+  }
+
+  try {
+    return await s3.send(new GetObjectCommand(params))
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+export const deleteFile = async (key: string): Promise<void> => {
+  console.log(`Deleting form from S3 bucket "${fileBucket}" with key "${key}"`)
+  const params: DeleteObjectCommandInput = {
+    Bucket: fileBucket,
+    Key: key,
+  }
+
+  try {
+    await s3.send(new DeleteObjectCommand(params))
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}

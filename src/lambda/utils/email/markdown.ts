@@ -1,4 +1,4 @@
-import type { Template } from 'aws-sdk/clients/ses'
+import type { Template } from '@aws-sdk/client-ses'
 import type { Plugin } from 'unified'
 
 import remarkBreaks from 'remark-breaks'

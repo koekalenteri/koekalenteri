@@ -1,14 +1,15 @@
+import type { Parameter } from '@aws-sdk/client-ssm'
 import type { KLAPIConfig } from '../types/KLAPI'
 import type { PaytrailConfig } from '../types/paytrail'
 import type { UpstashConfig } from '../types/upstash'
 
-import AWS from 'aws-sdk'
+import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
 
 import { CONFIG } from '../config'
 
 const { stackName } = CONFIG
 
-const ssm = new AWS.SSM()
+const ssm = new SSMClient()
 
 type ValuesOf<T extends string[]> = T[number]
 type ParamsFromKeys<T extends string[]> = { [key in ValuesOf<T>]: string }
@@ -70,10 +71,11 @@ const resolveCachedParams = (
 }
 const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>): Promise<void> => {
   const fetchPromise = (async () => {
-    const response = await ssm.getParameters({ Names: names }).promise()
+    const command = new GetParametersCommand({ Names: names })
+    const response = await ssm.send(command)
     const params = response.Parameters ?? []
 
-    const paramMap = Object.fromEntries(params.map((p) => [p.Name!, p.Value!]))
+    const paramMap = Object.fromEntries(params.map((p: Parameter) => [p.Name!, p.Value!]))
 
     for (const name of names) {
       // Use empty string for missing parameters instead of undefined

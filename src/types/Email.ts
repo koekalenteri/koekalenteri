@@ -1,3 +1,4 @@
+import type { Template } from '@aws-sdk/client-ses'
 import type { DbRecord, JsonDbRecord } from './Database'
 import type { ContactInfo } from './Event'
 
@@ -13,20 +14,13 @@ export type EmailTemplateId =
   | 'cancel-picked'
   | 'cancel-reserve'
 
-export interface SESTemplate {
-  TemplateName: string
-  SubjectPart?: string
-  TextPart?: string
-  HtmlPart?: string
-}
-
 export interface EmailTemplate extends DbRecord {
   id: EmailTemplateId
   fi: string
   en: string
   ses?: {
-    fi: SESTemplate
-    en: SESTemplate
+    fi: Template
+    en: Template
   }
 }
 

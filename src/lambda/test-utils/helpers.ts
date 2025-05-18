@@ -1,5 +1,6 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
-import type { AWSError } from 'aws-sdk'
+
+import { ServiceException } from '@smithy/smithy-client'
 
 interface Options {
   method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'DELETE'
@@ -65,12 +66,15 @@ export function constructAPIGwEvent<T = unknown>(message: T, options: Options = 
   }
 }
 
-export function createAWSError(code: number, message: string): AWSError {
-  return {
-    name: 'Test Error',
-    code: '' + code,
-    statusCode: code,
-    message: message,
-    time: new Date(),
-  }
+export function createAWSError(code: number, message: string): ServiceException {
+  const error = new ServiceException({
+    name: 'TestServiceException',
+    message,
+    $fault: 'client',
+    $metadata: {
+      httpStatusCode: code,
+      requestId: 'test-request-id',
+    },
+  })
+  return error
 }
