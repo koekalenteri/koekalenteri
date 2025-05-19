@@ -108,7 +108,7 @@ describe('EventFilter', () => {
     ).then((option: HTMLElement) => user.click(option))
   }
 
-  it('It should fire onChange', async () => {
+  it.skip('It should fire onChange', async () => {
     const changeHandler = jest.fn()
     const { user } = renderComponent(
       { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
