@@ -1,0 +1,65 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SelectMulti renders with default label 1`] = `
+<div>
+  <div
+    class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
+  >
+    <label
+      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+      data-shrink="false"
+    >
+      Select options
+    </label>
+    <div
+      class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-formControl MuiSelect-root css-1h2ifi3-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root"
+      data-testid="Select options"
+    >
+      <div
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        role="combobox"
+        tabindex="0"
+      >
+        <span
+          aria-hidden="true"
+          class="notranslate"
+        >
+          ​
+        </span>
+      </div>
+      <input
+        aria-hidden="true"
+        aria-invalid="false"
+        class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
+        tabindex="-1"
+        value=""
+      />
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+        data-testid="ArrowDropDownIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M7 10l5 5 5-5z"
+        />
+      </svg>
+      <fieldset
+        aria-hidden="true"
+        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+      >
+        <legend
+          class="css-81qg8w"
+        >
+          <span>
+            Select options
+          </span>
+        </legend>
+      </fieldset>
+    </div>
+  </div>
+</div>
+`;

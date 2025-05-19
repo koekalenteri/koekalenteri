@@ -22,6 +22,7 @@ import Typography from '@mui/material/Typography'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
+import SelectMulti from '../components/SelectMulti'
 import { filterString } from '../recoil'
 
 interface Props {
@@ -50,7 +51,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleEventTypeChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: readonly string[]) => setFilter({ eventType: [...value] }),
+    (value: readonly string[]) => setFilter({ eventType: [...value] }),
     [setFilter]
   )
   const handleEventClassChange = useCallback(
@@ -128,8 +129,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
               />
             </Grid2>
             <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
-              <AutocompleteMulti
-                getOptionLabel={getString}
+              <SelectMulti
                 label={t('filter.eventType')}
                 onChange={handleEventTypeChange}
                 options={eventTypes}
