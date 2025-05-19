@@ -14,6 +14,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      e2e: ${{ steps.filter.outputs.e2e }}
       sse-worker: ${{ steps.filter.outputs.sse-worker }}
     steps:
       - uses: actions/checkout@v4
@@ -66,6 +67,9 @@ jobs:
               - 'package-lock.json'
               - 'package.json'
               - 'tsconfig.json'
+            e2e:
+              - 'e2e/**'
+              - 'playwright.config.ts'
             sse-worker:
               - '.github/**'
               - 'cf/sse-worker/**'
@@ -111,6 +115,16 @@ jobs:
         run: npm run build-backend
       - name: Test
         run: npm run test-backend -- --coverage
+      - name: Cache layer node_modules
+        id: cache-layer
+        uses: actions/cache@v4
+        with:
+          path: dist/layer/nodejs/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install layer packages
+        if: steps.cache-layer.outputs.cache-hit != 'true'
+        working-directory: dist/layer/nodejs
+        run: npm ci --imit=dev
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
@@ -206,9 +220,45 @@ jobs:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
 
+  playwright:
+    runs-on: ubuntu-latest
+    needs: [setup, frontend]
+    if: ${{ needs.setup.outputs.e2e == 'true' || needs.setup.outputs.frontend == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Restore node_modules
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: build
+      - name: Run Playwright tests
+        run: npm run test-e2e
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+
   deploy-backend:
     runs-on: ubuntu-latest
-    needs: [setup,backend,frontend-test]
+    needs: [setup,backend,frontend-test,playwright]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.backend == 'true' }}
     concurrency:
       group: deploy-backend-${{ github.ref }}
@@ -233,7 +283,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: SAM Validate
-        continue-on-error: true # allow temporarily, because it fails on warnings
         run: |
          sam validate --lint
       - name: Configure variables
@@ -244,8 +293,6 @@ jobs:
           echo "stage=dev" >> $GITHUB_ENV
       - name: Shared Node.js layer
         run: |
-          npm un aws-amplify @aws-amplify/ui-react @mui/icons-material @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router recoil
-          npm ci --omit=dev
           mkdir -p layer/nodejs/lambda
           mv node_modules layer/nodejs/
           mv dist/i18n layer/nodejs/
@@ -278,7 +325,7 @@ jobs:
 
   deploy-frontend:
     runs-on: ubuntu-latest
-    needs: [setup,frontend-test,deploy-backend]
+    needs: [setup,frontend-test,playwright,deploy-backend]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.frontend == 'true' }}
     concurrency:
       group: deploy-frontend-${{ github.ref }}

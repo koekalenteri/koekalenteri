@@ -28,6 +28,10 @@ export async function authorize(event?: Partial<APIGatewayProxyEvent>, updateLas
 async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
   let user: JsonUser | undefined
 
+  if (process.env.AWS_SAM_LOCAL) {
+    return getAndUpdateUserByEmail('developer@example.com', { name: 'Developer', admin: true }, updateLastSeen)
+  }
+
   if (!event?.requestContext?.authorizer?.claims) {
     console.log('no authorizer in requestContext', event?.requestContext)
     return null

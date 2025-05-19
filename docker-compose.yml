@@ -1,0 +1,25 @@
+services:
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - "8000:8000"
+    container_name: dynamodb-local
+    command: -jar DynamoDBLocal.jar -sharedDb
+    networks:
+      - koekalenteri-net
+
+  dynamodb-seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.dynamodb-seed
+    depends_on:
+      - dynamodb
+    volumes:
+      - ./dist/template.yaml:/app/template.yaml
+      - ./scripts:/app/scripts
+    networks:
+      - koekalenteri-net
+
+networks:
+  koekalenteri-net:
+    name: koekalenteri

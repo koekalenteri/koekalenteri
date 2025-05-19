@@ -1,0 +1,27 @@
+  TransactionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [transaction-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: transactionId
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: transactionId
+            AttributeType: S
+          - AttributeName: reference
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiReference
+          KeySchema:
+            - AttributeName: reference
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

@@ -36,8 +36,11 @@ interface QueryParams {
 
 function fromSamLocalTable(table: string) {
   // sam local does not provide proper table name as env variable
-  // EventTable => event-table
-  return table.replace(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
+  // EventTable => event-table-local
+  return table
+    .replace(/([a-zA-Z])(?=[A-Z])/g, '$1-')
+    .toLowerCase()
+    .concat('-local')
 }
 
 const processOperations = (

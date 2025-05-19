@@ -1,0 +1,22 @@
+  EventStatsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [event-stats-table, 'v3', !Ref AWS::StackName]]
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

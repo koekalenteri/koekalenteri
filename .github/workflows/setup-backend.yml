@@ -1,0 +1,61 @@
+name: Setup Backend
+
+on:
+  workflow_call:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local
+        ports:
+          - 8000:8000
+
+    env:
+      AWS_REGION: eu-north-1
+      DYNAMODB_ENDPOINT: http://dynamodb:8000
+      SAM_PORT: 8080
+      WRANGLER_DEV_PORT: 8787
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: cf/sse-worker/package-lock.json
+
+      - name: Install dependencies for sse-worker
+        working-directory: cf/sse-worker
+        run: npm ci
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Install tools
+        run: |
+          pip install cfn-flip boto3
+
+      - name: Download backend build
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build
+          path: dist
+
+      - name: Start SAM
+        run: |
+          sam local start-api --port $SAM_PORT --docker-network koekalenteri --warm-containers=EAGER &
+          sleep 10
+
+      - name: Create DynamoDB tables from template.yaml
+        run: python scripts/create-local-tables.py
+
+      - name: Start Wrangler Dev
+        working-directory: cf/sse-worker
+        run: |
+          wrangler dev --port $WRANGLER_DEV_PORT --test-scheduled &
+          sleep 5

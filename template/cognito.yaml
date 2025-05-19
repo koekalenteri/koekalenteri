@@ -1,0 +1,63 @@
+  # Cognito declaration
+  KoekalenteriUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UserPoolName: !Sub 'KoekalenteriUsers-${AWS::StackName}'
+      UsernameAttributes:
+      - email
+      AutoVerifiedAttributes:
+      - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+
+  KoekalanteriUserPoolGoogleProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      AttributeMapping:
+        email_verified: "email_verified"
+        name: "name"
+        email: "email"
+        username: "sub"
+      IdpIdentifiers:
+        - String
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile"
+      ProviderName: "Google"
+      ProviderType: "Google"
+      UserPoolId: !Ref KoekalenteriUserPool
+
+  KoekalenteriUserPoolTokenClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref KoekalenteriUserPool
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: ['code', 'implicit']
+      CallbackURLs: ['http://localhost:3000/login', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain, '/login']], !Join ['', ['https://', !Ref CustomDomain, '/login']]]
+      LogoutURLs: ['http://localhost:3000/logout', !Join ['', ['https://', !GetAtt AmplifyBranch.BranchName, '.', !GetAtt AmplifyApp.DefaultDomain, '/logout']], !Join ['', ['https://', !Ref CustomDomain, '/logout']]]
+      SupportedIdentityProviders: ['COGNITO', 'Google']
+      AllowedOAuthScopes: ['email', 'openid', 'profile']
+      ExplicitAuthFlows:
+      - USER_PASSWORD_AUTH
+
+  KoekalenteriDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Join ['-', [!Ref CognitoDomainName, !Ref AWS::StackName]]
+      UserPoolId: !Ref KoekalenteriUserPool
+
+  KoekalenteriIdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties:
+      AllowClassicFlow: false
+      AllowUnauthenticatedIdentities: false
+      IdentityPoolName: !Sub 'KoekalenteriIdentity-${AWS::StackName}'

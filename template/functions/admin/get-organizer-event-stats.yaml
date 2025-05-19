@@ -1,0 +1,30 @@
+  GetOrganizerEventStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetOrganizerEventStatsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+      Events:
+        GetOrganizerEventStatsApi:
+          Type: Api
+          Properties:
+            Path: /admin/organizer-event-stats
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetOrganizerEventStatsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetOrganizerEventStatsFunction]]
+      RetentionInDays: 30

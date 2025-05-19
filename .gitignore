@@ -7,6 +7,7 @@
 coverage
 build
 dist
+layer
 
 # misc
 .env
@@ -26,3 +27,21 @@ yarn-error.log*
 aws/*.json
 aws/*.csv
 stack.json
+
+# Playwright-specific files
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/screenshots/
+/videos/
+/traces/
+
+# Environment-specific files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+*.log

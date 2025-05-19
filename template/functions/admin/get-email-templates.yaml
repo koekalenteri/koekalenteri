@@ -1,0 +1,31 @@
+  GetEmailTemplatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetEmailTemplatesFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EmailTemplatesTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetEmailTemplates:
+          Type: Api
+          Properties:
+            Path: /admin/email-templates
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetEmailTemplatesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEmailTemplatesFunction]]
+      RetentionInDays: 30
