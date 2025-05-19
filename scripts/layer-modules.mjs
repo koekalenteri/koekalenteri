@@ -19,7 +19,7 @@ const paths = {
   layerNodeModules: join(projectRoot, 'dist', 'layer', 'nodejs', 'node_modules'),
 }
 
-const excludeFiles = ['src/i18n/index.ts', 'src/lambda/jest.config.ts']
+const excludePaths = ['src/i18n/index.ts', 'src/lambda/jest.config.ts', 'src/lib/client']
 const dependencies = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8')).dependencies
 
 function findTsFiles(dir) {
@@ -27,6 +27,12 @@ function findTsFiles(dir) {
 
   for (const file of readdirSync(dir)) {
     const fullPath = join(dir, file)
+    const relativePath = fullPath.replace(`${projectRoot}/`, '')
+
+    if (excludePaths.some((ex) => relativePath === ex || relativePath.startsWith(`${ex}/`))) {
+      continue
+    }
+
     const stat = lstatSync(fullPath)
 
     if (stat.isDirectory()) {
@@ -35,8 +41,7 @@ function findTsFiles(dir) {
     } else if (
       fullPath.endsWith('.ts') &&
       !fullPath.endsWith('.test.ts') &&
-      !fullPath.endsWith('.d.ts') &&
-      !excludeFiles.some((ex) => fullPath.endsWith(ex))
+      !fullPath.endsWith('.d.ts')
     ) {
       result.push(fullPath)
     }

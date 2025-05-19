@@ -1,0 +1,5 @@
+# Dockerfile.dynamodb-seed
+FROM python:3.13-alpine
+WORKDIR /app
+RUN pip install cfn-flip boto3
+CMD ["python", "scripts/create-local-tables.py"]
