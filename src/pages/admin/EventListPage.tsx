@@ -62,8 +62,10 @@ export default function EventListPage() {
       description: t('deleteEventText'),
       confirmationText: t('delete'),
       cancellationText: t('cancel'),
-    }).then(async () => {
-      await actions.deleteCurrent()
+    }).then(async ({ confirmed }) => {
+      if (confirmed) {
+        await actions.deleteCurrent()
+      }
     })
   }, [actions, confirm, t])
 
@@ -77,14 +79,14 @@ export default function EventListPage() {
         )} sitten). Haluatko jatkaa muokkaamista vai luoda kokonaan uuden tapahtuman?`,
         confirmationText: 'Jatka muokkausta',
         cancellationText: 'Luo uusi tapahtuma',
-      })
-        .then(async () => {
+      }).then(async ({ confirmed }) => {
+        if (confirmed) {
           navigate(Path.admin.newEvent)
-        })
-        .catch(() => {
+        } else {
           resetNewEvent()
           navigate(Path.admin.newEvent)
-        })
+        }
+      })
     } else {
       navigate(Path.admin.newEvent)
     }

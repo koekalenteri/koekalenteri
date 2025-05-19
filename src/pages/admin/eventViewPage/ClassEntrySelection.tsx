@@ -162,16 +162,13 @@ const ClassEntrySelection = ({
       ((item.targetGroupKey && item.targetGroupKey !== group.key) || item.groupKey !== group.key)
     ) {
       const extra = state === 'invited' ? ' sekä koekutsu' : ''
-      try {
-        await confirm({
-          title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
-          description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
-          confirmationText: 'Lisää osallistujiin',
-          cancellationText: t('cancel'),
-        })
-      } catch {
-        return
-      }
+      const { confirmed } = await confirm({
+        title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
+        description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
+        confirmationText: 'Lisää osallistujiin',
+        cancellationText: t('cancel'),
+      })
+      if (!confirmed) return
     }
 
     // make sure the dropped registration is selected, so its intuitive to user
