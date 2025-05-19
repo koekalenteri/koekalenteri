@@ -4,6 +4,8 @@ export interface Env {
 	UPSTASH_REDIS_REST_TOKEN: string;
 }
 
+type RedisStreamMessage = [string, Array<[string, string[]]>]
+
 const getCorsHeaders = {
   'Access-Control-Allow-Origin': '*',
 }
@@ -31,63 +33,23 @@ export default {
       return new Response('Invalid channel name', { status: 400 })
     }
 
-    const controller = new AbortController()
-    req.signal.addEventListener('abort', () => controller.abort())
-
-    // Pass client abort signal to upstream fetch to abort if client disconnects
-    const upstream = await fetch(`${env.UPSTASH_REDIS_REST_URL}/subscribe/${channel}`, {
-      method: 'POST', // Upstash expects POST for SUBSCRIBE
-      headers: {
-        Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`,
-        Accept: 'text/event-stream',
-      },
-      signal: req.signal,
-    })
-
-    if (!upstream.ok || !upstream.body) {
-      // Usually happens on wrong token/channel etc.
-      return new Response(`Upstream error: ${await upstream.text()}`, { status: 502 })
-    }
-
-    const reader = upstream.body.getReader()
     const encoder = new TextEncoder()
     const pingMsg = encoder.encode(':ping\n\n')
+
+    let lastId = '$'
     let lastMessageTime = Date.now()
 
     const { readable, writable } = new TransformStream()
     const writer = writable.getWriter()
 
     req.signal.addEventListener('abort', () => {
-      reader.cancel().catch(() => {})
       writer.close().catch(() => {})
     })
-
-    const pump = async () => {
-      try {
-        while (!req.signal.aborted) {
-          const { done, value } = await reader.read()
-          if (done) break
-          lastMessageTime = Date.now()
-          await writer.write(value)
-        }
-      } catch (err) {
-        // Ignore abort errors from cancellation
-        if (err instanceof Error && err.name !== 'AbortError') {
-          console.error('Upstream read error:', err)
-        }
-      } finally {
-        try {
-          await writer.close()
-        } catch {
-          // eat
-        }
-      }
-    }
 
     const pinger = async () => {
       try {
         while (!req.signal.aborted) {
-          await new Promise((r) => setTimeout(r, 1000))
+          await new Promise((r) => setTimeout(r, 5000))
           if (Date.now() - lastMessageTime >= 30000) {
             await writer.write(pingMsg)
             lastMessageTime = Date.now()
@@ -100,9 +62,60 @@ export default {
       }
     }
 
-    ctx.waitUntil(pump())
-    ctx.waitUntil(pinger())
+    // Polling loop with reconnect & backoff
+    const poller = async () => {
+      let backoff = 1000
+      while (!req.signal.aborted) {
+        try {
+          const url = `${env.UPSTASH_REDIS_REST_URL}/xread/streams/${channel}/${lastId}`
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${env.UPSTASH_REDIS_REST_TOKEN}`,
+              Accept: 'application/json',
+            },
+            signal: req.signal,
+          })
 
+          if (!res.ok) {
+            throw new Error(`Upstash error: ${await res.text()}`)
+          }
+
+          const json = await res.json<RedisStreamMessage[] | null>()
+
+          const [streamName, messages] = json?.[0] || []
+          if (Array.isArray(messages)) {
+            for (const [id, dataArray] of messages) {
+              const data: Record<string, string> = {}
+              for (let i = 0; i < dataArray.length; i += 2) {
+                data[dataArray[i]] = dataArray[i + 1]
+              }
+
+              const payload = `id: ${id}\ndata: ${JSON.stringify(data)}\n\n`
+              await writer.write(encoder.encode(payload))
+              lastId = id
+              lastMessageTime = Date.now()
+              backoff = 1000 // reset on success
+            }
+          }
+
+          // Short wait between polls (tweak to your needs)
+          await new Promise((r) => setTimeout(r, 100))
+        } catch (err) {
+          if (req.signal.aborted) break
+
+          console.error('Polling error:', err)
+          // Wait before retrying (exponential backoff with cap)
+          await new Promise((r) => setTimeout(r, backoff))
+          backoff = Math.min(backoff * 2, 15000)
+        }
+      }
+
+      writer.close().catch(() => {})
+    }
+
+    ctx.waitUntil(poller())
+    ctx.waitUntil(pinger())
 
     return new Response(readable, {
       status: 200,

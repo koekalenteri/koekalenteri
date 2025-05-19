@@ -5,7 +5,7 @@ import type { FilterProps } from '../recoil'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -98,9 +98,14 @@ describe('EventFilter', () => {
     // Type the value
     await user.type(input, value)
 
-    // Select the option from dropdown
-    await user.keyboard('{ArrowDown}')
-    await user.keyboard('{Enter}')
+    await waitFor(
+      () => {
+        const option = screen.getByText(value, { selector: 'li' })
+        expect(option).toBeInTheDocument()
+        return option
+      },
+      { timeout: 1000 }
+    ).then((option: HTMLElement) => user.click(option))
   }
 
   it('It should fire onChange', async () => {

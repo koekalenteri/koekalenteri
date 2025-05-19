@@ -16,18 +16,12 @@ export const useEventSource = () => {
     }
 
     eventSource.onmessage = (event) => {
-      const messageData = event.data
-      const firstComma = messageData.indexOf(',')
-      const secondComma = messageData.indexOf(',', firstComma + 1)
-      if (firstComma === -1 || secondComma === -1) {
-        console.error('SSE: malformed message')
-        return
-      }
-      const payload = JSON.parse(messageData.slice(secondComma + 1))
+      const payload = JSON.parse(event.data)
+      console.debug('SSE', payload)
 
-      if (!payload?.data?.eventId) return
+      if (!payload?.eventId) return
 
-      const { eventId, ...patch } = payload.data
+      const { eventId, ...patch } = payload
 
       setEvents((current) => {
         let changed = false

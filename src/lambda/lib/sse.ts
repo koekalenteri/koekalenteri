@@ -14,7 +14,7 @@ export const sse = async (data: AnyObject) => {
 
   console.log(`Sending event to clients listening "${stackName}", with:`, data)
 
-  await fetch(`${cfg.UPSTASH_REDIS_REST_URL}/publish/${stackName}`, {
+  await fetch(`${cfg.UPSTASH_REDIS_REST_URL}/xadd/${stackName}/*?maxlen=100`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${cfg.UPSTASH_REDIS_REST_TOKEN}`,
