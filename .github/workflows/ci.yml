@@ -8,11 +8,6 @@ on:
   merge_group:
     branches: [ main ]
 
-# when merging multiple merge reuests from queue, cancel previous jobs to prevent concurrent deployments
-concurrency:
-  group: queue-${{ github.event_name == 'merge_group' && 'merge-group' || github.ref }}
-  cancel-in-progress: true
-
 jobs:
   setup:
     runs-on: ubuntu-latest
@@ -198,6 +193,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup,backend,frontend-test]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.backend == 'true' }}
+    concurrency:
+      group: deploy-backend-${{ github.ref }}
+      cancel-in-progress: true
     environment: dev
     steps:
       - uses: actions/checkout@v4
@@ -265,6 +263,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup,frontend-test,deploy-backend]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.frontend == 'true' }}
+    concurrency:
+      group: deploy-frontend-${{ github.ref }}
+      cancel-in-progress: true
     environment: dev
     steps:
       - name: Trigger deployment
@@ -332,6 +333,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup, sse-worker]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.setup.outputs.sse-worker == 'true' }}
+    concurrency:
+      group: deploy-sse-worker-${{ github.ref }}
+      cancel-in-progress: true
     environment: dev
     steps:
       - uses: actions/checkout@v4
