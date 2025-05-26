@@ -18,16 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2  # fetch also previous commit
+          fetch-depth: 0 # Fetch all history
 
-      # workaround for https://github.com/dorny/paths-filter/issues/240
-      - id: previous-sha
-        run: 'echo "sha=$(git rev-list -n 1 ${{ github.ref }}^)" >> $GITHUB_OUTPUT'
+      - name: Get base commit
+        id: base-commit
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "sha=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "sha=$(git merge-base origin/${{ github.event.repository.default_branch }} ${{ github.sha }})" >> $GITHUB_OUTPUT
+          else
+            echo "sha=$(git merge-base origin/main ${{ github.sha }})" >> $GITHUB_OUTPUT
+          fi
 
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          base: "${{ steps.previous-sha.outputs.sha }}"
+          base: ${{ steps.base-commit.outputs.sha }}
           filters: |
             backend:
               - '.github/**'
