@@ -24,33 +24,22 @@ jobs:
         id: base-commit
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            # For pull requests, use the PR base
-            echo "sha=${{ github.event.pull_request.base.sha }}" >> $GITHUB_OUTPUT
+            # For PRs, output empty string as base is ignored anyway
+            echo "sha=" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event_name }}" == "push" ]]; then
-            # For direct pushes, compare with the previous commit on the branch
-            if [[ $(git rev-list --count ${{ github.sha }}) -gt 1 ]]; then
-              # If multiple commits were pushed, get all commits in this push
-              BEFORE_SHA="${{ github.event.before }}"
-              if [[ -z "$BEFORE_SHA" || "$BEFORE_SHA" == "0000000000000000000000000000000000000000" ]]; then
-                # If this is a new branch, compare with the default branch
-                echo "sha=$(git merge-base origin/${{ github.event.repository.default_branch }} ${{ github.sha }})" >> $GITHUB_OUTPUT
-              else
-                # Use the "before" SHA from the push event
-                echo "sha=$BEFORE_SHA" >> $GITHUB_OUTPUT
-              fi
+            # For direct pushes, use the "before" SHA from the push event
+            BEFORE_SHA="${{ github.event.before }}"
+            if [[ -z "$BEFORE_SHA" || "$BEFORE_SHA" == "0000000000000000000000000000000000000000" ]]; then
+              # If this is a new branch, compare with the default branch
+              echo "sha=$(git merge-base origin/${{ github.event.repository.default_branch }} ${{ github.sha }})" >> $GITHUB_OUTPUT
             else
-              # Single commit push - use the parent
-              echo "sha=$(git rev-parse ${{ github.sha }}^)" >> $GITHUB_OUTPUT
+              echo "sha=$BEFORE_SHA" >> $GITHUB_OUTPUT
             fi
           else
             # For other events (like merge_group)
             echo "sha=$(git merge-base origin/main ${{ github.sha }})" >> $GITHUB_OUTPUT
           fi
 
-      - name: Debug
-        run: |
-          echo "SSE Worker output: ${{ needs.setup.outputs.sse-worker }}"
-          echo "Type: $(typeof ${{ needs.setup.outputs.sse-worker }})"
 
       - uses: dorny/paths-filter@v3
         id: filter
@@ -356,6 +345,9 @@ jobs:
       - name: Run tests
         working-directory: cf/sse-worker
         run: npm test
+      - name: Debug
+        run: |
+          echo "SSE Worker output: '${{ needs.setup.outputs.sse-worker }}'"
 
   deploy-sse-worker:
     runs-on: ubuntu-latest
