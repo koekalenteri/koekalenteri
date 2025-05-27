@@ -1,5 +1,5 @@
 import type { EventType, Judge, PublicJudge } from '../../../../../types'
-import type { SectionProps } from '../../EventForm'
+import type { SectionProps } from '../types'
 
 import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'

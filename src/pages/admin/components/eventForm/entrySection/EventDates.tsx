@@ -1,5 +1,5 @@
 import type { RegistrationClass } from '../../../../../types'
-import type { SectionProps } from '../../EventForm'
+import type { SectionProps } from '../types'
 
 import { useMemo } from 'react'
 import Stack from '@mui/material/Stack'

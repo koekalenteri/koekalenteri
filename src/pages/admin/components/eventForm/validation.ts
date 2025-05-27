@@ -1,6 +1,6 @@
 import type { ValidationResult, Validators } from '../../../../i18n/validation'
 import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
-import type { PartialEvent } from '../EventForm'
+import type { PartialEvent } from './types'
 
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'

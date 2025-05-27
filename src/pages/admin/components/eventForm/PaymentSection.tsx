@@ -1,4 +1,4 @@
-import type { SectionProps } from '../EventForm'
+import type { SectionProps } from './types'
 
 import { useTranslation } from 'react-i18next'
 import Grid2 from '@mui/material/Grid2'

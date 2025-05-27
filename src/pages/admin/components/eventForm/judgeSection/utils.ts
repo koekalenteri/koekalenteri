@@ -1,5 +1,5 @@
 import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
-import type { PartialEvent } from '../../EventForm'
+import type { PartialEvent } from '../types'
 
 import { isSameDay } from 'date-fns'
 

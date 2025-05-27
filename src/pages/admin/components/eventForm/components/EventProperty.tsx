@@ -2,7 +2,7 @@ import type { AutocompleteFreeSoloValueMapping, AutocompleteProps } from '@mui/m
 import type { AutocompleteInputChangeReason, AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
 import type { ReactNode, SyntheticEvent } from 'react'
 import type { DogEvent } from '../../../../../types'
-import type { PartialEvent } from '../../EventForm'
+import type { PartialEvent } from '../types'
 import type { FieldRequirements } from '../validation'
 
 import { useCallback, useState } from 'react'

@@ -1,5 +1,5 @@
 import type { PublicJudge } from '../../../../../types'
-import type { SectionProps } from '../../EventForm'
+import type { SectionProps } from '../types'
 
 import Grid2 from '@mui/material/Grid2'
 

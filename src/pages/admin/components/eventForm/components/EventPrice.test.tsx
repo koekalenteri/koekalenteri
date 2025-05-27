@@ -1,4 +1,4 @@
-import type { PartialEvent } from '../../EventForm'
+import type { PartialEvent } from '../types'
 
 import { screen } from '@testing-library/react'
 

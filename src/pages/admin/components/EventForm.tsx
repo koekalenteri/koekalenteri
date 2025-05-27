@@ -1,6 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { DeepPartial, DogEvent, EventState } from '../../../types'
-import type { FieldRequirements } from './eventForm/validation'
+import type { PartialEvent } from './eventForm/types'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -32,31 +32,6 @@ import HeadquartersSection from './eventForm/HeadquartersSection'
 import JudgesSection from './eventForm/JudgesSection'
 import PaymentSection from './eventForm/PaymentSection'
 import { requiredFields, validateEvent } from './eventForm/validation'
-
-export interface PartialEvent
-  extends Omit<
-    DeepPartial<DogEvent>,
-    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates'
-  > {
-  startDate: DogEvent['startDate']
-  endDate: DogEvent['endDate']
-  classes: DogEvent['classes']
-  judges: DogEvent['judges']
-  official?: Partial<DogEvent['official']>
-  secretary?: Partial<DogEvent['secretary']>
-  dates?: DogEvent['dates']
-}
-
-export interface SectionProps {
-  readonly event: PartialEvent
-  readonly disabled?: boolean
-  readonly fields?: FieldRequirements
-  readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
-  readonly helperTexts?: { [Property in keyof DogEvent]?: string }
-  readonly open?: boolean
-  readonly onChange?: (event: DeepPartial<DogEvent>) => void
-  readonly onOpenChange?: (value: boolean) => void
-}
 
 interface Props {
   readonly event: DogEvent

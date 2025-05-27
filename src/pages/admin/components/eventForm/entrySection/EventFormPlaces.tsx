@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type { DeepPartial, EventClass } from '../../../../../types'
-import type { SectionProps } from '../../EventForm'
+import type { SectionProps } from '../types'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

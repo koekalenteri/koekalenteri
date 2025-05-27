@@ -1,7 +1,7 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { RegistrationDate } from '../../../../../../types'
-import type { SectionProps } from '../../../EventForm'
+import type { SectionProps } from '../../types'
 
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'

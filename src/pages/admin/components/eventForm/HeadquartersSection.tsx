@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type { Headquarters } from '../../../../types'
-import type { SectionProps } from '../EventForm'
+import type { SectionProps } from './types'
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'

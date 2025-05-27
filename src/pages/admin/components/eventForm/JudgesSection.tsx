@@ -1,5 +1,5 @@
 import type { DeepPartial, DogEvent, EventType, Judge } from '../../../../types'
-import type { PartialEvent, SectionProps } from '../EventForm'
+import type { PartialEvent, SectionProps } from './types'
 
 import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'

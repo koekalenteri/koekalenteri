@@ -10,7 +10,7 @@ import type {
   User,
 } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
-import type { PartialEvent, SectionProps } from '../EventForm'
+import type { PartialEvent, SectionProps } from './types'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'

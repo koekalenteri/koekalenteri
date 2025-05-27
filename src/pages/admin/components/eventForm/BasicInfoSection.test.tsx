@@ -1,5 +1,5 @@
-import type { PartialEvent } from '../EventForm'
 import type { Props } from './BasicInfoSection'
+import type { PartialEvent } from './types'
 
 import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
