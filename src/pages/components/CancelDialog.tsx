@@ -129,10 +129,11 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
           disabled={disabled || reason === '' || (reason === 'other' && freeReason === '')}
           autoFocus
           variant="contained"
+          disableRipple
         >
           {t('registration.cancelDialog.cta')}
         </Button>
-        <Button onClick={onClose} variant="outlined">
+        <Button onClick={onClose} variant="outlined" disableRipple>
           {t('close')}
         </Button>
       </DialogActions>

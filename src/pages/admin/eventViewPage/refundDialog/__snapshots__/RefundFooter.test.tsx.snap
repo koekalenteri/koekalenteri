@@ -3,7 +3,7 @@
 exports[`RefundFooter renders 1`] = `
 <div>
   <div
-    class="MuiDataGrid-root MuiDataGrid-root--densityStandard MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-g39zud-MuiDataGrid-root"
+    class="MuiDataGrid-root MuiDataGrid-root--densityStandard MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-5kysay-MuiDataGrid-root"
     style="--DataGrid-hasScrollX: 0; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 0px; --DataGrid-columnsTotalWidth: 0px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 56px; --DataGrid-headersTotalHeight: 56px; --DataGrid-topContainerHeight: 56px; --DataGrid-bottomContainerHeight: 0px; --height: 52px;"
   >
     <div
