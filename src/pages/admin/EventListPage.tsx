@@ -80,12 +80,10 @@ export default function EventListPage() {
         confirmationText: 'Jatka muokkausta',
         cancellationText: 'Luo uusi tapahtuma',
       }).then(async ({ confirmed }) => {
-        if (confirmed) {
-          navigate(Path.admin.newEvent)
-        } else {
+        if (!confirmed) {
           resetNewEvent()
-          navigate(Path.admin.newEvent)
         }
+        navigate(Path.admin.newEvent)
       })
     } else {
       navigate(Path.admin.newEvent)
