@@ -1,6 +1,6 @@
 import type { DataGridProps } from '@mui/x-data-grid'
 import type { DropTargetMonitor } from 'react-dnd'
-import type { DragItem } from './dropableDataGrid/DragableRow'
+import type { DragItem } from './types'
 
 import { useMemo } from 'react'
 import { useDrop } from 'react-dnd'

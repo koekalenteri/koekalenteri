@@ -1,25 +1,18 @@
-import type { GridRowId, GridRowProps } from '@mui/x-data-grid'
-import type { Identifier, XYCoord } from 'dnd-core'
+import type { GridRowProps } from '@mui/x-data-grid'
+import type { Identifier } from 'dnd-core'
+import type { DragItem } from '../types'
 
 import { useRef } from 'react'
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd'
 import { GridRow } from '@mui/x-data-grid'
+
+import { determinePosition } from './position'
 
 // augment the props for the row slot
 declare module '@mui/x-data-grid' {
   interface RowPropsOverrides {
     groupKey?: string
   }
-}
-
-export interface DragItem {
-  id: GridRowId
-  index: number
-  groupKey?: string
-  groups: string[]
-  targetGroupKey?: string
-  targetIndex?: number
-  position?: 'before' | 'after'
 }
 
 interface Props extends GridRowProps {
@@ -56,19 +49,8 @@ const DragableRow = ({ groupKey, ...props }: Props) => {
         return
       }
 
-      let position: 'before' | 'after' = 'before'
-      if (sameGroup && dragIndex === hoverIndex - 1) {
-        position = 'after'
-      } else if (sameGroup && dragIndex === hoverIndex + 1) {
-        position = 'before'
-      } else {
-        const hoverBoundingRect = ref.current.getBoundingClientRect()
-        const mod = item.position === 'before' ? 3 : item.position === 'after' ? -3 : 0
-        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2 + mod
-        const clientOffset = monitor.getClientOffset()
-        const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
-        position = hoverClientY < hoverMiddleY ? 'before' : 'after'
-      }
+      const position = determinePosition(sameGroup, dragIndex, hoverIndex, ref, item, monitor)
+
       item.targetGroupKey = groupKey
       item.targetIndex = hoverIndex
       if (item.position !== position) {

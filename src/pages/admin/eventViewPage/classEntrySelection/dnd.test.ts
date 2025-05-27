@@ -1,5 +1,5 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
-import type { DragItem } from './dropableDataGrid/DragableRow'
+import type { DragItem } from './types'
 
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 
