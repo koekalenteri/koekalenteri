@@ -1,24 +1,10 @@
 import type { ValidationResult, Validators } from '../../../../i18n/validation'
 import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
-import type { PartialEvent } from './types'
+import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './types'
 
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
 import { unique } from '../../../../lib/utils'
-
-type EventCallback = (event: PartialEvent) => boolean
-type EventFlag = boolean | EventCallback
-type EventFlags = Partial<{
-  [Property in keyof DogEvent]: EventFlag
-}>
-
-type RequiredFieldState = Partial<{
-  [Property in keyof DogEvent]: EventState
-}>
-
-type RequiredFields = Partial<{
-  [Property in keyof DogEvent]: boolean
-}>
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
   draft: ['draft'],
@@ -150,11 +136,6 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
   },
   startDate: (event, required) => (required && event.startDate < zonedStartOfDay(new Date()) ? 'startDate' : false),
   endDate: (event, required) => (required && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false),
-}
-
-export type FieldRequirements = {
-  state: RequiredFieldState
-  required: RequiredFields
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {

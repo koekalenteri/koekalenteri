@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type React from 'react'
 import type { SetterOrUpdater } from 'recoil'
 import type { DogEvent, EventClassState, EventState, Registration, RegistrationGroup } from '../../../types'
-import type { DragItem } from './classEntrySelection/dropableDataGrid/DragableRow'
+import type { DragItem } from './classEntrySelection/types'
 
 import { useCallback, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'

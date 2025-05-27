@@ -1,5 +1,4 @@
-import type { DeepPartial, DogEvent } from '../../../../types'
-import type { FieldRequirements } from './validation'
+import type { DeepPartial, DogEvent, EventState } from '../../../../types'
 
 export interface PartialEvent
   extends Omit<
@@ -15,6 +14,18 @@ export interface PartialEvent
   dates?: DogEvent['dates']
 }
 
+export type RequiredFieldState = Partial<{
+  [Property in keyof DogEvent]: EventState
+}>
+
+export type RequiredFields = Partial<{
+  [Property in keyof DogEvent]: boolean
+}>
+
+export type FieldRequirements = {
+  state: RequiredFieldState
+  required: RequiredFields
+}
 export interface SectionProps {
   readonly event: PartialEvent
   readonly disabled?: boolean
@@ -25,3 +36,9 @@ export interface SectionProps {
   readonly onChange?: (event: DeepPartial<DogEvent>) => void
   readonly onOpenChange?: (value: boolean) => void
 }
+
+export type EventCallback = (event: PartialEvent) => boolean
+export type EventFlag = boolean | EventCallback
+export type EventFlags = Partial<{
+  [Property in keyof DogEvent]: EventFlag
+}>
