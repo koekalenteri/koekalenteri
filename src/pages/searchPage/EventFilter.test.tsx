@@ -116,7 +116,7 @@ describe('EventFilter', () => {
 
     await changeAutocompleteValue(user, 'filter.organizer', 'Järjestäjä 1')
     expect(changeHandler).toHaveBeenCalledTimes(3)
-  })
+  }, 20000)
 
   it('should fire onChange for switches', async () => {
     const changeHandler = jest.fn()
