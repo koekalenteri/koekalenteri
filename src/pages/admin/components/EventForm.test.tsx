@@ -4,10 +4,9 @@ import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { screen, within } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 
-import { eventWithStaticDatesAndClass } from '../../../__mockData__/events'
+import { eventWithEntryNotYetOpen } from '../../../__mockData__/events'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
@@ -43,46 +42,38 @@ describe('EventForm', () => {
   afterAll(() => jest.useRealTimers())
 
   it('should render', async () => {
-    const { container } = renderComponent(eventWithStaticDatesAndClass)
+    const { container } = renderComponent(eventWithEntryNotYetOpen)
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
 
-  it.skip('should fire onSave and onCancel', async () => {
+  it('should fire onSave and onCancel', async () => {
     const saveHandler = jest.fn()
     const cancelHandler = jest.fn()
     const changeHandler = jest.fn()
 
     const { container, user, getAllByRole, getByText } = renderComponent(
-      eventWithStaticDatesAndClass,
+      eventWithEntryNotYetOpen,
       saveHandler,
       cancelHandler,
       changeHandler
     )
     await flushPromises()
 
-    const saveButton = getByText(/Tallenna/i)
-    expect(saveButton).toBeDisabled()
-
-    // Make a change to enable save button
-    const eventType = getAllByRole('combobox').find((elem) => elem.id === 'eventType')
-    if (!eventType) throw new Error('paskaa')
-
-    const buttons = getAllByRole('button', { name: 'Open' })
-    console.log(buttons)
-    await user.click(buttons[0])
-    await flushPromises()
-    const options = screen.getAllByRole('option')
-    console.log(options)
-    await user.click(within(eventType).getByRole('button'))
-    user.selectOptions(eventType, ['TEST-C'])
-    await flushPromises()
+    // Find the save button by its role and icon
+    const saveButton = getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
+    expect(saveButton).not.toBeUndefined()
     expect(saveButton).toBeEnabled()
 
-    user.click(saveButton)
+    await user.click(saveButton as HTMLElement)
+    await flushPromises()
     expect(saveHandler).toHaveBeenCalledTimes(1)
 
-    user.click(screen.getByText(/Peruuta/i))
+    // Find the cancel button by its role and icon
+    const cancelButton = getAllByRole('button').find((button) => button.querySelector('[data-testid="CancelIcon"]'))
+    expect(cancelButton).not.toBeUndefined()
+    await user.click(cancelButton as HTMLElement)
+    await flushPromises()
     expect(cancelHandler).toHaveBeenCalledTimes(1)
   })
 })

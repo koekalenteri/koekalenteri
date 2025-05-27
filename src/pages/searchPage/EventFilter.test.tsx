@@ -108,7 +108,7 @@ describe('EventFilter', () => {
     ).then((option: HTMLElement) => user.click(option))
   }
 
-  it.skip('It should fire onChange', async () => {
+  it('should fire onChange', async () => {
     const changeHandler = jest.fn()
     const { user } = renderComponent(
       { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
@@ -124,15 +124,11 @@ describe('EventFilter', () => {
     await changeAutocompleteValue(user, 'filter.organizer', 'Järjestäjä 1')
     expect(changeHandler).toHaveBeenCalledTimes(3)
 
-    /*
-    // Date picker testing with user events
     const dateInputs = screen.getAllByLabelText('Choose date', { exact: false })
     await user.click(dateInputs[0])
     const dialog = await screen.findByRole('dialog')
     const day25 = within(dialog).getByLabelText('25', { exact: false })
     await user.click(day25)
-    expect(changeHandler).toHaveBeenCalledTimes(5)
-    */
 
     await user.click(screen.getByLabelText('entryOpen'))
     expect(changeHandler).toHaveBeenCalledTimes(4)

@@ -85,7 +85,7 @@ export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   ...emptyEvent,
   id: 'test4',
   eventType: 'type4',
-  classes: [{ class: 'AVO', date: addDays(today, 14) }],
+  classes: [{ class: 'AVO', date: addDays(today, 14), judge: { id: 223, name: 'Tuomari 2' } }],
   startDate: addDays(today, 14),
   endDate: addDays(today, 15),
   entryStartDate: addDays(today, 1), // entry not open yet

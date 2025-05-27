@@ -12,7 +12,9 @@ export const adminRemoteJudgesEffect: AtomEffect<Judge[]> = ({ getPromise, setSe
     setSelf(
       getPromise(idTokenAtom).then((token) =>
         token
-          ? getJudges(token).then((judges) => judges.sort((a, b) => a.name.localeCompare(b.name, i18next.language)))
+          ? getJudges(token).then((judges) =>
+              [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+            )
           : new DefaultValue()
       )
     )

@@ -13,7 +13,7 @@ export const adminRemoteOrganizersEffect: AtomEffect<Organizer[]> = ({ setSelf, 
       getPromise(idTokenAtom).then((token) =>
         token
           ? getAdminOrganizers(token).then((organizers) =>
-              organizers.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+              [...organizers].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
             )
           : new DefaultValue()
       )
