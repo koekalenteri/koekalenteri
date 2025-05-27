@@ -209,6 +209,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
+                        id="filter.eventtype-label"
                       >
                         filter.eventType
                       </label>
@@ -219,7 +220,9 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <div
                           aria-expanded="false"
                           aria-haspopup="listbox"
+                          aria-labelledby="filter.eventtype-label filter.eventtype-select"
                           class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="filter.eventtype-select"
                           role="combobox"
                           tabindex="0"
                         >
@@ -798,6 +801,7 @@ exports[`SearchPage filters by date 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
+                        id="filter.eventtype-label"
                       >
                         filter.eventType
                       </label>
@@ -808,7 +812,9 @@ exports[`SearchPage filters by date 1`] = `
                         <div
                           aria-expanded="false"
                           aria-haspopup="listbox"
+                          aria-labelledby="filter.eventtype-label filter.eventtype-select"
                           class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="filter.eventtype-select"
                           role="combobox"
                           tabindex="0"
                         >
@@ -2600,6 +2606,7 @@ exports[`SearchPage filters by date/end 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
+                        id="filter.eventtype-label"
                       >
                         filter.eventType
                       </label>
@@ -2610,7 +2617,9 @@ exports[`SearchPage filters by date/end 1`] = `
                         <div
                           aria-expanded="false"
                           aria-haspopup="listbox"
+                          aria-labelledby="filter.eventtype-label filter.eventtype-select"
                           class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="filter.eventtype-select"
                           role="combobox"
                           tabindex="0"
                         >
@@ -4402,6 +4411,7 @@ exports[`SearchPage filters by event class 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
+                        id="filter.eventtype-label"
                       >
                         filter.eventType
                       </label>
@@ -4412,7 +4422,9 @@ exports[`SearchPage filters by event class 1`] = `
                         <div
                           aria-expanded="false"
                           aria-haspopup="listbox"
+                          aria-labelledby="filter.eventtype-label filter.eventtype-select"
                           class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="filter.eventtype-select"
                           role="combobox"
                           tabindex="0"
                         >
@@ -6616,6 +6628,7 @@ exports[`SearchPage filters by event type 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="true"
+                        id="filter.eventtype-label"
                       >
                         filter.eventType
                       </label>
@@ -6626,7 +6639,9 @@ exports[`SearchPage filters by event type 1`] = `
                         <div
                           aria-expanded="false"
                           aria-haspopup="listbox"
+                          aria-labelledby="filter.eventtype-label filter.eventtype-select"
                           class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="filter.eventtype-select"
                           role="combobox"
                           tabindex="0"
                         >
@@ -8822,6 +8837,7 @@ exports[`SearchPage filters by organizer 1`] = `
                       <label
                         class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                         data-shrink="false"
+                        id="filter.eventtype-label"
                       >
                         filter.eventType
                       </label>
@@ -8832,7 +8848,9 @@ exports[`SearchPage filters by organizer 1`] = `
                         <div
                           aria-expanded="false"
                           aria-haspopup="listbox"
+                          aria-labelledby="filter.eventtype-label filter.eventtype-select"
                           class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                          id="filter.eventtype-select"
                           role="combobox"
                           tabindex="0"
                         >

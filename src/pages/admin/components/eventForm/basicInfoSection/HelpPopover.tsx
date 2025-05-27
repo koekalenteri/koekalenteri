@@ -25,7 +25,9 @@ export default function HelpPopover({ anchorEl, onClose, children }: Props) {
         vertical: 'top',
         horizontal: 'left',
       }}
-      TransitionComponent={Fade}
+      slots={{
+        transition: Fade,
+      }}
       onClose={onClose}
     >
       <Paper

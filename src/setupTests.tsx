@@ -5,6 +5,7 @@
 import type { DialogProps } from '@mui/material'
 import type { DataGridProps } from '@mui/x-data-grid'
 
+import { toHaveNoViolations } from 'jest-axe'
 import { TextDecoder, TextEncoder } from 'util'
 
 // https://github.com/jsdom/jsdom/issues/3363
@@ -40,3 +41,5 @@ jest.mock('@mui/material', () => {
 process.env.REACT_APP_IDENTITY_POOL_ID = 'test-id-pool'
 
 jest.mock('./lib/client/rum')
+
+expect.extend(toHaveNoViolations)

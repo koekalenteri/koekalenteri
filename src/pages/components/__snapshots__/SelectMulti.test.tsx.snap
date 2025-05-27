@@ -8,6 +8,7 @@ exports[`SelectMulti renders with default label 1`] = `
     <label
       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
       data-shrink="false"
+      id="select-options-label"
     >
       Select options
     </label>
@@ -18,7 +19,9 @@ exports[`SelectMulti renders with default label 1`] = `
       <div
         aria-expanded="false"
         aria-haspopup="listbox"
+        aria-labelledby="select-options-label select-options-select"
         class="MuiSelect-select MuiSelect-outlined MuiSelect-multiple MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        id="select-options-select"
         role="combobox"
         tabindex="0"
       >

@@ -1,6 +1,6 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
 
-import { type MouseEvent, useState } from 'react'
+import { type MouseEvent, useMemo, useState } from 'react'
 import CancelIcon from '@mui/icons-material/Cancel'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -10,6 +10,9 @@ import InputLabel from '@mui/material/InputLabel'
 import ListItemText from '@mui/material/ListItemText'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+
+import { unique } from '../../lib/utils'
+
 type Props = {
   options: string[]
   value: string[]
@@ -19,6 +22,9 @@ type Props = {
 
 export default function SelectMulti({ options, value, onChange, label = 'Select options' }: Props) {
   const [open, setOpen] = useState(false)
+  const uniqueOptions = useMemo(() => unique(options ?? []), [options])
+  const labelId = `${label.replace(/\s+/g, '-').toLowerCase()}-label`
+  const selectId = `${label.replace(/\s+/g, '-').toLowerCase()}-select`
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value
     setOpen(false)
@@ -33,18 +39,21 @@ export default function SelectMulti({ options, value, onChange, label = 'Select 
 
   return (
     <FormControl fullWidth>
-      <InputLabel>{label}</InputLabel>
+      <InputLabel id={labelId}>{label}</InputLabel>
       <Select
+        labelId={labelId}
+        id={selectId}
         label={label}
         data-testid={label}
         multiple
         open={open}
         onOpen={() => setOpen(true)}
-        value={value}
+        onClose={() => setOpen(false)}
+        value={value ?? []}
         onChange={handleChange}
         renderValue={(selected) => (
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {selected.map((val) => (
+            {selected?.map((val) => (
               <Chip
                 size="small"
                 key={val}
@@ -61,9 +70,9 @@ export default function SelectMulti({ options, value, onChange, label = 'Select 
           disablePortal: true,
         }}
       >
-        {options.map((option) => (
+        {uniqueOptions.map((option) => (
           <MenuItem key={option} value={option}>
-            <Checkbox size="small" checked={value.includes(option)} />
+            <Checkbox size="small" checked={value?.includes(option)} />
             <ListItemText primary={option} />
           </MenuItem>
         ))}
