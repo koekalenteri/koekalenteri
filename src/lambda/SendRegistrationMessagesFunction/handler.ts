@@ -24,7 +24,10 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const { template, eventId, contactInfo, registrationIds, text } = message
 
   const eventRegistrations = (
-    await dynamoDB.query<JsonRegistration>('eventId = :eventId', { ':eventId': eventId })
+    await dynamoDB.query<JsonRegistration>({
+      key: 'eventId = :eventId',
+      values: { ':eventId': eventId },
+    })
   )?.filter((r) => r.state === 'ready')
   const registrations = eventRegistrations?.filter((r) => registrationIds.includes(r.id))
 

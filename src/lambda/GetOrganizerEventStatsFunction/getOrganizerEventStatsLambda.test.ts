@@ -96,16 +96,12 @@ describe('getOrganizerEventStatsLambda', () => {
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
-    expect(mockQuery).toHaveBeenCalledWith(
-      '#pk = :pk',
-      { ':pk': 'ORG#org2' },
-      undefined,
-      undefined,
-      { '#pk': 'PK' },
-      undefined,
-      undefined,
-      undefined
-    )
+    expect(mockQuery).toHaveBeenCalledWith({
+      key: '#pk = :pk',
+      values: { ':pk': 'ORG#org2' },
+      names: { '#pk': 'PK' },
+      filterExpression: undefined,
+    })
     expect(JSON.parse(result.body)).toEqual([baseStats[1]])
     expect(result.statusCode).toBe(200)
   })

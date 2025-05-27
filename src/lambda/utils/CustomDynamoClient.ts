@@ -23,6 +23,20 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
 
+/**
+ * Query parameters interface
+ */
+export interface QueryParams {
+  key: string
+  values: Record<string, any>
+  table?: string
+  index?: string
+  names?: Record<string, string>
+  forward?: boolean
+  limit?: number
+  filterExpression?: string
+}
+
 function fromSamLocalTable(table: string) {
   // sam local does not provide proper table name as env variable
   // EventTable => event-table
@@ -131,32 +145,28 @@ export default class CustomDynamoClient {
     return data.Item as T
   }
 
-  async query<T extends object>(
-    key: string,
-    values: Record<string, any>,
-    table?: string,
-    index?: string,
-    names?: Record<string, string>,
-    forward?: boolean,
-    limit?: number,
-    filterExpression?: string
-  ): Promise<T[] | undefined> {
-    if (!key) {
+  /**
+   * Query items in the table
+   * @param params - Query parameters
+   * @returns Promise with the query result
+   */
+  async query<T extends object>(params: QueryParams): Promise<T[] | undefined> {
+    if (!params.key) {
       console.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
     }
-    const params: QueryCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
-      IndexName: index,
-      KeyConditionExpression: key,
-      ExpressionAttributeValues: values,
-      ExpressionAttributeNames: names,
-      ScanIndexForward: forward,
-      Limit: limit,
-      FilterExpression: filterExpression,
+    const queryParams: QueryCommandInput = {
+      TableName: params.table ? fromSamLocalTable(params.table) : this.table,
+      IndexName: params.index,
+      KeyConditionExpression: params.key,
+      ExpressionAttributeValues: params.values,
+      ExpressionAttributeNames: params.names,
+      ScanIndexForward: params.forward,
+      Limit: params.limit,
+      FilterExpression: params.filterExpression,
     }
-    console.log('DB.query', params)
-    const data = await this.docClient.send(new QueryCommand(params))
+    console.log('DB.query', queryParams)
+    const data = await this.docClient.send(new QueryCommand(queryParams))
     return data.Items as T[]
   }
 

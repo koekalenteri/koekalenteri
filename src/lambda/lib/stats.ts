@@ -55,16 +55,12 @@ async function queryOrganizerStats(
   const filterExpression = filterExpressions.length > 0 ? filterExpressions.join(' AND ') : undefined
 
   // Query for this organizerId with date filters
-  const items = await dynamoDB.query<Required<EventStatsItem>>(
-    keyCondition,
-    expressionValues,
-    undefined,
-    undefined,
-    expressionNames,
-    undefined,
-    undefined,
-    filterExpression
-  )
+  const items = await dynamoDB.query<Required<EventStatsItem>>({
+    key: keyCondition,
+    values: expressionValues,
+    names: expressionNames,
+    filterExpression,
+  })
 
   return items || []
 }
@@ -130,7 +126,10 @@ export async function getOrganizerStats(
  */
 export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat[]> {
   const pk = `TOTALS#${year}`
-  const items = await dynamoDB.query<{ SK: string; count: number }>('PK = :pk', { ':pk': pk })
+  const items = await dynamoDB.query<{ SK: string; count: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': pk },
+  })
 
   return (items || []).map((item) => ({
     year,
@@ -144,7 +143,10 @@ export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat
  */
 export async function getDogHandlerBuckets(year: number): Promise<{ bucket: string; count: number }[]> {
   const pk = `BUCKETS#${year}#dog#handler`
-  const items = await dynamoDB.query<{ SK: string; count: number }>('PK = :pk', { ':pk': pk })
+  const items = await dynamoDB.query<{ SK: string; count: number }>({
+    key: 'PK = :pk',
+    values: { ':pk': pk },
+  })
 
   return (items || []).map((item) => ({
     bucket: item.SK,
@@ -156,7 +158,10 @@ export async function getDogHandlerBuckets(year: number): Promise<{ bucket: stri
  * Get available years for which we have statistics
  */
 export async function getAvailableYears(): Promise<number[]> {
-  const items = await dynamoDB.query<{ SK: string }>('PK = :pk', { ':pk': 'YEARS' })
+  const items = await dynamoDB.query<{ SK: string }>({
+    key: 'PK = :pk',
+    values: { ':pk': 'YEARS' },
+  })
 
   if (!items || items.length === 0) {
     return []

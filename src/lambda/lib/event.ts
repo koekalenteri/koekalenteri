@@ -45,15 +45,14 @@ export const findQualificationStartDate = async (
   eventType: string,
   entryEndDate: string
 ): Promise<string | undefined> => {
-  const result = await dynamoDB.query<EventEntryEndDates>(
-    'eventType = :eventType AND entryEndDate < :entryEndDate',
-    { ':eventType': eventType, ':entryEndDate': entryEndDate },
-    CONFIG.eventTable,
-    'gsiEventTypeEntryEndDate',
-    undefined,
-    false,
-    1
-  )
+  const result = await dynamoDB.query<EventEntryEndDates>({
+    key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
+    values: { ':eventType': eventType, ':entryEndDate': entryEndDate },
+    table: CONFIG.eventTable,
+    index: 'gsiEventTypeEntryEndDate',
+    forward: false,
+    limit: 1,
+  })
 
   if (result && result.length === 1 && result[0].entryEndDate) {
     const date = new Date(result[0].entryOrigEndDate || result[0].entryEndDate)
@@ -107,13 +106,11 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
   const allRegistrations =
     updatedRegistrations ??
-    (await dynamoDB.query<JsonRegistration>(
-      'eventId = :id',
-      {
-        ':id': eventId,
-      },
-      registrationTable
-    ))
+    (await dynamoDB.query<JsonRegistration>({
+      key: 'eventId = :id',
+      values: { ':id': eventId },
+      table: registrationTable,
+    }))
 
   // ignore cancelled or unpaid registrations
   const registrations = allRegistrations?.filter((r) => r.state === 'ready' && !r.cancelled)

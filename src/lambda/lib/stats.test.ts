@@ -139,16 +139,12 @@ describe('lib/stats', () => {
 
       const result = await getOrganizerStats(organizerIds, from, to)
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        '#pk = :pk',
-        { ':pk': 'ORG#org1', ':from': from, ':to': to },
-        undefined,
-        undefined,
-        { '#pk': 'PK' },
-        undefined,
-        undefined,
-        'SK >= :from AND SK <= :to'
-      )
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: '#pk = :pk',
+        values: { ':pk': 'ORG#org1', ':from': from, ':to': to },
+        names: { '#pk': 'PK' },
+        filterExpression: 'SK >= :from AND SK <= :to',
+      })
 
       expect(result).toHaveLength(1)
       expect(result[0].organizerId).toBe('org1')
@@ -200,7 +196,10 @@ describe('lib/stats', () => {
 
       const result = await getYearlyTotalStats(year)
 
-      expect(mockQuery).toHaveBeenCalledWith('PK = :pk', { ':pk': 'TOTALS#2024' })
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'TOTALS#2024' },
+      })
 
       expect(result).toHaveLength(3)
       expect(result).toEqual([
@@ -229,7 +228,10 @@ describe('lib/stats', () => {
 
       const result = await getAvailableYears()
 
-      expect(mockQuery).toHaveBeenCalledWith('PK = :pk', { ':pk': 'YEARS' })
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'YEARS' },
+      })
 
       expect(result).toHaveLength(3)
       expect(result).toEqual([2022, 2023, 2024])
@@ -258,7 +260,10 @@ describe('lib/stats', () => {
 
       const result = await getDogHandlerBuckets(year)
 
-      expect(mockQuery).toHaveBeenCalledWith('PK = :pk', { ':pk': 'BUCKETS#2024#dog#handler' })
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'PK = :pk',
+        values: { ':pk': 'BUCKETS#2024#dog#handler' },
+      })
 
       expect(result).toHaveLength(5)
       expect(result).toEqual([

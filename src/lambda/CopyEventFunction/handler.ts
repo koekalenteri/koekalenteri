@@ -48,13 +48,11 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   await dynamoDB.write(item)
 
-  const registrations = await dynamoDB.query<JsonRegistration>(
-    'eventId = :id',
-    {
-      ':id': id,
-    },
-    registrationTable
-  )
+  const registrations = await dynamoDB.query<JsonRegistration>({
+    key: 'eventId = :id',
+    values: { ':id': id },
+    table: registrationTable,
+  })
   for (const reg of registrations ?? []) {
     reg.eventId = item.id
     reg.dates.forEach((d) => {

@@ -16,8 +16,9 @@ const getRegistrationsLambda = lambda('getRegistrations', async (event) => {
   }
 
   const eventId = getParam(event, 'eventId')
-  const allItems = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-    ':eventId': eventId,
+  const allItems = await dynamoDB.query<JsonRegistration>({
+    key: 'eventId = :eventId',
+    values: { ':eventId': eventId },
   })
 
   // filter out registrations that are pending payment

@@ -15,8 +15,9 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   let publicRegs: JsonPublicRegistration[] = []
 
   if (isStartListAvailable(confirmedEvent)) {
-    const items = await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-      ':eventId': eventId,
+    const items = await dynamoDB.query<JsonRegistration>({
+      key: 'eventId = :eventId',
+      values: { ':eventId': eventId },
     })
 
     publicRegs =

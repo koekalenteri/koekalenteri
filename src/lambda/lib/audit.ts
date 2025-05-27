@@ -18,13 +18,11 @@ export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
 
 export const auditTrail = async (auditKey: string) => {
   try {
-    const items = await dynamoDB.query<JsonAuditRecord>(
-      'auditKey = :auditKey',
-      {
-        ':auditKey': auditKey,
-      },
-      auditTable
-    )
+    const items = await dynamoDB.query<JsonAuditRecord>({
+      key: 'auditKey = :auditKey',
+      values: { ':auditKey': auditKey },
+      table: auditTable,
+    })
     return items ?? []
   } catch (e) {
     console.error(e)

@@ -82,8 +82,9 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   const oldItems =
     (
-      await dynamoDB.query<JsonRegistration>('eventId = :eventId', {
-        ':eventId': eventId,
+      await dynamoDB.query<JsonRegistration>({
+        key: 'eventId = :eventId',
+        values: { ':eventId': eventId },
       })
     )?.filter((r) => r.state === 'ready') ?? []
 

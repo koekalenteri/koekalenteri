@@ -119,11 +119,11 @@ export const findExistingRegistrationToEventForDog = async (
   eventId: string,
   regNo: string
 ): Promise<JsonRegistration | undefined> => {
-  const existingRegistrations = await dynamoDB.query<JsonRegistration>(
-    'eventId = :eventId',
-    { ':eventId': eventId },
-    registrationTable
-  )
+  const existingRegistrations = await dynamoDB.query<JsonRegistration>({
+    key: 'eventId = :eventId',
+    values: { ':eventId': eventId },
+    table: registrationTable,
+  })
   const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
 
   return alreadyRegistered

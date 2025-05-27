@@ -60,15 +60,14 @@ describe('lib/event', () => {
     it('should call query with proper arguments', async () => {
       await findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        'eventType = :eventType AND entryEndDate < :entryEndDate',
-        { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
-        'event-table-not-found-in-env',
-        'gsiEventTypeEntryEndDate',
-        undefined,
-        false,
-        1
-      )
+      expect(mockQuery).toHaveBeenCalledWith({
+        key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
+        values: { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
+        table: 'event-table-not-found-in-env',
+        index: 'gsiEventTypeEntryEndDate',
+        forward: false,
+        limit: 1,
+      })
     })
     it.each([undefined, [], [{}], [1, 2]])('should return undefined when query returns %p', (result) => {
       mockQuery.mockResolvedValueOnce(result)

@@ -93,12 +93,12 @@ export const paymentDescription = (
 }
 
 export const getTransactionsByReference = async (reference: string) =>
-  dynamoDB.query<JsonPaymentTransaction | JsonRefundTransaction>(
-    '#reference = :reference',
-    { ':reference': reference },
-    transactionTable,
-    'gsiReference',
-    {
+  dynamoDB.query<JsonPaymentTransaction | JsonRefundTransaction>({
+    key: '#reference = :reference',
+    values: { ':reference': reference },
+    table: transactionTable,
+    index: 'gsiReference',
+    names: {
       '#reference': 'reference',
-    }
-  )
+    },
+  })

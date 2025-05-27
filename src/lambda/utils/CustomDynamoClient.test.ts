@@ -167,7 +167,10 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({ Items: [{ id: '1' }, { id: '2' }] })
 
-      const result = await client.query('id = :id', { ':id': '1' })
+      const result = await client.query({
+        key: 'id = :id',
+        values: { ':id': '1' },
+      })
 
       expect(mockSend).toHaveBeenCalledWith({
         TableName: 'test-table',
@@ -185,7 +188,10 @@ describe('CustomDynamoClient', () => {
     it('returns undefined when key is falsy', async () => {
       const client = new CustomDynamoClient('TestTable')
 
-      const result = await client.query('', { ':id': '1' })
+      const result = await client.query({
+        key: '',
+        values: { ':id': '1' },
+      })
 
       expect(mockSend).not.toHaveBeenCalled()
       expect(result).toBeUndefined()
@@ -195,16 +201,16 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({ Items: [] })
 
-      await client.query(
-        'id = :id',
-        { ':id': '1' },
-        'CustomTable',
-        'GSI1',
-        { '#name': 'name' },
-        false,
-        10,
-        '#attr = :value'
-      )
+      await client.query({
+        key: 'id = :id',
+        values: { ':id': '1' },
+        table: 'CustomTable',
+        index: 'GSI1',
+        names: { '#name': 'name' },
+        forward: false,
+        limit: 10,
+        filterExpression: '#attr = :value',
+      })
 
       expect(mockSend).toHaveBeenCalledWith({
         TableName: 'custom-table',
