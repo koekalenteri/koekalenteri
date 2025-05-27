@@ -5,7 +5,7 @@ import type { FilterProps } from '../recoil'
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { screen, waitFor, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
@@ -92,23 +92,16 @@ describe('EventFilter', () => {
     const autocomplete = screen.getByTestId(testId)
     const input = within(autocomplete).getByRole('combobox')
 
-    // Click to focus the input
+    // Click and type in one action
     await user.click(input)
-
-    // Type the value
     await user.type(input, value)
 
-    await waitFor(
-      () => {
-        const option = screen.getByText(value, { selector: 'li' })
-        expect(option).toBeInTheDocument()
-        return option
-      },
-      { timeout: 1000 }
-    ).then((option: HTMLElement) => user.click(option))
+    // Use a more specific selector for the dropdown option
+    const option = await screen.findByText(value, { selector: 'li' }, { timeout: 1000 })
+    await user.click(option)
   }
 
-  it('should fire onChange', async () => {
+  it('should fire onChange for autocomplete fields', async () => {
     const changeHandler = jest.fn()
     const { user } = renderComponent(
       { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
@@ -123,17 +116,36 @@ describe('EventFilter', () => {
 
     await changeAutocompleteValue(user, 'filter.organizer', 'Järjestäjä 1')
     expect(changeHandler).toHaveBeenCalledTimes(3)
+  })
+
+  it('should fire onChange for switches', async () => {
+    const changeHandler = jest.fn()
+    const { user } = renderComponent(
+      { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
+      changeHandler
+    )
+
+    // Test switches first since they're more reliable
+    await user.click(screen.getByLabelText('entryOpen'))
+    expect(changeHandler).toHaveBeenCalledTimes(1)
+
+    await user.click(screen.getByLabelText('entryUpcoming'))
+    expect(changeHandler).toHaveBeenCalledTimes(2)
+  })
+
+  it('should fire onChange for date picker and switches', async () => {
+    const changeHandler = jest.fn()
+    const { user } = renderComponent(
+      { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
+      changeHandler
+    )
 
     const dateInputs = screen.getAllByLabelText('Choose date', { exact: false })
     await user.click(dateInputs[0])
     const dialog = await screen.findByRole('dialog')
-    const day25 = within(dialog).getByLabelText('25', { exact: false })
+    const day25 = within(dialog).getByRole('gridcell', { name: '25' })
     await user.click(day25)
 
-    await user.click(screen.getByLabelText('entryOpen'))
-    expect(changeHandler).toHaveBeenCalledTimes(4)
-
-    await user.click(screen.getByLabelText('entryUpcoming'))
-    expect(changeHandler).toHaveBeenCalledTimes(5)
+    expect(changeHandler).toHaveBeenCalledTimes(1)
   })
 })
