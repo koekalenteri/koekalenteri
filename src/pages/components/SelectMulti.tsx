@@ -13,12 +13,12 @@ import Select from '@mui/material/Select'
 
 import { unique } from '../../lib/utils'
 
-type Props = {
+type Props = Readonly<{
   options: string[]
   value: string[]
   onChange: (value: string[]) => void
   label?: string
-}
+}>
 
 export default function SelectMulti({ options, value, onChange, label = 'Select options' }: Props) {
   const [open, setOpen] = useState(false)
