@@ -1,6 +1,6 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
-import type { MouseEvent } from 'react'
 
+import { type MouseEvent, useState } from 'react'
 import CancelIcon from '@mui/icons-material/Cancel'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -18,8 +18,10 @@ type Props = {
 }
 
 export default function SelectMulti({ options, value, onChange, label = 'Select options' }: Props) {
+  const [open, setOpen] = useState(false)
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value
+    setOpen(false)
     onChange(Array.isArray(value) ? value : [value])
   }
 
@@ -36,6 +38,8 @@ export default function SelectMulti({ options, value, onChange, label = 'Select 
         label={label}
         data-testid={label}
         multiple
+        open={open}
+        onOpen={() => setOpen(true)}
         value={value}
         onChange={handleChange}
         renderValue={(selected) => (

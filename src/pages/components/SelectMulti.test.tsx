@@ -1,5 +1,7 @@
 import type { SelectChangeEvent } from '@mui/material'
+import type { ComponentProps } from 'react'
 
+import { useCallback, useState } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { screen, within } from '@testing-library/react'
 
@@ -9,6 +11,16 @@ import { renderWithUserEvents } from '../../test-utils/utils'
 import SelectMulti from './SelectMulti'
 
 const options = ['Option 1', 'Option 2', 'Option 3']
+
+const Wrapper = (props: ComponentProps<typeof SelectMulti>) => {
+  const [value, setValue] = useState<string[]>([])
+  const onChange = useCallback((val: string[]) => {
+    setValue(val)
+    props.onChange?.(val)
+  }, [])
+
+  return <SelectMulti {...props} value={value} onChange={onChange} />
+}
 
 describe('SelectMulti', () => {
   it('renders with default label', () => {
@@ -168,5 +180,50 @@ describe('SelectMulti', () => {
     onChange.mockClear()
     handleChange(mockEventArray)
     expect(onChange).toHaveBeenCalledWith(['Option 1', 'Option 3'])
+  })
+
+  it('closes after selection but allows multiple selections by reopening', async () => {
+    let value: string[] = []
+    const onChange = jest.fn().mockImplementation((val) => (value = [...val]))
+    const { user } = renderWithUserEvents(
+      <ThemeProvider theme={theme}>
+        <Wrapper options={options} value={value} onChange={onChange} label="Test Label" />
+      </ThemeProvider>
+    )
+
+    // Open the dropdown
+    const selectContainer = screen.getByTestId('Test Label')
+    const selectElement = within(selectContainer).getByRole('combobox')
+
+    await user.click(selectElement)
+
+    // Select the first option
+    const option1 = screen.getByText('Option 1')
+    await user.click(option1)
+
+    // Check if onChange was called with the correct value
+    expect(onChange).toHaveBeenCalledWith(['Option 1'])
+
+    // The dropdown should be closed after selection
+    // We can verify this by checking that the options are no longer visible
+    expect(screen.queryByText('Option 2')).not.toBeInTheDocument()
+
+    // Reopen the dropdown
+    await user.click(selectElement)
+
+    // Now the options should be visible again
+    expect(screen.getByText('Option 2')).toBeInTheDocument()
+
+    // Select another option
+    const option2 = screen.getByText('Option 2')
+    await user.click(option2)
+
+    // Check if onChange was called with the correct value
+    expect(onChange).toHaveBeenCalledWith(['Option 1', 'Option 2'])
+
+    // Check that the select also displays the selected options
+    expect(selectElement).toHaveTextContent('Option 1')
+    expect(selectElement).toHaveTextContent('Option 2')
+    expect(selectElement).not.toHaveTextContent('Option 3')
   })
 })
