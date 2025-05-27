@@ -1,6 +1,6 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { ChangeEventHandler } from 'react'
-import type { Registration, Transaction } from '../../../types'
+import type { RefundPaymentResponse, Registration, Transaction } from '../../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -22,10 +22,6 @@ import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 import { RefundFooter } from './refundDialog/RefundFooter'
 import { useRefundColumns } from './refundDialog/useRefundColumns'
-
-// Types for refund message handling
-type RefundStatus = 'ok' | 'pending' | 'default'
-type RefundProvider = 'email refund' | 'default'
 
 const successMessages: Record<string, string> = {
   // Format: [status]_[provider]
@@ -142,10 +138,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   }, [onClose])
 
   const showSuccessMessage = useCallback(
-    (response: any) => {
+    (response: RefundPaymentResponse) => {
       // Cast to our defined types for better type safety
-      const status = (response?.status || 'default') as RefundStatus
-      const provider = (response?.provider || 'default') as RefundProvider
+      const status = response?.status ?? 'default'
+      const provider = response?.provider ?? 'default'
 
       // Try specific key first
       const messageKey = `${status}_${provider}`
