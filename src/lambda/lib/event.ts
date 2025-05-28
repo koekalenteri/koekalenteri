@@ -27,7 +27,7 @@ import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
 import { sse } from './sse'
 
-const { eventTable, eventStatsTable, registrationTable } = CONFIG
+const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
 
 export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string): Promise<T> => {
@@ -55,7 +55,7 @@ export const findQualificationStartDate = async (
   })
 
   if (result && result.length === 1 && result[0].entryEndDate) {
-    const date = new Date(result[0].entryOrigEndDate || result[0].entryEndDate)
+    const date = new Date(result[0].entryOrigEndDate ?? result[0].entryEndDate)
     const qualificationStartDate = zonedStartOfDay(addDays(date, 1))
     return qualificationStartDate.toISOString()
   }
