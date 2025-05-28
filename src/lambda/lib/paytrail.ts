@@ -20,7 +20,6 @@ import { getPaytrailConfig } from './secrets'
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
 
 export const HMAC_KEY_PREFIX = 'checkout-'
-export const MIN_NUMBER_OF_HMAC_KEYS = 8
 
 /**
  * All API responses are signed the same way, allowing merchant to verify response validity.
@@ -43,7 +42,7 @@ export const calculateHmac = (secret: string, params: Partial<PaytrailHeaders>, 
   return createHmac('sha256', secret).update(hmacPayload).digest('hex')
 }
 
-export class PaytrailError extends Error {
+class PaytrailError extends Error {
   status: number
   error: string | undefined
 
@@ -55,7 +54,7 @@ export class PaytrailError extends Error {
   }
 }
 
-export const paytrailRequest = async <T extends object>(
+const paytrailRequest = async <T extends object>(
   method: 'GET' | 'POST',
   path: string,
   body: object | undefined,
@@ -159,6 +158,9 @@ export const createPayment = async (
   return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
 }
 
+/**
+ * @lintignore
+ */
 export const getPayment = async (transactionId: string): Promise<GetPaymentResponse | undefined> =>
   paytrailRequest('GET', `payments/${transactionId}`, undefined, transactionId)
 

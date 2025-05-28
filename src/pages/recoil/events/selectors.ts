@@ -6,7 +6,7 @@ import { selector, selectorFamily } from 'recoil'
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { unique, uniqueFn } from '../../../lib/utils'
 
-import { eventFilterAtom, eventIdAtom, eventsAtom } from './atoms'
+import { eventFilterAtom, eventsAtom } from './atoms'
 import {
   withinDateFilters,
   withinEventTypeClassFilter,
@@ -38,11 +38,6 @@ export const confirmedEventSelector = selectorFamily<PublicConfirmedEvent | null
     },
 })
 
-export const currentEventSelector = selector({
-  key: 'currentEvent',
-  get: ({ get }) => get(eventSelector(get(eventIdAtom))),
-})
-
 export const filteredEventsSelector = selector({
   key: 'filteredEvents',
   get: ({ get }) => {
@@ -63,7 +58,7 @@ export const filteredEventsSelector = selector({
   },
 })
 
-export const filteredEventsForTypeSelector = selector({
+const filteredEventsForTypeSelector = selector({
   key: 'filteredEventsForType',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
@@ -82,7 +77,7 @@ export const filteredEventsForTypeSelector = selector({
   },
 })
 
-export const filteredEventsForEventClassSelector = selector({
+const filteredEventsForEventClassSelector = selector({
   key: 'filteredEventsForEventClass',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
@@ -101,7 +96,7 @@ export const filteredEventsForEventClassSelector = selector({
   },
 })
 
-export const filteredEventsForOrganizerSelector = selector({
+const filteredEventsForOrganizerSelector = selector({
   key: 'filteredEventsForOrganizer',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
@@ -120,7 +115,7 @@ export const filteredEventsForOrganizerSelector = selector({
   },
 })
 
-export const filteredEventsForJudgeSelector = selector({
+const filteredEventsForJudgeSelector = selector({
   key: 'filteredEventsForJudge',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)

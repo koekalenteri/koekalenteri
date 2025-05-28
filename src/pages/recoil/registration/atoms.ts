@@ -8,12 +8,6 @@ import { logEffect, sessionStorageEffect } from '../effects'
 import { remoteRegistrationEffect } from './effects'
 import { registrationSelector } from './selectors'
 
-export const registrationIdAtom = atom<string | undefined>({
-  key: 'registrationId',
-  default: '',
-  effects: [logEffect],
-})
-
 export const newRegistrationAtom = atom<Registration | undefined>({
   key: 'newRegistration',
   default: {

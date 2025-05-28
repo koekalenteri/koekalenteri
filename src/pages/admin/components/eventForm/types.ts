@@ -14,11 +14,11 @@ export interface PartialEvent
   dates?: DogEvent['dates']
 }
 
-export type RequiredFieldState = Partial<{
+type RequiredFieldState = Partial<{
   [Property in keyof DogEvent]: EventState
 }>
 
-export type RequiredFields = Partial<{
+type RequiredFields = Partial<{
   [Property in keyof DogEvent]: boolean
 }>
 
@@ -37,7 +37,7 @@ export interface SectionProps {
   readonly onOpenChange?: (value: boolean) => void
 }
 
-export type EventCallback = (event: PartialEvent) => boolean
+type EventCallback = (event: PartialEvent) => boolean
 export type EventFlag = boolean | EventCallback
 export type EventFlags = Partial<{
   [Property in keyof DogEvent]: EventFlag

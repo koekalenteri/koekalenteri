@@ -45,6 +45,9 @@ const deferredLoader = async (id?: string, registrationId?: string, signal?: Abo
   throw new Error('no attachment')
 }
 
+/**
+ * @lintignore
+ */
 export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
   const { id, registrationId } = params
 
@@ -53,6 +56,9 @@ export const loader = async ({ params, request }: { params: Params<string>; requ
   }
 }
 
+/**
+ * @lintignore
+ */
 export const Component = () => {
   const loaderData: { data: Promise<DeferredData> } = useLoaderData()
   const { t } = useTranslation()

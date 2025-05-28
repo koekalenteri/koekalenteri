@@ -26,7 +26,7 @@ import { emptyDog } from '../RegistrationForm'
 import { TitlesAndName } from './dogInfo/TitlesAndName'
 import { validateRegNo } from './validation'
 
-export function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
+function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
   if (!dog?.regNo) {
     return false
   }

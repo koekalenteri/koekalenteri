@@ -78,7 +78,7 @@ export function useDogActions(regNo: string) {
   }
 }
 
-export function applyCache(
+function applyCache(
   regNo: string,
   cache?: DeepPartial<DogCachedInfo>,
   dog?: Dog,

@@ -10,9 +10,9 @@ import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } 
 
 export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
 export type EventResultRequirements = Array<EventResultRequirement>
-export type EventResultRules = EventResultRequirements | Array<EventResultRequirements> | EventResultRequirementFn
+type EventResultRules = EventResultRequirements | Array<EventResultRequirements> | EventResultRequirementFn
 
-export enum RULE_DATES {
+enum RULE_DATES {
   '1977-01-01',
   '1986-01-01',
   '1991-01-01',
@@ -22,7 +22,7 @@ export enum RULE_DATES {
   '2016-04-01',
   '2023-04-15',
 }
-export type RuleDate = keyof typeof RULE_DATES
+type RuleDate = keyof typeof RULE_DATES
 
 export type EventRequirement = {
   age?: number
@@ -38,13 +38,7 @@ export type EventResultRequirementsByDate = {
   rules: EventResultRules
 }
 
-export type EventRequirementsByDate = {
-  age?: number
-  breedCode?: Array<string>
-  results?: EventResultRequirementsByDate
-}
-
-export type EventClassRequirement = {
+type EventClassRequirement = {
   ALO?: EventRequirement
   AVO?: EventRequirement
   VOI?: EventRequirement

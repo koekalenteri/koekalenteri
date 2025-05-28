@@ -23,10 +23,7 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
 
-/**
- * Query parameters interface
- */
-export interface QueryParams {
+interface QueryParams {
   key: string
   values: Record<string, any>
   table?: string

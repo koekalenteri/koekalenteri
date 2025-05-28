@@ -172,7 +172,7 @@ export type KLYhdistys = {
 
 export enum KLYhdistysRajaus {
   Koejärjestätä = 1,
-  Näyttelyjärjestäjä,
+  // Näyttelyjärjestäjä,
 }
 
 export type KLYhdistysParametrit = {
@@ -180,7 +180,7 @@ export type KLYhdistysParametrit = {
   KennelpiirinNumero?: number
 }
 
-export enum KLParametri {
+enum KLParametri {
   TapahtumienTyypit = 52,
 }
 
@@ -204,7 +204,7 @@ export type KLRoturyhmä = {
   roturyhmä: string
 }
 
-export enum KLRotuRajaus {
+enum KLRotuRajaus {
   Kaikki = 0,
   Päärodut,
 }

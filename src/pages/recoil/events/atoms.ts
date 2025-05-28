@@ -12,12 +12,6 @@ export const eventsAtom = atom<PublicDogEvent[]>({
   effects: [logEffect, localStorageEffect, remoteEventsEffect],
 })
 
-export const eventIdAtom = atom<string | undefined>({
-  key: 'eventId',
-  default: '',
-  effects: [logEffect, localStorageEffect],
-})
-
 export type FilterProps = {
   start: Date | null
   end: Date | null

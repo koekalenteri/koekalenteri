@@ -1,5 +1,4 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonUser } from '../../types'
 
 import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
@@ -9,8 +8,7 @@ import { response } from '../utils/response'
 import { debugProxyEvent } from './log'
 import { metricsError, metricsSuccess } from './metrics'
 
-export type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
-export type AdminLambdaHandler = (event: APIGatewayProxyEvent, user: JsonUser) => Promise<APIGatewayProxyResult>
+type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
 
 export class LambdaError extends Error {
   status: number

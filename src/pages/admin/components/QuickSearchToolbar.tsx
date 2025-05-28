@@ -15,7 +15,7 @@ declare module '@mui/x-data-grid' {
   }
 }
 
-export interface QuickSearchToolbarProps {
+interface QuickSearchToolbarProps {
   readonly clearSearch: () => void
   readonly onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   readonly value: string

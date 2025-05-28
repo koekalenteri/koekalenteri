@@ -15,7 +15,7 @@ type OmitProps =
   | 'renderOption'
   | 'renderTags'
 
-export type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, false>, OmitProps> & {
+type AutocompleteMultiProps<T> = Omit<AutocompleteProps<T, true, false, false>, OmitProps> & {
   error?: boolean
   helperText?: string
   label: string
