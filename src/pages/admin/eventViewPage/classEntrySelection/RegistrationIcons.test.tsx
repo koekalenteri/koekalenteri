@@ -86,7 +86,7 @@ describe('RegistrationIcons component', () => {
     // Mock a registration with refund
     const mockReg = createMockRegistration({
       paidAt: new Date(),
-      refundAt: new Date().toISOString(),
+      refundAt: new Date(),
       paidAmount: 5000,
       refundAmount: 2500,
     })

@@ -70,6 +70,17 @@ export function useClassEntrySelectionColumns(
         headerName: t('dog.regNo'),
         width: 130,
         valueGetter: (_value, row) => row.dog.regNo,
+        cellClassName: 'copyable-cell',
+        renderCell: (params) => (
+          <div
+            aria-label={`${t('dog.regNo')}: ${params.value}, Click to copy`}
+            role="button"
+            tabIndex={0}
+            style={{ cursor: 'pointer', width: '100%' }}
+          >
+            {params.value}
+          </div>
+        ),
       },
       {
         field: 'dob.breed',

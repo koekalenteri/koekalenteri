@@ -2,7 +2,14 @@ import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEve
 import type { Dispatch, SetStateAction } from 'react'
 import type React from 'react'
 import type { SetterOrUpdater } from 'recoil'
-import type { DogEvent, EventClassState, EventState, Registration, RegistrationGroup } from '../../../types'
+import type {
+  DogEvent,
+  EventClassState,
+  EventState,
+  Registration,
+  RegistrationDate,
+  RegistrationGroup,
+} from '../../../types'
 import type { DragItem } from './classEntrySelection/types'
 
 import { useCallback, useMemo, useState } from 'react'
@@ -28,11 +35,11 @@ import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
 import { determineChangesFromDrop } from './classEntrySelection/dnd'
-import DragableDataGrid from './classEntrySelection/DropableDataGrid'
+import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import UnlockArrange from './classEntrySelection/UnlockArrange'
-import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySectionColumns'
+import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 
 interface Props {
   readonly event: DogEvent
@@ -53,8 +60,8 @@ interface RegistrationWithGroups extends Registration {
 
 declare module '@mui/x-data-grid' {
   interface ToolbarPropsOverrides {
-    available: any // TODO: use proper type
-    group: any // TODO: use proper type
+    available: RegistrationDate[]
+    group: RegistrationDate
   }
 }
 
@@ -149,71 +156,76 @@ const ClassEntrySelection = ({
   )
   const canArrangeReserve = reserveNotNotified || unlockArrange
 
-  const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
-    const reg = registrations.find((r) => r.id === item.id)
-    if (!reg) {
-      return
-    }
-
-    if (
-      (state === 'picked' || state === 'invited') &&
-      group.key !== GROUP_KEY_CANCELLED &&
-      group.key !== GROUP_KEY_RESERVE &&
-      ((item.targetGroupKey && item.targetGroupKey !== group.key) || item.groupKey !== group.key)
-    ) {
-      const extra = state === 'invited' ? ' sekä koekutsu' : ''
-      const { confirmed } = await confirm({
-        title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
-        description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
-        confirmationText: 'Lisää osallistujiin',
-        cancellationText: t('cancel'),
-      })
-      if (!confirmed) return
-    }
-
-    // make sure the dropped registration is selected, so its intuitive to user
-    setSelectedRegistrationId?.(reg.id)
-
-    // determine all the other registrations in group
-    const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
-    // determine changes
-    const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
-
-    // send all the updates to backend
-    if (save.length) {
-      if (save.length === 1 && save[0].cancelled) handleCancel(save[0].id)
-      else await actions.saveGroups(reg.eventId, save)
-    }
-  }
-
-  const handleReject = (group: RegistrationGroup) => (item: DragItem) => {
-    const reg = registrations.find((r) => r.id === item.id)
-    if (!reg) return
-    if (getRegistrationGroupKey(reg) === group.key) {
-      if (group.key === GROUP_KEY_RESERVE) {
-        enqueueSnackbar(`Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty`, {
-          variant: 'info',
-        })
+  const handleDrop = useCallback(
+    (group: RegistrationGroup) => async (item: DragItem) => {
+      const reg = registrations.find((r) => r.id === item.id)
+      if (!reg) {
+        return
       }
-      return
-    }
-    if (state === 'picked' && group.key === GROUP_KEY_RESERVE) {
-      enqueueSnackbar(`Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`, {
-        variant: 'warning',
-      })
-    } else {
-      console.log(reg.group?.key, group.key, reg.dates)
-      rum()?.recordEvent('dnd-group-rejected', {
-        eventId: reg.eventId,
-        registrationId: reg.id,
-        targetGroup: group.key,
-        sourceGroup: reg.group?.key,
-        regGroups: reg.dates.map((rd) => eventRegistrationDateKey(rd)).join(', '),
-        dropGroups: item.groups.join(', '),
-      })
-      enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
-    }
-  }
+
+      if (
+        (state === 'picked' || state === 'invited') &&
+        group.key !== GROUP_KEY_CANCELLED &&
+        group.key !== GROUP_KEY_RESERVE &&
+        ((item.targetGroupKey && item.targetGroupKey !== group.key) || item.groupKey !== group.key)
+      ) {
+        const extra = state === 'invited' ? ' sekä koekutsu' : ''
+        const { confirmed } = await confirm({
+          title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
+          description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
+          confirmationText: 'Lisää osallistujiin',
+          cancellationText: t('cancel'),
+        })
+        if (!confirmed) return
+      }
+
+      // make sure the dropped registration is selected, so its intuitive to user
+      setSelectedRegistrationId?.(reg.id)
+
+      // determine all the other registrations in group
+      const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
+      // determine changes
+      const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
+
+      // send all the updates to backend
+      if (save.length) {
+        if (save.length === 1 && save[0].cancelled) handleCancel(save[0].id)
+        else await actions.saveGroups(reg.eventId, save)
+      }
+    },
+    [registrations, state, confirm, t, setSelectedRegistrationId, canArrangeReserve, handleCancel, actions]
+  )
+
+  const handleReject = useCallback(
+    (group: RegistrationGroup) => (item: DragItem) => {
+      const reg = registrations.find((r) => r.id === item.id)
+      if (!reg) return
+      if (getRegistrationGroupKey(reg) === group.key) {
+        if (group.key === GROUP_KEY_RESERVE) {
+          enqueueSnackbar(`Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty`, {
+            variant: 'info',
+          })
+        }
+        return
+      }
+      if (state === 'picked' && group.key === GROUP_KEY_RESERVE) {
+        enqueueSnackbar(`Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`, {
+          variant: 'warning',
+        })
+      } else {
+        rum()?.recordEvent('dnd-group-rejected', {
+          eventId: reg.eventId,
+          registrationId: reg.id,
+          targetGroup: group.key,
+          sourceGroup: reg.group?.key,
+          regGroups: reg.dates.map((rd) => eventRegistrationDateKey(rd)).join(', '),
+          dropGroups: item.groups.join(', '),
+        })
+        enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
+      }
+    },
+    [registrations, state, enqueueSnackbar]
+  )
 
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel, details: GridCallbackDetails) => {
@@ -232,7 +244,7 @@ const ClassEntrySelection = ({
         event.defaultMuiPrevented = true
         await navigator.clipboard.writeText(params.value as string)
         enqueueSnackbar({
-          message: 'Rekisterinumero kopioitu',
+          message: t('registration.regNoCopied', 'Rekisterinumero kopioitu'),
           variant: 'info',
           autoHideDuration: 1000,
           anchorOrigin: {
@@ -242,7 +254,7 @@ const ClassEntrySelection = ({
         })
       }
     },
-    [enqueueSnackbar]
+    [enqueueSnackbar, t]
   )
 
   const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
@@ -276,8 +288,8 @@ const ClassEntrySelection = ({
         }}
       >
         {groups.map((group) => (
-          <DragableDataGrid
-            canDrop={(item) => {
+          <DroppableDataGrid
+            canDrop={(item: DragItem | undefined) => {
               return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
             }}
             flex={registrationsByGroup[group.key]?.length}
@@ -312,8 +324,8 @@ const ClassEntrySelection = ({
           <Typography variant="h6">Ilmoittautuneet</Typography>
           <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />
         </Stack>
-        <DragableDataGrid
-          canDrop={(item) =>
+        <DroppableDataGrid
+          canDrop={(item: DragItem | undefined) =>
             (state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
             item?.groupKey === GROUP_KEY_CANCELLED ||
             (item?.groupKey === GROUP_KEY_RESERVE && canArrangeReserve)
@@ -334,8 +346,8 @@ const ClassEntrySelection = ({
           onReject={handleReject({ key: 'reserve', number: 0 })}
         />
         <Typography variant="h6">Peruneet</Typography>
-        <DragableDataGrid
-          canDrop={(item) => item?.groupKey !== GROUP_KEY_CANCELLED}
+        <DroppableDataGrid
+          canDrop={(item: DragItem | undefined) => item?.groupKey !== GROUP_KEY_CANCELLED}
           columns={cancelledColumns}
           slotProps={{
             row: {

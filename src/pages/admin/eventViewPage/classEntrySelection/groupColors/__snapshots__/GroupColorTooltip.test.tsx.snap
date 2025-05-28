@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GroupColorTooltip renders 1`] = `
+<div>
+  <div
+    aria-label="Sopivat ryhmät: eeeeee registration.time.ap"
+    class=""
+    data-mui-internal-clone-element="true"
+    data-testid="child-element"
+  >
+    Test Child
+  </div>
+</div>
+`;
