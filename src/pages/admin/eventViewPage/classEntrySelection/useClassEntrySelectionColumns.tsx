@@ -24,9 +24,7 @@ export function useClassEntrySelectionColumns(
 ) {
   const { t } = useTranslation()
 
-  // Helper function to create common column definitions
   const createColumnDefinitions = () => {
-    // Define column configurations with common properties
     const columnConfigs: Array<Partial<GridColDef<Registration>> & { field: string }> = [
       {
         cellClassName: 'nopad',
@@ -70,17 +68,6 @@ export function useClassEntrySelectionColumns(
         headerName: t('dog.regNo'),
         width: 130,
         valueGetter: (_value, row) => row.dog.regNo,
-        cellClassName: 'copyable-cell',
-        renderCell: (params) => (
-          <div
-            aria-label={`${t('dog.regNo')}: ${params.value}, Click to copy`}
-            role="button"
-            tabIndex={0}
-            style={{ cursor: 'pointer', width: '100%' }}
-          >
-            {params.value}
-          </div>
-        ),
       },
       {
         field: 'dob.breed',
@@ -159,13 +146,10 @@ export function useClassEntrySelectionColumns(
   }
 
   return useMemo(() => {
-    // Create base columns with common configuration
     const entryColumns = createColumnDefinitions()
 
-    // Create participant columns (same as entry columns for now)
     const participantColumns = [...entryColumns]
 
-    // Create cancelled columns with an additional column
     const cancelledColumns = [...participantColumns]
     cancelledColumns.splice(cancelledColumns.length - 2, 0, {
       field: 'cancelReason',
