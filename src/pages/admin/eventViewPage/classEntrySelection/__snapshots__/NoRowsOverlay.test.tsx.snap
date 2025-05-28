@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NoRowsOverlay renders 1`] = `
+<div>
+  <div
+    class="no-rows MuiBox-root css-1jpcp03"
+  >
+    Raahaa osallistujat tähän!
+  </div>
+</div>
+`;

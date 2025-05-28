@@ -1,7 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { GridColDef } from '@mui/x-data-grid'
 import type { BreedCode, PublicDogEvent, Registration } from '../../types'
-import type { TooltipContent } from '../components/IconsTooltip'
 
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
@@ -18,7 +17,7 @@ import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
 import { PriorityIcon } from '../components/icons/PriorityIcon'
-import { IconsTooltip } from '../components/IconsTooltip'
+import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 interface Props {
@@ -28,21 +27,38 @@ interface Props {
   readonly onUnregister: (registration: Registration) => void
 }
 
-const Icons = ({ event, registration }: { event: PublicDogEvent; registration: Registration }) => {
+interface RegistrationListItemTooltipIconsProps {
+  registration: Registration
+  priority: boolean | 0.5
+}
+
+const RegistrationListItemTooltipIcons = ({ registration, priority }: RegistrationListItemTooltipIconsProps) => {
   const { t } = useTranslation()
-  const priority = hasPriority(event, registration)
-  const items: TooltipContent[] = [
-    {
-      text: priority ? 'Olen etusijalla' : 'En ole etusijalla',
-      icon: <PriorityIcon dim priority={priority} fontSize="small" />,
-    },
-    {
-      text: t(getPaymentStatus(registration)),
-      icon: <PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />,
-    },
-  ]
   return (
-    <IconsTooltip items={items} placement="bottom-start">
+    <>
+      <TooltipIcon
+        key="priority"
+        text={priority ? 'Olen etusijalla' : 'En ole etusijalla'}
+        icon={<PriorityIcon dim priority={priority} fontSize="small" />}
+      />
+      ,
+      <TooltipIcon
+        key="payment"
+        text={t(getPaymentStatus(registration))}
+        icon={<PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />}
+      />
+      ,
+    </>
+  )
+}
+
+const RegistrationListItemIcons = ({ event, registration }: { event: PublicDogEvent; registration: Registration }) => {
+  const priority = hasPriority(event, registration)
+  return (
+    <IconsTooltip
+      icons={<RegistrationListItemTooltipIcons registration={registration} priority={priority} />}
+      placement="bottom-start"
+    >
       <Box height="28px" display="flex" alignItems="center">
         <PriorityIcon dim priority={priority} fontSize="small" />
         <PaymentIcon dim paymentStatus={registration.paymentStatus} fontSize="small" />
@@ -87,7 +103,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
       field: 'icons',
       width: 48,
       headerName: '',
-      renderCell: (params) => <Icons event={event} registration={params.row} />,
+      renderCell: (params) => <RegistrationListItemIcons event={event} registration={params.row} />,
     },
     {
       field: 'actions',

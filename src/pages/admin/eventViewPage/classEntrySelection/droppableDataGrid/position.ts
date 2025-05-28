@@ -1,4 +1,4 @@
-import type { XYCoord } from 'react-dnd'
+import type { DropTargetMonitor, XYCoord } from 'react-dnd'
 import type { DragItem } from '../types'
 
 const getPixelModifierByPosition = (position: DragItem['position']) => {
@@ -13,7 +13,7 @@ export const determinePosition = (
   hoverIndex: number,
   ref: React.RefObject<HTMLDivElement>,
   item: DragItem,
-  monitor: any
+  monitor: DropTargetMonitor
 ): 'before' | 'after' => {
   if (sameGroup && dragIndex === hoverIndex - 1) {
     return 'after'

@@ -19,7 +19,7 @@ interface Props extends GridRowProps {
   readonly groupKey?: string
 }
 
-const DragableRow = ({ groupKey, ...props }: Props) => {
+const DraggableRow = ({ groupKey, ...props }: Props) => {
   const manager = useDragDropManager()
   const ref = useRef<HTMLDivElement>(null)
   const [{ handlerId, hovered, position }, drop] = useDrop<
@@ -85,4 +85,4 @@ const DragableRow = ({ groupKey, ...props }: Props) => {
   )
 }
 
-export default DragableRow
+export default DraggableRow

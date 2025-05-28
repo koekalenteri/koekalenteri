@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GroupHeader renders 1`] = `
+<div>
+  <div
+    class="MuiStack-root header css-1d532f0-MuiStack-root"
+  >
+    <div
+      data-available="[{"date":"2023-01-01T00:00:00.000Z","time":"ap"},{"date":"2023-01-01T00:00:00.000Z","time":"ip"}]"
+      data-disable-tooltip="true"
+      data-selected="[{"date":"2023-01-01T00:00:00.000Z","time":"ap"}]"
+      data-testid="group-colors"
+    />
+    <b>
+      eeeeee d.M. registration.timeLong.ap
+    </b>
+  </div>
+</div>
+`;
