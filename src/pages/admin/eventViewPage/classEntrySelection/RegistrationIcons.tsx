@@ -84,8 +84,8 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
 
     const key = priorityDescriptionKey(event, reg)
     const descr = key && t(`priorityDescription.${key}`)
-    const info50 =
-      priority === 0.5 ? (reg.owner.membership ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)') : ''
+    const halfInfo = reg.owner.membership ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)'
+    const info50 = priority === 0.5 ? halfInfo : ''
 
     return {
       icon: <PriorityIcon priority={priority} fontSize="small" />,
