@@ -2593,7 +2593,7 @@ exports[`ClassEntrySelection renders 1`] = `
                   <div
                     aria-colindex="8"
                     aria-sort="none"
-                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                     data-field="cancelReason"
                     role="columnheader"
                     style="height: 39px; width: 144px;"
@@ -5668,7 +5668,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   <div
                     aria-colindex="8"
                     aria-sort="none"
-                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
                     data-field="cancelReason"
                     role="columnheader"
                     style="height: 39px; width: 144px;"

@@ -13,6 +13,12 @@ export const eventWithStaticDates: ConfirmedEvent = {
   id: 'test1',
   eventType: 'NOU',
   classes: [],
+  dates: [
+    { date: parseISO('2021-02-10'), time: 'ap' },
+    { date: parseISO('2021-02-10'), time: 'ip' },
+    { date: parseISO('2021-02-11'), time: 'ap' },
+    { date: parseISO('2021-02-11'), time: 'ip' },
+  ],
   startDate: parseISO('2021-02-10'),
   endDate: parseISO('2021-02-11'),
   entryStartDate: parseISO('2021-02-01'),
