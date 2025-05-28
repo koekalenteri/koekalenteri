@@ -9,7 +9,7 @@ import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import * as registrationUtils from '../../../../lib/registration'
 
-import { useClassEntrySelectionColumns } from './useClassEntrySectionColumns'
+import { useClassEntrySelectionColumns } from './useClassEntrySelectionColumns'
 
 const mockAvailableDates: RegistrationDate[] = [
   { date: eventWithStaticDatesAnd3Classes.startDate, time: 'ap' },

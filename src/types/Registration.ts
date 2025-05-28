@@ -66,12 +66,13 @@ export interface ManualTestResult extends QualifyingResult {
 export interface Registration
   extends Omit<
       JsonRegistration,
-      'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'results' | 'group' | keyof JsonDbRecord
+      'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'refundAt' | 'results' | 'group' | keyof JsonDbRecord
     >,
     DbRecord {
   dates: RegistrationDate[]
   dog: Dog
   paidAt?: Date
+  refundAt?: Date
   qualifyingResults: QualifyingResult[]
   results?: Array<ManualTestResult>
   group?: RegistrationGroup

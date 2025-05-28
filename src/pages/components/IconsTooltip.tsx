@@ -1,34 +1,40 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
+import type { PropsWithChildren, ReactNode } from 'react'
 
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-export interface TooltipContent {
-  text: string
+export const TooltipIcon = ({
+  icon,
+  text,
+  condition = true,
+}: {
   icon: JSX.Element
-}
-
-const IconsTooltipContent = ({ items }: { items: TooltipContent[] }) => (
-  <Box>
-    {items.map((item) => (
-      <Box key={item.text} display="flex" alignItems="center">
-        {item.icon}&nbsp;<Typography fontSize="small">{item.text}</Typography>
-      </Box>
-    ))}
-  </Box>
-)
-
-interface Props extends Omit<TooltipProps, 'title'> {
-  items: TooltipContent[]
-}
-
-export const IconsTooltip = styled(({ className, items, children, ...props }: Props) => {
-  if (!items.length) return <>{children}</>
+  text: string
+  condition?: boolean
+}) => {
+  if (!condition) return null
 
   return (
-    <Tooltip {...props} classes={{ popper: className }} title={<IconsTooltipContent items={items} />}>
+    <Box display="flex" alignItems="center">
+      {icon}&nbsp;<Typography fontSize="small">{text}</Typography>
+    </Box>
+  )
+}
+
+const IconsTooltipContent = ({ children }: PropsWithChildren) => <Box>{children}</Box>
+
+interface Props extends Omit<TooltipProps, 'title'> {
+  icons: ReactNode | undefined
+}
+
+export const IconsTooltip = styled(({ className, icons, children, ...props }: Props) => {
+  if (!icons) return <>{children}</>
+
+  return (
+    <Tooltip {...props} classes={{ popper: className }} title={<IconsTooltipContent>{icons}</IconsTooltipContent>}>
       {children}
     </Tooltip>
   )

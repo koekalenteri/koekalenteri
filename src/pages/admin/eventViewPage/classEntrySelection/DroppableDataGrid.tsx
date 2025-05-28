@@ -7,7 +7,7 @@ import { useDrop } from 'react-dnd'
 
 import StyledDataGrid from '../../../components/StyledDataGrid'
 
-import DragableRow from './dropableDataGrid/DragableRow'
+import DraggableRow from './droppableDataGrid/DraggableRow'
 
 interface Props extends DataGridProps {
   readonly canDrop?: (item?: DragItem) => boolean
@@ -23,7 +23,7 @@ interface DragCollect {
   isDragging: boolean
 }
 
-const DropableDataGrid = (props: Props) => {
+const DroppableDataGrid = (props: Props) => {
   const getCanDrop = (item?: DragItem) =>
     (!props.group || !!item?.groups.includes(props.group)) && props.canDrop?.(item) !== false
   const [{ canDrop, isOver, isDragging }, ref] = useDrop<DragItem, void, DragCollect>(
@@ -82,7 +82,7 @@ const DropableDataGrid = (props: Props) => {
         {...props}
         slots={{
           ...props.slots,
-          row: DragableRow,
+          row: DraggableRow,
         }}
         sx={[
           {
@@ -118,4 +118,4 @@ const DropableDataGrid = (props: Props) => {
   )
 }
 
-export default DropableDataGrid
+export default DroppableDataGrid

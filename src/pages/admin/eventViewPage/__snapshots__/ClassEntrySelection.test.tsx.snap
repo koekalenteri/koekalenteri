@@ -5035,15 +5035,21 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     aria-colindex="4"
                     aria-colspan="1"
                     aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft copyable-cell"
                     data-colindex="3"
                     data-field="dog.regNo"
                     role="gridcell"
                     style="--width: 130px;"
                     tabindex="-1"
-                    title="TESTDOG-0010"
                   >
-                    TESTDOG-0010
+                    <div
+                      aria-label="dog.regNo: TESTDOG-0010, Click to copy"
+                      role="button"
+                      style="cursor: pointer; width: 100%;"
+                      tabindex="0"
+                    >
+                      TESTDOG-0010
+                    </div>
                   </div>
                   <div
                     aria-colindex="5"
@@ -5912,15 +5918,21 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     aria-colindex="4"
                     aria-colspan="1"
                     aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
+                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft copyable-cell"
                     data-colindex="3"
                     data-field="dog.regNo"
                     role="gridcell"
                     style="--width: 130px;"
                     tabindex="-1"
-                    title="TESTDOG-0020"
                   >
-                    TESTDOG-0020
+                    <div
+                      aria-label="dog.regNo: TESTDOG-0020, Click to copy"
+                      role="button"
+                      style="cursor: pointer; width: 100%;"
+                      tabindex="0"
+                    >
+                      TESTDOG-0020
+                    </div>
                   </div>
                   <div
                     aria-colindex="5"

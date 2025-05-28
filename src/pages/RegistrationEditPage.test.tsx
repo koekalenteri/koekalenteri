@@ -60,28 +60,4 @@ describe('RegistrationEditPage', () => {
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
-
-  xit('should throw 404 when event is not found', async () => {
-    mockUseParams.mockImplementation(() => ({ id: 'asdf', registrationId: 'qwerty' }))
-    await expect(async () => {
-      render(<RegistrationEditPage />, { wrapper: Wrapper })
-      await flushPromises()
-    }).rejects.toMatchInlineSnapshot(`
-        Response {
-          "_bodyInit": "Event not found",
-          "_bodyText": "Event not found",
-          "bodyUsed": false,
-          "headers": Headers {
-            "map": {
-              "content-type": "text/plain;charset=UTF-8",
-            },
-          },
-          "ok": false,
-          "status": 404,
-          "statusText": "error.eventNotFound",
-          "type": "default",
-          "url": "",
-        }
-      `)
-  })
 })
