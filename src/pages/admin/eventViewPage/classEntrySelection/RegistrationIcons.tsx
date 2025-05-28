@@ -24,6 +24,17 @@ interface RegistrationIconsProps {
   reg: Registration
 }
 
+interface PaymentIconProps {
+  reg: Registration
+}
+
+const PaymentIcon = ({ reg }: PaymentIconProps) => {
+  if (reg.refundAt || reg.refundStatus === 'PENDING') {
+    return <SavingsOutlined fontSize="small" />
+  }
+  return <EuroOutlined fontSize="small" sx={{ opacity: reg.paidAt ? 1 : 0.05 }} />
+}
+
 const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   const { t } = useTranslation()
   const priority = hasPriority(event, reg)
@@ -159,14 +170,6 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
     })
   }
 
-  // Special case for payment icon which has conditional rendering
-  const PaymentIcon = () => {
-    if (reg.refundAt || reg.refundStatus === 'PENDING') {
-      return <SavingsOutlined fontSize="small" />
-    }
-    return <EuroOutlined fontSize="small" sx={{ opacity: reg.paidAt ? 1 : 0.05 }} />
-  }
-
   return (
     <IconsTooltip placement="right" items={tooltipContent}>
       <Stack direction="row" alignItems="center" mt="3px">
@@ -175,7 +178,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
           condition={reg.handler.membership || reg.owner.membership}
           icon={<PersonOutline fontSize="small" />}
         />
-        <PaymentIcon />
+        <PaymentIcon reg={reg} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
         <StatusIcon condition={reg.invitationRead} icon={<MarkEmailReadOutlined fontSize="small" />} />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />
