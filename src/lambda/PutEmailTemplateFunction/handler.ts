@@ -12,9 +12,9 @@ import { CONFIG } from '../config'
 import { authorize, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
-import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.emailTemplateTable)
 const ses = new SESClient()

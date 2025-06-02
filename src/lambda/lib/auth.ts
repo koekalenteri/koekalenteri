@@ -5,8 +5,8 @@ import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
 
 import { CONFIG } from '../config'
+import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 

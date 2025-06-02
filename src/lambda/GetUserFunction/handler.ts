@@ -1,6 +1,6 @@
 import { authorize } from '../lib/auth'
 import { lambda } from '../lib/lambda'
-import { response } from '../utils/response'
+import { response } from '../lib/lambda'
 
 const getUserLambda = lambda('getUser', async (event) => {
   const user = await authorize(event, true)

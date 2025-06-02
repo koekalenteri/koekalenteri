@@ -1,9 +1,9 @@
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/proxyEvent'
-import { response } from '../utils/response'
 
 export const dynamoDB = new CustomDynamoClient(CONFIG.judgeTable)
 

@@ -11,6 +11,7 @@ import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../li
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import {
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
@@ -20,7 +21,6 @@ import {
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
-import { response } from '../utils/response'
 
 const { emailFrom } = CONFIG
 

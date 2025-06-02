@@ -1,7 +1,7 @@
 import { authorize } from '../lib/auth'
 import { getParam, lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'
-import { response } from '../utils/response'
 
 const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', async (event) => {
   const user = await authorize(event)

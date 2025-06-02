@@ -4,8 +4,8 @@ import { getOrigin } from '../lib/api-gw'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
-import { response } from '../utils/response'
 
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] === 'admin')

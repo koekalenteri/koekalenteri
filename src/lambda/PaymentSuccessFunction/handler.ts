@@ -9,10 +9,10 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)

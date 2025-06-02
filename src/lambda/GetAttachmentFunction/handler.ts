@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 
 import { downloadFile } from '../lib/file'
 import { getParam, lambda, LambdaError } from '../lib/lambda'
-import { allowOrigin } from '../utils/response'
+import { allowOrigin } from '../lib/lambda'
 
 const readableStreamToNodeReadable = (readableStream: ReadableStream<any>): Readable => {
   const reader = readableStream.getReader()

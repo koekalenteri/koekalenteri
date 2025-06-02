@@ -1,7 +1,7 @@
 import { authorize } from '../lib/auth'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import { filterRelevantUsers, getAllUsers, userIsMemberOf } from '../lib/user'
-import { response } from '../utils/response'
 
 const getUsersLambda = lambda('getUsers', async (event) => {
   const user = await authorize(event)

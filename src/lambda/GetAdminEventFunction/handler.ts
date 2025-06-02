@@ -1,7 +1,7 @@
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { getParam, lambda, LambdaError } from '../lib/lambda'
-import { response } from '../utils/response'
+import { response } from '../lib/lambda'
 
 const getAdminEventLambda = lambda('getAdminEvent', async (event) => {
   const { user, memberOf, res } = await authorizeWithMemberOf(event)

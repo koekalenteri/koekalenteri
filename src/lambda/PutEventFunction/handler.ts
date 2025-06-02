@@ -8,7 +8,7 @@ import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda } from '../lib/lambda'
-import { response } from '../utils/response'
+import { response } from '../lib/lambda'
 
 const isUserForbidden = (
   user: JsonUser,

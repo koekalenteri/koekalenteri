@@ -1,8 +1,8 @@
 import type { YearlyTotalStat } from '../../types/Stats'
 
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import { getAvailableYears, getDogHandlerBuckets, getYearlyTotalStats } from '../lib/stats'
-import { response } from '../utils/response'
 
 const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
   // Optional year parameter (?year=2025)

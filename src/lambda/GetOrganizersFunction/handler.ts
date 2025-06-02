@@ -6,10 +6,10 @@ import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
 import { lambda } from '../lib/lambda'
+import { response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLYhdistysRajaus } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
 
