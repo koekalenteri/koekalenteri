@@ -1,14 +1,12 @@
 import type { ValidationResult, Validators2, WideValidationResult } from '../../../i18n/validation'
 import type {
+  BreedCode,
+  Dog,
+  DogEvent,
   EventRequirement,
   EventResultRequirement,
   EventResultRequirements,
   EventResultRequirementsByDate,
-} from '../../../rules'
-import type {
-  BreedCode,
-  Dog,
-  DogEvent,
   ManualTestResult,
   Person,
   PublicConfirmedEvent,

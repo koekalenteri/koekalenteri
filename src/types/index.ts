@@ -15,4 +15,6 @@ export * from './Stats'
 
 export * from './paytrail'
 
+export * from './rules'
+
 export type Language = 'fi' | 'en'

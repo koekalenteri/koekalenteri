@@ -1,16 +1,15 @@
-import type { ManualTestResult, QualifyingResult, QualifyingResults, TestResult } from './types'
+import type {
+  EventResultRequirementFn,
+  ManualTestResult,
+  QualifyingResult,
+  QualifyingResults,
+  TestResult,
+} from './types'
 
 import { subYears } from 'date-fns'
 
 import { zonedEndOfDay } from './i18n/dates'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
-
-export type EventResultRequirementFn = (
-  officialResults: TestResult[],
-  manualResults: ManualTestResult[],
-  entryEndDate: Date | undefined,
-  qualificationStartDate: Date | undefined
-) => QualifyingResults
 
 const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   const aPoints = a.rankingPoints ?? 0

@@ -1,5 +1,11 @@
-import type { EventResultRequirementFn } from './rules_ch'
-import type { Dog, Registration, TestResult } from './types'
+import type {
+  Dog,
+  EventClassRequirement,
+  EventRequirement,
+  EventResultRequirementsByDate,
+  Registration,
+  RuleDate,
+} from './types'
 
 import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
@@ -7,42 +13,7 @@ import { parseISO } from 'date-fns'
 import { TIME_ZONE } from './i18n/dates'
 import { isModernFinnishRegNo } from './pages/components/registrationForm/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
-
-export type EventResultRequirement = Partial<TestResult> & { count: number; excludeCurrentYear?: boolean }
-export type EventResultRequirements = Array<EventResultRequirement>
-type EventResultRules = EventResultRequirements | Array<EventResultRequirements> | EventResultRequirementFn
-
-enum RULE_DATES {
-  '1977-01-01',
-  '1986-01-01',
-  '1991-01-01',
-  '1999-01-01',
-  '2006-04-01',
-  '2009-01-01',
-  '2016-04-01',
-  '2023-04-15',
-}
-type RuleDate = keyof typeof RULE_DATES
-
-export type EventRequirement = {
-  age?: number
-  breedCode?: Array<string>
-  dog?: (dog: Partial<Dog>) => false | 'dogSM'
-  results?: {
-    [Property in RuleDate]?: EventResultRules
-  }
-}
-
-export type EventResultRequirementsByDate = {
-  date: RuleDate
-  rules: EventResultRules
-}
-
-type EventClassRequirement = {
-  ALO?: EventRequirement
-  AVO?: EventRequirement
-  VOI?: EventRequirement
-}
+import { RULE_DATES } from './types'
 
 export function getRuleDate(date: Date | string, available: RuleDate[] = Object.keys(RULE_DATES) as RuleDate[]) {
   if (typeof date === 'string') {

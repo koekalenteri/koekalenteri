@@ -1,5 +1,4 @@
-import type { EventResultRequirementsByDate } from '../../../../rules'
-import type { ManualTestResult, QualifyingResult, TestResult } from '../../../../types'
+import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '../../../../types'
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -1,5 +1,10 @@
-import type { EventResultRequirement, EventResultRequirements, EventResultRequirementsByDate } from '../../../../rules'
-import type { ManualTestResult, QualifyingResult } from '../../../../types'
+import type {
+  EventResultRequirement,
+  EventResultRequirements,
+  EventResultRequirementsByDate,
+  ManualTestResult,
+  QualifyingResult,
+} from '../../../../types'
 
 import { nanoid } from 'nanoid'
 
