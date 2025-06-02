@@ -16,9 +16,9 @@ import {
 } from 'date-fns'
 import { enGB as en, fi } from 'date-fns/locale'
 
-export type DateType = Date | number | string
+type DateType = Date | number | string
 
-export interface DateFormatOptions {
+interface DateFormatOptions {
   timeZone?: string
   locale?: Locale
 }

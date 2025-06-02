@@ -70,7 +70,7 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   results: () => false,
 }
 
-export function validateRegistrationField(
+function validateRegistrationField(
   registration: Registration,
   field: keyof Registration,
   event: PublicConfirmedEvent

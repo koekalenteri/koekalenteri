@@ -3,8 +3,8 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { ServiceException } from '@smithy/smithy-client'
 
 import { CONFIG } from '../config'
+import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 import { events } from './demo-events'
 

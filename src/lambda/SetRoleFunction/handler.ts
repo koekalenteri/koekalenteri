@@ -4,10 +4,9 @@ import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 

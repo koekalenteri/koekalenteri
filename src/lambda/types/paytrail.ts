@@ -216,7 +216,7 @@ export interface PaymentItem {
   stamp: string
 }
 
-export interface PaymentCommission {
+interface PaymentCommission {
   /**
    * Merchant who gets the commission
    */
@@ -254,7 +254,7 @@ export interface PaymentCustomer {
   companyName?: string
 }
 
-export interface PaymentAddress {
+interface PaymentAddress {
   /**
    * Street address. Maximum of 50 characters.
    */
@@ -343,7 +343,7 @@ export interface RefundItem {
   commission?: RefundCommission
 }
 
-export interface RefundCommission {
+interface RefundCommission {
   /**
    * Merchant from whom the commission is returned to the submerchant.
    */

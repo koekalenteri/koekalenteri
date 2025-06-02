@@ -1,7 +1,6 @@
 import type { PublicDogEvent, Registration } from '../../../../types'
 
 import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
@@ -25,7 +24,6 @@ interface RegistrationIconsProps {
 }
 
 const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
-  const { t } = useTranslation()
   const priority = hasPriority(event, reg)
 
   const manualResultCount = useMemo(

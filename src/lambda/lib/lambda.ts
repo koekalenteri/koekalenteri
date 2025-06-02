@@ -1,16 +1,20 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import type { JsonUser } from '../../types'
 
 import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
+import { gzipSync } from 'zlib'
 
-import { response } from '../utils/response'
+import { CONFIG } from '../config'
+import { getOrigin } from '../lib/api-gw'
 
 import { debugProxyEvent } from './log'
 import { metricsError, metricsSuccess } from './metrics'
 
-export type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
-export type AdminLambdaHandler = (event: APIGatewayProxyEvent, user: JsonUser) => Promise<APIGatewayProxyResult>
+type LambdaHandler = (event: APIGatewayProxyEvent) => Promise<APIGatewayProxyResult>
+
+export const isDevStage = () => CONFIG.stageName === 'dev'
+export const isTestStage = () => CONFIG.stageName === 'test'
+export const isProdStage = () => CONFIG.stageName === 'prod'
 
 export class LambdaError extends Error {
   status: number
@@ -35,6 +39,42 @@ export const getParam = (
     console.error(e)
   }
   return defaultValue
+}
+
+export const allowOrigin = (event: APIGatewayProxyEvent) => {
+  const origin = getOrigin(event)
+  if (origin?.endsWith('koekalenteri.snj.fi')) {
+    return origin
+  }
+  if (origin === 'http://localhost:3000' && isDevStage()) {
+    return origin
+  }
+  return 'https://koekalenteri.snj.fi'
+}
+
+export const response = <T = unknown>(
+  statusCode: number,
+  body: T,
+  event: APIGatewayProxyEvent
+): APIGatewayProxyResult => {
+  const acceptEncoding = event.headers['Accept-Encoding'] ?? ''
+
+  const result: APIGatewayProxyResult = {
+    statusCode: statusCode,
+    body: JSON.stringify(body),
+    headers: {
+      'Access-Control-Allow-Origin': allowOrigin(event),
+      'Content-Type': 'application/json',
+    },
+  }
+
+  if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096) {
+    result.isBase64Encoded = true
+    result.body = gzipSync(result.body).toString('base64')
+    result.headers!['Content-Encoding'] = 'gzip'
+  }
+
+  return result
 }
 
 /**

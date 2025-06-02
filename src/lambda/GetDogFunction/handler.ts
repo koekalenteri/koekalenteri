@@ -4,11 +4,10 @@ import { differenceInMinutes } from 'date-fns'
 
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
-import { getParam, lambda, LambdaError } from '../lib/lambda'
+import { getParam, lambda, LambdaError, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.dogTable)
 

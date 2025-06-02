@@ -10,7 +10,7 @@ import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import {
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
@@ -20,7 +20,6 @@ import {
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
-import { response } from '../utils/response'
 
 const { emailFrom } = CONFIG
 

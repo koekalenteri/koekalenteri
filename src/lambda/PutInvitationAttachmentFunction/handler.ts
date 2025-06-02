@@ -6,9 +6,8 @@ import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
-import { getParam, lambda } from '../lib/lambda'
+import { getParam, lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const { eventTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
@@ -24,8 +23,6 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
   if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
     return response(403, 'Forbidden', event)
   }
-
-  /** @todo remove an existing attachment? */
 
   const file = await parsePostFile(event)
   if (file.error) {

@@ -1,4 +1,4 @@
-export interface OrganizerEventStats {
+interface OrganizerEventStats {
   organizerId: string
   eventId: string
   date: string

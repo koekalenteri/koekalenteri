@@ -4,11 +4,10 @@ import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { fetchJudgesForEventTypes, updateJudges } from '../lib/judge'
 import KLAPI from '../lib/KLAPI'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { updateUsersFromOfficialsOrJudges } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const { eventTypeTable, judgeTable } = CONFIG
 // exported for testing

@@ -7,10 +7,9 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { getParam, lambda } from '../lib/lambda'
+import { getParam, lambda, response } from '../lib/lambda'
 import { getCancelAuditMessage, isParticipantGroup, sendTemplatedEmailToEventRegistrations } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const { registrationTable } = CONFIG
 export const dynamoDB = new CustomDynamoClient(registrationTable)

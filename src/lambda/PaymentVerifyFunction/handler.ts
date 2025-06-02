@@ -6,11 +6,10 @@ import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { parseParams, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
 

@@ -2,8 +2,10 @@ import type { YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 
 import { jest } from '@jest/globals'
 
-// Mock the lambda wrapper
+const mockResponse = jest.fn()
+
 jest.unstable_mockModule('../lib/lambda', () => ({
+  response: mockResponse,
   lambda: jest.fn((name, fn) => fn),
 }))
 
@@ -16,12 +18,6 @@ jest.unstable_mockModule('../lib/stats', () => ({
   getYearlyTotalStats: mockGetYearlyTotalStats,
   getAvailableYears: mockGetAvailableYears,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
-}))
-
-// Mock the response utility
-const mockResponse = jest.fn()
-jest.unstable_mockModule('../utils/response', () => ({
-  response: mockResponse,
 }))
 
 describe('GetYearlyStatsFunction', () => {

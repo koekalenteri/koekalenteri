@@ -20,7 +20,7 @@ import DateRange from '../../../components/DateRange'
 import { EventDates } from './entrySection/EventDates'
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
-export interface Props extends Readonly<SectionProps> {
+interface Props extends Readonly<SectionProps> {
   readonly eventTypeClasses?: RegistrationClass[]
 }
 

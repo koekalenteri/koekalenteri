@@ -21,7 +21,6 @@ const config: Config = {
   moduleFileExtensions: ['web.js', 'js', 'web.ts', 'ts', 'web.tsx', 'tsx', 'json', 'web.jsx', 'jsx', 'node'],
   modulePaths: [],
   moduleNameMapper: {
-    '^react-native$': 'react-native-web',
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
     '\\.(css|less)$': 'identity-obj-proxy',
   },

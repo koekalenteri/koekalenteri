@@ -27,7 +27,7 @@ export const adminFilteredOrganizersSelector = selector({
   },
 })
 
-export const adminOrganizerSelector = selectorFamily<Organizer | undefined, string | undefined>({
+const adminOrganizerSelector = selectorFamily<Organizer | undefined, string | undefined>({
   key: 'adminOrganizerSelector',
   get:
     (organizerId) =>

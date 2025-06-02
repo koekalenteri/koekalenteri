@@ -206,11 +206,11 @@
   },
   "languageMenu": "Language",
   "languages": "Judging languages",
+  "loading": "Loading...",
   "locale": {
     "en": "In English",
     "fi": "In Finnish"
   },
-  "loading": "Loading...",
   "login": "Login",
   "loginFailed": "Login failed",
   "logout": "Logout",
@@ -253,6 +253,7 @@
     "invited": "Dogs invited by the organizer",
     "members": "Members of the organizing society"
   },
+  "refund": "Refund",
   "register": "Register",
   "registration": {
     "agreeToTerms": "Terms and privacy policy",
@@ -395,6 +396,7 @@
     }
   },
   "registrations": "Registrations",
+  "roles": "Roles",
   "save": "Save",
   "search": {
     "placeholder": "Search..."
@@ -405,7 +407,6 @@
   },
   "support": "Support",
   "supportContact": "Send feedback",
-  "refund": "Refund",
   "templateId": "Message name",
   "testResult": {
     "date": "Date",
@@ -416,7 +417,6 @@
   },
   "toltaPlaces": "places",
   "updateData": "Update $t({{data}}) from The Finnish Kennel Club API",
-  "users": "Users",
   "user": {
     "admin": "Koekalenteri administrator",
     "adminRoles": "The Koekalenteri administrator has admin rights to all organizations",
@@ -441,7 +441,7 @@
       "secretary": "Secretary"
     }
   },
-  "withdraw": "Withdraw",
+  "users": "Users",
   "validation": {
     "event": {
       "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",
@@ -450,18 +450,18 @@
       "classesMissing_other": "classes",
       "contactInfo": "State \"$t(event.states.{{state}})\": Choose at least one contact info",
       "costMemberHigh": "Member cost can not be greater than others cost",
+      "effectiveRules": "Effective rules: {{date, date}}",
       "email": "The email address is invalid",
+      "endDate": "End date cannot be in the past",
       "errors": "Information is incomplete",
       "judge": "Judge {{id}} is not available",
       "judgeCount": "{{type}}: At least {{length}} $t(validation.event.judges, {\"count\": {{length}} }) are needed",
       "judges_one": "judge",
       "judges_other": "judges",
       "placesClass": "State \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) is missing places.",
-      "validationError": "State \"$t(event.states.{{state}})\": $t(event.{{field}}) is required.",
-      "effectiveRules": "Effective rules: {{date, date}}",
-      "endDate": "End date cannot be in the past",
       "secretaryEmail": "Secretary's email address must be in the contact information.",
       "startDate": "Start date cannot be in the past",
+      "validationError": "State \"$t(event.states.{{state}})\": $t(event.{{field}}) is required.",
       "zipCode": "Invalid postal code"
     },
     "registration": {
@@ -476,5 +476,6 @@
       "reserve": "Select participation from reserve position",
       "terms": "It is mandatory to accept registration terms and the data protection statement."
     }
-  }
+  },
+  "withdraw": "Withdraw"
 }

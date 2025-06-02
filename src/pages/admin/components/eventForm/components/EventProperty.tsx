@@ -15,7 +15,7 @@ import { Box } from '@mui/system'
 import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 import { validateEventField } from '../validation'
 
-export type Property = keyof Omit<
+type Property = keyof Omit<
   PartialEvent,
   | 'id'
   | 'createdAt'

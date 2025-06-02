@@ -2,10 +2,9 @@ import type { EventType, JsonEventType, JsonJudge, JsonOfficial } from '../../ty
 
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/proxyEvent'
-import { response } from '../utils/response'
 
 const { eventTypeTable, judgeTable, officialTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTypeTable)

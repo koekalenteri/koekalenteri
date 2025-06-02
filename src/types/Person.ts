@@ -1,7 +1,7 @@
 import type { CountryCode } from './countries'
 import type { DbRecord, JsonDbRecord } from './Database'
 
-export interface PublicPerson {
+interface PublicPerson {
   id?: number | string
   name: string
 }
@@ -13,12 +13,8 @@ export interface Person extends PublicPerson {
   location?: string
 }
 
-export interface OfficialPerson extends Omit<Person, 'id'> {
+interface OfficialPerson extends Omit<Person, 'id'> {
   id: number
-}
-
-export interface Secretary extends Person {
-  id: number | string
 }
 
 export interface Official extends OfficialPerson {
@@ -45,6 +41,10 @@ export interface PublicJudge extends Omit<PublicPerson, 'id'> {
   foreing?: boolean
 }
 
+interface UserRoles {
+  [organizer: string]: UserRole
+}
+
 export interface User extends Person, Partial<DbRecord> {
   id: string
   kcId?: number
@@ -60,9 +60,5 @@ export interface UserWithRoles extends User {
 }
 
 export type JsonUser = Omit<User, keyof DbRecord | 'lastSeen'> & JsonDbRecord & { lastSeen?: string }
-
-export interface UserRoles {
-  [organizer: string]: UserRole
-}
 
 export type UserRole = 'admin' | 'secretary'

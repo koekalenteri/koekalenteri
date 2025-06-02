@@ -16,12 +16,11 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, LambdaError } from '../lib/lambda'
+import { lambda, LambdaError, response } from '../lib/lambda'
 import { refundPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
-import { response } from '../utils/response'
 
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)

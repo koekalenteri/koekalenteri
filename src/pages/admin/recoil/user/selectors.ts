@@ -56,7 +56,7 @@ export const adminFilteredUsersSelector = selector({
   },
 })
 
-export const adminUserSelector = selectorFamily<User | undefined, string | undefined>({
+const adminUserSelector = selectorFamily<User | undefined, string | undefined>({
   key: 'adminUserSelector',
   get:
     (userId) =>
@@ -104,7 +104,7 @@ export const adminUserAdminOrganizersSelector = selector({
   },
 })
 
-export const adminUserEventsSelector = selector({
+const adminUserEventsSelector = selector({
   key: 'adminUserEvents',
   get: ({ get }) => {
     const user = get(userSelector)

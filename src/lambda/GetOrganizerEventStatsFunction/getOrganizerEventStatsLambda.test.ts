@@ -1,7 +1,6 @@
 import type { APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import type { authorizeWithMemberOf } from '../lib/auth'
-import type { response } from '../utils/response'
 
 import { jest } from '@jest/globals'
 
@@ -20,7 +19,6 @@ const mockDynamoDB = {
 } as any
 
 const mockAuthorizeWithMemberOf = jest.fn<typeof authorizeWithMemberOf>()
-const mockResponse = jest.fn<typeof response>()
 
 const mockUser: JsonUser = {
   id: '',
@@ -42,10 +40,6 @@ jest.unstable_mockModule('../lib/auth', () => ({
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
-jest.unstable_mockModule('../utils/response', () => ({
-  response: mockResponse,
-}))
-
 const { default: getOrganizerEventStatsLambda } = await import('./handler')
 
 describe('getOrganizerEventStatsLambda', () => {
@@ -72,8 +66,6 @@ describe('getOrganizerEventStatsLambda', () => {
     }))
     mockReadAll.mockResolvedValueOnce(statsWithPK)
 
-    mockResponse.mockImplementation((status, body) => ({ statusCode: status, body: JSON.stringify(body) }))
-
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
@@ -91,7 +83,6 @@ describe('getOrganizerEventStatsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ user: mockUser, memberOf: ['org2'] })
     // For non-admin users, the code uses query instead of readAll
     mockQuery.mockResolvedValueOnce([baseStats[1]])
-    mockResponse.mockImplementation((status: any, body: any) => ({ statusCode: status, body: JSON.stringify(body) }))
 
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
@@ -123,8 +114,6 @@ describe('getOrganizerEventStatsLambda', () => {
 
     // Expected result should match what readAll returns
     const expectedResult = filteredStats
-
-    mockResponse.mockImplementation((status: any, body: any) => ({ statusCode: status, body: JSON.stringify(body) }))
 
     const event = constructAPIGwEvent({}, { query: { from: '2024-02-01', to: '2024-02-28' } })
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
@@ -158,7 +147,6 @@ describe('getOrganizerEventStatsLambda', () => {
   it('returns empty array if no stats found', async () => {
     mockAuthorizeWithMemberOf.mockResolvedValue({ user: mockAdminUser, memberOf: ['org1', 'org2'] })
     mockReadAll.mockResolvedValueOnce(undefined)
-    mockResponse.mockImplementation((status: any, body: any) => ({ statusCode: status, body: JSON.stringify(body) }))
 
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult

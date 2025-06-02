@@ -3,9 +3,8 @@ import type { JsonRegistration } from '../../types'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { updateRegistrationField } from '../lib/registration'
-import { response } from '../utils/response'
 
 const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (event) => {
   const user = await authorize(event)

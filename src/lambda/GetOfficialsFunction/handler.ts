@@ -3,12 +3,11 @@ import type { EventType, JsonOfficial } from '../../types'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { fetchOfficialsForEventTypes, updateOfficials } from '../lib/official'
 import { getKLAPIConfig } from '../lib/secrets'
 import { updateUsersFromOfficialsOrJudges } from '../lib/user'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const { eventTypeTable, officialTable } = CONFIG
 // exported for testing

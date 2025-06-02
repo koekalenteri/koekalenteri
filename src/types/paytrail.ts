@@ -67,14 +67,14 @@ export interface Provider {
   parameters: FormField[]
 }
 
-export interface FormField {
+interface FormField {
   name: string
   value: string
 }
 
 export type PaymentMethodGroup = 'mobile' | 'bank' | 'creditcard' | 'credit'
 
-export interface PaymentMethodGroupData {
+interface PaymentMethodGroupData {
   /**
    * ID of the group
    */

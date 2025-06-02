@@ -4,11 +4,10 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { lambda, LambdaError } from '../lib/lambda'
+import { lambda, LambdaError, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { response } from '../utils/response'
 
 const { registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)

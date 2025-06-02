@@ -45,11 +45,11 @@ export interface JsonDogEvent extends JsonDbRecord {
   startListPublished?: boolean
 }
 
-export type EventRequiredDates = 'startDate' | 'endDate'
-export type EventEntryDates = 'entryStartDate' | 'entryEndDate'
-export type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
-export type EventDates = EventRequiredDates | EventOptionalDates
-export type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
+type EventRequiredDates = 'startDate' | 'endDate'
+type EventEntryDates = 'entryStartDate' | 'entryEndDate'
+type EventOptionalDates = EventEntryDates | 'entryOrigEndDate' | 'qualificationStartDate'
+type ConfirmedEventRequiredDates = EventRequiredDates | EventEntryDates
+
 export type DogEvent = DbRecord &
   Replace<
     Replace<
@@ -131,9 +131,5 @@ export type SanitizedPublicConfirmedDogEvent = PublicConfirmedEvent & {
 }
 
 export type JsonConfirmedEvent = NotOptional<JsonDogEvent, ConfirmedEventRequiredDates> & {
-  state: 'confirmed' | EventClassState
-}
-
-export type JsonPublicConfirmedEvent = NotOptional<JsonPublicDogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState
 }

@@ -14,14 +14,13 @@ import { getOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { paymentDescription } from '../lib/payment'
 import { createPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
-import { response } from '../utils/response'
 
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
