@@ -7,8 +7,7 @@ import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTable, registrationTable } = CONFIG

@@ -3,8 +3,7 @@ import type { JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGrou
 import { isStartListAvailable } from '../../lib/event'
 import { CONFIG } from '../config'
 import { getEvent } from '../lib/event'
-import { getParam, lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { getParam, lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)

@@ -10,8 +10,7 @@ import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import {
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,

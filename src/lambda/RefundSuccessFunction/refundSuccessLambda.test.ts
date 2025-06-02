@@ -99,6 +99,9 @@ describe('refundSuccessLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
     // Default mock implementations
     mockVerifyParams.mockResolvedValue(undefined)
 
@@ -209,20 +212,17 @@ describe('refundSuccessLambda', () => {
 
   it('handles failed email sending gracefully', async () => {
     mockSendTemplatedMail.mockRejectedValueOnce(new Error('Email sending failed'))
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
     await refundSuccessLambda(event)
 
     // Verify error was logged
-    expect(consoleSpy).toHaveBeenCalledWith('failed to send refund email', expect.any(Error))
+    expect(console.error).toHaveBeenCalledWith('failed to send refund email', expect.any(Error))
 
     // Verify audit entry was still created
     expect(mockAudit).toHaveBeenCalled()
 
     // Verify response was still returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
-
-    consoleSpy.mockRestore()
   })
 
   it('skips updates if transaction status is not changed', async () => {

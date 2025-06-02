@@ -50,6 +50,9 @@ describe('setRoleLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
+    // Spy on console methods to prevent logs from being displayed
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
       id: 'user123',
@@ -265,8 +268,6 @@ describe('setRoleLambda', () => {
   })
 
   it('logs warning when trying to set own roles', async () => {
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
-
     mockParseJSONWithFallback.mockReturnValueOnce({
       userId: 'user123', // Same as authorized user
       orgId: 'org789',
@@ -276,14 +277,10 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     // Verify warning was logged
-    expect(consoleSpy).toHaveBeenCalledWith('Trying to set own roles', expect.any(Object))
-
-    consoleSpy.mockRestore()
+    expect(console.warn).toHaveBeenCalledWith('Trying to set own roles', expect.any(Object))
   })
 
   it('logs warning when user does not have right to set role', async () => {
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
-
     mockAuthorize.mockResolvedValueOnce({
       id: 'user123',
       name: 'Test User',
@@ -296,8 +293,6 @@ describe('setRoleLambda', () => {
     await setRoleLambda(event)
 
     // Verify warning was logged
-    expect(consoleSpy).toHaveBeenCalledWith('User does not have right to set role', expect.any(Object))
-
-    consoleSpy.mockRestore()
+    expect(console.warn).toHaveBeenCalledWith('User does not have right to set role', expect.any(Object))
   })
 })

@@ -74,6 +74,9 @@ describe('paymentCancelLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
+    // Spy on console methods to prevent logs from being displayed
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+
     // Default mock implementations
     mockParseParams.mockReturnValue({
       eventId: 'event123',
@@ -304,17 +307,14 @@ describe('paymentCancelLambda', () => {
   })
 
   it('logs a message if transaction is already marked as failed', async () => {
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
     mockUpdateTransactionStatus.mockResolvedValueOnce(false)
 
     await paymentCancelLambda(event)
 
     // Verify console.log was called with the expected message
-    expect(consoleSpy).toHaveBeenCalledWith("Transaction 'tx123' already marked as failed")
+    expect(console.log).toHaveBeenCalledWith("Transaction 'tx123' already marked as failed")
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
-
-    consoleSpy.mockRestore()
   })
 })

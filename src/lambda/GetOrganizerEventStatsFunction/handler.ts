@@ -1,8 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { authorizeWithMemberOf } from '../lib/auth'
-import { lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { getOrganizerStats } from '../lib/stats'
 
 const getOrganizerEventStatsLambda = lambda(

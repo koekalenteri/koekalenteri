@@ -1,6 +1,5 @@
 import { authorize } from '../lib/auth'
-import { getParam, lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { getParam, lambda, response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'
 
 const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', async (event) => {

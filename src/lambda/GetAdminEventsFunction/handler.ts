@@ -2,8 +2,7 @@ import type { JsonDogEvent } from '../../types'
 
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)

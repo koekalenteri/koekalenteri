@@ -52,6 +52,9 @@ describe('putInvitationAttachmentLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
+    // Spy on console.error to prevent logs from being displayed
+    jest.spyOn(console, 'error').mockImplementation(() => {})
+
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
       id: 'user123',
@@ -133,6 +136,9 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(400, 'Invalid file format', event)
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
+
+    // Verify console.error was called with the expected message
+    expect(console.error).toHaveBeenCalledWith('Invalid file format')
   })
 
   it('returns 400 if no file data', async () => {
@@ -150,6 +156,9 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(400, 'no data', event)
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
+
+    // Verify console.error was called with the expected message
+    expect(console.error).toHaveBeenCalledWith('no data')
   })
 
   it('uploads new attachment and deletes old one', async () => {

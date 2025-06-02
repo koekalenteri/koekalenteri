@@ -3,8 +3,7 @@ import type { JsonUser } from '../../types'
 import { getOrigin } from '../lib/api-gw'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda } from '../lib/lambda'
-import { response } from '../lib/lambda'
+import { lambda, response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
 
 const userIsAdminFor = (user: JsonUser) =>
