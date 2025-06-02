@@ -25,8 +25,6 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
     return response(403, 'Forbidden', event)
   }
 
-  /** @todo remove an existing attachment? */
-
   const file = await parsePostFile(event)
   if (file.error) {
     console.error(file.error)
