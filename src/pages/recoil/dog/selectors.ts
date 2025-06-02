@@ -1,6 +1,6 @@
 import { selector } from 'recoil'
 
-import { validateRegNo } from '../../components/registrationForm/validation'
+import { validateRegNo } from '../../../lib/validation'
 
 import { dogCacheAtom } from './atoms'
 

@@ -17,6 +17,7 @@ import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
 import { hasChanges } from '../../../lib/utils'
+import { validateRegNo } from '../../../lib/validation'
 import { useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
@@ -24,7 +25,6 @@ import CollapsibleSection from '../CollapsibleSection'
 import { emptyDog } from '../RegistrationForm'
 
 import { TitlesAndName } from './dogInfo/TitlesAndName'
-import { validateRegNo } from './validation'
 
 function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
   if (!dog?.regNo) {

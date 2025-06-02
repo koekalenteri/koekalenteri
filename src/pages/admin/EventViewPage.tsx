@@ -1,4 +1,4 @@
-import type { EmailTemplateId, Registration, RegistrationClass } from '../../types'
+import type { EmailTemplateId, Registration } from '../../types'
 
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +20,7 @@ import Tabs from '@mui/material/Tabs'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED } from '../../lib/registration'
+import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, isRegistrationClass } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
@@ -42,11 +42,6 @@ import {
   adminEventSelector,
   adminRegistrationIdAtom,
 } from './recoil'
-
-const REG_CLASSES = ['ALO', 'AVO', 'VOI']
-
-export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
-  !!(cls && REG_CLASSES.includes(cls))
 
 export default function EventViewPage() {
   const { t } = useTranslation()

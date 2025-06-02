@@ -5,8 +5,8 @@ import type { FilterProps } from './atoms'
 import { format } from 'date-fns'
 
 import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../i18n/dates'
+import { isRegistrationClass } from '../../../lib/registration'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
-import { isRegistrationClass } from '../../admin/EventViewPage'
 
 export const readDate = (date: string | null) => (date ? zonedParseDate(date) : null)
 export const writeDate = (date: Date | null) => (date ? zonedDateString(date) : '')

@@ -7,6 +7,7 @@ import type {
   JsonRegistrationGroup,
   PublicDogEvent,
   Registration,
+  RegistrationClass,
   RegistrationTemplateContext,
 } from '../types'
 
@@ -16,6 +17,11 @@ export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
 
 export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:00Z')
+
+const REG_CLASSES = ['ALO', 'AVO', 'VOI']
+
+export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
+  !!(cls && REG_CLASSES.includes(cls))
 
 const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
 

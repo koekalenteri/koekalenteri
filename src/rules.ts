@@ -11,7 +11,7 @@ import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
 
 import { TIME_ZONE } from './i18n/dates'
-import { isModernFinnishRegNo } from './pages/components/registrationForm/validation'
+import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
 import { RULE_DATES } from './types'
 
