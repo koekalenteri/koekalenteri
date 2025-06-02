@@ -21,11 +21,11 @@ export async function getAdminEvents(token?: string, lastModified?: number, sign
 export async function getEvent(id: string, signal?: AbortSignal): Promise<DogEvent> {
   return http.get<DogEvent>(`${PATH}${id}`, { signal })
 }
-/*
+
 export async function getAdminEvent(id: string, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   return http.get<DogEvent>(`${ADMIN_PATH}${id}`, withToken({ signal }, token))
 }
-*/
+
 export async function putEvent(event: Partial<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   return http.post<Partial<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))
 }
