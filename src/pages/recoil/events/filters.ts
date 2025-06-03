@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '../../../types'
-import type { FilterProps } from './atoms'
+import type { FilterProps } from './types'
 
 import { format } from 'date-fns'
 

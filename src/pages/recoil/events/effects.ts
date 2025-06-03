@@ -1,6 +1,6 @@
 import type { AtomEffect } from 'recoil'
 import type { PublicDogEvent } from '../../../types'
-import type { FilterProps } from './atoms'
+import type { FilterProps } from './types'
 
 import { DefaultValue } from 'recoil'
 
