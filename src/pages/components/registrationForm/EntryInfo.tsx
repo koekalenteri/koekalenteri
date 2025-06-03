@@ -190,9 +190,8 @@ export function EntryInfo({
     // Get valid dates based on class
     const validDates = getValidDates(changes.class)
 
-    // Check if current date selection is still valid
     const validCurrentDates = reg.dates.filter((rd) =>
-      validDates.find((d) => isSameDay(d.date, rd.date) && d.time === d.time)
+      validDates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time)
     )
 
     // Update dates if current selection is invalid
