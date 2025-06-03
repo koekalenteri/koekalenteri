@@ -1,4 +1,5 @@
 export * from './actions'
 export * from './atoms'
+export * from './atoms2'
 export * from './effects'
 export * from './selectors'

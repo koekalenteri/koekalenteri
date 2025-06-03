@@ -1,14 +1,12 @@
 import type { GridColumnVisibilityModel } from '@mui/x-data-grid'
-import type { DogEvent, RegistrationClass } from '../../../../types'
+import type { DogEvent } from '../../../../types'
 
-import { atom, atomFamily, selector } from 'recoil'
+import { atom } from 'recoil'
 
 import { newEventEntryEndDate, newEventEntryStartDate, newEventStartDate } from '../../../../lib/event'
-import { uniqueClasses } from '../../../../lib/utils'
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../../../recoil'
 
 import { adminRemoteEventsEffect } from './effects'
-import { adminCurrentEventSelector, adminEventSelector } from './selectors'
 
 export const adminEventsAtom = atom<DogEvent[]>({
   key: 'adminEvents',
@@ -48,29 +46,8 @@ export const adminEventIdAtom = atom<string | undefined>({
   effects: [logEffect, localStorageEffect],
 })
 
-export const adminEventClassAtom = atom<RegistrationClass | string>({
-  key: 'adminEventClass',
-  default: selector({
-    key: 'adminEventClass/default',
-    get: ({ get }) => {
-      const event = get(adminCurrentEventSelector)
-      return uniqueClasses(event)[0]
-    },
-  }),
-  effects: [logEffect, sessionStorageEffect],
-})
-
 export const adminEventColumnsAtom = atom<GridColumnVisibilityModel>({
   key: 'adminEventColumns',
   default: { id: false },
   effects: [logEffect, localStorageEffect],
-})
-
-/**
- * Existing event editing, edits stored to session storage
- */
-export const adminEditableEventByIdAtom = atomFamily<DogEvent | undefined, string>({
-  key: 'adminEditableEvent/Id',
-  default: adminEventSelector,
-  effects: [logEffect, sessionStorageEffect],
 })
