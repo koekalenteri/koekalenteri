@@ -120,47 +120,49 @@ export const DogInfo = ({
     [onChange, orgId, reg?.dog]
   )
 
+  const handleDogOperation = useCallback(
+    async (mode: State['mode']) => {
+      let delay = 100
+
+      if (mode === 'autofetch' || mode === 'fetch') {
+        try {
+          const cache = await actions.fetch()
+          updateDog(cache)
+          if (state.regNo) {
+            setState((prev) => ({
+              ...prev,
+              mode: cache?.dog?.regNo ? 'update' : 'notfound',
+              rfid: !!cache.rfid || !cache?.dog?.rfid,
+            }))
+          }
+        } catch (err) {
+          updateDog({ dog: emptyDog })
+          setState((prev) => ({ ...prev, mode: 'error' }))
+        }
+        delay = 500
+      } else if (mode === 'update') {
+        updateDog(await actions.refresh(reg.dog))
+        delay = 500
+      } else if (mode === 'notfound') {
+        setState((prev) => ({ ...prev, mode: 'manual' }))
+      } else {
+        setState({ regNo: '', mode: 'fetch', rfid: false })
+      }
+
+      return delay
+    },
+    [actions, reg.dog, state.regNo, updateDog]
+  )
+
   const buttonClick = useCallback(() => {
     if (delayed || loading) {
       return
     }
-    const load = async () => {
-      let delay = 100
-      switch (state.mode) {
-        case 'autofetch':
-        case 'fetch':
-          try {
-            const cache = await actions.fetch()
-            updateDog(cache)
-            if (state.regNo) {
-              setState((prev) => ({
-                ...prev,
-                mode: cache?.dog?.regNo ? 'update' : 'notfound',
-                rfid: !!cache.rfid || !cache?.dog?.rfid,
-              }))
-            }
-          } catch (err) {
-            updateDog({ dog: emptyDog })
-            setState((prev) => ({ ...prev, mode: 'error' }))
-          }
-          delay = 500
-          break
-        case 'update':
-          updateDog(await actions.refresh(reg.dog))
-          delay = 500
-          break
-        case 'notfound':
-          setState((prev) => ({ ...prev, mode: 'manual' }))
-          break
-        default:
-          setState({ regNo: '', mode: 'fetch', rfid: false })
-          break
-      }
-      return delay
-    }
+
     setLoading(true)
     setDelayed(true)
-    load().then(
+
+    handleDogOperation(state.mode).then(
       (delay) => {
         setLoading(false)
         setTimeout(() => setDelayed(false), delay)
@@ -170,7 +172,7 @@ export const DogInfo = ({
         setLoading(false)
       }
     )
-  }, [actions, delayed, loading, reg.dog, state.mode, state.regNo, updateDog])
+  }, [delayed, handleDogOperation, loading, state.mode])
 
   const handleRegNoChange = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {

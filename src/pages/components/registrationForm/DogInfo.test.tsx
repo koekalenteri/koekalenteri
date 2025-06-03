@@ -173,4 +173,118 @@ describe('DogInfo', () => {
     expect(button.textContent).toEqual('registration.cta.notfound')
     expect(screen.getByText('registration.cta.helper.notfound date')).toBeInTheDocument()
   })
+  it('should allow refreshing dog data', async () => {
+    // Ensure we have a valid dog with regNo for testing refresh
+    const testDog = {
+      ...registrationDogAged20MonthsAndNoResults,
+      refreshDate: new Date(Date.now() - 1000 * 60 * 10), // 10 minutes ago
+    }
+
+    const reg = {
+      dog: testDog,
+    }
+
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const refreshSpy = jest.spyOn(dogApi, 'getDog').mockResolvedValue(registrationDogAged20MonthsAndNoResults)
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    const button = screen.getByRole('button', { name: 'registration.cta.update' })
+    expect(button).toBeEnabled()
+
+    await user.click(button)
+    await flushPromises()
+
+    expect(refreshSpy).toHaveBeenCalledWith(testDog.regNo, true)
+    expect(changeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dog: expect.objectContaining(registrationDogAged20MonthsAndNoResults),
+      }),
+      false
+    )
+  })
+
+  it('should transition to manual mode when clicking button in notfound state', async () => {
+    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+
+    const reg = {}
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    // First get to notfound state
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    await user.type(input, 'TESTDOG-0020')
+    await flushPromises()
+
+    const fetchButton = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(fetchButton)
+    await flushPromises()
+
+    // Now we should be in notfound state
+    const notfoundButton = screen.getByRole('button', { name: 'registration.cta.notfound' })
+    await user.click(notfoundButton)
+    await flushPromises()
+
+    // Check that manual entry fields are enabled
+    const breedField = screen.getByRole('combobox', { name: 'dog.breed' })
+    expect(breedField).toBeEnabled()
+
+    const genderField = screen.getByRole('combobox', { name: 'dog.gender' })
+    expect(genderField).toBeEnabled()
+
+    // Button should now show reset
+    const resetButton = screen.getByRole('button', { name: 'registration.cta.manual' })
+    expect(resetButton).toBeInTheDocument()
+  })
+
+  it('should reset form when clicking button in manual mode', async () => {
+    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+
+    const reg = {}
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    // First get to notfound state
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    await user.type(input, 'TESTDOG-0020')
+    await flushPromises()
+
+    const fetchButton = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(fetchButton)
+    await flushPromises()
+
+    // Now transition to manual mode
+    const notfoundButton = screen.getByRole('button', { name: 'registration.cta.notfound' })
+    await user.click(notfoundButton)
+    await flushPromises()
+
+    // Now click reset
+    const resetButton = screen.getByRole('button', { name: 'registration.cta.manual' })
+    await user.click(resetButton)
+    await flushPromises()
+
+    // Should be back to fetch mode with empty reg no
+    expect(input).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'registration.cta.fetch' })).toBeInTheDocument()
+
+    // Should have called onChange with empty dog
+    expect(changeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dog: expect.objectContaining({ regNo: '' }),
+      }),
+      true
+    )
+  })
 })
