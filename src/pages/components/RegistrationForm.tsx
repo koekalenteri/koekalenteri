@@ -61,22 +61,6 @@ interface Props {
   readonly savedRegistration?: Registration | null
 }
 
-export const emptyDog = {
-  regNo: '',
-  results: [],
-}
-export const emptyBreeder = {
-  name: '',
-  location: '',
-}
-export const emptyPerson = {
-  name: '',
-  phone: '',
-  email: '',
-  location: '',
-  membership: false,
-}
-
 export default function RegistrationForm({
   admin,
   changes,

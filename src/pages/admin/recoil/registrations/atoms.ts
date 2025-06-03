@@ -2,7 +2,7 @@ import type { Registration } from '../../../../types'
 
 import { atom, atomFamily } from 'recoil'
 
-import { emptyBreeder, emptyDog, emptyPerson } from '../../../components/RegistrationForm'
+import { emptyBreeder, emptyDog, emptyPerson } from '../../../../lib/data'
 import { localStorageEffect, logEffect } from '../../../recoil'
 
 import { adminRemoteRegistrationsEffect } from './effects'

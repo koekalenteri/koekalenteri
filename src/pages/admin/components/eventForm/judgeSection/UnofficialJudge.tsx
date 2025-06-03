@@ -8,7 +8,7 @@ import Button from '@mui/material/Button'
 import Grid2 from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 
-import { countries } from '../../../../../lib/countries'
+import { countries } from '../../../../../lib/data'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 
 import JudgeClasses from './JudgeClasses'

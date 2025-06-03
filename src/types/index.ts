@@ -13,6 +13,8 @@ export * from './Transaction'
 
 export * from './Stats'
 
+export * from './countries'
+
 export * from './paytrail'
 
 export * from './rules'

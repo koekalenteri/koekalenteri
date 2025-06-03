@@ -1,4 +1,4 @@
-import type { CountryCode } from '../types/countries'
+import type { CountryCode, Dog, RegistrationBreeder, RegistrationPerson } from '../types'
 
 export const countries: readonly CountryCode[] = [
   'AF',
@@ -251,3 +251,19 @@ export const countries: readonly CountryCode[] = [
   'VI',
   'ZW',
 ]
+
+export const emptyDog: Dog = {
+  regNo: '',
+  results: [],
+}
+export const emptyBreeder: RegistrationBreeder = {
+  name: '',
+  location: '',
+}
+export const emptyPerson: RegistrationPerson = {
+  name: '',
+  phone: '',
+  email: '',
+  location: '',
+  membership: false,
+}

@@ -16,13 +16,13 @@ import { DatePicker } from '@mui/x-date-pickers'
 import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
+import { emptyDog } from '../../../lib/data'
 import { hasChanges } from '../../../lib/utils'
 import { validateRegNo } from '../../../lib/validation'
 import { useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
-import { emptyDog } from '../RegistrationForm'
 
 import { TitlesAndName } from './dogInfo/TitlesAndName'
 
@@ -140,7 +140,7 @@ export const DogInfo = ({
               }))
             }
           } catch (err) {
-            updateDog(emptyDog)
+            updateDog({ dog: emptyDog })
             setState((prev) => ({ ...prev, mode: 'error' }))
           }
           delay = 500
