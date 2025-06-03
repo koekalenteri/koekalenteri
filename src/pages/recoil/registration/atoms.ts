@@ -6,7 +6,6 @@ import { emptyBreeder, emptyDog, emptyPerson } from '../../../lib/data'
 import { logEffect, sessionStorageEffect } from '../effects'
 
 import { remoteRegistrationEffect } from './effects'
-import { registrationSelector } from './selectors'
 
 export const newRegistrationAtom = atom<Registration | undefined>({
   key: 'newRegistration',
@@ -41,10 +40,4 @@ export const registrationByIdsAtom = atomFamily<Registration | undefined | null,
   key: 'registration/ids',
   default: undefined,
   effects: (param) => [logEffect, sessionStorageEffect, remoteRegistrationEffect(param)],
-})
-
-export const editableRegistrationByIdsAtom = atomFamily<Registration | undefined | null, string | undefined>({
-  key: 'editableRegistration/ids',
-  default: registrationSelector,
-  effects: [logEffect, sessionStorageEffect],
 })
