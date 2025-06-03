@@ -17,7 +17,7 @@ export const isFinnishRegNo = (regNo: string): boolean =>
 export const isModernFinnishRegNo = (regNo: string): boolean => RE_FinnishRegNo.test(regNo)
 
 export function validatePerson(person: Person | undefined, location = true) {
-  if (!person || !person.email || !person.name || (location && !person.location) || !person.phone) {
+  if (!person?.email || !person.name || !person.phone || (location && !person.location)) {
     return 'required'
   }
   if (!validEmail(person.email)) return 'email'
