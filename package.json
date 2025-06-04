@@ -27,7 +27,7 @@
     "i18next": "^24.2.3",
     "identity-obj-proxy": "^3.0.0",
     "material-ui-confirm": "^4.0.0",
-    "mui-tel-input": "^7.0.0",
+    "mui-tel-input": "^8.0.1",
     "nanoid": "^5.1.5",
     "node-fetch": "^3.3.2",
     "notistack": "^3.0.2",
