@@ -12,7 +12,7 @@ import { getCancelAuditMessage, isParticipantGroup, sendTemplatedEmailToEventReg
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { registrationTable } = CONFIG
-export const dynamoDB = new CustomDynamoClient(registrationTable)
+const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
   Boolean(event.state === state || (cls && event.classes.find((c) => c.class === cls && c.state === state)))
