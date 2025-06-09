@@ -1403,7 +1403,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                               class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                             >
                               <label
-                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                                class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled Mui-error MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                                 data-shrink="true"
                                 for=":r1g:"
                                 id=":r1g:-label"
@@ -1411,10 +1411,10 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                 Ilmoittautumisaika alkaa
                               </label>
                               <div
-                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                                class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
                               >
                                 <input
-                                  aria-invalid="false"
+                                  aria-invalid="true"
                                   autocomplete="off"
                                   class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                                   disabled=""
