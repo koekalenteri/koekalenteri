@@ -12,7 +12,7 @@ import { countries } from '../../../../../lib/data'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 
 import JudgeClasses from './JudgeClasses'
-import { filterClassesByJudgeId, hasJudge, updateJudge } from './utils'
+import { filterClassesByJudgeId, updateJudge } from './utils'
 
 interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
   readonly selectedEventType?: EventType
@@ -79,7 +79,7 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
           onClick={() =>
             onChange?.({
               judges: event.judges.filter((j) => j !== judge),
-              classes: event.classes.map((c) => (hasJudge(c, judge.id) ? { ...c, judge: undefined } : c)),
+              classes: updateJudge(event, judge.id, undefined, []),
             })
           }
         >

@@ -9,7 +9,7 @@ import Grid2 from '@mui/material/Grid2'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 
 import JudgeClasses from './JudgeClasses'
-import { filterClassesByJudgeId, filterJudges, hasJudge, updateJudge } from './utils'
+import { filterClassesByJudgeId, filterJudges, updateJudge } from './utils'
 
 interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
   readonly judges: Judge[]
@@ -46,7 +46,7 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
             }
             onChange?.({
               judges: newJudges,
-              classes: updateJudge(event, newJudge?.id, newJudge, filterClassesByJudgeId(event.classes, oldJudge.id)),
+              classes: updateJudge(event, judge?.id, newJudge, filterClassesByJudgeId(event.classes, oldJudge.id)),
             })
           }}
         />
@@ -59,7 +59,7 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
           onClick={() =>
             onChange?.({
               judges: event.judges.filter((j) => j !== judge),
-              classes: event.classes.map((c) => (hasJudge(c, judge.id) ? { ...c, judge: undefined } : c)),
+              classes: updateJudge(event, judge.id, undefined, []),
             })
           }
         >
