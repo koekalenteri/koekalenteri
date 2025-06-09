@@ -14,6 +14,6 @@ exports[`CostInfo should not render paymentDefauils when it is empty 1`] = `
 
 exports[`CostInfo should render with all the information 1`] = `
 <div>
-  50 €event.costMember 40 €
+  50 €, event.costMember 40 €
 </div>
 `;
