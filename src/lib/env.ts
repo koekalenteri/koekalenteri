@@ -1,8 +1,12 @@
-export const isDevEnv = () => process.env.NODE_ENV === 'development' && typeof jest === 'undefined'
+import { isJestDefined } from './envHelpers'
 
-export const isTestEnv = () => process.env.NODE_ENV === 'test' || typeof jest !== 'undefined'
+export const isDevEnv = (): boolean =>
+  (process.env.NODE_ENV === 'development' || Boolean(process.env.REACT_APP_API_BASE_URL?.endsWith('/dev'))) &&
+  !isJestDefined()
 
-export const isProdEnv = () => process.env.NODE_ENV === 'production'
+export const isTestEnv = (): boolean => process.env.NODE_ENV === 'test' || isJestDefined()
+
+export const isProdEnv = (): boolean => process.env.NODE_ENV === 'production'
 
 export const stackName = (): 'koekalenteri-dev' | 'koekalenteri-test' | 'koekalenteri-prod' => {
   if (isDevEnv()) return 'koekalenteri-dev'
