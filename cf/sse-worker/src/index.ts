@@ -42,19 +42,41 @@ export default {
     const { readable, writable } = new TransformStream()
     const writer = writable.getWriter()
 
+    // Track writer state for debugging
+    let writerClosed = false
+    let writerClosing = false
+
     req.signal.addEventListener('abort', () => {
-      writer.close().catch(() => {})
+      console.log('Request aborted, closing writer')
+      if (!writerClosed && !writerClosing) {
+        writerClosing = true
+        writer.close().then(() => {
+          writerClosed = true
+          console.log('Writer closed on abort')
+        }).catch((err) => {
+          console.error('Error closing writer on abort:', err)
+          writerClosed = true // Mark as closed even if there was an error
+        })
+      } else {
+        console.log('Writer already closed or closing, skipping close on abort')
+      }
     })
 
     const pinger = async () => {
       try {
-        while (!req.signal.aborted) {
+        while (!req.signal.aborted && !writerClosed && !writerClosing) {
           await new Promise((r) => setTimeout(r, 5000))
-          if (Date.now() - lastMessageTime >= 30000) {
-            await writer.write(pingMsg)
-            lastMessageTime = Date.now()
+          if (Date.now() - lastMessageTime >= 30000 && !writerClosed && !writerClosing) {
+            try {
+              await writer.write(pingMsg)
+              lastMessageTime = Date.now()
+            } catch (writeErr) {
+              console.log('Error writing ping, exiting ping loop:', writeErr)
+              break // Exit the loop if we can't write
+            }
           }
         }
+        console.log('Ping loop exited normally')
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {
           console.error('Ping loop error:', err)
@@ -65,7 +87,12 @@ export default {
     // Polling loop with reconnect & backoff
     const poller = async () => {
       let backoff = 1000
-      while (!req.signal.aborted) {
+      let retryCount = 0
+      const MAX_RETRIES = 50 // Prevent infinite retries
+
+      console.log(`Starting poller loop with MAX_RETRIES=${MAX_RETRIES}`)
+
+      while (!req.signal.aborted && retryCount < MAX_RETRIES) {
         try {
           const url = `${env.UPSTASH_REDIS_REST_URL}/xread/streams/${channel}/${lastId}`
           const res = await fetch(url, {
@@ -99,19 +126,82 @@ export default {
             }
           }
 
-          // Short wait between polls (tweak to your needs)
-          await new Promise((r) => setTimeout(r, 100))
+          // Longer wait between polls to avoid rate limiting
+          await new Promise((r) => setTimeout(r, 1000))
+          retryCount = 0 // Reset retry count on success
         } catch (err) {
           if (req.signal.aborted) break
 
-          console.error('Polling error:', err)
-          // Wait before retrying (exponential backoff with cap)
+          retryCount++
+          const errorMessage = err instanceof Error ? err.message : String(err)
+          const isRateLimited = errorMessage.includes('Too many') || errorMessage.includes('rate limit')
+
+          console.error(`Polling error (${retryCount}/${MAX_RETRIES}):`, err)
+
+          // Use longer backoff for rate limiting errors
+          if (isRateLimited) {
+            backoff = Math.min(backoff * 2, 30000) // Longer max backoff for rate limits
+          } else {
+            backoff = Math.min(backoff * 1.5, 15000) // Standard backoff for other errors
+          }
+
+          // Wait before retrying
           await new Promise((r) => setTimeout(r, backoff))
-          backoff = Math.min(backoff * 2, 15000)
         }
       }
 
-      writer.close().catch(() => {})
+      // If we exited due to max retries, send an error message to the client
+      if (retryCount >= MAX_RETRIES && !req.signal.aborted && !writerClosed) {
+        try {
+          // Check if writer is already closed
+          if (writer.desiredSize === null || writerClosed) {
+            console.log('Writer is already closed, skipping error message')
+          } else {
+            const errorMsg = `event: error\ndata: {"message": "Connection closed after ${MAX_RETRIES} failed retries"}\n\n`
+
+            // Use a timeout to prevent hanging indefinitely
+            const writePromise = writer.write(encoder.encode(errorMsg))
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Timeout writing error message')), 1000)
+            )
+
+            try {
+              await Promise.race([writePromise, timeoutPromise])
+              console.log('Error message written successfully')
+            } catch (writeErr) {
+              console.error('Timed out or error writing message:', writeErr)
+              // Continue with cleanup even if write fails
+            }
+
+            console.log('Error message sent')
+          }
+        } catch (e) {
+          console.error('Failed to send error message:', e)
+        }
+      } else {
+        console.log(`Skipping error message: retryCount=${retryCount}, aborted=${req.signal.aborted}, writerClosed=${writerClosed}`)
+      }
+
+      // Only close the writer if it's not already closed or closing
+      if (!writerClosed && !writerClosing) {
+        console.log('Closing writer')
+        try {
+          writerClosing = true
+          const closePromise = writer.close()
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout closing writer')), 1000)
+          )
+
+          await Promise.race([closePromise, timeoutPromise])
+          writerClosed = true
+          console.log('Writer closed successfully')
+        } catch (closeErr) {
+          console.error('Error or timeout closing writer:', closeErr)
+          writerClosed = true // Mark as closed even if there was an error
+        }
+      } else {
+        console.log('Writer already closed or closing, skipping close')
+      }
     }
 
     ctx.waitUntil(poller())

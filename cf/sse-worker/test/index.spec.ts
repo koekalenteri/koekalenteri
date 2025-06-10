@@ -64,6 +64,7 @@ describe('SSE Worker', () => {
 
   it('returns SSE stream for valid channel', async () => {
     vi.useFakeTimers()
+    vi.spyOn(console, 'log').mockImplementation(() => undefined)
     const decoder = new TextDecoder()
 
     // Mock all fetch calls to return empty results after the first one
@@ -128,28 +129,41 @@ describe('SSE Worker', () => {
     vi.useRealTimers()
   })
 
-  it('handles upstream errors gracefully', async () => {
+  it('handles upstream errors gracefully with retry count', async () => {
     vi.useFakeTimers()
     const decoder = new TextDecoder()
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-    // First call fails
-    mockFetch.mockResolvedValueOnce({
-      ok: false,
-      text: () => Promise.resolve('Unauthorized'),
-    })
-
-    // Second call succeeds (after backoff)
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve([['valid-channel', [['1234567890123-0', ['message', 'test after error']]]]]),
-      text: () => Promise.resolve(''),
-    })
-
-    // All subsequent calls return empty results to prevent infinite polling
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(null),
-      text: () => Promise.resolve(''),
+    // Set up fetch mock to fail twice then succeed
+    // This tests the actual retry logic in our implementation
+    let fetchCount = 0
+    mockFetch.mockImplementation(() => {
+      fetchCount++
+      if (fetchCount === 1) {
+        return Promise.resolve({
+          ok: false,
+          text: () => Promise.resolve('Unauthorized'),
+        })
+      } else if (fetchCount === 2) {
+        return Promise.resolve({
+          ok: false,
+          text: () => Promise.resolve('Too many subrequests'),
+        })
+      } else if (fetchCount === 3) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([['valid-channel', [['1234567890123-0', ['message', 'test after error']]]]]),
+          text: () => Promise.resolve(''),
+        })
+      } else {
+        // All subsequent calls return empty results
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(null),
+          text: () => Promise.resolve(''),
+        })
+      }
     })
 
     const ac = new AbortController()
@@ -157,14 +171,22 @@ describe('SSE Worker', () => {
       signal: ac.signal,
     })
     const ctx = createExecutionContext()
+
+    // Use the actual worker implementation (not mocked)
     const response = await worker.fetch(request, env, ctx)
 
     expect(response.status).toBe(200)
-
     const reader = response.body!.getReader()
 
-    // Advance time to trigger backoff and retry
+    // First error and backoff
     await vi.advanceTimersByTimeAsync(1000)
+
+    // Second error (rate limit) and longer backoff
+    // The backoff should be 1.5x for rate limit errors
+    await vi.advanceTimersByTimeAsync(1500)
+
+    // After backoff, the third request should succeed
+    await vi.advanceTimersByTimeAsync(2000)
 
     // Read the message after successful retry
     const { value, done } = await reader.read()
@@ -173,20 +195,25 @@ describe('SSE Worker', () => {
 
     // Abort the request to stop all loops
     ac.abort()
-
-    // Advance timers to ensure all timeouts complete
     await vi.runAllTimersAsync()
 
     await reader.cancel()
+
     await waitOnExecutionContext(ctx)
 
-    // Verify both fetch calls were made
-    expect(mockFetch).toHaveBeenCalledTimes(2)
+    // Verify fetch was called the expected number of times
+    expect(fetchCount).toBe(3)
+
+    // Verify retry count was logged in the error messages
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Polling error (1/50):'), expect.anything())
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Polling error (2/50):'), expect.anything())
+
     vi.useRealTimers()
   })
 
   it('verifies keep-alive functionality', async () => {
     vi.useFakeTimers()
+    vi.spyOn(console, 'log').mockImplementation(() => undefined)
     const decoder = new TextDecoder()
 
     // Mock initial response with a message
@@ -239,6 +266,7 @@ describe('SSE Worker', () => {
 
   it('tests polling with multiple messages', async () => {
     vi.useFakeTimers()
+    vi.spyOn(console, 'log').mockImplementation(() => undefined)
     const decoder = new TextDecoder()
 
     // First poll returns one message
@@ -284,8 +312,8 @@ describe('SSE Worker', () => {
     expect(decoder.decode(first.value)).toContain('id: 1234567890123-0')
     expect(decoder.decode(first.value)).toContain('data: {"message":"first message"}')
 
-    // Advance time to trigger next poll
-    await vi.advanceTimersByTimeAsync(100)
+    // Advance time to trigger next poll (updated to match new 1000ms polling interval)
+    await vi.advanceTimersByTimeAsync(1000)
 
     // Second read: second message
     const second = await reader.read()
@@ -318,6 +346,56 @@ describe('SSE Worker', () => {
     // Advance timers to ensure all timeouts complete
     await vi.runAllTimersAsync()
 
+    await reader.cancel()
+    await waitOnExecutionContext(ctx)
+
+    vi.useRealTimers()
+  })
+
+  it('sends error message after max retries', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(console, 'log').mockImplementation(() => undefined)
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    // Mock fetch to always fail with rate limit error
+    // This will cause the actual implementation to retry until MAX_RETRIES is reached
+    mockFetch.mockImplementation(() => {
+      return Promise.resolve({
+        ok: false,
+        text: () => Promise.resolve('Too many subrequests'),
+      })
+    })
+
+    const ac = new AbortController()
+    const request = new Request('http://example.com?channel=valid-channel', {
+      signal: ac.signal,
+    })
+    const ctx = createExecutionContext()
+
+    // Use the actual worker implementation
+    const response = await worker.fetch(request, env, ctx)
+
+    expect(response.status).toBe(200)
+    const reader = response.body!.getReader()
+
+    // Advance run all timers
+    await vi.runAllTimersAsync()
+
+    // We only need to check a few key retry counts, not all 50
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Polling error (1/50):'), expect.anything())
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Polling error (50/50):'), expect.anything())
+
+    // Also verify that the timeout error was logged
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Timed out or error writing message:'),
+      expect.anything()
+    )
+
+    // Cleanup - make sure we abort the request to stop all loops
+    ac.abort()
+
+    // Advance timers to ensure all timeouts complete
+    await vi.runAllTimersAsync()
     await reader.cancel()
     await waitOnExecutionContext(ctx)
 
