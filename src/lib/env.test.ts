@@ -2,6 +2,9 @@ import { isDevEnv, isProdEnv, isTestEnv, stackName } from './env'
 import * as envHelpers from './envHelpers'
 
 describe('env', () => {
+  beforeAll(() => {
+    process.env.REACT_APP_BASE_URL = ''
+  })
   afterEach(() => {
     jest.restoreAllMocks()
   })
