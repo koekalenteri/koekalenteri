@@ -24,12 +24,23 @@ export class SSEChannelDO implements DurableObject {
   private logger = createLogger('SSEChannelDO')
   private metrics = createMetrics()
   private channelName: string = 'unknown'
+  private storage: DurableObjectStorage
 
   // Store recent messages for reconnection support (last 100 messages, up to 5 minutes old)
   private recentMessages: StoredMessage[] = []
   private readonly MAX_STORED_MESSAGES = 100
   private readonly MESSAGE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+  private readonly PING_INTERVAL_MS = 30000 // 30 seconds
   private lastCleanup = Date.now()
+
+  constructor(state: DurableObjectState, env: any) {
+    this.storage = state.storage
+  }
+
+  // This method is automatically called when the alarm fires
+  async alarm() {
+    await this.handleAlarm()
+  }
 
   // Handle HTTP requests
   async fetch(request: Request): Promise<Response> {
@@ -139,11 +150,35 @@ export class SSEChannelDO implements DurableObject {
     const lastEventId = url.searchParams.get('lastEventId')
     const isReconnect = !!lastEventId
 
-    // Send initial connection message
+    this.logger.debug('Preparing to send initial messages', {
+      sessionId,
+      requestId,
+      channel: this.channelName,
+    })
+
+    // Send initial connection message as a proper event
     const connectMsg = this.encoder.encode(
-      `id: connect\ndata: {"connected": true, "clients": ${this.sessions.size}}\n\n`
+      `event: connect\nid: connect-${Date.now()}\ndata: {"connected": true, "clients": ${this.sessions.size}, "channel": "${this.channelName}"}\n\n`
     )
+    await writer.ready
     await writer.write(connectMsg)
+
+    // Send a test event immediately to verify connection
+    const testMsg = this.encoder.encode(
+      `event: test\nid: test-${Date.now()}\ndata: {"test": true, "time": ${Date.now()}, "channel": "${this.channelName}"}\n\n`
+    )
+    await writer.ready
+    await writer.write(testMsg)
+
+    // Send a comment to force flush
+    await writer.ready
+    await writer.write(this.encoder.encode(`:initial-connection-complete ${Date.now()}\n\n`))
+
+    this.logger.debug('Initial messages sent', {
+      sessionId,
+      requestId,
+      channel: this.channelName,
+    })
 
     // If client is reconnecting, send missed messages
     if (isReconnect) {
@@ -163,35 +198,25 @@ export class SSEChannelDO implements DurableObject {
       })
 
       for (const msg of missedMessages) {
+        await writer.ready
         await writer.write(this.encoder.encode(`id: ${msg.id}\ndata: ${msg.data}\n\n`))
       }
+
+      // Force flush after sending missed messages
+      await writer.ready
+      await writer.write(this.encoder.encode(`:missed-messages-flush\n\n`))
 
       this.metrics.increment('missed_messages_sent', missedMessages.length)
     }
 
-    // Set up periodic pings to keep connection alive
-    const pingInterval = setInterval(async () => {
-      try {
-        if (request.signal.aborted) {
-          clearInterval(pingInterval)
-          return
-        }
-
-        // Update last activity time
-        const session = this.sessions.get(sessionId)
-        if (session) {
-          session.lastActivity = Date.now()
-        }
-
-        await writer.write(this.encoder.encode(':ping\n\n'))
-        this.metrics.increment('ping_sent')
-      } catch (err) {
-        clearInterval(pingInterval)
-        this.metrics.increment('ping_failed')
-        this.logger.warn('Ping failed', { sessionId, error: (err as Error).message })
-        this.closeClientSession(sessionId, 'ping failed')
-      }
-    }, 30000)
+    // Schedule an alarm for pings if this is the first client
+    if (this.sessions.size === 1) {
+      this.storage.setAlarm(Date.now() + this.PING_INTERVAL_MS)
+      this.logger.debug('Scheduled first ping alarm', {
+        channel: this.channelName,
+        nextPingAt: new Date(Date.now() + this.PING_INTERVAL_MS).toISOString(),
+      })
+    }
 
     const connectDuration = this.metrics.endTimer(`connect_${requestId}`)
     this.metrics.increment('client_connected')
@@ -206,14 +231,24 @@ export class SSEChannelDO implements DurableObject {
       clientCount: this.sessions.size,
     })
 
-    return new Response(readable, {
+    // Create response with proper SSE headers
+    const response = new Response(readable, {
       headers: {
         'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-transform',
         Connection: 'keep-alive',
+        'X-Accel-Buffering': 'no', // Disable proxy buffering
         'Access-Control-Allow-Origin': '*',
       },
     })
+
+    this.logger.debug('SSE response created', {
+      sessionId,
+      requestId,
+      channel: this.channelName,
+    })
+
+    return response
   }
 
   // Get messages since a specific event ID
@@ -399,6 +434,66 @@ export class SSEChannelDO implements DurableObject {
     if (this.recentMessages.length > this.MAX_STORED_MESSAGES) {
       this.recentMessages.shift() // Remove oldest message
       this.metrics.increment('message_trimmed')
+    }
+  }
+
+  /**
+   * Handle alarm events for sending pings to all connected clients
+   */
+  async handleAlarm() {
+    const now = Date.now()
+    this.logger.debug('Alarm triggered', {
+      channel: this.channelName,
+      clientCount: this.sessions.size,
+    })
+
+    // Send pings to all connected clients
+    let pingCount = 0
+    let failCount = 0
+
+    for (const [sessionId, session] of this.sessions.entries()) {
+      try {
+        this.logger.debug('Sending ping to client', {
+          sessionId,
+          channel: this.channelName,
+          timestamp: new Date(now).toISOString(),
+        })
+
+        // Send a proper ping event that clients can listen for
+        const pingMsg = this.encoder.encode(
+          `event: ping\nid: ping-${now}\ndata: {"time": ${now}, "channel": "${this.channelName}"}\n\n`
+        )
+        await session.writer.ready
+        await session.writer.write(pingMsg)
+
+        // Also send a comment ping for compatibility
+        await session.writer.ready
+        await session.writer.write(this.encoder.encode(`:ping ${now}\n\n`))
+
+        session.lastActivity = now
+        pingCount++
+        this.metrics.increment('ping_sent')
+        this.logger.debug('Ping sent successfully', { sessionId })
+      } catch (err) {
+        failCount++
+        this.metrics.increment('ping_failed')
+        this.logger.warn('Ping failed', {
+          sessionId,
+          error: (err as Error).message,
+        })
+        await this.closeClientSession(sessionId, 'ping failed')
+      }
+    }
+
+    this.logger.debug('Ping results', {
+      channel: this.channelName,
+      pingCount,
+      failCount,
+    })
+
+    // Schedule the next alarm if we have active connections
+    if (this.sessions.size > 0) {
+      this.storage.setAlarm(Date.now() + this.PING_INTERVAL_MS)
     }
   }
 }

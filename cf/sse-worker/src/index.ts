@@ -155,19 +155,56 @@ export default {
       const headers = new Headers(request.headers)
       headers.set('X-Request-ID', requestId)
 
+      // For GET requests (SSE connections), use waitUntil to ensure the request is processed
+      // even if the client disconnects
       const modifiedRequest = new Request(request, { headers })
-      const response = await channelObject.fetch(doUrl.toString(), modifiedRequest)
 
-      // Log response
-      const duration = metrics.endTimer(`request_${requestId}`)
-      logger.info('Request completed', {
-        requestId,
-        status: response.status,
-        duration,
-        metrics: metrics.getMetrics(),
-      })
+      if (request.method === 'GET') {
+        logger.debug('Forwarding SSE connection to Durable Object', {
+          requestId,
+          channel,
+          url: doUrl.toString(),
+        })
 
-      return response
+        // Use waitUntil to ensure the connection is established
+        const doResponsePromise = channelObject.fetch(doUrl.toString(), modifiedRequest)
+        ctx.waitUntil(
+          doResponsePromise.catch((err) => {
+            logger.error('Error in waitUntil for SSE connection', err, {
+              requestId,
+              channel,
+            })
+          })
+        )
+
+        // Return the response directly
+        const response = await doResponsePromise
+
+        // Log response
+        const duration = metrics.endTimer(`request_${requestId}`)
+        logger.info('SSE connection established', {
+          requestId,
+          status: response.status,
+          duration,
+          metrics: metrics.getMetrics(),
+        })
+
+        return response
+      } else {
+        // For POST requests (broadcasts), handle normally
+        const response = await channelObject.fetch(doUrl.toString(), modifiedRequest)
+
+        // Log response
+        const duration = metrics.endTimer(`request_${requestId}`)
+        logger.info('Request completed', {
+          requestId,
+          status: response.status,
+          duration,
+          metrics: metrics.getMetrics(),
+        })
+
+        return response
+      }
     } catch (error) {
       metrics.increment('error_internal')
       const duration = metrics.endTimer(`request_${requestId}`)
