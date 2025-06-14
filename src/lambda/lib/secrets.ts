@@ -1,7 +1,7 @@
 import type { Parameter } from '@aws-sdk/client-ssm'
 import type { KLAPIConfig } from '../types/KLAPI'
 import type { PaytrailConfig } from '../types/paytrail'
-import type { UpstashConfig } from '../types/upstash'
+import type { SSEConfig } from '../types/sse'
 
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
 
@@ -40,14 +40,14 @@ const storePromiseInCache = (name: string, promise: Promise<string>): void => {
   }
 }
 
-const resolveCachedParams = (
-  names: string[]
+const resolveCachedParams = <T extends Record<string, string>>(
+  names: Extract<keyof T, string>[]
 ): {
-  resolved: Record<string, string>
+  resolved: T
   toFetch: string[]
   pending: Promise<void>[]
 } => {
-  const resolved: Record<string, string> = {}
+  const resolved: Partial<T> = {}
   const toFetch: string[] = []
   const pending: Promise<void>[] = []
 
@@ -55,11 +55,11 @@ const resolveCachedParams = (
     const entry = cache[name]
 
     if (isFresh(entry)) {
-      resolved[name] = entry.value
+      resolved[name] = entry.value as T[typeof name]
     } else if (entry?.promise) {
       pending.push(
         entry.promise.then((value) => {
-          resolved[name] = value
+          resolved[name] = value as T[typeof name]
         })
       )
     } else {
@@ -67,8 +67,9 @@ const resolveCachedParams = (
     }
   }
 
-  return { resolved, toFetch, pending }
+  return { resolved: resolved as T, toFetch, pending }
 }
+
 const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>): Promise<void> => {
   const fetchPromise = (async () => {
     const command = new GetParametersCommand({ Names: names })
@@ -102,16 +103,17 @@ const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>)
  * Returns a map of parameter name -> value.
  * Exported for testing
  */
-export async function getSSMParams(names: string[]): Promise<ParamsFromKeys<typeof names>> {
+export async function getSSMParams<T extends Record<string, string>>(names: Extract<keyof T, string>[]): Promise<T> {
   console.log('getSSMParams', names)
 
-  const { resolved, toFetch, pending } = resolveCachedParams(names)
+  const { resolved, toFetch, pending } = resolveCachedParams<T>(names)
 
   if (toFetch.length > 0) {
     pending.push(fetchAndUpdateParams(toFetch, resolved))
   }
 
   await Promise.all(pending)
+
   return resolved
 }
 
@@ -136,14 +138,11 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   return cfg
 }
 
-export const getUpstashConfig = async (): Promise<UpstashConfig> => {
-  const ssmParams = await getSSMParams([`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`])
-  const cfg: UpstashConfig = {
-    UPSTASH_REDIS_REST_URL: ssmParams[`UPSTASH_REDIS_REST_URL`],
-    UPSTASH_REDIS_REST_TOKEN: ssmParams[`UPSTASH_REDIS_REST_TOKEN`],
-  }
-  if (!cfg.UPSTASH_REDIS_REST_URL || !cfg.UPSTASH_REDIS_REST_TOKEN) {
-    throw new Error('Missing Upstash Config!')
+export const getSSEConfig = async (): Promise<SSEConfig> => {
+  const cfg: SSEConfig = await getSSMParams<SSEConfig>([`SSE_API_URL`, `SSE_API_TOKEN`])
+
+  if (!cfg.SSE_API_URL || !cfg.SSE_API_TOKEN) {
+    throw new Error('Missing SSE Config!')
   }
 
   return cfg

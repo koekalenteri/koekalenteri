@@ -22,7 +22,13 @@ jest.unstable_mockModule('../config', () => ({
 }))
 
 // Import the module after mocking
-const { getKLAPIConfig, getPaytrailConfig, getSSMParams, getUpstashConfig, resetCache } = await import('./secrets')
+const {
+  getKLAPIConfig,
+  getPaytrailConfig,
+  getSSMParams,
+  getSSEConfig: getSSEApiToken,
+  resetCache,
+} = await import('./secrets')
 
 describe('secrets', () => {
   beforeEach(() => {
@@ -320,44 +326,6 @@ describe('secrets', () => {
 
       // Verify that the function throws an error
       await expect(getPaytrailConfig()).rejects.toThrow('Missing Paytrail Config!')
-    })
-  })
-
-  describe('getUpstashConfig', () => {
-    it('should retrieve Upstash configuration', async () => {
-      // Setup mock response
-      mockSend.mockImplementationOnce(() =>
-        Promise.resolve({
-          Parameters: [
-            { Name: 'UPSTASH_REDIS_REST_URL', Value: 'https://redis.upstash.com' },
-            { Name: 'UPSTASH_REDIS_REST_TOKEN', Value: 'token-789' },
-          ],
-        } as GetParametersCommandOutput)
-      )
-
-      // Call the function
-      const result = await getUpstashConfig()
-
-      // Verify the result
-      expect(result).toEqual({
-        UPSTASH_REDIS_REST_URL: 'https://redis.upstash.com',
-        UPSTASH_REDIS_REST_TOKEN: 'token-789',
-      })
-    })
-
-    it('should throw error when Upstash config is missing', async () => {
-      // Setup mock response with missing values
-      mockSend.mockImplementationOnce(() =>
-        Promise.resolve({
-          Parameters: [
-            { Name: 'UPSTASH_REDIS_REST_URL', Value: 'https://redis.upstash.com' },
-            // Missing UPSTASH_REDIS_REST_TOKEN
-          ],
-        } as GetParametersCommandOutput)
-      )
-
-      // Verify that the function throws an error
-      await expect(getUpstashConfig()).rejects.toThrow('Missing Upstash Config!')
     })
   })
 })

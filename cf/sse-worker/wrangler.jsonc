@@ -9,7 +9,8 @@
 	"compatibility_date": "2025-05-07",
 	"observability": {
 		"enabled": true
-	}
+	},
+
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
@@ -27,11 +28,38 @@
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
-	// "vars": { "MY_VARIABLE": "production_value" },
+	"vars": {
+		"API_TOKEN": "" // This will be replaced by actual value via wrangler secrets
+	},
+
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
+
+	/**
+	 * Durable Objects
+	 * https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
+	 */
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "SSE_CHANNEL",
+				"class_name": "SSEChannelDO"
+			}
+		]
+	},
+
+	/**
+	 * Migrations
+	 * https://developers.cloudflare.com/workers/learning/using-durable-objects/#durable-object-migrations-in-wranglertoml
+	 */
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_classes": ["SSEChannelDO"]
+		}
+	],
 
 	/**
 	 * Static Assets
