@@ -127,7 +127,13 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
     PAYTRAIL_SECRET: stackedCfg[`${stackName}-PAYTRAIL_SECRET`],
   }
   if (!cfg.PAYTRAIL_SECRET || !cfg.PAYTRAIL_MERCHANT_ID) {
-    throw new Error('Missing Paytrail Config!')
+    if (stackName === 'local') {
+      console.warn('Using hardcoded Paytrail test configuration')
+      cfg.PAYTRAIL_MERCHANT_ID = '695861'
+      cfg.PAYTRAIL_SECRET = 'MONISAIPPUAKAUPPIAS'
+    } else {
+      throw new Error('Missing Paytrail Config!')
+    }
   }
   console.log(`merchantId: ${cfg.PAYTRAIL_MERCHANT_ID}`)
   return cfg

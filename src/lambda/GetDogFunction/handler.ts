@@ -125,6 +125,8 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
 const getDogLambda = lambda('getDog', async (event) => {
   const regNo = getParam(event, 'regNo').replaceAll('~', '/')
 
+  if (!regNo) return response(404, {}, event)
+
   let item = await dynamoDB.read<JsonDog>({ regNo })
 
   const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0

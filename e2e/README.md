@@ -1,116 +1,171 @@
-# End-to-End Testing with Playwright
+# E2E Testing with DynamoDB
 
-This directory contains end-to-end tests for the Koekalenteri application using [Playwright](https://playwright.dev/).
+This directory contains end-to-end tests using Playwright and real DynamoDB tables running in Docker.
 
-## Overview
+## Setup
 
-The e2e tests are designed to test the critical user path of search → registration → payment. The tests use a mocking strategy to simulate API responses, allowing the tests to run without a backend.
-
-## Directory Structure
-
-```
-/e2e
-  /fixtures       # Test data fixtures
-  /page-objects   # Page object models
-  /tests          # Test files
-  /utils          # Utility functions
-```
-
-## Test Files
-
-- `search.spec.ts`: Tests for the search functionality
-- `registration.spec.ts`: Tests for the registration process
-- `payment.spec.ts`: Tests for the payment process
-- `e2e-flow.spec.ts`: End-to-end tests covering the complete user journey
-
-## Running Tests
+The e2e tests interact with actual DynamoDB tables running in Docker containers instead of mocking API responses. This approach provides more realistic testing of the application's behavior.
 
 ### Prerequisites
 
-- Node.js 16 or higher
-- npm
+- Docker and Docker Compose must be running
+- Local DynamoDB should be accessible at `http://localhost:8000`
 
-### Installation
+## How It Works
 
-The Playwright dependencies are installed as part of the project setup:
+### DynamoDB Utility
 
-```bash
-npm install
+The `e2e/utils/dynamodb.ts` file provides utilities to:
+
+1. Clear DynamoDB tables before each test
+2. Insert mock data into DynamoDB tables before each test
+
+### Test Data
+
+Mock data is defined in the fixture files:
+- `e2e/fixtures/events.ts` - Event data
+- `e2e/fixtures/dogs.ts` - Dog data
+- `e2e/fixtures/registrations.ts` - Registration data (initially empty)
+
+### Usage in Tests
+
+In your test files, use the `setupDynamoDB()` function in the `beforeEach` hook:
+
+```typescript
+import { test } from '@playwright/test'
+import { setupDynamoDB } from '../utils/dynamodb'
+
+test.describe('Your Test Suite', () => {
+  test.beforeEach(async () => {
+    // Clear tables and insert mock data before each test
+    await setupDynamoDB()
+  })
+
+  // Your tests here
+})
 ```
 
-To install Playwright browsers:
+## How It Works Behind the Scenes
 
-```bash
-npx playwright install
+1. Before each test:
+   - All tables are cleared using `clearAllTables()`
+   - Mock data is inserted using `insertAllMockData()`
+
+2. The DynamoDB client is configured to connect to the local Docker instance:
+   ```typescript
+   // Determine if we're running inside Docker network
+   const isInDockerNetwork = process.env.AWS_SAM_LOCAL === 'true' || process.env.IN_DOCKER_NETWORK === 'true'
+   const endpoint = isInDockerNetwork ? 'http://dynamodb:8000' : 'http://localhost:8000'
+
+   const client = new DynamoDBClient({
+     endpoint,
+     region: 'local',
+     credentials: {
+       accessKeyId: 'local',
+       secretAccessKey: 'local',
+     },
+   })
+   ```
+
+3. Tables are cleared by:
+   - Scanning all items in the table
+   - Deleting them in batches of 25 (DynamoDB batch limit)
+
+4. Mock data is inserted by:
+   - Converting fixture data to the appropriate format
+   - Preprocessing data to handle empty values in indexed fields
+   - Inserting in batches of 25 (DynamoDB batch limit)
+
+## Customizing
+
+### Adding More Tables
+
+To add more tables to clear/populate, modify the configuration in `e2e/config/dynamodb.config.ts`:
+
+```typescript
+// Uncomment or add more tables as needed
+export const TABLES_TO_MANAGE = {
+  EVENT_TABLE: 'event-table-local',
+  REGISTRATION_TABLE: 'registration-table-local',
+  DOG_TABLE: 'dog-table-local',
+
+  // Additional tables that can be enabled as needed
+  // USER_TABLE: 'user-table-local',
+  // JUDGE_TABLE: 'judge-table-local',
+  // OFFICIAL_TABLE: 'official-table-local',
+}
 ```
 
-### Running Tests
+The pattern for local tables is `{table-name}-local`. Make sure the table names match the actual tables in your local DynamoDB.
 
-To run all tests:
+You'll also need to update the `insertAllMockData()` function in `e2e/utils/dynamodb.ts` if you need to insert data into the new tables.
 
-```bash
-npm run test-e2e
+### Adding More Mock Data
+
+Add your mock data to the appropriate fixture files, and update the `insertAllMockData()` function if needed.
+
+### Handling Empty Values in Indexed Fields
+
+DynamoDB does not allow empty string values for attributes used as keys in indexes. The utility automatically handles this by replacing empty strings with timestamps for critical fields like `createdAt` and `modifiedAt`.
+
+If you encounter validation errors like:
+
+```
+ValidationException: One or more parameter values are not valid. A value specified for a secondary index key is not supported.
 ```
 
-To run tests with UI mode:
+You may need to update the preprocessing logic in `insertAllMockData()` to handle additional indexed fields:
 
-```bash
-npm run test-e2e:ui
+```typescript
+const processedEvents = events.map((event) => {
+  const now = new Date().toISOString()
+  return {
+    ...event,
+    // Replace empty strings with current timestamp for fields used in indexes
+    createdAt: event.createdAt || now,
+    modifiedAt: event.modifiedAt || now,
+    // Add other indexed fields that might be empty
+    // someOtherIndexedField: event.someOtherIndexedField || defaultValue,
+  }
+})
 ```
 
-To run tests in debug mode:
+## Running Manually
+
+You can manually clear and populate the DynamoDB tables using the provided script:
 
 ```bash
-npm run test-e2e:debug
+# Clear and populate tables (both operations)
+npm run test-e2e:setup-db
+
+# Only clear tables
+npm run test-e2e:setup-db -- --clear
+
+# Only populate tables
+npm run test-e2e:setup-db -- --populate
 ```
 
-To run tests in a specific browser:
+This is useful for debugging or setting up a specific test state.
+
+## Docker Network Configuration
+
+The utility automatically detects whether it's running inside a Docker network:
+
+- When running with `AWS_SAM_LOCAL=true`, it connects to `http://dynamodb:8000`
+- When running outside Docker, it connects to `http://localhost:8000`
+
+If you're running in a Docker network but not using SAM local, you can set the environment variable:
 
 ```bash
-npm run test-e2e:chrome
-npm run test-e2e:firefox
+IN_DOCKER_NETWORK=true npm run test-e2e:setup-db
 ```
 
-To view the test report:
+## Troubleshooting
 
-```bash
-npm run test-e2e:report
-```
+If you encounter issues:
 
-## Mocking Strategy
-
-The tests use a mocking strategy to simulate API responses. The mocks are defined in the `e2e/utils/mocks.ts` file and are set up before each test. This allows the tests to run without a backend and ensures consistent test results.
-
-### Environment Variables
-
-When running locally, the tests will read environment variables from the `.env` file in the project root. This includes the API base URL (`REACT_APP_API_BASE_URL`) which is used for mocking API responses.
-
-The default API base URL is `http://127.0.0.1:8080` if not specified in the `.env` file.
-
-For more details on how environment variables are used in e2e tests, see [ENV_VARIABLES.md](./ENV_VARIABLES.md).
-
-## Page Objects
-
-The tests use the Page Object Model pattern to encapsulate the interaction with the application. Each page has its own class that provides methods for interacting with the page. This makes the tests more maintainable and easier to read.
-
-## CI/CD Integration
-
-The e2e tests are integrated into the CI/CD pipeline and run automatically on pull requests and merges to the main branch. The test results are uploaded as artifacts and can be viewed in the GitHub Actions workflow.
-
-## Adding New Tests
-
-To add a new test:
-
-1. Create a new test file in the `e2e/tests` directory
-2. Import the necessary page objects and utilities
-3. Write your test using the Playwright test API
-4. Run the test to ensure it passes
-
-## Best Practices
-
-- Use page objects to encapsulate page interactions
-- Use fixtures for test data
-- Use mocks for API responses
-- Write small, focused tests
-- Use descriptive test names
-- Add comments to explain complex test logic
+1. Ensure Docker is running and DynamoDB is accessible at `http://localhost:8000`
+2. Check the console logs for error messages
+3. Verify that the table names in the code match the actual table names in your local DynamoDB
+4. Make sure the DynamoDB container is running: `npm run dynamodb:start`
+5. If running in a Docker network, set `IN_DOCKER_NETWORK=true` to use the correct endpoint
