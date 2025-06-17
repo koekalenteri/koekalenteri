@@ -2,7 +2,6 @@ import type { Page } from '@playwright/test'
 
 import { dogs } from '../fixtures/dogs'
 import { events } from '../fixtures/events'
-import { paymentProviderResponse } from '../fixtures/payments'
 import { registrations } from '../fixtures/registrations'
 
 // API base URL from the application
@@ -35,7 +34,7 @@ export const setupApiMocks = async (page: Page) => {
 
   // Mock API responses for events - using correct endpoint from src/api/event.ts
   await page.route(`${API_BASE_URL}/event/`, async (route) => {
-    console.log('Mocking GET /event/ endpoint')
+    // console.log('Mocking GET /event/ endpoint')
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -109,6 +108,7 @@ export const setupApiMocks = async (page: Page) => {
   })
 
   // Mock payment API - using correct endpoint from src/api/payment.ts
+  /*
   await page.route(`${API_BASE_URL}/payment/create`, async (route) => {
     console.log('Mocking POST /payment/create endpoint')
     return route.fulfill({
@@ -117,6 +117,7 @@ export const setupApiMocks = async (page: Page) => {
       body: JSON.stringify(paymentProviderResponse),
     })
   })
+  */
 
   // Mock payment verify endpoint
   await page.route(`${API_BASE_URL}/payment/verify`, async (route) => {

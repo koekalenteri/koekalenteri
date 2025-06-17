@@ -58,7 +58,11 @@ export default function CollapsibleSection({
       <Box sx={{ pt: '5px', width: 'calc(100% - 34px)', overflowX: 'auto' }}>
         <Box sx={{ userSelect: 'none', mb: '2px' }} onClick={toggle}>
           <Typography>{title}</Typography>
-          <FormHelperText error={error} sx={{ color: 'success.main', display: helperText ? 'block' : 'none' }}>
+          <FormHelperText
+            data-testid={error ? 'error-message' : 'info-message'}
+            error={error}
+            sx={{ color: 'success.main', display: helperText ? 'block' : 'none' }}
+          >
             {helperText}
           </FormHelperText>
         </Box>

@@ -114,6 +114,29 @@ export default [
     },
   },
   {
+    files: ['src/lambda/**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: {
+        ...globals.node,
+      },
+    },
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          name: '__dirname',
+          message: '`__dirname` is not available in ES modules; use `import.meta.url` instead.',
+        },
+        {
+          name: '__filename',
+          message: '`__filename` is not available in ES modules; use `import.meta.url` instead.',
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.test.ts?(x)', 'config/*', 'scripts/*'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },

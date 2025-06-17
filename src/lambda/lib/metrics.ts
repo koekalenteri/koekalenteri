@@ -12,7 +12,7 @@ const metricsCount = (
 ) => {
   metrics.setNamespace('KoekalenteriApp')
   metrics.putDimensions({ Service: service })
-  metrics.setProperty('RequestId', context.requestId)
+  metrics.setProperty('RequestId', context?.requestId)
   metrics.putMetric(label, count, Unit.Count)
 }
 

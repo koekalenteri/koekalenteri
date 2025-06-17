@@ -17,9 +17,11 @@ export default defineConfig({
   maxFailures: 0,
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
+  timeout: isCI ? 30000 : 5000,
   reporter: [['list'], ['html', { open: 'never' }], ['github']],
   use: {
     baseURL: 'http://localhost:3000',
+    ignoreHTTPSErrors: true,
     locale: 'fi-FI',
     screenshot: 'only-on-failure',
     trace: isCI ? 'on-first-retry' : 'retain-on-failure',
@@ -34,11 +36,4 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
   ],
-  webServer: {
-    command: 'npm run start-frontend',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
 })

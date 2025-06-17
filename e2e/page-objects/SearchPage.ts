@@ -1,5 +1,7 @@
 import type { Locator, Page } from '@playwright/test'
 
+import { RegistrationPage } from './RegistrationPage'
+
 /**
  * Page object for the Search page
  */
@@ -28,7 +30,7 @@ export class SearchPage {
     this.filterAccordionSummary = page.locator('div[role="button"]').filter({ hasText: /filter/ })
     this.dateRangeStart = page.getByLabel(/daterangeStart/i)
     this.dateRangeEnd = page.getByLabel(/daterangeEnd/i)
-    this.eventTypeFilter = page.getByLabel(/filter.eventType/i)
+    this.eventTypeFilter = page.getByRole('combobox', { name: 'Tapahtumatyyppi' })
     this.eventClassFilter = page.getByLabel(/filter.eventClass/i)
     this.organizerFilter = page.getByLabel(/filter.organizer/i)
     this.judgeFilter = page.getByLabel(/judge/i)
@@ -44,7 +46,7 @@ export class SearchPage {
   async navigateTo(): Promise<void> {
     await this.page.goto('/')
     // Wait for the filter accordion to be visible
-    await this.filterAccordion.waitFor({ state: 'visible', timeout: 5000 })
+    await this.filterAccordion.waitFor({ state: 'visible' })
   }
 
   /**
@@ -52,16 +54,8 @@ export class SearchPage {
    * @param eventType - Event type to filter by
    */
   async filterByEventType(eventType: string): Promise<void> {
-    // Expand filter accordion if collapsed
-    if ((await this.filterAccordionSummary.getAttribute('aria-expanded')) === 'false') {
-      await this.filterAccordionSummary.click()
-    }
-
     await this.eventTypeFilter.click()
-    await this.page.getByRole('option', { name: eventType }).click()
-
-    // Wait for the API response
-    await this.page.waitForResponse((response) => response.url().includes('/events') && response.status() === 200)
+    await this.page.locator('li').filter({ hasText: eventType }).click()
   }
 
   /**
@@ -113,9 +107,11 @@ export class SearchPage {
    * Selects an event from the search results
    * @param eventName - Name of the event to select
    */
-  async navigateToRegistration(eventName: string): Promise<void> {
+  async navigateToRegistration(eventName: string): Promise<RegistrationPage> {
     await this.page.getByRole('heading', { name: eventName }).getByRole('link').click()
     await this.page.waitForURL(/.*\/event\/.*/)
+
+    return new RegistrationPage(this.page)
   }
 
   /**

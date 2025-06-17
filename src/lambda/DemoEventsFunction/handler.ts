@@ -11,7 +11,7 @@ import { events } from './demo-events'
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const demoEvents = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  if (process.env.STAGE_NAME !== 'dev') {
+  if (CONFIG.stageName !== 'dev' && CONFIG.stackName !== 'local') {
     return response(401, 'Unauthorized', event)
   }
 

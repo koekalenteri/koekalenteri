@@ -1,6 +1,6 @@
-import type { Locator } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
 
-import { expect, type Page } from '@playwright/test'
+import { expect } from '@playwright/test'
 
 export class BasicPage {
   readonly page: Page
@@ -10,7 +10,15 @@ export class BasicPage {
   }
 
   async fillFormField(selector: string, value: string): Promise<void> {
-    await this.page.locator(selector).fill(value)
+    const field = this.page.locator(selector)
+    await field.fill(value)
+    const type = await field.getAttribute('type')
+    if (type === 'tel') {
+      const phone = await field.getAttribute('value')
+      await expect(value).toContain(phone?.replaceAll(' ', ''))
+    } else {
+      await expect(field).toHaveValue(value)
+    }
   }
 
   async fillFormFields(fields: Record<string, string>): Promise<void> {
@@ -27,7 +35,8 @@ export class BasicPage {
   }
 
   async waitForElement(selector: string): Promise<void> {
-    await this.page.locator(selector).waitFor({ state: 'visible' })
-    await expect(this.page.locator(selector)).toBeVisible()
+    const el = this.page.locator(selector).first()
+    await el.waitFor({ state: 'visible' })
+    await expect(el).toBeVisible()
   }
 }
