@@ -36,6 +36,7 @@ exports[`AdditionalInfoSection should render 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1b0t562-MuiFormHelperText-root"
+          data-testid="info-message"
         />
       </div>
       <div

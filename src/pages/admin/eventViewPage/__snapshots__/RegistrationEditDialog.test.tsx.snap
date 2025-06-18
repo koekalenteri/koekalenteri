@@ -96,6 +96,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
                     </p>
@@ -523,6 +524,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       TESTDOG-0020 - Dog Name 20
                     </p>
@@ -1101,6 +1103,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       Breeder Name
                     </p>
@@ -1241,6 +1244,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       Owner Name
                     </p>
@@ -1585,6 +1589,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                           </p>
                           <p
                             class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                            data-testid="info-message"
                           >
                             Handler Name
                           </p>
@@ -1864,6 +1869,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                           </p>
                           <p
                             class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                            data-testid="info-message"
                           >
                             Owner Name
                           </p>
@@ -2091,6 +2097,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       registration.qualifyingResultsInfo class, eventType, qualifies
                     </p>
@@ -2201,6 +2208,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+                      data-testid="info-message"
                     />
                   </div>
                   <div
@@ -2302,6 +2310,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+                      data-testid="info-message"
                     />
                   </div>
                   <div
@@ -2546,6 +2555,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </p>
                 <p
                   class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+                  data-testid="info-message"
                 />
               </div>
               <div
@@ -2796,6 +2806,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
                     </p>
@@ -3253,6 +3264,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       TESTDOG-0010 - Dog Name 10
                     </p>
@@ -3849,6 +3861,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       Breeder Name
                     </p>
@@ -3987,6 +4000,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       Owner Name
                     </p>
@@ -4320,6 +4334,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                           </p>
                           <p
                             class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                            data-testid="info-message"
                           >
                             Handler Name
                           </p>
@@ -4594,6 +4609,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                           </p>
                           <p
                             class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                            data-testid="info-message"
                           >
                             Owner Name
                           </p>
@@ -4817,6 +4833,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                      data-testid="info-message"
                     >
                       registration.qualifyingResultsInfo class, eventType, qualifies
                     </p>
@@ -4927,6 +4944,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+                      data-testid="info-message"
                     />
                   </div>
                   <div
@@ -5027,6 +5045,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </p>
                     <p
                       class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+                      data-testid="info-message"
                     />
                   </div>
                   <div
@@ -5271,6 +5290,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </p>
                 <p
                   class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+                  data-testid="info-message"
                 />
               </div>
               <div

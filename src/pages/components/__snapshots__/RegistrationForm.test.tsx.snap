@@ -42,6 +42,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
@@ -499,6 +500,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               TESTDOG-0010 - Dog Name 10
             </p>
@@ -1095,6 +1097,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               Breeder Name
             </p>
@@ -1233,6 +1236,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               Owner Name
             </p>
@@ -1566,6 +1570,7 @@ exports[`RegistrationForm renders 1`] = `
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     Handler Name
                   </p>
@@ -1840,6 +1845,7 @@ exports[`RegistrationForm renders 1`] = `
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     Owner Name
                   </p>
@@ -2063,6 +2069,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               registration.qualifyingResultsInfo class, eventType, qualifies
             </p>
@@ -2173,6 +2180,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -2273,6 +2281,7 @@ exports[`RegistrationForm renders 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -2529,6 +2538,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
@@ -2986,6 +2996,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.required field
             </p>
@@ -3586,6 +3597,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -3724,6 +3736,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -4057,6 +4070,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     Handler Name
                   </p>
@@ -4331,6 +4345,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     Owner Name
                   </p>
@@ -4554,6 +4569,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -4664,6 +4680,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -4764,6 +4781,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>

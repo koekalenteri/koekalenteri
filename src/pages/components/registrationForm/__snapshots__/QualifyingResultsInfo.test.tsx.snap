@@ -35,6 +35,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1b0t562-MuiFormHelperText-root"
+          data-testid="info-message"
         />
       </div>
       <div
@@ -496,6 +497,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
         </p>
         <p
           class="MuiFormHelperText-root css-1b0t562-MuiFormHelperText-root"
+          data-testid="info-message"
         />
       </div>
       <div
@@ -1639,6 +1641,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1b0t562-MuiFormHelperText-root"
+          data-testid="info-message"
         />
       </div>
       <div

@@ -214,6 +214,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               NOU, eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip / eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip, registration.reserveChoises.DAY
             </p>
@@ -763,6 +764,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.required field
             </p>
@@ -1363,6 +1365,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -1501,6 +1504,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -1834,6 +1838,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     registration.ownerHandles
                   </p>
@@ -2108,6 +2113,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     registration.ownerPays
                   </p>
@@ -2331,6 +2337,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -2441,6 +2448,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -2539,6 +2547,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -3048,6 +3057,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+              data-testid="info-message"
             >
               VOI, registration.reserveChoises.DAY
             </p>
@@ -3528,6 +3538,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.required field
             </p>
@@ -4128,6 +4139,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -4266,6 +4278,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -4599,6 +4612,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     registration.ownerHandles
                   </p>
@@ -4873,6 +4887,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                   </p>
                   <p
                     class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
+                    data-testid="info-message"
                   >
                     registration.ownerPays
                   </p>
@@ -5096,6 +5111,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>
@@ -5206,6 +5222,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -5304,6 +5321,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.registration.choose field
             </p>

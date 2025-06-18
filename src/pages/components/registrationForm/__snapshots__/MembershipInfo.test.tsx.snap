@@ -36,6 +36,7 @@ exports[`MembershipInfo should render when owner handles and is member 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1b0t562-MuiFormHelperText-root"
+          data-testid="info-message"
         />
       </div>
       <div
@@ -165,6 +166,7 @@ exports[`MembershipInfo should render with minimal info 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root Mui-error css-1snnebk-MuiFormHelperText-root"
+          data-testid="error-message"
         >
           validation.registration.choose field
         </p>

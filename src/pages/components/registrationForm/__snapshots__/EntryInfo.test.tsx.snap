@@ -35,6 +35,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
+          data-testid="info-message"
         >
           ALO, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
         </p>
@@ -490,6 +491,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
+          data-testid="info-message"
         >
           NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
         </p>

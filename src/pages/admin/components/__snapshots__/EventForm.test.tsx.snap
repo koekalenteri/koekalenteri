@@ -117,6 +117,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root Mui-error css-p42slg-MuiFormHelperText-root"
+              data-testid="error-message"
             >
               validation.event.errors
             </p>
@@ -1057,6 +1058,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -1407,6 +1409,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -2072,6 +2075,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -2314,6 +2318,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -2540,6 +2545,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
@@ -3016,6 +3022,7 @@ exports[`EventForm should render 1`] = `
             </p>
             <p
               class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
+              data-testid="info-message"
             />
           </div>
           <div
