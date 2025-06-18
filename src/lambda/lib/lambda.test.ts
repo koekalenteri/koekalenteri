@@ -6,6 +6,7 @@ import { CONFIG } from '../config'
 jest.mock('../config', () => ({
   CONFIG: {
     stageName: '',
+    stackName: 'prod',
   },
 }))
 
@@ -200,6 +201,7 @@ describe('lambda', () => {
 
       it('should compress large responses when gzip is accepted', () => {
         // Create a large response body
+        CONFIG.stackName = 'prod'
         const largeBody = { data: 'x'.repeat(5000) }
         const mockEventWithGzip = {
           headers: {

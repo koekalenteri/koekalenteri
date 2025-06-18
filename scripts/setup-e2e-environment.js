@@ -21,9 +21,11 @@ let frontendProcess = null
 
 /**
  * Setup the E2E environment
+ * @param {boolean} isCI - Whether running in CI environment
  * @returns {Promise<Object>} - URLs and other information about the setup
  */
 async function setupE2EEnvironment(isCI = false) {
+  console.log(`Setting up E2E environment${isCI ? ' in CI mode' : ''}...`)
   try {
     // Create Docker network if it doesn't exist
     try {

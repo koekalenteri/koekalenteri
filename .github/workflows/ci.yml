@@ -301,8 +301,8 @@ jobs:
 
       - name: Setup E2E environment
         run: |
-          node scripts/setup-e2e-environment.js --ci &
-          # Wait for the environment to be ready (30 seconds max)
+          npm run test-e2e:setup-env -- --ci &
+          # Wait for the environment to be ready (120 seconds max)
           timeout 120s bash -c 'until grep -q "E2E environment setup complete" <(tail -f nohup.out 2>/dev/null); do sleep 1; done'
 
       - name: Install Playwright browsers
