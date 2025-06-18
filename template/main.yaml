@@ -15,6 +15,7 @@ Globals:
         NODE_PATH: /opt/nodejs/node_modules # needed for layer imports to work without custom build
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
         USE_NGROK: !Ref UseNgrokParam
+        USE_CLOUDFLARED: !Ref UseCloudflaredParam
         CUSTOM_DOMAIN: !Ref CustomDomain
         STACK_NAME: !Ref AWS::StackName
         STAGE_NAME: !Ref StageNameParam
@@ -58,6 +59,10 @@ Parameters:
     Type: String
     Default: "false"
     Description: Set to "true" when using Ngrok for local development
+  UseCloudflaredParam:
+    Type: String
+    Default: "false"
+    Description: Set to "true" when using Cloudflared for local development
 
   # For Amplify Console frontend hosting
   Repository:

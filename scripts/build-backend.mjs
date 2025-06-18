@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild'
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'fs'
+import { readdirSync, statSync } from 'fs'
 import { join } from 'path'
 
 import { modifyImportsPlugin } from './esbuild-plugins.mjs'
@@ -67,77 +67,8 @@ const lambdaCtx = await esbuild[mode]({
   plugins: [modifyImportsPlugin({ isLambda: true })],
 })
 
-/*
-const entries = readdirSync('dist/lambda', { withFileTypes: true })
-
-for (const entry of entries) {
-  if (!entry.isDirectory()) continue
-
-  const srcPath = path.resolve(path.join('dist/lambda', entry.name))
-  const destPath = path.resolve(path.join('dist/sam/lambda', entry.name))
-
-  try {
-    symlinkSync(srcPath, destPath, 'dir')
-    // console.log(`Linked: ${destPath} -> ${srcPath}`)
-  } catch (err) {
-    if (err.code === 'EEXIST') {
-      console.warn(`Already exists: ${destPath}`)
-    } else {
-      console.error(`Failed to link ${destPath}:`, err.message)
-    }
-  }
-}
-*/
-/*
-const links = ['lib', 'i18n', 'lambda/lib', 'lambda/types', 'lambda/utils', 'node_modules']
-
-for (const link of links) {
-  symlinkSync(path.resolve(`dist/layer/nodejs/${link}`), path.resolve(`dist/${link}`))
-}
-*/
-
-// Generate package.json with "type": "module" for each lambda handler
-const generatePackageJsonFiles = () => {
-  const lambdaOutputDir = 'dist/lambda'
-  const packageJson = JSON.stringify({ type: 'module' }, null, 2)
-
-  // Find all lambda handler directories
-  const lambdaHandlerDirs = lambdaEntryPoints
-    .map((entry) => {
-      // Extract the directory name from the entry point
-      // e.g., src/lambda/DemoEventsFunction/handler.ts -> DemoEventsFunction
-      const match = entry.match(/src\/lambda\/([^/]+)\//)
-      return match ? match[1] : null
-    })
-    .filter(Boolean)
-    .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
-
-  // Create package.json in each lambda handler output directory
-  for (const dir of lambdaHandlerDirs) {
-    const outputDir = join(lambdaOutputDir, dir)
-
-    // Create directory if it doesn't exist
-    if (!existsSync(outputDir)) {
-      mkdirSync(outputDir, { recursive: true })
-    }
-
-    // Write package.json
-    const packageJsonPath = join(outputDir, 'package.json')
-    writeFileSync(packageJsonPath, packageJson)
-    console.log(`Generated package.json in ${outputDir}`)
-  }
-}
-
-// Generate package.json files after build
-if (!watch) {
-  generatePackageJsonFiles()
-}
-
 if (watch) {
   await layerCtx.watch()
   await lambdaCtx.watch()
   console.log('watching for changes...')
-
-  // Also generate package.json files in watch mode
-  generatePackageJsonFiles()
 }

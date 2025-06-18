@@ -1,14 +1,15 @@
 /**
- * Ngrok + Nginx Manager
+ * Cloudflared + Nginx Manager
  *
- * This script manages a single ngrok tunnel and nginx for both frontend and backend.
+ * This script manages a single cloudflared tunnel and nginx for both frontend and backend.
  * It routes /api to backend and everything else to frontend through nginx.
  */
 
-const ngrok = require('ngrok')
 const fs = require('fs')
 const path = require('path')
 const { spawn, execSync, exec } = require('child_process')
+const { promisify } = require('util')
+const execAsync = promisify(exec)
 
 // Default port for nginx (using 8888 to avoid collision with DynamoDB on 8000)
 const NGINX_PORT = parseInt(process.env.NGINX_PORT, 10) || 8888
@@ -19,6 +20,8 @@ const FRONTEND_URL_FILE = path.join(__dirname, '../dist/layer/nodejs/.frontend-t
 
 // Store nginx process
 let nginxProcess = null
+// Store cloudflared process
+let cloudflaredProcess = null
 
 /**
  * Start nginx with Docker
@@ -64,7 +67,7 @@ async function startNginx() {
     console.error('Failed to start nginx with Docker:', error)
     console.log('\nTroubleshooting tips:')
     console.log('1. Make sure Docker is properly installed and running')
-    console.log('2. Check if port 8000 is available and not blocked by firewall')
+    console.log('2. Check if port 8888 is available and not blocked by firewall')
     console.log('3. Check if the nginx configuration file exists')
 
     return false
@@ -72,68 +75,59 @@ async function startNginx() {
 }
 
 /**
- * Start ngrok tunnel and save the URL to a file
+ * Start cloudflared tunnel and save the URL to a file
  */
-async function startNgrok() {
+async function startCloudflared() {
+  // Kill any existing cloudflared processes (optional)
   try {
-    // Make sure ngrok is installed and configured
-    await ngrok.kill() // Kill any existing ngrok processes
+    execSync('pkill -f cloudflared', { stdio: 'ignore' })
+  } catch {
+    //ignored
+  }
 
-    // Connect to ngrok with more robust configuration
-    const url = await ngrok.connect({
-      addr: NGINX_PORT,
-      proto: 'http',
-      region: 'eu', // Use European region for better performance with Paytrail
-      onStatusChange: (status) => {
-        console.log(`Ngrok status changed: ${status}`)
-      },
-      authtoken: process.env.NGROK_AUTH_TOKEN, // Use auth token if available
-    })
+  console.log('🚀 Starting cloudflared tunnel...')
 
-    console.log(`🚀 Ngrok tunnel started: ${url}`)
-    console.log('This URL will be used for both frontend and backend')
+  const proc = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${NGINX_PORT}`, '--no-autoupdate'], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
 
-    // Ensure the directory exists
-    const layerDir = path.dirname(BACKEND_URL_FILE)
-    if (!fs.existsSync(layerDir)) {
-      fs.mkdirSync(layerDir, { recursive: true })
+  return await new Promise((resolve, reject) => {
+    const urlRegex = /https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/
+
+    const saveUrls = (url) => {
+      const backendUrl = `${url}/api`
+      const dir = path.dirname(BACKEND_URL_FILE)
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+
+      fs.writeFileSync(BACKEND_URL_FILE, backendUrl)
+      fs.writeFileSync(FRONTEND_URL_FILE, url)
+      console.log(`✅ Tunnel ready:\n  Frontend: ${url}\n  Backend: ${backendUrl}`)
     }
 
-    // Save the URLs to files so they can be read by the Lambda functions
-    // For backend, we add /api to the URL
-    const backendUrl = `${url}/api`
-    fs.writeFileSync(BACKEND_URL_FILE, backendUrl)
-    console.log(`Backend tunnel URL saved: ${backendUrl}`)
+    const handleOutput = (data) => {
+      const text = data.toString()
+      const match = text.match(urlRegex)
+      if (match) {
+        saveUrls(match[0])
+        resolve()
+      }
+    }
 
-    // For frontend, we use the URL as is
-    fs.writeFileSync(FRONTEND_URL_FILE, url)
-    console.log(`Frontend tunnel URL saved: ${url}`)
+    proc.stdout.on('data', handleOutput)
+    proc.stderr.on('data', handleOutput)
 
-    // Set environment variables
-    process.env.NGROK_URL = url
-    process.env.BACKEND_TUNNEL_URL = backendUrl
-    process.env.FRONTEND_TUNNEL_URL = url
+    proc.on('error', (err) => {
+      reject(new Error(`❌ Failed to start cloudflared: ${err.message}`))
+    })
 
-    return url
-  } catch (error) {
-    console.error('Failed to start ngrok:', error)
-    console.log('\nTroubleshooting tips:')
-    console.log('1. Make sure ngrok is properly installed: npm install ngrok --save-dev')
-    console.log('2. Check if port 4040 is available and not blocked by firewall')
-    console.log('3. Try running ngrok directly: npx ngrok http 8000')
-    console.log('4. If you have an ngrok account, set NGROK_AUTH_TOKEN environment variable')
-
-    // Return a fallback URL for development
-    const fallbackUrl = `http://localhost:${NGINX_PORT}`
-    console.log(`\nUsing fallback URL: ${fallbackUrl}`)
-    console.log('Note: External access and Paytrail callbacks will not work with this URL')
-
-    return fallbackUrl
-  }
+    setTimeout(() => {
+      reject(new Error('❌ Timeout: cloudflared did not return a tunnel URL in time.'))
+    }, 15000)
+  })
 }
 
 /**
- * Get the current ngrok URL
+ * Get the current tunnel URLs
  */
 function getTunnelUrls() {
   const urls = {}
@@ -158,7 +152,7 @@ function getTunnelUrls() {
 }
 
 /**
- * Stop nginx and ngrok
+ * Stop nginx and cloudflared
  */
 async function stopServices() {
   try {
@@ -173,10 +167,19 @@ async function stopServices() {
       console.log('No nginx Docker container to stop')
     }
 
-    // Stop ngrok
-    console.log('Stopping ngrok...')
-    await ngrok.kill()
-    console.log('Ngrok tunnel stopped')
+    // Stop cloudflared
+    console.log('Stopping cloudflared...')
+    if (cloudflaredProcess) {
+      cloudflaredProcess.kill()
+      cloudflaredProcess = null
+    } else {
+      try {
+        execSync('pkill -f cloudflared', { stdio: 'ignore' })
+      } catch (error) {
+        // Ignore errors, process might not exist
+      }
+    }
+    console.log('Cloudflared tunnel stopped')
 
     // Remove the URL files
     if (fs.existsSync(BACKEND_URL_FILE)) {
@@ -203,7 +206,7 @@ process.on('SIGTERM', async () => {
 
 module.exports = {
   startNginx,
-  startNgrok,
+  startCloudflared,
   getTunnelUrls,
   stopServices,
 }
@@ -212,7 +215,7 @@ module.exports = {
 if (require.main === module) {
   Promise.resolve()
     .then(startNginx)
-    .then(startNgrok)
+    .then(startCloudflared)
     .then((url) => {
       const urls = getTunnelUrls()
       console.log('Services are running:')

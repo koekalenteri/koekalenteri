@@ -1,13 +1,13 @@
 /**
- * Start SAM Local API and Frontend with Ngrok + Nginx
+ * Start SAM Local API and Frontend with Cloudflared + Nginx
  *
  * This script starts both the SAM local API and frontend, waits for them to be ready,
- * then sets up nginx and creates a single ngrok tunnel that routes traffic to both services.
+ * then sets up nginx and creates a single cloudflared tunnel that routes traffic to both services.
  */
 
 const { spawn, execSync } = require('child_process')
 const waitOn = require('wait-on')
-const { startNginx, startNgrok, getTunnelUrls, stopServices } = require('./ngrok-nginx-manager')
+const { startNginx, startCloudflared, getTunnelUrls, stopServices } = require('./cloudflared-nginx-manager')
 
 // Store process references for cleanup
 let samProcess = null
@@ -49,7 +49,7 @@ async function startBackend() {
         'koekalenteri',
         '--warm-containers=LAZY',
         '--parameter-overrides',
-        'UseNgrokParam=true',
+        'UseCloudflaredParam=true',
       ],
       {
         stdio: 'inherit',
@@ -179,15 +179,13 @@ async function cleanup(exitCode) {
       samProcess = null
     }
 
-    // Stop nginx and ngrok
+    // Stop nginx and cloudflared
     await stopServices()
 
     // Stop DynamoDB
-    /*
     console.log('Stopping DynamoDB...')
     execSync('npm run dynamodb:stop', { stdio: 'inherit' })
     console.log('DynamoDB stopped successfully')
-    */
   } catch (error) {
     console.error('Error during cleanup:', error)
   }
@@ -207,7 +205,6 @@ async function main() {
     await waitForServices()
 
     // Start nginx
-    console.log('Starting nginx...')
     const nginxStarted = await startNginx()
     if (!nginxStarted) {
       console.error('Failed to start nginx, exiting...')
@@ -215,26 +212,12 @@ async function main() {
       return
     }
 
-    // Start ngrok tunnel
-    console.log('Starting ngrok tunnel...')
     try {
-      await startNgrok()
-
-      // Get the tunnel URLs from the files
-      const tunnelUrls = getTunnelUrls()
-
-      if (tunnelUrls.backend) {
-        console.log(`Backend tunnel URL: ${tunnelUrls.backend}`)
-      }
-
-      if (tunnelUrls.frontend) {
-        console.log(`Frontend tunnel URL: ${tunnelUrls.frontend}`)
-      }
-
-      console.log('Tunnel URLs will be used for both frontend and Paytrail callbacks')
+      await startCloudflared()
     } catch (error) {
-      console.warn('Failed to start ngrok, continuing without it')
-      console.warn('External access and Paytrail callbacks will not work properly')
+      console.error(error, 'Failed to start cloudflared')
+      await cleanup()
+      return
     }
 
     // Warm up important functions
@@ -268,7 +251,7 @@ async function main() {
     process.on('SIGINT', () => cleanup(0))
     process.on('SIGTERM', () => cleanup(0))
   } catch (error) {
-    console.error('Failed to start services with ngrok + nginx:', error)
+    console.error('Failed to start services with cloudflared + nginx:', error)
     cleanup(1)
   }
 }

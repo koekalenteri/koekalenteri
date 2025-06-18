@@ -22,7 +22,7 @@ import { getPaytrailConfig } from './secrets'
 // Helper function to read tunnel URLs from files
 function getTunnelUrlFromFile(filename: string): string | null {
   try {
-    if (process.env.USE_NGROK === 'true') {
+    if (process.env.USE_CLOUDFLARED === 'true') {
       const filePath = join('/opt/nodejs', filename)
       if (existsSync(filePath)) {
         return readFileSync(filePath, 'utf8').trim()
@@ -145,7 +145,7 @@ const createCallbackUrls = (baseUrl: string): CallbackUrl => ({
 })
 
 export const createPaymentRedirectUrls = (origin: string): CallbackUrl => {
-  // Check if we're in development mode with tunnelmole
+  // Check if we're in development mode with tunnel
   const frontendTunnelUrl = getTunnelUrlFromFile('.frontend-tunnel-url')
   if (frontendTunnelUrl && CONFIG.stackName !== 'koekalenteri-prod') {
     console.log(`Using frontend tunnel URL for Paytrail redirects: ${frontendTunnelUrl}`)
@@ -199,7 +199,7 @@ export const getPayment = async (transactionId: string): Promise<GetPaymentRespo
   paytrailRequest('GET', `payments/${transactionId}`, undefined, transactionId)
 
 export const createRefundCallbackUrls = (host: string): CallbackUrl => {
-  // Check if we're in development mode with tunnelmole
+  // Check if we're in development mode with tunnel
   const tunnelUrl = getTunnelUrlFromFile('.backend-tunnel-url')
   if (tunnelUrl && CONFIG.stackName !== 'koekalenteri-prod') {
     console.log(`Using tunnel URL for Paytrail refund callbacks: ${tunnelUrl}`)
