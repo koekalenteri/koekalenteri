@@ -111,19 +111,23 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
+
       - name: Cache node_modules
         id: cache
         uses: actions/cache@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
+
       - name: Lint
         run: npm run lint-backend && npm run lint-biome
       - name: Build
         run: npm run build-backend
+
       - name: Test
         run: npm run test-backend -- --coverage
       - name: Upload build
@@ -131,6 +135,7 @@ jobs:
         with:
           name: backend-build
           path: dist/
+
       - name: Rename coverage
         run: |
           mkdir -p coverage
