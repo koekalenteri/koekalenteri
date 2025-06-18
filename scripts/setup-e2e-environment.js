@@ -62,38 +62,39 @@ async function setupE2EEnvironment(isCI = false) {
 async function setupDynamoDB(isCI) {
   console.log('Setting up DynamoDB...')
 
-  if (!isCI) {
-    // Start DynamoDB locally (not needed in CI as it's a service)
-    try {
-      execSync('npm run dynamodb:start', { stdio: 'inherit' })
-      console.log('✅ DynamoDB started successfully')
-    } catch (error) {
-      console.error('❌ Failed to start DynamoDB:', error.message)
-      throw error
-    }
+  try {
+    execSync('npm run dynamodb:start', { stdio: 'inherit' })
+    console.log('✅ DynamoDB started successfully')
+  } catch (error) {
+    console.error('❌ Failed to start DynamoDB:', error.message)
+    throw error
   }
 
-  // Create tables
   try {
     console.log('Creating DynamoDB tables...')
+    execSync('npm run dynamodb:start', { stdio: 'inherit' })
+    /*
     execSync('python ../scripts/create-local-tables.py', {
       stdio: 'inherit',
       cwd: './dist', // Run in the dist folder where template.yaml is located
     })
+    */
     console.log('✅ DynamoDB tables created successfully')
   } catch (error) {
     console.error('❌ Failed to create DynamoDB tables:', error.message)
     throw error
   }
 
-  // Setup test data
-  try {
-    console.log('Setting up E2E test data...')
-    execSync('node -r esbuild-register e2e/scripts/setup-dynamodb.ts', { stdio: 'inherit' })
-    console.log('✅ E2E test data loaded successfully')
-  } catch (error) {
-    console.error('❌ Failed to setup E2E test data:', error.message)
-    throw error
+  if (!isCI) {
+    try {
+      console.log('Setting up E2E test data...')
+      execSync('npm run test-e2e:setup-db', { stdio: 'inherit' })
+      // execSync('node -r esbuild-register e2e/scripts/setup-dynamodb.ts', { stdio: 'inherit' })
+      console.log('✅ E2E test data loaded successfully')
+    } catch (error) {
+      console.error('❌ Failed to setup E2E test data:', error.message)
+      throw error
+    }
   }
 }
 
