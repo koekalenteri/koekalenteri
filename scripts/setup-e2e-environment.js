@@ -76,7 +76,10 @@ async function setupDynamoDB(isCI) {
   // Create tables
   try {
     console.log('Creating DynamoDB tables...')
-    execSync('python scripts/create-local-tables.py', { stdio: 'inherit' })
+    execSync('python ../../scripts/create-local-tables.py', {
+      stdio: 'inherit',
+      cwd: './dist', // Run in the dist folder where template.yaml is located
+    })
     console.log('✅ DynamoDB tables created successfully')
   } catch (error) {
     console.error('❌ Failed to create DynamoDB tables:', error.message)
