@@ -161,6 +161,7 @@ jobs:
     needs: [setup, frontend]
     if: ${{ needs.setup.outputs.frontend == 'true' }}
     strategy:
+      fail-fast: false
       matrix:
         shard: [1, 2, 3, 4]
     steps:
