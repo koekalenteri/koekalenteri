@@ -27,15 +27,6 @@ let frontendProcess = null
 async function setupE2EEnvironment(isCI = false) {
   console.log(`Setting up E2E environment${isCI ? ' in CI mode' : ''}...`)
   try {
-    // Create Docker network if it doesn't exist
-    try {
-      execSync('docker network inspect koekalenteri >/dev/null 2>&1 || docker network create koekalenteri')
-      console.log('✅ Docker network "koekalenteri" is ready')
-    } catch (error) {
-      console.error('❌ Failed to create Docker network:', error.message)
-      throw error
-    }
-
     await setupDynamoDB(isCI)
     await Promise.all([startBackend(isCI), startFrontend(isCI)])
     await waitForServices()
