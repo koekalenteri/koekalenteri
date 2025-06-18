@@ -220,12 +220,6 @@ jobs:
     needs: [setup, backend, frontend]
     if: ${{ needs.setup.outputs.e2e == 'true' || needs.setup.outputs.frontend == 'true' || needs.setup.outputs.backend == 'true' }}
 
-    services:
-      dynamodb:
-        image: amazon/dynamodb-local
-        ports:
-          - 8000:8000
-
     env:
       AWS_REGION: eu-north-1
       DYNAMODB_ENDPOINT: http://localhost:8000
@@ -252,10 +246,11 @@ jobs:
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Install Cloudflared
+      - name: Install cloudflared
         run: |
-          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-          sudo dpkg -i cloudflared.deb
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+          chmod +x cloudflared
+          sudo mv cloudflared /usr/local/bin/cloudflared
           cloudflared --version
 
       - uses: aws-actions/setup-sam@v2
