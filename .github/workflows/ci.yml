@@ -92,44 +92,43 @@ jobs:
     if: ${{ needs.setup.outputs.backend == 'true' }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           cache: npm
           cache-dependency-path: package-lock.json
+
       - name: Cache node_modules
         id: cache
         uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
+
       - name: Lint
         run: npm run lint
+
       - name: Build
         run: npm run build-backend
+
       - name: Test
         run: npm run test-backend -- --coverage
-      - name: Cache layer node_modules
-        id: cache-layer
-        uses: actions/cache@v4
-        with:
-          path: dist/layer/nodejs/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - name: Install layer packages
-        if: steps.cache-layer.outputs.cache-hit != 'true'
-        working-directory: dist/layer/nodejs
-        run: npm ci --imit=dev
+
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: backend-build
           path: dist/
+
       - name: Rename coverage
         run: |
           mkdir -p coverage
           mv src/lambda/coverage/lcov.info coverage/lcov.info
+
       - name: Cache coverage report
         uses: actions/cache/save@v4
         with:

@@ -67,7 +67,7 @@ function isNpmPackage(importPath) {
 }
 
 function findHandlerFiles(dir) {
-  return findTsFiles(dir).filter((path) => path.includes('handlers'))
+  return findTsFiles(dir).filter((path) => path.includes('handler'))
 }
 
 function resolveAllDependencies(entryPackages) {
