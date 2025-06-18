@@ -80,7 +80,7 @@ Deployment is automated with GitHub actions.
 
 ## Backend overview
 
-Koekalenteri backend is a bunch of lambda functions running on AWS. The system also uses a Cloudflare Worker as a proxy between clients and Upstash Redis to provide real-time updates via Server-Sent Events (SSE).
+Koekalenteri backend is a bunch of lambda functions running on AWS.
 
 ## Frontend overview
 
@@ -89,13 +89,3 @@ Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/
 * [React](https://reactjs.org/) - UI framework
 * [Recoil](https://recoiljs.org/) - State management
   * State is documented in [src/pages/recoil](src/pages/recoil/README.md) and [src/pages/admin/recoil](src/pages/admin/recoil/README.md)
-
-## Real-time Updates
-
-Koekalenteri uses Server-Sent Events (SSE) to provide real-time updates to clients. The implementation consists of:
-
-* **Cloudflare Worker**: Acts as a proxy between clients and Upstash Redis, located in `cf/sse-worker/`
-* **Upstash Redis**: Stores and distributes real-time messages
-* **SSE Protocol**: Allows the server to push updates to clients over a single HTTP connection
-
-This architecture enables features like instant updates to registration statuses, event changes, and other time-sensitive information without requiring clients to refresh their browser.

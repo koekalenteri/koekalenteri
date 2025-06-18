@@ -81,6 +81,7 @@
     "test-e2e:firefox": "npx playwright test --project=firefox",
     "test-e2e:report": "npx playwright show-report",
     "test-e2e:setup-db": "node -r esbuild-register e2e/scripts/setup-dynamodb.ts",
+    "test-e2e:setup-env": "node scripts/setup-e2e-environment.js",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "engines": {

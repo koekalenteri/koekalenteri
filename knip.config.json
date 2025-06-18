@@ -54,9 +54,6 @@
         "scripts/build-backend.js",
         "scripts/build-frontend.js"
       ]
-    },
-    "cf/sse-worker": {
-      "entry": ["src/index.ts"]
     }
   },
   "tags": ["-lintignore"]

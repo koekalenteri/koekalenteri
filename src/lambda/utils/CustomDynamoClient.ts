@@ -85,8 +85,6 @@ export default class CustomDynamoClient {
     if (process.env.AWS_SAM_LOCAL) {
       // Override endpoint when in local development
       options.endpoint = 'http://dynamodb:8000'
-
-      console.info('LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table)
     }
 
     this.client = new DynamoDBClient(options)

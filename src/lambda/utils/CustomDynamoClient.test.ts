@@ -54,7 +54,7 @@ describe('CustomDynamoClient', () => {
   describe('constructor', () => {
     it('initializes with the provided table name', () => {
       const client = new CustomDynamoClient('TestTable')
-      expect(client.table).toBe('test-table')
+      expect(client.table).toBe('test-table-local')
     })
 
     it('handles SAM local environment', () => {
@@ -79,7 +79,7 @@ describe('CustomDynamoClient', () => {
       const result = await client.readAll()
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         FilterExpression: 'attribute_not_exists(deletedAt)',
       })
       expect(result).toEqual([{ id: '1' }, { id: '2' }])
@@ -92,7 +92,7 @@ describe('CustomDynamoClient', () => {
       await client.readAll(undefined, 'attribute = :value', { ':value': 'test' })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         FilterExpression: '(attribute_not_exists(deletedAt)) AND (attribute = :value)',
         ExpressionAttributeValues: { ':value': 'test' },
       })
@@ -106,7 +106,7 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
-          TableName: 'custom-table',
+          TableName: 'custom-table-local',
         })
       )
     })
@@ -133,7 +133,7 @@ describe('CustomDynamoClient', () => {
       const result = await client.read({ id: '1' })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         Key: { id: '1' },
       })
       expect(result).toEqual({ id: '1', name: 'Test' })
@@ -156,7 +156,7 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
-          TableName: 'custom-table',
+          TableName: 'custom-table-local',
         })
       )
     })
@@ -173,7 +173,7 @@ describe('CustomDynamoClient', () => {
       })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         KeyConditionExpression: 'id = :id',
         ExpressionAttributeValues: { ':id': '1' },
         IndexName: undefined,
@@ -213,7 +213,7 @@ describe('CustomDynamoClient', () => {
       })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'custom-table',
+        TableName: 'custom-table-local',
         KeyConditionExpression: 'id = :id',
         ExpressionAttributeValues: { ':id': '1' },
         IndexName: 'GSI1',
@@ -234,7 +234,7 @@ describe('CustomDynamoClient', () => {
       await client.write(item)
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         Item: item,
       })
     })
@@ -247,7 +247,7 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
-          TableName: 'custom-table',
+          TableName: 'custom-table-local',
         })
       )
     })
@@ -268,7 +268,7 @@ describe('CustomDynamoClient', () => {
       // First batch should have 25 items
       expect(mockSend).toHaveBeenNthCalledWith(1, {
         RequestItems: {
-          'test-table': expect.arrayContaining([
+          'test-table-local': expect.arrayContaining([
             expect.objectContaining({
               PutRequest: expect.objectContaining({
                 Item: expect.objectContaining({ id: '0' }),
@@ -293,7 +293,7 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           RequestItems: {
-            'custom-table': expect.any(Array),
+            'custom-table-local': expect.any(Array),
           },
         })
       )
@@ -308,7 +308,7 @@ describe('CustomDynamoClient', () => {
       await client.update({ id: '1' }, { set: { name: 'Updated', status: 'active' } })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         Key: { id: '1' },
         UpdateExpression: 'SET #name = :name, #status = :status',
         ExpressionAttributeNames: { '#name': 'name', '#status': 'status' },
@@ -323,7 +323,7 @@ describe('CustomDynamoClient', () => {
       await client.update({ id: '1' }, { add: { count: 1, points: 5 } })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         Key: { id: '1' },
         UpdateExpression: 'ADD #count :count, #points :points',
         ExpressionAttributeNames: { '#count': 'count', '#points': 'points' },
@@ -344,7 +344,7 @@ describe('CustomDynamoClient', () => {
       )
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         Key: { id: '1' },
         UpdateExpression: 'SET #name = :name, #status = :status ADD #count :count, #points :points',
         ExpressionAttributeNames: {
@@ -398,7 +398,7 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
-          TableName: 'custom-table',
+          TableName: 'custom-table-local',
         })
       )
     })
@@ -412,7 +412,7 @@ describe('CustomDynamoClient', () => {
       const result = await client.delete({ id: '1' })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
+        TableName: 'test-table-local',
         Key: { id: '1' },
       })
       expect(result).toBe(true)
@@ -447,7 +447,7 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
-          TableName: 'custom-table',
+          TableName: 'custom-table-local',
         })
       )
     })
@@ -461,10 +461,10 @@ describe('CustomDynamoClient', () => {
       process.env = { ...originalEnv, AWS_SAM_LOCAL: 'true' }
 
       const client = new CustomDynamoClient('TestTable')
-      expect(client.table).toBe('test-table')
+      expect(client.table).toBe('test-table-local')
 
       const client2 = new CustomDynamoClient('UserProfileTable')
-      expect(client2.table).toBe('user-profile-table')
+      expect(client2.table).toBe('user-profile-table-local')
     })
   })
 })

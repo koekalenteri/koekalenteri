@@ -8,6 +8,15 @@ jest.unstable_mockModule('./demo-events', () => ({
 
 const mockResponse = jest.fn<any>()
 const mockBatchWrite = jest.fn<any>()
+const mockConfig = {
+  stageName: 'dev',
+  stackName: 'prod',
+  eventTable: 'events-table',
+}
+
+jest.unstable_mockModule('../config', () => ({
+  CONFIG: mockConfig,
+}))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
@@ -19,26 +28,24 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   })),
 }))
 
-// Store original env
-const originalEnv = process.env
+const { default: demoEventsHandler } = await import('./handler')
 
 describe('demoEvents', () => {
-  let demoEventsHandler: any
   let errorSpy: jest.SpiedFunction<any>
 
   beforeEach(async () => {
     // Reset mocks
     jest.clearAllMocks()
 
-    // Reset env for each test
-    process.env = { ...originalEnv }
+    // Reset config to default values
+    Object.assign(mockConfig, {
+      stageName: 'dev',
+      stackName: 'prod',
+      eventTable: 'events-table',
+    })
 
     // Spy on console.error
     errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    // Import the handler after mocks are set up
-    const module = await import('./handler')
-    demoEventsHandler = module.default
   })
 
   afterEach(() => {
@@ -46,14 +53,10 @@ describe('demoEvents', () => {
     errorSpy.mockRestore()
   })
 
-  afterAll(() => {
-    // Restore original env
-    process.env = originalEnv
-  })
-
-  it('returns 401 when not in dev environment', async () => {
-    // Set environment to something other than dev
-    process.env.STAGE_NAME = 'prod'
+  it('returns 401 when not in dev environment or local stack', async () => {
+    // Set config to non-dev and non-local
+    mockConfig.stageName = 'prod'
+    mockConfig.stackName = 'prod'
 
     const event = { headers: {}, body: '' } as any
 
@@ -64,8 +67,23 @@ describe('demoEvents', () => {
   })
 
   it('successfully creates demo events in dev environment', async () => {
-    // Set environment to dev
-    process.env.STAGE_NAME = 'dev'
+    // Set config to dev stage (default in beforeEach)
+    mockConfig.stageName = 'dev'
+    mockConfig.stackName = 'prod' // Any stack name should work with dev stage
+
+    const event = { headers: {}, body: '' } as any
+    mockBatchWrite.mockResolvedValueOnce({})
+
+    await demoEventsHandler(event)
+
+    expect(mockBatchWrite).toHaveBeenCalledWith([{ id: 'demo-event-1' }, { id: 'demo-event-2' }])
+    expect(mockResponse).toHaveBeenCalledWith(200, 'ok', event)
+  })
+
+  it('successfully creates demo events in local stack environment', async () => {
+    // Set config to local stack but non-dev stage
+    mockConfig.stageName = 'prod'
+    mockConfig.stackName = 'local'
 
     const event = { headers: {}, body: '' } as any
     mockBatchWrite.mockResolvedValueOnce({})
@@ -77,8 +95,7 @@ describe('demoEvents', () => {
   })
 
   it('handles ServiceException errors', async () => {
-    // Set environment to dev
-    process.env.STAGE_NAME = 'dev'
+    // Config is already set to dev in beforeEach
 
     const event = { headers: {}, body: '' } as any
     const error = new ServiceException({
@@ -100,8 +117,7 @@ describe('demoEvents', () => {
   })
 
   it('handles generic errors', async () => {
-    // Set environment to dev
-    process.env.STAGE_NAME = 'dev'
+    // Config is already set to dev in beforeEach
 
     const event = { headers: {}, body: '' } as any
     const error = new Error('Generic error')
@@ -116,8 +132,7 @@ describe('demoEvents', () => {
   })
 
   it('handles ServiceException without httpStatusCode', async () => {
-    // Set environment to dev
-    process.env.STAGE_NAME = 'dev'
+    // Config is already set to dev in beforeEach
 
     const event = { headers: {}, body: '' } as any
     const error = new ServiceException({
