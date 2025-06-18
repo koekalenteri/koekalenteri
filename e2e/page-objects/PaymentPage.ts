@@ -39,7 +39,6 @@ export class PaymentPage {
     await this.nordeaPayment.click()
     await this.nordeaConfirmButton.click()
     await this.page.waitForResponse((response) => response.url().includes('/payment') && response.status() === 200)
-    await this.page.pause()
     await this.page.waitForURL(/.*\/p\/success.*/)
 
     return new RegistrationListPage(this.page)
