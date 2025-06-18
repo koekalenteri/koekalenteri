@@ -177,7 +177,7 @@ async function waitForServices() {
     ],
     delay: 1000, // Initial delay
     interval: 2000, // Poll interval
-    timeout: 60000, // 60 second timeout
+    timeout: 600000, // 600 second timeout
     validateStatus: (status) => status !== 500, // Accept any status except 500
   }
 
