@@ -231,25 +231,16 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       - name: SAM Validate
         run: |
-         sam validate --lint
+         sam validate --lint -t dist/template.yaml
       - name: Configure variables
         shell: bash
         run: |
           echo "branch=main" >> $GITHUB_ENV
           echo "environment=koekalenteri-dev" >> $GITHUB_ENV
           echo "stage=dev" >> $GITHUB_ENV
-      - name: Shared Node.js layer
-        run: |
-          mkdir -p layer/nodejs/lambda
-          mv node_modules layer/nodejs/
-          mv dist/i18n layer/nodejs/
-          mv dist/lib layer/nodejs/
-          mv -t layer/nodejs/lambda dist/lambda/lib dist/lambda/types dist/lambda/utils
-          cp dist/lambda/config.mjs layer/nodejs/lambda
       - name: SAM Build
         run: |
-          cp Makefile dist/
-          sam build --base-dir dist
+          sam build --base-dir dist -t dist/template.yaml
       - name: SAM Deploy
         run: |
           # Create S3 Bucket to store code
