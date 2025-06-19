@@ -52,10 +52,10 @@ jobs:
               - 'src/i18n/**'
               - 'src/lib/**'
               - 'src/types/**'
+              - 'template/*'
               - 'package-lock.json'
               - 'package.json'
               - 'tsconfig.json'
-              - 'template.yaml'
               - 'Makefile'
             frontend:
               - '.github/**'
