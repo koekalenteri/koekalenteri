@@ -26,10 +26,10 @@ jest.unstable_mockModule('./audit', () => ({
   registrationAuditKey: jest.fn(() => 'audit-key'),
 }))
 
-const mockSSE = jest.fn()
-jest.unstable_mockModule('./sse', () => ({
+const mockBroadcast = jest.fn()
+jest.unstable_mockModule('./broadcast', () => ({
   __esModule: true,
-  sse: mockSSE,
+  broadcastEvent: mockBroadcast,
 }))
 
 const {
@@ -165,7 +165,7 @@ describe('lib/event', () => {
       mockUpdate.mockReset()
       mockQuery.mockReset()
       mockRead.mockReset()
-      mockSSE.mockReset()
+      mockBroadcast.mockReset()
     })
     it('updates event entries and members', async () => {
       const event = { id: 'e3', classes: [{ class: 'A' }], state: 'ready' }
@@ -207,7 +207,7 @@ describe('lib/event', () => {
 
       // Verify that no update was performed
       expect(mockUpdate).not.toHaveBeenCalled()
-      expect(mockSSE).not.toHaveBeenCalled()
+      expect(mockBroadcast).not.toHaveBeenCalled()
     })
   })
 

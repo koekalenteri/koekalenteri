@@ -43,10 +43,10 @@ jest.unstable_mockModule('../lib/registration', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const mockSSE = jest.fn()
-jest.unstable_mockModule('../lib/sse', () => ({
+const mockBroadcast = jest.fn()
+jest.unstable_mockModule('../lib/broadcast', () => ({
   __esModule: true,
-  sse: mockSSE,
+  broadcastEvent: mockBroadcast,
 }))
 
 const { default: putRegistrationGroupsLambda } = await import('./handler')

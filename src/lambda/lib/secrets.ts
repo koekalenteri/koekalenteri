@@ -1,7 +1,6 @@
 import type { Parameter } from '@aws-sdk/client-ssm'
 import type { KLAPIConfig } from '../types/KLAPI'
 import type { PaytrailConfig } from '../types/paytrail'
-import type { SSEConfig } from '../types/sse'
 
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
 
@@ -135,16 +134,6 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
     throw new Error('Missing Paytrail Config!')
   }
   console.log('merchantId: ' + cfg.PAYTRAIL_MERCHANT_ID)
-  return cfg
-}
-
-export const getSSEConfig = async (): Promise<SSEConfig> => {
-  const cfg: SSEConfig = await getSSMParams<SSEConfig>([`SSE_API_URL`, `SSE_API_TOKEN`])
-
-  if (!cfg.SSE_API_URL || !cfg.SSE_API_TOKEN) {
-    throw new Error('Missing SSE Config!')
-  }
-
   return cfg
 }
 

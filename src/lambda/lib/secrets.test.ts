@@ -22,13 +22,7 @@ jest.unstable_mockModule('../config', () => ({
 }))
 
 // Import the module after mocking
-const {
-  getKLAPIConfig,
-  getPaytrailConfig,
-  getSSMParams,
-  getSSEConfig: getSSEApiToken,
-  resetCache,
-} = await import('./secrets')
+const { getKLAPIConfig, getPaytrailConfig, getSSMParams, resetCache } = await import('./secrets')
 
 describe('secrets', () => {
   beforeEach(() => {

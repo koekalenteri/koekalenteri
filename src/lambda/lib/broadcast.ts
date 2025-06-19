@@ -2,13 +2,11 @@ import type { AnyObject } from '../../lib/utils'
 
 import { CONFIG } from '../config'
 
-import { getSSEConfig } from './secrets'
-
-export const sse = async (data: AnyObject) => {
-  const config = await getSSEConfig()
+export const broadcastEvent = async (data: AnyObject) => {
   const { stackName } = CONFIG
 
-  console.log(`Sending event to clients listening "${stackName}", with:`, data)
+  console.log(`TODO: Sending event to clients listening "${stackName}", with:`, data)
+  /*
 
   await fetch(`${config.SSE_API_URL}?channel=${stackName}`, {
     method: 'POST',
@@ -18,4 +16,5 @@ export const sse = async (data: AnyObject) => {
     },
     body: JSON.stringify(data),
   })
+    */
 }
