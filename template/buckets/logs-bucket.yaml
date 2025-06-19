@@ -1,0 +1,22 @@
+  S3BucketLogs:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Join ['-', [!Ref AWS::StackName, 'bucket-logs']]
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+
+  S3BucketLogsPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref S3BucketLogs
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowLogDeliveryWrite
+            Effect: Allow
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Action:
+              - 's3:PutObject'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${S3BucketLogs}/*'

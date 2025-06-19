@@ -1,0 +1,40 @@
+  GetEventTypesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetEventTypesFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - CloudWatchPutMetricPolicy: {}
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTypeTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+      Events:
+        GetEventTypes:
+          Type: Api
+          Properties:
+            Path: /eventType
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetEventTypesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventTypesFunction]]
+      RetentionInDays: 30

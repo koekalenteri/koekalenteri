@@ -1,0 +1,18 @@
+  UserLinkTable: # Table linking cognito users to koekalenteri users. Multiple cognito users can link to same koekalenteri user.
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [user-link-table, 'v2', !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: cognitoUser
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: cognitoUser
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

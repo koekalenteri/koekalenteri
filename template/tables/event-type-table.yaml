@@ -1,0 +1,18 @@
+  EventTypeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [event-type-table, 'v2', !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: eventType
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: eventType
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

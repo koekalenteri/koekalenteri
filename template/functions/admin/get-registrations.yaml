@@ -1,0 +1,35 @@
+  GetRegistrationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetRegistrationsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetRegistrations:
+          Type: Api
+          Properties:
+            Path: /admin/registration/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetRegistrationsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationsFunction]]
+      RetentionInDays: 30

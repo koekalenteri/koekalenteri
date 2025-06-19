@@ -1,0 +1,40 @@
+  PaymentVerifyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PaymentVerifyFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /payment/verify
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+
+  PaymentVerifyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentVerifyFunction]]
+      RetentionInDays: 180

@@ -1,0 +1,18 @@
+  OrganizerTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [organizer-table, 'v3', !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

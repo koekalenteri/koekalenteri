@@ -1,0 +1,29 @@
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetUserFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /user
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetUserFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetUserFunction]]
+      RetentionInDays: 30

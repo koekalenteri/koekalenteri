@@ -1,0 +1,38 @@
+  PutInvitationAttachmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutInvitationAttachmentFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref EventAttachmentBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          BUCKET: !Ref EventAttachmentBucket
+      Events:
+        Put:
+          Type: Api
+          Properties:
+            Path: /admin/file/invitation/{eventId}
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutInvitationAttachmentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutInvitationAttachmentFunction]]
+      RetentionInDays: 30

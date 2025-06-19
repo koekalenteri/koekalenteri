@@ -230,7 +230,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       - name: SAM Validate
-        continue-on-error: true # allow temporarily, because it fails on warnings
         run: |
          sam validate --lint
       - name: Configure variables
@@ -241,8 +240,6 @@ jobs:
           echo "stage=dev" >> $GITHUB_ENV
       - name: Shared Node.js layer
         run: |
-          npm un aws-amplify @aws-amplify/ui-react @mui/icons-material @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router recoil
-          npm ci --omit=dev
           mkdir -p layer/nodejs/lambda
           mv node_modules layer/nodejs/
           mv dist/i18n layer/nodejs/
@@ -324,4 +321,3 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-

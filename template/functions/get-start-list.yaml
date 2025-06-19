@@ -1,0 +1,27 @@
+  GetStartListFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetStartListFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetRegistration:
+          Type: Api
+          Properties:
+            Path: /startlist/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetStartListFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetStartListFunction]]
+      RetentionInDays: 30

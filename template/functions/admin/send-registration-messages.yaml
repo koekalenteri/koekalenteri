@@ -1,0 +1,41 @@
+  SendRegistrationMessagesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/SendRegistrationMessagesFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+      Events:
+        PutEmailTemplate:
+          Type: Api
+          Properties:
+            Path: /admin/email-send
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  SendRegistrationMessagesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SendRegistrationMessagesFunction]]
+      RetentionInDays: 30

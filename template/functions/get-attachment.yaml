@@ -1,0 +1,34 @@
+  GetAttachmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetAttachmentFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref EventAttachmentBucket
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Environment:
+        Variables:
+          BUCKET: !Ref EventAttachmentBucket
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            Path: /file/{key}/{name}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetAttachmentFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAttachmentFunction]]
+      RetentionInDays: 30

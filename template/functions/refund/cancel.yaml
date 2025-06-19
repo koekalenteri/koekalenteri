@@ -1,0 +1,40 @@
+  RefundCancelFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/RefundCancelFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /refund/cancel
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  RefundCancelFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref RefundCancelFunction]]
+      RetentionInDays: 30

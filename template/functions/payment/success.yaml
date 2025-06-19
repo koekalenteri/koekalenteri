@@ -1,0 +1,46 @@
+  PaymentSuccessFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PaymentSuccessFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TransactionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+      Events:
+        PutEvent:
+          Type: Api
+          Properties:
+            Path: /payment/success
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  PaymentSuccessFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentSuccessFunction]]
+      RetentionInDays: 180
