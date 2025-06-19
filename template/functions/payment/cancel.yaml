@@ -37,4 +37,4 @@
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentCancelFunction]]
-      RetentionInDays: 30
+      RetentionInDays: 180

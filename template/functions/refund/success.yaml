@@ -43,4 +43,4 @@
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref RefundSuccessFunction]]
-      RetentionInDays: 30
+      RetentionInDays: 180
