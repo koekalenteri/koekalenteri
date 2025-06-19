@@ -9,7 +9,7 @@ import { setUserRole } from '../lib/user'
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] === 'admin')
 
-const addUserLambda = lambda('addUser', async (event) => {
+const putUserLambda = lambda('putUser', async (event) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -30,4 +30,4 @@ const addUserLambda = lambda('addUser', async (event) => {
   return response(200, newUser, event)
 })
 
-export default addUserLambda
+export default putUserLambda

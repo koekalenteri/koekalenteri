@@ -5,7 +5,6 @@
       "ignoreBinaries": ["sam"],
       "ignoreDependencies": ["@aws-amplify/core"],
       "entry": [
-        "src/lambda/AddUserFunction/handler.ts",
         "src/lambda/BackfillEventStatsFunction/handler.ts",
         "src/lambda/CopyEventFunction/handler.ts",
         "src/lambda/DemoEventsFunction/handler.ts",
@@ -43,6 +42,7 @@
         "src/lambda/PutOrganizerFunction/handler.ts",
         "src/lambda/PutRegistrationFunction/handler.ts",
         "src/lambda/PutRegistrationGroupsFunction/handler.ts",
+        "src/lambda/PutUserFunction/handler.ts",
         "src/lambda/RefundCancelFunction/handler.ts",
         "src/lambda/RefundCreateFunction/handler.ts",
         "src/lambda/RefundSuccessFunction/handler.ts",
