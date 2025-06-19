@@ -6,7 +6,7 @@ Description: "Koekalenteri"
 # TODO Check lambda sizing etc... KOE-6
 Globals:
   Function:
-    Runtime: nodejs18.x
+    Runtime: nodejs20.x
     Timeout: 60
     Tracing: Active
     MemorySize: 1024 # From Lambda Power Tuner - https://lambda-power-tuning.show/#gAAAAQACAAQACMAL;Fu+DQkrxg0JplAJBPCnQQBhL0EDm+NlA;m1ZfNJtW3zSbVl81m1bfNZtWXzaaA6Q2
@@ -2282,7 +2282,7 @@ Resources:
         Description: Shared resources between lambdas
         ContentUri: layer/
         CompatibleRuntimes:
-          - nodejs18.x
+          - nodejs22.x
         LicenseInfo: 'MIT'
         RetentionPolicy: Retain
 

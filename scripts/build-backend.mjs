@@ -32,7 +32,7 @@ const ctx = await esbuild[mode]({
   logLevel: 'info',
   format: 'esm',
   platform: 'node',
-  target: 'node18',
+  target: 'node20',
   outdir: 'dist',
   outExtension: { '.js': '.mjs' },
   plugins: [
