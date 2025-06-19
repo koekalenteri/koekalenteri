@@ -1,0 +1,64 @@
+  AmplifyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - amplify.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: Amplify
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: "amplify:*"
+                Resource: "*"
+
+  AmplifyApp:
+    Type: "AWS::Amplify::App"
+    Properties:
+      Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
+      Repository: !Ref Repository
+      Description: Koekalenteri
+      OauthToken: !Ref OauthToken
+      BuildSpec: |-
+        version: 0.1
+        frontend:
+          phases:
+            build:
+              commands:
+                - npm ci
+                - npm run build-frontend
+          artifacts:
+            baseDirectory: build
+            files:
+              - '**/*'
+      CustomRules:
+        - Source: "/.well-known/apple-developer-merchantid-domain-association"
+          Status: "200"
+          Target: "/well-known/apple-developer-merchantid-domain-association.txt"
+        - Source: "</^((?!\\.(css|gif|ico|jpg|js|png|txt|svg|woff|webp|ttf|json|map)$).)*$/>"
+          Status: "200"
+          Target: "/index.html"
+      Tags:
+        - Key: Name
+          Value: Koekalenteri
+      IAMServiceRole: !GetAtt AmplifyRole.Arn
+
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      BranchName: !Ref Branch
+      AppId: !GetAtt AmplifyApp.AppId
+      Description: Amplify Console Branch
+      EnableAutoBuild: false
+      Tags:
+        - Key: Name
+          Value: koekalenteri-amplify-console
+        - Key: Branch
+          Value: !Ref Branch

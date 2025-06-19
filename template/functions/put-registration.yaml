@@ -1,0 +1,44 @@
+  PutRegistrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutRegistrationFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventStatsTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+            - Sid: SESSendEmailPolicy
+              Effect: Allow
+              Action:
+              - ses:sendTemplatedEmail
+              Resource: '*'
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+      Events:
+        PutRegistration:
+          Type: Api
+          Properties:
+            Path: /registration
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+
+  PutRegistrationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationFunction]]
+      RetentionInDays: 30

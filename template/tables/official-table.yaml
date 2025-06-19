@@ -1,0 +1,18 @@
+  OfficialTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [official-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

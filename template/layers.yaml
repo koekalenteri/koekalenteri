@@ -1,0 +1,10 @@
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: lambda-shared
+        Description: Shared resources between lambdas
+        ContentUri: layer/
+        CompatibleRuntimes:
+          - nodejs18.x
+        LicenseInfo: 'MIT'
+        RetentionPolicy: Retain

@@ -1,0 +1,37 @@
+  PutEventTypeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutEventTypeFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTypeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JudgeTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref OfficialTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        PutEventType:
+          Type: Api
+          Properties:
+            Path: /eventType
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutEventTypeFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEventTypeFunction]]
+      RetentionInDays: 30

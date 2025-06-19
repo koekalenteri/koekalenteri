@@ -1,0 +1,46 @@
+  EventTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [event-table, 'v3', !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: season
+            AttributeType: S
+          - AttributeName: eventType
+            AttributeType: S
+          - AttributeName: modifiedAt
+            AttributeType: S
+          - AttributeName: entryEndDate
+            AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: gsiSeasonModifiedAt
+          KeySchema:
+            - AttributeName: season
+              KeyType: HASH
+            - AttributeName: modifiedAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: gsiEventTypeEntryEndDate
+          KeySchema:
+            - AttributeName: eventType
+              KeyType: HASH
+            - AttributeName: entryEndDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: INCLUDE
+            NonKeyAttributes:
+              - origEntryEndDate
+              - entryEndDate
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

@@ -1,0 +1,22 @@
+  BackfillEventStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/BackfillEventStatsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Timeout: 900
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventStatsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+
+  BackfillEventStatsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref BackfillEventStatsFunction]]
+      RetentionInDays: 30

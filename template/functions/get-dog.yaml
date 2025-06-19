@@ -1,0 +1,32 @@
+  GetDogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetDogFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - CloudWatchPutMetricPolicy: {}
+        - DynamoDBCrudPolicy:
+            TableName: !Ref DogTable
+      Events:
+        GetDog:
+          Type: Api
+          Properties:
+            Path: /dog/{regNo}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetDogFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetDogFunction]]
+      RetentionInDays: 30

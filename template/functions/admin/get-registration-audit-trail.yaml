@@ -1,0 +1,35 @@
+  GetRegistrationAuditTrailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetRegistrationAuditTrailFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetRegistrationAuditTrail:
+          Type: Api
+          Properties:
+            Path: /admin/registration/audit/{eventId}/{id}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetRegistrationAuditTrailFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationAuditTrailFunction]]
+      RetentionInDays: 30

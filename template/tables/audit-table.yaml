@@ -1,0 +1,22 @@
+  AuditTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [audit-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: auditKey
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+      AttributeDefinitions:
+          - AttributeName: auditKey
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

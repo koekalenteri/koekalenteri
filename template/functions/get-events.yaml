@@ -1,0 +1,25 @@
+  GetEventsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetEventsFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetEvents:
+          Type: Api
+          Properties:
+            Path: /event
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+
+  GetEventsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventsFunction]]
+      RetentionInDays: 30

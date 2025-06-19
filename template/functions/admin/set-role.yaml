@@ -1,0 +1,39 @@
+  SetRoleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/SetRoleFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+        - Statement:
+          - Sid: SESSendEmailPolicy
+            Effect: Allow
+            Action:
+            - ses:sendTemplatedEmail
+            Resource: '*'
+      Events:
+        GetUser:
+          Type: Api
+          Properties:
+            Path: /admin/user/role
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  SetRoleFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SetRoleFunction]]
+      RetentionInDays: 30
