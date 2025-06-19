@@ -5,6 +5,6 @@
         Description: Shared resources between lambdas
         ContentUri: layer/
         CompatibleRuntimes:
-          - nodejs18.x
+          - nodejs20.x
         LicenseInfo: 'MIT'
         RetentionPolicy: Retain
