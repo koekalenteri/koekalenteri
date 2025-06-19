@@ -1,20 +1,27 @@
 import type { AnyObject } from '../../lib/utils'
+import type { WebSocketConnection } from '../types/webscoket'
+
+import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
 
 import { CONFIG } from '../config'
+import CustomDynamoClient from '../utils/CustomDynamoClient'
+
+const dynamoDB = new CustomDynamoClient(CONFIG.wsConnectionsTable)
 
 export const broadcastEvent = async (data: AnyObject) => {
-  const { stackName } = CONFIG
+  const gateway = new ApiGatewayManagementApiClient({ endpoint: CONFIG.wsApiEndpoint })
+  const connections = (await dynamoDB.readAll<WebSocketConnection>()) ?? []
+  const dataBuffer = Buffer.from(JSON.stringify(data))
 
-  console.log(`TODO: Sending event to clients listening "${stackName}", with:`, data)
-  /*
-
-  await fetch(`${config.SSE_API_URL}?channel=${stackName}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${config.SSE_API_TOKEN}`,
-    },
-    body: JSON.stringify(data),
-  })
-    */
+  await Promise.all(
+    connections.map(async ({ connectionId }) => {
+      try {
+        await gateway.send(new PostToConnectionCommand({ ConnectionId: connectionId, Data: dataBuffer }))
+      } catch (err: any) {
+        if (err.name === 'GoneException') {
+          await dynamoDB.delete({ connectionId })
+        }
+      }
+    })
+  )
 }

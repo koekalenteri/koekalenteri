@@ -52,7 +52,7 @@ jobs:
               - 'src/i18n/**'
               - 'src/lib/**'
               - 'src/types/**'
-              - 'template/*'
+              - 'template/**'
               - 'package-lock.json'
               - 'package.json'
               - 'tsconfig.json'

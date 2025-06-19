@@ -3,6 +3,7 @@ import type { ConfirmedEvent, PublicDogEvent, Registration } from './types'
 import { formatDate } from './i18n/dates'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
+export const WS_API_URL = process.env.REACT_APP_WS_API_URL ?? 'wss://127.0.0.1'
 
 const ADMIN_ROOT = '/admin'
 const ADMIN_EVENTS = `${ADMIN_ROOT}/event`

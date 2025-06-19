@@ -23,6 +23,7 @@
               - ssm:GetParameter
               Resource: '*'
         - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
       Events:
         PutEvent:
           Type: Api

@@ -83,6 +83,7 @@ function getClientEnvironment(publicUrl) {
         FAST_REFRESH: process.env.FAST_REFRESH !== 'false',
         // API url for preconnect link
         API_URL: process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080',
+        WS_API_URL: process.env.REACT_APP_WS_API_URL ?? 'wss://127.0.0.1',
       }
     )
   // Stringify all values so we can feed into webpack DefinePlugin

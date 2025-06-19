@@ -6,10 +6,12 @@ const inputPaths = [
   './template/main.yaml',
   './template/amplify.yaml',
   './template/api.yaml',
+  './template/ws-api.yaml',
   './template/cognito.yaml',
   './template/buckets',
   './template/functions',
   './template/layers.yaml',
+  './template/policies',
   './template/tables',
   './template/outputs.yaml',
 ]

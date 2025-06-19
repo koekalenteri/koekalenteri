@@ -20,4 +20,6 @@ export const CONFIG = {
   userLinkTable: process.env.USER_LINK_TABLE_NAME ?? 'user-link-table-not-found-in-env',
   userTable: process.env.USER_TABLE_NAME ?? 'user-table-not-found-in-env',
   eventStatsTable: process.env.EVENT_STATS_TABLE_NAME ?? 'event-stats-table-not-found-in-env',
+  wsApiEndpoint: process.env.WS_API_ENDPOINT ?? 'ws-api-endpoint-not-found-in-env',
+  wsConnectionsTable: process.env.WS_CONNECTIONS_TABLE_NAME ?? 'ws-connections-table-not-found-in-env',
 }

@@ -11,6 +11,7 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { useRecoilValue } from 'recoil'
 
+import { useWebSocket } from './hooks/useWebSocket'
 import { reportError } from './lib/client/error'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
@@ -30,6 +31,8 @@ const router = createBrowserRouter(routes)
 function App() {
   const language = useRecoilValue(languageAtom)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
+
+  useWebSocket()
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>

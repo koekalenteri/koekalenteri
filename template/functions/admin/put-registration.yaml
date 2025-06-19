@@ -33,6 +33,7 @@
               - ssm:GetParameters
               - ssm:GetParameter
               Resource: '*'
+        - !Ref WebSocketPolicy
       Events:
         PutAdminRegistration:
           Type: Api
