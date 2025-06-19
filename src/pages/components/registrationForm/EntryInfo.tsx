@@ -40,7 +40,7 @@ interface Props {
   readonly onChange?: (props: Partial<Registration>) => void
   readonly onOpenChange?: (value: boolean) => void
   readonly open?: boolean
-  readonly reg: Registration
+  readonly reg: Partial<Registration>
 }
 
 export function EntryInfo({
@@ -77,7 +77,7 @@ export function EntryInfo({
 
   // Helper function to determine initial filter dates
   const getInitialFilterDates = () => {
-    const selectedDates = reg.dates.filter((rd) => dates.find((d) => isSameDay(d, rd.date)))
+    const selectedDates = reg?.dates?.filter((rd) => dates.find((d) => isSameDay(d, rd.date))) ?? []
     const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
 
     return uniqueDate(
@@ -103,7 +103,7 @@ export function EntryInfo({
 
   // Error and text display helpers
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
-  const datesText = showDatesFilter ? reg.dates.map(getRegDateTimeLabel).join(' / ') : ''
+  const datesText = showDatesFilter ? reg.dates?.map(getRegDateTimeLabel).join(' / ') : ''
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
   const infoText = [reg.class ?? reg.eventType, datesText, reserveText].filter(Boolean).join(', ')
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
@@ -190,18 +190,17 @@ export function EntryInfo({
     // Get valid dates based on class
     const validDates = getValidDates(changes.class)
 
-    const validCurrentDates = reg.dates.filter((rd) =>
-      validDates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time)
-    )
+    const validCurrentDates =
+      reg.dates?.filter((rd) => validDates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time)) ?? []
 
     // Update dates if current selection is invalid
-    if (!validCurrentDates.length || validCurrentDates.length !== reg.dates.length) {
+    if (!validCurrentDates.length || validCurrentDates.length !== reg.dates?.length) {
       if (validDates.length) changes.dates = validDates
     }
 
     // Handle date filtering
     if (showDatesFilter) {
-      const currentDates = changes.dates || reg.dates
+      const currentDates = changes.dates ?? reg.dates ?? []
       const updatedDates = handleDateFiltering(currentDates, validDates)
 
       if (updatedDates !== undefined) {

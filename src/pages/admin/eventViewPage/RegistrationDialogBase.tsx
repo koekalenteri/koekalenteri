@@ -72,14 +72,14 @@ export default function RegistrationDialogBase({
     if (registration?.dog?.name) {
       const handlerName = registration?.ownerHandles ? registration?.owner?.name : (registration?.handler?.name ?? '')
       if (handlerName) {
-        return `${prefix}${registration.dog.name} / ${handlerName}`
+        return `${prefix}${registration?.dog?.name} / ${handlerName}`
       }
-      return `${prefix}registration.dog.name`
+      return `${prefix}${registration?.dog?.name}`
     }
     return ''
   }, [
     registration?.cancelled,
-    registration?.dog.name,
+    registration?.dog?.name,
     registration?.handler?.name,
     registration?.owner?.name,
     registration?.ownerHandles,
