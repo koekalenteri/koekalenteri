@@ -5,7 +5,7 @@
         - DataTraceEnabled: true
           MetricsEnabled: true
           HttpMethod: '*'
-          ResourcePath: !Sub '/${VersionParam}/*'
+          ResourcePath: '/*'
           LoggingLevel: INFO
       AccessLogSetting:
         DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'

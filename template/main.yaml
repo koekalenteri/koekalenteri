@@ -46,9 +46,6 @@ Globals:
           RateLimit: 50
 
 Parameters:
-  VersionParam:
-    Type: String
-    Default: v1
   StageNameParam:
     Type: String
     Default: prod
