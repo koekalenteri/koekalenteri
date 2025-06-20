@@ -1,7 +1,7 @@
   WebSocketApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
-      Name: KoekalenteriWebSocket
+      Name: !Join ['-', [Koekalenteri, 'WebSocket', !Ref AWS::StackName]]
       ProtocolType: WEBSOCKET
       RouteSelectionExpression: $request.body.action
 
