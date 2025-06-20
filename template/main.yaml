@@ -30,7 +30,7 @@ Globals:
         USER_LINK_TABLE_NAME: !Ref UserLinkTable
         USER_TABLE_NAME: !Ref UserTable
         EVENT_STATS_TABLE_NAME: !Ref EventStatsTable
-        WS_API_ENDPOINT: !Sub "${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
+        WS_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
         WS_CONNECTIONS_TABLE_NAME: !Ref WsConnectionsTable
   Api:
     Auth:
