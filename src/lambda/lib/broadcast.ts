@@ -57,6 +57,7 @@ export const broadcastEvent = async (data: AnyObject) => {
       try {
         await gateway.send(new PostToConnectionCommand({ ConnectionId: connectionId, Data: dataBuffer }))
       } catch (err: any) {
+        console.error('broadcast:', err)
         if (err.name === 'GoneException') {
           await wsDisconnect(connectionId)
         }
