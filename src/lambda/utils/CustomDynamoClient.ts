@@ -1,6 +1,6 @@
 // Create a DocumentClient that represents the query to add an item
 
-import type { ReturnValue } from '@aws-sdk/client-dynamodb'
+import type { ConditionCheck, Delete, Put, ReturnValue, TransactWriteItem, Update } from '@aws-sdk/client-dynamodb'
 import type {
   BatchWriteCommandInput,
   DeleteCommandInput,
@@ -11,7 +11,7 @@ import type {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
   BatchWriteCommand,
   DeleteCommand,
@@ -32,6 +32,19 @@ interface QueryParams {
   forward?: boolean
   limit?: number
   filterExpression?: string
+}
+
+type PutWithoutTable = Omit<Put, 'TableName'>
+type UpdateWithoutTable = Omit<Update, 'TableName'>
+type DeleteWithoutTable = Omit<Delete, 'TableName'>
+type ConditionCheckWithoutTable = Omit<ConditionCheck, 'TableName'>
+
+// Union of the valid stripped operations
+export type TransactWriteItemWithoutTable = {
+  Put?: PutWithoutTable | undefined
+  Update?: UpdateWithoutTable | undefined
+  Delete?: DeleteWithoutTable | undefined
+  ConditionCheck?: ConditionCheckWithoutTable | undefined
 }
 
 function fromSamLocalTable(table: string) {
@@ -283,5 +296,22 @@ export default class CustomDynamoClient {
       console.error('Error deleting item:', error)
       return false
     }
+  }
+
+  async transaction(items: TransactWriteItemWithoutTable[], table?: string) {
+    const tableName = table ? fromSamLocalTable(table) : this.table
+    const itemsWithTable: TransactWriteItem[] = items.map((item) => ({
+      ConditionCheck: item.ConditionCheck && { ...item.ConditionCheck!, TableName: tableName },
+      Put: item.Put && { ...item.Put!, TableName: tableName },
+      Update: item.Update && { ...item.Update!, TableName: tableName },
+      Delete: item.Delete && { ...item.Delete!, TableName: tableName },
+    }))
+    console.log('DB.transaction', itemsWithTable)
+
+    await this.docClient.send(
+      new TransactWriteItemsCommand({
+        TransactItems: itemsWithTable,
+      })
+    )
   }
 }

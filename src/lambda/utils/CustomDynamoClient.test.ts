@@ -12,6 +12,7 @@ const mockFrom = jest.fn().mockImplementation((client) => ({
 // Mock the DynamoDB client and commands
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
+  TransactWriteItemsCommand: jest.fn().mockImplementation((params) => params),
 }))
 
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
