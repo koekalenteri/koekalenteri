@@ -17,26 +17,20 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   allowOrigin: mockAllowOrigin,
 }))
 
-// Mock ReadableStream
+// Mock Node.js Readable stream that implements async iterable
 class MockReadableStream {
   private data: Uint8Array
   private position = 0
+  private buffer: Buffer
 
   constructor(data: string) {
     this.data = new TextEncoder().encode(data)
+    this.buffer = Buffer.from(this.data)
   }
 
-  getReader() {
-    return {
-      read: async () => {
-        if (this.position >= this.data.length) {
-          return { done: true, value: undefined }
-        }
-        const value = this.data.slice(this.position, this.position + 1)
-        this.position += 1
-        return { done: false, value }
-      },
-    }
+  // Implement async iterable protocol for compatibility with for-await-of
+  async *[Symbol.asyncIterator]() {
+    yield this.buffer
   }
 }
 

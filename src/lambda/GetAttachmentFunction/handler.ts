@@ -1,22 +1,14 @@
-import { Readable } from 'stream'
+import type { StreamingBlobTypes } from '@smithy/types'
+import type { Readable } from 'stream'
 
 import { downloadFile } from '../lib/file'
 import { allowOrigin, getParam, lambda, LambdaError } from '../lib/lambda'
 
-const readableStreamToNodeReadable = (readableStream: ReadableStream<any>): Readable => {
-  const reader = readableStream.getReader()
-  return new Readable({
-    async read() {
-      const { done, value } = await reader.read()
-      if (done) this.push(null)
-      else this.push(Buffer.from(value))
-    },
-  })
-}
-
-const streamToBase64 = async (stream: Readable): Promise<string> => {
+const streamToBase64 = async (stream: StreamingBlobTypes): Promise<string> => {
+  // In Node.js environment, StreamingBlobTypes is a Readable stream
+  const readableStream = stream as Readable
   const chunks: Buffer[] = []
-  for await (const chunk of stream) {
+  for await (const chunk of readableStream) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk))
   }
   return Buffer.concat(chunks).toString('base64')
@@ -28,8 +20,7 @@ const getAttachmentLambda = lambda('getAttachment', async (event) => {
   if (!data.Body) {
     throw new LambdaError(404, 'not found')
   }
-  const nodeReadable = readableStreamToNodeReadable(data.Body as ReadableStream<any>)
-  const base64Body = await streamToBase64(nodeReadable)
+  const base64Body = await streamToBase64(data.Body)
 
   const dl = event.queryStringParameters && 'dl' in event.queryStringParameters
   const fileName = getParam(event, 'name', 'kutsu.pdf')
