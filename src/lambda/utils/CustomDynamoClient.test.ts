@@ -468,4 +468,55 @@ describe('CustomDynamoClient', () => {
       expect(client2.table).toBe('user-profile-table')
     })
   })
+
+  describe('transaction', () => {
+    it('sends transaction with default table name', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      const items = [
+        { Put: { Item: { id: { S: '1' } } } },
+        {
+          Update: {
+            Key: { id: { S: '2' } },
+            UpdateExpression: 'SET #name = :name',
+            ExpressionAttributeNames: { '#name': 'name' },
+            ExpressionAttributeValues: { ':name': { S: 'value' } },
+          },
+        },
+      ]
+      mockSend.mockResolvedValueOnce({})
+
+      await client.transaction(items)
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          TransactItems: [
+            { Put: { Item: { id: { S: '1' } }, TableName: 'test-table' } },
+            {
+              Update: {
+                Key: { id: { S: '2' } },
+                UpdateExpression: 'SET #name = :name',
+                ExpressionAttributeNames: { '#name': 'name' },
+                ExpressionAttributeValues: { ':name': { S: 'value' } },
+                TableName: 'test-table',
+              },
+            },
+          ],
+        })
+      )
+    })
+
+    it('sends transaction with provided table name', async () => {
+      const client = new CustomDynamoClient('DefaultTable')
+      const items = [{ Delete: { Key: { id: { S: '3' } } } }]
+      mockSend.mockResolvedValueOnce({})
+
+      await client.transaction(items, 'CustomTable')
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          TransactItems: [{ Delete: { Key: { id: { S: '3' } }, TableName: 'custom-table' } }],
+        })
+      )
+    })
+  })
 })
