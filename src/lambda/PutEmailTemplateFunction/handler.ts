@@ -26,10 +26,15 @@ const updateOrCreateTemplate = async (template: Template) => {
     console.info(res)
   } catch (e) {
     if (e instanceof TemplateDoesNotExistException) {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      const command = new CreateTemplateCommand({ Template: template })
-      const res = await ses.send(command)
-      console.info(res)
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const command = new CreateTemplateCommand({ Template: template })
+        const res = await ses.send(command)
+        console.info(res)
+      } catch (createError) {
+        console.error(createError)
+        throw createError
+      }
     } else {
       console.error(e)
       throw e
