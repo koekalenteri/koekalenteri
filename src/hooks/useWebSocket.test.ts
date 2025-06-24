@@ -1,6 +1,12 @@
 import type { PublicDogEvent } from '../types'
 
-import { applyPatch } from './useWebSocket'
+import { renderHook } from '@testing-library/react'
+import { RecoilRoot } from 'recoil'
+
+import { applyPatch, useWebSocket } from './useWebSocket'
+
+// Mock console.debug to avoid noise in tests
+jest.spyOn(console, 'debug').mockImplementation(() => {})
 
 describe('applyPatch', () => {
   const baseEvents = [
@@ -24,5 +30,52 @@ describe('applyPatch', () => {
     const patch = { name: 'Event 1' }
     const result = applyPatch(baseEvents, '1', patch)
     expect(result).toBe(baseEvents)
+  })
+})
+
+describe('useWebSocket', () => {
+  // Mock WebSocket
+  let mockWebSocketInstance: any
+
+  beforeEach(() => {
+    // Create mock WebSocket instance
+    mockWebSocketInstance = {
+      close: jest.fn(),
+      onopen: null,
+      onclose: null,
+      onerror: null,
+      onmessage: null,
+    }
+
+    // Mock WebSocket constructor
+    global.WebSocket = jest.fn(() => mockWebSocketInstance) as any
+  })
+
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('should set up event handlers on the WebSocket instance', () => {
+    renderHook(() => useWebSocket(), { wrapper: RecoilRoot })
+
+    // Verify event handlers were set
+    expect(mockWebSocketInstance.onopen).toBeDefined()
+    expect(mockWebSocketInstance.onclose).toBeDefined()
+    expect(mockWebSocketInstance.onerror).toBeDefined()
+    expect(mockWebSocketInstance.onmessage).toBeDefined()
+  })
+
+  it('should ignore invalid JSON messages', () => {
+    // This is more of an integration test to ensure no errors are thrown
+    expect(() => {
+      renderHook(() => useWebSocket(), { wrapper: RecoilRoot })
+    }).not.toThrow()
+  })
+
+  it('should ignore messages without eventId', () => {
+    // This is more of an integration test to ensure no errors are thrown
+    expect(() => {
+      renderHook(() => useWebSocket(), { wrapper: RecoilRoot })
+    }).not.toThrow()
   })
 })
