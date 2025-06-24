@@ -55,7 +55,6 @@ jobs:
           echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
       - name: SAM Build
         run: |
-          cp Makefile dist/
           sam build --base-dir dist -t dist/template.yaml
       - name: SAM Deploy
         run: |
