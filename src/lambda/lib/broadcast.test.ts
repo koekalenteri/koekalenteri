@@ -107,6 +107,67 @@ describe('broadcast', () => {
         })
       )
     })
+
+    it('should handle generic errors when gateway.send fails', async () => {
+      const connections = [{ connectionId: 'conn-1' }]
+      mockReadAll.mockResolvedValueOnce(connections)
+
+      // Mock a generic error
+      const mockError = new Error('Send failed')
+      mockSendToConnection.mockRejectedValueOnce(mockError)
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const data = { message: 'hello' }
+      await broadcastEvent(data)
+
+      // Verify error was logged
+      expect(consoleSpy).toHaveBeenCalledWith('broadcast:', mockError)
+
+      // Verify wsDisconnect was NOT called for generic errors
+      expect(mockTransaction).not.toHaveBeenCalled()
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should call wsDisconnect when gateway.send fails with GoneException', async () => {
+      const connections = [{ connectionId: 'conn-1' }]
+      mockReadAll.mockResolvedValueOnce(connections)
+
+      // Mock a GoneException error
+      const mockError = new Error('Connection gone')
+      mockError.name = 'GoneException'
+      mockSendToConnection.mockRejectedValueOnce(mockError)
+
+      // Mock successful wsDisconnect
+      mockTransaction.mockResolvedValueOnce(undefined)
+
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const data = { message: 'hello' }
+      await broadcastEvent(data)
+
+      // Verify error was logged
+      expect(consoleSpy).toHaveBeenCalledWith('broadcast:', mockError)
+
+      // Verify wsDisconnect was called with the correct connectionId
+      expect(mockTransaction).toHaveBeenCalledWith([
+        {
+          Delete: {
+            Key: { connectionId: { S: 'conn-1' } },
+          },
+        },
+        {
+          Update: {
+            Key: { connectionId: { S: CONNECTION_COUNT_ID } },
+            UpdateExpression: 'ADD connectionCount :delta',
+            ExpressionAttributeValues: { ':delta': { N: '-1' } },
+          },
+        },
+      ])
+
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('broadcastConnectionCount', () => {
