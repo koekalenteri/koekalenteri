@@ -1,7 +1,7 @@
   WebSocketPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
-      ManagedPolicyName: WebSocketAccessPolicy
+      ManagedPolicyName: !Sub 'WebSocketAccessPolicy-${AWS::StackName}'
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
