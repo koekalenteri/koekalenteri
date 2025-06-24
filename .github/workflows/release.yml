@@ -53,20 +53,10 @@ jobs:
           echo "branch=main" >> $GITHUB_ENV
           echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
           echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
-      - name: Shared Node.js layer
-        run: |
-          npm un aws-amplify @aws-amplify/ui-react @mui/icons-material @mui/material @mui/x-data-grid @mui/x-date-pickers aws-rum-web identity-obj-proxy material-ui-confirm mui-tel-input notistack react react-dnd react-dnd-html5-backend react-dom react-i18next react-router recoil
-          npm ci --omit=dev
-          mkdir -p layer/nodejs/lambda
-          mv node_modules layer/nodejs/
-          mv dist/i18n layer/nodejs/
-          mv dist/lib layer/nodejs/
-          mv -t layer/nodejs/lambda dist/lambda/lib dist/lambda/types dist/lambda/utils
-          cp dist/lambda/config.mjs layer/nodejs/lambda
       - name: SAM Build
         run: |
           cp Makefile dist/
-          sam build --base-dir dist
+          sam build --base-dir dist -t dist/template.yaml
       - name: SAM Deploy
         run: |
           # Create S3 Bucket to store code
