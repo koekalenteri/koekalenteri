@@ -8,6 +8,7 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref WsConnectionsTable
+        - !Ref WebSocketPolicy
 
   ConnectIntegration:
     Type: AWS::ApiGatewayV2::Integration
