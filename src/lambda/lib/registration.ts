@@ -99,6 +99,14 @@ export const sendTemplatedEmailToEventRegistrations = async (
         user,
       })
       await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
+
+      // Update the messagesSent property to track that this template has been sent
+      const messagesSent = registration.messagesSent || {}
+      messagesSent[template] = true
+      await updateRegistrationField(registration.eventId, registration.id, 'messagesSent', messagesSent)
+
+      // Update the in-memory object too
+      registration.messagesSent = messagesSent
     } catch (e) {
       failed.push(...to)
       audit({
