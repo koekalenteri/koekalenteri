@@ -282,4 +282,181 @@ describe('sendMessagesLambda', () => {
       event
     )
   })
+
+  it('does not mark participants when only one registration ID is provided with invitation template', async () => {
+    // Modify the parsed JSON to have only one registration ID
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only one registration ID
+      text: 'Test message',
+    })
+
+    // Modify the query result to return only one registration
+    const singleRegistration = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+    ]
+    mockQuery.mockResolvedValueOnce(singleRegistration)
+
+    await sendMessagesLambda(event)
+
+    // Verify emails were sent
+    expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+      'invitation',
+      expect.any(Object),
+      singleRegistration, // Only one registration
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+      expect.any(String)
+    )
+
+    // Verify participants were NOT marked (since registrationIds.length is not > 1)
+    expect(mockMarkParticipants).not.toHaveBeenCalled()
+  })
+
+  it('does not mark participants when only one registration ID is provided with picked template', async () => {
+    // Modify the parsed JSON to have only one registration ID
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'picked',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only one registration ID
+      text: 'Test message',
+    })
+
+    // Modify the query result to return only one registration
+    const singleRegistration = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+    ]
+    mockQuery.mockResolvedValueOnce(singleRegistration)
+
+    await sendMessagesLambda(event)
+
+    // Verify emails were sent
+    expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+      'picked',
+      expect.any(Object),
+      singleRegistration, // Only one registration
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+      expect.any(String)
+    )
+
+    // Verify participants were NOT marked (since registrationIds.length is not > 1)
+    expect(mockMarkParticipants).not.toHaveBeenCalled()
+  })
+
+  it('filters out registrations that are not in ready state', async () => {
+    // Include a registration that is not in 'ready' state
+    const mixedRegistrations = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+      {
+        id: 'reg999',
+        eventId: 'event123',
+        state: 'cancelled', // Not in 'ready' state
+        class: 'ALO',
+      },
+    ]
+
+    // Add reg999 to the requested IDs
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456', 'reg789', 'reg999'],
+      text: 'Test message',
+    })
+
+    // Return all registrations including the non-ready one
+    mockQuery.mockResolvedValueOnce(mixedRegistrations)
+
+    await sendMessagesLambda(event)
+
+    // Verify only ready registrations were used for the email
+    const readyRegistrations = mixedRegistrations.filter((r) => r.state === 'ready')
+
+    // Should fail because not all requested registrations were found in ready state
+    expect(mockResponse).toHaveBeenCalledWith(400, 'Not all registrations were found, aborting!', event)
+    expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  it('uses the correct event table when reading the event', async () => {
+    await sendMessagesLambda(event)
+
+    // Verify the read operation used the correct table
+    expect(mockRead).toHaveBeenCalledWith(
+      { id: 'event123' },
+      expect.stringContaining('event') // The table name should contain 'event'
+    )
+  })
+
+  it('handles registrations with different classes correctly', async () => {
+    // Create registrations with different classes
+    const multiClassRegistrations = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'AVO', // Different class
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(multiClassRegistrations)
+
+    const testEvent = {
+      id: 'event123',
+      state: 'draft',
+      classes: [
+        { class: 'ALO', state: 'draft' },
+        { class: 'AVO', state: 'draft' },
+      ],
+    }
+    mockRead.mockResolvedValueOnce(testEvent)
+
+    await sendMessagesLambda(event)
+
+    // Verify emails were sent
+    expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+      'invitation',
+      expect.any(Object),
+      multiClassRegistrations,
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+      expect.any(String)
+    )
+
+    // Verify participants were marked with the class of the first registration
+    expect(mockMarkParticipants).toHaveBeenCalledWith(testEvent, 'invited', 'ALO')
+  })
 })

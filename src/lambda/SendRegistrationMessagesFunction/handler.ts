@@ -54,7 +54,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     await setReserveNotified(registrations)
   }
 
-  if (template === 'picked' || template === 'invitation') {
+  if ((template === 'picked' || template === 'invitation') && registrationIds.length > 1) {
     confirmedEvent = await markParticipants(
       confirmedEvent,
       template === 'invitation' ? 'invited' : template,
