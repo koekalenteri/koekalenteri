@@ -30,14 +30,27 @@ jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
+// Import the actual implementations
+import { getStateFromTemplate } from '../lib/event'
+import {
+  findClassesToMark,
+  groupRegistrationsByClass,
+  groupRegistrationsByClassAndGroup,
+  isParticipantGroup,
+} from '../lib/registration'
+
 jest.unstable_mockModule('../lib/registration', () => ({
   sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
   setReserveNotified: mockSetReserveNotified,
-  isParticipantGroup: jest.fn((key) => key && key !== 'reserve' && key !== 'cancelled'),
+  isParticipantGroup,
+  groupRegistrationsByClass,
+  groupRegistrationsByClassAndGroup,
+  findClassesToMark,
 }))
 
 jest.unstable_mockModule('../lib/event', () => ({
   markParticipants: mockMarkParticipants,
+  getStateFromTemplate,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -655,5 +668,40 @@ describe('sendMessagesLambda', () => {
 
     // Verify markParticipants was called with undefined since NOME is not a valid registration class
     expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', undefined)
+  })
+
+  it('uses the correct state when marking participants based on template', async () => {
+    // Test with invitation template
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456', 'reg789'],
+      text: 'Test message',
+    })
+
+    await sendMessagesLambda(event)
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', expect.anything())
+
+    // Reset mocks
+    jest.clearAllMocks()
+
+    // Test with picked template
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'picked',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456', 'reg789'],
+      text: 'Test message',
+    })
+    mockQuery.mockResolvedValueOnce(mockRegistrations)
+    mockRead.mockResolvedValueOnce(mockEvent)
+    mockSendTemplatedEmailToEventRegistrations.mockResolvedValueOnce({
+      ok: ['recipient@example.com'],
+      failed: [],
+    })
+
+    await sendMessagesLambda(event)
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'picked', expect.anything())
   })
 })

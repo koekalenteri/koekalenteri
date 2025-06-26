@@ -27,6 +27,8 @@ const { wsConnect, wsDisconnect, broadcastEvent, broadcastConnectionCount, CONNE
 )
 
 describe('broadcast', () => {
+  jest.spyOn(console, 'log').mockImplementation(() => undefined)
+
   beforeEach(() => {
     jest.clearAllMocks()
   })

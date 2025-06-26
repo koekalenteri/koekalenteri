@@ -37,6 +37,7 @@ const {
   fixRegistrationGroups,
   formatGroupAuditInfo,
   getEvent,
+  getStateFromTemplate,
   markParticipants,
   saveEvent,
   saveGroup,
@@ -253,6 +254,23 @@ describe('lib/event', () => {
       const event = { id: 'e6', name: 'Event' } as JsonDogEvent
       await saveEvent(event)
       expect(mockWrite).toHaveBeenCalledWith(event, expect.anything())
+    })
+  })
+
+  // getStateFromTemplate
+  describe('getStateFromTemplate', () => {
+    it('should return "invited" for invitation template', () => {
+      expect(getStateFromTemplate('invitation')).toBe('invited')
+    })
+
+    it('should return "picked" for picked template', () => {
+      expect(getStateFromTemplate('picked')).toBe('picked')
+    })
+
+    it('should return "picked" for any other template', () => {
+      expect(getStateFromTemplate('unknown')).toBe('picked')
+      expect(getStateFromTemplate('reserve')).toBe('picked')
+      expect(getStateFromTemplate('receipt')).toBe('picked')
     })
   })
 })

@@ -63,6 +63,18 @@ export const findQualificationStartDate = async (
 
 export const saveEvent = async (data: JsonDogEvent) => dynamoDB.write(data, eventTable)
 
+/**
+ * Map template name to a valid EventClassState
+ */
+export const getStateFromTemplate = (template: string): EventClassState => {
+  if (template === 'invitation') return 'invited'
+  if (template === 'picked') return 'picked'
+
+  // Default to 'picked' for any other template
+  // This is a fallback that shouldn't happen in normal operation
+  return 'picked'
+}
+
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
   state: EventClassState,
