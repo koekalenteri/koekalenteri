@@ -63,7 +63,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     const registrationsByClass: Record<string, JsonRegistration[]> = {}
     for (const reg of allEventRegistrations) {
       // Use class if available, otherwise use eventType
-      const classKey = reg.class || reg.eventType
+      const classKey = reg.class ?? reg.eventType
       registrationsByClass[classKey] = registrationsByClass[classKey] || []
       registrationsByClass[classKey].push(reg)
     }
@@ -95,7 +95,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
         if (groupRegs.length === 0) continue
 
         // Check if all registrations in this group have received the message
-        const allReceived = groupRegs.every((reg) => reg.messagesSent && reg.messagesSent[template])
+        const allReceived = groupRegs.every((reg) => reg.messagesSent?.[template])
 
         if (!allReceived) {
           allGroupsReceived = false
