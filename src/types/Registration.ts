@@ -21,6 +21,7 @@ export interface JsonRegistration extends JsonDbRecord {
   invitationRead?: boolean
   language: Language
   lastEmail?: string
+  messagesSent?: Record<string, boolean> // Track which message templates have been sent to this registration
   notes: string
   owner: RegistrationPerson
   ownerHandles?: boolean

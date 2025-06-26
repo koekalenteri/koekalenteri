@@ -19,7 +19,13 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
-const { getLastEmailInfo, findExistingRegistrationToEventForDog } = await import('./registration')
+const {
+  getLastEmailInfo,
+  findClassesToMark,
+  findExistingRegistrationToEventForDog,
+  groupRegistrationsByClass,
+  groupRegistrationsByClassAndGroup,
+} = await import('./registration')
 
 describe('registration', () => {
   describe('getLastEmailInfo', () => {
@@ -55,6 +61,143 @@ describe('registration', () => {
       const reg = registrationsToEventWithParticipantsInvited[0]
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo)).toEqual(reg)
+    })
+  })
+
+  describe('groupRegistrationsByClass', () => {
+    it('should group registrations by class', () => {
+      const registrations = [
+        { class: 'ALO', id: '1' },
+        { class: 'AVO', id: '2' },
+        { class: 'ALO', id: '3' },
+      ] as unknown as JsonRegistration[]
+
+      const result = groupRegistrationsByClass(registrations)
+
+      expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
+      expect(result['ALO'].length).toBe(2)
+      expect(result['AVO'].length).toBe(1)
+      expect(result['ALO']).toContainEqual(expect.objectContaining({ id: '1' }))
+      expect(result['ALO']).toContainEqual(expect.objectContaining({ id: '3' }))
+      expect(result['AVO']).toContainEqual(expect.objectContaining({ id: '2' }))
+    })
+
+    it('should use eventType when class is not available', () => {
+      const registrations = [
+        { eventType: 'NOME', id: '1' },
+        { class: 'AVO', id: '2' },
+        { eventType: 'NOME', id: '3' },
+      ] as unknown as JsonRegistration[]
+
+      const result = groupRegistrationsByClass(registrations)
+
+      expect(Object.keys(result)).toEqual(['NOME', 'AVO'])
+      expect(result['NOME'].length).toBe(2)
+      expect(result['AVO'].length).toBe(1)
+    })
+
+    it('should handle empty array', () => {
+      const result = groupRegistrationsByClass([])
+      expect(result).toEqual({})
+    })
+  })
+
+  describe('groupRegistrationsByClassAndGroup', () => {
+    it('should group registrations by class and group', () => {
+      const registrationsByClass = {
+        ALO: [
+          { id: '1', group: { key: 'group1' } },
+          { id: '2', group: { key: 'group2' } },
+          { id: '3', group: { key: 'group1' } },
+        ],
+        AVO: [{ id: '4', group: { key: 'group3' } }],
+      } as unknown as Record<string, JsonRegistration[]>
+
+      const result = groupRegistrationsByClassAndGroup(registrationsByClass)
+
+      expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
+      expect(Object.keys(result['ALO'])).toEqual(['group1', 'group2'])
+      expect(Object.keys(result['AVO'])).toEqual(['group3'])
+      expect(result['ALO']['group1'].length).toBe(2)
+      expect(result['ALO']['group2'].length).toBe(1)
+    })
+
+    it('should skip registrations that are not in participant groups', () => {
+      const registrationsByClass = {
+        ALO: [
+          { id: '1', group: { key: 'group1' } },
+          { id: '2', group: { key: 'reserve' } },
+          { id: '3', group: { key: 'cancelled' } },
+          { id: '4', group: undefined },
+        ],
+      } as unknown as Record<string, JsonRegistration[]>
+
+      const result = groupRegistrationsByClassAndGroup(registrationsByClass)
+
+      expect(Object.keys(result['ALO'])).toEqual(['group1'])
+      expect(result['ALO']['group1'].length).toBe(1)
+    })
+
+    it('should handle empty input', () => {
+      const result = groupRegistrationsByClassAndGroup({})
+      expect(result).toEqual({})
+    })
+  })
+
+  describe('findClassesToMark', () => {
+    it('should find classes where all groups have received the message', () => {
+      const registrationsByClassAndGroup = {
+        ALO: {
+          group1: [
+            { id: '1', messagesSent: { invitation: true } },
+            { id: '2', messagesSent: { invitation: true } },
+          ],
+          group2: [{ id: '3', messagesSent: { invitation: true } }],
+        },
+        AVO: {
+          group3: [{ id: '4', messagesSent: { invitation: true } }],
+        },
+        VOI: {
+          group4: [{ id: '5', messagesSent: { invitation: false } }],
+        },
+      } as unknown as Record<string, Record<string, JsonRegistration[]>>
+
+      const result = findClassesToMark(registrationsByClassAndGroup, 'invitation')
+
+      expect(result).toEqual(['ALO', 'AVO'])
+    })
+
+    it('should not include classes with empty groups', () => {
+      const registrationsByClassAndGroup = {
+        ALO: {},
+        AVO: {
+          group1: [{ id: '1', messagesSent: { invitation: true } }],
+        },
+      } as unknown as Record<string, Record<string, JsonRegistration[]>>
+
+      const result = findClassesToMark(registrationsByClassAndGroup, 'invitation')
+
+      expect(result).toEqual(['AVO'])
+    })
+
+    it('should handle missing messagesSent property', () => {
+      const registrationsByClassAndGroup = {
+        ALO: {
+          group1: [
+            { id: '1', messagesSent: { invitation: true } },
+            { id: '2' }, // Missing messagesSent
+          ],
+        },
+      } as unknown as Record<string, Record<string, JsonRegistration[]>>
+
+      const result = findClassesToMark(registrationsByClassAndGroup, 'invitation')
+
+      expect(result).toEqual([])
+    })
+
+    it('should handle empty input', () => {
+      const result = findClassesToMark({}, 'invitation')
+      expect(result).toEqual([])
     })
   })
 })

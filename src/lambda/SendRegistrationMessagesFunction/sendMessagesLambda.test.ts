@@ -1,3 +1,5 @@
+import type { Registration } from '../../types'
+
 import { jest } from '@jest/globals'
 
 const mockLambda = jest.fn((name, fn) => fn)
@@ -28,13 +30,27 @@ jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
+// Import the actual implementations
+import { getStateFromTemplate } from '../lib/event'
+import {
+  findClassesToMark,
+  groupRegistrationsByClass,
+  groupRegistrationsByClassAndGroup,
+  isParticipantGroup,
+} from '../lib/registration'
+
 jest.unstable_mockModule('../lib/registration', () => ({
   sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
   setReserveNotified: mockSetReserveNotified,
+  isParticipantGroup,
+  groupRegistrationsByClass,
+  groupRegistrationsByClassAndGroup,
+  findClassesToMark,
 }))
 
 jest.unstable_mockModule('../lib/event', () => ({
   markParticipants: mockMarkParticipants,
+  getStateFromTemplate,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -58,7 +74,7 @@ describe('sendMessagesLambda', () => {
     headers: {},
   } as any
 
-  const mockRegistrations = [
+  const mockRegistrations: Partial<Registration>[] = [
     {
       id: 'reg456',
       eventId: 'event123',
@@ -103,6 +119,13 @@ describe('sendMessagesLambda', () => {
 
     mockQuery.mockResolvedValue(mockRegistrations)
     mockRead.mockResolvedValue(mockEvent)
+
+    // Set up the messagesSent property for the mock registrations
+    mockRegistrations.forEach((reg) => {
+      reg.messagesSent = { invitation: true, picked: true }
+      // Add group property for participant status
+      reg.group = { key: 'group1', number: 1 }
+    })
 
     mockSendTemplatedEmailToEventRegistrations.mockResolvedValue({
       ok: ['recipient@example.com'],
@@ -281,5 +304,404 @@ describe('sendMessagesLambda', () => {
       },
       event
     )
+  })
+
+  it('does not mark participants when only one registration ID is provided with invitation template', async () => {
+    // Modify the parsed JSON to have only one registration ID
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only one registration ID
+      text: 'Test message',
+    })
+
+    // Modify the query result to return only one registration
+    const singleRegistration = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+    ]
+    mockQuery.mockResolvedValueOnce(singleRegistration)
+
+    await sendMessagesLambda(event)
+
+    // Verify emails were sent
+    expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+      'invitation',
+      expect.any(Object),
+      singleRegistration, // Only one registration
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+      expect.any(String)
+    )
+
+    // Verify participants were NOT marked (since registrationIds.length is not > 1)
+    expect(mockMarkParticipants).not.toHaveBeenCalled()
+  })
+
+  it('does not mark participants when only one registration ID is provided with picked template', async () => {
+    // Modify the parsed JSON to have only one registration ID
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'picked',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only one registration ID
+      text: 'Test message',
+    })
+
+    // Modify the query result to return only one registration
+    const singleRegistration = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+    ]
+    mockQuery.mockResolvedValueOnce(singleRegistration)
+
+    await sendMessagesLambda(event)
+
+    // Verify emails were sent
+    expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+      'picked',
+      expect.any(Object),
+      singleRegistration, // Only one registration
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+      expect.any(String)
+    )
+
+    // Verify participants were NOT marked (since registrationIds.length is not > 1)
+    expect(mockMarkParticipants).not.toHaveBeenCalled()
+  })
+
+  it('filters out registrations that are not in ready state', async () => {
+    // Include a registration that is not in 'ready' state
+    const mixedRegistrations = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+      },
+      {
+        id: 'reg999',
+        eventId: 'event123',
+        state: 'cancelled', // Not in 'ready' state
+        class: 'ALO',
+      },
+    ]
+
+    // Add reg999 to the requested IDs
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456', 'reg789', 'reg999'],
+      text: 'Test message',
+    })
+
+    // Return all registrations including the non-ready one
+    mockQuery.mockResolvedValueOnce(mixedRegistrations)
+
+    await sendMessagesLambda(event)
+
+    // Verify only ready registrations were used for the email
+    const readyRegistrations = mixedRegistrations.filter((r) => r.state === 'ready')
+
+    // Should fail because not all requested registrations were found in ready state
+    expect(mockResponse).toHaveBeenCalledWith(400, 'Not all registrations were found, aborting!', event)
+    expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
+  })
+
+  it('uses the correct event table when reading the event', async () => {
+    await sendMessagesLambda(event)
+
+    // Verify the read operation used the correct table
+    expect(mockRead).toHaveBeenCalledWith(
+      { id: 'event123' },
+      expect.stringContaining('event') // The table name should contain 'event'
+    )
+  })
+
+  it('handles registrations with different classes correctly', async () => {
+    // Create registrations with different classes
+    const multiClassRegistrations = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group1', number: 1 },
+        messagesSent: { invitation: true },
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'AVO', // Different class
+        group: { key: 'group2', number: 1 },
+        messagesSent: { invitation: true },
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(multiClassRegistrations)
+
+    const testEvent = {
+      id: 'event123',
+      state: 'draft',
+      classes: [
+        { class: 'ALO', state: 'draft' },
+        { class: 'AVO', state: 'draft' },
+      ],
+    }
+    mockRead.mockResolvedValueOnce(testEvent)
+
+    await sendMessagesLambda(event)
+
+    // Verify emails were sent
+    expect(mockSendTemplatedEmailToEventRegistrations).toHaveBeenCalledWith(
+      'invitation',
+      expect.any(Object),
+      multiClassRegistrations,
+      expect.any(String),
+      expect.any(String),
+      expect.any(String),
+      expect.any(String)
+    )
+
+    // Verify participants were marked with the class of the first registration
+    expect(mockMarkParticipants).toHaveBeenCalledWith(testEvent, 'invited', 'ALO')
+  })
+
+  it('only marks participants when all registrations for a class have received the message', async () => {
+    // Create registrations with the same class
+    const sameClassRegistrations: Partial<Registration>[] = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group1', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group1', number: 2 },
+        messagesSent: { invitation: false }, // This one has not received the message
+      },
+      {
+        id: 'reg101',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'AVO',
+        group: { key: 'group2', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(sameClassRegistrations)
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only sending to one registration
+      text: 'Test message',
+    })
+
+    await sendMessagesLambda(event)
+
+    // Verify markParticipants was not called for ALO class since not all ALO registrations have received the message
+    expect(mockMarkParticipants).not.toHaveBeenCalledWith(expect.anything(), 'invited', 'ALO')
+
+    // But it should have been called for AVO class since all AVO registrations have received the message
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', 'AVO')
+  })
+
+  it('marks participants when all registrations for a class have received the message', async () => {
+    // Create registrations where all have received the message
+    const allReceivedRegistrations: Partial<Registration>[] = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group1', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group1', number: 2 },
+        messagesSent: { invitation: true }, // This one has also received the message
+      },
+      {
+        id: 'reg101',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'AVO',
+        group: { key: 'group2', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(allReceivedRegistrations)
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only sending to one registration
+      text: 'Test message',
+    })
+
+    await sendMessagesLambda(event)
+
+    // Verify markParticipants was called for both classes since all registrations have received the message
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', 'ALO')
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', 'AVO')
+  })
+
+  it('only marks participants when all registrations in participant groups have received the message', async () => {
+    // Create registrations with different groups
+    const mixedGroupRegistrations: Partial<Registration>[] = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group1', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'group2', number: 2 },
+        messagesSent: { invitation: false }, // This one has not received the message
+      },
+      {
+        id: 'reg101',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'ALO',
+        group: { key: 'reserve', number: 3 }, // This one is on reserve
+        messagesSent: { invitation: false }, // This one has not received the message
+      },
+      {
+        id: 'reg102',
+        eventId: 'event123',
+        state: 'ready',
+        class: 'AVO',
+        group: { key: 'group3', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(mixedGroupRegistrations)
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only sending to one registration
+      text: 'Test message',
+    })
+
+    await sendMessagesLambda(event)
+
+    // Verify markParticipants was not called for ALO class since not all participant groups have received the message
+    expect(mockMarkParticipants).not.toHaveBeenCalledWith(expect.anything(), 'invited', 'ALO')
+
+    // But it should have been called for AVO class since all participant groups have received the message
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', 'AVO')
+  })
+
+  it('handles registrations with no class by using eventType', async () => {
+    // Create registrations with no class
+    const noClassRegistrations: Partial<Registration>[] = [
+      {
+        id: 'reg456',
+        eventId: 'event123',
+        state: 'ready',
+        eventType: 'NOME',
+        group: { key: 'group1', number: 1 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+      {
+        id: 'reg789',
+        eventId: 'event123',
+        state: 'ready',
+        eventType: 'NOME',
+        group: { key: 'group2', number: 2 },
+        messagesSent: { invitation: true }, // This one has received the message
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(noClassRegistrations)
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456'], // Only sending to one registration
+      text: 'Test message',
+    })
+
+    await sendMessagesLambda(event)
+
+    // Verify markParticipants was called with undefined since NOME is not a valid registration class
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', undefined)
+  })
+
+  it('uses the correct state when marking participants based on template', async () => {
+    // Test with invitation template
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'invitation',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456', 'reg789'],
+      text: 'Test message',
+    })
+
+    await sendMessagesLambda(event)
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'invited', expect.anything())
+
+    // Reset mocks
+    jest.clearAllMocks()
+
+    // Test with picked template
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      template: 'picked',
+      eventId: 'event123',
+      contactInfo: { email: 'contact@example.com' },
+      registrationIds: ['reg456', 'reg789'],
+      text: 'Test message',
+    })
+    mockQuery.mockResolvedValueOnce(mockRegistrations)
+    mockRead.mockResolvedValueOnce(mockEvent)
+    mockSendTemplatedEmailToEventRegistrations.mockResolvedValueOnce({
+      ok: ['recipient@example.com'],
+      failed: [],
+    })
+
+    await sendMessagesLambda(event)
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.anything(), 'picked', expect.anything())
   })
 })

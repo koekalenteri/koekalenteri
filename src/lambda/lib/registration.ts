@@ -99,6 +99,14 @@ export const sendTemplatedEmailToEventRegistrations = async (
         user,
       })
       await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
+
+      // Update the messagesSent property to track that this template has been sent
+      const messagesSent = registration.messagesSent || {}
+      messagesSent[template] = true
+      await updateRegistrationField(registration.eventId, registration.id, 'messagesSent', messagesSent)
+
+      // Update the in-memory object too
+      registration.messagesSent = messagesSent
     } catch (e) {
       failed.push(...to)
       audit({
@@ -114,6 +122,68 @@ export const sendTemplatedEmailToEventRegistrations = async (
 
 export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
+
+/**
+ * Group registrations by class or eventType
+ */
+export const groupRegistrationsByClass = (registrations: JsonRegistration[]): Record<string, JsonRegistration[]> => {
+  const result: Record<string, JsonRegistration[]> = {}
+
+  for (const reg of registrations) {
+    const classKey = reg.class ?? reg.eventType
+    result[classKey] = result[classKey] || []
+    result[classKey].push(reg)
+  }
+
+  return result
+}
+
+/**
+ * Group registrations by class and then by group
+ */
+export const groupRegistrationsByClassAndGroup = (
+  registrationsByClass: Record<string, JsonRegistration[]>
+): Record<string, Record<string, JsonRegistration[]>> => {
+  const result: Record<string, Record<string, JsonRegistration[]>> = {}
+
+  for (const [classKey, classRegs] of Object.entries(registrationsByClass)) {
+    result[classKey] = {}
+
+    for (const reg of classRegs) {
+      if (!isParticipantGroup(reg.group?.key)) continue
+
+      const groupKey = reg.group!.key
+      result[classKey][groupKey] = result[classKey][groupKey] || []
+      result[classKey][groupKey].push(reg)
+    }
+  }
+
+  return result
+}
+
+/**
+ * Find classes where all participants have received the message
+ */
+export const findClassesToMark = (
+  registrationsByClassAndGroup: Record<string, Record<string, Partial<JsonRegistration>[]>>,
+  template: string
+): string[] => {
+  const classesToMark: string[] = []
+
+  for (const [classKey, groupsMap] of Object.entries(registrationsByClassAndGroup)) {
+    if (Object.keys(groupsMap).length === 0) continue
+
+    const allGroupsReceived = Object.values(groupsMap).every(
+      (groupRegs) => groupRegs.length > 0 && groupRegs.every((reg) => reg.messagesSent?.[template])
+    )
+
+    if (allGroupsReceived) {
+      classesToMark.push(classKey)
+    }
+  }
+
+  return classesToMark
+}
 
 export const findExistingRegistrationToEventForDog = async (
   eventId: string,
