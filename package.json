@@ -156,6 +156,7 @@
     "react-app-polyfill": "^3.0.0",
     "react-dev-utils": "^12.0.1",
     "react-refresh": "^0.17.0",
+    "react-scan": "^0.3.3",
     "rimraf": "^6.0.1",
     "run-script-os": "^1.1.6",
     "semver": "^7.7.2",

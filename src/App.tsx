@@ -1,7 +1,8 @@
 import type { SnackbarKey } from 'notistack'
 
-import { Suspense, useCallback } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
+import { scan } from 'react-scan'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
@@ -13,6 +14,7 @@ import { useRecoilValue } from 'recoil'
 
 import { useWebSocket } from './hooks/useWebSocket'
 import { reportError } from './lib/client/error'
+import { isDevEnv } from './lib/env'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
 import { languageAtom } from './pages/recoil'
@@ -33,6 +35,12 @@ function App() {
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
 
   useWebSocket()
+
+  useEffect(() => {
+    if (isDevEnv()) {
+      scan({ enabled: true })
+    }
+  })
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
