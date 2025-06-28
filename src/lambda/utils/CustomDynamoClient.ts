@@ -11,7 +11,7 @@ import type {
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 
-import { DynamoDBClient, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
+import { DynamoDBClient, TransactionCanceledException, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
   BatchWriteCommand,
   DeleteCommand,
@@ -308,10 +308,31 @@ export default class CustomDynamoClient {
     }))
     console.log('DB.transaction', itemsWithTable)
 
-    await this.docClient.send(
-      new TransactWriteItemsCommand({
-        TransactItems: itemsWithTable,
-      })
-    )
+    try {
+      await this.docClient.send(
+        new TransactWriteItemsCommand({
+          TransactItems: itemsWithTable,
+        })
+      )
+    } catch (err) {
+      if (err instanceof TransactionCanceledException || (err as any).name === 'TransactionCanceledException') {
+        console.error('❌ Transaction was canceled')
+
+        const reasons = (err as TransactionCanceledException).CancellationReasons
+        if (reasons) {
+          reasons.forEach((reason, index) => {
+            console.log(`🔹 Operation ${index + 1}:`)
+            console.log(`   Code: ${reason.Code}`)
+            if (reason.Message) {
+              console.log(`   Message: ${reason.Message}`)
+            }
+          })
+        } else {
+          console.log('No cancellation reasons returned')
+        }
+      } else {
+        console.error('❗ Unexpected error:', err)
+      }
+    }
   }
 }
