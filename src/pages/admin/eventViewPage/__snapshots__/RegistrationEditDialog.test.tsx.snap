@@ -49,7 +49,12 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             <span
               class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
             >
-              cancelled-registration
+              <a
+                href="/r/test1/cancelled-registration"
+                target="_blank"
+              >
+                cancelled-registration
+              </a>
             </span>
           </div>
         </h2>
@@ -2749,7 +2754,12 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             <span
               class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
             >
-              nou-registration
+              <a
+                href="/r/test1/nou-registration"
+                target="_blank"
+              >
+                nou-registration
+              </a>
             </span>
           </div>
         </h2>

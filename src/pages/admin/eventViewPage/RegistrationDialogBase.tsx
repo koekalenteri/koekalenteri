@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
 import { hasChanges } from '../../../lib/utils'
+import { Path } from '../../../routeConfig'
 import RegistrationForm from '../../components/RegistrationForm'
 import { AuditTrail } from '../components/AuditTrail'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
@@ -109,7 +110,12 @@ export default function RegistrationDialogBase({
     >
       <DialogTitle id="reg-dialog-title">
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          {title} ({registration.language})<Typography variant="caption">{registration.id}</Typography>
+          {title} ({registration.language})
+          <Typography variant="caption">
+            <a target="_blank" href={Path.registration(registration)}>
+              {registration.id}
+            </a>
+          </Typography>
         </Stack>
       </DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
