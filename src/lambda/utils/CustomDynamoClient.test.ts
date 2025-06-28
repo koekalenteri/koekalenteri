@@ -10,10 +10,21 @@ const mockFrom = jest.fn().mockImplementation((client) => ({
 }))
 
 // Mock the DynamoDB client and commands
+// Create a custom TransactionCanceledException class
+class MockTransactionCanceledException extends Error {
+  CancellationReasons?: { Code: string; Message?: string }[]
+
+  constructor(message: string, reasons?: { Code: string; Message?: string }[]) {
+    super(message)
+    this.name = 'TransactionCanceledException'
+    this.CancellationReasons = reasons
+  }
+}
+
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   TransactWriteItemsCommand: jest.fn().mockImplementation((params) => params),
-  TransactionCanceledException: Error,
+  TransactionCanceledException: MockTransactionCanceledException,
 }))
 
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
@@ -518,6 +529,118 @@ describe('CustomDynamoClient', () => {
           TransactItems: [{ Delete: { Key: { id: { S: '3' } }, TableName: 'custom-table' } }],
         })
       )
+    })
+
+    it('includes ConditionCheck operations in transaction', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      const items = [
+        {
+          ConditionCheck: {
+            Key: { id: { S: '1' } },
+            ConditionExpression: 'attribute_exists(id)',
+            ExpressionAttributeNames: { '#id': 'id' },
+          },
+        },
+      ]
+      mockSend.mockResolvedValueOnce({})
+
+      await client.transaction(items)
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          TransactItems: [
+            {
+              ConditionCheck: {
+                Key: { id: { S: '1' } },
+                ConditionExpression: 'attribute_exists(id)',
+                ExpressionAttributeNames: { '#id': 'id' },
+                TableName: 'test-table',
+              },
+            },
+          ],
+        })
+      )
+    })
+
+    it('handles empty operation objects in transaction items', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      // Use proper types that match TransactWriteItemWithoutTable
+      const items = [{ Delete: { Key: { id: { S: '3' } } } }, { Put: undefined }, { Update: undefined }]
+      mockSend.mockResolvedValueOnce({})
+
+      await client.transaction(items)
+
+      // Check that the transaction was sent with the correct items
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          TransactItems: expect.arrayContaining([
+            expect.objectContaining({
+              Delete: expect.objectContaining({
+                Key: { id: { S: '3' } },
+                TableName: 'test-table',
+              }),
+            }),
+          ]),
+        })
+      )
+    })
+
+    it('handles TransactionCanceledException', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+      const client = new CustomDynamoClient('TestTable')
+      const items = [{ Put: { Item: { id: { S: '1' } } } }]
+
+      // Create a TransactionCanceledException with cancellation reasons using our mock class
+      const error = new MockTransactionCanceledException('Transaction canceled', [
+        { Code: 'ConditionalCheckFailed', Message: 'Condition check failed' },
+      ])
+
+      mockSend.mockRejectedValueOnce(error)
+
+      await client.transaction(items)
+
+      expect(errorSpy).toHaveBeenCalledWith('❌ Transaction was canceled')
+      expect(logSpy).toHaveBeenCalledWith('🔹 Operation 1:')
+      expect(logSpy).toHaveBeenCalledWith('   Code: ConditionalCheckFailed')
+      expect(logSpy).toHaveBeenCalledWith('   Message: Condition check failed')
+    })
+
+    it('handles TransactionCanceledException without reasons', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+      const logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
+
+      const client = new CustomDynamoClient('TestTable')
+      const items = [{ Put: { Item: { id: { S: '1' } } } }]
+
+      // Create a TransactionCanceledException without cancellation reasons using our mock class
+      const error = new MockTransactionCanceledException('Transaction canceled')
+
+      mockSend.mockRejectedValueOnce(error)
+
+      await client.transaction(items)
+
+      expect(errorSpy).toHaveBeenCalledWith('❌ Transaction was canceled')
+      expect(logSpy).toHaveBeenCalledWith('No cancellation reasons returned')
+    })
+
+    it('handles unexpected errors in transaction', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
+      const client = new CustomDynamoClient('TestTable')
+      const items = [{ Put: { Item: { id: { S: '1' } } } }]
+
+      // Create an error that is definitely not a TransactionCanceledException
+      const error = new Error('Unexpected error')
+      // Explicitly set name to something other than TransactionCanceledException
+      error.name = 'SomeOtherError'
+
+      mockSend.mockRejectedValueOnce(error)
+
+      await client.transaction(items)
+
+      expect(errorSpy).toHaveBeenCalledWith('❗ Unexpected error:', error)
     })
   })
 })
