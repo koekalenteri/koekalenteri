@@ -13,6 +13,7 @@ const mockFrom = jest.fn().mockImplementation((client) => ({
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
   TransactWriteItemsCommand: jest.fn().mockImplementation((params) => params),
+  TransactionCanceledException: Error,
 }))
 
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
