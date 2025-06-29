@@ -21,6 +21,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
+import { enqueueSnackbar } from 'notistack'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { putInvitationAttachment } from '../../../api/event'
@@ -52,10 +53,15 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   }, [])
   const handleInvitationUpload = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.files) return
+      if (!e.target.files) {
+        console.log('no files')
+        return
+      }
       const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
+      const update = Boolean(event.invitationAttachment)
       setAttachmentKey(fileKey)
       setEvent({ ...event, invitationAttachment: fileKey })
+      enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
     },
     [event, setEvent, token]
   )

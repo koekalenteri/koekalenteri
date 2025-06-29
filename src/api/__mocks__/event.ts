@@ -77,3 +77,12 @@ export async function putEvent(event: DogEvent, token?: string, signal?: AbortSi
     process.nextTick(() => (existing ? resolve(existing) : reject(new Error('not found'))))
   })
 }
+
+export async function putInvitationAttachment(
+  eventId: string,
+  file: File,
+  token?: string,
+  signal?: AbortSignal
+): Promise<string> {
+  return 'mock-file-id'
+}
