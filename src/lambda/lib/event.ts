@@ -245,7 +245,7 @@ export const fixRegistrationGroups = async <T extends JsonRegistration>(
         const oldGroup = reg.group
         reg.group = { ...reg.group, key, number }
         if (save) {
-          await saveGroup(reg, oldGroup, user, '(seuraus)')
+          await saveGroup(reg, oldGroup, user, '(automaattinen sijoitus)')
         }
       }
     }

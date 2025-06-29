@@ -32,6 +32,24 @@ jest.unstable_mockModule('./broadcast', () => ({
   broadcastEvent: mockBroadcast,
 }))
 
+// Mock registration module functions
+const mockSortRegistrationsByDateClassTimeAndNumber = jest.fn((a, b) => 0) // Default sort implementation
+const mockGetRegistrationNumberingGroupKey = jest.fn()
+const mockGetRegistrationGroupKey = jest.fn()
+const mockHasPriority = jest.fn()
+const mockGroupKeyCancelled = 'cancelled'
+const mockGroupKeyReserve = 'reserve'
+
+jest.unstable_mockModule('../../lib/registration', () => ({
+  __esModule: true,
+  sortRegistrationsByDateClassTimeAndNumber: mockSortRegistrationsByDateClassTimeAndNumber,
+  getRegistrationNumberingGroupKey: mockGetRegistrationNumberingGroupKey,
+  getRegistrationGroupKey: mockGetRegistrationGroupKey,
+  GROUP_KEY_CANCELLED: mockGroupKeyCancelled,
+  GROUP_KEY_RESERVE: mockGroupKeyReserve,
+  hasPriority: mockHasPriority,
+}))
+
 const {
   findQualificationStartDate,
   fixRegistrationGroups,
@@ -167,6 +185,7 @@ describe('lib/event', () => {
       mockQuery.mockReset()
       mockRead.mockReset()
       mockBroadcast.mockReset()
+      mockHasPriority.mockReset()
     })
     it('updates event entries and members', async () => {
       const event = { id: 'e3', classes: [{ class: 'A' }], state: 'ready' }
@@ -176,6 +195,10 @@ describe('lib/event', () => {
         { class: 'AVO', state: 'ready', cancelled: false, paidAmount: 0 },
       ]
       mockQuery.mockResolvedValueOnce(regs)
+
+      // Mock hasPriority to return false for all registrations
+      mockHasPriority.mockReturnValue(false)
+
       const result = await updateRegistrations('e3')
       expect(result.entries).toBe(2)
       expect(mockUpdate).toHaveBeenCalled()
@@ -202,6 +225,11 @@ describe('lib/event', () => {
         { class: 'AVO', state: 'ready', cancelled: false, paidAmount: 0, handler: { membership: true } },
       ]
       mockQuery.mockResolvedValueOnce(regs)
+
+      // Mock hasPriority to return true only for the AVO registration with membership
+      mockHasPriority.mockImplementation((event: any, reg: any) => {
+        return reg.class === 'AVO' && reg.handler?.membership === true
+      })
 
       // Call updateRegistrations
       const result = await updateRegistrations('e4')
@@ -231,17 +259,244 @@ describe('lib/event', () => {
     beforeEach(() => {
       mockUpdate.mockReset()
       mockAudit.mockReset()
+      mockGetRegistrationNumberingGroupKey.mockReset()
+      mockGetRegistrationGroupKey.mockReset()
+      mockSortRegistrationsByDateClassTimeAndNumber.mockReset()
     })
+
     it('fixes group numbers and calls saveGroup if save=true', async () => {
       const user = { name: 'user' } as JsonUser
       const regs = [
         { class: 'ALO', group: { key: 'A', number: 3 } },
         { class: 'ALO', group: { key: 'A', number: 1 } },
       ] as JsonRegistration[]
+
+      // Mock the numbering group key to be the same for both registrations
+      mockGetRegistrationNumberingGroupKey.mockReturnValueOnce('ALO').mockReturnValueOnce('ALO')
+
+      // Mock the group key to be 'A' for both registrations
+      mockGetRegistrationGroupKey.mockReturnValueOnce('A').mockReturnValueOnce('A')
+
       const result = await fixRegistrationGroups(regs, user, true)
       expect(result[0].group?.number).toBe(1)
       expect(result[1].group?.number).toBe(2)
       expect(mockAudit).toHaveBeenCalled()
+    })
+
+    it('fixes group numbers but does not call saveGroup if save=false', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [
+        { class: 'ALO', group: { key: 'A', number: 3 } },
+        { class: 'ALO', group: { key: 'A', number: 1 } },
+      ] as JsonRegistration[]
+      const result = await fixRegistrationGroups(regs, user, false)
+      expect(result[0].group?.number).toBe(1)
+      expect(result[1].group?.number).toBe(2)
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('handles multiple numbering groups correctly', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [
+        // First numbering group - ALO class
+        { class: 'ALO', group: { key: 'A', number: 2 } },
+        { class: 'ALO', group: { key: 'A', number: 5 } },
+        // Second numbering group - AVO class
+        { class: 'AVO', group: { key: 'B', number: 10 } },
+        { class: 'AVO', group: { key: 'B', number: 3 } },
+      ] as JsonRegistration[]
+
+      // Mock getRegistrationNumberingGroupKey to return different keys for different classes
+      mockGetRegistrationNumberingGroupKey
+        .mockReturnValueOnce('ALO') // First ALO registration
+        .mockReturnValueOnce('ALO') // Second ALO registration
+        .mockReturnValueOnce('AVO') // First AVO registration
+        .mockReturnValueOnce('AVO') // Second AVO registration
+
+      // Mock getRegistrationGroupKey to return appropriate keys
+      mockGetRegistrationGroupKey
+        .mockReturnValueOnce('A') // First ALO registration
+        .mockReturnValueOnce('A') // Second ALO registration
+        .mockReturnValueOnce('B') // First AVO registration
+        .mockReturnValueOnce('B') // Second AVO registration
+
+      const result = await fixRegistrationGroups(regs, user, false)
+
+      // ALO class should be numbered 1, 2
+      expect(result[0].group?.number).toBe(1)
+      expect(result[1].group?.number).toBe(2)
+
+      // AVO class should be numbered 1, 2 (separate numbering)
+      expect(result[2].group?.number).toBe(1)
+      expect(result[3].group?.number).toBe(2)
+    })
+
+    it('updates group key if it has changed', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [
+        {
+          class: 'ALO',
+          eventId: 'event1',
+          id: 'reg1',
+          group: { key: 'old-key', number: 1 },
+        },
+      ] as JsonRegistration[]
+
+      // Mock getRegistrationGroupKey to return a different key
+      jest.spyOn(await import('../../lib/registration'), 'getRegistrationGroupKey').mockReturnValueOnce('new-key')
+
+      const result = await fixRegistrationGroups(regs, user, true)
+
+      expect(result[0].group?.key).toBe('new-key')
+      expect(mockAudit).toHaveBeenCalled()
+    })
+
+    it('preserves additional group properties', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [
+        {
+          class: 'ALO',
+          group: {
+            key: 'A',
+            number: 3,
+            date: '2024-08-02T21:00:00.000Z',
+            time: 'ip',
+          },
+        },
+      ] as JsonRegistration[]
+
+      const result = await fixRegistrationGroups(regs, user, false)
+
+      expect(result[0].group?.number).toBe(1)
+      expect(result[0].group?.date).toBe('2024-08-02T21:00:00.000Z')
+      expect(result[0].group?.time).toBe('ip')
+    })
+
+    it('handles empty array', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs: JsonRegistration[] = []
+
+      const result = await fixRegistrationGroups(regs, user, true)
+
+      expect(result).toEqual([])
+      expect(mockAudit).not.toHaveBeenCalled()
+    })
+
+    it('handles single registration', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [{ class: 'ALO', group: { key: 'A', number: 5 } }] as JsonRegistration[]
+
+      const result = await fixRegistrationGroups(regs, user, true)
+
+      expect(result[0].group?.number).toBe(1)
+      expect(mockAudit).toHaveBeenCalled()
+    })
+
+    it('skips update if group key and number are already correct', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [{ class: 'ALO', group: { key: 'A', number: 1 } }] as JsonRegistration[]
+
+      // Mock getRegistrationGroupKey to return the same key
+      mockGetRegistrationGroupKey.mockReturnValueOnce('A')
+
+      const result = await fixRegistrationGroups(regs, user, true)
+
+      expect(result[0].group?.number).toBe(1)
+      expect(mockAudit).not.toHaveBeenCalled() // saveGroup should not be called
+    })
+
+    it('verifies registrations are sorted before processing', async () => {
+      const user = { name: 'user' } as JsonUser
+      mockSortRegistrationsByDateClassTimeAndNumber.mockClear()
+
+      const regs = [
+        { class: 'ALO', group: { key: 'A', number: 1 } },
+        { class: 'AVO', group: { key: 'B', number: 2 } },
+      ] as JsonRegistration[]
+
+      await fixRegistrationGroups(regs, user, false)
+
+      expect(mockSortRegistrationsByDateClassTimeAndNumber).toHaveBeenCalled()
+    })
+
+    it('creates group property if it does not exist', async () => {
+      const user = { name: 'user' } as JsonUser
+      const regs = [
+        { class: 'ALO', eventId: 'event1', id: 'reg1' }, // No group property
+      ] as JsonRegistration[]
+
+      // Mock getRegistrationGroupKey to return a key
+      mockGetRegistrationGroupKey.mockReturnValueOnce('new-key')
+
+      const result = await fixRegistrationGroups(regs, user, true)
+
+      expect(result[0].group).toBeDefined()
+      expect(result[0].group?.key).toBe('new-key')
+      expect(result[0].group?.number).toBe(1)
+      expect(mockAudit).toHaveBeenCalled()
+    })
+
+    it('handles registrations with different dates and times', async () => {
+      const user = { name: 'user' } as JsonUser
+      mockAudit.mockClear()
+
+      // Mock getRegistrationNumberingGroupKey to return different keys based on date/time
+      mockGetRegistrationNumberingGroupKey
+        .mockReturnValueOnce('ALO-morning')
+        .mockReturnValueOnce('ALO-morning')
+        .mockReturnValueOnce('ALO-afternoon')
+
+      // Mock getRegistrationGroupKey to return keys with date/time info
+      mockGetRegistrationGroupKey
+        .mockReturnValueOnce('2024-08-02-ap')
+        .mockReturnValueOnce('2024-08-02-ap')
+        .mockReturnValueOnce('2024-08-02-ip')
+
+      const regs = [
+        { class: 'ALO', date: '2024-08-02', time: 'ap', group: { key: 'old', number: 5 } },
+        { class: 'ALO', date: '2024-08-02', time: 'ap', group: { key: 'old', number: 3 } },
+        { class: 'ALO', date: '2024-08-02', time: 'ip', group: { key: 'old', number: 7 } },
+      ] as unknown as JsonRegistration[]
+
+      const result = await fixRegistrationGroups(regs, user, false)
+
+      // Morning group should be numbered 1, 2
+      expect(result[0].group?.key).toBe('2024-08-02-ap')
+      expect(result[0].group?.number).toBe(1)
+      expect(result[1].group?.key).toBe('2024-08-02-ap')
+      expect(result[1].group?.number).toBe(2)
+
+      // Afternoon group should be numbered 1
+      expect(result[2].group?.key).toBe('2024-08-02-ip')
+      expect(result[2].group?.number).toBe(1)
+    })
+
+    it('handles special group keys like cancelled and reserve', async () => {
+      const user = { name: 'user' } as JsonUser
+      mockAudit.mockClear()
+
+      // Mock getRegistrationNumberingGroupKey to return different keys
+      mockGetRegistrationNumberingGroupKey.mockReturnValueOnce('ALO-cancelled').mockReturnValueOnce('ALO-reserve')
+
+      // Mock getRegistrationGroupKey to return special keys
+      mockGetRegistrationGroupKey.mockReturnValueOnce(mockGroupKeyCancelled).mockReturnValueOnce(mockGroupKeyReserve)
+
+      const regs = [
+        { class: 'ALO', cancelled: true, group: { key: 'old', number: 3 } },
+        { class: 'ALO', state: 'pending', group: { key: 'old', number: 2 } },
+      ] as unknown as JsonRegistration[]
+
+      const result = await fixRegistrationGroups(regs, user, true)
+
+      // Cancelled group
+      expect(result[0].group?.key).toBe(mockGroupKeyCancelled)
+      expect(result[0].group?.number).toBe(1)
+
+      // Reserve group
+      expect(result[1].group?.key).toBe(mockGroupKeyReserve)
+      expect(result[1].group?.number).toBe(1)
+
+      expect(mockAudit).toHaveBeenCalledTimes(2)
     })
   })
 
