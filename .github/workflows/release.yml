@@ -3,6 +3,7 @@ name: Release
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   setup:
@@ -12,7 +13,9 @@ jobs:
     steps:
       - id: setEnv
         run: |
-          if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "env=test" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
             echo "env=test" >> $GITHUB_OUTPUT
           else
             echo "env=prod" >> $GITHUB_OUTPUT
