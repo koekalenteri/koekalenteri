@@ -55,6 +55,16 @@ describe('broadcast', () => {
         },
       ])
     })
+
+    it('should propagate errors from dynamoDB.transaction', async () => {
+      const mockError = new Error('Transaction failed')
+      mockTransaction.mockRejectedValueOnce(mockError)
+      const connectionId = 'conn-123'
+
+      await expect(wsConnect(connectionId)).rejects.toThrow('Transaction failed')
+
+      expect(mockTransaction).toHaveBeenCalled()
+    })
   })
 
   describe('wsDisconnect', () => {
@@ -79,6 +89,32 @@ describe('broadcast', () => {
           },
         },
       ])
+    })
+
+    it('should propagate errors from dynamoDB.transaction', async () => {
+      const mockError = new Error('Transaction failed')
+      mockTransaction.mockRejectedValueOnce(mockError)
+      const connectionId = 'conn-456'
+
+      await expect(wsDisconnect(connectionId)).rejects.toThrow('Transaction failed')
+
+      expect(mockTransaction).toHaveBeenCalled()
+    })
+
+    it('should propagate TransactionCanceledException when connection does not exist', async () => {
+      const mockError = new Error('Transaction canceled')
+      mockError.name = 'TransactionCanceledException'
+      ;(mockError as any).CancellationReasons = [
+        { Code: 'ConditionalCheckFailed', Message: 'The conditional request failed' },
+        { Code: 'None' },
+      ]
+
+      mockTransaction.mockRejectedValueOnce(mockError)
+      const connectionId = 'non-existent-conn'
+
+      await expect(wsDisconnect(connectionId)).rejects.toThrow('Transaction canceled')
+
+      expect(mockTransaction).toHaveBeenCalled()
     })
   })
 
@@ -109,6 +145,62 @@ describe('broadcast', () => {
           Data: Buffer.from(JSON.stringify(data)),
         })
       )
+    })
+
+    it('should exclude the specified exceptConnectionId from broadcast', async () => {
+      const connections = [
+        { connectionId: 'conn-1' },
+        { connectionId: CONNECTION_COUNT_ID },
+        { connectionId: 'conn-2' },
+        { connectionId: 'conn-3' },
+      ]
+      mockReadAll.mockResolvedValueOnce(connections)
+      mockSendToConnection.mockResolvedValue(undefined)
+
+      const data = { message: 'hello' }
+      await broadcastEvent(data, 'conn-2')
+
+      expect(mockReadAll).toHaveBeenCalled()
+      expect(mockSendToConnection).toHaveBeenCalledTimes(2)
+      expect(mockSendToConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ConnectionId: 'conn-1',
+          Data: Buffer.from(JSON.stringify(data)),
+        })
+      )
+      expect(mockSendToConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ConnectionId: 'conn-3',
+          Data: Buffer.from(JSON.stringify(data)),
+        })
+      )
+      // Verify conn-2 was excluded
+      expect(mockSendToConnection).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          ConnectionId: 'conn-2',
+          Data: expect.any(Buffer),
+        })
+      )
+    })
+
+    it('should handle empty connections array', async () => {
+      mockReadAll.mockResolvedValueOnce([])
+
+      const data = { message: 'hello' }
+      await broadcastEvent(data)
+
+      expect(mockReadAll).toHaveBeenCalled()
+      expect(mockSendToConnection).not.toHaveBeenCalled()
+    })
+
+    it('should handle null connections result', async () => {
+      mockReadAll.mockResolvedValueOnce(null)
+
+      const data = { message: 'hello' }
+      await broadcastEvent(data)
+
+      expect(mockReadAll).toHaveBeenCalled()
+      expect(mockSendToConnection).not.toHaveBeenCalled()
     })
 
     it('should handle generic errors when gateway.send fails', async () => {
@@ -182,7 +274,7 @@ describe('broadcast', () => {
       mockReadAll.mockResolvedValueOnce(connections)
       mockSendToConnection.mockResolvedValueOnce(undefined)
 
-      await broadcastConnectionCount()
+      await broadcastConnectionCount('test')
 
       expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
       expect(mockSendToConnection).toHaveBeenCalledWith(
@@ -200,6 +292,78 @@ describe('broadcast', () => {
 
       expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
       expect(mockSendToConnection).not.toHaveBeenCalled()
+    })
+
+    it('should not broadcast if connectionCount is 0', async () => {
+      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 0 }
+      mockRead.mockResolvedValueOnce(mockCount)
+
+      await broadcastConnectionCount()
+
+      expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
+      expect(mockSendToConnection).not.toHaveBeenCalled()
+    })
+
+    it('should not broadcast if connectionCount is negative', async () => {
+      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: -1 }
+      mockRead.mockResolvedValueOnce(mockCount)
+
+      await broadcastConnectionCount()
+
+      expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
+      expect(mockSendToConnection).not.toHaveBeenCalled()
+    })
+
+    it('should propagate errors from dynamoDB.read', async () => {
+      const mockError = new Error('Read failed')
+      mockRead.mockRejectedValueOnce(mockError)
+
+      await expect(broadcastConnectionCount()).rejects.toThrow('Read failed')
+
+      expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
+      expect(mockSendToConnection).not.toHaveBeenCalled()
+    })
+
+    it('should handle optional exceptConnectionId parameter', async () => {
+      const connections = [{ connectionId: 'conn-1' }]
+      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 5 }
+      mockRead.mockResolvedValueOnce(mockCount)
+      mockReadAll.mockResolvedValueOnce(connections)
+      mockSendToConnection.mockResolvedValueOnce(undefined)
+
+      // Call without exceptConnectionId parameter
+      await broadcastConnectionCount()
+
+      expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
+      expect(mockSendToConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ConnectionId: expect.any(String),
+          Data: Buffer.from(JSON.stringify({ count: mockCount.connectionCount })),
+        })
+      )
+    })
+
+    it('should not boradcast to the excluded connection', async () => {
+      const connections = [{ connectionId: 'conn-1' }, { connectionId: 'conn-except' }]
+      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 5 }
+      const exceptId = 'conn-except'
+
+      mockRead.mockResolvedValueOnce(mockCount)
+      mockReadAll.mockResolvedValueOnce(connections)
+      mockSendToConnection.mockResolvedValueOnce(undefined)
+
+      await broadcastConnectionCount(exceptId)
+
+      expect(mockRead).toHaveBeenCalledWith({ connectionId: CONNECTION_COUNT_ID })
+      expect(mockReadAll).toHaveBeenCalled()
+      // Verify that exceptConnectionId is passed to broadcastEvent
+      expect(mockSendToConnection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ConnectionId: 'conn-1',
+          Data: Buffer.from(JSON.stringify({ count: mockCount.connectionCount })),
+        })
+      )
+      expect(mockSendToConnection).toHaveBeenCalledTimes(1)
     })
   })
 })

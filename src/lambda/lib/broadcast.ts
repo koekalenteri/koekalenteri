@@ -48,7 +48,7 @@ export const wsDisconnect = async (connectionId: string) => {
   ])
 }
 
-export const broadcastEvent = async (data: AnyObject) => {
+export const broadcastEvent = async (data: AnyObject, exceptConnectionId?: string) => {
   const gateway = new ApiGatewayManagementApiClient({ endpoint: CONFIG.wsApiEndpoint })
   const connections = (await dynamoDB.readAll<WebSocketConnection>()) ?? []
   const dataBuffer = Buffer.from(JSON.stringify(data))
@@ -57,7 +57,7 @@ export const broadcastEvent = async (data: AnyObject) => {
 
   await Promise.allSettled(
     connections.map(async ({ connectionId }) => {
-      if (connectionId === CONNECTION_COUNT_ID) return
+      if (connectionId === CONNECTION_COUNT_ID || connectionId === exceptConnectionId) return
       try {
         await gateway.send(new PostToConnectionCommand({ ConnectionId: connectionId, Data: dataBuffer }))
       } catch (err: any) {
@@ -70,12 +70,12 @@ export const broadcastEvent = async (data: AnyObject) => {
   )
 }
 
-export const broadcastConnectionCount = async () => {
+export const broadcastConnectionCount = async (exceptConnectionId?: string) => {
   const count = await dynamoDB.read<{ connectionId: string; connectionCount: number }>({
     connectionId: CONNECTION_COUNT_ID,
   })
 
-  if (count) {
-    await broadcastEvent({ count: count.connectionCount })
+  if (count && count.connectionCount > 0) {
+    await broadcastEvent({ count: count.connectionCount }, exceptConnectionId)
   }
 }

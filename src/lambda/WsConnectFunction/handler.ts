@@ -6,7 +6,7 @@ const wsConnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   const connectionId = event.requestContext.connectionId!
 
   await wsConnect(connectionId)
-  await broadcastConnectionCount()
+  await broadcastConnectionCount(connectionId)
 
   return { statusCode: 200, body: 'Connected' }
 }
