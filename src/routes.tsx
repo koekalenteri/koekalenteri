@@ -19,6 +19,7 @@ const routes: RouteObject[] = [
     path: '/',
     element: <HomePage />,
     errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingIndicator />,
     children: [
       {
         index: true,
@@ -28,13 +29,11 @@ const routes: RouteObject[] = [
         (path) => ({
           path,
           lazy: () => import('./pages/RegistrationCreatePage'),
-          hydrateFallbackElement: <LoadingIndicator />,
         })
       ),
       {
         path: 'p/:id/:registrationId',
         lazy: () => import('./pages/PaymentPage'),
-        hydrateFallbackElement: <LoadingIndicator />,
       },
       {
         path: 'p/success',
@@ -160,6 +159,7 @@ const routes: RouteObject[] = [
     lazy: async () => ({
       Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StartListPage')).default,
     }),
+    hydrateFallbackElement: <LoadingIndicator />,
     errorElement: <ErrorPage />,
   },
   {
@@ -167,6 +167,7 @@ const routes: RouteObject[] = [
     loader: startListLoader,
     element: <StartListPage />,
     errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingIndicator />,
   },
   {
     path: 'support',
