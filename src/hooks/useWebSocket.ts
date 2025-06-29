@@ -26,8 +26,11 @@ export const applyPatch = (events: PublicDogEvent[], eventId: string, patch: Par
 
 export const useWebSocket = () => {
   const setEvents = useRecoilCallback(
-    ({ set }) =>
+    ({ snapshot, set }) =>
       (eventId: string, patch: Partial<PublicDogEvent>) => {
+        const loadable = snapshot.getLoadable(eventsAtom)
+        if (loadable.state !== 'hasValue') return
+
         set(eventsAtom, (current) => applyPatch(current, eventId, patch))
       },
     []
