@@ -68,6 +68,7 @@ describe('broadcast', () => {
         {
           Delete: {
             Key: { connectionId: { S: connectionId } },
+            ConditionExpression: 'attribute_exists(connectionId)',
           },
         },
         {
@@ -157,6 +158,7 @@ describe('broadcast', () => {
         {
           Delete: {
             Key: { connectionId: { S: 'conn-1' } },
+            ConditionExpression: 'attribute_exists(connectionId)',
           },
         },
         {

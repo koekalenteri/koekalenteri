@@ -32,6 +32,8 @@ export const wsDisconnect = async (connectionId: string) => {
     {
       Delete: {
         Key: { connectionId: { S: connectionId } },
+        // This will make the transaction fail, when item does not exist:
+        ConditionExpression: 'attribute_exists(connectionId)',
       },
     },
     {
@@ -51,7 +53,7 @@ export const broadcastEvent = async (data: AnyObject) => {
 
   console.log(`broadcast (${connections.length}):`, data)
 
-  await Promise.all(
+  await Promise.allSettled(
     connections.map(async ({ connectionId }) => {
       if (connectionId === CONNECTION_COUNT_ID) return
       try {
