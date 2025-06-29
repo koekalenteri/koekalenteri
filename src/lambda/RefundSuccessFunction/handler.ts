@@ -88,6 +88,12 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
         handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
         providerName,
       })
+
+      await audit({
+        auditKey: registrationAuditKey(registration),
+        message: `Email: ${templateData.subject}, to: ${recipient.join(', ')}`,
+        user: transaction.user,
+      })
     } catch (e) {
       // this is not fatal
       console.error('failed to send refund email', e)

@@ -58,6 +58,12 @@ const handleSuccessfulPayment = async (
       createdAt: t('dateFormat.long', { date: transaction.createdAt }),
       amount: formatMoney(amount),
     })
+
+    await audit({
+      auditKey: registrationAuditKey(registration),
+      message: `Email: ${receiptData.subject}, to: ${receiptTo.join(', ')}`,
+      user: transaction.user ?? 'anonymous',
+    })
   } catch (e) {
     // this is not fatal
     console.error('failed to send receipt', e)
@@ -73,6 +79,12 @@ const handleSuccessfulPayment = async (
   const to = emailTo(registration)
   const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
   await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+
+  await audit({
+    auditKey: registrationAuditKey(registration),
+    message: `Email: ${data.subject}, to: ${to.join(', ')}`,
+    user: transaction.user ?? 'anonymous',
+  })
 }
 
 /**

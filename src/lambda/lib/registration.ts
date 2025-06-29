@@ -95,7 +95,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       ok.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `${templateName}: ${to.join(', ')}`,
+        message: `Email: ${data.subject}, to: ${to.join(', ')}`,
         user,
       })
       await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))

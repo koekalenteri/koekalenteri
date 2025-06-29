@@ -64,6 +64,12 @@ const sendMessages = async (
 
   await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
 
+  await audit({
+    auditKey: registrationAuditKey(registration),
+    message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
+    user: 'anonymous',
+  })
+
   // also notify secretary about cancellation (allowed to fail)
   try {
     const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email

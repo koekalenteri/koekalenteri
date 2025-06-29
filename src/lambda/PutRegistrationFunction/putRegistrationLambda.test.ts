@@ -131,7 +131,14 @@ describe('putRegistrationLabmda', () => {
         user: 'anonymous',
       })
     )
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
+        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
       'registration',
@@ -187,7 +194,14 @@ describe('putRegistrationLabmda', () => {
         user: 'anonymous',
       })
     )
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
+        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
       'registration',
@@ -242,7 +256,14 @@ describe('putRegistrationLabmda', () => {
         user: 'anonymous',
       })
     )
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
+        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
       'registration',
@@ -298,7 +319,14 @@ describe('putRegistrationLabmda', () => {
         user: 'anonymous',
       })
     )
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
+        message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(2)
 
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
       'registration',

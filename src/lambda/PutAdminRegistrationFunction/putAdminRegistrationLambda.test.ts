@@ -126,6 +126,7 @@ describe('putAdminRegistrationLambda', () => {
     mockRegistrationEmailTemplateData.mockReturnValue({
       eventName: 'Test Event',
       registrationId: 'reg456',
+      subject: 'Subject',
     })
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
@@ -296,7 +297,12 @@ describe('putAdminRegistrationLambda', () => {
     await putAdminRegistrationLambda(event)
 
     // Verify audit was not called
-    expect(mockAudit).not.toHaveBeenCalled()
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event123:reg456',
+      message: 'Email: Subject, to: handler@example.com, owner@example.com',
+      user: 'Test User',
+    })
+    expect(mockAudit).toHaveBeenCalledTimes(1)
 
     // Verify registration was still saved
     expect(mockSaveRegistration).toHaveBeenCalled()

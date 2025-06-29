@@ -64,6 +64,12 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
     await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
+
+    await audit({
+      auditKey: registrationAuditKey(registration),
+      message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
+      user: user.name,
+    })
   }
 
   return response(200, data, event)
