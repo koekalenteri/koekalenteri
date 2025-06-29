@@ -210,7 +210,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   // audit cancellations
   for (const reg of cancelled) {
     const message = getCancelAuditMessage(reg)
-    audit({
+    await audit({
       auditKey: registrationAuditKey(reg),
       message,
       user: user.name,

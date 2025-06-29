@@ -49,7 +49,7 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
       )
     }
 
-    audit({
+    await audit({
       auditKey: registrationAuditKey(registration),
       message: `Palautus epäonnistui (${transaction.provider}), ${formatMoney(transaction.amount / 100)}`,
       user: transaction.user,

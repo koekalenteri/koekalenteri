@@ -93,7 +93,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
     try {
       await sendTemplatedMail(template, registration.language, emailFrom, to, data)
       ok.push(...to)
-      audit({
+      await audit({
         auditKey: registrationAuditKey(registration),
         message: `${templateName}: ${to.join(', ')}`,
         user,
@@ -109,7 +109,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       registration.messagesSent = messagesSent
     } catch (e) {
       failed.push(...to)
-      audit({
+      await audit({
         auditKey: registrationAuditKey(registration),
         message: `FAILED ${templateName}: ${to.join(', ')}`,
         user,

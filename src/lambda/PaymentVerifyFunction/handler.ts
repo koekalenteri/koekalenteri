@@ -47,7 +47,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
 
         const provider = params['checkout-provider']
 
-        audit({
+        await audit({
           auditKey: registrationAuditKey(registration),
           message: `Maksu epäonnistui (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}`,
           user: transaction.user ?? 'anonymous',

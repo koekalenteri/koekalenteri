@@ -63,7 +63,7 @@ const handleSuccessfulPayment = async (
     console.error('failed to send receipt', e)
   }
 
-  audit({
+  await audit({
     auditKey: registrationAuditKey(registration),
     message: `Maksu (${getProviderName(provider)}), ${formatMoney(amount)}`,
     user: transaction.user ?? 'anonymous',

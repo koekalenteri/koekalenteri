@@ -123,7 +123,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   )
 
   if (result.status === 'pending' || result.provider === 'email refund') {
-    audit({
+    await audit({
       auditKey: registrationAuditKey(registration),
       message: `Palautus on kesken (${getProviderName(transaction.provider)}), ${formatMoney(amount / 100)}`,
       user: transaction.user,

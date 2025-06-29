@@ -41,7 +41,7 @@ const paymentCancelLambda = lambda('paymentCancel', async (event) => {
       )
     }
 
-    audit({
+    await audit({
       auditKey: registrationAuditKey(registration),
       message: `Maksu epäonnistui (${getProviderName(provider)}), ${formatMoney(transaction.amount / 100)}`,
       user: transaction.user ?? 'anonymous',

@@ -142,7 +142,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const message = getAuditMessage(cancel, confirm, data, existing)
   if (message) {
-    audit({
+    await audit({
       auditKey: registrationAuditKey(registration),
       message,
       user: username,

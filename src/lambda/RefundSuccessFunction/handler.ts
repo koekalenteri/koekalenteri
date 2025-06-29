@@ -93,7 +93,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
       console.error('failed to send refund email', e)
     }
 
-    audit({
+    await audit({
       auditKey: registrationAuditKey(registration),
       message: `Palautus (${providerName}), ${formatMoney(amount)}`,
       user: transaction.user,

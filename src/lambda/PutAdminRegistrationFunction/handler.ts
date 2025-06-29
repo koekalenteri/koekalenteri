@@ -51,7 +51,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   const message = getAuditMessage(data, existing)
   if (message) {
-    audit({
+    await audit({
       auditKey: registrationAuditKey(registration),
       message,
       user: user.name,
