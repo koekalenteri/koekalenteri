@@ -11,6 +11,7 @@ const dynamoDB = new CustomDynamoClient(CONFIG.wsConnectionsTable)
 export const CONNECTION_COUNT_ID = '__count__'
 
 export const wsConnect = async (connectionId: string) => {
+  console.log(`wsConnect: ${connectionId}`)
   await dynamoDB.transaction([
     {
       Put: {
@@ -28,6 +29,7 @@ export const wsConnect = async (connectionId: string) => {
 }
 
 export const wsDisconnect = async (connectionId: string) => {
+  console.log(`wsDisconnect: ${connectionId}`)
   await dynamoDB.transaction([
     {
       Delete: {
