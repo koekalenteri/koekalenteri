@@ -8,6 +8,7 @@ import TextField from '@mui/material/TextField'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
+import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
 interface Props {
   readonly reg: DeepPartial<Registration>
@@ -22,6 +23,18 @@ interface Props {
 export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
   const [cache, setCache] = useDogCacheKey(reg.dog?.regNo, 'breeder')
+
+  // Group local state for all form fields with a single debounced update
+  const [formValues, updateField] = useLocalStateGroup(
+    {
+      name: reg.breeder?.name ?? '',
+      location: reg.breeder?.location ?? '',
+    },
+    (values) => {
+      // Handle all field updates as a group
+      handleChange(values)
+    }
+  )
 
   const handleChange = useCallback(
     (props: Partial<RegistrationBreeder>) => {
@@ -47,8 +60,8 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             fullWidth
             id="breeder_name"
             label={t('contact.name')}
-            value={reg.breeder?.name ?? ''}
-            onChange={(e) => handleChange({ name: e.target.value })}
+            value={formValues.name}
+            onChange={(e) => updateField('name', e.target.value)}
           />
         </Grid2>
         <Grid2 size={{ xs: 12, sm: 6 }}>
@@ -58,8 +71,8 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             fullWidth
             id="breeder_location"
             label={t('contact.city')}
-            value={reg.breeder?.location ?? ''}
-            onChange={(e) => handleChange({ location: e.target.value })}
+            value={formValues.location}
+            onChange={(e) => updateField('location', e.target.value)}
           />
         </Grid2>
       </Grid2>

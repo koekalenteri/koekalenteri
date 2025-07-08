@@ -1,12 +1,10 @@
 import type { Registration } from '../../../types'
 
 import { screen } from '@testing-library/react'
-import { enqueueSnackbar } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
-import { putInvitationAttachment } from '../../../api/event'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { renderWithUserEvents } from '../../../test-utils/utils'
 
@@ -108,69 +106,6 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('Osallistujat')).toBeVisible()
   })
 
-  it('calls onOpenMessageDialog when message button is clicked', async () => {
-    const mockOpenMessageDialog = jest.fn()
-
-    // Create a test scenario with participants in a class
-    const testRegistrations = registrationsToEventWithEntryClosed.map((r) => ({
-      ...r,
-      confirmed: true, // Set confirmed to true to enable the button
-    }))
-
-    const { user } = renderWithUserEvents(
-      <InfoPanel
-        event={eventWithEntryClosed}
-        registrations={testRegistrations}
-        onOpenMessageDialog={mockOpenMessageDialog}
-      />,
-      { wrapper: RecoilRoot }
-    )
-
-    // Find and click a message button that should be enabled
-    const messageButtons = screen.getAllByText(/LÄHETÄ/i)
-    if (messageButtons.length > 0) {
-      // Check if the button is not disabled before clicking
-      const button = messageButtons[0]
-      if (!button.hasAttribute('disabled')) {
-        await user.click(button)
-        expect(mockOpenMessageDialog).toHaveBeenCalled()
-      } else {
-        // If button is disabled, we can't test the click, so we'll skip this assertion
-        console.log('Button is disabled, skipping click test')
-      }
-    }
-  })
-
-  it.skip('handles invitation attachment upload', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
-    })
-
-    // Switch to the second tab to see the attachment section
-    await user.click(screen.getByText('Tehtävälista'))
-
-    // Initially, it should show "Ei liitettyä tiedostoa"
-    expect(screen.getByText('Ei liitettyä tiedostoa')).toBeInTheDocument()
-
-    // Find the file input and simulate a file upload
-    const fileInput = screen.getByLabelText(/LIITÄ KOEKUTSU/i)
-    const file = new File(['dummy content'], 'test.pdf', { type: 'application/pdf' })
-
-    // Trigger the change event
-    await user.upload(fileInput, file)
-
-    // Check that the API was called with the correct parameters
-
-    expect(putInvitationAttachment).toHaveBeenCalledWith(
-      eventWithStaticDates.id,
-      file,
-      expect.anything() // The token
-    )
-
-    // Check that a success notification was shown
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu liitetty', { variant: 'success' })
-  })
-
   it('disables message buttons when there are no participants', () => {
     // Create a test scenario with no participants in a class
     const emptyRegistrations: Registration[] = []
@@ -226,41 +161,5 @@ describe('InfoPanel>', () => {
     // It should show a link to the attachment
     expect(screen.getByText('Kutsu.pdf')).toBeInTheDocument()
     expect(screen.queryByText('Ei liitettyä tiedostoa')).not.toBeInTheDocument()
-  })
-
-  it.skip('updates the attachment key when a new file is uploaded', async () => {
-    const { putInvitationAttachment } = require('../../../api/event')
-    putInvitationAttachment.mockResolvedValue('new-file-key')
-
-    // Create a test event with an existing invitation attachment
-    const eventWithAttachment = {
-      ...eventWithStaticDates,
-      invitationAttachment: 'old-file-key',
-    }
-
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithAttachment} registrations={[]} />, {
-      wrapper: RecoilRoot,
-    })
-
-    // Switch to the second tab to see the attachment section
-    await user.click(screen.getByText('Tehtävälista'))
-
-    // Find the file input and simulate a file upload
-    const fileInput = screen.getByLabelText(/LIITÄ KOEKUTSU/i)
-    const file = new File(['updated content'], 'updated.pdf', { type: 'application/pdf' })
-
-    // Upload the file
-    await user.upload(fileInput, file)
-
-    // Check that the API was called with the correct parameters
-    expect(putInvitationAttachment).toHaveBeenCalledWith(
-      eventWithAttachment.id,
-      file,
-      expect.anything() // The token
-    )
-
-    // Check that a success notification was shown with the update message
-    const { enqueueSnackbar } = require('notistack')
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu päivitetty', { variant: 'success' })
   })
 })

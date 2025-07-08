@@ -1,12 +1,13 @@
 import type { ChangeEventHandler } from 'react'
 import type { Registration } from '../../../types'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import TextField from '@mui/material/TextField'
 
-import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import CollapsibleSection from '../CollapsibleSection'
+
+import { useLocalState } from './hooks/useLocalState'
 
 interface Props {
   readonly disabled?: boolean
@@ -18,22 +19,22 @@ interface Props {
 
 export function AdditionalInfo({ disabled, notes, onChange, onOpenChange, open }: Props) {
   const { t } = useTranslation()
-  const [value, setValue] = useState(notes ?? '')
 
-  const dispatchChange = useDebouncedCallback((notes: string) => onChange?.({ notes }))
+  // Use local state with debounced updates
+  const [value, setValue] = useLocalState(notes ?? '', (newValue) => onChange?.({ notes: newValue }))
 
-  const handleChange = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(
-    (e) => {
-      const newValue = e.target.value
-      setValue(newValue)
-      dispatchChange(newValue)
-    },
-    [dispatchChange]
-  )
-
+  // Update local state when props change
   useEffect(() => {
     setValue(notes ?? '')
   }, [notes])
+
+  // Handle text field changes
+  const handleChange = useCallback<ChangeEventHandler<HTMLTextAreaElement>>(
+    (e) => {
+      setValue(e.target.value)
+    },
+    [setValue]
+  )
 
   return (
     <CollapsibleSection title={t('registration.notes')} open={open} onOpenChange={onOpenChange}>

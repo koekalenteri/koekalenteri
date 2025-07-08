@@ -1,6 +1,6 @@
 import type { DeepPartial, Registration } from '../../../types'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -9,6 +9,7 @@ import FormGroup from '@mui/material/FormGroup'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
+import { useLocalState } from './hooks/useLocalState'
 
 interface Props {
   readonly reg: DeepPartial<Registration>
@@ -21,6 +22,22 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
   const { t } = useTranslation()
   const [ownerCache, setOwnerCache] = useDogCacheKey(reg.dog?.regNo, 'owner')
   const [handlerCache, setHandlerCache] = useDogCacheKey(reg.dog?.regNo, 'handler')
+
+  // Local state for checkboxes with debounced updates
+  const [ownerIsMember, setOwnerIsMember] = useLocalState(reg.owner?.membership ?? false, (value) =>
+    handleChange({ owner: { membership: value } })
+  )
+
+  const [handlerIsMember, setHandlerIsMember] = useLocalState(
+    reg.ownerHandles ? (reg.owner?.membership ?? false) : (reg.handler?.membership ?? false),
+    (value) => handleChange({ handler: { membership: value } })
+  )
+
+  // Update local state when props change
+  useEffect(() => {
+    setOwnerIsMember(reg.owner?.membership ?? false)
+    setHandlerIsMember(reg.ownerHandles ? (reg.owner?.membership ?? false) : (reg.handler?.membership ?? false))
+  }, [reg.owner?.membership, reg.handler?.membership, reg.ownerHandles])
 
   const handleChange = useCallback(
     (props: DeepPartial<Pick<Registration, 'owner' | 'handler'>>) => {
@@ -79,8 +96,8 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
           control={
             <Checkbox
               disabled={disabled}
-              checked={reg.owner?.membership ?? false}
-              onChange={(e) => handleChange({ owner: { membership: e.target.checked } })}
+              checked={ownerIsMember}
+              onChange={(e) => setOwnerIsMember(e.target.checked)}
             />
           }
           label={t('registration.ownerIsMember')}
@@ -88,12 +105,7 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
         />
         <FormControlLabel
           disabled={disabled || reg.ownerHandles}
-          control={
-            <Checkbox
-              checked={reg.ownerHandles ? (reg.owner?.membership ?? false) : (reg.handler?.membership ?? false)}
-              onChange={(e) => handleChange({ handler: { membership: e.target.checked } })}
-            />
-          }
+          control={<Checkbox checked={handlerIsMember} onChange={(e) => setHandlerIsMember(e.target.checked)} />}
           label={t('registration.handlerIsMember')}
           name="handlerIsMember"
         />

@@ -31,6 +31,7 @@ import Stack from '@mui/material/Stack'
 import { diff } from 'deep-object-diff'
 
 import { isDevEnv } from '../../lib/env'
+import { isMember } from '../../lib/registration'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 
@@ -82,8 +83,7 @@ export default function RegistrationForm({
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
 
   const valid = errors.length === 0 && registration.qualifies
-  const isMember = registration.handler?.membership || registration.owner?.membership
-  const paymentAmount = event.costMember && isMember ? event.costMember : event.cost
+  const paymentAmount = event.costMember && isMember(registration) ? event.costMember : event.cost
   const ctaText = useMemo(() => {
     if (registration.id) return 'Tallenna muutokset'
     if (admin) return 'Vahvista ja lähetä maksulinkki'
@@ -103,6 +103,8 @@ export default function RegistrationForm({
   const handleChange = useCallback(
     (props: DeepPartial<Registration> | undefined = {}, replace?: boolean) => {
       if (disabled) return
+
+      // Process results and qualifications
       if (props.class || props.results || props.dog?.results || (props.dog && !registration.qualifies)) {
         const cls = props.class ?? registration.class
         const dogResults = props.dog?.results ?? registration.dog?.results ?? []
@@ -113,9 +115,14 @@ export default function RegistrationForm({
         setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
       }
 
+      // Create new state by merging or replacing
       const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
+
+      // Only update if there are actual changes
       if (hasChanges(registration, newState)) {
+        // We need to update the parent component immediately for the local UI to reflect changes
         onChange?.(newState)
+
         if (isDevEnv()) {
           console.debug('changed', diff(registration, newState))
         }

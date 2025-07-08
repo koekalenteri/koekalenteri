@@ -9,6 +9,7 @@ import type { PaymentCustomer, PaymentItem } from '../types/paytrail'
 
 import { nanoid } from 'nanoid'
 
+import { isMember } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -26,8 +27,7 @@ const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistration): number => {
-  const isMember = registration.handler?.membership || registration.owner?.membership
-  return event.costMember && isMember ? event.costMember : event.cost
+  return event.costMember && isMember(registration) ? event.costMember : event.cost
 }
 
 /**

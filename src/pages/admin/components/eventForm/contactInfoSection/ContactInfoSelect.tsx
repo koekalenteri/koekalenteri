@@ -27,7 +27,6 @@ export default function ContactInfoSelect({ disabled, name, show, defaults, onCh
   const handleChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const prop = event.target.name as keyof PublicContactInfo
-      console.log(prop)
       const value = {
         ...state,
         [prop]: event.target.value,

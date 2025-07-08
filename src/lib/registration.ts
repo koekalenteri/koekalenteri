@@ -25,7 +25,7 @@ export const isRegistrationClass = (cls?: string | null): cls is RegistrationCla
 
 const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
 
-type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation'> & {
+type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation' | 'ownerHandles'> & {
   owner?: Pick<Registration['owner'], 'membership'>
   handler?: Pick<Registration['handler'], 'membership'>
   dog?: Pick<Registration['dog'], 'breedCode'>
@@ -37,10 +37,11 @@ type PriorityCheckFn<T, E extends PublicDogEvent | JsonPublicDogEvent = PublicDo
   registration: RegistrationPriorityFields
 ) => T
 
+export const isMember = (registration: RegistrationPriorityFields): boolean =>
+  Boolean((!registration.ownerHandles && registration.handler?.membership) || registration.owner?.membership)
+
 const hasMembershipPriority: PriorityCheckFn<boolean> = (event, registration) =>
-  Boolean(
-    event.priority?.includes(PRIORITY_MEMBER) && (registration.handler?.membership || registration.owner?.membership)
-  )
+  Boolean(event.priority?.includes(PRIORITY_MEMBER) && isMember(registration))
 
 const hasInvitationPriority: PriorityCheckFn<boolean> = (event, registration) =>
   Boolean(event.priority?.includes(PRIORITY_INVITED) && registration.priorityByInvitation)

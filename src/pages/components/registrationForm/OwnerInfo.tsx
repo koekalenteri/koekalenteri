@@ -12,6 +12,7 @@ import { MuiTelInput } from 'mui-tel-input'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
+import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
 interface Props {
   readonly admin?: boolean
@@ -47,6 +48,45 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
     [cache, onChange, orgId, setCache]
   )
 
+  // Group local state for all form fields
+  const [formValues, updateField] = useLocalStateGroup(
+    {
+      name: reg.owner?.name ?? '',
+      location: reg.owner?.location ?? '',
+      email: reg.owner?.email ?? '',
+      phone: reg.owner?.phone ?? '',
+      ownerHandles: reg.ownerHandles ?? true,
+      ownerPays: reg.ownerPays ?? true,
+    },
+    (values) => {
+      // Handle field updates as a group
+      const { name, location, email, phone, ownerHandles, ownerPays } = values
+
+      // Update owner fields
+      if (
+        name !== reg.owner?.name ||
+        location !== reg.owner?.location ||
+        email !== reg.owner?.email ||
+        phone !== reg.owner?.phone
+      ) {
+        handleChange({
+          name,
+          location,
+          email,
+          phone,
+        })
+      }
+
+      // Update owner roles
+      if (ownerHandles !== reg.ownerHandles || ownerPays !== reg.ownerPays) {
+        handleChange({
+          ownerHandles,
+          ownerPays,
+        })
+      }
+    }
+  )
+
   useEffect(() => {
     // Don't change registrations based on cache when secretary handles them
     if (admin) return
@@ -74,8 +114,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             id="owner_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value })}
-            value={reg.owner?.name ?? ''}
+            onChange={(e) => updateField('name', e.target.value)}
+            value={formValues.name}
             slotProps={{
               input: { autoComplete: 'name' },
             }}
@@ -89,8 +129,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             id="owner_city"
             label={t('contact.city')}
             name="city"
-            onChange={(e) => handleChange({ location: e.target.value })}
-            value={reg.owner?.location ?? ''}
+            onChange={(e) => updateField('location', e.target.value)}
+            value={formValues.location}
             slotProps={{
               input: { autoComplete: 'address-level2' },
             }}
@@ -104,8 +144,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             id="owner_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value.trim() })}
-            value={reg.owner?.email ?? ''}
+            onChange={(e) => updateField('email', e.target.value.trim())}
+            value={formValues.email}
             slotProps={{
               input: { autoComplete: 'email' },
             }}
@@ -123,8 +163,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             id="owner_phone"
             label={t('contact.phone')}
             name="phone"
-            onChange={(phone) => handleChange({ phone })}
-            value={reg.owner?.phone ?? ''}
+            onChange={(value) => updateField('phone', value)}
+            value={formValues.phone}
           />
         </Grid2>
       </Grid2>
@@ -132,10 +172,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
         <FormControlLabel
           disabled={disabled}
           control={
-            <Switch
-              checked={reg.ownerHandles ?? true}
-              onChange={(e) => handleChange({ ownerHandles: e.target.checked })}
-            />
+            <Switch checked={formValues.ownerHandles} onChange={(e) => updateField('ownerHandles', e.target.checked)} />
           }
           label={t('registration.ownerHandles')}
           name="ownerHandles"
@@ -143,7 +180,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
         <FormControlLabel
           disabled={disabled}
           control={
-            <Switch checked={reg.ownerPays ?? true} onChange={(e) => handleChange({ ownerPays: e.target.checked })} />
+            <Switch checked={formValues.ownerPays} onChange={(e) => updateField('ownerPays', e.target.checked)} />
           }
           label={t('registration.ownerPays')}
           name="ownerPays"

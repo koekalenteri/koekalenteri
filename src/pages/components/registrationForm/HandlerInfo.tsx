@@ -9,6 +9,7 @@ import { MuiTelInput } from 'mui-tel-input'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
+import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
 interface Props {
   readonly admin?: boolean
@@ -38,6 +39,20 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
     [cache, onChange, orgId, setCache]
   )
 
+  // Group local state for all form fields with a single debounced update
+  const [formValues, updateField] = useLocalStateGroup(
+    {
+      name: reg.handler?.name ?? '',
+      location: reg.handler?.location ?? '',
+      email: reg.handler?.email ?? '',
+      phone: reg.handler?.phone ?? '',
+    },
+    (values) => {
+      // Handle all field updates as a group
+      handleChange(values)
+    }
+  )
+
   useEffect(() => {
     // Don't change registrations based on cache when secretary handles them
     if (admin || reg.ownerHandles) return
@@ -65,8 +80,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             id="handler_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value })}
-            value={reg.handler?.name ?? ''}
+            onChange={(e) => updateField('name', e.target.value)}
+            value={formValues.name}
             slotProps={{
               input: { autoComplete: 'name' },
             }}
@@ -80,8 +95,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             id="handler_city"
             label={t('contact.city')}
             name="city"
-            onChange={(e) => handleChange({ location: e.target.value })}
-            value={reg.handler?.location ?? ''}
+            onChange={(e) => updateField('location', e.target.value)}
+            value={formValues.location}
             slotProps={{
               input: { autoComplete: 'address-level2' },
             }}
@@ -95,8 +110,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             id="handler_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value.trim() })}
-            value={reg.handler?.email ?? ''}
+            onChange={(e) => updateField('email', e.target.value.trim())}
+            value={formValues.email}
             slotProps={{
               input: { autoComplete: 'email' },
             }}
@@ -114,8 +129,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             id="handler_phone"
             label={t('contact.phone')}
             name="phone"
-            onChange={(phone) => handleChange({ phone })}
-            value={reg.handler?.phone ?? ''}
+            onChange={(value) => updateField('phone', value)}
+            value={formValues.phone}
           />
         </Grid2>
       </Grid2>
