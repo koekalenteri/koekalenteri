@@ -54,7 +54,6 @@ export function Component() {
     }
     try {
       const saved = await actions.save(registration)
-      resetRegistration()
       navigate(Path.payment(saved))
     } catch (error) {
       if (error instanceof APIError && error.status === 409) {

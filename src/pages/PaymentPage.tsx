@@ -1,12 +1,12 @@
 import type { Params } from 'react-router'
 import type { CreatePaymentResponse, PublicDogEvent, Registration } from '../types'
 
-import { Suspense } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Await, Navigate, useLoaderData, useParams } from 'react-router'
 import Grid2 from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
@@ -15,7 +15,7 @@ import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, registrationSelector } from './recoil'
+import { confirmedEventSelector, newRegistrationAtom, registrationSelector } from './recoil'
 
 /**
  * @lintignore
@@ -47,7 +47,7 @@ interface Props {
   readonly response?: CreatePaymentResponse
 }
 
-const PaymentPageWithData = ({ id, registrationId, event, registration, response }: Props) => {
+export const PaymentPageWithData = ({ id, registrationId, event, registration, response }: Props) => {
   if (!event) {
     return <>Tapahtumaa {id} ei löydy.</>
   }
@@ -93,6 +93,12 @@ export function Component() {
   const event = useRecoilValue(confirmedEventSelector(id))
   const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
   const data: { response: Promise<CreatePaymentResponse | undefined> } = useLoaderData()
+  const resetRegistration = useResetRecoilState(newRegistrationAtom)
+
+  useEffect(() => {
+    // Reset the registration form here, to avoid flashing page.
+    resetRegistration()
+  }, [])
 
   return (
     <Suspense fallback={<LoadingPage />}>
