@@ -4,11 +4,13 @@ import type { SortableRegistration } from './registration'
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
+  getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   hasPriority,
+  isMember,
   priorityDescriptionKey,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
@@ -332,6 +334,183 @@ describe('lib/registration', () => {
     })
     it('should return false for participant groups', () => {
       expect(canRefund({ paidAmount: 1, group: { key: 'testing', number: 1 } })).toEqual(false)
+    })
+  })
+
+  describe('isRegistrationClass', () => {
+    const { isRegistrationClass } = require('./registration')
+
+    it('should return true for valid registration classes', () => {
+      expect(isRegistrationClass('ALO')).toBe(true)
+      expect(isRegistrationClass('AVO')).toBe(true)
+      expect(isRegistrationClass('VOI')).toBe(true)
+    })
+
+    it('should return false for invalid registration classes', () => {
+      expect(isRegistrationClass('INVALID')).toBe(false)
+      expect(isRegistrationClass('')).toBe(false)
+      expect(isRegistrationClass(null)).toBe(false)
+      expect(isRegistrationClass(undefined)).toBe(false)
+    })
+  })
+
+  describe('isMember', () => {
+    it('should return true when owner has membership and ownerHandles is false', () => {
+      expect(isMember({ owner: { membership: true }, ownerHandles: false })).toBe(true)
+    })
+
+    it('should return true when handler has membership and ownerHandles is false', () => {
+      expect(isMember({ handler: { membership: true }, ownerHandles: false })).toBe(true)
+    })
+
+    it('should return true when owner has membership and ownerHandles is undefined', () => {
+      expect(isMember({ owner: { membership: true } })).toBe(true)
+    })
+
+    it('should return true when handler has membership and ownerHandles is undefined', () => {
+      expect(isMember({ handler: { membership: true } })).toBe(true)
+    })
+
+    // Corrected test based on actual implementation
+    it('should return true when owner has membership regardless of ownerHandles value', () => {
+      expect(isMember({ owner: { membership: true }, ownerHandles: true })).toBe(true)
+    })
+
+    // Corrected test based on actual implementation
+    it('should return false when handler has membership but ownerHandles is true', () => {
+      expect(isMember({ handler: { membership: true }, ownerHandles: true, owner: { membership: false } })).toBe(false)
+    })
+
+    it('should return false when neither owner nor handler has membership', () => {
+      expect(isMember({ owner: { membership: false }, handler: { membership: false } })).toBe(false)
+      expect(isMember({})).toBe(false)
+    })
+  })
+
+  describe('isPredefinedReason', () => {
+    const { isPredefinedReason } = require('./registration')
+
+    it('should return true for predefined reasons', () => {
+      expect(isPredefinedReason('dog-heat')).toBe(true)
+      expect(isPredefinedReason('handler-sick')).toBe(true)
+      expect(isPredefinedReason('dog-sick')).toBe(true)
+      expect(isPredefinedReason('gdpr')).toBe(true)
+    })
+
+    it('should return false for non-predefined reasons', () => {
+      expect(isPredefinedReason('other')).toBe(false)
+      expect(isPredefinedReason('')).toBe(false)
+      expect(isPredefinedReason(undefined)).toBe(false)
+    })
+  })
+
+  describe('getRegistrationEmailTemplateData', () => {
+    // Create a simple mock t function with type assertion
+    const t = jest.fn().mockImplementation(() => 'translated-text') as any
+
+    it('should return an object with the expected structure', () => {
+      const registration = {
+        eventId: 'event1',
+        id: 'reg1',
+        dog: { breedCode: '123' },
+        dates: [{ date: '2024-08-01', time: 'ap' }],
+        reserve: 'ANY',
+        qualifyingResults: [{ date: '2024-07-01', result: 'VOI1' }],
+        group: { date: '2024-08-01', time: 'ap', number: 5, key: 'group1' },
+        cancelReason: 'dog-sick',
+      } as any
+
+      const confirmedEvent = {
+        startDate: '2024-08-01',
+        endDate: '2024-08-02',
+      } as any // Type assertion for event
+
+      const origin = 'https://example.com'
+      const context = 'confirmation' as any // Type assertion for context
+      const text = 'Additional text'
+
+      const result = getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t)
+
+      // Check that the result has the expected structure
+      expect(result).toHaveProperty('subject')
+      expect(result).toHaveProperty('title')
+      expect(result).toHaveProperty('dogBreed')
+      expect(result).toHaveProperty('link')
+      expect(result).toHaveProperty('paymentLink')
+      expect(result).toHaveProperty('event')
+      expect(result).toHaveProperty('eventDate')
+      expect(result).toHaveProperty('invitationLink')
+      expect(result).toHaveProperty('qualifyingResults')
+      expect(result).toHaveProperty('reg')
+      expect(result).toHaveProperty('regDates')
+      expect(result).toHaveProperty('reserveText')
+      expect(result).toHaveProperty('groupDate')
+      expect(result).toHaveProperty('groupTime')
+      expect(result).toHaveProperty('groupNumber')
+      expect(result).toHaveProperty('text')
+      expect(result).toHaveProperty('origin')
+      expect(result).toHaveProperty('cancelReason')
+
+      // Check specific values that don't depend on the t function
+      expect(result.link).toBe('https://example.com/r/event1/reg1')
+      expect(result.paymentLink).toBe('https://example.com/p/event1/reg1')
+      expect(result.invitationLink).toBe('https://example.com/r/event1/reg1/invitation')
+      expect(result.event).toBe(confirmedEvent)
+      expect(result.reg).toBe(registration)
+      expect(result.text).toBe('Additional text')
+      expect(result.origin).toBe('https://example.com')
+      expect(result.groupNumber).toBe(5)
+    })
+
+    it('should use previous group when provided', () => {
+      // Use type assertion to avoid TypeScript errors
+      const registration = {
+        eventId: 'event1',
+        id: 'reg1',
+        dog: { breedCode: '123' },
+        dates: [],
+        qualifyingResults: [],
+        group: { date: '2024-08-01', time: 'ap', number: 5, key: 'group1' },
+      } as any // Type assertion
+
+      const previousGroup = { date: '2024-08-02', time: 'ip', number: 10, key: 'group2' }
+
+      const result = getRegistrationEmailTemplateData(
+        registration,
+        {} as any, // Type assertion for empty event object
+        'https://example.com',
+        'confirmation' as any, // Type assertion for context
+        '',
+        t,
+        previousGroup as any
+      )
+
+      // Verify that the previous group's number is used
+      expect(result.groupNumber).toBe(10)
+    })
+
+    it('should handle missing data gracefully', () => {
+      const registration = {
+        eventId: 'event1',
+        id: 'reg1',
+        dog: {},
+        dates: [],
+        qualifyingResults: [],
+        group: {},
+      } as any
+
+      // This should not throw an error
+      const result = getRegistrationEmailTemplateData(
+        registration,
+        {} as any, // Type assertion for empty event object
+        undefined,
+        'confirmation' as any, // Type assertion for context
+        undefined,
+        t
+      )
+
+      // Verify some default values
+      expect(result.groupNumber).toBe('?')
     })
   })
 })

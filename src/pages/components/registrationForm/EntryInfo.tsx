@@ -8,7 +8,7 @@ import type {
   ReserveChoise,
 } from '../../../types'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Grid2 from '@mui/material/Grid2'
 import { format, isSameDay } from 'date-fns'
@@ -19,6 +19,8 @@ import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../l
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
+
+import { useLocalState } from './hooks/useLocalState'
 
 // Helper to sort registration dates
 const sortRegistrationDates = (dates: RegistrationDate[]): RegistrationDate[] => {
@@ -76,16 +78,36 @@ export function EntryInfo({
   const dates = uniqueDate(regDates.map((rd) => rd.date))
 
   // Helper function to determine initial filter dates
-  const getInitialFilterDates = () => {
+  const getInitialFilterDates = useCallback(() => {
     const selectedDates = reg?.dates?.filter((rd) => dates.find((d) => isSameDay(d, rd.date))) ?? []
     const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
 
     return uniqueDate(
       classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : tmpDates
     )
-  }
+  }, [classDate, dates, reg?.dates, regDates])
 
-  const [filterDates, setFilterDates] = useState<Date[]>(getInitialFilterDates())
+  // Local state for form fields with debounced updates
+  const [selectedClass, setSelectedClass] = useLocalState<RegistrationClass | null | undefined>(reg.class, (value) => {
+    onChange?.({ class: value })
+  })
+
+  const [selectedDates, setSelectedDates] = useLocalState<RegistrationDate[] | undefined>(reg.dates, (value) => {
+    onChange?.({ dates: value })
+  })
+
+  const [selectedReserve, setSelectedReserve] = useLocalState<'' | ReserveChoise | undefined>(reg.reserve, (value) => {
+    onChange?.({ reserve: value })
+  })
+
+  // Update local state when props change
+  useEffect(() => {
+    setSelectedClass(reg.class)
+    setSelectedDates(reg.dates)
+    setSelectedReserve(reg.reserve)
+  }, [reg.class, reg.dates, reg.reserve])
+
+  const [filterDates, setFilterDates] = useState<Date[]>(() => getInitialFilterDates())
 
   // Helper functions for date filtering
   const isValidRegistrationDate = useCallback(
@@ -93,8 +115,11 @@ export function EntryInfo({
     [filterDates]
   )
 
-  const datesAndTimes = regDates.filter(isValidRegistrationDate)
-  const groups = unique(datesAndTimes.map((dt) => dt.time).filter((time): time is RegistrationTime => !!time))
+  const datesAndTimes = useMemo(() => regDates.filter(isValidRegistrationDate), [regDates, isValidRegistrationDate])
+  const groups = useMemo(
+    () => unique(datesAndTimes.map((dt) => dt.time).filter((time): time is RegistrationTime => !!time)),
+    [datesAndTimes]
+  )
 
   // UI display flags
   const showDatesFilter = dates.length > 1
@@ -119,15 +144,15 @@ export function EntryInfo({
   }, [dates, filterDates, showDatesFilter])
 
   // Handle class changes
-  const updateClassIfNeeded = useCallback((): RegistrationClass | null | undefined => {
+  const updateClassIfNeeded = useCallback((): RegistrationClass | undefined => {
     // Case 1: Override with provided className
     if (className && reg.class !== className) {
       return isRegistrationClass(className) ? className : undefined
     }
 
-    // Case 2: Current class is invalid, select first available or null
+    // Case 2: Current class is invalid, select first available or undefined
     if (reg.class && !classes.includes(reg.class)) {
-      return classes.length > 0 ? classes[0] : null
+      return classes.length > 0 ? classes[0] : undefined
     }
 
     // Case 3: No class selected but options available
@@ -220,14 +245,20 @@ export function EntryInfo({
   }, [getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded])
 
   // Event handlers
-  const handleClassChange = useCallback((value: RegistrationClass) => onChange?.({ class: value }), [onChange])
+  const handleClassChange = useCallback((value: RegistrationClass) => setSelectedClass(value), [setSelectedClass])
+
   const handleDatesAndTimesChange = useCallback(
-    (_e: SyntheticEvent<Element, Event>, value: readonly RegistrationDate[]) => onChange?.({ dates: [...value] }),
-    [onChange]
+    (_e: SyntheticEvent<Element, Event>, value: readonly RegistrationDate[]) => setSelectedDates([...value]),
+    [setSelectedDates]
   )
+
   const handleReserveChange = useCallback(
-    (value: '' | ReserveChoise) => onChange?.({ reserve: value || undefined }),
-    [onChange]
+    (value: '' | ReserveChoise) => {
+      // Convert empty string to undefined, otherwise use the value as ReserveChoise
+      const reserveValue = value === '' ? undefined : value
+      setSelectedReserve(reserveValue)
+    },
+    [setSelectedReserve]
   )
 
   return (
@@ -252,7 +283,7 @@ export function EntryInfo({
             label={t('registration.class')}
             onChange={handleClassChange}
             options={classes}
-            value={reg.class ?? undefined}
+            value={selectedClass ?? undefined}
           />
         </Grid2>
         <Grid2 size={{ xs: 12, md: sizeSwitch ? 6 : 4 }}>
@@ -265,7 +296,7 @@ export function EntryInfo({
             onChange={handleReserveChange}
             getOptionLabel={getReserveChoiceLabel}
             options={['ANY', 'DAY', 'WEEK' /*, 'NO'*/] as ReserveChoise[]}
-            value={reg.reserve}
+            value={selectedReserve}
           />
         </Grid2>
         <Grid2 size={{ xs: 12, md: 6 }} sx={{ display: showDatesFilter ? undefined : 'none' }}>
@@ -293,7 +324,7 @@ export function EntryInfo({
             isOptionEqualToValue={(o, v) => o.date?.valueOf() === v.date?.valueOf() && o.time === v.time}
             getOptionLabel={getRegDateTimeLabel}
             options={datesAndTimes}
-            value={reg.dates}
+            value={selectedDates}
           />
         </Grid2>
       </Grid2>

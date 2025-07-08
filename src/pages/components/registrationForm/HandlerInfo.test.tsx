@@ -57,25 +57,36 @@ describe('HadnlerInfo', () => {
     const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
     const emailInput = screen.getByRole('textbox', { name: 'contact.email' })
     const phoneInput = screen.getByRole('textbox', { name: 'contact.phone' })
-    // const memberCheckbox = screen.getByRole('checkbox', { name: 'registration.handlerIsMember' })
 
     await user.clear(input)
-    expect(onChange).toHaveBeenLastCalledWith({ handler: { membership: false, name: '' } })
+    await user.clear(locationInput)
+    await user.clear(emailInput)
+    await user.clear(phoneInput)
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({
+      handler: { membership: false, name: '', email: '', location: '', phone: '' },
+    })
 
     await user.type(input, 'test handler')
-    expect(onChange).toHaveBeenLastCalledWith({ handler: { membership: false, name: 'test handler' } })
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({
+      handler: { membership: false, name: 'test handler', email: '', location: '', phone: '' },
+    })
 
     await user.type(locationInput, 'test city')
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { location: 'test city', membership: false, name: 'test handler' },
+      handler: { location: 'test city', membership: false, name: 'test handler', email: '', phone: '' },
     })
 
     await user.type(emailInput, ' test@exmaple.com \n')
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { email: 'test@exmaple.com', location: 'test city', membership: false, name: 'test handler' },
+      handler: { email: 'test@exmaple.com', location: 'test city', membership: false, name: 'test handler', phone: '' },
     })
 
     await user.type(phoneInput, '40123456')
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
       handler: {
         email: 'test@exmaple.com',
@@ -85,19 +96,6 @@ describe('HadnlerInfo', () => {
         phone: '+358 40 123456',
       },
     })
-
-    /*
-    await user.click(memberCheckbox)
-    expect(onChange).toHaveBeenLastCalledWith({
-      handler: {
-        email: 'test@exmaple.com',
-        location: 'test city',
-        membership: true,
-        name: 'test handler',
-        phone: '+358 40 123456',
-      },
-    })
-    */
 
     await flushPromises()
   })

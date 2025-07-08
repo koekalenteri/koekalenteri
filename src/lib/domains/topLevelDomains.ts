@@ -1,4 +1,8 @@
-// # Version 2024052601, Last Updated Sun May 26 07:07:01 2024 UTC
+/**
+ * https://data.iana.org/TLD/tlds-alpha-by-domain.txt
+ *
+ * # Version 2025033100, Last Updated Mon Mar 31 07:07:02 2025 UTC
+ */
 export const VALID_TLDS = [
   'AAA',
   'AARP',
@@ -298,7 +302,6 @@ export const VALID_TLDS = [
   'CYMRU',
   'CYOU',
   'CZ',
-  'DABUR',
   'DAD',
   'DANCE',
   'DATA',
@@ -629,7 +632,6 @@ export const VALID_TLDS = [
   'KDDI',
   'KE',
   'KERRYHOTELS',
-  'KERRYLOGISTICS',
   'KERRYPROPERTIES',
   'KFH',
   'KG',
@@ -693,7 +695,6 @@ export const VALID_TLDS = [
   'LIMO',
   'LINCOLN',
   'LINK',
-  'LIPSY',
   'LIVE',
   'LIVING',
   'LK',
@@ -803,7 +804,6 @@ export const VALID_TLDS = [
   'NAB',
   'NAGOYA',
   'NAME',
-  'NATURA',
   'NAVY',
   'NBA',
   'NC',
@@ -1040,7 +1040,6 @@ export const VALID_TLDS = [
   'SH',
   'SHANGRILA',
   'SHARP',
-  'SHAW',
   'SHELL',
   'SHIA',
   'SHIKSHA',
@@ -1448,5 +1447,4 @@ export const VALID_TLDS = [
   'ZONE',
   'ZUERICH',
   'ZW',
-  '',
 ]

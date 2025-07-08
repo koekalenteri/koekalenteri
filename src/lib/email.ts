@@ -1,6 +1,6 @@
 import { toASCII } from 'punycode'
 
-import { VALID_TLDS } from './topLevelDomains'
+import { VALID_TLDS } from './domains/topLevelDomains'
 
 const USEREXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+){0,4}$/i
 const DOMAINEXP = /^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.){1,4}[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i

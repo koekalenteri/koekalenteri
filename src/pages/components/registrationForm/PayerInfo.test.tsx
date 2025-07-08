@@ -58,20 +58,30 @@ describe('PayerInfo', () => {
     const phoneInput = screen.getByRole('textbox', { name: 'contact.phone' })
 
     await user.clear(input)
-    expect(onChange).toHaveBeenLastCalledWith({ payer: { name: '' } })
+    await user.clear(emailInput)
+    await user.clear(phoneInput)
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({ payer: { name: '', email: '', phone: '' } })
+    expect(onChange).toHaveBeenCalledTimes(1)
 
     await user.type(input, 'test handler')
-    expect(onChange).toHaveBeenLastCalledWith({ payer: { name: 'test handler' } })
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({ payer: { name: 'test handler', email: '', phone: '' } })
+    expect(onChange).toHaveBeenCalledTimes(2)
 
     await user.type(emailInput, '\r\ntest@exmaple.com\r\n ')
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
-      payer: { email: 'test@exmaple.com', name: 'test handler' },
+      payer: { email: 'test@exmaple.com', name: 'test handler', phone: '' },
     })
+    expect(onChange).toHaveBeenCalledTimes(3)
 
     await user.type(phoneInput, '40123456')
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
       payer: { email: 'test@exmaple.com', name: 'test handler', phone: '+358 40 123456' },
     })
+    expect(onChange).toHaveBeenCalledTimes(4)
 
     await flushPromises()
   })

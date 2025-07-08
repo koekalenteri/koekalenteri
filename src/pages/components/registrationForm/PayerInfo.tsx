@@ -9,6 +9,7 @@ import { MuiTelInput } from 'mui-tel-input'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { useDogCacheKey } from './hooks/useDogCacheKey'
+import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
 interface Props {
   readonly reg: DeepPartial<Registration>
@@ -32,6 +33,19 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
     [cache, onChange, setCache]
   )
 
+  // Group local state for all form fields with a single debounced update
+  const [formValues, updateField] = useLocalStateGroup(
+    {
+      name: reg.payer?.name ?? '',
+      email: reg.payer?.email ?? '',
+      phone: reg.payer?.phone ?? '',
+    },
+    (values) => {
+      // Handle all field updates as a group
+      handleChange(values)
+    }
+  )
+
   return (
     <CollapsibleSection
       title={t('registration.payer')}
@@ -49,8 +63,8 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="payer_name"
             label={t('contact.name')}
             name="name"
-            onChange={(e) => handleChange({ name: e.target.value })}
-            value={reg.payer?.name ?? ''}
+            onChange={(e) => updateField('name', e.target.value)}
+            value={formValues.name}
             slotProps={{
               input: { autoComplete: 'name' },
             }}
@@ -64,8 +78,8 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="payer_email"
             label={t('contact.email')}
             name="email"
-            onChange={(e) => handleChange({ email: e.target.value.trim() })}
-            value={reg.payer?.email ?? ''}
+            onChange={(e) => updateField('email', e.target.value.trim())}
+            value={formValues.email}
             slotProps={{
               input: { autoComplete: 'email' },
             }}
@@ -83,8 +97,8 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             id="payer_phone"
             label={t('contact.phone')}
             name="phone"
-            onChange={(phone) => handleChange({ phone })}
-            value={reg.payer?.phone ?? ''}
+            onChange={(value) => updateField('phone', value)}
+            value={formValues.phone}
           />
         </Grid2>
       </Grid2>

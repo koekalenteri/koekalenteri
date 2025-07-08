@@ -57,79 +57,101 @@ describe('OwnerInfo', () => {
     const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
     const emailInput = screen.getByRole('textbox', { name: 'contact.email' })
     const phoneInput = screen.getByRole('textbox', { name: 'contact.phone' })
-    // const memberCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerIsMember' })
     const handlerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerHandles' })
     const payerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerPays' })
 
     await user.clear(input)
+    await flushPromises()
+
     expect(onChange).toHaveBeenLastCalledWith({
-      owner: { membership: false, name: '' },
+      owner: {
+        membership: false,
+        name: '',
+        email: 'owner@example.com',
+        location: 'Owner Location',
+        phone: '+3584012345',
+      },
       ownerHandles: true,
       ownerPays: true,
     })
     onChange.mockClear()
 
-    await user.type(input, 'test handler')
+    await user.type(input, 'test owner')
+    await flushPromises()
+
     expect(onChange).toHaveBeenLastCalledWith({
-      owner: { membership: false, name: 'test handler' },
+      owner: {
+        membership: false,
+        name: 'test owner',
+        email: 'owner@example.com',
+        location: 'Owner Location',
+        phone: '+3584012345',
+      },
       ownerHandles: true,
       ownerPays: true,
     })
     onChange.mockClear()
 
+    await user.clear(locationInput)
     await user.type(locationInput, 'test city')
+    await flushPromises()
+
     expect(onChange).toHaveBeenLastCalledWith({
-      owner: { location: 'test city', membership: false, name: 'test handler' },
+      owner: {
+        location: 'test city',
+        membership: false,
+        name: 'test owner',
+        email: 'owner@example.com',
+        phone: '+3584012345',
+      },
       ownerHandles: true,
       ownerPays: true,
     })
     onChange.mockClear()
 
+    await user.clear(emailInput)
     await user.type(emailInput, 'test@exmaple.com \n')
-    expect(onChange).toHaveBeenLastCalledWith({
-      owner: { email: 'test@exmaple.com', location: 'test city', membership: false, name: 'test handler' },
-      ownerHandles: true,
-      ownerPays: true,
-    })
-    onChange.mockClear()
+    await flushPromises()
 
-    await user.type(phoneInput, '40123456')
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
         email: 'test@exmaple.com',
         location: 'test city',
         membership: false,
-        name: 'test handler',
-        phone: '+358 40 123456',
+        name: 'test owner',
+        phone: '+3584012345',
       },
       ownerHandles: true,
       ownerPays: true,
     })
     onChange.mockClear()
 
-    /*
-    await user.click(memberCheckbox)
+    await user.clear(phoneInput)
+    await user.type(phoneInput, '40123456')
+    await flushPromises()
+
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
         email: 'test@exmaple.com',
         location: 'test city',
-        membership: true,
-        name: 'test handler',
+        membership: false,
+        name: 'test owner',
         phone: '+358 40 123456',
       },
       ownerHandles: true,
       ownerPays: true,
     })
     onChange.mockClear()
-    */
 
     await user.click(handlerCheckbox)
+    await flushPromises()
+
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
         email: 'test@exmaple.com',
         location: 'test city',
         membership: false,
-        name: 'test handler',
+        name: 'test owner',
         phone: '+358 40 123456',
       },
       ownerHandles: false,
@@ -138,12 +160,14 @@ describe('OwnerInfo', () => {
     onChange.mockClear()
 
     await user.click(payerCheckbox)
+    await flushPromises()
+
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
         email: 'test@exmaple.com',
         location: 'test city',
         membership: false,
-        name: 'test handler',
+        name: 'test owner',
         phone: '+358 40 123456',
       },
       ownerHandles: false,

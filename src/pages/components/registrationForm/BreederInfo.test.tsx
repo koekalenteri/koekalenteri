@@ -57,13 +57,21 @@ describe('BreederInfo', () => {
     const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
 
     await user.clear(nameInput)
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: '' } })
+    await user.clear(locationInput)
+
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: '', location: '' } })
+    expect(onChange).toHaveBeenCalledTimes(1)
 
     await user.type(nameInput, 'test breeder')
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: 'test breeder' } })
+    await flushPromises()
+    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: 'test breeder', location: '' } })
+    expect(onChange).toHaveBeenCalledTimes(2)
 
     await user.type(locationInput, 'test city')
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({ breeder: { location: 'test city', name: 'test breeder' } })
+    expect(onChange).toHaveBeenCalledTimes(3)
 
     await flushPromises()
   })

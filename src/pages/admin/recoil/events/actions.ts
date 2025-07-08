@@ -81,7 +81,6 @@ export const useAdminEventActions = () => {
         changes[key] = event[key]
       }
     }
-    console.log(changes)
     const saved = await putEvent(changes, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)

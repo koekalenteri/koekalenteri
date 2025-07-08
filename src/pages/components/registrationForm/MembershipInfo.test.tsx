@@ -70,6 +70,7 @@ describe('MembershipInfo', () => {
     const hadnlerCheckbox = screen.getByRole('checkbox', { name: 'registration.handlerIsMember' })
 
     await user.click(ownerCheckbox)
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
         ...reg.owner,
@@ -78,6 +79,7 @@ describe('MembershipInfo', () => {
     })
 
     await user.click(hadnlerCheckbox)
+    await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
       handler: {
         ...reg.handler,

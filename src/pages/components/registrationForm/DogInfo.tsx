@@ -25,6 +25,7 @@ import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
 import { TitlesAndName } from './dogInfo/TitlesAndName'
+import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
 function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
   if (!dog?.regNo) {
@@ -69,11 +70,56 @@ export const DogInfo = ({
 }: Props) => {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
+  // Basic state for dog registration
   const [state, setState] = useState<State>({
     regNo: reg?.dog?.regNo ?? '',
     mode: reg?.dog?.regNo ? 'update' : 'fetch',
     rfid: false,
   })
+
+  // Group local state for all form fields with a single debounced update
+  const [formValues, updateField] = useLocalStateGroup<{
+    rfid: string
+    name: string
+    titles: string
+    dob: Date | undefined
+    gender: DogGender | ''
+    breedCode: BreedCode | ''
+    sire: string
+    dam: string
+  }>(
+    {
+      rfid: reg?.dog?.rfid ?? '',
+      name: reg?.dog?.name ?? '',
+      titles: reg?.dog?.titles ?? '',
+      dob: reg?.dog?.dob,
+      gender: reg?.dog?.gender ?? '',
+      breedCode: reg?.dog?.breedCode ?? '',
+      sire: reg?.dog?.sire?.name ?? '',
+      dam: reg?.dog?.dam?.name ?? '',
+    },
+    (values) => {
+      // Handle all field updates as a group
+      const { rfid, name, titles, dob, gender, breedCode, sire, dam } = values
+
+      // Create a single update object with all changed fields
+      const dogUpdate: DeepPartial<Dog> = {
+        rfid,
+        name,
+        titles,
+        dob,
+        gender: gender ? gender : undefined,
+        breedCode: breedCode ? breedCode : undefined,
+        sire: { name: sire },
+        dam: { name: dam },
+      }
+
+      // Send all updates at once
+      handleChange({ dog: dogUpdate })
+    }
+  )
+
+  // Derived state
   const disabledByMode = disabled || state.mode !== 'manual'
   const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
   const rfidDisabled = disabledByMode && !state.rfid
@@ -249,9 +295,9 @@ export const DogInfo = ({
             disabled={disabled || rfidDisabled}
             fullWidth
             label={t('dog.rfid')}
-            value={reg?.dog?.rfid ?? ''}
-            error={!rfidDisabled && !reg?.dog?.rfid}
-            onChange={(e) => handleChange({ dog: { rfid: e.target.value } })}
+            value={formValues.rfid ?? ''}
+            error={!rfidDisabled && !formValues.rfid}
+            onChange={(e) => updateField('rfid', e.target.value)}
           />
         </Grid2>
         <Grid2 container spacing={1} size={{ xs: 12, lg: 6 }}>
@@ -260,10 +306,13 @@ export const DogInfo = ({
             disabledTitles={disabled || (disabledByMode && state.mode !== 'update')}
             disabledName={disabledByMode}
             id="dog"
-            name={reg?.dog?.name}
+            name={formValues.name}
             nameLabel={t('dog.name')}
-            onChange={(props) => handleChange({ dog: props })}
-            titles={reg?.dog?.titles}
+            onChange={(props) => {
+              if (props.name !== undefined) updateField('name', props.name)
+              if (props.titles !== undefined) updateField('titles', props.titles)
+            }}
+            titles={formValues.titles}
             titlesLabel={t('dog.titles')}
           />
         </Grid2>
@@ -276,9 +325,9 @@ export const DogInfo = ({
               label={t('dog.dob')}
               maxDate={subMonths(eventDate, minDogAgeMonths)}
               minDate={subYears(new Date(), 15)}
-              onChange={(value: any) => value && handleChange({ dog: { dob: value } })}
+              onChange={(value: any) => updateField('dob', value || undefined)}
               openTo={'year'}
-              value={reg?.dog?.dob ?? null}
+              value={formValues.dob ?? null}
               views={['year', 'month', 'day']}
             />
           </FormControl>
@@ -292,9 +341,9 @@ export const DogInfo = ({
             getOptionLabel={(o) => (o ? t(`dog.genderChoises.${o}`) : '')}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.gender')}
-            onChange={(value) => handleChange({ dog: { gender: value ? value : undefined } })}
+            onChange={(value) => updateField('gender', value || '')}
             options={['F', 'M'] as DogGender[]}
-            value={reg?.dog?.gender ?? ''}
+            value={formValues.gender}
           />
         </Grid2>
         <Grid2 size={{ xs: 12, sm: 6 }}>
@@ -306,9 +355,9 @@ export const DogInfo = ({
             getOptionLabel={(o) => (o ? breed(o) : '')}
             isOptionEqualToValue={(o, v) => o === v}
             label={t('dog.breed')}
-            onChange={(value) => handleChange({ dog: { breedCode: value ? value : undefined } })}
+            onChange={(value) => updateField('breedCode', value || '')}
             options={['122', '111', '121', '312', '110', '263']}
-            value={reg?.dog?.breedCode}
+            value={formValues.breedCode}
           />
         </Grid2>
         <Grid2 size={{ xs: 12, lg: 6 }}>
@@ -317,9 +366,9 @@ export const DogInfo = ({
             fullWidth
             id={'sire'}
             label={t('dog.sire.name')}
-            onChange={(e) => handleChange({ dog: { sire: { name: e.target.value } } })}
-            error={!sireDamDisabled && !reg?.dog?.sire?.name}
-            value={reg?.dog?.sire?.name ?? ''}
+            onChange={(e) => updateField('sire', e.target.value)}
+            error={!sireDamDisabled && !formValues.sire}
+            value={formValues.sire}
           />
         </Grid2>
         <Grid2 size={{ xs: 12, lg: 6 }}>
@@ -328,9 +377,9 @@ export const DogInfo = ({
             fullWidth
             id={'dam'}
             label={t('dog.dam.name')}
-            onChange={(e) => handleChange({ dog: { dam: { name: e.target.value } } })}
-            error={!sireDamDisabled && !reg?.dog?.dam?.name}
-            value={reg?.dog?.dam?.name ?? ''}
+            onChange={(e) => updateField('dam', e.target.value)}
+            error={!sireDamDisabled && !formValues.dam}
+            value={formValues.dam}
           />
         </Grid2>
       </Grid2>
