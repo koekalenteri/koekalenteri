@@ -40,7 +40,7 @@ function App() {
     if (isDevEnv()) {
       scan({ enabled: true })
     }
-  })
+  }, [])
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
