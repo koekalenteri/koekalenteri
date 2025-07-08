@@ -13,6 +13,7 @@ import { addMonths } from 'date-fns'
 
 import AutocompleteSingle from '../../AutocompleteSingle'
 import RankingPoints from '../../RankingPoints'
+import { useLocalStateGroup } from '../hooks/useLocalStateGroup'
 
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
@@ -73,18 +74,40 @@ export default function QualifyingResultRow({
   onRemove,
 }: Props) {
   const { t } = useTranslation()
-  const handleChange = useCallback(
-    (result: QualifyingResult | ManualTestResult, props: Partial<ManualTestResult>) => {
-      if (isManualResult(result)) onChange?.(result, { ...props, rankingPoints: undefined })
-    },
-    [onChange]
-  )
-  const handleRemove = useCallback(() => {
-    if (isManualResult(result)) onRemove?.(result)
-  }, [onRemove, result])
   const maxDate = new Date()
   const date9Months = dob ? addMonths(dob, 9) : maxDate
   const minDate = date9Months < maxDate ? date9Months : maxDate
+
+  // Group local state for all form fields with a single debounced update
+  const [formValues, updateField] = useLocalStateGroup(
+    {
+      type: result.type,
+      result: `${result.result}${getSuffix(result)}`,
+      date: result.date,
+      location: result.location || '',
+      judge: result.judge || '',
+    },
+    (values) => {
+      if (isManualResult(result)) {
+        // Extract result properties from the combined result string
+        const resultProps = parseResult(values.result)
+
+        // Create a single update object with all changed fields
+        onChange?.(result, {
+          type: values.type,
+          ...resultProps,
+          date: values.date,
+          location: values.location,
+          judge: values.judge,
+          rankingPoints: undefined,
+        })
+      }
+    }
+  )
+
+  const handleRemove = useCallback(() => {
+    if (isManualResult(result)) onRemove?.(result)
+  }, [onRemove, result])
 
   return (
     <Grid2 container spacing={1} alignItems="center" width="100%">
@@ -95,22 +118,24 @@ export default function QualifyingResultRow({
           options={availableTypes(requirements, eventType)}
           label={t('testResult.eventType')}
           onChange={(value) => {
+            updateField('type', value)
             const testResult = availableResults(requirements, value, eventType, manualResults)[0]
-            handleChange(result, { type: value, ...parseResult(testResult) })
+            // Update result field when type changes
+            if (testResult) {
+              updateField('result', testResult)
+            }
           }}
-          value={result.type}
+          value={formValues.type}
         />
       </Grid2>
       <Grid2 size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
-          options={availableResults(requirements, result.type, eventType, manualResults)}
+          options={availableResults(requirements, formValues.type, eventType, manualResults)}
           label={t('testResult.result')}
           onChange={(value) => {
-            handleChange(result, {
-              ...parseResult(value),
-            })
+            updateField('result', value)
           }}
           sx={{
             '& fieldset': {
@@ -121,7 +146,7 @@ export default function QualifyingResultRow({
               borderColor: resultBorderColor(result.qualifying),
             },
           }}
-          value={`${result.result}${getSuffix(result)}`}
+          value={formValues.result}
         />
       </Grid2>
       <Grid2 size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
@@ -132,32 +157,32 @@ export default function QualifyingResultRow({
             label={t('testResult.date')}
             maxDate={maxDate}
             minDate={minDate}
-            onChange={(value: any) => handleChange(result, { date: value || undefined })}
+            onChange={(value: any) => updateField('date', value || undefined)}
             slotProps={{
-              textField: { error: !result.date },
+              textField: { error: !formValues.date },
             }}
-            value={result.date || null}
+            value={formValues.date || null}
           />
         </FormControl>
       </Grid2>
       <Grid2 size={{ xs: 6, sm: 3.5, md: 2 }}>
         <TextField
           disabled={result.official || disabled}
-          error={!result.location}
+          error={!formValues.location}
           fullWidth
           label={t('testResult.location')}
-          onChange={(e) => handleChange(result, { location: e.target.value })}
-          value={result.location}
+          onChange={(e) => updateField('location', e.target.value)}
+          value={formValues.location}
         />
       </Grid2>
       <Grid2 size={{ xs: 12, sm: 4, md: 3, lg: 2 }}>
         <TextField
           disabled={result.official || disabled}
-          error={!result.judge}
+          error={!formValues.judge}
           fullWidth
           label={t('testResult.judge')}
-          onChange={(e) => handleChange(result, { judge: e.target.value })}
-          value={result.judge}
+          onChange={(e) => updateField('judge', e.target.value)}
+          value={formValues.judge}
         />
       </Grid2>
       <Grid2 flex={1}>
