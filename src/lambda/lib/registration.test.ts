@@ -267,7 +267,7 @@ describe('registration', () => {
 
     it('should send emails to all registrations successfully', async () => {
       jest.useFakeTimers()
-      jest.setSystemTime(new Date('2023-01-01 12:00'))
+      jest.setSystemTime(new Date('2023-01-01 12:00Z'))
       const result = await sendTemplatedEmailToEventRegistrations(
         'invitation',
         mockEvent,
@@ -314,7 +314,7 @@ describe('registration', () => {
         { eventId: 'event-1', id: 'reg-1' },
         {
           set: {
-            lastEmail: 'translated-emailTemplate.invitation 1.1.2023 12:00',
+            lastEmail: 'translated-emailTemplate.invitation 1.1.2023 14:00',
           },
         }
       )
@@ -404,7 +404,7 @@ describe('registration', () => {
 
     it('should handle reserve template with group number', async () => {
       jest.useFakeTimers()
-      jest.setSystemTime(new Date('2023-01-01 12:00'))
+      jest.setSystemTime(new Date('2023-01-01 12:00Z'))
 
       await sendTemplatedEmailToEventRegistrations(
         'reserve',
@@ -421,7 +421,7 @@ describe('registration', () => {
         { eventId: 'event-1', id: 'reg-1' },
         {
           set: {
-            lastEmail: 'translated-emailTemplate.reserve (#1) 1.1.2023 12:00',
+            lastEmail: 'translated-emailTemplate.reserve (#1) 1.1.2023 14:00',
           },
         }
       )
