@@ -78,7 +78,7 @@ export const Component = () => {
           if (!url) return <Navigate replace to={Path.registration(registration)} />
 
           return (
-            <main style={{ padding: '8px', display: url ? undefined : 'none' }}>
+            <main style={{ padding: '8px' }}>
               <Paper sx={{ p: 1 }}>
                 <Typography variant="caption">Koe</Typography>
                 <Typography>
