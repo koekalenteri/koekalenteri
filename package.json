@@ -13,7 +13,7 @@
     "@date-fns/tz": "^1.2.0",
     "@mui/icons-material": "^6.4.12",
     "@mui/material": "^6.4.11",
-    "@mui/system": "^7.1.1",
+    "@mui/system": "^7.2.0",
     "@mui/x-data-grid": "^7.29.8",
     "@mui/x-date-pickers": "^7.29.4",
     "@smithy/smithy-client": "^4.4.5",
