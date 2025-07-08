@@ -108,8 +108,8 @@ export const DogInfo = ({
         name,
         titles,
         dob,
-        gender: gender ? gender : undefined,
-        breedCode: breedCode ? breedCode : undefined,
+        gender: gender || undefined,
+        breedCode: breedCode || undefined,
         sire: { name: sire },
         dam: { name: dam },
       }
