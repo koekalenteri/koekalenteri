@@ -3,7 +3,7 @@ import type { DogEvent, Registration } from '../types'
 
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Await, useLoaderData } from 'react-router'
+import { Await, Navigate, useLoaderData } from 'react-router'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
@@ -16,12 +16,19 @@ import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
 
 interface DeferredData {
-  url: string
+  url?: string
   event: DogEvent
   registration: Registration
 }
 
-const deferredLoader = async (id?: string, registrationId?: string, signal?: AbortSignal): Promise<DeferredData> => {
+/**
+ * exported for tests
+ */
+export const deferredLoader = async (
+  id?: string,
+  registrationId?: string,
+  signal?: AbortSignal
+): Promise<DeferredData> => {
   if (!id || !registrationId) throw new Error('invalid params')
 
   const [event, registration] = await Promise.all([
@@ -34,15 +41,16 @@ const deferredLoader = async (id?: string, registrationId?: string, signal?: Abo
 
   if (!event || !registration) throw new Error('not found')
 
+  if (!registration.invitationRead) {
+    registration.invitationRead = true
+    await putRegistration(registration, undefined, signal)
+  }
+
   if (registration.invitationAttachment) {
-    if (!registration.invitationRead) {
-      registration.invitationRead = true
-      await putRegistration(registration, undefined, signal)
-    }
     return { url: Path.invitationAttachment(registration), event, registration }
   }
 
-  throw new Error('no attachment')
+  return { event, registration }
 }
 
 /**
@@ -66,27 +74,31 @@ export const Component = () => {
   return (
     <Suspense fallback={<LoadingPage />}>
       <Await resolve={loaderData.data} errorElement={<div>Koekutsun avaaminen epäonnistui</div>}>
-        {({ url, event, registration }: DeferredData) => (
-          <main style={{ padding: '8px' }}>
-            <Paper sx={{ p: 1 }}>
-              <Typography variant="caption">Koe</Typography>
-              <Typography>
-                {event.eventType} {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}{' '}
-                {event.location} ({event.name})
-              </Typography>
-              <Typography variant="caption">Ilmoitettu koira</Typography>
-              <Typography>
-                {registration.dog.titles} {registration.dog.regNo} {registration.dog.name}
-              </Typography>
-              <Typography variant="caption">Ohjaaja</Typography>
-              <Typography>{registration.handler.name}</Typography>
-            </Paper>
-            <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
-              <LinkButton target="_blank" to={url} text="Avaa koekutsu" />
-              <LinkButton download="kutsu.pdf" to={`${url}?dl`} text="Lataa koekutsu" />
-            </Stack>
-          </main>
-        )}
+        {({ url, event, registration }: DeferredData) => {
+          if (!url) return <Navigate replace to={Path.registration(registration)} />
+
+          return (
+            <main style={{ padding: '8px', display: url ? undefined : 'none' }}>
+              <Paper sx={{ p: 1 }}>
+                <Typography variant="caption">Koe</Typography>
+                <Typography>
+                  {event.eventType} {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}{' '}
+                  {event.location} ({event.name})
+                </Typography>
+                <Typography variant="caption">Ilmoitettu koira</Typography>
+                <Typography>
+                  {registration.dog.titles} {registration.dog.regNo} {registration.dog.name}
+                </Typography>
+                <Typography variant="caption">Ohjaaja</Typography>
+                <Typography>{registration.handler.name}</Typography>
+              </Paper>
+              <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
+                <LinkButton target="_blank" to={url} text="Avaa koekutsu" />
+                <LinkButton download="kutsu.pdf" to={`${url}?dl`} text="Lataa koekutsu" />
+              </Stack>
+            </main>
+          )
+        }}
       </Await>
     </Suspense>
   )

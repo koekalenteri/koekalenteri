@@ -1,0 +1,122 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RegistrationInvitation renders error message when loader fails 1`] = `
+<div>
+  <div>
+    Koekutsun avaaminen epäonnistui
+  </div>
+</div>
+`;
+
+exports[`RegistrationInvitation renders invitation page when URL is available 1`] = `
+<div>
+  <main
+    style="padding: 8px;"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 css-12qurmt-MuiPaper-root"
+      style="--Paper-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12);"
+    >
+      <span
+        class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+      >
+        Koe
+      </span>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+      >
+        NOU
+         
+        dateFormat.datespan start, end
+         
+        test location
+         (
+        test
+        )
+      </p>
+      <span
+        class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+      >
+        Ilmoitettu koira
+      </span>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+      >
+        Dog titles
+         
+        TESTDOG-0010
+         
+        Dog Name 10
+      </p>
+      <span
+        class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+      >
+        Ohjaaja
+      </span>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+      >
+        Handler Name
+      </p>
+    </div>
+    <div
+      class="MuiStack-root css-i74727-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-mro3c9"
+        role="button"
+      >
+        <a
+          class="link"
+          data-discover="true"
+          href="/test-invitation-url"
+          target="_blank"
+        >
+          Avaa koekutsu
+        </a>
+      </div>
+      <div
+        class="MuiBox-root css-mro3c9"
+        role="button"
+      >
+        <a
+          class="link"
+          data-discover="true"
+          download="kutsu.pdf"
+          href="/test-invitation-url?dl"
+        >
+          Lataa koekutsu
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+`;
+
+exports[`RegistrationInvitation renders loading indicator while loader is pending 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-19703gc"
+  >
+    <span
+      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1vzstpr-MuiCircularProgress-root"
+      role="progressbar"
+      style="width: 40px; height: 40px;"
+    >
+      <svg
+        class="MuiCircularProgress-svg css-54pwck-MuiCircularProgress-svg"
+        viewBox="22 22 44 44"
+      >
+        <circle
+          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
+          cx="44"
+          cy="44"
+          fill="none"
+          r="20.2"
+          stroke-width="3.6"
+        />
+      </svg>
+    </span>
+  </div>
+</div>
+`;
