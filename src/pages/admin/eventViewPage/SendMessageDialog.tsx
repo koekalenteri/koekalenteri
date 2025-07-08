@@ -3,13 +3,11 @@ import type { DogEvent, EmailTemplate, EmailTemplateId, Language, Registration }
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
-import { styled } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Checkbox from '@mui/material/Checkbox'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
@@ -49,8 +47,6 @@ interface Props {
 }
 
 const CONTACT_INFO_GROUPS = ['secretary', 'official'] as const
-const CONTACT_INFO_PROPS = ['name', 'email', 'phone'] as const
-const ContactInfoCheckbox = styled(Checkbox)({ paddingTop: 0, paddingBottom: 0 })
 
 export default function SendMessageDialog({ event, registrations, templateId, open, onClose }: Props) {
   const confirm = useConfirm()
