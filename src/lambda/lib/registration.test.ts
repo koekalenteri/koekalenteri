@@ -19,12 +19,38 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
+const mockSendTemplatedMail = jest.fn<any>()
+const mockAudit = jest.fn()
+const mockGetFixedT = jest.fn().mockReturnValue((key: string) => `translated-${key}`)
+const mockEmailTo = jest.fn()
+const mockRegistrationEmailTemplateData = jest.fn()
+
+jest.unstable_mockModule('./email', () => ({
+  sendTemplatedMail: mockSendTemplatedMail,
+  emailTo: mockEmailTo,
+  registrationEmailTemplateData: mockRegistrationEmailTemplateData,
+}))
+
+jest.unstable_mockModule('./audit', () => ({
+  audit: mockAudit,
+  registrationAuditKey: jest
+    .fn<any>()
+    .mockImplementation((reg: { eventId: string; id: string }) => `${reg.eventId}:${reg.id}`),
+}))
+
+jest.unstable_mockModule('../../i18n/lambda', () => ({
+  i18n: {
+    getFixedT: mockGetFixedT,
+  },
+}))
+
 const {
   getLastEmailInfo,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
+  sendTemplatedEmailToEventRegistrations,
 } = await import('./registration')
 
 describe('registration', () => {
@@ -198,6 +224,209 @@ describe('registration', () => {
     it('should handle empty input', () => {
       const result = findClassesToMark({}, 'invitation')
       expect(result).toEqual([])
+    })
+  })
+
+  describe('sendTemplatedEmailToEventRegistrations', () => {
+    const mockEvent = { id: 'event-1', name: 'Test Event' } as any
+    const mockRegistrations = [
+      {
+        eventId: 'event-1',
+        id: 'reg-1',
+        language: 'fi',
+        handler: { email: 'handler1@example.com' },
+        owner: { email: 'owner1@example.com' },
+        group: { number: 1, key: 'group1' },
+      },
+      {
+        eventId: 'event-1',
+        id: 'reg-2',
+        language: 'en',
+        handler: { email: 'handler2@example.com' },
+        owner: { email: 'handler2@example.com' }, // Same email as handler
+        group: { number: 2, key: 'group2' },
+      },
+    ] as any
+
+    beforeEach(() => {
+      jest.clearAllMocks()
+
+      // Setup default mock implementations
+      mockEmailTo.mockImplementation((reg: any) => {
+        const emails = [reg.handler.email]
+        if (reg.owner.email !== reg.handler.email) {
+          emails.push(reg.owner.email)
+        }
+        return emails
+      })
+
+      mockRegistrationEmailTemplateData.mockReturnValue({ data: 'template-data' })
+      mockSendTemplatedMail.mockResolvedValue({} as any)
+      mockDynamoDB.update.mockResolvedValue({} as any)
+    })
+
+    it('should send emails to all registrations successfully', async () => {
+      jest.useFakeTimers()
+      jest.setSystemTime(new Date('2023-01-01 12:00'))
+      const result = await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        mockEvent,
+        mockRegistrations,
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        { context: 'data' } as any
+      )
+
+      // Check result
+      expect(result).toEqual({
+        ok: ['handler1@example.com', 'owner1@example.com', 'handler2@example.com'],
+        failed: [],
+      })
+
+      // Check email sending
+      expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'invitation',
+        'fi',
+        expect.anything(),
+        ['handler1@example.com', 'owner1@example.com'],
+        expect.anything()
+      )
+      expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+        'invitation',
+        'en',
+        expect.anything(),
+        ['handler2@example.com'],
+        expect.anything()
+      )
+
+      // Check audit entries
+      expect(mockAudit).toHaveBeenCalledTimes(2)
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:reg-1',
+        message: 'Email: translated-emailTemplate.invitation, to: handler1@example.com, owner1@example.com',
+        user: 'admin-user',
+      })
+
+      // Check lastEmail updates
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-1', id: 'reg-1' },
+        {
+          set: {
+            lastEmail: 'translated-emailTemplate.invitation 1.1.2023 12:00',
+          },
+        }
+      )
+
+      // Check messagesSent updates
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-1', id: 'reg-1' },
+        {
+          set: {
+            messagesSent: { invitation: true },
+          },
+        }
+      )
+
+      jest.useRealTimers()
+    })
+
+    it('should handle failed email sending', async () => {
+      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      // Make the second email fail
+      mockSendTemplatedMail.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('Email sending failed'))
+
+      const result = await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        mockEvent,
+        mockRegistrations,
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        { context: 'data' } as any
+      )
+
+      // Check result
+      expect(result).toEqual({
+        ok: ['handler1@example.com', 'owner1@example.com'],
+        failed: ['handler2@example.com'],
+      })
+
+      // Check audit entries for failure
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'event-1:reg-2',
+        message: 'FAILED translated-emailTemplate.invitation: handler2@example.com',
+        user: 'admin-user',
+      })
+
+      // Check that messagesSent was not updated for the failed email
+      const messagesSentUpdates = mockDynamoDB.update.mock.calls.filter(
+        (call) => call[0].id === 'reg-2' && call[1].set && call[1].set.messagesSent
+      )
+      expect(messagesSentUpdates.length).toBe(0)
+      expect(errorSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should update existing messagesSent property', async () => {
+      // Registration with existing messagesSent property
+      const registrationWithExistingMessages = {
+        ...mockRegistrations[0],
+        messagesSent: { registration: true },
+      }
+
+      await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        mockEvent,
+        [registrationWithExistingMessages],
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        { context: 'data' } as any
+      )
+
+      // Check that messagesSent was properly updated
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-1', id: 'reg-1' },
+        {
+          set: {
+            messagesSent: { registration: true, invitation: true },
+          },
+        }
+      )
+
+      // Check that the in-memory object was updated
+      expect(registrationWithExistingMessages.messagesSent).toEqual({
+        registration: true,
+        invitation: true,
+      })
+    })
+
+    it('should handle reserve template with group number', async () => {
+      jest.useFakeTimers()
+      jest.setSystemTime(new Date('2023-01-01 12:00'))
+
+      await sendTemplatedEmailToEventRegistrations(
+        'reserve',
+        mockEvent,
+        [mockRegistrations[0]],
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        { context: 'data' } as any
+      )
+
+      // Check lastEmail format for reserve template
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-1', id: 'reg-1' },
+        {
+          set: {
+            lastEmail: 'translated-emailTemplate.reserve (#1) 1.1.2023 12:00',
+          },
+        }
+      )
+
+      jest.useRealTimers()
     })
   })
 })
