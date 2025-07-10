@@ -82,10 +82,10 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-81qg8w"
+                            class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 1
@@ -153,10 +153,10 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -228,10 +228,10 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -432,10 +432,10 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-81qg8w"
+                            class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 1
@@ -505,10 +505,10 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -580,10 +580,10 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -784,10 +784,10 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 1
@@ -857,10 +857,10 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -932,10 +932,10 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -1136,10 +1136,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 1
@@ -1209,10 +1209,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -1284,10 +1284,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -1354,10 +1354,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 2
@@ -1427,10 +1427,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -1502,10 +1502,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -1572,10 +1572,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 3
@@ -1645,10 +1645,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -1720,10 +1720,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -1924,10 +1924,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 1
@@ -1997,10 +1997,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -2072,10 +2072,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa
@@ -2142,10 +2142,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               judge 2
@@ -2215,10 +2215,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Arvostelee luokat
@@ -2290,10 +2290,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 Maa

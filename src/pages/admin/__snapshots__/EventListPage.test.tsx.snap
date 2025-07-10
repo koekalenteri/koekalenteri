@@ -139,7 +139,7 @@ exports[`EventListPage renders 1`] = `
             aria-label="Select columns"
             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1iyi9w1-MuiButtonBase-root-MuiButton-root"
             data-mui-internal-clone-element="true"
-            id=":r8:"
+            id=":r9:"
             tabindex="0"
             type="button"
           >
@@ -183,7 +183,7 @@ exports[`EventListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1yrc8ca-MuiInputBase-input-MuiInput-input"
-                  id=":rc:"
+                  id=":rd:"
                   placeholder="search.placeholder"
                   type="text"
                   value=""
@@ -227,8 +227,8 @@ exports[`EventListPage renders 1`] = `
                   <label
                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-8kr4nd-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
-                    for=":re:"
-                    id=":re:-label"
+                    for=":rf:"
+                    id=":rf:-label"
                   >
                     Yhdistys
                   </label>
@@ -242,7 +242,7 @@ exports[`EventListPage renders 1`] = `
                       autocapitalize="none"
                       autocomplete="off"
                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-13meb6w-MuiInputBase-input-MuiOutlinedInput-input"
-                      id=":re:"
+                      id=":rf:"
                       role="combobox"
                       spellcheck="false"
                       type="text"
@@ -292,10 +292,10 @@ exports[`EventListPage renders 1`] = `
                     </div>
                     <fieldset
                       aria-hidden="true"
-                      class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                      class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                     >
                       <legend
-                        class="css-w1u3ce"
+                        class="css-ex8a5f-MuiNotchedOutlined-root"
                       >
                         <span>
                           Yhdistys
@@ -312,10 +312,10 @@ exports[`EventListPage renders 1`] = `
                   class="MuiSwitch-root MuiSwitch-sizeSmall css-fzgmul-MuiSwitch-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                    class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                   >
                     <input
-                      class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                      class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                       name="showPast"
                       type="checkbox"
                     />
@@ -2112,7 +2112,7 @@ exports[`EventListPage renders 1`] = `
               />
               <p
                 class="MuiTablePagination-selectLabel css-s09cke-MuiTablePagination-selectLabel"
-                id=":rj:"
+                id=":rk:"
               >
                 Rows per page:
               </p>
@@ -2122,9 +2122,9 @@ exports[`EventListPage renders 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-labelledby=":rj: :ri:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-mmygx2-MuiSelect-select-MuiInputBase-input"
-                  id=":ri:"
+                  aria-labelledby=":rk: :rj:"
+                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-18zjd9i-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input"
+                  id=":rj:"
                   role="combobox"
                   tabindex="0"
                 >
@@ -2139,7 +2139,7 @@ exports[`EventListPage renders 1`] = `
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-1gpuzre-MuiSvgIcon-root-MuiSelect-icon"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-ug7h84-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                   data-testid="ArrowDropDownIcon"
                   focusable="false"
                   viewBox="0 0 24 24"
