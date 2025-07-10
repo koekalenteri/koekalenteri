@@ -12,10 +12,10 @@ exports[`UnlockArrange renders 1`] = `
         class="MuiSwitch-root MuiSwitch-sizeSmall css-fzgmul-MuiSwitch-root"
       >
         <span
-          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary css-161ms7l-MuiButtonBase-root-MuiSwitch-switchBase"
+          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary css-aqlqb4-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
         >
           <input
-            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
             type="checkbox"
           />
           <span
@@ -56,11 +56,11 @@ exports[`UnlockArrange renders checked 1`] = `
         class="MuiSwitch-root MuiSwitch-sizeSmall css-fzgmul-MuiSwitch-root"
       >
         <span
-          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-161ms7l-MuiButtonBase-root-MuiSwitch-switchBase"
+          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-aqlqb4-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
         >
           <input
             checked=""
-            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
             type="checkbox"
           />
           <span

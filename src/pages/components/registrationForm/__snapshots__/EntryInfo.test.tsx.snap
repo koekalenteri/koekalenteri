@@ -114,10 +114,10 @@ exports[`EntryInfo should render with event with classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.class
@@ -187,10 +187,10 @@ exports[`EntryInfo should render with event with classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.reserve
@@ -303,10 +303,10 @@ exports[`EntryInfo should render with event with classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.datesFilter
@@ -425,10 +425,10 @@ exports[`EntryInfo should render with event with classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.dates
@@ -569,10 +569,10 @@ exports[`EntryInfo should render with event without classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-81qg8w"
+                            class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.class
@@ -642,10 +642,10 @@ exports[`EntryInfo should render with event without classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.reserve
@@ -758,10 +758,10 @@ exports[`EntryInfo should render with event without classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.datesFilter
@@ -880,10 +880,10 @@ exports[`EntryInfo should render with event without classes 1`] = `
                         </div>
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               registration.dates

@@ -247,8 +247,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2:"
-                            id=":r2:-label"
+                            for=":r3:"
+                            id=":r3:-label"
                           >
                             registration.class
                           </label>
@@ -262,7 +262,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2:"
+                              id=":r3:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -293,10 +293,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.class
@@ -320,8 +320,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r5:"
-                            id=":r5:-label"
+                            for=":r6:"
+                            id=":r6:-label"
                           >
                             registration.reserve
                           </label>
@@ -330,13 +330,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r5:-helper-text"
+                              aria-describedby=":r6:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r5:"
+                              id=":r6:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -367,10 +367,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.reserve
@@ -380,7 +380,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r5:-helper-text"
+                            id=":r6:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -400,8 +400,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r8:"
-                            id=":r8:-label"
+                            for=":r9:"
+                            id=":r9:-label"
                           >
                             registration.datesFilter
                           </label>
@@ -456,13 +456,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r8:-helper-text"
+                              aria-describedby=":r9:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r8:"
+                              id=":r9:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -512,10 +512,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.datesFilter
@@ -525,7 +525,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r8:-helper-text"
+                            id=":r9:-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -545,8 +545,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rc:"
-                            id=":rc:-label"
+                            for=":rd:"
+                            id=":rd:-label"
                           >
                             registration.dates
                           </label>
@@ -647,13 +647,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":rc:-helper-text"
+                              aria-describedby=":rd:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":rc:"
+                              id=":rd:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -703,10 +703,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.dates
@@ -716,7 +716,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":rc:-helper-text"
+                            id=":rd:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -847,10 +847,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 </div>
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       dog.regNo
@@ -904,8 +904,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":rk:"
-                          id=":rk:-label"
+                          for=":rl:"
+                          id=":rl:-label"
                         >
                           dog.rfid
                         </label>
@@ -916,16 +916,16 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":rk:"
+                            id=":rl:"
                             type="text"
                             value=""
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.rfid
@@ -968,10 +968,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               />
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-81qg8w"
+                                  class="css-1n64csd-MuiNotchedOutlined-root"
                                 >
                                   <span>
                                     dog.titles
@@ -1008,10 +1008,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               />
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-81qg8w"
+                                  class="css-1n64csd-MuiNotchedOutlined-root"
                                 >
                                   <span>
                                     dog.name
@@ -1035,8 +1035,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":rn:"
-                            id=":rn:-label"
+                            for=":ro:"
+                            id=":ro:-label"
                           >
                             dog.dob
                           </label>
@@ -1048,7 +1048,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rn:"
+                              id=":ro:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -1079,10 +1079,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.dob
@@ -1106,8 +1106,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":rq:"
-                            id=":rq:-label"
+                            for=":rr:"
+                            id=":rr:-label"
                           >
                             dog.gender
                           </label>
@@ -1122,7 +1122,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rq:"
+                              id=":rr:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -1154,10 +1154,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.gender
@@ -1181,8 +1181,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":rt:"
-                            id=":rt:-label"
+                            for=":ru:"
+                            id=":ru:-label"
                           >
                             dog.breed
                           </label>
@@ -1197,7 +1197,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rt:"
+                              id=":ru:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -1229,10 +1229,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.breed
@@ -1270,10 +1270,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.sire.name
@@ -1310,10 +1310,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.dam.name
@@ -1409,10 +1409,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 contact.name
@@ -1448,10 +1448,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 contact.city
@@ -1550,10 +1550,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.name
@@ -1591,10 +1591,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.city
@@ -1632,10 +1632,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.email
@@ -1710,10 +1710,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.phone
@@ -1735,12 +1735,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
                             checked=""
-                            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerHandles"
                             type="checkbox"
                           />
@@ -1765,12 +1765,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
                             checked=""
-                            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerPays"
                             type="checkbox"
                           />
@@ -1886,10 +1886,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.name
@@ -1927,10 +1927,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.city
@@ -1968,10 +1968,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.email
@@ -2046,10 +2046,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.phone
@@ -2160,10 +2160,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.name
@@ -2201,10 +2201,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.email
@@ -2279,10 +2279,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.phone
@@ -2466,8 +2466,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r1p:"
-                      id=":r1p:-label"
+                      for=":r1q:"
+                      id=":r1q:-label"
                     >
                       registration.notes
                     </label>
@@ -2477,7 +2477,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r1p:"
+                        id=":r1q:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -2491,10 +2491,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-81qg8w"
+                          class="css-1n64csd-MuiNotchedOutlined-root"
                         >
                           <span>
                             registration.notes
@@ -2567,10 +2567,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
-                          class="PrivateSwitchBase-input css-j8yymo"
+                          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
                           name="ownerIsMember"
                           type="checkbox"
@@ -2598,11 +2598,11 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     >
                       <span
                         aria-disabled="true"
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                         tabindex="-1"
                       >
                         <input
-                          class="PrivateSwitchBase-input css-j8yymo"
+                          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
                           disabled=""
                           name="handlerIsMember"
@@ -2643,10 +2643,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd Mui-error css-19opgx6-MuiFormControlLabel-root"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
-                class="PrivateSwitchBase-input css-j8yymo"
+                class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                 data-indeterminate="false"
                 name="agreeToTerms"
                 type="checkbox"
@@ -3100,8 +3100,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r3u:"
-                            id=":r3u:-label"
+                            for=":r41:"
+                            id=":r41:-label"
                           >
                             registration.class
                           </label>
@@ -3115,7 +3115,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r3u:"
+                              id=":r41:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3146,10 +3146,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.class
@@ -3173,8 +3173,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r41:"
-                            id=":r41:-label"
+                            for=":r44:"
+                            id=":r44:-label"
                           >
                             registration.reserve
                           </label>
@@ -3183,13 +3183,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r41:-helper-text"
+                              aria-describedby=":r44:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r41:"
+                              id=":r44:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3220,10 +3220,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.reserve
@@ -3233,7 +3233,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r41:-helper-text"
+                            id=":r44:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -3253,8 +3253,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r44:"
-                            id=":r44:-label"
+                            for=":r47:"
+                            id=":r47:-label"
                           >
                             registration.datesFilter
                           </label>
@@ -3271,151 +3271,6 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
                                 eeeeee d.M.
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <input
-                              aria-autocomplete="list"
-                              aria-describedby=":r44:-helper-text"
-                              aria-expanded="false"
-                              aria-invalid="false"
-                              autocapitalize="none"
-                              autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r44:"
-                              role="combobox"
-                              spellcheck="false"
-                              type="text"
-                              value=""
-                            />
-                            <div
-                              class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
-                            >
-                              <button
-                                aria-label="Clear"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
-                                tabindex="-1"
-                                title="Clear"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-                                  data-testid="CloseIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-                                  />
-                                </svg>
-                              </button>
-                              <button
-                                aria-label="Open"
-                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                tabindex="-1"
-                                title="Open"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                  data-testid="ArrowDropDownIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M7 10l5 5 5-5z"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                            <fieldset
-                              aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
-                            >
-                              <legend
-                                class="css-w1u3ce"
-                              >
-                                <span>
-                                  registration.datesFilter
-                                </span>
-                              </legend>
-                            </fieldset>
-                          </div>
-                          <p
-                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r44:-helper-text"
-                          >
-                            registration.datesFilterInfo
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 css-1odx5a8-MuiGrid2-root"
-                    >
-                      <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
-                        data-testid="registration.dates"
-                      >
-                        <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                        >
-                          <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="true"
-                            for=":r47:"
-                            id=":r47:-label"
-                          >
-                            registration.dates
-                          </label>
-                          <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
-                          >
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-d4ektr-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="0"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                              >
-                                eeeeee registration.timeLong.ap
-                              </span>
-                              <svg
-                                aria-hidden="true"
-                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
-                                data-testid="CancelIcon"
-                                focusable="false"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
-                                />
-                              </svg>
-                            </div>
-                            <div
-                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-d4ektr-MuiButtonBase-root-MuiChip-root"
-                              data-tag-index="1"
-                              role="button"
-                              tabindex="-1"
-                            >
-                              <span
-                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
-                              >
-                                eeeeee registration.timeLong.ip
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -3487,10 +3342,155 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
+                              >
+                                <span>
+                                  registration.datesFilter
+                                </span>
+                              </legend>
+                            </fieldset>
+                          </div>
+                          <p
+                            class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
+                            id=":r47:-helper-text"
+                          >
+                            registration.datesFilterInfo
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 css-1odx5a8-MuiGrid2-root"
+                    >
+                      <div
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
+                        data-testid="registration.dates"
+                      >
+                        <div
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                        >
+                          <label
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
+                            for=":r4a:"
+                            id=":r4a:-label"
+                          >
+                            registration.dates
+                          </label>
+                          <div
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-bxlkca-MuiInputBase-root-MuiOutlinedInput-root"
+                          >
+                            <div
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-d4ektr-MuiButtonBase-root-MuiChip-root"
+                              data-tag-index="0"
+                              role="button"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                              >
+                                eeeeee registration.timeLong.ap
+                              </span>
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                data-testid="CancelIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+                                />
+                              </svg>
+                            </div>
+                            <div
+                              class="MuiButtonBase-root MuiChip-root MuiChip-filled MuiChip-sizeMedium MuiChip-colorDefault MuiChip-deletable MuiChip-deletableColorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-d4ektr-MuiButtonBase-root-MuiChip-root"
+                              data-tag-index="1"
+                              role="button"
+                              tabindex="-1"
+                            >
+                              <span
+                                class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
+                              >
+                                eeeeee registration.timeLong.ip
+                              </span>
+                              <svg
+                                aria-hidden="true"
+                                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiChip-deleteIcon MuiChip-deleteIconMedium MuiChip-deleteIconColorDefault MuiChip-deleteIconFilledColorDefault css-1umw9bq-MuiSvgIcon-root"
+                                data-testid="CancelIcon"
+                                focusable="false"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"
+                                />
+                              </svg>
+                            </div>
+                            <input
+                              aria-autocomplete="list"
+                              aria-describedby=":r4a:-helper-text"
+                              aria-expanded="false"
+                              aria-invalid="false"
+                              autocapitalize="none"
+                              autocomplete="off"
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
+                              id=":r4a:"
+                              role="combobox"
+                              spellcheck="false"
+                              type="text"
+                              value=""
+                            />
+                            <div
+                              class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
+                            >
+                              <button
+                                aria-label="Clear"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-clearIndicator css-1x7n7v0-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-clearIndicator"
+                                tabindex="-1"
+                                title="Clear"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                                  data-testid="CloseIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                                  />
+                                </svg>
+                              </button>
+                              <button
+                                aria-label="Open"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                tabindex="-1"
+                                title="Open"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="ArrowDropDownIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M7 10l5 5 5-5z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <fieldset
+                              aria-hidden="true"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                            >
+                              <legend
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.dates
@@ -3500,7 +3500,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r47:-helper-text"
+                            id=":r4a:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -3631,10 +3631,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 </div>
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       dog.regNo
@@ -3688,8 +3688,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r4g:"
-                          id=":r4g:-label"
+                          for=":r4j:"
+                          id=":r4j:-label"
                         >
                           dog.rfid
                         </label>
@@ -3700,16 +3700,16 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r4g:"
+                            id=":r4j:"
                             type="text"
                             value=""
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.rfid
@@ -3752,10 +3752,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               />
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-81qg8w"
+                                  class="css-1n64csd-MuiNotchedOutlined-root"
                                 >
                                   <span>
                                     dog.titles
@@ -3792,10 +3792,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               />
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-81qg8w"
+                                  class="css-1n64csd-MuiNotchedOutlined-root"
                                 >
                                   <span>
                                     dog.name
@@ -3819,8 +3819,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r4j:"
-                            id=":r4j:-label"
+                            for=":r4m:"
+                            id=":r4m:-label"
                           >
                             dog.dob
                           </label>
@@ -3832,7 +3832,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r4j:"
+                              id=":r4m:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -3863,10 +3863,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.dob
@@ -3890,85 +3890,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r4m:"
-                            id=":r4m:-label"
-                          >
-                            dog.gender
-                          </label>
-                          <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
-                          >
-                            <input
-                              aria-autocomplete="list"
-                              aria-expanded="false"
-                              aria-invalid="false"
-                              autocapitalize="none"
-                              autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              disabled=""
-                              id=":r4m:"
-                              role="combobox"
-                              spellcheck="false"
-                              type="text"
-                              value=""
-                            />
-                            <div
-                              class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
-                            >
-                              <button
-                                aria-label="Open"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
-                                disabled=""
-                                tabindex="-1"
-                                title="Open"
-                                type="button"
-                              >
-                                <svg
-                                  aria-hidden="true"
-                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                                  data-testid="ArrowDropDownIcon"
-                                  focusable="false"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    d="M7 10l5 5 5-5z"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
-                            <fieldset
-                              aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
-                            >
-                              <legend
-                                class="css-81qg8w"
-                              >
-                                <span>
-                                  dog.gender
-                                </span>
-                              </legend>
-                            </fieldset>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-6 css-1lu792j-MuiGrid2-root"
-                    >
-                      <div
-                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
-                        data-testid="dog.breed"
-                      >
-                        <div
-                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
-                        >
-                          <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
                             for=":r4p:"
                             id=":r4p:-label"
                           >
-                            dog.breed
+                            dog.gender
                           </label>
                           <div
                             class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
@@ -4013,10 +3938,85 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
+                              >
+                                <span>
+                                  dog.gender
+                                </span>
+                              </legend>
+                            </fieldset>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-sm-6 css-1lu792j-MuiGrid2-root"
+                    >
+                      <div
+                        class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
+                        data-testid="dog.breed"
+                      >
+                        <div
+                          class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
+                        >
+                          <label
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="false"
+                            for=":r4s:"
+                            id=":r4s:-label"
+                          >
+                            dog.breed
+                          </label>
+                          <div
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
+                          >
+                            <input
+                              aria-autocomplete="list"
+                              aria-expanded="false"
+                              aria-invalid="false"
+                              autocapitalize="none"
+                              autocomplete="off"
+                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
+                              disabled=""
+                              id=":r4s:"
+                              role="combobox"
+                              spellcheck="false"
+                              type="text"
+                              value=""
+                            />
+                            <div
+                              class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
+                            >
+                              <button
+                                aria-label="Open"
+                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-sizeMedium MuiAutocomplete-popupIndicator css-2y136s-MuiButtonBase-root-MuiIconButton-root-MuiAutocomplete-popupIndicator"
+                                disabled=""
+                                tabindex="-1"
+                                title="Open"
+                                type="button"
+                              >
+                                <svg
+                                  aria-hidden="true"
+                                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                                  data-testid="ArrowDropDownIcon"
+                                  focusable="false"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    d="M7 10l5 5 5-5z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <fieldset
+                              aria-hidden="true"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
+                            >
+                              <legend
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.breed
@@ -4054,10 +4054,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.sire.name
@@ -4094,10 +4094,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.dam.name
@@ -4193,10 +4193,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 contact.name
@@ -4232,10 +4232,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-81qg8w"
+                              class="css-1n64csd-MuiNotchedOutlined-root"
                             >
                               <span>
                                 contact.city
@@ -4334,10 +4334,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.name
@@ -4375,10 +4375,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.city
@@ -4416,10 +4416,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.email
@@ -4494,10 +4494,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.phone
@@ -4519,12 +4519,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
                             checked=""
-                            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerHandles"
                             type="checkbox"
                           />
@@ -4549,12 +4549,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
                             checked=""
-                            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerPays"
                             type="checkbox"
                           />
@@ -4670,10 +4670,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.name
@@ -4711,10 +4711,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.city
@@ -4752,10 +4752,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.email
@@ -4830,10 +4830,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.phone
@@ -4944,10 +4944,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.name
@@ -4985,10 +4985,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-81qg8w"
+                                    class="css-1n64csd-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.email
@@ -5063,10 +5063,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.phone
@@ -5250,8 +5250,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r5l:"
-                      id=":r5l:-label"
+                      for=":r5o:"
+                      id=":r5o:-label"
                     >
                       registration.notes
                     </label>
@@ -5261,7 +5261,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r5l:"
+                        id=":r5o:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -5275,10 +5275,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-81qg8w"
+                          class="css-1n64csd-MuiNotchedOutlined-root"
                         >
                           <span>
                             registration.notes
@@ -5351,10 +5351,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
-                          class="PrivateSwitchBase-input css-j8yymo"
+                          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
                           name="ownerIsMember"
                           type="checkbox"
@@ -5382,11 +5382,11 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     >
                       <span
                         aria-disabled="true"
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                         tabindex="-1"
                       >
                         <input
-                          class="PrivateSwitchBase-input css-j8yymo"
+                          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
                           disabled=""
                           name="handlerIsMember"
@@ -5427,10 +5427,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd Mui-error css-19opgx6-MuiFormControlLabel-root"
           >
             <span
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
-                class="PrivateSwitchBase-input css-j8yymo"
+                class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                 data-indeterminate="false"
                 name="agreeToTerms"
                 type="checkbox"

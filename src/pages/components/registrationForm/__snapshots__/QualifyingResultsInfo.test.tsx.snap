@@ -126,10 +126,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.eventType
@@ -201,10 +201,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.result
@@ -271,10 +271,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.date
@@ -312,10 +312,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.location
@@ -352,10 +352,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.judge
@@ -587,10 +587,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.eventType
@@ -662,10 +662,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.result
@@ -732,10 +732,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.date
@@ -773,10 +773,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.location
@@ -813,10 +813,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.judge
@@ -934,10 +934,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.eventType
@@ -1007,10 +1007,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.result
@@ -1075,10 +1075,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.date
@@ -1115,10 +1115,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.location
@@ -1154,10 +1154,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.judge
@@ -1275,10 +1275,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.eventType
@@ -1348,10 +1348,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.result
@@ -1416,10 +1416,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                           </div>
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 testResult.date
@@ -1456,10 +1456,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.location
@@ -1495,10 +1495,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               testResult.judge

@@ -72,7 +72,7 @@ exports[`CancelDialog should display additional info when reason is "dog-sick" 1
                 aria-expanded="false"
                 aria-haspopup="listbox"
                 aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                 id="reaseon"
                 role="combobox"
                 tabindex="0"
@@ -88,7 +88,7 @@ exports[`CancelDialog should display additional info when reason is "dog-sick" 1
               />
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                 data-testid="ArrowDropDownIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -99,10 +99,10 @@ exports[`CancelDialog should display additional info when reason is "dog-sick" 1
               </svg>
               <fieldset
                 aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
               >
                 <legend
-                  class="css-w1u3ce"
+                  class="css-ex8a5f-MuiNotchedOutlined-root"
                 >
                   <span>
                     registration.cancelDialog.reason
@@ -239,7 +239,7 @@ exports[`CancelDialog should display additional info when reason is "handler-sic
                 aria-expanded="false"
                 aria-haspopup="listbox"
                 aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                 id="reaseon"
                 role="combobox"
                 tabindex="0"
@@ -255,7 +255,7 @@ exports[`CancelDialog should display additional info when reason is "handler-sic
               />
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                 data-testid="ArrowDropDownIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -266,10 +266,10 @@ exports[`CancelDialog should display additional info when reason is "handler-sic
               </svg>
               <fieldset
                 aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
               >
                 <legend
-                  class="css-w1u3ce"
+                  class="css-ex8a5f-MuiNotchedOutlined-root"
                 >
                   <span>
                     registration.cancelDialog.reason
@@ -406,7 +406,7 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
                 aria-expanded="false"
                 aria-haspopup="listbox"
                 aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                 id="reaseon"
                 role="combobox"
                 tabindex="0"
@@ -427,7 +427,7 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
               />
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                 data-testid="ArrowDropDownIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -438,10 +438,10 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
               </svg>
               <fieldset
                 aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
               >
                 <legend
-                  class="css-81qg8w"
+                  class="css-1n64csd-MuiNotchedOutlined-root"
                 >
                   <span>
                     registration.cancelDialog.reason
@@ -571,7 +571,7 @@ exports[`CancelDialog should render for admin 1`] = `
                 aria-expanded="false"
                 aria-haspopup="listbox"
                 aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                 id="reaseon"
                 role="combobox"
                 tabindex="0"
@@ -592,7 +592,7 @@ exports[`CancelDialog should render for admin 1`] = `
               />
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                 data-testid="ArrowDropDownIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -603,10 +603,10 @@ exports[`CancelDialog should render for admin 1`] = `
               </svg>
               <fieldset
                 aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
               >
                 <legend
-                  class="css-81qg8w"
+                  class="css-1n64csd-MuiNotchedOutlined-root"
                 >
                   <span>
                     registration.cancelDialog.reason
@@ -736,7 +736,7 @@ exports[`CancelDialog should render for admin, with reason preselected 1`] = `
                 aria-expanded="false"
                 aria-haspopup="listbox"
                 aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                 id="reaseon"
                 role="combobox"
                 tabindex="0"
@@ -752,7 +752,7 @@ exports[`CancelDialog should render for admin, with reason preselected 1`] = `
               />
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                 data-testid="ArrowDropDownIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -763,10 +763,10 @@ exports[`CancelDialog should render for admin, with reason preselected 1`] = `
               </svg>
               <fieldset
                 aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
               >
                 <legend
-                  class="css-w1u3ce"
+                  class="css-ex8a5f-MuiNotchedOutlined-root"
                 >
                   <span>
                     registration.cancelDialog.reason
@@ -895,7 +895,7 @@ exports[`CancelDialog should render when not disabled 1`] = `
                 aria-expanded="false"
                 aria-haspopup="listbox"
                 aria-labelledby="reason-label reaseon"
-                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-w76bbz-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+                class="MuiSelect-select MuiSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-18jp67o-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
                 id="reaseon"
                 role="combobox"
                 tabindex="0"
@@ -916,7 +916,7 @@ exports[`CancelDialog should render when not disabled 1`] = `
               />
               <svg
                 aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-lohd6h-MuiSvgIcon-root-MuiSelect-icon"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiSelect-iconOutlined css-1rfqz7c-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                 data-testid="ArrowDropDownIcon"
                 focusable="false"
                 viewBox="0 0 24 24"
@@ -927,10 +927,10 @@ exports[`CancelDialog should render when not disabled 1`] = `
               </svg>
               <fieldset
                 aria-hidden="true"
-                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
               >
                 <legend
-                  class="css-81qg8w"
+                  class="css-1n64csd-MuiNotchedOutlined-root"
                 >
                   <span>
                     registration.cancelDialog.reason
