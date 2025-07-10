@@ -70,7 +70,7 @@ exports[`OrganizerListPage renders 1`] = `
             aria-label="Select columns"
             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1iyi9w1-MuiButtonBase-root-MuiButton-root"
             data-mui-internal-clone-element="true"
-            id=":r2:"
+            id=":r3:"
             tabindex="0"
             type="button"
           >
@@ -114,7 +114,7 @@ exports[`OrganizerListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1yrc8ca-MuiInputBase-input-MuiInput-input"
-                  id=":r6:"
+                  id=":r7:"
                   placeholder="search.placeholder"
                   type="text"
                   value=""
@@ -155,11 +155,11 @@ exports[`OrganizerListPage renders 1`] = `
                   class="MuiSwitch-root MuiSwitch-sizeSmall css-fzgmul-MuiSwitch-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                    class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                   >
                     <input
                       checked=""
-                      class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                      class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                       name="showWithUsers"
                       type="checkbox"
                     />
@@ -600,7 +600,7 @@ exports[`OrganizerListPage renders 1`] = `
               />
               <p
                 class="MuiTablePagination-selectLabel css-s09cke-MuiTablePagination-selectLabel"
-                id=":r9:"
+                id=":ra:"
               >
                 Rows per page:
               </p>
@@ -610,9 +610,9 @@ exports[`OrganizerListPage renders 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-labelledby=":r9: :r8:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-mmygx2-MuiSelect-select-MuiInputBase-input"
-                  id=":r8:"
+                  aria-labelledby=":ra: :r9:"
+                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-18zjd9i-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input"
+                  id=":r9:"
                   role="combobox"
                   tabindex="0"
                 >
@@ -627,7 +627,7 @@ exports[`OrganizerListPage renders 1`] = `
                 />
                 <svg
                   aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-1gpuzre-MuiSvgIcon-root-MuiSelect-icon"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-ug7h84-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
                   data-testid="ArrowDropDownIcon"
                   focusable="false"
                   viewBox="0 0 24 24"

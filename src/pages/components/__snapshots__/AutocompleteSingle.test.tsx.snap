@@ -59,10 +59,10 @@ exports[`AutocompleteSingle when options are objects should render helperText 1`
         </div>
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-81qg8w"
+            class="css-1n64csd-MuiNotchedOutlined-root"
           >
             <span>
               test-label
@@ -140,10 +140,10 @@ exports[`AutocompleteSingle when options are objects should render helperText wi
         </div>
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-81qg8w"
+            class="css-1n64csd-MuiNotchedOutlined-root"
           >
             <span>
               test-label
@@ -220,10 +220,10 @@ exports[`AutocompleteSingle when options are objects should render with minimal 
         </div>
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-81qg8w"
+            class="css-1n64csd-MuiNotchedOutlined-root"
           >
             <span>
               test-label
@@ -295,10 +295,10 @@ exports[`AutocompleteSingle when options are strings should render helperText 1`
         </div>
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-81qg8w"
+            class="css-1n64csd-MuiNotchedOutlined-root"
           >
             <span>
               test-label
@@ -376,10 +376,10 @@ exports[`AutocompleteSingle when options are strings should render helperText wi
         </div>
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-81qg8w"
+            class="css-1n64csd-MuiNotchedOutlined-root"
           >
             <span>
               test-label
@@ -456,10 +456,10 @@ exports[`AutocompleteSingle when options are strings should render with minimal 
         </div>
         <fieldset
           aria-hidden="true"
-          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
         >
           <legend
-            class="css-81qg8w"
+            class="css-1n64csd-MuiNotchedOutlined-root"
           >
             <span>
               test-label
