@@ -7,17 +7,17 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 
 interface BasePlacesTableProps {
-  headers: ReactNode[]
+  headers: string[]
   children: ReactNode
 }
 
-export default function BasePlacesTable({ headers, children }: BasePlacesTableProps) {
+export default function BasePlacesTable({ headers, children }: Readonly<BasePlacesTableProps>) {
   return (
     <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
       <TableHead>
         <TableRow>
           {headers.map((header, index) => (
-            <TableCell key={index} align={index > 0 ? 'center' : 'left'}>
+            <TableCell key={header} align={index > 0 ? 'center' : 'left'}>
               {header}
             </TableCell>
           ))}
