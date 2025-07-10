@@ -1,6 +1,7 @@
 {
   "active": "Active",
   "admin": "Administration",
+  "backToEventsList": "Back to events list",
   "cancel": "Cancel",
   "clear": "Clear",
   "close": "Close",
@@ -89,6 +90,8 @@
   "entryUpcoming": "Upcoming registration",
   "error": {
     "eventNotFound": "Event not found",
+    "eventWithIdNotFound": "Event with ID {{id}} not found",
+    "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied",
     "registrationNotFound": "Registration not found"
   },
   "event": {

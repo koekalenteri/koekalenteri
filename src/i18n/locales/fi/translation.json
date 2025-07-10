@@ -1,6 +1,7 @@
 {
   "active": "Käytössä",
   "admin": "Ylläpito",
+  "backToEventsList": "Takaisin tapahtumalistaan",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",
   "close": "Sulje",
@@ -89,6 +90,8 @@
   "entryUpcoming": "Ilmoittautuminen tulossa",
   "error": {
     "eventNotFound": "Tapahtumaa ei löydy",
+    "eventWithIdNotFound": "Tapahtumaa tunnuksella {{id}} ei löytynyt",
+    "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia",
     "registrationNotFound": "Ilmoittautumista ei löydy"
   },
   "event": {

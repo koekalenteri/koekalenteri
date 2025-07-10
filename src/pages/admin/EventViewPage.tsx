@@ -25,6 +25,7 @@ import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 
+import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
@@ -120,8 +121,8 @@ export default function EventViewPage() {
     }
   }, [allClasses, selectedEventClass, setSelectedEventClass])
 
-  if (!event) {
-    return <>duh</>
+  if (!event?.id) {
+    return <EventNotFound eventId={eventId} />
   }
 
   return (

@@ -14,7 +14,7 @@ import {
   adminShowPastEventsAtom,
 } from './atoms'
 
-export const adminEventSelector = selectorFamily<DogEvent | undefined, string | undefined>({
+export const adminEventSelector = selectorFamily<DogEvent, string | undefined>({
   key: 'adminEventSelector',
   get:
     (eventId) =>
@@ -23,7 +23,9 @@ export const adminEventSelector = selectorFamily<DogEvent | undefined, string | 
         return get(adminNewEventAtom)
       }
       const events = get(adminEventsAtom)
-      return events.find((e) => e.id === eventId)
+      const event = events.find((e) => e.id === eventId)
+
+      return event ? event : get(adminNewEventAtom)
     },
   set:
     (eventId) =>
