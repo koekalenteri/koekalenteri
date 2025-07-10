@@ -47,6 +47,7 @@ export default function EventClasses(props: Props) {
     eventEndDate,
     disabled,
     required,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     requiredState,
     errorStates,
     helperTexts,

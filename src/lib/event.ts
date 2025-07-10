@@ -67,15 +67,15 @@ export function sanitizeDogEvent(
   event: DogEvent | JsonDogEvent
 ): SanitizedPublicDogEvent | SanitizedJsonPublicDogEvent {
   const {
-    createdBy,
-    deletedAt,
-    deletedBy,
-    headquarters,
-    kcId,
-    invitationAttachment,
-    modifiedBy,
-    secretary,
-    official,
+    createdBy: _createdBy,
+    deletedAt: _deletedAt,
+    deletedBy: _deletedBy,
+    headquarters: _headquarters,
+    kcId: _kcId,
+    invitationAttachment: _invitationAttachment,
+    modifiedBy: _modifiedBy,
+    secretary: _secretary,
+    official: _official,
     ...publicFields
   } = event
 

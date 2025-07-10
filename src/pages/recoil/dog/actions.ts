@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
 
 import { getDog } from '../../../api/dog'
+import { reportError } from '../../../lib/client/error'
 import { emptyDog } from '../../../lib/data'
 import { hasChanges, merge } from '../../../lib/utils'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
@@ -63,6 +64,7 @@ export function useDogActions(regNo: string) {
           return applyCache(regNo, cache, updated, oldInfo)
         }
       } catch (err) {
+        reportError(err)
         enqueueSnackbar('Koiran tietojen päivitys epäonnistui 😞', { variant: 'error' })
         return applyCache(regNo, cache, dog)
       }

@@ -36,10 +36,6 @@ const mockUser: JsonUser = {
   name: 'Test User',
   email: 'test@example.com',
 }
-const mockAdminUser: JsonUser = {
-  ...mockUser,
-  admin: true,
-}
 
 describe('getOfficialsLambda', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)

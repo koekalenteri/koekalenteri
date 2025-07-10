@@ -41,26 +41,26 @@ export const mockEvents: DogEvent[] = [
   eventWithParticipantsInvited,
 ]
 
-export async function getEvents(signal?: AbortSignal): Promise<PublicDogEvent[]> {
+export async function getEvents(_signal?: AbortSignal): Promise<PublicDogEvent[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEvents.map((item) => sanitizeDogEvent(item))))
   })
 }
 
-export async function getAdminEvents(signal?: AbortSignal): Promise<DogEvent[]> {
+export async function getAdminEvents(_signal?: AbortSignal): Promise<DogEvent[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve([...mockEvents]))
   })
 }
 
-export async function getEvent(id: string, signal?: AbortSignal): Promise<DogEvent> {
+export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEvent> {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === id)
     process.nextTick(() => (event ? resolve(event) : reject(new Error('not found'))))
   })
 }
 
-export async function putEvent(event: DogEvent, token?: string, signal?: AbortSignal): Promise<DogEvent> {
+export async function putEvent(event: DogEvent, _token?: string, _signal?: AbortSignal): Promise<DogEvent> {
   return new Promise((resolve, reject) => {
     let existing: DogEvent | undefined = event
     if (!event.id) {
@@ -79,10 +79,10 @@ export async function putEvent(event: DogEvent, token?: string, signal?: AbortSi
 }
 
 export async function putInvitationAttachment(
-  eventId: string,
-  file: File,
-  token?: string,
-  signal?: AbortSignal
+  _eventId: string,
+  _file: File,
+  _token?: string,
+  _signal?: AbortSignal
 ): Promise<string> {
   return 'mock-file-id'
 }

@@ -7,6 +7,6 @@ const MOCK_ADMIN: User = {
   admin: true,
 }
 
-export const getUser = async (token: string, signal?: AbortSignal) => MOCK_ADMIN
+export const getUser = async (_token: string, _signal?: AbortSignal) => MOCK_ADMIN
 
-export const getUsers = async (token: string, signal?: AbortSignal) => [MOCK_ADMIN]
+export const getUsers = async (_token: string, _signal?: AbortSignal) => [MOCK_ADMIN]

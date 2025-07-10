@@ -109,7 +109,7 @@ describe('copyEventHandler', () => {
     let errorCaught = false
     try {
       await copyEventHandler(event)
-    } catch (e) {
+    } catch {
       errorCaught = true
     }
     // If the handler catches and responds, this will pass; if not, errorCaught will be true
@@ -144,7 +144,7 @@ describe('copyEventHandler', () => {
     let errorCaught = false
     try {
       await copyEventHandler(event)
-    } catch (e) {
+    } catch {
       errorCaught = true
     }
     if (!errorCaught) {

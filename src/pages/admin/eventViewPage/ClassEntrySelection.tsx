@@ -228,7 +228,7 @@ const ClassEntrySelection = ({
   )
 
   const handleSelectionModeChange = useCallback(
-    (selection: GridRowSelectionModel, details: GridCallbackDetails) => {
+    (selection: GridRowSelectionModel, _details: GridCallbackDetails) => {
       const value = typeof selection[0] === 'string' ? selection[0] : undefined
       if (value) {
         const reg = registrations.find((r) => r.id === value)

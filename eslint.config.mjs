@@ -83,7 +83,14 @@ export default [
 
       'mui-path-imports/mui-path-imports': 'error',
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/indent': 'off',
 
       '@typescript-eslint/consistent-type-imports': [

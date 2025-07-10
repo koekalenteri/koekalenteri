@@ -37,7 +37,7 @@ const DroppableDataGrid = (props: Props) => {
           isDragging: item !== null,
         }
       },
-      drop: (item: DragItem, monitor: DropTargetMonitor<DragItem, void>) => {
+      drop: (item: DragItem, _monitor: DropTargetMonitor<DragItem, void>) => {
         if (getCanDrop(item)) {
           if (item.targetGroupKey && item.targetGroupKey !== (props.group ?? 'reserve')) {
             // clean up possible stale move information from different group

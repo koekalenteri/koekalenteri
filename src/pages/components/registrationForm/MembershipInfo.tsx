@@ -68,6 +68,7 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
       }
 
       if (cachedOwner) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { ownerHandles, ownerPays, ...owner } = cachedOwner
         Object.assign(changes, { owner: { ...owner, membership: owner.membership?.[orgId] } })
       }

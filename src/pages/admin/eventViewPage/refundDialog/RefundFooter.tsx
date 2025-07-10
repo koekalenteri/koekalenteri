@@ -1,7 +1,6 @@
 import type { BoxProps } from '@mui/material'
 
 import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -41,7 +40,6 @@ export const RefundFooter = ({
   handlingCost,
   onHandlingCostChange,
 }: RefundFooterProps) => {
-  const { t } = useTranslation()
   const parseAmount = useCallback((value: string) => {
     return Math.round(parseFloat(value.replace(',', '.')) * 100)
   }, [])

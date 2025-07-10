@@ -45,7 +45,7 @@ describe('getEventsLambda', () => {
     mockReadAll.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((event: any) => {
       // Remove createdBy field to simulate sanitization
-      const { createdBy, ...rest } = event
+      const { createdBy: _createdBy, ...rest } = event
       return rest
     })
 

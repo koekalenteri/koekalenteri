@@ -47,7 +47,7 @@ export function withinSwitchFilters(
   return result !== false
 }
 
-export function withinEventTypeFilter(event: PublicDogEvent, { eventType, eventClass, judge, organizer }: FilterProps) {
+export function withinEventTypeFilter(event: PublicDogEvent, { eventType }: FilterProps) {
   if (eventType.length && !eventType.includes(event.eventType)) {
     return false
   }

@@ -15,7 +15,11 @@ const mockEventTypes: JsonEventType[] = [
   },
 ]
 
-export async function getEventTypes(token: string, refresh?: boolean, signal?: AbortSignal): Promise<JsonEventType[]> {
+export async function getEventTypes(
+  _token: string,
+  _refresh?: boolean,
+  _signal?: AbortSignal
+): Promise<JsonEventType[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEventTypes))
   })

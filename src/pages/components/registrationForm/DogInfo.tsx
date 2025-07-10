@@ -182,6 +182,7 @@ export const DogInfo = ({
             }))
           }
         } catch (err) {
+          reportError(err)
           updateDog({ dog: emptyDog })
           setState((prev) => ({ ...prev, mode: 'error' }))
         }

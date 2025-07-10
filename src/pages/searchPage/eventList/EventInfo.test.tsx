@@ -105,7 +105,7 @@ describe('EventInfo', () => {
         secretary: {},
       },
     }
-    const { container } = render(
+    render(
       <RecoilRoot>
         <Suspense fallback={<div>loading...</div>}>
           <EventInfo event={event} />

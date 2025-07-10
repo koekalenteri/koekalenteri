@@ -132,7 +132,7 @@ describe('paymentSuccessLambda', () => {
       name: 'Test Event',
     })
 
-    mockGetFixedT.mockReturnValue((key: string, options?: Record<string, any>) => {
+    mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, any>) => {
       if (key === 'dateFormat.long') return '1.1.2025'
       return key
     })

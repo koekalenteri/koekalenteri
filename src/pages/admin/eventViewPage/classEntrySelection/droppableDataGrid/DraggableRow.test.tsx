@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { ForwardedRef } from 'react'
 
 import { DndProvider } from 'react-dnd'

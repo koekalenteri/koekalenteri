@@ -3,7 +3,6 @@ import type { DeepPartial, EventClass } from '../../../../../types'
 import type { SectionProps } from '../types'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -12,7 +11,6 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 
-import { getEventClassesByDays } from '../../../../../lib/event'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
@@ -26,11 +24,8 @@ import ClassPlacesTable from './eventFormPlaces/ClassPlacesTable'
 import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
 
 export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<SectionProps>) {
-  const { t } = useTranslation()
   const hasClasses = event.classes.length > 0
   const [totalEnabled, setTotalEnabled] = useState(!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)
-
-  const classesByDays = getEventClassesByDays(event)
 
   const handleChange = (c: DeepPartial<EventClass>, value?: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
@@ -81,7 +76,6 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
       if (hasClasses) {
         // For events with classes
         const newClasses = event.classes.map((ec) => structuredClone(ec))
-        const count = newClasses.length
 
         if (checked) {
           // Distribute places among classes

@@ -468,13 +468,6 @@ describe('useDogActions', () => {
     })
 
     it('applies special handling for titles and rfid', async () => {
-      // Create a dog without titles and rfid
-      const dogWithoutTitlesRfid: Dog = {
-        regNo: testRegNo,
-        name: 'Test Dog',
-        results: [],
-      }
-
       // Create cache with titles and rfid
       const cacheWithTitlesRfid: DeepPartial<DogCachedInfo> = {
         dog: {

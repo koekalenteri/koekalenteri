@@ -89,7 +89,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return false
   },
-  headquarters: (event, required) => {
+  headquarters: (event, _required) => {
     const headquarters = event.headquarters
     if (headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
       return 'zipCode'

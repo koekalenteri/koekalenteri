@@ -110,12 +110,9 @@ describe('InfoPanel>', () => {
     // Create a test scenario with no participants in a class
     const emptyRegistrations: Registration[] = []
 
-    const { container } = renderWithUserEvents(
-      <InfoPanel event={eventWithEntryClosed} registrations={emptyRegistrations} />,
-      {
-        wrapper: RecoilRoot,
-      }
-    )
+    renderWithUserEvents(<InfoPanel event={eventWithEntryClosed} registrations={emptyRegistrations} />, {
+      wrapper: RecoilRoot,
+    })
 
     // All message buttons should be disabled
     const buttons = screen.getAllByRole('button').filter((button) => button.textContent?.includes('LÄHETÄ'))

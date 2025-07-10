@@ -36,12 +36,12 @@ const mockJudges: Judge[] = [
   },
 ]
 
-export async function getJudges(token: string, refresh?: boolean, signal?: AbortSignal) {
+export async function getJudges(_token: string, _refresh?: boolean, _signal?: AbortSignal) {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockJudges))
   })
 }
 
-export async function putJudge(judge: Judge, token?: string, signal?: AbortSignal): Promise<Judge> {
+export async function putJudge(_judge: Judge, _token?: string, _signal?: AbortSignal): Promise<Judge> {
   throw new Error('not implemented')
 }

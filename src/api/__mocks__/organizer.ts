@@ -11,7 +11,7 @@ const mockOrganizers: Organizer[] = [
   },
 ]
 
-export async function getAdminOrganizers(refresh: boolean, token?: string, signal?: AbortSignal) {
+export async function getAdminOrganizers(_refresh: boolean, _token?: string, _signal?: AbortSignal) {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockOrganizers))
   })

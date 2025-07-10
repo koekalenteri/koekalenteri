@@ -275,10 +275,7 @@ export default class CustomDynamoClient {
     return this.docClient.send(new UpdateCommand(params))
   }
 
-  async delete<T extends object>(
-    key: Record<string, number | string | undefined> | null,
-    table?: string
-  ): Promise<boolean> {
+  async delete(key: Record<string, number | string | undefined> | null, table?: string): Promise<boolean> {
     if (!key) {
       console.warn('CustomDynamoClient.delete: no key provided, returning false')
       return false

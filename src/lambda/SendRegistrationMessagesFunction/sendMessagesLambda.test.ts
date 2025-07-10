@@ -419,9 +419,6 @@ describe('sendMessagesLambda', () => {
 
     await sendMessagesLambda(event)
 
-    // Verify only ready registrations were used for the email
-    const readyRegistrations = mixedRegistrations.filter((r) => r.state === 'ready')
-
     // Should fail because not all requested registrations were found in ready state
     expect(mockResponse).toHaveBeenCalledWith(400, 'Not all registrations were found, aborting!', event)
     expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
