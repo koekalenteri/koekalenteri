@@ -1,6 +1,7 @@
 import type { PartialEvent } from '../pages/admin/components/eventForm/types'
 import type { DeepPartial, EventClass } from '../types'
 
+import * as eventLib from './event'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
@@ -137,6 +138,19 @@ describe('places', () => {
   })
 
   describe('distributePlacesAmongDays', () => {
+    it('should return empty object when there are no days', () => {
+      const mockGetEventDays = jest.spyOn(eventLib, 'getEventDays').mockReturnValueOnce([])
+
+      const result = distributePlacesAmongDays({
+        startDate: new Date(),
+        endDate: new Date(),
+        classes: [],
+        judges: [],
+      })
+      expect(result).toStrictEqual({})
+
+      mockGetEventDays.mockRestore()
+    })
     it('should distribute places evenly among days', () => {
       const event: PartialEvent = {
         places: 30,
@@ -202,6 +216,11 @@ describe('places', () => {
   })
 
   describe('distributePlacesAmongClasses', () => {
+    it('should return empty array when there are no classes', () => {
+      const classes: DeepPartial<EventClass>[] = []
+      const result = distributePlacesAmongClasses(classes, 1)
+      expect(result).toStrictEqual([])
+    })
     it('should distribute places evenly among classes', () => {
       const classes: DeepPartial<EventClass>[] = [{ class: 'ALO' }, { class: 'AVO' }, { class: 'VOI' }]
       const result = distributePlacesAmongClasses(classes, 30)

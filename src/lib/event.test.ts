@@ -1,8 +1,9 @@
 import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
 
-import { addDays } from 'date-fns'
+import { addDays, differenceInDays } from 'date-fns'
 
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
+import { formatDate } from '../i18n/dates'
 
 import {
   applyNewGroupsToDogEventClass,
@@ -87,9 +88,13 @@ describe('lib/event', () => {
     `('returns $expected for test array #$# ($classes.length items)', ({ classes, expected }) => {
       expect(getUniqueEventClasses({ classes })).toEqual(expected)
     })
+
+    it('should return empty array when there are no classes', () => {
+      expect(getUniqueEventClasses({} as any)).toEqual([])
+    })
   })
 
-  describe('eventClassesByDays', () => {
+  describe('getEventClassesByDays', () => {
     describe('for single day event', () => {
       const date = new Date(2023, 11, 24)
 
@@ -124,6 +129,11 @@ describe('lib/event', () => {
           expect(getEventClassesByDays({ startDate, endDate, classes })).toEqual(expected)
         }
       )
+    })
+
+    it('should return empty empty array as classes when classes is missing', () => {
+      const date = new Date(2025, 2, 27)
+      expect(getEventClassesByDays({ startDate: date, endDate: date } as any)).toEqual([{ day: date, classes: [] }])
     })
   })
 
@@ -286,6 +296,34 @@ describe('lib/event', () => {
       expect(copy.dates?.length).toBe(2)
       expect(copy.dates?.[0].date).toEqual(copy.startDate)
       expect(copy.dates?.[1].date).toEqual(copy.endDate)
+    })
+
+    it('should copy and adjust placesPerDay', () => {
+      // Create an event with placesPerDay
+      const origStartDate = new Date(2023, 5, 15) // June 15, 2023
+      const origEndDate = new Date(2023, 5, 16) // June 16, 2023
+      const event = {
+        ...eventWithEntryClosing,
+        startDate: origStartDate,
+        endDate: origEndDate,
+        placesPerDay: {
+          '2023-06-15': 10, // First day
+          '2023-06-16': 15, // Second day
+        },
+      }
+
+      const copy = copyDogEvent(event)
+
+      // Calculate expected dates based on the day difference
+      const dayDiff = differenceInDays(newEventStartDate, origStartDate)
+      const expectedFirstDate = formatDate(addDays(origStartDate, dayDiff), 'yyyy-MM-dd')
+      const expectedSecondDate = formatDate(addDays(origEndDate, dayDiff), 'yyyy-MM-dd')
+
+      // Verify placesPerDay was copied and dates were adjusted
+      expect(copy.placesPerDay).toBeDefined()
+      expect(Object.keys(copy.placesPerDay!).length).toBe(2)
+      expect(copy.placesPerDay![expectedFirstDate]).toBe(10)
+      expect(copy.placesPerDay![expectedSecondDate]).toBe(15)
     })
   })
 })

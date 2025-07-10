@@ -163,5 +163,300 @@ describe('EventFormPlaces', () => {
         })
       )
     })
+
+    it('should handle setting day places to 0', async () => {
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 20,
+        placesPerDay: {
+          '2021-02-10': 10,
+          '2021-02-11': 10,
+        },
+      }
+      const onChange = jest.fn().mockImplementation((props) => {
+        Object.assign(event, props)
+      })
+
+      const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+        advanceTimers: jest.advanceTimersByTime,
+      })
+      await flushPromises()
+
+      // Checkbox should be checked since placesPerDay is already set
+      const check = screen.getByRole('checkbox')
+      expect(check).toBeChecked()
+
+      const inputs = screen.getAllByRole('textbox')
+      const [day1, _day2, _total] = inputs
+
+      // Clear the first day's places (set to 0)
+      await user.clear(day1)
+      await user.type(day1, '0')
+      await flushPromises()
+
+      // The entry for the first day should be removed from placesPerDay
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: {
+            '2021-02-11': 10,
+          },
+          places: 10, // Total should be updated
+        })
+      )
+    })
+
+    it('should fix places count when totalEnabled is false', async () => {
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 30, // Incorrect total
+        placesPerDay: {
+          '2021-02-10': 10,
+          '2021-02-11': 10,
+        },
+      }
+      const onChange = jest.fn().mockImplementation((props) => {
+        Object.assign(event, props)
+      })
+
+      renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+        advanceTimers: jest.advanceTimersByTime,
+      })
+
+      // The useEffect should fix the places count
+      jest.runAllTimers()
+      await flushPromises()
+
+      // Total should be corrected to match the sum of placesPerDay
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          places: 20,
+        })
+      )
+    })
+  })
+
+  describe('toggling between total and detailed', () => {
+    it('should handle toggling between total and detailed multiple times', async () => {
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 20,
+      }
+      const onChange = jest.fn().mockImplementation((props) => {
+        Object.assign(event, props)
+      })
+
+      const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+        advanceTimers: jest.advanceTimersByTime,
+      })
+      await flushPromises()
+
+      const check = screen.getByRole('checkbox')
+      expect(check).not.toBeChecked() // Initially in total mode
+
+      // Toggle to detailed mode
+      await user.click(check)
+      await flushPromises()
+      expect(check).toBeChecked()
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: expect.objectContaining({
+            '2021-02-10': 10,
+            '2021-02-11': 10,
+          }),
+        })
+      )
+
+      // Toggle back to total mode
+      await user.click(check)
+      await flushPromises()
+      expect(check).not.toBeChecked()
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: undefined,
+        })
+      )
+
+      // Toggle to detailed mode again
+      await user.click(check)
+      await flushPromises()
+      expect(check).toBeChecked()
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: expect.objectContaining({
+            '2021-02-10': 10,
+            '2021-02-11': 10,
+          }),
+        })
+      )
+    })
+  })
+
+  describe('with disabled state', () => {
+    it('should disable all inputs when component is disabled', async () => {
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 20,
+        placesPerDay: {
+          '2021-02-10': 10,
+          '2021-02-11': 10,
+        },
+      }
+
+      render(<EventFormPlaces event={event} disabled={true} />)
+
+      // Check that all inputs are disabled
+      const check = screen.getByRole('checkbox')
+      const inputs = screen.getAllByRole('textbox')
+
+      expect(check).toBeDisabled()
+      inputs.forEach((input) => {
+        expect(input).toBeDisabled()
+      })
+    })
+  })
+
+  describe('handling placesPerDay modifications', () => {
+    it('should update placesPerDay when modifying day places', async () => {
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 20,
+        placesPerDay: {
+          '2021-02-10': 10,
+          '2021-02-11': 10,
+        },
+      }
+      const onChange = jest.fn().mockImplementation((props) => {
+        Object.assign(event, props)
+      })
+
+      const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+        advanceTimers: jest.advanceTimersByTime,
+      })
+      await flushPromises()
+
+      const inputs = screen.getAllByRole('textbox')
+      const [_day1, day2, _total] = inputs
+
+      // Modify the second day's places
+      await user.clear(day2)
+      await user.type(day2, '15')
+      await flushPromises()
+
+      // The placesPerDay should be updated and total recalculated
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: {
+            '2021-02-10': 10,
+            '2021-02-11': 15,
+          },
+          places: 25, // Total should be updated
+        })
+      )
+    })
+
+    it('should handle invalid inputs for day places', async () => {
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 20,
+        placesPerDay: {
+          '2021-02-10': 10,
+          '2021-02-11': 10,
+        },
+      }
+      const onChange = jest.fn().mockImplementation((props) => {
+        Object.assign(event, props)
+      })
+
+      const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+        advanceTimers: jest.advanceTimersByTime,
+      })
+      await flushPromises()
+
+      const inputs = screen.getAllByRole('textbox')
+      const [day1, _day2, _total] = inputs
+
+      // Try to enter a negative value
+      await user.clear(day1)
+      await user.type(day1, '-5')
+      await flushPromises()
+
+      // The value should be clamped to 0 and the entry removed from placesPerDay
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: {
+            '2021-02-11': 10,
+          },
+          places: 10,
+        })
+      )
+
+      // Reset for next test
+      onChange.mockClear()
+      Object.assign(event, {
+        placesPerDay: {
+          '2021-02-10': 10,
+          '2021-02-11': 10,
+        },
+        places: 20,
+      })
+
+      // Try to enter a value > 200
+      await user.clear(day1)
+      await user.type(day1, '250')
+      await flushPromises()
+
+      // The value should be clamped to 200
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: {
+            '2021-02-10': 200,
+            '2021-02-11': 10,
+          },
+          places: 210,
+        })
+      )
+    })
+
+    it('should correctly initialize placesPerDay when toggling to detailed mode', async () => {
+      // Test with a multi-day event with uneven places distribution
+      const event = {
+        ...eventWithStaticDates,
+        classes: [],
+        places: 25, // Uneven number to test distribution
+      }
+      const onChange = jest.fn().mockImplementation((props) => {
+        Object.assign(event, props)
+      })
+
+      const { user } = renderWithUserEvents(<EventFormPlaces event={event} onChange={onChange} />, undefined, {
+        advanceTimers: jest.advanceTimersByTime,
+      })
+      await flushPromises()
+
+      // Initially in total mode
+      const check = screen.getByRole('checkbox')
+      expect(check).not.toBeChecked()
+
+      // Toggle to detailed mode
+      await user.click(check)
+      await flushPromises()
+
+      // Check that placesPerDay was initialized with the correct distribution
+      // First day should get the remainder (13 places)
+      expect(onChange).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          placesPerDay: {
+            '2021-02-10': 13, // First day gets remainder
+            '2021-02-11': 12,
+          },
+        })
+      )
+    })
   })
 })
