@@ -25,7 +25,7 @@ export function useDogCache(regNo: string = ''): HookResult {
         return
       }
       const result = cached ? Object.assign({}, cached, props) : props
-      setCache(Object.assign({}, filterInvalid(cache), { [regNo]: result }))
+      setCache(Object.assign(filterInvalid(cache), { [regNo]: result }))
       return result
     },
     [cache, cached, regNo, setCache]
