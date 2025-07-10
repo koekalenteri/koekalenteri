@@ -96,18 +96,15 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
           newClasses.forEach((cls) => (cls.places = 0))
           onChange?.({ classes: newClasses, placesPerDay: undefined })
         }
-      } else {
-        // For events without classes
-        if (checked && (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)) {
-          // Initialize placesPerDay with even distribution
-          const placesPerDay = distributePlacesAmongDays(event)
-          if (Object.keys(placesPerDay).length > 0) {
-            onChange?.({ placesPerDay })
-          }
-        } else if (!checked) {
-          // Reset placesPerDay
-          onChange?.({ placesPerDay: undefined })
+      } else if (checked && (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)) {
+        // Initialize placesPerDay with even distribution
+        const placesPerDay = distributePlacesAmongDays(event)
+        if (Object.keys(placesPerDay).length > 0) {
+          onChange?.({ placesPerDay })
         }
+      } else if (!checked) {
+        // Reset placesPerDay
+        onChange?.({ placesPerDay: undefined })
       }
     },
     [event, hasClasses, onChange]
