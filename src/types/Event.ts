@@ -36,7 +36,10 @@ export interface JsonDogEvent extends JsonDbRecord {
   official: Partial<User>
   organizer: PublicOrganizer
   places: number
-  placesPerDay?: Record<string, number> // Key is ISO date string (YYYY-MM-DD), value is number of places
+  /**
+   * Key is ISO date string (YYYY-MM-DD), value is number of places
+   */
+  placesPerDay?: Record<string, number>
   priority?: string[]
   qualificationStartDate?: string
   season?: string
