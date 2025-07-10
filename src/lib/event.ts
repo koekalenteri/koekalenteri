@@ -12,7 +12,7 @@ import type {
 
 import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, sub } from 'date-fns'
 
-import { zonedStartOfDay } from '../i18n/dates'
+import { formatDate, zonedStartOfDay } from '../i18n/dates'
 
 import { unique } from './utils'
 
@@ -202,6 +202,19 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   copy.dates?.forEach((d) => {
     d.date = addDays(newEventStartDate, differenceInDays(d.date, origStartDate))
   })
+
+  // Copy and adjust placesPerDay if it exists
+  if (event.placesPerDay) {
+    copy.placesPerDay = {}
+    const dayDiff = differenceInDays(newEventStartDate, origStartDate)
+
+    Object.entries(event.placesPerDay).forEach(([dateStr, places]) => {
+      const originalDate = new Date(dateStr)
+      const newDate = addDays(originalDate, dayDiff)
+      const newDateStr = formatDate(newDate, 'yyyy-MM-dd')
+      copy.placesPerDay![newDateStr] = places
+    })
+  }
 
   copy.startDate = newEventStartDate
   copy.endDate = addDays(newEventStartDate, days)

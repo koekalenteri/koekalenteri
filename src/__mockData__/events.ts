@@ -7,6 +7,7 @@ import { zonedStartOfDay } from '../i18n/dates'
 import { emptyEvent } from './emptyEvent'
 
 const today = zonedStartOfDay(new Date())
+const parseDate = (iso: string) => zonedStartOfDay(parseISO(`${iso}T12:00:00`))
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,
@@ -14,15 +15,15 @@ export const eventWithStaticDates: ConfirmedEvent = {
   eventType: 'NOU',
   classes: [],
   dates: [
-    { date: parseISO('2021-02-10'), time: 'ap' },
-    { date: parseISO('2021-02-10'), time: 'ip' },
-    { date: parseISO('2021-02-11'), time: 'ap' },
-    { date: parseISO('2021-02-11'), time: 'ip' },
+    { date: parseDate('2021-02-10'), time: 'ap' },
+    { date: parseDate('2021-02-10'), time: 'ip' },
+    { date: parseDate('2021-02-11'), time: 'ap' },
+    { date: parseDate('2021-02-11'), time: 'ip' },
   ],
-  startDate: parseISO('2021-02-10'),
-  endDate: parseISO('2021-02-11'),
-  entryStartDate: parseISO('2021-02-01'),
-  entryEndDate: parseISO('2021-02-07'),
+  startDate: parseDate('2021-02-10'),
+  endDate: parseDate('2021-02-11'),
+  entryStartDate: parseDate('2021-02-01'),
+  entryEndDate: parseDate('2021-02-07'),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
@@ -32,13 +33,13 @@ export const eventWithStaticDatesAndClass: ConfirmedEvent = {
   id: 'test1-b',
   eventType: 'NOME-B',
   classes: [
-    { class: 'ALO', date: parseISO('2021-02-10') },
-    { class: 'ALO', date: parseISO('2021-02-11') },
+    { class: 'ALO', date: parseDate('2021-02-10') },
+    { class: 'ALO', date: parseDate('2021-02-11') },
   ],
-  startDate: parseISO('2021-02-10'),
-  endDate: parseISO('2021-02-11'),
-  entryStartDate: parseISO('2021-02-01'),
-  entryEndDate: parseISO('2021-02-07'),
+  startDate: parseDate('2021-02-10'),
+  endDate: parseDate('2021-02-11'),
+  entryStartDate: parseDate('2021-02-01'),
+  entryEndDate: parseDate('2021-02-07'),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
@@ -48,14 +49,14 @@ export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
   id: 'test1-c',
   eventType: 'NOME-B',
   classes: [
-    { class: 'ALO', date: parseISO('2021-02-10') },
-    { class: 'AVO', date: parseISO('2021-02-10') },
-    { class: 'VOI', date: parseISO('2021-02-11') },
+    { class: 'ALO', date: parseDate('2021-02-10') },
+    { class: 'AVO', date: parseDate('2021-02-10') },
+    { class: 'VOI', date: parseDate('2021-02-11') },
   ],
-  startDate: parseISO('2021-02-10'),
-  endDate: parseISO('2021-02-11'),
-  entryStartDate: parseISO('2021-02-01'),
-  entryEndDate: parseISO('2021-02-07'),
+  startDate: parseDate('2021-02-10'),
+  endDate: parseDate('2021-02-11'),
+  entryStartDate: parseDate('2021-02-01'),
+  entryEndDate: parseDate('2021-02-07'),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }
