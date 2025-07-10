@@ -229,6 +229,7 @@ export const DogInfo = ({
     },
     [state.regNo]
   )
+
   const handleRegNoSelect = useCallback(
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
