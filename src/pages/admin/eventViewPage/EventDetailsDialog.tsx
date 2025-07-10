@@ -1,7 +1,6 @@
 import type { ConfirmedEvent } from '../../../types'
 
 import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -18,7 +17,6 @@ interface Props {
 }
 
 export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
-  const { t } = useTranslation()
   const [storedEvent] = useRecoilState(adminEventSelector(eventId))
 
   // Use the hook with custom options

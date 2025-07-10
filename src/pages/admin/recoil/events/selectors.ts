@@ -23,9 +23,7 @@ export const adminEventSelector = selectorFamily<DogEvent, string | undefined>({
         return get(adminNewEventAtom)
       }
       const events = get(adminEventsAtom)
-      const event = events.find((e) => e.id === eventId)
-
-      return event ? event : get(adminNewEventAtom)
+      return events.find((e) => e.id === eventId) ?? get(adminNewEventAtom)
     },
   set:
     (eventId) =>
