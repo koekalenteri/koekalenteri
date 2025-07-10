@@ -126,6 +126,7 @@ describe('DogInfo', () => {
 
   it('should display friendly error when api call fails', async () => {
     jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 501 })
+    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
     const reg = {}
     const { user } = renderWithUserEvents(
@@ -147,6 +148,8 @@ describe('DogInfo', () => {
 
     expect(button.textContent).toEqual('registration.cta.error')
     expect(screen.getByText('registration.cta.helper.error date')).toBeInTheDocument()
+
+    errSpy.mockRestore()
   })
 
   it('should display friendly error when dog is not found', async () => {

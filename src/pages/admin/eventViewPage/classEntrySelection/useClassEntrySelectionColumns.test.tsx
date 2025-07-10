@@ -640,12 +640,6 @@ describe('Action column in detail', () => {
   })
 })
 
-// Helper function to create a mock registration with specific properties
-const createMockRegistration = (overrides: Partial<Registration> = {}): Registration => ({
-  ...registrationWithStaticDates,
-  ...overrides,
-})
-
 describe('GroupColors component in dates column', () => {
   it('should render GroupColors component in dates column', () => {
     const { result } = renderHook(() =>

@@ -1,21 +1,28 @@
 import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
 
-import { addDays } from 'date-fns'
+import { addDays, differenceInDays } from 'date-fns'
 
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
+import { formatDate } from '../i18n/dates'
 
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
   copyDogEvent,
+  defaultEntryEndDate,
+  defaultEntryStartDate,
+  eventRegistrationDateKey,
   getEventClassesByDays,
   getEventDays,
   getUniqueEventClasses,
+  isDetaultEntryEndDate,
+  isDetaultEntryStartDate,
   isEventDeletable,
   isStartListAvailable,
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
+  sanitizeDogEvent,
 } from './event'
 
 describe('lib/event', () => {
@@ -81,9 +88,13 @@ describe('lib/event', () => {
     `('returns $expected for test array #$# ($classes.length items)', ({ classes, expected }) => {
       expect(getUniqueEventClasses({ classes })).toEqual(expected)
     })
+
+    it('should return empty array when there are no classes', () => {
+      expect(getUniqueEventClasses({} as any)).toEqual([])
+    })
   })
 
-  describe('eventClassesByDays', () => {
+  describe('getEventClassesByDays', () => {
     describe('for single day event', () => {
       const date = new Date(2023, 11, 24)
 
@@ -118,6 +129,11 @@ describe('lib/event', () => {
           expect(getEventClassesByDays({ startDate, endDate, classes })).toEqual(expected)
         }
       )
+    })
+
+    it('should return empty empty array as classes when classes is missing', () => {
+      const date = new Date(2025, 2, 27)
+      expect(getEventClassesByDays({ startDate: date, endDate: date } as any)).toEqual([{ day: date, classes: [] }])
     })
   })
 
@@ -281,5 +297,179 @@ describe('lib/event', () => {
       expect(copy.dates?.[0].date).toEqual(copy.startDate)
       expect(copy.dates?.[1].date).toEqual(copy.endDate)
     })
+
+    it('should copy and adjust placesPerDay', () => {
+      // Create an event with placesPerDay
+      const origStartDate = new Date(2023, 5, 15) // June 15, 2023
+      const origEndDate = new Date(2023, 5, 16) // June 16, 2023
+      const event = {
+        ...eventWithEntryClosing,
+        startDate: origStartDate,
+        endDate: origEndDate,
+        placesPerDay: {
+          '2023-06-15': 10, // First day
+          '2023-06-16': 15, // Second day
+        },
+      }
+
+      const copy = copyDogEvent(event)
+
+      // Calculate expected dates based on the day difference
+      const dayDiff = differenceInDays(newEventStartDate, origStartDate)
+      const expectedFirstDate = formatDate(addDays(origStartDate, dayDiff), 'yyyy-MM-dd')
+      const expectedSecondDate = formatDate(addDays(origEndDate, dayDiff), 'yyyy-MM-dd')
+
+      // Verify placesPerDay was copied and dates were adjusted
+      expect(copy.placesPerDay).toBeDefined()
+      expect(Object.keys(copy.placesPerDay!).length).toBe(2)
+      expect(copy.placesPerDay![expectedFirstDate]).toBe(10)
+      expect(copy.placesPerDay![expectedSecondDate]).toBe(15)
+    })
+  })
+})
+
+describe('defaultEntryStartDate and defaultEntryEndDate', () => {
+  it('should calculate correct entry start date', () => {
+    const eventStartDate = new Date(2023, 5, 15) // June 15, 2023
+    const expectedStartDate = new Date(2023, 5, 15)
+    expectedStartDate.setDate(expectedStartDate.getDate() - 6 * 7) // 6 weeks before
+
+    expect(defaultEntryStartDate(eventStartDate).getTime()).toEqual(expectedStartDate.getTime())
+  })
+
+  it('should calculate correct entry end date', () => {
+    const eventStartDate = new Date(2023, 5, 15) // June 15, 2023
+    const expectedEndDate = new Date(2023, 5, 15)
+    expectedEndDate.setDate(expectedEndDate.getDate() - 3 * 7) // 3 weeks before
+
+    expect(defaultEntryEndDate(eventStartDate).getTime()).toEqual(expectedEndDate.getTime())
+  })
+})
+
+describe('isDetaultEntryStartDate and isDetaultEntryEndDate', () => {
+  it('should return true when date is undefined', () => {
+    const eventStartDate = new Date(2023, 5, 15)
+    expect(isDetaultEntryStartDate(undefined, eventStartDate)).toBe(true)
+    expect(isDetaultEntryEndDate(undefined, eventStartDate)).toBe(true)
+  })
+
+  it('should return true when date matches default entry start date', () => {
+    const eventStartDate = new Date(2023, 5, 15)
+    const entryStartDate = defaultEntryStartDate(eventStartDate)
+
+    expect(isDetaultEntryStartDate(entryStartDate, eventStartDate)).toBe(true)
+  })
+
+  it('should return true when date matches default entry end date', () => {
+    const eventStartDate = new Date(2023, 5, 15)
+    const entryEndDate = defaultEntryEndDate(eventStartDate)
+
+    expect(isDetaultEntryEndDate(entryEndDate, eventStartDate)).toBe(true)
+  })
+
+  it('should return false when date does not match default entry start date', () => {
+    const eventStartDate = new Date(2023, 5, 15)
+    const nonDefaultDate = new Date(2023, 4, 1) // May 1, 2023
+
+    expect(isDetaultEntryStartDate(nonDefaultDate, eventStartDate)).toBe(false)
+  })
+
+  it('should return false when date does not match default entry end date', () => {
+    const eventStartDate = new Date(2023, 5, 15)
+    const nonDefaultDate = new Date(2023, 4, 1) // May 1, 2023
+
+    expect(isDetaultEntryEndDate(nonDefaultDate, eventStartDate)).toBe(false)
+  })
+})
+
+describe('eventRegistrationDateKey', () => {
+  it('should generate a key in the format date-time', () => {
+    const date = new Date(2023, 5, 15, 12) // June 15, 2023
+    const time = 'ap'
+    const registrationDate: RegistrationDate = { date, time }
+
+    // Expected format: YYYY-MM-DD-time
+    const expected = '2023-06-15-ap'
+
+    expect(eventRegistrationDateKey(registrationDate)).toEqual(expected)
+  })
+
+  it('should handle different times', () => {
+    const date = new Date(2023, 5, 15, 12)
+
+    expect(eventRegistrationDateKey({ date, time: 'ap' })).toEqual('2023-06-15-ap')
+    expect(eventRegistrationDateKey({ date, time: 'ip' })).toEqual('2023-06-15-ip')
+    expect(eventRegistrationDateKey({ date, time: 'kp' })).toEqual('2023-06-15-kp')
+  })
+
+  it('should handle different dates', () => {
+    const time = 'ap'
+
+    expect(eventRegistrationDateKey({ date: new Date(2023, 0, 1, 12), time })).toEqual('2023-01-01-ap')
+    expect(eventRegistrationDateKey({ date: new Date(2023, 11, 31, 12), time })).toEqual('2023-12-31-ap')
+  })
+})
+
+describe('sanitizeDogEvent', () => {
+  it('should remove private fields from event', () => {
+    const event = {
+      id: 'event-1',
+      name: 'Test Event',
+      createdBy: 'user-1',
+      deletedAt: new Date(),
+      deletedBy: 'user-2',
+      headquarters: { zipCode: '12345' },
+      kcId: 12345,
+      invitationAttachment: 'attachment.pdf',
+      modifiedBy: 'user-3',
+      secretary: 'secretary-info',
+      official: 'official-info',
+      publicField1: 'public-value-1',
+      publicField2: 'public-value-2',
+    }
+
+    const sanitized = sanitizeDogEvent(event as any)
+
+    // Check that private fields are removed
+    expect(sanitized.createdBy).toBeUndefined()
+    expect(sanitized.deletedAt).toBeUndefined()
+    expect(sanitized.deletedBy).toBeUndefined()
+    expect(sanitized.headquarters).toBeUndefined()
+    expect(sanitized.kcId).toBeUndefined()
+    expect(sanitized.invitationAttachment).toBeUndefined()
+    expect(sanitized.modifiedBy).toBeUndefined()
+    expect(sanitized.secretary).toBeUndefined()
+    expect(sanitized.official).toBeUndefined()
+
+    // Check that public fields are preserved
+    expect(sanitized.id).toEqual('event-1')
+    expect(sanitized.name).toEqual('Test Event')
+    expect((sanitized as any).publicField1).toEqual('public-value-1')
+    expect((sanitized as any).publicField2).toEqual('public-value-2')
+  })
+
+  it('should handle empty event object', () => {
+    const event = { id: 'event-1' }
+    const sanitized = sanitizeDogEvent(event as any)
+
+    expect(sanitized).toEqual({ id: 'event-1' })
+  })
+
+  it('should handle event with only private fields', () => {
+    const event = {
+      createdBy: 'user-1',
+      deletedAt: new Date(),
+      deletedBy: 'user-2',
+      headquarters: { zipCode: '12345' },
+      kcId: 12345,
+      invitationAttachment: 'attachment.pdf',
+      modifiedBy: 'user-3',
+      secretary: 'secretary-info',
+      official: 'official-info',
+    }
+
+    const sanitized = sanitizeDogEvent(event as any)
+
+    expect(sanitized).toEqual({})
   })
 })

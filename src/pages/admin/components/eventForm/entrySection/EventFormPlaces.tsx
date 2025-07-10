@@ -3,42 +3,47 @@ import type { DeepPartial, EventClass } from '../../../../../types'
 import type { SectionProps } from '../types'
 
 import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormHelperText from '@mui/material/FormHelperText'
 import Stack from '@mui/material/Stack'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 
-import { getEventClassesByDays, getUniqueEventClasses } from '../../../../../lib/event'
-import { NumberInput } from '../../../../components/NumberInput'
+import {
+  calculateTotalFromClasses,
+  calculateTotalFromDays,
+  distributePlacesAmongClasses,
+  distributePlacesAmongDays,
+  updatePlacesPerDayFromClasses,
+} from '../../../../../lib/places'
 import { compareEventClass } from '../components/EventClasses'
 
-import PlacesDisplay from './eventFormPlaces/PlacesDisplay'
+import ClassPlacesTable from './eventFormPlaces/ClassPlacesTable'
+import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
 
 export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<SectionProps>) {
-  const { t } = useTranslation()
-  const [classesEnabled, setClassesEnabled] = useState(
-    event.classes?.reduce((prev, cur) => prev + (cur?.places ?? 0), 0) > 0
-  )
-  const uniqueClasses = getUniqueEventClasses(event)
-  const classesByDays = getEventClassesByDays(event)
+  const hasClasses = event.classes.length > 0
+  const [totalEnabled, setTotalEnabled] = useState(!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)
 
-  const handleChange = (c: DeepPartial<EventClass>) => (value?: number) => {
+  const handleChange = (c: DeepPartial<EventClass>, value?: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
     const cls = newClasses.find((ec) => compareEventClass(ec, c) === 0)
     if (cls) {
       cls.places = Math.max(0, Math.min(value ?? 0, 200))
     }
-    const total = newClasses.reduce((prev, cur) => prev + (cur?.places ?? 0), 0)
-    onChange?.({ classes: newClasses, places: total > 0 ? total : event.places })
+
+    const total = calculateTotalFromClasses(newClasses)
+
+    // Update placesPerDay based on classes
+    const newPlacesPerDay = !totalEnabled ? updatePlacesPerDayFromClasses({ ...event, classes: newClasses }) : {}
+
+    onChange?.({
+      classes: newClasses,
+      places: total > 0 ? total : event.places,
+      placesPerDay: Object.keys(newPlacesPerDay).length > 0 ? newPlacesPerDay : undefined,
+    })
   }
 
   const handlePlacesChange = useCallback(
@@ -46,31 +51,84 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
     [onChange]
   )
 
-  const handleByClassesChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      setClassesEnabled(checked)
-      const newClasses = event.classes.map((ec) => structuredClone(ec))
-      const count = newClasses.length
-      for (let diff = event.places ?? 0, i = 0; i < count; i++) {
-        const classValue = checked ? Math.min(Math.max(Math.round(diff / (count - i)), 0), 200) : 0
-        newClasses[i].places = classValue
-        diff -= classValue
+  const handleDayPlacesChange = useCallback(
+    (date: Date, value?: number) => {
+      const dateStr = date.toISOString().split('T')[0]
+      const newPlacesPerDay = { ...(event.placesPerDay ?? {}) }
+
+      if (value && value > 0) {
+        newPlacesPerDay[dateStr] = Math.min(Math.max(value ?? 0, 0), 200)
+      } else {
+        delete newPlacesPerDay[dateStr]
       }
-      onChange?.({ classes: newClasses })
+
+      const total = calculateTotalFromDays(newPlacesPerDay)
+      onChange?.({ placesPerDay: newPlacesPerDay, places: total > 0 ? total : event.places })
     },
-    [event.classes, event.places, onChange]
+    [event.places, event.placesPerDay, onChange]
   )
 
+  // Combined handler for "Eriteltynä" checkbox
+  const handleDetailedChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      setTotalEnabled(!checked)
+
+      if (hasClasses) {
+        // For events with classes
+        const newClasses = event.classes.map((ec) => structuredClone(ec))
+
+        if (checked) {
+          // Distribute places among classes
+          const distributedClasses = distributePlacesAmongClasses(newClasses, event.places ?? 0)
+          distributedClasses.forEach((cls, i) => {
+            newClasses[i].places = cls.places
+          })
+
+          // Update placesPerDay based on classes
+          const newPlacesPerDay = updatePlacesPerDayFromClasses({ ...event, classes: newClasses })
+
+          onChange?.({
+            classes: newClasses,
+            placesPerDay: Object.keys(newPlacesPerDay).length > 0 ? newPlacesPerDay : undefined,
+          })
+        } else {
+          // Reset class places
+          newClasses.forEach((cls) => (cls.places = 0))
+          onChange?.({ classes: newClasses, placesPerDay: undefined })
+        }
+      } else if (checked && (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)) {
+        // Initialize placesPerDay with even distribution
+        const placesPerDay = distributePlacesAmongDays(event)
+        if (Object.keys(placesPerDay).length > 0) {
+          onChange?.({ placesPerDay })
+        }
+      } else if (!checked) {
+        // Reset placesPerDay
+        onChange?.({ placesPerDay: undefined })
+      }
+    },
+    [event, hasClasses, onChange]
+  )
+
+  // Fix places count
   useEffect(() => {
-    // KOE-808 fix places count
-    if (classesEnabled) {
-      const total = event.classes.reduce((acc, cur) => acc + (cur?.places ?? 0), 0)
+    if (!totalEnabled) {
+      let total = 0
+
+      if (hasClasses) {
+        // Calculate total from classes
+        total = calculateTotalFromClasses(event.classes)
+      } else if (event.placesPerDay) {
+        // Calculate total from placesPerDay
+        total = calculateTotalFromDays(event.placesPerDay)
+      }
+
       if (total !== event.places) {
         onChange?.({ places: total })
         enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
       }
     }
-  }, [classesEnabled, event.classes, event.places, onChange])
+  }, [event.classes, event.places, event.placesPerDay, hasClasses, onChange, totalEnabled])
 
   return (
     <Box sx={{ p: 1, border: '1px dashed #ddd', borderRadius: 1 }}>
@@ -80,78 +138,30 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
           <FormControlLabel
             sx={{ m: 0 }}
             disabled={disabled}
-            control={<Checkbox sx={{ py: 0 }} size="small" checked={classesEnabled} onChange={handleByClassesChange} />}
-            label="Luokittain"
-            name="classesEnabled"
+            control={<Checkbox sx={{ py: 0 }} size="small" checked={!totalEnabled} onChange={handleDetailedChange} />}
+            label="Eriteltynä"
+            name="detailedPlaces"
           />
         </Stack>
-        <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('date')}</TableCell>
-              {uniqueClasses.map((c) => (
-                <TableCell key={`head${c}`} align="center">
-                  {c}
-                </TableCell>
-              ))}
-              <TableCell align="center">Yhteensä</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {classesByDays.map(({ day, classes }) => {
-              let dayTotal = 0
-              return (
-                <TableRow key={day.toISOString()}>
-                  <TableCell component="th" scope="row">
-                    {t('dateFormat.wdshort', { date: day })}
-                  </TableCell>
-                  {uniqueClasses.map((c) => {
-                    const cls = classes.find((cl) => cl.class === c)
-                    dayTotal += cls?.places ?? 0
-                    return (
-                      <TableCell key={c} align="center">
-                        {cls ? (
-                          <NumberInput
-                            disabled={disabled || !classesEnabled}
-                            value={cls.places}
-                            onChange={handleChange(cls)}
-                          />
-                        ) : (
-                          ''
-                        )}
-                      </TableCell>
-                    )
-                  })}
-                  <TableCell align="center">
-                    <PlacesDisplay value={dayTotal} />
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-            <TableRow>
-              <TableCell component="th" scope="row">
-                Yhteensä
-              </TableCell>
-              {uniqueClasses.map((c) => (
-                <TableCell key={c} align="center">
-                  <PlacesDisplay
-                    value={event.classes
-                      .filter((ec) => ec.class === c)
-                      .reduce((prev, cur) => prev + (cur?.places ?? 0), 0)}
-                  />
-                </TableCell>
-              ))}
-              <TableCell align="center">
-                <NumberInput
-                  id="event.places"
-                  disabled={disabled || classesEnabled}
-                  value={event.places}
-                  onChange={handlePlacesChange}
-                />
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+
+        {hasClasses ? (
+          <ClassPlacesTable
+            event={event}
+            disabled={!!disabled}
+            classesEnabled={!totalEnabled}
+            handleChange={handleChange}
+            handlePlacesChange={handlePlacesChange}
+          />
+        ) : (
+          <DayPlacesTable
+            event={event}
+            disabled={!!disabled}
+            handleDayPlacesChange={handleDayPlacesChange}
+            handlePlacesChange={handlePlacesChange}
+            totalEnabled={totalEnabled}
+          />
+        )}
+
         <FormHelperText error>{helperTexts?.places}</FormHelperText>
       </Stack>
     </Box>

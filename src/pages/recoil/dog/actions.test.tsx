@@ -262,6 +262,8 @@ describe('useDogActions', () => {
     })
 
     it('handles API error and returns cached dog', async () => {
+      const errSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
       mockGetDog.mockRejectedValueOnce(new Error('API Error'))
 
       const { result } = renderHook(
@@ -287,6 +289,7 @@ describe('useDogActions', () => {
         response = await result.current.actions.refresh()
       })
       expect(response?.dog).toEqual(expect.objectContaining(testDog))
+      errSpy.mockRestore()
     })
 
     it('preserves old info when refreshing', async () => {
@@ -468,13 +471,6 @@ describe('useDogActions', () => {
     })
 
     it('applies special handling for titles and rfid', async () => {
-      // Create a dog without titles and rfid
-      const dogWithoutTitlesRfid: Dog = {
-        regNo: testRegNo,
-        name: 'Test Dog',
-        results: [],
-      }
-
       // Create cache with titles and rfid
       const cacheWithTitlesRfid: DeepPartial<DogCachedInfo> = {
         dog: {

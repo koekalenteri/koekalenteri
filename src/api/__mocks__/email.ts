@@ -8,16 +8,16 @@ const mockTemplates: EmailTemplate[] = [
   ),
 ]
 
-export async function getEmailTemplates(token?: string, signal?: AbortSignal) {
+export async function getEmailTemplates(_token?: string, _signal?: AbortSignal) {
   return new Promise((resolve) => {
     process.nextTick(() => resolve([...mockTemplates]))
   })
 }
 
-export async function putEmailTemplate(template: EmailTemplate, token?: string, signal?: AbortSignal) {
+export async function putEmailTemplate(_template: EmailTemplate, _token?: string, _signal?: AbortSignal) {
   throw new Error('not implemented')
 }
 
-export async function sendTemplatedEmail(message: RegistrationMessage, token?: string, signal?: AbortSignal) {
+export async function sendTemplatedEmail(_message: RegistrationMessage, _token?: string, _signal?: AbortSignal) {
   throw new Error('not implemented')
 }

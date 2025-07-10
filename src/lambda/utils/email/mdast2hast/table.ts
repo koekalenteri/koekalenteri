@@ -6,7 +6,7 @@ import { u } from 'unist-builder'
 
 const own = {}.hasOwnProperty
 
-export const tableHandler: Handler = (state, node: Table, parent) => {
+export const tableHandler: Handler = (state, node: Table, _parent) => {
   const rows = node.children
   let index = -1
   const align = node.align || []

@@ -131,7 +131,7 @@ describe('putEmailTemplateLambda', () => {
 
     mockRead.mockResolvedValue(null) // No existing template by default
 
-    mockMarkdownToTemplate.mockImplementation((templateName: string, source: string) => {
+    mockMarkdownToTemplate.mockImplementation((templateName: string, _source: string) => {
       return Promise.resolve({
         TemplateName: templateName,
         SubjectPart: 'Test Subject',

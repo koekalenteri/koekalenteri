@@ -5,7 +5,7 @@ import { DateHeader } from './DateHeader'
 // Mock i18next
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, options?: any) => {
+    t: (key: string, _options?: any) => {
       if (key === 'dateFormat.weekday') {
         return 'Monday'
       }

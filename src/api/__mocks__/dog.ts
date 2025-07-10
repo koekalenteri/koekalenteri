@@ -23,7 +23,7 @@ const mockDogs: Dog[] = [
   registrationDogAged28MonthsWithNOUResult,
 ]
 
-export async function getDog(regNo: string, refresh?: boolean, signal?: AbortSignal): Promise<Dog> {
+export async function getDog(regNo: string, _refresh?: boolean, _signal?: AbortSignal): Promise<Dog> {
   return new Promise((resolve) => {
     const dog = mockDogs.find((d) => d.regNo === regNo) ?? defaultDog(regNo)
     process.nextTick(() => resolve(dog))

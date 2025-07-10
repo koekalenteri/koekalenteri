@@ -39,7 +39,7 @@ describe('storage', () => {
     }
     const node: RecoilState<any> = {
       __tag: ['test'],
-      __cTag: function (t: any): void {
+      __cTag: function (): void {
         throw new Error('Function not implemented.')
       },
       key: 'test-key',

@@ -33,7 +33,7 @@ jest.unstable_mockModule('./broadcast', () => ({
 }))
 
 // Mock registration module functions
-const mockSortRegistrationsByDateClassTimeAndNumber = jest.fn((a, b) => 0) // Default sort implementation
+const mockSortRegistrationsByDateClassTimeAndNumber = jest.fn((_a, _b) => 0) // Default sort implementation
 const mockGetRegistrationNumberingGroupKey = jest.fn()
 const mockGetRegistrationGroupKey = jest.fn()
 const mockHasPriority = jest.fn()
@@ -231,8 +231,7 @@ describe('lib/event', () => {
         return reg.class === 'AVO' && reg.handler?.membership === true
       })
 
-      // Call updateRegistrations
-      const result = await updateRegistrations('e4')
+      await updateRegistrations('e4')
 
       // Verify that no update was performed
       expect(mockUpdate).not.toHaveBeenCalled()

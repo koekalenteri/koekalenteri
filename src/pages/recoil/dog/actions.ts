@@ -63,6 +63,7 @@ export function useDogActions(regNo: string) {
           return applyCache(regNo, cache, updated, oldInfo)
         }
       } catch (err) {
+        console.error(err)
         enqueueSnackbar('Koiran tietojen päivitys epäonnistui 😞', { variant: 'error' })
         return applyCache(regNo, cache, dog)
       }

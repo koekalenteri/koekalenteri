@@ -44,7 +44,7 @@ describe('putJudgeLambda', () => {
 
   it('should write the authorized user to database', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    const res = await putJudgeLambda(
+    await putJudgeLambda(
       constructAPIGwEvent({ id: 'judge', name: 'Test Judge', createdAt: '1986-10-05T22:39:02.250Z' })
     )
 

@@ -79,7 +79,7 @@ describe('GetYearlyStatsFunction', () => {
 
     // Call handler without year parameter
     const event = { queryStringParameters: {} }
-    const result = await handler(event)
+    await handler(event)
 
     // Verify correct functions were called
     expect(mockGetAvailableYears).toHaveBeenCalled()

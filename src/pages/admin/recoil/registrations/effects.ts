@@ -8,7 +8,7 @@ import { idTokenAtom } from '../../../recoil'
 
 export const adminRemoteRegistrationsEffect =
   (eventId: string): AtomEffect<Registration[]> =>
-  ({ getPromise, node, setSelf, trigger }) => {
+  ({ getPromise, setSelf, trigger }) => {
     if (trigger === 'get') {
       setSelf(
         getPromise(idTokenAtom).then((token) => {

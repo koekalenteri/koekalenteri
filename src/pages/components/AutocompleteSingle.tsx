@@ -20,14 +20,15 @@ type Props<T, DisableClearable extends boolean | undefined> = Omit<
 export default function AutocompleteSingle<T, DisableClearable extends boolean | undefined>(
   props: Props<T, DisableClearable>
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { error, helperText, label, value, options, color, isOptionEqualToValue, onChange, onInputChange, ...acProps } =
     props
   const handleChange = useCallback(
     (
-      event: SyntheticEvent<Element, Event>,
+      _event: SyntheticEvent<Element, Event>,
       value: DisableClearable extends true ? NonNullable<T> : T | null,
-      reason: AutocompleteChangeReason,
-      details?: AutocompleteChangeDetails<T> | undefined
+      _reason: AutocompleteChangeReason,
+      _details?: AutocompleteChangeDetails<T> | undefined
     ) => {
       onChange?.(value)
     },

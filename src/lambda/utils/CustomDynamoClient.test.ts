@@ -5,7 +5,7 @@ const mockSend = jest.fn<any>()
 const mockDynamoDBClient = jest.fn().mockImplementation(() => ({
   send: mockSend,
 }))
-const mockFrom = jest.fn().mockImplementation((client) => ({
+const mockFrom = jest.fn().mockImplementation((_client) => ({
   send: mockSend,
 }))
 
@@ -73,7 +73,7 @@ describe('CustomDynamoClient', () => {
     it('handles SAM local environment', () => {
       process.env = { ...originalEnv, AWS_SAM_LOCAL: 'true' }
 
-      const client = new CustomDynamoClient('TestTable')
+      const _client = new CustomDynamoClient('TestTable')
 
       // Should create DynamoDBClient with endpoint for local DynamoDB
       expect(mockDynamoDBClient).toHaveBeenCalledWith(

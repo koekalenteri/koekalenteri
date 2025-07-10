@@ -10,8 +10,6 @@ const { stackName } = CONFIG
 
 const ssm = new SSMClient()
 
-type ValuesOf<T extends string[]> = T[number]
-type ParamsFromKeys<T extends string[]> = { [key in ValuesOf<T>]: string }
 type CacheEntry = {
   value?: string
   promise?: Promise<string>

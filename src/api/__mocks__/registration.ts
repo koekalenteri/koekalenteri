@@ -61,7 +61,11 @@ for (const reg of mockRegistrationData) {
   mockRegistrations[reg.eventId].push(reg)
 }
 
-export async function getRegistrations(eventId: string, token?: string, signal?: AbortSignal): Promise<Registration[]> {
+export async function getRegistrations(
+  eventId: string,
+  _token?: string,
+  _signal?: AbortSignal
+): Promise<Registration[]> {
   return new Promise((resolve, reject) => {
     const event = mockEvents.find((item) => item.id === eventId)
     if (!event) {
@@ -75,8 +79,8 @@ export async function getRegistrations(eventId: string, token?: string, signal?:
 export async function getRegistration(
   eventId: string,
   id: string,
-  token?: string,
-  signal?: AbortSignal
+  _token?: string,
+  _signal?: AbortSignal
 ): Promise<Registration | undefined> {
   return new Promise((resolve, reject) => {
     const registration = (mockRegistrations[eventId] || []).find((item) => item.id === id)
@@ -89,10 +93,10 @@ export async function getRegistration(
 }
 
 export const getRegistrationAuditTrail = async (
-  eventId: string,
-  id: string,
-  token?: string,
-  signal?: AbortSignal
+  _eventId: string,
+  _id: string,
+  _token?: string,
+  _signal?: AbortSignal
 ): Promise<AuditRecord[] | undefined> => {
   return new Promise((resolve) => {
     process.nextTick(() =>
@@ -102,22 +106,22 @@ export const getRegistrationAuditTrail = async (
 }
 
 export async function putRegistration(
-  registration: Registration,
-  token?: string,
-  signal?: AbortSignal
+  _registration: Registration,
+  _token?: string,
+  _signal?: AbortSignal
 ): Promise<Registration> {
   throw new Error('not implemented')
 }
 
 export async function putRegistrationGroups(
-  groups: RegistrationGroupInfo[],
-  token?: string,
-  signal?: AbortSignal
+  _groups: RegistrationGroupInfo[],
+  _token?: string,
+  _signal?: AbortSignal
 ): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> {
   throw new Error('not implemented')
 }
 
-export async function getStartList(eventId: string, token?: string, signal?: AbortSignal): Promise<Registration[]> {
+export async function getStartList(eventId: string, _token?: string, _signal?: AbortSignal): Promise<Registration[]> {
   return new Promise((resolve, reject) => {
     const registrations = mockRegistrations[eventId]?.filter((r) => Boolean(r.group?.date))
     if (!registrations?.length) {

@@ -18,7 +18,7 @@ export const AsyncButton = (props: Props) => {
     async (event: ClickEvent) => {
       if (loading) return
       setLoading(true)
-      await props.onClick?.(event)
+      await onClick?.(event)
       setLoading(false)
     },
     [loading, props]
