@@ -31,3 +31,8 @@
         RestrictPublicBuckets: true
       VersioningConfiguration:
         Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: ThreeYearRetentionRule
+            Status: Enabled
+            ExpirationInDays: 1095
