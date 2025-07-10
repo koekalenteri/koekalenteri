@@ -22,7 +22,7 @@ export const adminEventClassAtom = atom<RegistrationClass | string>({
 /**
  * Existing event editing, edits stored to session storage
  */
-export const adminEditableEventByIdAtom = atomFamily<DogEvent | undefined, string>({
+export const adminEditableEventByIdAtom = atomFamily<DogEvent, string>({
   key: 'adminEditableEvent/Id',
   default: adminEventSelector,
   effects: [logEffect, sessionStorageEffect],

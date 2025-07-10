@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventNotFound renders with error message 1`] = `
+<div>
+  <div
+    class="MuiBox-root css-1uovp08"
+  >
+    <div
+      class="MuiBox-root css-10784zt"
+    >
+      <div
+        class="MuiStack-root css-1crrawa-MuiStack-root"
+      >
+        <div
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation3 css-1dwizkf-MuiPaper-root"
+          style="--Paper-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);"
+        >
+          <svg
+            aria-hidden="true"
+            class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeMedium css-7y3rvo-MuiSvgIcon-root"
+            data-testid="ErrorOutlineIcon"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+            />
+          </svg>
+          <h1
+            class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-kyi0tw-MuiTypography-root"
+          >
+            Tapahtumaa ei löydy
+          </h1>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-o2g80f-MuiTypography-root"
+          >
+            Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia
+          </p>
+          <a
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+            data-discover="true"
+            href="/admin/event"
+            tabindex="0"
+          >
+            <span
+              class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
+            >
+              <svg
+                aria-hidden="true"
+                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
+                data-testid="ArrowBackIcon"
+                focusable="false"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"
+                />
+              </svg>
+            </span>
+            Takaisin tapahtumalistaan
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
