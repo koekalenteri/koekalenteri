@@ -29,7 +29,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":rb:"
+        aria-labelledby=":re:"
         aria-modal="true"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-18x6di2-MuiPaper-root-MuiDialog-paper"
         role="dialog"
@@ -37,7 +37,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
-          id=":rb:"
+          id=":re:"
         >
           Viestin lähettäminen
         </h2>
@@ -168,8 +168,8 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":rc:"
-                      id=":rc:-label"
+                      for=":rf:"
+                      id=":rf:-label"
                     >
                       Viestin tyyppi
                     </label>
@@ -184,7 +184,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         autocomplete="off"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":rc:"
+                        id=":rf:"
                         role="combobox"
                         spellcheck="false"
                         type="text"
@@ -216,10 +216,10 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       </div>
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-w1u3ce"
+                          class="css-ex8a5f-MuiNotchedOutlined-root"
                         >
                           <span>
                             Viestin tyyppi
@@ -246,7 +246,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":rf:"
+                        id=":ri:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -259,10 +259,10 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-w4cd9x"
+                          class="css-1nf2c5d-MuiNotchedOutlined-root"
                         >
                           <span
                             aria-hidden="true"
@@ -299,11 +299,11 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               name="secretary.name"
                               type="checkbox"
@@ -331,12 +331,12 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.email"
@@ -365,12 +365,12 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.phone"
@@ -409,11 +409,11 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               name="official.name"
                               type="checkbox"
@@ -441,12 +441,12 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="official.email"
@@ -475,12 +475,12 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="official.phone"
@@ -971,7 +971,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
       tabindex="-1"
     >
       <div
-        aria-labelledby=":r3:"
+        aria-labelledby=":r5:"
         aria-modal="true"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-18x6di2-MuiPaper-root-MuiDialog-paper"
         role="dialog"
@@ -979,7 +979,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
-          id=":r3:"
+          id=":r5:"
         >
           Viestin lähettäminen
         </h2>
@@ -1073,8 +1073,8 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
-                      for=":r4:"
-                      id=":r4:-label"
+                      for=":r6:"
+                      id=":r6:-label"
                     >
                       Viestin tyyppi
                     </label>
@@ -1088,7 +1088,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         autocapitalize="none"
                         autocomplete="off"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r4:"
+                        id=":r6:"
                         role="combobox"
                         spellcheck="false"
                         type="text"
@@ -1119,10 +1119,10 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       </div>
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-81qg8w"
+                          class="css-1n64csd-MuiNotchedOutlined-root"
                         >
                           <span>
                             Viestin tyyppi
@@ -1149,7 +1149,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       <textarea
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
-                        id=":r7:"
+                        id=":r9:"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
                       />
@@ -1162,10 +1162,10 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-w4cd9x"
+                          class="css-1nf2c5d-MuiNotchedOutlined-root"
                         >
                           <span
                             aria-hidden="true"
@@ -1202,11 +1202,11 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               name="secretary.name"
                               type="checkbox"
@@ -1234,12 +1234,12 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.email"
@@ -1268,12 +1268,12 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="secretary.phone"
@@ -1312,11 +1312,11 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                           class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                         >
                           <span
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               name="official.name"
                               type="checkbox"
@@ -1344,12 +1344,12 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="official.email"
@@ -1378,12 +1378,12 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                         >
                           <span
                             aria-disabled="true"
-                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-17viv0o-MuiButtonBase-root-MuiCheckbox-root"
+                            class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1acmipw-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             tabindex="-1"
                           >
                             <input
                               checked=""
-                              class="PrivateSwitchBase-input css-j8yymo"
+                              class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                               data-indeterminate="false"
                               disabled=""
                               name="official.phone"
