@@ -24,7 +24,7 @@ export default function DayPlacesTable({
   handleDayPlacesChange,
   handlePlacesChange,
   totalEnabled,
-}: DayPlacesTableProps) {
+}: Readonly<DayPlacesTableProps>) {
   const { t } = useTranslation()
   const eventDays = getEventDays(event)
 

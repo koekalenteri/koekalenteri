@@ -26,7 +26,7 @@ export default function ClassPlacesTable({
   classesEnabled,
   handleChange,
   handlePlacesChange,
-}: ClassPlacesTableProps) {
+}: Readonly<ClassPlacesTableProps>) {
   const { t } = useTranslation()
   const uniqueClasses = getUniqueEventClasses(event)
   const classesByDays = getEventClassesByDays(event)
