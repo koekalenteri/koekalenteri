@@ -43,7 +43,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
           <span
             class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
           >
-            Luokittain
+            Eriteltynä
           </span>
         </label>
       </div>
@@ -284,7 +284,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
           <span
             class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
           >
-            Luokittain
+            Eriteltynä
           </span>
         </label>
       </div>

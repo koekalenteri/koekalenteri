@@ -1817,7 +1817,7 @@ exports[`EventForm should render 1`] = `
                                 <span
                                   class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
                                 >
-                                  Luokittain
+                                  Eriteltynä
                                 </span>
                               </label>
                             </div>

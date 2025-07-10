@@ -81,7 +81,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
             sx={{ m: 0 }}
             disabled={disabled}
             control={<Checkbox sx={{ py: 0 }} size="small" checked={classesEnabled} onChange={handleByClassesChange} />}
-            label="Luokittain"
+            label="Eriteltynä"
             name="classesEnabled"
           />
         </Stack>
