@@ -1,41 +1,23 @@
 import type { SyntheticEvent } from 'react'
-import type { BreedCode, DeepPartial, Dog, DogGender, Registration } from '../../../types'
+import type { BreedCode, DeepPartial, DogGender, Registration } from '../../../types'
 import type { DogCachedInfo } from '../../recoil/dog'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Autocomplete from '@mui/material/Autocomplete'
-import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import Grid2 from '@mui/material/Grid2'
-import TextField from '@mui/material/TextField'
-import { Box } from '@mui/system'
-import { DatePicker } from '@mui/x-date-pickers'
-import { differenceInMinutes, subMonths, subYears } from 'date-fns'
 import { useRecoilValue } from 'recoil'
 
 import { emptyDog } from '../../../lib/data'
+import { createDogUpdateFromFormValues, shouldAllowRefresh } from '../../../lib/dog'
 import { hasChanges } from '../../../lib/utils'
 import { validateRegNo } from '../../../lib/validation'
 import { useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
-import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
 
-import { TitlesAndName } from './dogInfo/TitlesAndName'
+import { DogDetails } from './dogInfo/DogDetails'
+import { DogSearch } from './dogInfo/DogSearch'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
-
-function shouldAllowRefresh(dog?: DeepPartial<Dog>) {
-  if (!dog?.regNo) {
-    return false
-  }
-  if (dog.refreshDate && differenceInMinutes(new Date(), dog.refreshDate) <= 5) {
-    return false
-  }
-  return !!dog.refreshDate
-}
 
 interface Props {
   readonly reg: DeepPartial<Registration>
@@ -69,8 +51,6 @@ export const DogInfo = ({
   orgId,
 }: Props) => {
   const { t } = useTranslation()
-  const { t: breed } = useTranslation('breed')
-  // Basic state for dog registration
   const [state, setState] = useState<State>({
     regNo: reg?.dog?.regNo ?? '',
     mode: reg?.dog?.regNo ? 'update' : 'fetch',
@@ -99,22 +79,8 @@ export const DogInfo = ({
       dam: reg?.dog?.dam?.name ?? '',
     },
     (values) => {
-      // Handle all field updates as a group
-      const { rfid, name, titles, dob, gender, breedCode, sire, dam } = values
-
-      // Create a single update object with all changed fields
-      const dogUpdate: DeepPartial<Dog> = {
-        rfid,
-        name,
-        titles,
-        dob,
-        gender: gender || undefined,
-        breedCode: breedCode || undefined,
-        sire: { name: sire },
-        dam: { name: dam },
-      }
-
-      // Send all updates at once
+      // Create a dog update object and send it
+      const dogUpdate = createDogUpdateFromFormValues(values)
       handleChange({ dog: dogUpdate })
     }
   )
@@ -122,7 +88,7 @@ export const DogInfo = ({
   // Derived state
   const disabledByMode = disabled || state.mode !== 'manual'
   const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
-  const rfidDisabled = disabledByMode && !state.rfid
+  const rfidDisabled = disabledByMode && (!state.rfid || state.mode === 'notfound')
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
@@ -267,127 +233,34 @@ export const DogInfo = ({
     >
       <Grid2 container spacing={1} alignItems="flex-start">
         <Grid2 size={{ xs: 12, sm: 7, md: 6, lg: 3 }}>
-          <FormControl fullWidth>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Autocomplete
-                id="txtReknro"
-                disabled={disabled || !disabledByMode}
-                freeSolo
-                renderInput={(props) => <TextField {...props} error={!validRegNo} label={t('dog.regNo')} />}
-                value={state.regNo}
-                inputValue={state.regNo}
-                onChange={handleRegNoSelect}
-                onInputChange={handleRegNoChange}
-                options={cachedRegNos ?? []}
-                sx={{ display: 'flex', flexGrow: 1, mr: 1 }}
-              />
-              <Button
-                disabled={disabled || !validRegNo || (state.mode === 'update' && !allowRefresh)}
-                variant="contained"
-                onClick={buttonClick}
-              >
-                {t(`registration.cta.${state.mode}`)}
-              </Button>
-              <CircularProgress size={28} sx={{ ml: 1, display: loading ? undefined : 'none' }} />
-            </Box>
-            <FormHelperText error={['notfound', 'error'].includes(state.mode)}>
-              {t(`registration.cta.helper.${state.mode}`, { date: reg?.dog?.refreshDate })}
-            </FormHelperText>
-          </FormControl>
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 5, md: 6, lg: 3 }}>
-          <TextField
-            className={rfidDisabled && reg?.dog?.rfid ? 'fact' : ''}
-            disabled={disabled || rfidDisabled}
-            fullWidth
-            label={t('dog.rfid')}
-            value={formValues.rfid ?? ''}
-            error={!rfidDisabled && !formValues.rfid}
-            onChange={(e) => updateField('rfid', e.target.value)}
+          <DogSearch
+            regNo={state.regNo}
+            disabled={disabled}
+            disabledByMode={disabledByMode}
+            validRegNo={validRegNo}
+            allowRefresh={allowRefresh}
+            mode={state.mode}
+            loading={loading}
+            cachedRegNos={cachedRegNos}
+            refreshDate={reg?.dog?.refreshDate}
+            onRegNoChange={handleRegNoChange}
+            onRegNoSelect={handleRegNoSelect}
+            onButtonClick={buttonClick}
           />
         </Grid2>
-        <Grid2 container spacing={1} size={{ xs: 12, lg: 6 }}>
-          <TitlesAndName
-            className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
-            disabledTitles={disabled || (disabledByMode && state.mode !== 'update')}
-            disabledName={disabledByMode}
-            id="dog"
-            name={formValues.name}
-            nameLabel={t('dog.name')}
-            onChange={(props) => {
-              if (props.name !== undefined) updateField('name', props.name)
-              if (props.titles !== undefined) updateField('titles', props.titles)
-            }}
-            titles={formValues.titles}
-            titlesLabel={t('dog.titles')}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 6, sm: 3, lg: 3 }}>
-          <FormControl className={disabledByMode && reg?.dog?.dob ? 'fact' : ''} fullWidth>
-            <DatePicker
-              referenceDate={subYears(new Date(), 2)}
-              disabled={disabledByMode}
-              format={t('dateFormatString.long')}
-              label={t('dog.dob')}
-              maxDate={subMonths(eventDate, minDogAgeMonths)}
-              minDate={subYears(new Date(), 15)}
-              onChange={(value: any) => updateField('dob', value || undefined)}
-              openTo={'year'}
-              value={formValues.dob ?? null}
-              views={['year', 'month', 'day']}
-            />
-          </FormControl>
-        </Grid2>
-        <Grid2 size={{ xs: 6, sm: 3, lg: 3 }}>
-          <AutocompleteSingle<DogGender | '', true>
-            className={disabledByMode && reg?.dog?.gender ? 'fact' : ''}
-            disableClearable
-            disabled={disabledByMode}
-            error={!disabledByMode && !reg?.dog?.gender}
-            getOptionLabel={(o) => (o ? t(`dog.genderChoises.${o}`) : '')}
-            isOptionEqualToValue={(o, v) => o === v}
-            label={t('dog.gender')}
-            onChange={(value) => updateField('gender', value || '')}
-            options={['F', 'M'] as DogGender[]}
-            value={formValues.gender}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
-          <AutocompleteSingle<BreedCode | '', true>
-            className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
-            disableClearable
-            disabled={disabledByMode}
-            error={!disabledByMode && !reg?.dog?.breedCode}
-            getOptionLabel={(o) => (o ? breed(o) : '')}
-            isOptionEqualToValue={(o, v) => o === v}
-            label={t('dog.breed')}
-            onChange={(value) => updateField('breedCode', value || '')}
-            options={['122', '111', '121', '312', '110', '263']}
-            value={formValues.breedCode}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 12, lg: 6 }}>
-          <TextField
-            disabled={sireDamDisabled}
-            fullWidth
-            id={'sire'}
-            label={t('dog.sire.name')}
-            onChange={(e) => updateField('sire', e.target.value)}
-            error={!sireDamDisabled && !formValues.sire}
-            value={formValues.sire}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 12, lg: 6 }}>
-          <TextField
-            disabled={sireDamDisabled}
-            fullWidth
-            id={'dam'}
-            label={t('dog.dam.name')}
-            onChange={(e) => updateField('dam', e.target.value)}
-            error={!sireDamDisabled && !formValues.dam}
-            value={formValues.dam}
-          />
-        </Grid2>
+
+        <DogDetails
+          formValues={formValues}
+          updateField={updateField}
+          disabledByMode={disabledByMode}
+          rfidDisabled={rfidDisabled}
+          sireDamDisabled={sireDamDisabled}
+          disabled={disabled}
+          mode={state.mode}
+          reg={reg}
+          eventDate={eventDate}
+          minDogAgeMonths={minDogAgeMonths}
+        />
       </Grid2>
     </CollapsibleSection>
   )

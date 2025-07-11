@@ -34,10 +34,10 @@ function Wrapper(props: { readonly children?: ReactNode }) {
 }
 
 describe('DogInfo', () => {
-  beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
-  afterAll(() => {
-    jest.clearAllTimers()
+  beforeEach(() => jest.useFakeTimers())
+  afterEach(() => {
+    localStorage.clear()
+    jest.runAllTimers()
     jest.useRealTimers()
   })
 
@@ -289,5 +289,100 @@ describe('DogInfo', () => {
       }),
       true
     )
+  })
+
+  it('should allow inputting RFID when dog is found from API but has no RFID', async () => {
+    // Create a dog without RFID
+    const dogWithoutRfid = {
+      ...registrationDogAged20MonthsAndNoResults,
+      rfid: undefined, // Dog has no RFID
+    }
+
+    // Mock the API to return a dog without RFID
+    jest.spyOn(dogApi, 'getDog').mockResolvedValue(dogWithoutRfid)
+
+    const reg = {}
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    // Enter a registration number
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    await user.type(input, 'TESTDOG-0020')
+    await flushPromises()
+
+    // Click fetch button to get the dog data
+    const fetchButton = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(fetchButton)
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dog: expect.objectContaining({
+          rfid: undefined,
+        }),
+      }),
+      true // replace
+    )
+
+    // Verify the dog was fetched and the RFID field is enabled
+    const rfidField = screen.getByLabelText('dog.rfid')
+    expect(rfidField).toBeEnabled()
+
+    // Verify the RFID field is empty
+    expect(rfidField).toHaveValue('')
+
+    // Input an RFID
+    const newRfid = '9876543210987654'
+    await user.type(rfidField, newRfid)
+    await flushPromises()
+
+    // Verify the RFID was updated
+    expect(rfidField).toHaveValue(newRfid)
+
+    // Verify the onChange handler was called with the updated RFID
+    expect(changeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({
+        dog: expect.objectContaining({
+          rfid: newRfid,
+        }),
+      })
+    )
+  })
+
+  it('should disable RFID field when dog is not found from API', async () => {
+    // Mock the API to return a 404 error (dog not found)
+    jest.spyOn(dogApi, 'getDog').mockRejectedValue({ status: 404 })
+
+    const reg = {}
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} onChange={changeHandler} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    // Enter a registration number
+    const input = screen.getByRole('combobox', { name: 'dog.regNo' })
+    await user.type(input, 'TESTDOG-0020')
+    await flushPromises()
+
+    // Click fetch button to get the dog data
+    const fetchButton = screen.getByRole('button', { name: 'registration.cta.fetch' })
+    await user.click(fetchButton)
+    await flushPromises()
+
+    // Verify we're in "notfound" state
+    expect(screen.getByRole('button', { name: 'registration.cta.notfound' })).toBeInTheDocument()
+    expect(screen.getByText('registration.cta.helper.notfound date')).toBeInTheDocument()
+
+    // Verify the RFID field is disabled
+    const rfidField = screen.getByLabelText('dog.rfid')
+    expect(rfidField).toBeDisabled()
   })
 })
