@@ -79,7 +79,7 @@ export default function EntrySection(props: Props) {
       error={!!error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1}>
+      <Grid2 container spacing={1} maxWidth={1280}>
         <Grid2 container spacing={1}>
           <Grid2 width={600}>
             <DateRange

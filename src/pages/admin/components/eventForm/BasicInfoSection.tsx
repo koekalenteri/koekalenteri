@@ -166,7 +166,7 @@ export default function BasicInfoSection({
       error={error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1}>
+      <Grid2 container spacing={1} maxWidth={1280}>
         <Grid2 container spacing={1}>
           <Grid2 sx={{ width: 600 }}>
             <DateRange

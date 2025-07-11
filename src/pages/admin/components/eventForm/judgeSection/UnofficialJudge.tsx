@@ -26,7 +26,7 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
   const title = selectedEventType?.official && index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
 
   return (
-    <Grid2 key={'unofficial-' + index} container spacing={1} alignItems="center">
+    <Grid2 key={'unofficial-' + index} container spacing={1} alignItems="center" width="100%">
       <Grid2 sx={{ width: 300 }}>
         <TextField
           fullWidth

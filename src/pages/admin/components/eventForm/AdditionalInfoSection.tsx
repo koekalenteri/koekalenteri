@@ -3,6 +3,7 @@ import type { SectionProps } from './types'
 
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import Box from '@mui/material/Box'
 import TextField from '@mui/material/TextField'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -26,14 +27,16 @@ export default function AdditionalInfoSection({
 
   return (
     <CollapsibleSection title={t('event.description')} open={open} onOpenChange={onOpenChange}>
-      <TextField
-        disabled={disabled}
-        rows={5}
-        fullWidth
-        multiline
-        value={event.description}
-        onChange={handleChange}
-      ></TextField>
+      <Box maxWidth={1280}>
+        <TextField
+          disabled={disabled}
+          rows={5}
+          fullWidth
+          multiline
+          value={event.description}
+          onChange={handleChange}
+        ></TextField>
+      </Box>
     </CollapsibleSection>
   )
 }
