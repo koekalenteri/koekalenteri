@@ -115,7 +115,7 @@
     "@types/jest": "^29.5.14",
     "@types/jest-axe": "^3.5.9",
     "@types/mdast": "^4.0.4",
-    "@types/node": "^22.16.2",
+    "@types/node": "^22.16.3",
     "@types/preval.macro": "^3.0.0",
     "@types/react": "^18.3.21",
     "@types/react-dom": "^18.3.7",
