@@ -679,7 +679,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-lg-6 MuiGrid2-spacing-xs-1 css-1oeyevi-MuiGrid2-root"
+                              class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-lg-6 MuiGrid2-spacing-xs-1 css-1vpvizr-MuiGrid2-root"
                             >
                               <div
                                 class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-spacing-xs-1 css-jhnp0g-MuiGrid2-root"
@@ -3439,7 +3439,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-lg-6 MuiGrid2-spacing-xs-1 css-1oeyevi-MuiGrid2-root"
+                              class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-lg-6 MuiGrid2-spacing-xs-1 css-1vpvizr-MuiGrid2-root"
                             >
                               <div
                                 class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-spacing-xs-1 css-jhnp0g-MuiGrid2-root"
