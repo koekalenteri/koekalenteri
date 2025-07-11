@@ -122,7 +122,7 @@ export const DogInfo = ({
   // Derived state
   const disabledByMode = disabled || state.mode !== 'manual'
   const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
-  const rfidDisabled = disabledByMode && !state.rfid
+  const rfidDisabled = disabledByMode && (!state.rfid || state.mode === 'notfound')
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
