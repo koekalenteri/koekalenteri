@@ -1,9 +1,10 @@
 import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
 
+import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
 
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
-import { formatDate } from '../i18n/dates'
+import { formatDate, TIME_ZONE } from '../i18n/dates'
 
 import {
   applyNewGroupsToDogEventClass,
@@ -68,9 +69,9 @@ describe('lib/event', () => {
   describe('eventDays', () => {
     it.each`
       startDate                | endDate                  | expected
-      ${new Date(2023, 0, 1)}  | ${new Date(2023, 0, 1)}  | ${[new Date(2023, 0, 1)]}
-      ${new Date(2023, 1, 15)} | ${new Date(2023, 1, 16)} | ${[new Date(2023, 1, 15), new Date(2023, 1, 16)]}
-      ${new Date(2023, 2, 10)} | ${new Date(2023, 2, 12)} | ${[new Date(2023, 2, 10), new Date(2023, 2, 11), new Date(2023, 2, 12)]}
+      ${new Date(2023, 0, 1)}  | ${new Date(2023, 0, 1)}  | ${[new TZDate(2023, 0, 1, TIME_ZONE)]}
+      ${new Date(2023, 1, 15)} | ${new Date(2023, 1, 16)} | ${[new TZDate(2023, 1, 15, TIME_ZONE), new TZDate(2023, 1, 16, TIME_ZONE)]}
+      ${new Date(2023, 2, 10)} | ${new Date(2023, 2, 12)} | ${[new TZDate(2023, 2, 10, TIME_ZONE), new TZDate(2023, 2, 11, TIME_ZONE), new TZDate(2023, 2, 12, TIME_ZONE)]}
     `('returns $expected when event startDate=$startDate and endDate=$endDate', ({ startDate, endDate, expected }) => {
       expect(getEventDays({ startDate, endDate })).toEqual(expected)
     })
@@ -96,7 +97,7 @@ describe('lib/event', () => {
 
   describe('getEventClassesByDays', () => {
     describe('for single day event', () => {
-      const date = new Date(2023, 11, 24)
+      const date = new TZDate(2023, 11, 24, TIME_ZONE)
 
       it.each`
         classes                     | expected
@@ -112,8 +113,8 @@ describe('lib/event', () => {
     })
 
     describe('for two day event', () => {
-      const startDate = new Date(2023, 11, 23)
-      const endDate = new Date(2023, 11, 24)
+      const startDate = new TZDate(2023, 11, 23, TIME_ZONE)
+      const endDate = new TZDate(2023, 11, 24, TIME_ZONE)
 
       it.each`
         classes                                                                                                  | expected
@@ -132,14 +133,14 @@ describe('lib/event', () => {
     })
 
     it('should return empty empty array as classes when classes is missing', () => {
-      const date = new Date(2025, 2, 27)
+      const date = new TZDate(2025, 2, 27, TIME_ZONE)
       expect(getEventClassesByDays({ startDate: date, endDate: date } as any)).toEqual([{ day: date, classes: [] }])
     })
   })
 
   describe('applyNewGroupsToDogEventClass and applyNewGroupsToDogEventDates', () => {
-    const date = new Date(2024, 3, 1)
-    const date2 = new Date(2024, 3, 2)
+    const date = new TZDate(2024, 3, 1, TIME_ZONE)
+    const date2 = new TZDate(2024, 3, 2, TIME_ZONE)
     const defaultGroups: RegistrationTime[] = ['ap', 'ip']
 
     it.each`

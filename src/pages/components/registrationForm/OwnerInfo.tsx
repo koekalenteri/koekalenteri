@@ -105,69 +105,71 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
       open={open && !!reg.dog?.regNo}
       onOpenChange={onOpenChange}
     >
-      <Grid2 container spacing={1}>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.owner?.name}
-            fullWidth
-            id="owner_name"
-            label={t('contact.name')}
-            name="name"
-            onChange={(e) => updateField('name', e.target.value)}
-            value={formValues.name}
-            slotProps={{
-              input: { autoComplete: 'name' },
-            }}
-          />
+      <FormGroup>
+        <Grid2 container spacing={1}>
+          <Grid2 size={{ xs: 12, sm: 6 }}>
+            <TextField
+              disabled={disabled}
+              error={!reg.owner?.name}
+              fullWidth
+              id="owner_name"
+              label={t('contact.name')}
+              name="name"
+              onChange={(e) => updateField('name', e.target.value)}
+              value={formValues.name}
+              slotProps={{
+                input: { autoComplete: 'name' },
+              }}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, sm: 6 }}>
+            <TextField
+              disabled={disabled}
+              error={!reg.owner?.location}
+              fullWidth
+              id="owner_city"
+              label={t('contact.city')}
+              name="city"
+              onChange={(e) => updateField('location', e.target.value)}
+              value={formValues.location}
+              slotProps={{
+                input: { autoComplete: 'address-level2' },
+              }}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, sm: 6 }}>
+            <TextField
+              disabled={disabled}
+              error={!reg.owner?.email}
+              fullWidth
+              id="owner_email"
+              label={t('contact.email')}
+              name="email"
+              onChange={(e) => updateField('email', e.target.value.trim())}
+              value={formValues.email}
+              slotProps={{
+                input: { autoComplete: 'email' },
+              }}
+            />
+          </Grid2>
+          <Grid2 size={{ xs: 12, sm: 6 }}>
+            <MuiTelInput
+              langOfCountryName={i18n.language}
+              defaultCountry="FI"
+              forceCallingCode
+              autoComplete="tel"
+              disabled={disabled}
+              error={!reg.owner?.phone}
+              fullWidth
+              id="owner_phone"
+              label={t('contact.phone')}
+              name="phone"
+              onChange={(value) => updateField('phone', value)}
+              value={formValues.phone}
+            />
+          </Grid2>
         </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.owner?.location}
-            fullWidth
-            id="owner_city"
-            label={t('contact.city')}
-            name="city"
-            onChange={(e) => updateField('location', e.target.value)}
-            value={formValues.location}
-            slotProps={{
-              input: { autoComplete: 'address-level2' },
-            }}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
-          <TextField
-            disabled={disabled}
-            error={!reg.owner?.email}
-            fullWidth
-            id="owner_email"
-            label={t('contact.email')}
-            name="email"
-            onChange={(e) => updateField('email', e.target.value.trim())}
-            value={formValues.email}
-            slotProps={{
-              input: { autoComplete: 'email' },
-            }}
-          />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
-          <MuiTelInput
-            langOfCountryName={i18n.language}
-            defaultCountry="FI"
-            forceCallingCode
-            autoComplete="tel"
-            disabled={disabled}
-            error={!reg.owner?.phone}
-            fullWidth
-            id="owner_phone"
-            label={t('contact.phone')}
-            name="phone"
-            onChange={(value) => updateField('phone', value)}
-            value={formValues.phone}
-          />
-        </Grid2>
-      </Grid2>
+      </FormGroup>
       <FormGroup>
         <FormControlLabel
           disabled={disabled}

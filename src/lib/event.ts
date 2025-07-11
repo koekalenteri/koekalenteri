@@ -10,9 +10,10 @@ import type {
   SanitizedPublicDogEvent,
 } from '../types'
 
+import { tz } from '@date-fns/tz'
 import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, sub } from 'date-fns'
 
-import { formatDate, zonedStartOfDay } from '../i18n/dates'
+import { formatDate, TIME_ZONE, zonedStartOfDay } from '../i18n/dates'
 
 import { unique } from './utils'
 
@@ -44,10 +45,13 @@ export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Da
   !date || isSameDay(defaultEntryEndDate(eventStartDate), date)
 
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
-  eachDayOfInterval({
-    start: startDate,
-    end: endDate,
-  })
+  eachDayOfInterval(
+    {
+      start: startDate,
+      end: endDate,
+    },
+    { in: tz(TIME_ZONE) }
+  )
 
 export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
   unique(classes?.map((c) => c?.class) ?? []).filter(Boolean)

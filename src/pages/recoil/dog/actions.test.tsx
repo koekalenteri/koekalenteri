@@ -196,6 +196,7 @@ describe('useDogActions', () => {
               snap.set(dogCacheAtom, {
                 [testRegNo]: {
                   dog: cachedDog,
+                  manual: true,
                 } as any,
               })
             }}
@@ -471,6 +472,8 @@ describe('useDogActions', () => {
     })
 
     it('applies special handling for titles and rfid', async () => {
+      mockGetDog.mockResolvedValueOnce(testDog)
+
       // Create cache with titles and rfid
       const cacheWithTitlesRfid: DeepPartial<DogCachedInfo> = {
         dog: {

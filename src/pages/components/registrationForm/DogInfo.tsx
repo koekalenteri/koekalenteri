@@ -132,10 +132,10 @@ export const DogInfo = ({
 
   const handleChange = useCallback(
     (props: DeepPartial<DogCachedInfo>) => {
-      const cache = actions.updateCache(props)
+      const cache = actions.updateCache({ ...props, manual: state.mode === 'manual' })
       onChange?.({ dog: cache.dog })
     },
-    [actions, onChange]
+    [actions, onChange, state.mode]
   )
 
   const updateDog = useCallback(
@@ -175,9 +175,13 @@ export const DogInfo = ({
           const cache = await actions.fetch()
           updateDog(cache)
           if (state.regNo) {
+            let newMode: State['mode'] = 'update'
+            if (!cache?.dog?.regNo) newMode = 'notfound'
+            if (cache?.manual) newMode = 'manual'
+
             setState((prev) => ({
               ...prev,
-              mode: cache?.dog?.regNo ? 'update' : 'notfound',
+              mode: newMode,
               rfid: !!cache.rfid || !cache?.dog?.rfid,
             }))
           }

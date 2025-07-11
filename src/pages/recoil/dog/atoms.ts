@@ -24,6 +24,7 @@ export interface DogCachedInfo {
   payer: RegistrationPerson
   results: ManualTestResult[]
   rfid: boolean
+  manual?: boolean
 }
 
 export type DogCache = Record<string, Partial<DogCachedInfo>>

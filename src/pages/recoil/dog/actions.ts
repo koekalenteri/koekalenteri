@@ -25,8 +25,7 @@ export function useDogActions(regNo: string) {
       if (!regNo) {
         return { dog: emptyDog }
       }
-      const manuallyInputCachedDog = cache?.dog && !cache.dog.refreshDate
-      if (dog?.regNo === regNo || manuallyInputCachedDog) {
+      if (dog?.regNo === regNo || cache?.manual) {
         return applyCache(regNo, cache, dog)
       }
       try {
