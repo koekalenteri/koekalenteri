@@ -11,6 +11,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 
+import { formatDate } from '../../../../../i18n/dates'
 import {
   calculateTotalFromClasses,
   calculateTotalFromDays,
@@ -42,18 +43,18 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
     onChange?.({
       classes: newClasses,
       places: total > 0 ? total : event.places,
-      placesPerDay: Object.keys(newPlacesPerDay).length > 0 ? newPlacesPerDay : undefined,
+      placesPerDay: newPlacesPerDay,
     })
   }
 
   const handlePlacesChange = useCallback(
-    (value?: number) => onChange?.({ places: Math.min(Math.max(value ?? 0, 0), 999) }),
+    (value?: number) => onChange?.({ places: Math.min(Math.max(value ?? 0, 0), 999), placesPerDay: {} }),
     [onChange]
   )
 
   const handleDayPlacesChange = useCallback(
     (date: Date, value?: number) => {
-      const dateStr = date.toISOString().split('T')[0]
+      const dateStr = formatDate(date, 'yyyy-MM-dd')
       const newPlacesPerDay = { ...(event.placesPerDay ?? {}) }
 
       if (value && value > 0) {
@@ -63,7 +64,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
       }
 
       const total = calculateTotalFromDays(newPlacesPerDay)
-      onChange?.({ placesPerDay: newPlacesPerDay, places: total > 0 ? total : event.places })
+      onChange?.({ placesPerDay: newPlacesPerDay, places: total })
     },
     [event.places, event.placesPerDay, onChange]
   )
@@ -89,12 +90,12 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
 
           onChange?.({
             classes: newClasses,
-            placesPerDay: Object.keys(newPlacesPerDay).length > 0 ? newPlacesPerDay : undefined,
+            placesPerDay: newPlacesPerDay,
           })
         } else {
           // Reset class places
           newClasses.forEach((cls) => (cls.places = 0))
-          onChange?.({ classes: newClasses, placesPerDay: undefined })
+          onChange?.({ classes: newClasses, placesPerDay: {} })
         }
       } else if (checked && (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)) {
         // Initialize placesPerDay with even distribution
@@ -104,7 +105,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
         }
       } else if (!checked) {
         // Reset placesPerDay
-        onChange?.({ placesPerDay: undefined })
+        onChange?.({ placesPerDay: {} })
       }
     },
     [event, hasClasses, onChange]
@@ -128,7 +129,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
         enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
       }
     }
-  }, [event.classes, event.places, event.placesPerDay, hasClasses, onChange, totalEnabled])
+  }, [event.id])
 
   return (
     <Box sx={{ p: 1, border: '1px dashed #ddd', borderRadius: 1 }}>

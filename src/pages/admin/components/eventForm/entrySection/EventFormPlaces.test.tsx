@@ -74,7 +74,7 @@ describe('EventFormPlaces', () => {
       await user.clear(total)
       await user.type(total, '20')
       await flushPromises()
-      expect(onChange).toHaveBeenLastCalledWith({ places: 20 })
+      expect(onChange).toHaveBeenLastCalledWith({ places: 20, placesPerDay: {} })
       expect(class1).toHaveValue('')
       expect(class2).toHaveValue('')
       expect(total).toHaveValue('20')
@@ -129,7 +129,7 @@ describe('EventFormPlaces', () => {
       await user.clear(total)
       await user.type(total, '20')
       await flushPromises()
-      expect(onChange).toHaveBeenLastCalledWith({ places: 20 })
+      expect(onChange).toHaveBeenLastCalledWith({ places: 20, placesPerDay: {} })
       expect(day1).toHaveValue('0')
       expect(day2).toHaveValue('0')
       expect(total).toHaveValue('20')
@@ -275,7 +275,7 @@ describe('EventFormPlaces', () => {
       expect(check).not.toBeChecked()
       expect(onChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
-          placesPerDay: undefined,
+          placesPerDay: {},
         })
       )
 

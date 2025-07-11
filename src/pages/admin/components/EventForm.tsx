@@ -91,6 +91,13 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         return
       }
       const newState = merge<DogEvent>(event, props)
+
+      // Owerwriting props that should not be merged
+      if (props.placesPerDay) {
+        // Need to typecast because of DeepPartial usage
+        newState.placesPerDay = props.placesPerDay as Record<string, number>
+      }
+
       setErrors(validateEvent(newState))
       onChange?.(newState)
     },

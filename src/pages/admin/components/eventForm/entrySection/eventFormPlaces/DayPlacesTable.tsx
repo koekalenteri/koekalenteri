@@ -34,7 +34,7 @@ export default function DayPlacesTable({
     <BasePlacesTable headers={headers}>
       {eventDays.map((day) => {
         const dateStr = formatDate(day, 'yyyy-MM-dd')
-        const places = event.placesPerDay?.[dateStr] || 0
+        const places = event.placesPerDay?.[dateStr] ?? 0
 
         return (
           <TableRow key={dateStr}>
