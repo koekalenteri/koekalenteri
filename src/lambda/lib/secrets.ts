@@ -115,7 +115,7 @@ export async function getSSMParams<T extends Record<string, string>>(names: Extr
 }
 
 export async function getKLAPIConfig(): Promise<KLAPIConfig> {
-  const cfg = (await getSSMParams(['KL_API_URL', 'KL_API_UID', 'KL_API_PWD'])) as KLAPIConfig
+  const cfg = await getSSMParams<KLAPIConfig>(['KL_API_URL', 'KL_API_UID', 'KL_API_PWD'])
   if (!cfg.KL_API_URL) {
     throw new Error('Missing KLAPI Config!')
   }
