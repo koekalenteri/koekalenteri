@@ -51,10 +51,10 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1rp9nru-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -401,10 +401,10 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1rp9nru-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -753,10 +753,10 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1rp9nru-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -1105,10 +1105,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1rp9nru-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -1326,7 +1326,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -1544,7 +1544,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -1893,10 +1893,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1rp9nru-MuiGrid2-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
@@ -2114,7 +2114,7 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-1o604wy-MuiGrid2-root"
+                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-11pvsqj-MuiGrid2-root"
                 >
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"

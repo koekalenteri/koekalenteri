@@ -79,7 +79,7 @@ export default function JudgesSection({
       error={error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1}>
+      <Grid2 container spacing={1} maxWidth={1280}>
         {event.judges.map((judge, index) =>
           judge.official ? (
             <OfficialJudge

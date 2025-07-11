@@ -29,7 +29,16 @@ export default function AdminHomePage() {
       <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }} minWidth={900}>
         <SideMenu open={menuOpen} onClose={closeMenu} />
-        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1, overflow: 'auto', mt: HEADER_HEIGHT }}>
+        <Box
+          sx={{
+            p: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            flexGrow: 1,
+            overflow: 'auto',
+            mt: HEADER_HEIGHT,
+          }}
+        >
           <Suspense fallback={<LoadingIndicator />} key={location.key}>
             <Outlet />
           </Suspense>
