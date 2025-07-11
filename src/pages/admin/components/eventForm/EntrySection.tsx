@@ -79,49 +79,41 @@ export default function EntrySection(props: Props) {
       error={!!error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1} maxWidth={1280}>
-        <Grid2 container spacing={1}>
-          <Grid2 width={600}>
-            <DateRange
-              startDisabled={disabled}
-              startLabel="Ilmoittautumisaika alkaa"
-              endLabel="Ilmoittautumisaika päättyy"
-              start={event.entryStartDate ?? null}
-              defaultStart={sub(event.startDate, { weeks: 6 })}
-              end={event.entryEndDate ?? null}
-              endDisabled={disabled}
-              defaultEnd={sub(event.startDate, { weeks: 3 })}
-              range={{ start: event.createdAt ?? zonedStartOfDay(new Date()), end: event.startDate }}
-              required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
-              onChange={handleDateChange}
-            />
-            <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
-          </Grid2>
+      <Grid2 container spacing={1} maxWidth={900}>
+        <Grid2 width="100%">
+          <DateRange
+            startDisabled={disabled}
+            startLabel="Ilmoittautumisaika alkaa"
+            endLabel="Ilmoittautumisaika päättyy"
+            start={event.entryStartDate ?? null}
+            defaultStart={sub(event.startDate, { weeks: 6 })}
+            end={event.entryEndDate ?? null}
+            endDisabled={disabled}
+            defaultEnd={sub(event.startDate, { weeks: 3 })}
+            range={{ start: event.createdAt ?? zonedStartOfDay(new Date()), end: event.startDate }}
+            required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
+            onChange={handleDateChange}
+          />
+          <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
         </Grid2>
-        <Grid2 container spacing={1}>
-          <Grid2 minWidth={600} maxWidth={900}>
-            <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
-          </Grid2>
+        <Grid2 width="100%">
+          <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
         </Grid2>
-        <Grid2 container spacing={1}>
-          <Grid2 width={600}>
-            <EventFormPlaces disabled={disabled} {...props} />
-          </Grid2>
+        <Grid2 width="100%">
+          <EventFormPlaces disabled={disabled} {...props} />
         </Grid2>
-        <Grid2 container spacing={1}>
-          <Grid2 minWidth={600} maxWidth={900}>
-            <AutocompleteMulti
-              disabled={disabled}
-              disablePortal
-              groupBy={(o) => t(o.group)}
-              isOptionEqualToValue={(o, v) => o?.value === v?.value}
-              getOptionLabel={(o) => t(o.name)}
-              options={sortedPriorities}
-              onChange={handlePriorityChange}
-              value={eventPriority}
-              label={'Etusijat'}
-            />
-          </Grid2>
+        <Grid2 width="100%">
+          <AutocompleteMulti
+            disabled={disabled}
+            disablePortal
+            groupBy={(o) => t(o.group)}
+            isOptionEqualToValue={(o, v) => o?.value === v?.value}
+            getOptionLabel={(o) => t(o.name)}
+            options={sortedPriorities}
+            onChange={handlePriorityChange}
+            value={eventPriority}
+            label={'Etusijat'}
+          />
         </Grid2>
       </Grid2>
     </CollapsibleSection>
