@@ -67,13 +67,15 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
       open={open}
       onClose={onClose}
       aria-labelledby="reg-dialog-title"
-      PaperProps={{
-        sx: {
-          m: 1,
-          maxHeight: 'calc(100% - 16px)',
-          width: 'calc(100% - 16px)',
-          '& .MuiDialogTitle-root': {
-            fontSize: '1rem',
+      slotProps={{
+        paper: {
+          sx: {
+            m: 1,
+            maxHeight: 'calc(100% - 16px)',
+            width: 'calc(100% - 16px)',
+            '& .MuiDialogTitle-root': {
+              fontSize: '1rem',
+            },
           },
         },
       }}
