@@ -1,4 +1,4 @@
-import type { DogEvent, DogEventCost, Language } from '../../types'
+import type { DogEvent } from '../../types'
 import type { DogEventCostSegment } from '../../types/Cost'
 
 import { useTranslation } from 'react-i18next'
@@ -24,8 +24,11 @@ export default function CostInfo({ event }: Props) {
   const { cost, costMember } = event
 
   if (typeof cost === 'number') {
+    if (typeof costMember === 'object') return <>invalid cost configuration</>
     return <>{costMember ? `${cost}\u00A0€, ${t('event.costMember')} ${costMember}\u00A0€` : `${cost}\u00A0€`}</>
-  } else if (typeof costMember === 'number') {
+  }
+
+  if (typeof costMember === 'number') {
     return <>invalid cost configuration</>
   }
 
@@ -33,11 +36,11 @@ export default function CostInfo({ event }: Props) {
     .map((segment) => {
       const value = getCostValue(cost, segment)
       if (!value) return null
-      const memberValue = getCostValue(costMember as DogEventCost, segment)
+      const memberValue = costMember && getCostValue(costMember, segment)
       const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
       const name =
         segment === 'custom' && cost.custom?.description
-          ? (cost.custom.description[language as Language] ?? cost.custom.description.fi)
+          ? (cost.custom.description[language] ?? cost.custom.description.fi)
           : t(getCostSegmentName(segment))
       return { name, text }
     })
@@ -45,7 +48,7 @@ export default function CostInfo({ event }: Props) {
 
   const optionalCosts =
     cost.optionalAdditionalCosts?.map((c, index) => {
-      const name = c.description[language as Language] ?? c.description.fi
+      const name = c.description[language] ?? c.description.fi
       const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
       const text = memberCost ? `${c.cost} / ${memberCost}\u00A0€` : `${c.cost}\u00A0€`
       return { name, text }
@@ -56,9 +59,9 @@ export default function CostInfo({ event }: Props) {
       <Table size="small">
         <TableBody>
           {costSegments.map((segment) => (
-            <TableRow key={segment!.name}>
-              <TableCell>{segment!.name}</TableCell>
-              <TableCell align="right">{segment!.text}</TableCell>
+            <TableRow key={segment.name}>
+              <TableCell>{segment.name}</TableCell>
+              <TableCell align="right">{segment.text}</TableCell>
             </TableRow>
           ))}
           {optionalCosts.map((c) => (

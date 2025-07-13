@@ -28,6 +28,8 @@ export type DogEventCostKey = NonNullable<keyof DogEventCost>
 
 export type DogEventCostSegment = NonNullable<KeyofExcluding<DogEventCost, 'optionalAdditionalCosts'>>
 
+export type MinimalEventForCost = Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>
+
 export interface MinimalRegistrationForCost
   extends MinimalRegistrationForMembership,
     Pick<Registration, 'selectedCost' | 'createdAt' | 'optionalCosts'> {

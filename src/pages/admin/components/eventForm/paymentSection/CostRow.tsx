@@ -73,8 +73,9 @@ export const CostRow = ({
     return t(`costNames.${costKey}`, { code: breedCode })
   }
 
-  const costPath = `cost.${costKey === 'breed' && breedCode ? `breed.${breedCode}` : costKey}`
-  const memberCostPath = `costMember.${costKey === 'breed' && breedCode ? `breed.${breedCode}` : costKey}`
+  const innerKey = costKey === 'breed' && breedCode ? `breed.${breedCode}` : costKey
+  const costPath = `cost.${innerKey}`
+  const memberCostPath = `costMember.${innerKey}`
 
   return (
     <TableRow key={costKey}>

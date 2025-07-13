@@ -22,9 +22,9 @@ import { DOG_EVENT_COST_KEYS, setCostValue } from '../../../../lib/cost'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import { NumberInput } from '../../../components/NumberInput'
 
-import { AddCostDialog } from './components/AddCostDialog'
-import { CostRow } from './components/CostRow'
-import { EditCostDescriptionDialog } from './components/EditCostDescriptionDialog'
+import { AddCostDialog } from './paymentSection/AddCostDialog'
+import { CostRow } from './paymentSection/CostRow'
+import { EditCostDescriptionDialog } from './paymentSection/EditCostDescriptionDialog'
 
 // Define the order for cost types
 const COST_TYPE_ORDER: Record<string, number> = {
@@ -347,7 +347,7 @@ export default function PaymentSection({
                   )}
                 {/* Optional additional costs items */}
                 {typeof event.cost === 'object' &&
-                  (event.cost as DogEventCost).optionalAdditionalCosts?.map((optCost, index) => (
+                  event.cost.optionalAdditionalCosts?.map((optCost, index) => (
                     <TableRow key={`optional-${index}`} sx={{ borderTop: '2px solid rgba(224, 224, 224, 1)' }}>
                       <TableCell>
                         <div style={{ display: 'flex', alignItems: 'center' }}>

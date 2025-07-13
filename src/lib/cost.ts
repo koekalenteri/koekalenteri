@@ -6,6 +6,7 @@ import type {
   DogEventCost,
   DogEventCostKey,
   DogEventCostSegment,
+  MinimalEventForCost,
   MinimalRegistrationForCost,
 } from '../types/Cost'
 import type { MinimalRegistrationForMembership } from './registration'
@@ -65,7 +66,7 @@ const breedStrategy: CostStrategy = {
     if (data && 'breedCode' in data) {
       const breedCodes = Array.isArray(data.breedCode) ? data.breedCode : [data.breedCode]
       for (const code of breedCodes) {
-        result.breed![code] = value
+        result.breed[code] = value
       }
     }
     return result
@@ -101,25 +102,18 @@ export const getApplicableStrategy = (
     const cheapestPrice = cheapest.getValue(cost, registration.dog.breedCode)
     const currentPrice = current.getValue(cost, registration.dog.breedCode)
     return currentPrice < cheapestPrice ? current : cheapest
-  })
+  }, normalStrategy)
 }
 
-export const selectCost = (
-  event: Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>,
-  registration: MinimalRegistrationForMembership
-) => (event.costMember && isMember(registration) ? event.costMember : event.cost)
+export const selectCost = (event: MinimalEventForCost, registration: MinimalRegistrationForMembership) =>
+  event.costMember && isMember(registration) ? event.costMember : event.cost
 
 export const additionalCost = (registration: MinimalRegistrationForCost, cost: DogEventCost) => {
   const selected = registration.optionalCosts ?? []
   return cost.optionalAdditionalCosts?.reduce((acc, c, i) => (selected.includes(i) ? acc + c.cost : acc), 0) ?? 0
 }
 
-type CostSegmentName =
-  | 'costNames.normal'
-  | 'costNames.earlyBird'
-  | 'costNames.breed'
-  | 'costNames.custom'
-  | 'costNames.normal'
+type CostSegmentName = 'costNames.normal' | 'costNames.earlyBird' | 'costNames.breed' | 'costNames.custom'
 
 export const getCostSegmentName = (segment: DogEventCostSegment | 'legacy'): CostSegmentName => {
   const names: Record<DogEventCostSegment | 'legacy', CostSegmentName> = {
@@ -160,10 +154,7 @@ export const getCostValue = (cost: DogEventCost | number, key: DogEventCostKey, 
   return 0
 }
 
-export const calculateCost = (
-  event: Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>,
-  registration: MinimalRegistrationForCost
-): CostResult => {
+export const calculateCost = (event: MinimalEventForCost, registration: MinimalRegistrationForCost): CostResult => {
   const cost = selectCost(event, registration)
 
   if (typeof cost === 'number') return { amount: cost, segment: 'legacy' }
@@ -176,7 +167,7 @@ export const calculateCost = (
 }
 
 export const getCostSegment = (
-  event: Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>,
+  event: MinimalEventForCost,
   registration: MinimalRegistrationForCost
 ): DogEventCostSegment | 'legacy' => {
   const cost = selectCost(event, registration)
