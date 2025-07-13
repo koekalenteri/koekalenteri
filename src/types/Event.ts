@@ -12,12 +12,13 @@ import type {
   ReplaceOptional,
   User,
 } from '.'
+import type { DogEventCost } from './Cost'
 
 export interface JsonDogEvent extends JsonDbRecord {
   classes: Array<JsonEventClass>
   contactInfo?: Partial<ContactInfo>
-  cost: number
-  costMember: number
+  cost: number | DogEventCost
+  costMember?: number | DogEventCost
   description: string
   endDate: string
   entries?: number

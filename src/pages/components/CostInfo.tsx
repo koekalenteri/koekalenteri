@@ -1,7 +1,17 @@
-import type { DogEvent } from '../../types'
+import type { DogEvent, DogEventCost, Language } from '../../types'
+import type { DogEventCostSegment } from '../../types/Cost'
 
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import Paper from '@mui/material/Paper'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableRow from '@mui/material/TableRow'
+import { useRecoilValue } from 'recoil'
+
+import { getCostSegmentName, getCostValue } from '../../lib/cost'
+import { languageAtom } from '../recoil'
 
 interface Props {
   readonly event: Pick<DogEvent, 'cost' | 'costMember'>
@@ -9,13 +19,60 @@ interface Props {
 
 export default function CostInfo({ event }: Props) {
   const { t } = useTranslation()
-  const text = useMemo(
-    () =>
-      event.costMember
-        ? `${event.cost}\u00A0€, ${t('event.costMember')}\u00A0${event.costMember}\u00A0€`
-        : `${event.cost}\u00A0€`,
-    [event.cost, event.costMember, t]
-  )
+  const language = useRecoilValue(languageAtom)
+  const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed', 'custom']
+  const { cost, costMember } = event
 
-  return <>{text}</>
+  if (typeof cost === 'number') {
+    return <>{costMember ? `${cost}\u00A0€, ${t('event.costMember')} ${costMember}\u00A0€` : `${cost}\u00A0€`}</>
+  } else if (typeof costMember === 'number') {
+    return <>invalid cost configuration</>
+  }
+
+  const costSegments = segments
+    .map((segment) => {
+      const value = getCostValue(cost, segment)
+      if (!value) return null
+      const memberValue = getCostValue(costMember as DogEventCost, segment)
+      const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
+      const name =
+        segment === 'custom' && cost.custom?.description
+          ? (cost.custom.description[language as Language] ?? cost.custom.description.fi)
+          : t(getCostSegmentName(segment))
+      return { name, text }
+    })
+    .filter((c): c is { name: string; text: string } => !!c)
+
+  const optionalCosts =
+    cost.optionalAdditionalCosts?.map((c, index) => {
+      const name = c.description[language as Language] ?? c.description.fi
+      const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
+      const text = memberCost ? `${c.cost} / ${memberCost}\u00A0€` : `${c.cost}\u00A0€`
+      return { name, text }
+    }) ?? []
+
+  return (
+    <TableContainer component={Paper}>
+      <Table size="small">
+        <TableBody>
+          {costSegments.map((segment) => (
+            <TableRow key={segment!.name}>
+              <TableCell>{segment!.name}</TableCell>
+              <TableCell align="right">{segment!.text}</TableCell>
+            </TableRow>
+          ))}
+          {optionalCosts.map((c) => (
+            <TableRow key={c.name}>
+              <TableCell variant="footer" color="black">
+                {c.name}
+              </TableCell>
+              <TableCell variant="footer" align="right">
+                {c.text}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
 }

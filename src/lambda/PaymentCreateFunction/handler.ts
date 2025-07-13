@@ -1,15 +1,9 @@
-import type {
-  CreatePaymentResponse,
-  JsonConfirmedEvent,
-  JsonRegistration,
-  JsonTransaction,
-  Organizer,
-} from '../../types'
+import type { CreatePaymentResponse, JsonConfirmedEvent, JsonTransaction, Organizer } from '../../types'
 import type { PaymentCustomer, PaymentItem } from '../types/paytrail'
 
 import { nanoid } from 'nanoid'
 
-import { isMember } from '../../lib/registration'
+import { calculateCost } from '../../lib/cost'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -25,10 +19,6 @@ import { getApiHost } from '../utils/proxyEvent'
 
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
-
-const registrationCost = (event: JsonConfirmedEvent, registration: JsonRegistration): number => {
-  return event.costMember && isMember(registration) ? event.costMember : event.cost
-}
 
 /**
  * paymentCreate is called by client to start the payment process
@@ -49,7 +39,14 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
-  const amount = Math.round(100 * (registrationCost(jsonEvent, registration) - (registration.paidAmount ?? 0)))
+  const amount = Math.round(
+    100 *
+      (calculateCost(
+        { ...jsonEvent, entryStartDate: new Date(jsonEvent.entryStartDate) },
+        { ...registration, createdAt: new Date(registration.createdAt) }
+      ).amount -
+        (registration.paidAmount ?? 0))
+  )
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)
   }

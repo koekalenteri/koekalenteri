@@ -1250,9 +1250,7 @@ exports[`RegistrationForm renders 1`] = `
                 <div
                   class="MuiBox-root css-e1h6et"
                 >
-                  <div
-                    class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-                  >
+                  <form>
                     <div
                       class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
                     >
@@ -1458,7 +1456,7 @@ exports[`RegistrationForm renders 1`] = `
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </form>
                   <div
                     class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
                   >
@@ -1470,6 +1468,7 @@ exports[`RegistrationForm renders 1`] = `
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -1499,6 +1498,7 @@ exports[`RegistrationForm renders 1`] = `
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -2429,8 +2429,19 @@ exports[`RegistrationForm renders 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-1p6e05z-MuiStack-root"
+      class="MuiStack-root css-1mqo557-MuiStack-root"
     >
+      <div
+        class="MuiBox-root css-1snmjsk"
+      >
+        <b>
+          costNames.normal
+          :
+        </b>
+         
+        123
+         €
+      </div>
       <div
         class="MuiBox-root css-1snmjsk"
       >
@@ -2441,6 +2452,10 @@ exports[`RegistrationForm renders 1`] = `
         123
          €
       </div>
+    </div>
+    <div
+      class="MuiStack-root css-1tokk9g-MuiStack-root"
+    >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""
@@ -3745,9 +3760,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                 <div
                   class="MuiBox-root css-e1h6et"
                 >
-                  <div
-                    class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-                  >
+                  <form>
                     <div
                       class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
                     >
@@ -3953,7 +3966,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </form>
                   <div
                     class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
                   >
@@ -3965,6 +3978,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -3994,6 +4008,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -4926,8 +4941,19 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-1p6e05z-MuiStack-root"
+      class="MuiStack-root css-1mqo557-MuiStack-root"
     >
+      <div
+        class="MuiBox-root css-1snmjsk"
+      >
+        <b>
+          costNames.normal
+          :
+        </b>
+         
+        123
+         €
+      </div>
       <div
         class="MuiBox-root css-1snmjsk"
       >
@@ -4938,6 +4964,10 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         123
          €
       </div>
+    </div>
+    <div
+      class="MuiStack-root css-1tokk9g-MuiStack-root"
+    >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""

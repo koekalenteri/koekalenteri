@@ -364,4 +364,58 @@ describe('paymentCreateLambda', () => {
       })
     )
   })
+
+  it('calculates the correct amount for a complex cost structure', async () => {
+    mockGetEvent.mockResolvedValueOnce({
+      id: 'event123',
+      organizer: { id: 'org789', name: 'Test Organizer' },
+      cost: {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+        breed: { '110': 45 },
+        custom: { cost: 30, description: { fi: 'Custom' } },
+        optionalAdditionalCosts: [
+          { cost: 5, description: { fi: 'Option 1' } },
+          { cost: 10, description: { fi: 'Option 2' } },
+        ],
+      },
+      costMember: 40,
+      name: 'Test Event',
+      location: 'Test Location',
+      startDate: '2025-01-01',
+      endDate: '2025-01-02',
+      eventType: 'Test Type',
+      entryStartDate: new Date().toISOString(),
+    })
+
+    mockGetRegistration.mockResolvedValueOnce({
+      eventId: 'event123',
+      id: 'reg456',
+      payer: {
+        name: 'Test Payer',
+        email: 'test@example.com',
+        phone: '1234567890',
+      },
+      handler: { membership: false },
+      owner: { membership: false },
+      cancelled: false,
+      paidAmount: 0,
+      dog: { breedCode: '110' },
+      selectedCost: 'custom',
+      optionalCosts: [0, 1],
+      createdAt: new Date().toISOString(),
+    })
+
+    await paymentCreateLambda(event)
+
+    expect(mockCreatePayment).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      4500, // 30 (custom) + 5 + 10 = 45 * 100
+      expect.any(String),
+      expect.any(String),
+      expect.any(Array),
+      expect.any(Object)
+    )
+  })
 })

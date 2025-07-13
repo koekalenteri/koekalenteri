@@ -73,7 +73,7 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
             {printContactInfo(event.contactInfo?.secretary)}
           </ItemWithCaption>
         ) : null}
-        <ItemWithCaption label={t('event.cost')}>
+        <ItemWithCaption label={t('paymentDetails')}>
           <CostInfo event={event} />
         </ItemWithCaption>
         {event.priority ? (

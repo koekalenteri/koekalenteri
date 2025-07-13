@@ -76,7 +76,7 @@ describe('lib/registration', () => {
     describe('breed priority', () => {
       it.each(PRIORIZED_BREED_CODES)('should work for breedCode %p', (breedCode) => {
         expect(hasPriority({ priority: [breedCode] }, { dog: { breedCode } })).toEqual(true)
-        expect(hasPriority({ priority: PRIORIZED_BREED_CODES }, { dog: { breedCode } })).toEqual(true)
+        expect(hasPriority({ priority: [...PRIORIZED_BREED_CODES] }, { dog: { breedCode } })).toEqual(true)
 
         expect(hasPriority({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toEqual(false)
         expect(hasPriority({ priority: [breedCode] }, {})).toEqual(false)
@@ -172,7 +172,9 @@ describe('lib/registration', () => {
     describe('breed priority', () => {
       it.each(PRIORIZED_BREED_CODES)('should work for breedCode %p', (breedCode) => {
         expect(priorityDescriptionKey({ priority: [breedCode] }, { dog: { breedCode } })).toEqual('breed')
-        expect(priorityDescriptionKey({ priority: PRIORIZED_BREED_CODES }, { dog: { breedCode } })).toEqual('breed')
+        expect(priorityDescriptionKey({ priority: [...PRIORIZED_BREED_CODES] }, { dog: { breedCode } })).toEqual(
+          'breed'
+        )
 
         expect(priorityDescriptionKey({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toEqual(undefined)
         expect(priorityDescriptionKey({ priority: [breedCode] }, {})).toEqual(undefined)

@@ -201,19 +201,3 @@ export const filterJudgesSelector = selector({
     return usedJudges
   },
 })
-
-export const eventPricesSelector = selector({
-  key: 'eventPricesSelector',
-  get: ({ get }) =>
-    unique<number>(get(eventsAtom).map((e) => e.cost))
-      .filter(Boolean)
-      .sort((a, b) => a - b),
-})
-
-export const eventMemerPricesSelector = selector({
-  key: 'eventMemberPricesSelector',
-  get: ({ get }) =>
-    unique<number>(get(eventsAtom).map((e) => e.costMember))
-      .filter(Boolean)
-      .sort((a, b) => a - b),
-})

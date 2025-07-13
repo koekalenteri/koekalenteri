@@ -115,4 +115,38 @@ describe('RegistrationForm', () => {
     await user.dblClick(saveButton)
     expect(onSave).toHaveBeenCalledTimes(1)
   })
+  it('should render optional costs', async () => {
+    const event = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 10,
+        optionalAdditionalCosts: [
+          { cost: 5, description: { fi: 'Cost 1' } },
+          { cost: 10, description: { fi: 'Cost 2' } },
+        ],
+      },
+    }
+    const registration = { ...registrationWithStaticDates, optionalCosts: [0] }
+    const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
+
+    const { user } = renderWithUserEvents(
+      <RegistrationForm event={event} registration={registration} onChange={onChange} />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    await flushPromises()
+
+    const cb1 = screen.getByLabelText('Cost 1 (5€)')
+    expect(cb1).toBeChecked()
+
+    const cb2 = screen.getByLabelText('Cost 2 (10€)')
+    expect(cb2).not.toBeChecked()
+
+    await user.click(cb2)
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ optionalCosts: [0, 1] }))
+
+    await user.click(cb1)
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ optionalCosts: [1] }))
+  })
 })

@@ -42,6 +42,7 @@ describe('EventEditPage', () => {
       endDate: eventDate,
       entryStartDate: new Date('2021-03-23'),
       entryEndDate: new Date('2021-04-09'),
+      cost: { normal: 0 },
     }
 
     const { container } = render(

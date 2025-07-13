@@ -25,3 +25,5 @@ export type KeysOf<o> = o extends readonly unknown[]
     }[keyof o]
 
 export type AtLeastOne<T> = [T, ...T[]]
+
+export type KeyofExcluding<T, E extends keyof T> = { [K in keyof T]: K extends E ? never : K }[keyof T]

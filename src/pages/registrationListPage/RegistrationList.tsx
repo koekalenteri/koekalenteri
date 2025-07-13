@@ -41,13 +41,11 @@ const RegistrationListItemTooltipIcons = ({ registration, priority }: Registrati
         text={priority ? 'Olen etusijalla' : 'En ole etusijalla'}
         icon={<PriorityIcon dim priority={priority} fontSize="small" />}
       />
-      ,
       <TooltipIcon
         key="payment"
         text={t(getPaymentStatus(registration))}
         icon={<PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />}
       />
-      ,
     </>
   )
 }

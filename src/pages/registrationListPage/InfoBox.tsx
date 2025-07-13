@@ -29,6 +29,11 @@ const registrationStatus = (registration: Registration) => {
   if (registration.cancelled) {
     return 'Olen perunut ilmoittautumiseni'
   }
+  if (registration.invitationRead) {
+    return registration.confirmed
+      ? 'Olen vahvistanut osallistumiseni ja kuitannut koekutsun'
+      : 'Olen kuitannut koekutsun'
+  }
   return registration.confirmed ? 'Olen vahvistanut osallistumiseni' : 'Ilmoittautuminen vastaanotettu'
 }
 
@@ -39,6 +44,8 @@ interface Props {
 
 export const InfoBox = ({ event, registration }: Props) => {
   const navigate = useNavigate()
+  const needsPayment =
+    !registration.cancelled && registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
 
   return (
     <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1 }}>
@@ -55,9 +62,7 @@ export const InfoBox = ({ event, registration }: Props) => {
         <ListItem
           disablePadding
           secondaryAction={
-            !registration.cancelled &&
-            registration.paymentStatus !== 'SUCCESS' &&
-            registration.paymentStatus !== 'PENDING' ? (
+            needsPayment ? (
               <Button aria-label={t('registration.cta.pay')} onClick={() => navigate(Path.payment(registration))}>
                 {t('registration.cta.pay')}
               </Button>
@@ -68,8 +73,13 @@ export const InfoBox = ({ event, registration }: Props) => {
             <EuroOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText
-            primary={t(getPaymentStatus(registration))}
+            primary={
+              registration.totalAmount
+                ? `${t(getPaymentStatus(registration))} (${registration.totalAmount}€)`
+                : t(getPaymentStatus(registration))
+            }
             slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
+            sx={{ pr: needsPayment ? 12 : 0 }}
           />
         </ListItem>
         <ListItem disablePadding>

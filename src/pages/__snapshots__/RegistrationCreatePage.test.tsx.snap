@@ -137,9 +137,9 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               <div
                 class="MuiTypography-root MuiTypography-caption css-g7qyms-MuiTypography-root"
               >
-                event.cost
+                paymentDetails
               </div>
-              123 €, event.costMember 123 €
+              123 €, event.costMember 123 €
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-g8s1br-MuiGrid2-root"
@@ -1518,9 +1518,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                 <div
                   class="MuiBox-root css-e1h6et"
                 >
-                  <div
-                    class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-                  >
+                  <form>
                     <div
                       class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
                     >
@@ -1726,7 +1724,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </form>
                   <div
                     class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
                   >
@@ -1738,6 +1736,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -1767,6 +1766,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -2698,8 +2698,19 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       </div>
     </div>
     <div
-      class="MuiStack-root css-1p6e05z-MuiStack-root"
+      class="MuiStack-root css-1mqo557-MuiStack-root"
     >
+      <div
+        class="MuiBox-root css-1snmjsk"
+      >
+        <b>
+          costNames.normal
+          :
+        </b>
+         
+        123
+         €
+      </div>
       <div
         class="MuiBox-root css-1snmjsk"
       >
@@ -2710,6 +2721,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         123
          €
       </div>
+    </div>
+    <div
+      class="MuiStack-root css-1tokk9g-MuiStack-root"
+    >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""
@@ -2975,9 +2990,9 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               <div
                 class="MuiTypography-root MuiTypography-caption css-g7qyms-MuiTypography-root"
               >
-                event.cost
+                paymentDetails
               </div>
-              123 €, event.costMember 123 €
+              123 €, event.costMember 123 €
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-g8s1br-MuiGrid2-root"
@@ -4287,9 +4302,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                 <div
                   class="MuiBox-root css-e1h6et"
                 >
-                  <div
-                    class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-                  >
+                  <form>
                     <div
                       class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
                     >
@@ -4495,7 +4508,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </form>
                   <div
                     class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
                   >
@@ -4507,6 +4520,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -4536,6 +4550,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       >
                         <span
                           class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          role="switch"
                         >
                           <input
                             checked=""
@@ -5467,8 +5482,19 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       </div>
     </div>
     <div
-      class="MuiStack-root css-1p6e05z-MuiStack-root"
+      class="MuiStack-root css-1mqo557-MuiStack-root"
     >
+      <div
+        class="MuiBox-root css-1snmjsk"
+      >
+        <b>
+          costNames.normal
+          :
+        </b>
+         
+        123
+         €
+      </div>
       <div
         class="MuiBox-root css-1snmjsk"
       >
@@ -5479,6 +5505,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         123
          €
       </div>
+    </div>
+    <div
+      class="MuiStack-root css-1tokk9g-MuiStack-root"
+    >
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
         disabled=""

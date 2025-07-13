@@ -50,9 +50,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
             <div
               class="MuiBox-root css-e1h6et"
             >
-              <div
-                class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
-              >
+              <form>
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
                 >
@@ -258,7 +256,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                     </div>
                   </div>
                 </div>
-              </div>
+              </form>
               <div
                 class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
               >
@@ -270,6 +268,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                   >
                     <span
                       class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-161ms7l-MuiButtonBase-root-MuiSwitch-switchBase"
+                      role="switch"
                     >
                       <input
                         checked=""
@@ -299,6 +298,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                   >
                     <span
                       class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-161ms7l-MuiButtonBase-root-MuiSwitch-switchBase"
+                      role="switch"
                     >
                       <input
                         checked=""

@@ -1,8 +1,10 @@
 import type { ValidationResult, Validators } from '../../../../i18n/validation'
 import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
+import type { DogEventCost } from '../../../../types/Cost'
 import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './types'
 
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { getCostValue } from '../../../../lib/cost'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
 import { unique } from '../../../../lib/utils'
 
@@ -39,7 +41,7 @@ const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
     entryStartDate: true,
     entryEndDate: true,
     cost: true,
-    costMember: (event: PartialEvent) => !!event.costMember,
+    // costMember: (event: PartialEvent) => !!event.costMember,
     contactInfo: true,
     headquarters: true,
   },
@@ -83,9 +85,42 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
   },
   cost: (event, required) => required && !event.cost,
   costMember: (event) => {
-    const cost = event.cost ?? 0
-    if (event.costMember && cost < event.costMember) {
-      return 'costMemberHigh'
+    const { cost, costMember } = event
+    if (!cost || !costMember) {
+      return false
+    }
+    if (typeof cost === 'number') {
+      return typeof costMember === 'number' && cost < costMember ? 'costMemberHigh' : false
+    }
+    if (typeof costMember !== 'object') {
+      // cost is object, costMember is not. This should not happen, but for type safety...
+      return false
+    }
+    for (const key of Object.keys(cost)) {
+      if (key === 'optionalAdditionalCosts') {
+        if (cost.optionalAdditionalCosts && costMember.optionalAdditionalCosts) {
+          for (let i = 0; i < cost.optionalAdditionalCosts.length; i++) {
+            if (cost.optionalAdditionalCosts[i].cost < costMember.optionalAdditionalCosts[i].cost) {
+              return 'costMemberHigh'
+            }
+          }
+        }
+      } else if (key === 'breed') {
+        if (cost.breed && costMember.breed) {
+          for (const breedCode of Object.keys(cost.breed)) {
+            // @ts-expect-error partial..
+            if (cost.breed[breedCode] < costMember.breed[breedCode]) {
+              return 'costMemberHigh'
+            }
+          }
+        }
+      } else {
+        const costValue = getCostValue(cost, key as keyof DogEventCost)
+        const memberCostValue = getCostValue(costMember, key as keyof DogEventCost)
+        if (costValue < memberCostValue) {
+          return 'costMemberHigh'
+        }
+      }
     }
     return false
   },
