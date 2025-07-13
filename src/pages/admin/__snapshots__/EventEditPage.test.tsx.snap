@@ -2214,6 +2214,7 @@ exports[`EventEditPage renders properly 1`] = `
                               >
                                 <div
                                   class="MuiFormControl-root MuiTextField-root css-1xp5r68-MuiFormControl-root-MuiTextField-root"
+                                  data-testid="cost.normal"
                                   inputmode="numeric"
                                 >
                                   <div
@@ -2252,6 +2253,7 @@ exports[`EventEditPage renders properly 1`] = `
                               >
                                 <div
                                   class="MuiFormControl-root MuiTextField-root css-1xp5r68-MuiFormControl-root-MuiTextField-root"
+                                  data-testid="costMember.normal"
                                   inputmode="numeric"
                                 >
                                   <div

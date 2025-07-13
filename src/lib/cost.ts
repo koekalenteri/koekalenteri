@@ -38,7 +38,8 @@ const customStrategy: CostStrategy = {
   isApplicable: (cost) => !!cost.custom,
   getValue: (cost) => cost.custom?.cost ?? 0,
   setValue: (cost, value, data) => {
-    const description = data && 'description' in data ? data.description : { fi: 'erikoismaksu' }
+    const prevDescription = cost.custom?.description ?? { fi: 'Erikoismaksu', en: 'Custom cost' }
+    const description = data && 'description' in data ? data.description : prevDescription
     return { ...cost, custom: { cost: value, description } }
   },
 }

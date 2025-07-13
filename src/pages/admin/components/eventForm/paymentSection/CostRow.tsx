@@ -34,13 +34,17 @@ export const CostRow = ({
 }: CostRowProps) => {
   const { t } = useTranslation()
 
+  const innerKey = costKey === 'breed' && breedCode ? `breed.${breedCode}` : costKey
+  const costPath = `cost.${innerKey}`
+  const memberCostPath = `costMember.${innerKey}`
+
   const renderCellContent = () => {
     if (costKey === 'custom') {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span>{(event.cost as DogEventCost)?.custom?.description?.fi ?? t('costNames.custom')}</span>
-            <IconButton size="small" onClick={() => onEditDescription('custom')}>
+            <IconButton size="small" data-testid={`${costPath}-edit`} onClick={() => onEditDescription('custom')}>
               <EditIcon fontSize="small" />
             </IconButton>
           </div>
@@ -61,6 +65,7 @@ export const CostRow = ({
             </Box>
             <NumberInput
               name="earlyBirdDays"
+              data-testid="earlyBirdDays"
               value={(event.cost as DogEventCost)?.earlyBird?.days ?? 0}
               onChange={onEarlyBirdDaysChange}
               sx={{ width: '6ch !important' }}
@@ -73,16 +78,13 @@ export const CostRow = ({
     return t(`costNames.${costKey}`, { code: breedCode })
   }
 
-  const innerKey = costKey === 'breed' && breedCode ? `breed.${breedCode}` : costKey
-  const costPath = `cost.${innerKey}`
-  const memberCostPath = `costMember.${innerKey}`
-
   return (
     <TableRow key={costKey}>
       <TableCell>{renderCellContent()}</TableCell>
       <TableCell align="right">
         <NumberInput
           name={costPath}
+          data-testid={costPath}
           value={getCostValue(event.cost ?? 0, costKey, breedCode)}
           onChange={(v) => onCostChange(costPath, v)}
         />
@@ -90,12 +92,17 @@ export const CostRow = ({
       <TableCell align="right">
         <NumberInput
           name={memberCostPath}
+          data-testid={memberCostPath}
           value={getCostValue(event.costMember ?? 0, costKey, breedCode)}
           onChange={(v) => onCostChange(memberCostPath, v)}
         />
       </TableCell>
       <TableCell>
-        <IconButton disabled={costKey === 'normal'} onClick={() => onRemove(costKey, breedCode)}>
+        <IconButton
+          disabled={costKey === 'normal'}
+          data-testid={`${costPath}-delete`}
+          onClick={() => onRemove(costKey, breedCode)}
+        >
           <DeleteOutline />
         </IconButton>
       </TableCell>

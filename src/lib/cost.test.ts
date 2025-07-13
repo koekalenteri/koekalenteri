@@ -6,6 +6,9 @@ import { addDays, startOfDay } from 'date-fns'
 import {
   additionalCost,
   calculateCost,
+  costStrategies,
+  DOG_EVENT_COST_KEYS,
+  getApplicableStrategy,
   getCostSegment,
   getCostSegmentName,
   getCostValue,
@@ -437,5 +440,312 @@ describe('setCostValue', () => {
     // @ts-expect-error invalid key
     const newCost = setCostValue(cost, 'unknown', 20)
     expect(newCost).toEqual(cost)
+  })
+})
+
+describe('DOG_EVENT_COST_KEYS', () => {
+  it('should contain all cost keys', () => {
+    expect(DOG_EVENT_COST_KEYS).toContain('normal')
+    expect(DOG_EVENT_COST_KEYS).toContain('earlyBird')
+    expect(DOG_EVENT_COST_KEYS).toContain('breed')
+    expect(DOG_EVENT_COST_KEYS).toContain('custom')
+    expect(DOG_EVENT_COST_KEYS).toContain('optionalAdditionalCosts')
+    expect(DOG_EVENT_COST_KEYS.length).toBe(5)
+  })
+})
+
+describe('getApplicableStrategy', () => {
+  it('should return normalStrategy for legacy costs', () => {
+    const event = makeEvent(100, undefined)
+    const registration = makeRegistration(false, false)
+    const strategy = getApplicableStrategy(event, registration)
+    expect(strategy.key).toBe('normal')
+  })
+
+  it('should return selected strategy when applicable', () => {
+    const event = makeEvent({ normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } }, undefined)
+    const registration = makeRegistration(false, false, '110', 'custom')
+    const strategy = getApplicableStrategy(event, registration)
+    expect(strategy.key).toBe('custom')
+  })
+
+  it('should fall back to cheapest when selected strategy is not applicable', () => {
+    const event = makeEvent({ normal: 50, earlyBird: { cost: 40, days: 5 } }, undefined, startOfDay(new Date()))
+    // Custom is selected but not available, so it should fall back to earlyBird (cheapest)
+    const registration = makeRegistration(false, false, '110', 'custom', startOfDay(new Date()))
+    const strategy = getApplicableStrategy(event, registration)
+    expect(strategy.key).toBe('earlyBird')
+  })
+
+  it('should find the cheapest applicable strategy', () => {
+    const startDate = startOfDay(new Date())
+    const event = makeEvent(
+      {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+        breed: { '110': 35 },
+      },
+      undefined,
+      startDate
+    )
+    const registration = makeRegistration(false, false, '110', undefined, startDate)
+    const strategy = getApplicableStrategy(event, registration)
+    expect(strategy.key).toBe('breed')
+  })
+
+  it('should ignore custom strategy when not explicitly selected', () => {
+    const event = makeEvent(
+      {
+        normal: 50,
+        custom: { cost: 30, description: { fi: 'Custom' } },
+      },
+      undefined
+    )
+    const registration = makeRegistration(false, false)
+    const strategy = getApplicableStrategy(event, registration)
+    expect(strategy.key).toBe('normal')
+  })
+})
+
+describe('setCostValue edge cases', () => {
+  it('should preserve existing custom description when not provided', () => {
+    const cost: DogEventCost = {
+      normal: 10,
+      custom: { cost: 15, description: { fi: 'Existing', en: 'Existing EN' } },
+    }
+    const newCost = setCostValue(cost, 'custom', 20)
+    expect(newCost.custom).toEqual({
+      cost: 20,
+      description: { fi: 'Existing', en: 'Existing EN' },
+    })
+  })
+
+  it('should preserve existing earlyBird days when not provided', () => {
+    const cost: DogEventCost = {
+      normal: 10,
+      earlyBird: { cost: 8, days: 5 },
+    }
+    const newCost = setCostValue(cost, 'earlyBird', 7)
+    expect(newCost.earlyBird).toEqual({ cost: 7, days: 5 })
+  })
+
+  it('should handle setting breed cost when breed object is undefined', () => {
+    const cost: DogEventCost = { normal: 10 }
+    const newCost = setCostValue(cost, 'breed', 20, { breedCode: '110' })
+    expect(newCost.breed).toEqual({ '110': 20 })
+  })
+})
+
+describe('invalid input handling', () => {
+  it('should handle null or undefined registration in calculateCost', () => {
+    // @ts-expect-error testing invalid input
+    expect(calculateCost({ cost: 10, entryStartDate: new Date() }, null)).toEqual({ amount: 10, segment: 'legacy' })
+    // @ts-expect-error testing invalid input
+    expect(calculateCost({ cost: 10, entryStartDate: new Date() }, undefined)).toEqual({
+      amount: 10,
+      segment: 'legacy',
+    })
+  })
+  it('should handle invalid breed code in breed-specific cost calculation', () => {
+    const event = makeEvent({ normal: 50, breed: { '110': 40 } }, undefined)
+    const registration = makeRegistration(false, false, '999') // Non-existent breed code
+    const result = calculateCost(event, registration)
+    expect(result.amount).toBe(50) // Should fall back to normal cost
+    expect(result.segment).toBe('normal')
+  })
+
+  it('should handle missing dog breedCode in calculateCost', () => {
+    const invalidRegistration = {
+      ...makeRegistration(false, false),
+      dog: { breedCode: undefined },
+    }
+
+    const result = calculateCost({ cost: 10, entryStartDate: new Date() }, invalidRegistration)
+    expect(result.amount).toBe(10)
+    expect(result.segment).toBe('legacy')
+  })
+
+  it('should handle missing createdAt in registration for earlyBird calculation', () => {
+    const invalidRegistration = {
+      ...makeRegistration(false, false),
+      createdAt: undefined,
+    }
+    const event = makeEvent({ normal: 50, earlyBird: { cost: 40, days: 5 } }, undefined, new Date())
+    // @ts-expect-error testing invalid input
+    const result = calculateCost(event, invalidRegistration)
+    expect(result.amount).toBe(50) // Should fall back to normal cost
+    expect(result.segment).toBe('normal')
+  })
+})
+
+describe('getCostSegment with edge cases', () => {
+  it('should handle undefined cost segments', () => {
+    const event = makeEvent({ normal: 50, earlyBird: undefined }, undefined)
+    const registration = makeRegistration(false, false)
+    expect(getCostSegment(event, registration)).toBe('normal')
+  })
+
+  it('should handle empty breed object', () => {
+    const event = makeEvent({ normal: 50, breed: {} }, undefined)
+    const registration = makeRegistration(false, false, '110')
+    expect(getCostSegment(event, registration)).toBe('normal')
+  })
+
+  it('should handle zero cost values', () => {
+    const event = makeEvent({ normal: 50, earlyBird: { cost: 0, days: 5 } }, undefined, startOfDay(new Date()))
+    const registration = makeRegistration(false, false, '110', undefined, startOfDay(new Date()))
+    // Even though earlyBird is applicable and cheaper (0), it should still choose it
+    expect(getCostSegment(event, registration)).toBe('earlyBird')
+  })
+})
+
+describe('calculateCost with complex scenarios', () => {
+  it('should handle mixed member and non-member costs', () => {
+    const event = makeEvent({ normal: 50, breed: { '110': 45 } }, { normal: 40, breed: { '110': 35 } })
+    // Non-member
+    const regNonMember = makeRegistration(false, false, '110')
+    const resultNonMember = calculateCost(event, regNonMember)
+    expect(resultNonMember.amount).toBe(45)
+    expect(resultNonMember.segment).toBe('breed')
+
+    // Member
+    const regMember = makeRegistration(true, false, '110')
+    const resultMember = calculateCost(event, regMember)
+    expect(resultMember.amount).toBe(35)
+    expect(resultMember.segment).toBe('breed')
+  })
+
+  it('should handle different cost structures for member and non-member', () => {
+    const event = makeEvent(
+      { normal: 50, earlyBird: { cost: 40, days: 5 } },
+      { normal: 40 } // No earlyBird for members
+    )
+    const registration = makeRegistration(true, false, '110', undefined, startOfDay(new Date()))
+    const result = calculateCost(event, registration)
+    expect(result.amount).toBe(40)
+    expect(result.segment).toBe('normal')
+  })
+
+  it('should handle optional costs with member discounts', () => {
+    const event = makeEvent(
+      {
+        normal: 50,
+        optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Option 1' } }],
+      },
+      {
+        normal: 40,
+        optionalAdditionalCosts: [{ cost: 8, description: { fi: 'Option 1' } }],
+      }
+    )
+    // Non-member with optional cost
+    const regNonMember = makeRegistration(false, false, '110', undefined, new Date(), [0])
+    const resultNonMember = calculateCost(event, regNonMember)
+    expect(resultNonMember.amount).toBe(60) // 50 + 10
+
+    // Member with optional cost
+    const regMember = makeRegistration(true, false, '110', undefined, new Date(), [0])
+    const resultMember = calculateCost(event, regMember)
+    expect(resultMember.amount).toBe(48) // 40 + 8
+  })
+})
+
+describe('setCostValue with additional edge cases', () => {
+  it('should handle setting custom cost with partial description', () => {
+    const cost: DogEventCost = { normal: 10 }
+    const newCost = setCostValue(cost, 'custom', 20, { description: { fi: 'Finnish only' } })
+    expect(newCost.custom).toEqual({
+      cost: 20,
+      description: { fi: 'Finnish only' },
+    })
+  })
+
+  it('should handle setting custom cost with complete description', () => {
+    const cost: DogEventCost = { normal: 10 }
+    const newCost = setCostValue(cost, 'custom', 20, {
+      description: { fi: 'Finnish', en: 'English' },
+    })
+    expect(newCost.custom).toEqual({
+      cost: 20,
+      description: { fi: 'Finnish', en: 'English' },
+    })
+  })
+
+  it('should handle updating earlyBird with zero days', () => {
+    const cost: DogEventCost = { normal: 10 }
+    const newCost = setCostValue(cost, 'earlyBird', 8, { days: 0 })
+    expect(newCost.earlyBird).toEqual({ cost: 8, days: 0 })
+  })
+
+  it('should handle updating earlyBird with negative days', () => {
+    const cost: DogEventCost = { normal: 10 }
+    const newCost = setCostValue(cost, 'earlyBird', 8, { days: -5 })
+    expect(newCost.earlyBird).toEqual({ cost: 8, days: -5 })
+  })
+})
+
+describe('additionalCost with complex scenarios', () => {
+  it('should handle out-of-bounds indices in optionalCosts array', () => {
+    const cost: DogEventCost = {
+      normal: 10,
+      optionalAdditionalCosts: [
+        { cost: 5, description: { fi: 'Option 1' } },
+        { cost: 10, description: { fi: 'Option 2' } },
+      ],
+    }
+    // Selected index 5 which is out of bounds
+    const result = additionalCost(makeRegistration(false, false, '110', undefined, new Date(), [0, 5]), cost)
+    expect(result).toBe(5) // Should only count the valid index 0
+  })
+
+  it('should handle negative indices in optionalCosts array', () => {
+    const cost: DogEventCost = {
+      normal: 10,
+      optionalAdditionalCosts: [
+        { cost: 5, description: { fi: 'Option 1' } },
+        { cost: 10, description: { fi: 'Option 2' } },
+      ],
+    }
+    // Selected index -1 which is invalid
+    const result = additionalCost(makeRegistration(false, false, '110', undefined, new Date(), [-1, 1]), cost)
+    expect(result).toBe(10) // Should only count the valid index 1
+  })
+
+  it('should handle duplicate indices in optionalCosts array', () => {
+    const cost: DogEventCost = {
+      normal: 10,
+      optionalAdditionalCosts: [
+        { cost: 5, description: { fi: 'Option 1' } },
+        { cost: 10, description: { fi: 'Option 2' } },
+      ],
+    }
+    // Selected index 0 twice
+    const result = additionalCost(makeRegistration(false, false, '110', undefined, new Date(), [0, 0]), cost)
+    expect(result).toBe(5) // Should only count once
+  })
+})
+
+describe('costStrategies integration', () => {
+  it('should correctly apply all strategies in order', () => {
+    const cost: DogEventCost = {
+      normal: 50,
+      earlyBird: { cost: 40, days: 5 },
+      breed: { '110': 45 },
+      custom: { cost: 30, description: { fi: 'Custom' } },
+    }
+
+    // Test each strategy individually
+    const customStrategy = costStrategies.find((s) => s.key === 'custom')
+    expect(customStrategy?.getValue(cost)).toBe(30)
+    expect(customStrategy?.isApplicable(cost, {} as any, {} as any)).toBe(true)
+
+    const earlyBirdStrategy = costStrategies.find((s) => s.key === 'earlyBird')
+    expect(earlyBirdStrategy?.getValue(cost)).toBe(40)
+
+    const breedStrategy = costStrategies.find((s) => s.key === 'breed')
+    expect(breedStrategy?.getValue(cost, '110')).toBe(45)
+
+    const normalStrategy = costStrategies.find((s) => s.key === 'normal')
+    expect(normalStrategy?.getValue(cost)).toBe(50)
+    expect(normalStrategy?.isApplicable(cost, {} as any, {} as any)).toBe(true)
   })
 })
