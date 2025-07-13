@@ -1,5 +1,5 @@
-import type { DogEvent } from '../../types'
-import type { DogEventCostSegment } from '../../types/Cost'
+import type { BreedCode, DogEvent } from '../../types'
+import type { DogEventCost, DogEventCostSegment } from '../../types/Cost'
 
 import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
@@ -32,17 +32,36 @@ export default function CostInfo({ event }: Props) {
     return <>invalid cost configuration</>
   }
 
-  const costSegments = segments
-    .map((segment) => {
-      const value = getCostValue(cost, segment)
-      if (!value) return null
-      const memberValue = costMember && getCostValue(costMember, segment)
-      const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
-      const name =
-        segment === 'custom' && cost.custom?.description
-          ? (cost.custom.description[language] ?? cost.custom.description.fi)
+  const getSegmentInfo = (
+    cost: DogEventCost,
+    costMember: DogEventCost | undefined,
+    segment: DogEventCostSegment,
+    breedCode?: BreedCode
+  ) => {
+    const value = getCostValue(cost, segment, breedCode)
+    if (!value) return null
+    const memberValue = costMember && getCostValue(costMember, segment, breedCode)
+    const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
+    const name =
+      segment === 'custom' && cost.custom?.description
+        ? (cost.custom.description[language] ?? cost.custom.description.fi)
+        : segment === 'breed' && breedCode
+          ? t(getCostSegmentName(segment), { code: breedCode })
           : t(getCostSegmentName(segment))
-      return { name, text }
+
+    return { name, text }
+  }
+
+  const costSegments = segments
+    .flatMap((segment) => {
+      if (segment === 'breed') {
+        const breeds = []
+        for (const breedCode of Object.keys(cost.breed ?? {})) {
+          breeds.push(getSegmentInfo(cost, costMember, segment, breedCode as BreedCode))
+        }
+        return breeds
+      }
+      return getSegmentInfo(cost, costMember, segment)
     })
     .filter((c): c is { name: string; text: string } => !!c)
 
