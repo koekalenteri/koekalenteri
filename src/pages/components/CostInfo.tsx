@@ -1,7 +1,17 @@
-import type { DogEvent } from '../../types'
+import type { BreedCode, DogEvent } from '../../types'
+import type { DogEventCost, DogEventCostSegment } from '../../types/Cost'
 
-import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import Paper from '@mui/material/Paper'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableRow from '@mui/material/TableRow'
+import { useRecoilValue } from 'recoil'
+
+import { getCostSegmentName, getCostValue } from '../../lib/cost'
+import { languageAtom } from '../recoil'
 
 interface Props {
   readonly event: Pick<DogEvent, 'cost' | 'costMember'>
@@ -9,13 +19,82 @@ interface Props {
 
 export default function CostInfo({ event }: Props) {
   const { t } = useTranslation()
-  const text = useMemo(
-    () =>
-      event.costMember
-        ? `${event.cost}\u00A0€, ${t('event.costMember')}\u00A0${event.costMember}\u00A0€`
-        : `${event.cost}\u00A0€`,
-    [event.cost, event.costMember, t]
-  )
+  const language = useRecoilValue(languageAtom)
+  const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed', 'custom']
+  const { cost, costMember } = event
 
-  return <>{text}</>
+  if (typeof cost === 'number') {
+    if (typeof costMember === 'object') return <>invalid cost configuration</>
+    return <>{costMember ? `${cost}\u00A0€, ${t('event.costMember')} ${costMember}\u00A0€` : `${cost}\u00A0€`}</>
+  }
+
+  if (typeof costMember === 'number') {
+    return <>invalid cost configuration</>
+  }
+
+  const getSegmentInfo = (
+    cost: DogEventCost,
+    costMember: DogEventCost | undefined,
+    segment: DogEventCostSegment,
+    breedCode?: BreedCode
+  ) => {
+    const value = getCostValue(cost, segment, breedCode)
+    if (!value) return null
+    const memberValue = costMember && getCostValue(costMember, segment, breedCode)
+    const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
+    const name =
+      segment === 'custom' && cost.custom?.description
+        ? (cost.custom.description[language] ?? cost.custom.description.fi)
+        : segment === 'breed' && breedCode
+          ? t(getCostSegmentName(segment), { code: breedCode })
+          : t(getCostSegmentName(segment))
+
+    return { name, text }
+  }
+
+  const costSegments = segments
+    .flatMap((segment) => {
+      if (segment === 'breed') {
+        const breeds = []
+        for (const breedCode of Object.keys(cost.breed ?? {})) {
+          breeds.push(getSegmentInfo(cost, costMember, segment, breedCode as BreedCode))
+        }
+        return breeds
+      }
+      return getSegmentInfo(cost, costMember, segment)
+    })
+    .filter((c): c is { name: string; text: string } => !!c)
+
+  const optionalCosts =
+    cost.optionalAdditionalCosts?.map((c, index) => {
+      const name = c.description[language] ?? c.description.fi
+      const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
+      const text = memberCost ? `${c.cost} / ${memberCost}\u00A0€` : `${c.cost}\u00A0€`
+      return { name, text }
+    }) ?? []
+
+  return (
+    <TableContainer component={Paper}>
+      <Table size="small">
+        <TableBody>
+          {costSegments.map((segment) => (
+            <TableRow key={segment.name}>
+              <TableCell>{segment.name}</TableCell>
+              <TableCell align="right">{segment.text}</TableCell>
+            </TableRow>
+          ))}
+          {optionalCosts.map((c) => (
+            <TableRow key={c.name}>
+              <TableCell variant="footer" color="black">
+                {c.name}
+              </TableCell>
+              <TableCell variant="footer" align="right">
+                {c.text}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  )
 }

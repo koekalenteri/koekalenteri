@@ -105,7 +105,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
       open={open && !!reg.dog?.regNo}
       onOpenChange={onOpenChange}
     >
-      <FormGroup>
+      <form>
         <Grid2 container spacing={1}>
           <Grid2 size={{ xs: 12, sm: 6 }}>
             <TextField
@@ -169,12 +169,16 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
             />
           </Grid2>
         </Grid2>
-      </FormGroup>
+      </form>
       <FormGroup>
         <FormControlLabel
           disabled={disabled}
           control={
-            <Switch checked={formValues.ownerHandles} onChange={(e) => updateField('ownerHandles', e.target.checked)} />
+            <Switch
+              role="switch"
+              checked={formValues.ownerHandles}
+              onChange={(e) => updateField('ownerHandles', e.target.checked)}
+            />
           }
           label={t('registration.ownerHandles')}
           name="ownerHandles"
@@ -182,7 +186,11 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
         <FormControlLabel
           disabled={disabled}
           control={
-            <Switch checked={formValues.ownerPays} onChange={(e) => updateField('ownerPays', e.target.checked)} />
+            <Switch
+              role="switch"
+              checked={formValues.ownerPays}
+              onChange={(e) => updateField('ownerPays', e.target.checked)}
+            />
           }
           label={t('registration.ownerPays')}
           name="ownerPays"

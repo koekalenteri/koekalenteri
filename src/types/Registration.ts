@@ -1,4 +1,5 @@
 import type { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from '.'
+import type { DogEventCostSegment } from './Cost'
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
@@ -26,6 +27,7 @@ export interface JsonRegistration extends JsonDbRecord {
   owner: RegistrationPerson
   ownerHandles?: boolean
   ownerPays?: boolean
+  optionalCosts?: number[]
   paidAmount?: number
   paidAt?: string
   payer: Omit<RegistrationPerson, 'location' | 'membership'>
@@ -41,6 +43,7 @@ export interface JsonRegistration extends JsonDbRecord {
   results?: Array<JsonTestResult & { id: string }>
   state?: 'creating' | 'ready'
   totalAmount?: number
+  selectedCost?: DogEventCostSegment
 }
 
 export interface RegistrationGroup extends Partial<RegistrationDate> {

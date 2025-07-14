@@ -459,4 +459,37 @@ describe('refundCreateLambda', () => {
     await expect(refundCreateLambda(event)).rejects.toThrow('Unsupported transaction')
     expect(mockRefundPayment).not.toHaveBeenCalled()
   })
+
+  it('creates a partial refund with complex cost structure', async () => {
+    const partialRefundAmount = 500
+    mockParseJSONWithFallback.mockReturnValue({
+      transactionId: 'transaction123',
+      amount: partialRefundAmount,
+    })
+
+    await refundCreateLambda(event)
+
+    expect(mockRefundPayment).toHaveBeenCalledWith(
+      'api.example.com',
+      'transaction123',
+      'event123:reg456',
+      'stamp123',
+      [
+        {
+          amount: partialRefundAmount,
+          stamp: 'item123',
+          refundStamp: 'stamp123',
+          refundReference: 'reg456',
+        },
+      ],
+      undefined,
+      'payer@example.com'
+    )
+
+    expect(mockDynamoWrite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: partialRefundAmount,
+      })
+    )
+  })
 })

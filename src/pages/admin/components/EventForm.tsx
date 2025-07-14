@@ -97,6 +97,12 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         // Need to typecast because of DeepPartial usage
         newState.placesPerDay = props.placesPerDay as Record<string, number>
       }
+      if (props.cost) {
+        newState.cost = props.cost as DogEvent['cost']
+      }
+      if (props.costMember) {
+        newState.costMember = props.costMember as DogEvent['costMember']
+      }
 
       setErrors(validateEvent(newState))
       onChange?.(newState)

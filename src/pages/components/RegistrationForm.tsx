@@ -30,8 +30,8 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import { diff } from 'deep-object-diff'
 
+import { calculateCost, getCostSegmentName } from '../../lib/cost'
 import { isDevEnv } from '../../lib/env'
-import { isMember } from '../../lib/registration'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 
@@ -43,6 +43,7 @@ import { HandlerInfo } from './registrationForm/HandlerInfo'
 import MembershipInfo from './registrationForm/MembershipInfo'
 import { OwnerInfo } from './registrationForm/OwnerInfo'
 import { PayerInfo } from './registrationForm/PayerInfo'
+import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 import { AsyncButton } from './AsyncButton'
@@ -83,7 +84,8 @@ export default function RegistrationForm({
   const [rankingPeriod, setRankingPeriod] = useState<{ min?: Date; max?: Date }>({})
 
   const valid = errors.length === 0 && registration.qualifies
-  const paymentAmount = event.costMember && isMember(registration) ? event.costMember : event.cost
+  const costResult = calculateCost(event, registration)
+  const paymentAmount = costResult.amount
   const ctaText = useMemo(() => {
     if (registration.id) return 'Tallenna muutokset'
     if (admin) return 'Vahvista ja lähetä maksulinkki'
@@ -327,6 +329,13 @@ export default function RegistrationForm({
           open={open.info}
         />
         <MembershipInfo reg={registration} orgId={event.organizer.id} onChange={handleChange} />
+        <PaymentInfo
+          event={event}
+          registration={registration}
+          cost={costResult}
+          disabled={disabled}
+          onChange={handleChange}
+        />
         <Box sx={{ p: 1, pl: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
@@ -360,15 +369,16 @@ export default function RegistrationForm({
         </Box>
       </Box>
 
-      <Stack
-        spacing={1}
-        direction="row"
-        justifyContent="flex-end"
-        sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
-      >
+      <Stack spacing={1} direction="row" justifyContent="space-between" sx={{ p: 1 }}>
+        <Box my="auto">
+          <b>{t(getCostSegmentName(costResult.segment) as any)}:</b> {paymentAmount} €
+        </Box>
         <Box my="auto">
           <b>Maksettava:</b> {paymentAmount - (registration.paidAmount ?? 0)} €
         </Box>
+      </Stack>
+
+      <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
         <AsyncButton
           color="primary"
           disabled={disabled || !changes || !valid}

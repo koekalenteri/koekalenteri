@@ -90,7 +90,10 @@ export default function EntrySection(props: Props) {
             end={event.entryEndDate ?? null}
             endDisabled={disabled}
             defaultEnd={sub(event.startDate, { weeks: 3 })}
-            range={{ start: event.createdAt ?? zonedStartOfDay(new Date()), end: event.startDate }}
+            range={{
+              start: event.createdAt ? zonedStartOfDay(event.createdAt) : zonedStartOfDay(new Date()),
+              end: zonedEndOfDay(event.startDate),
+            }}
             required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
             onChange={handleDateChange}
           />

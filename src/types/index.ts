@@ -2,6 +2,7 @@ export * from './utility'
 export * from './JSON'
 export * from './Database'
 
+export * from './Cost'
 export * from './Dog'
 export * from './Email'
 export * from './Event'

@@ -94,6 +94,38 @@ describe('DateRange', () => {
       expect(changeHandler).toHaveBeenCalledWith(start, day16)
     })
 
+    it('should not allow selecting dates outside of range', async () => {
+      const changeHandler = jest.fn()
+      const range = {
+        start: new Date(date.getFullYear(), date.getMonth(), 10),
+        end: new Date(date.getFullYear(), date.getMonth(), 20),
+      }
+
+      const { startCalendar, user } = renderComponent({
+        startLabel: 'start',
+        start,
+        endLabel: 'end',
+        end: null,
+        onChange: changeHandler,
+        range,
+      })
+
+      await user.click(startCalendar)
+      await screen.findByRole('dialog', { hidden: false })
+
+      const btn9 = screen.getByRole('gridcell', { name: '9' })
+      expect(btn9).toBeDisabled()
+
+      const btn21 = screen.getByRole('gridcell', { name: '21' })
+      expect(btn21).toBeDisabled()
+
+      const btn15 = screen.getByRole('gridcell', { name: '15' })
+      await user.click(btn15)
+      await flushPromises()
+
+      expect(changeHandler).toHaveBeenCalledWith(day15, null)
+    })
+
     it('should onChange when typing dates', async () => {
       const changeHandler = jest.fn()
 

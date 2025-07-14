@@ -1,5 +1,5 @@
 import type { ParseKeys, TFunction } from 'i18next'
-import type { BreedCode, PublicDogEvent } from '../types'
+import type { PublicDogEvent } from '../types'
 
 import { unique } from './utils'
 
@@ -11,7 +11,7 @@ export interface Priority {
 
 export const PRIORITY_MEMBER = 'member'
 export const PRIORITY_INVITED = 'invited'
-export const PRIORIZED_BREED_CODES: BreedCode[] = ['110', '111', '121', '122', '263', '312']
+export const PRIORIZED_BREED_CODES = ['110', '111', '121', '122', '263', '312'] as const
 
 export const PRIORITY: Priority[] = [
   { group: 'priorityGroup.members', name: 'priority.members', value: 'member' },
