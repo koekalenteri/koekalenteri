@@ -26,8 +26,6 @@ import type {
   KLYhdistysParametrit,
 } from '../types/KLAPI'
 
-import fetch from 'node-fetch'
-
 function toURLParams(params: Record<string, string | number | undefined> = {}): Record<string, string> {
   const result: Record<string, string> = {}
   for (const param in params) {
