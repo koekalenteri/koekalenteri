@@ -3,8 +3,6 @@ import { snapshot_UNSTABLE } from 'recoil'
 
 import { languageAtom } from './atoms'
 
-jest.mock('i18next')
-
 describe('languageAtom', () => {
   describe('should default to i18n.language', () => {
     it('when "fi"', () => {
