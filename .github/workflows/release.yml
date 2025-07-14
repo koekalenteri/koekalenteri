@@ -93,27 +93,43 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-      - name: Deploy test branch
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          echo "Triggering test deployment for branch ${{ github.ref_name }}"
-          aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name ${{ github.ref_name }} --job-type MANUAL
-      - name: Deploy release tag
-        if: github.event_name == 'release'
+      - name: Deploy to amplify
         env:
           APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
-          TAG: ${{ github.event.release.tag_name }}
           ENV: ${{ needs.setup.outputs.env }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github.ref_name }}
         run: |
           set -e
+
+          # Configure Git
           git config user.name "GitHub Actions"
           git config user.email "github-actions@github.com"
 
-          BRANCH="release/$ENV/$TAG"
-          echo "Creating and pushing branch $BRANCH from tag $TAG"
-          git checkout -b $BRANCH $TAG
-          git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $BRANCH
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG="${{ github.event.release.tag_name }}"
+            BRANCH="release/$ENV/$TAG"
+            echo "Creating branch $BRANCH from release tag $TAG"
+            git checkout -b $BRANCH $TAG
+
+            echo "Pushing branch $BRANCH to GitHub"
+            git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $BRANCH
+          else
+            # workflow_dispatch
+            if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+              TAG="$REF"
+              BRANCH="release/$ENV/$TAG"
+              echo "Creating branch $BRANCH from tag $TAG"
+              git checkout -b $BRANCH $TAG
+
+              echo "Pushing branch $BRANCH to GitHub"
+              git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $BRANCH
+            else
+              BRANCH="$REF"
+              echo "Using branch $BRANCH directly"
+              git checkout $BRANCH
+            fi
+          fi
 
           # Check if Amplify branch exists
           if aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; then
@@ -123,7 +139,7 @@ jobs:
             aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH
           fi
 
-          # Wait for Amplify to sync new branch
+          # Wait for Amplify to detect the branch
           echo "Waiting for Amplify to detect branch $BRANCH..."
           until aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; do
             sleep 5
