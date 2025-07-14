@@ -84,10 +84,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
-      - name: Configure Git
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@github.com"
       - name: Checkout code
         uses: actions/checkout@v4
         with:
@@ -101,7 +97,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           echo "Triggering test deployment for branch ${{ github.ref_name }}"
-          aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name ${{ github.ref_name }} --job-type MANUAL --commit-id ${{ github.sha }}
+          aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name ${{ github.ref_name }} --job-type MANUAL
       - name: Deploy release tag
         if: github.event_name == 'release'
         env:
@@ -111,13 +107,28 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+
           BRANCH="release/$ENV/$TAG"
           echo "Creating and pushing branch $BRANCH from tag $TAG"
           git checkout -b $BRANCH $TAG
           git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $BRANCH
 
-          echo "Creating Amplify branch $BRANCH"
-          aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH
+          # Check if Amplify branch exists
+          if aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; then
+            echo "Amplify branch $BRANCH already exists. Skipping creation."
+          else
+            echo "Creating Amplify branch $BRANCH"
+            aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH
+          fi
+
+          # Wait for Amplify to sync new branch
+          echo "Waiting for Amplify to detect branch $BRANCH..."
+          until aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; do
+            sleep 5
+          done
+          echo "Amplify detected branch $BRANCH"
 
           echo "Starting Amplify job for branch $BRANCH"
           JOB_ID=$(aws amplify start-job --app-id $APP_ID --branch-name $BRANCH --job-type RELEASE --output json | jq -r .jobSummary.jobId)
