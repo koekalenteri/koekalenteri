@@ -4,6 +4,15 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target to release'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - patch
 
 jobs:
   setup:
@@ -84,5 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
-      - name: Trigger deployment
+      - name: Trigger main deployment
+        if: github.event_name == 'release' || github.event.inputs.target == 'main'
         run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
+      - name: Trigger patch deployment
+        if: github.event.inputs.target == 'patch'
+        run: curl -X POST -d {} "${{ secrets.PATCH_DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
