@@ -136,7 +136,7 @@ jobs:
             echo "Amplify branch $BRANCH already exists. Skipping creation."
           else
             echo "Creating Amplify branch $BRANCH"
-            aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH
+            aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH --enable-auto-build false
           fi
 
           # Wait for Amplify to detect the branch
