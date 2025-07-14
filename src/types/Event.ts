@@ -15,6 +15,7 @@ import type {
 import type { DogEventCost } from './Cost'
 
 export interface JsonDogEvent extends JsonDbRecord {
+  paymentTime?: 'registration' | 'confirmation'
   classes: Array<JsonEventClass>
   contactInfo?: Partial<ContactInfo>
   cost: number | DogEventCost

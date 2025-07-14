@@ -253,6 +253,11 @@
     "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
+  "paymentTime": "Maksuajankohta",
+  "paymentTimeOptions": {
+    "registration": "Maksu ilmoittautumisen yhteydessä",
+    "confirmation": "Maksu vasta koepaikan varmistuttua"
+  },
   "paymentStatus": {
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
