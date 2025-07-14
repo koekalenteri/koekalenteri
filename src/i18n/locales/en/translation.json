@@ -253,6 +253,11 @@
     "paytrailMerchantId": "Paytrail merchant ID"
   },
   "paymentDetails": "Payment details",
+  "paymentTime": "Payment time",
+  "paymentTimeOptions": {
+    "registration": "Payment at the time of registration",
+    "confirmation": "Payment only after the event place has been confirmed"
+  },
   "paymentStatus": {
     "missing": "Test payment is still missing",
     "pending": "Waiting for payment processing",

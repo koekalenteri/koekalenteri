@@ -9,8 +9,12 @@ import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
 import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -76,6 +80,14 @@ export default function PaymentSection({
       onChange?.({ cost: newCost, costMember: newCostMember })
     }
   }, [event.cost, event.costMember, onChange])
+
+  // Set default payment time to 'registration' if not defined
+  useEffect(() => {
+    if (event.paymentTime === undefined) {
+      onChange?.({ paymentTime: 'registration' })
+    }
+  }, [event.paymentTime, onChange])
+
   const eventCostKeys: DogEventCostKey[] = useMemo(() => {
     const cost = event.cost
     if (typeof cost !== 'object') return ['normal']
@@ -278,6 +290,21 @@ export default function PaymentSection({
       helperText={helperText}
     >
       <Grid container spacing={1}>
+        <Grid>
+          <FormControl fullWidth>
+            <InputLabel id="payment-time-label">{t('paymentTime')}</InputLabel>
+            <Select
+              labelId="payment-time-label"
+              id="payment-time"
+              value={event.paymentTime ?? 'registration'}
+              label={t('paymentTime')}
+              onChange={(e) => onChange?.({ paymentTime: e.target.value as 'registration' | 'confirmation' })}
+            >
+              <MenuItem value="registration">{t('paymentTimeOptions.registration')}</MenuItem>
+              <MenuItem value="confirmation">{t('paymentTimeOptions.confirmation')}</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
         <Grid width={900}>
           <TableContainer>
             <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>

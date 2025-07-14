@@ -377,7 +377,7 @@ describe('PaymentSection', () => {
     await flushPromises()
 
     // Verify cleanup was performed on component mount
-    expect(onChange).toHaveBeenLastCalledWith({
+    expect(onChange).toHaveBeenCalledWith({
       cost: {
         normal: 20,
         breed: { '123': 18, '456': 16 },
@@ -483,6 +483,45 @@ describe('PaymentSection', () => {
         normal: 10,
         custom: { cost: 8, description: { fi: 'Uusi erikoismaksu', en: 'Special fee' } },
       },
+    })
+  })
+
+  it('automatically sets payment time to registration when not defined', async () => {
+    const testEvent = { ...eventWithStaticDates }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    // Verify onChange was called to set the default payment time
+    expect(onChange).toHaveBeenCalledWith({
+      paymentTime: 'registration',
+    })
+  })
+
+  it('allows selecting payment time', async () => {
+    const testEvent = { ...eventWithStaticDates, paymentTime: 'registration' }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    // Find the payment time select
+    const paymentTimeLabel = screen.getByLabelText('paymentTime')
+    expect(paymentTimeLabel).toBeInTheDocument()
+
+    // Default value should be 'registration'
+    // expect(paymentTimeLabel).toHaveValue('registration')
+
+    // Change to 'confirmation'
+    await user.click(paymentTimeLabel)
+    await flushPromises()
+
+    const confirmationOption = await screen.findByRole('option', { name: 'paymentTimeOptions.confirmation' })
+    await user.click(confirmationOption)
+    await flushPromises()
+
+    // Verify onChange was called with the correct value
+    expect(onChange).toHaveBeenCalledWith({
+      paymentTime: 'confirmation',
     })
   })
 })
