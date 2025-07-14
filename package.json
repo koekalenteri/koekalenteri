@@ -11,7 +11,7 @@
     "@aws-sdk/client-ssm": "^3.844.0",
     "@aws-sdk/lib-dynamodb": "^3.844.0",
     "@date-fns/tz": "^1.2.0",
-    "@mui/icons-material": "^6.4.12",
+    "@mui/icons-material": "^6.5.0",
     "@mui/material": "^6.5.0",
     "@mui/system": "^7.2.0",
     "@mui/x-data-grid": "^7.29.8",
