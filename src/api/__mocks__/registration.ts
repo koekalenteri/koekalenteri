@@ -110,7 +110,7 @@ export async function putRegistration(
   _token?: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
-  return new Promise((resolve) => resolve({ ...registration, id: 'test-registration' }))
+  return Promise.resolve({ ...registration, id: 'test-registration' })
 }
 
 export async function putRegistrationGroups(
