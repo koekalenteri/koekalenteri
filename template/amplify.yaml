@@ -50,7 +50,7 @@
           Value: Koekalenteri
       IAMServiceRole: !GetAtt AmplifyRole.Arn
 
-  AmplifyMainBranch:
+  AmplifyBranch:
     Type: AWS::Amplify::Branch
     Properties:
       BranchName: !Ref Branch
@@ -63,29 +63,4 @@
         - Key: Branch
           Value: !Ref Branch
 
-  AmplifyPatchBranch:
-    Type: AWS::Amplify::Branch
-    Properties:
-      BranchName: !Ref PatchBranchName
-      AppId: !GetAtt AmplifyApp.AppId
-      Description: Amplify Console patch branch
-      EnableAutoBuild: false
-      Tags:
-        - Key: Name
-          Value: koekalenteri-amplify-console
-        - Key: Branch
-          Value: !Ref PatchBranchName
 
-  AmplifyMainWebhook:
-    Type: AWS::Amplify::Webhook
-    Properties:
-      AppId: !GetAtt AmplifyApp.AppId
-      BranchName: !Ref Branch
-      Description: "Trigger for manual frontend builds for main branch"
-
-  AmplifyPatchWebhook:
-    Type: AWS::Amplify::Webhook
-    Properties:
-      AppId: !GetAtt AmplifyApp.AppId
-      BranchName: !Ref PatchBranchName
-      Description: "Trigger for manual frontend builds for patch branch"

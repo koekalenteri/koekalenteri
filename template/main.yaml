@@ -61,10 +61,6 @@ Parameters:
     Type: String
     Description: GitHub Branch
     Default: main
-  PatchBranchName:
-    Type: String
-    Description: GitHub Branch for patches
-    Default: patch
   OauthToken:
     Type: String
     Description: GitHub Oauth Token

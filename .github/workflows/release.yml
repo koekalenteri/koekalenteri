@@ -4,15 +4,6 @@ on:
   release:
     types: [published]
   workflow_dispatch:
-    inputs:
-      target:
-        description: 'Target to release'
-        required: true
-        default: 'main'
-        type: choice
-        options:
-          - main
-          - patch
 
 jobs:
   setup:
@@ -62,7 +53,7 @@ jobs:
       - name: Configure variables
         shell: bash
         run: |
-          echo "branch=main" >> $GITHUB_ENV
+          echo "branch=${{ github.event.release.target_commitish }}" >> $GITHUB_ENV
           echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
           echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
       - name: SAM Build
@@ -93,9 +84,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
-      - name: Trigger main deployment
-        if: github.event_name == 'release' || github.event.inputs.target == 'main'
-        run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
-      - name: Trigger patch deployment
-        if: github.event.inputs.target == 'patch'
-        run: curl -X POST -d {} "${{ secrets.PATCH_DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Trigger deployment
+        run: |
+          aws amplify start-job --app-id ${{ secrets.AMPLIFY_APP_ID }} --branch-name ${{ github.event.release.target_commitish }} --job-type RELEASE --commit-id ${{ github.sha }}
