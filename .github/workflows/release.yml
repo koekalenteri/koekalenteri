@@ -139,6 +139,9 @@ jobs:
             aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH --no-enable-auto-build
           fi
 
+          # Update the default branchs, so the custom domain gets used
+          aws amplify update-app --app-id $APP_ID --default-branch $BRANCH
+
           # Wait for Amplify to detect the branch
           echo "Waiting for Amplify to detect branch $BRANCH..."
           until aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; do
