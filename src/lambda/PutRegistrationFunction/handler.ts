@@ -156,7 +156,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   }
 
   const context = getEmailContext(update, cancel, confirm, invitation)
-  if (context && registration.handler?.email && registration.owner?.email) {
+  if (
+    (context || confirmedEvent.paymentTime === 'confirmation') &&
+    registration.handler?.email &&
+    registration.owner?.email
+  ) {
     await sendMessages(origin, context, registration, confirmedEvent, existing)
   }
 

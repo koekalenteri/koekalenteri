@@ -75,16 +75,18 @@ const handleSuccessfulPayment = async (
     user: transaction.user ?? 'anonymous',
   })
 
-  // send confirmation message
-  const to = emailTo(registration)
-  const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
-  await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+  if (confirmedEvent.paymentTime !== 'confirmation') {
+    // send confirmation message
+    const to = emailTo(registration)
+    const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
+    await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
 
-  await audit({
-    auditKey: registrationAuditKey(registration),
-    message: `Email: ${data.subject}, to: ${to.join(', ')}`,
-    user: transaction.user ?? 'anonymous',
-  })
+    await audit({
+      auditKey: registrationAuditKey(registration),
+      message: `Email: ${data.subject}, to: ${to.join(', ')}`,
+      user: transaction.user ?? 'anonymous',
+    })
+  }
 }
 
 /**

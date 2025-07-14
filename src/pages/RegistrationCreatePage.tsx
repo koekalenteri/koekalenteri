@@ -54,7 +54,11 @@ export function Component() {
     }
     try {
       const saved = await actions.save(registration)
-      navigate(Path.payment(saved))
+      if (event.paymentTime === 'confirmation') {
+        navigate(Path.registration(saved))
+      } else {
+        navigate(Path.payment(saved))
+      }
     } catch (error) {
       if (error instanceof APIError && error.status === 409) {
         enqueueSnackbar(

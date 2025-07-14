@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router'
+import type { Registration } from '../types'
 
 import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
@@ -10,11 +11,14 @@ import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
+import { registrationWithStaticDates } from '../__mockData__/registrations'
+import * as eventApi from '../api/event'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
+import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 
 import { ErrorPage } from './ErrorPage'
+import { newRegistrationAtom } from './recoil'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
 
 jest.mock('../api/user')
@@ -27,10 +31,14 @@ jest.mock('../api/registration')
 
 describe('RegistrationCreatePage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    localStorage.clear()
+    sessionStorage.clear()
+  })
   afterAll(() => jest.useRealTimers())
 
-  const renderWithRouter = (path: string) => {
+  const renderWithRouter = (path: string, registration?: Registration) => {
     const routes: RouteObject[] = [
       {
         path: '/event/:eventType/:id',
@@ -47,12 +55,17 @@ describe('RegistrationCreatePage', () => {
         element: <RegistrationCreatePage />,
         hydrateFallbackElement: <>hydrate fallback</>,
       },
+      {
+        path: '/r/:eventId/:registrationId',
+        element: <>registration list page</>,
+        hydrateFallbackElement: <>hydrate fallback</>,
+      },
     ]
 
-    return render(
+    return renderWithUserEvents(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
+          <RecoilRoot initializeState={registration ? ({ set }) => set(newRegistrationAtom, registration) : undefined}>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[path]} routes={routes} />
@@ -60,7 +73,9 @@ describe('RegistrationCreatePage', () => {
             </Suspense>
           </RecoilRoot>
         </LocalizationProvider>
-      </ThemeProvider>
+      </ThemeProvider>,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
     )
   }
 
@@ -91,6 +106,26 @@ describe('RegistrationCreatePage', () => {
     const { container } = renderWithRouter(path)
     await flushPromises()
     expect(container).toMatchSnapshot()
+  })
+
+  it('should navigate to registration details when paymentTime is confirmation', async () => {
+    const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const { eventType, id } = eventWithConfirmationPayment
+    const path = `/event/${eventType}/${id}`
+
+    jest.setSystemTime(eventWithConfirmationPayment.entryStartDate)
+
+    jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([eventWithConfirmationPayment])
+    const { user } = renderWithRouter(path, { ...registrationWithStaticDates, id: '', agreeToTerms: true })
+    await flushPromises()
+
+    const saveButton = screen.getByRole('button', { name: 'Vahvista ilmoittautuminen' })
+    expect(saveButton).toBeEnabled()
+    await user.click(saveButton)
+
+    await flushPromises()
+
+    expect(screen.getByText('registration list page')).toBeInTheDocument()
   })
 
   it('should throw 404 for non-existent event', async () => {

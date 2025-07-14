@@ -106,11 +106,11 @@ export const getRegistrationAuditTrail = async (
 }
 
 export async function putRegistration(
-  _registration: Registration,
+  registration: Registration,
   _token?: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
-  throw new Error('not implemented')
+  return Promise.resolve({ ...registration, id: 'test-registration' })
 }
 
 export async function putRegistrationGroups(
