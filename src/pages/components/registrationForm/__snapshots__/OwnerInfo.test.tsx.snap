@@ -82,10 +82,10 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-81qg8w"
+                            class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
                               contact.name
@@ -123,10 +123,10 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-81qg8w"
+                            class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
                               contact.city
@@ -164,10 +164,10 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-81qg8w"
+                            class="css-1n64csd-MuiNotchedOutlined-root"
                           >
                             <span>
                               contact.email
@@ -242,10 +242,10 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                         />
                         <fieldset
                           aria-hidden="true"
-                          class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                          class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                         >
                           <legend
-                            class="css-w1u3ce"
+                            class="css-ex8a5f-MuiNotchedOutlined-root"
                           >
                             <span>
                               contact.phone
@@ -267,12 +267,12 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                     class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-161ms7l-MuiButtonBase-root-MuiSwitch-switchBase"
+                      class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-aqlqb4-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                       role="switch"
                     >
                       <input
                         checked=""
-                        class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                        class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                         name="ownerHandles"
                         type="checkbox"
                       />
@@ -297,12 +297,12 @@ exports[`OwnerInfo should render with minimal info 1`] = `
                     class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-161ms7l-MuiButtonBase-root-MuiSwitch-switchBase"
+                      class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorPrimary Mui-checked Mui-checked css-aqlqb4-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                       role="switch"
                     >
                       <input
                         checked=""
-                        class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                        class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                         name="ownerPays"
                         type="checkbox"
                       />

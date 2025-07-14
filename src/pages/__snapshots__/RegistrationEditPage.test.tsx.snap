@@ -239,8 +239,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r2:"
-                            id=":r2:-label"
+                            for=":r3:"
+                            id=":r3:-label"
                           >
                             registration.class
                           </label>
@@ -255,7 +255,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r2:"
+                              id=":r3:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -287,10 +287,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-81qg8w"
+                                class="css-1n64csd-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.class
@@ -314,8 +314,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r5:"
-                            id=":r5:-label"
+                            for=":r6:"
+                            id=":r6:-label"
                           >
                             registration.reserve
                           </label>
@@ -324,14 +324,14 @@ exports[`RegistrationEditPage should render 1`] = `
                           >
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r5:-helper-text"
+                              aria-describedby=":r6:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r5:"
+                              id=":r6:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -363,10 +363,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.reserve
@@ -376,7 +376,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained MuiFormHelperText-filled css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r5:-helper-text"
+                            id=":r6:-helper-text"
                           >
                             registration.reserveHelp
                           </p>
@@ -396,8 +396,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r8:"
-                            id=":r8:-label"
+                            for=":r9:"
+                            id=":r9:-label"
                           >
                             registration.datesFilter
                           </label>
@@ -429,14 +429,14 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r8:-helper-text"
+                              aria-describedby=":r9:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":r8:"
+                              id=":r9:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -468,10 +468,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.datesFilter
@@ -481,7 +481,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r8:-helper-text"
+                            id=":r9:-helper-text"
                           >
                             registration.datesFilterInfo
                           </p>
@@ -501,8 +501,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rb:"
-                            id=":rb:-label"
+                            for=":rc:"
+                            id=":rc:-label"
                           >
                             registration.dates
                           </label>
@@ -534,14 +534,14 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":rb:-helper-text"
+                              aria-describedby=":rc:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rb:"
+                              id=":rc:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -573,10 +573,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   registration.dates
@@ -586,7 +586,7 @@ exports[`RegistrationEditPage should render 1`] = `
                           </div>
                           <p
                             class="MuiFormHelperText-root Mui-disabled MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":rb:-helper-text"
+                            id=":rc:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -695,10 +695,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       dog.regNo
@@ -752,8 +752,8 @@ exports[`RegistrationEditPage should render 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":ri:"
-                          id=":ri:-label"
+                          for=":rj:"
+                          id=":rj:-label"
                         >
                           dog.rfid
                         </label>
@@ -764,16 +764,16 @@ exports[`RegistrationEditPage should render 1`] = `
                             aria-invalid="false"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":ri:"
+                            id=":rj:"
                             type="text"
                             value="1234567890123456"
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.rfid
@@ -816,10 +816,10 @@ exports[`RegistrationEditPage should render 1`] = `
                               />
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-w1u3ce"
+                                  class="css-ex8a5f-MuiNotchedOutlined-root"
                                 >
                                   <span>
                                     dog.titles
@@ -856,10 +856,10 @@ exports[`RegistrationEditPage should render 1`] = `
                               />
                               <fieldset
                                 aria-hidden="true"
-                                class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                               >
                                 <legend
-                                  class="css-w1u3ce"
+                                  class="css-ex8a5f-MuiNotchedOutlined-root"
                                 >
                                   <span>
                                     dog.name
@@ -883,8 +883,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rl:"
-                            id=":rl:-label"
+                            for=":rm:"
+                            id=":rm:-label"
                           >
                             dog.dob
                           </label>
@@ -896,7 +896,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rl:"
+                              id=":rm:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -927,10 +927,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.dob
@@ -954,8 +954,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":ro:"
-                            id=":ro:-label"
+                            for=":rp:"
+                            id=":rp:-label"
                           >
                             dog.gender
                           </label>
@@ -970,7 +970,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":ro:"
+                              id=":rp:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -1002,10 +1002,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.gender
@@ -1029,8 +1029,8 @@ exports[`RegistrationEditPage should render 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":rr:"
-                            id=":rr:-label"
+                            for=":rs:"
+                            id=":rs:-label"
                           >
                             dog.breed
                           </label>
@@ -1045,7 +1045,7 @@ exports[`RegistrationEditPage should render 1`] = `
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               disabled=""
-                              id=":rr:"
+                              id=":rs:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -1077,10 +1077,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             </div>
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   dog.breed
@@ -1118,10 +1118,10 @@ exports[`RegistrationEditPage should render 1`] = `
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.sire.name
@@ -1158,10 +1158,10 @@ exports[`RegistrationEditPage should render 1`] = `
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 dog.dam.name
@@ -1258,10 +1258,10 @@ exports[`RegistrationEditPage should render 1`] = `
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 contact.name
@@ -1298,10 +1298,10 @@ exports[`RegistrationEditPage should render 1`] = `
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
-                              class="css-w1u3ce"
+                              class="css-ex8a5f-MuiNotchedOutlined-root"
                             >
                               <span>
                                 contact.city
@@ -1401,10 +1401,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.name
@@ -1443,10 +1443,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.city
@@ -1485,10 +1485,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.email
@@ -1565,10 +1565,10 @@ exports[`RegistrationEditPage should render 1`] = `
                             />
                             <fieldset
                               aria-hidden="true"
-                              class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                              class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-w1u3ce"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   contact.phone
@@ -1591,13 +1591,13 @@ exports[`RegistrationEditPage should render 1`] = `
                       >
                         <span
                           aria-disabled="true"
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                           tabindex="-1"
                         >
                           <input
                             checked=""
-                            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             disabled=""
                             name="ownerHandles"
                             type="checkbox"
@@ -1624,13 +1624,13 @@ exports[`RegistrationEditPage should render 1`] = `
                       >
                         <span
                           aria-disabled="true"
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-1ew8e45-MuiButtonBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                           tabindex="-1"
                         >
                           <input
                             checked=""
-                            class="PrivateSwitchBase-input MuiSwitch-input css-j8yymo"
+                            class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             disabled=""
                             name="ownerPays"
                             type="checkbox"
@@ -1748,10 +1748,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.name
@@ -1790,10 +1790,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.city
@@ -1832,10 +1832,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.email
@@ -1912,10 +1912,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.phone
@@ -2027,10 +2027,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.name
@@ -2069,10 +2069,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.email
@@ -2149,10 +2149,10 @@ exports[`RegistrationEditPage should render 1`] = `
                                 />
                                 <fieldset
                                   aria-hidden="true"
-                                  class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                                  class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                                 >
                                   <legend
-                                    class="css-w1u3ce"
+                                    class="css-ex8a5f-MuiNotchedOutlined-root"
                                   >
                                     <span>
                                       contact.phone
@@ -2336,8 +2336,8 @@ exports[`RegistrationEditPage should render 1`] = `
                     <label
                       class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
-                      for=":r1n:"
-                      id=":r1n:-label"
+                      for=":r1o:"
+                      id=":r1o:-label"
                     >
                       registration.notes
                     </label>
@@ -2348,7 +2348,7 @@ exports[`RegistrationEditPage should render 1`] = `
                         aria-invalid="false"
                         class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputMultiline css-w4nesw-MuiInputBase-input-MuiOutlinedInput-input"
                         disabled=""
-                        id=":r1n:"
+                        id=":r1o:"
                         name="notes"
                         rows="4"
                         style="height: 0px; overflow: hidden;"
@@ -2364,10 +2364,10 @@ exports[`RegistrationEditPage should render 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-w1u3ce"
+                          class="css-ex8a5f-MuiNotchedOutlined-root"
                         >
                           <span>
                             registration.notes
@@ -2438,10 +2438,10 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
-                          class="PrivateSwitchBase-input css-j8yymo"
+                          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
                           name="ownerIsMember"
                           type="checkbox"
@@ -2468,10 +2468,10 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiFormControlLabel-root MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
-                          class="PrivateSwitchBase-input css-j8yymo"
+                          class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                           data-indeterminate="false"
                           name="handlerIsMember"
                           type="checkbox"
@@ -2512,12 +2512,12 @@ exports[`RegistrationEditPage should render 1`] = `
           >
             <span
               aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-1uzsq3b-MuiButtonBase-root-MuiCheckbox-root"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
               tabindex="-1"
             >
               <input
                 checked=""
-                class="PrivateSwitchBase-input css-j8yymo"
+                class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                 data-indeterminate="false"
                 disabled=""
                 name="agreeToTerms"

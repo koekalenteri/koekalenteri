@@ -81,10 +81,10 @@ exports[`PayerInfo should render with minimal info 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-81qg8w"
+                          class="css-1n64csd-MuiNotchedOutlined-root"
                         >
                           <span>
                             contact.name
@@ -122,10 +122,10 @@ exports[`PayerInfo should render with minimal info 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-81qg8w"
+                          class="css-1n64csd-MuiNotchedOutlined-root"
                         >
                           <span>
                             contact.email
@@ -200,10 +200,10 @@ exports[`PayerInfo should render with minimal info 1`] = `
                       />
                       <fieldset
                         aria-hidden="true"
-                        class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+                        class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                       >
                         <legend
-                          class="css-w1u3ce"
+                          class="css-ex8a5f-MuiNotchedOutlined-root"
                         >
                           <span>
                             contact.phone

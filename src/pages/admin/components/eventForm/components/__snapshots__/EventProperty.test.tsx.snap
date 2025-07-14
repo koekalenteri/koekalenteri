@@ -60,10 +60,10 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-81qg8w"
+              class="css-1n64csd-MuiNotchedOutlined-root"
             >
               <span>
                 event.eventType
@@ -155,10 +155,10 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.eventType
@@ -250,10 +250,10 @@ exports[`EventProperty freeSolo=false should display options when typing and fir
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.eventType
@@ -363,10 +363,10 @@ exports[`EventProperty freeSolo=false should render with minimal information 1`]
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.name
@@ -457,10 +457,10 @@ exports[`EventProperty freeSolo=false should render with undefined property and 
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-81qg8w"
+              class="css-1n64csd-MuiNotchedOutlined-root"
             >
               <span>
                 event.eventType
@@ -551,10 +551,10 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.name
@@ -645,10 +645,10 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.name
@@ -740,10 +740,10 @@ exports[`EventProperty freeSolo=true should display options when typing and fire
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.name
@@ -834,10 +834,10 @@ exports[`EventProperty freeSolo=true should render with minimal information 1`] 
           </div>
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-w1u3ce"
+              class="css-ex8a5f-MuiNotchedOutlined-root"
             >
               <span>
                 event.name
@@ -905,10 +905,10 @@ exports[`EventProperty freeSolo=true should render with undefined property and o
           />
           <fieldset
             aria-hidden="true"
-            class="MuiOutlinedInput-notchedOutline css-1ll44ll-MuiOutlinedInput-notchedOutline"
+            class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
           >
             <legend
-              class="css-81qg8w"
+              class="css-1n64csd-MuiNotchedOutlined-root"
             >
               <span>
                 event.eventType
