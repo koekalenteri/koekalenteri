@@ -2446,11 +2446,10 @@ exports[`RegistrationForm renders 1`] = `
         class="MuiBox-root css-1snmjsk"
       >
         <b>
-          Maksettava:
+          Maksettava: 
+          123
+          \\u00A0€
         </b>
-         
-        123
-         €
       </div>
     </div>
     <div
@@ -4958,11 +4957,10 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         class="MuiBox-root css-1snmjsk"
       >
         <b>
-          Maksettava:
+          Maksettava: 
+          123
+          \\u00A0€
         </b>
-         
-        123
-         €
       </div>
     </div>
     <div
@@ -5064,6 +5062,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             >
               <div
                 class="MuiAccordionDetails-root css-1lj39kh-MuiAccordionDetails-root"
+                data-testid="missing-info"
               >
                 Puutteelliset tiedot:
                 <ul

@@ -89,8 +89,9 @@ export default function RegistrationForm({
   const ctaText = useMemo(() => {
     if (registration.id) return 'Tallenna muutokset'
     if (admin) return 'Vahvista ja lähetä maksulinkki'
+    if (event.paymentTime === 'confirmation') return 'Vahvista ilmoittautuminen'
     return 'Vahvista ja siirry maksamaan'
-  }, [admin, registration.id])
+  }, [admin, registration.id, event.paymentTime])
 
   const requirements = useMemo(
     () =>
@@ -374,7 +375,11 @@ export default function RegistrationForm({
           <b>{t(getCostSegmentName(costResult.segment) as any)}:</b> {paymentAmount} €
         </Box>
         <Box my="auto">
-          <b>Maksettava:</b> {paymentAmount - (registration.paidAmount ?? 0)} €
+          {event.paymentTime === 'confirmation' && !registration.confirmed ? (
+            <b>Maksettava {paymentAmount - (registration.paidAmount ?? 0)}\u00A0€ koepaikan varmistuttua</b>
+          ) : (
+            <b>Maksettava: {paymentAmount - (registration.paidAmount ?? 0)}\u00A0€</b>
+          )}
         </Box>
       </Stack>
 
@@ -395,7 +400,7 @@ export default function RegistrationForm({
       {!valid && (
         <Accordion variant="outlined" sx={{ backgroundColor: 'background.form' }}>
           <AccordionSummary expandIcon={<ExpandMore />}>Miksi en voi siirtyä eteenpäin?</AccordionSummary>
-          <AccordionDetails>
+          <AccordionDetails data-testid="missing-info">
             Puutteelliset tiedot:
             <ul style={{ margin: 0 }}>
               {errors.map((e, i) => (

@@ -99,6 +99,23 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  it('should send email for new registration when paymentTime is confirmation', async () => {
+    const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      'koekalenteri@koekalenteri.snj.fi',
+      ['handler@example.com', 'owner@example.com'],
+      expect.objectContaining({ subject: 'Ilmoittautumisen vahvistus' })
+    )
+    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+
+    expect(res.statusCode).toEqual(200)
+  })
+
   it.each([
     [undefined, 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
     ['dog-heat', 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],
@@ -345,6 +362,147 @@ describe('putRegistrationLabmda', () => {
     expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
+
+    expect(res.statusCode).toEqual(200)
+  })
+  it('should do happy path for updating registration', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const updatedRegistration = { ...registrationWithStaticDates, notes: 'updated notes' }
+    const res = await putRegistrationLabmda(constructAPIGwEvent(updatedRegistration))
+
+    expect(mockSaveRegistration).toHaveBeenCalledWith({
+      ...existingJson,
+      notes: 'updated notes',
+      modifiedAt: new Date().toISOString(),
+      modifiedBy: 'anonymous',
+    })
+    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
+
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: expect.any(String),
+        message: 'Muutti: Lisätiedot',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
+        message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(2)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      'koekalenteri@koekalenteri.snj.fi',
+      ['handler@example.com', 'owner@example.com'],
+      expect.objectContaining({ subject: 'Ilmoittautumisesi tietoja on muokattu' })
+    )
+    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('should do happy path for confirming registration', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
+
+    expect(mockSaveRegistration).toHaveBeenCalledWith({
+      ...existingJson,
+      confirmed: true,
+      modifiedAt: new Date().toISOString(),
+      modifiedBy: 'anonymous',
+    })
+    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
+
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: expect.any(String),
+        message: 'Ilmoittautumisen vahvistus',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
+        message: 'Email: Vahvistit vastaanottavasi koepaikan, to: handler@example.com, owner@example.com',
+        user: 'anonymous',
+      })
+    )
+    expect(mockAudit).toHaveBeenCalledTimes(2)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      'koekalenteri@koekalenteri.snj.fi',
+      ['handler@example.com', 'owner@example.com'],
+      expect.objectContaining({ subject: 'Vahvistit vastaanottavasi koepaikan' })
+    )
+    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('should not send secretary email on cancellation if secretary has no email', async () => {
+    const eventWithoutSecretaryEmail = {
+      ...eventWithStaticDates,
+      contactInfo: { secretary: { name: 'Testi Testinen' } },
+    }
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithoutSecretaryEmail)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      'koekalenteri@koekalenteri.snj.fi',
+      ['handler@example.com', 'owner@example.com'],
+      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
+    )
+    // once for user, not for secretary
+    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('should not confirm an already cancelled registration', async () => {
+    const existingJson = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, cancelled: true }))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true, cancelled: true })
+    )
+
+    expect(mockSaveRegistration).toHaveBeenCalledWith({
+      ...existingJson,
+      confirmed: true, // data is merged
+      modifiedAt: new Date().toISOString(),
+      modifiedBy: 'anonymous',
+    })
+    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+
+    // No audit message for confirmation
+    expect(mockAudit).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Ilmoittautumisen vahvistus',
+      })
+    )
+
+    // No email for confirmation
+    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toEqual(200)
   })

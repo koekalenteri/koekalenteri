@@ -2715,11 +2715,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         class="MuiBox-root css-1snmjsk"
       >
         <b>
-          Maksettava:
+          Maksettava: 
+          123
+          \\u00A0€
         </b>
-         
-        123
-         €
       </div>
     </div>
     <div
@@ -2821,6 +2820,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             >
               <div
                 class="MuiAccordionDetails-root css-1lj39kh-MuiAccordionDetails-root"
+                data-testid="missing-info"
               >
                 Puutteelliset tiedot:
                 <ul
@@ -3375,8 +3375,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r4a:"
-                            id=":r4a:-label"
+                            for=":r4b:"
+                            id=":r4b:-label"
                           >
                             registration.dates
                           </label>
@@ -3431,13 +3431,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                             <input
                               aria-autocomplete="list"
-                              aria-describedby=":r4a:-helper-text"
+                              aria-describedby=":r4b:-helper-text"
                               aria-expanded="false"
                               aria-invalid="false"
                               autocapitalize="none"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4a:"
+                              id=":r4b:"
                               role="combobox"
                               spellcheck="false"
                               type="text"
@@ -3500,7 +3500,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                           <p
                             class="MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1ta8pfy-MuiFormHelperText-root"
-                            id=":r4a:-helper-text"
+                            id=":r4b:-helper-text"
                           >
                             registration.datesInfo
                           </p>
@@ -5499,11 +5499,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         class="MuiBox-root css-1snmjsk"
       >
         <b>
-          Maksettava:
+          Maksettava: 
+          123
+          \\u00A0€
         </b>
-         
-        123
-         €
       </div>
     </div>
     <div
@@ -5605,6 +5604,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             >
               <div
                 class="MuiAccordionDetails-root css-1lj39kh-MuiAccordionDetails-root"
+                data-testid="missing-info"
               >
                 Puutteelliset tiedot:
                 <ul

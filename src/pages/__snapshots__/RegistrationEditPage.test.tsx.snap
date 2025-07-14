@@ -2585,11 +2585,10 @@ exports[`RegistrationEditPage should render 1`] = `
         class="MuiBox-root css-1snmjsk"
       >
         <b>
-          Maksettava:
+          Maksettava: 
+          123
+          \\u00A0€
         </b>
-         
-        123
-         €
       </div>
     </div>
     <div
