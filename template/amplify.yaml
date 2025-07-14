@@ -55,10 +55,12 @@
     Properties:
       BranchName: !Ref Branch
       AppId: !GetAtt AmplifyApp.AppId
-      Description: Amplify Console Branch
+      Description: Amplify Console main branch
       EnableAutoBuild: false
       Tags:
         - Key: Name
           Value: koekalenteri-amplify-console
         - Key: Branch
           Value: !Ref Branch
+
+

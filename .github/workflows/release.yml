@@ -84,5 +84,82 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
-      - name: Trigger deployment
-        run: curl -X POST -d {} "${{ secrets.DEPLOY_TRIGGER_HOOK }}" -H "Content-Type:application/json"
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Deploy to amplify
+        env:
+          APP_ID: ${{ secrets.AMPLIFY_APP_ID }}
+          ENV: ${{ needs.setup.outputs.env }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github.ref_name }}
+        run: |
+          set -e
+
+          # Configure Git
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            TAG="${{ github.event.release.tag_name }}"
+            BRANCH="release/$ENV/$TAG"
+            echo "Creating branch $BRANCH from release tag $TAG"
+            git checkout -b $BRANCH $TAG
+
+            echo "Pushing branch $BRANCH to GitHub"
+            git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $BRANCH
+          else
+            # workflow_dispatch
+            if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+              TAG="$REF"
+              BRANCH="release/$ENV/$TAG"
+              echo "Creating branch $BRANCH from tag $TAG"
+              git checkout -b $BRANCH $TAG
+
+              echo "Pushing branch $BRANCH to GitHub"
+              git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $BRANCH
+            else
+              BRANCH="$REF"
+              echo "Using branch $BRANCH directly"
+              git checkout $BRANCH
+            fi
+          fi
+
+          # Check if Amplify branch exists
+          if aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; then
+            echo "Amplify branch $BRANCH already exists. Skipping creation."
+          else
+            echo "Creating Amplify branch $BRANCH"
+            aws amplify create-branch --app-id $APP_ID --branch-name $BRANCH --enable-auto-build false
+          fi
+
+          # Wait for Amplify to detect the branch
+          echo "Waiting for Amplify to detect branch $BRANCH..."
+          until aws amplify get-branch --app-id $APP_ID --branch-name $BRANCH >/dev/null 2>&1; do
+            sleep 5
+          done
+          echo "Amplify detected branch $BRANCH"
+
+          echo "Starting Amplify job for branch $BRANCH"
+          JOB_ID=$(aws amplify start-job --app-id $APP_ID --branch-name $BRANCH --job-type RELEASE --output json | jq -r .jobSummary.jobId)
+          echo "Job started with ID: $JOB_ID"
+
+          echo "Waiting for job to complete..."
+          while true; do
+            STATUS=$(aws amplify get-job --app-id $APP_ID --branch-name $BRANCH --job-id $JOB_ID --output json | jq -r .job.summary.status)
+            echo "Current job status: $STATUS"
+            if [[ "$STATUS" == "SUCCEED" ]]; then
+              break
+            elif [[ "$STATUS" == "FAILED" || "$STATUS" == "CANCELLED" ]]; then
+              echo "Job failed or was cancelled. See Amplify console for details."
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "Job completed successfully."
