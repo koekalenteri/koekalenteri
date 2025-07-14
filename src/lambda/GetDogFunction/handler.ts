@@ -37,7 +37,7 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
     const notes = result.lisämerkinnät.toLocaleLowerCase().trim()
     const resCert = /vara[ -]sert/.test(notes)
     const cert = !resCert && /sert/.test(notes)
-    const resCacit = /vara[ -]]cacit/.test(notes)
+    const resCacit = /vara[ -]cacit/.test(notes)
     const cacit = !resCacit && /cacit/.test(notes)
 
     results.push({
@@ -88,7 +88,12 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
       titles: json.tittelit,
     }
 
-    dog.results = await readDogResultsFromKlapi(klapi, dog.regNo)
+    try {
+      dog.results = await readDogResultsFromKlapi(klapi, dog.regNo)
+    } catch (err) {
+      console.error(err, 'readDogResultsFromKlapi failed')
+      dog.results = []
+    }
   } else {
     console.error('lueKoiranPerustiedot failed', { status, json, error })
   }
@@ -97,7 +102,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
 }
 
 const getDogLambda = lambda('getDog', async (event) => {
-  const regNo = getParam(event, 'regNo').replace('~', '/')
+  const regNo = getParam(event, 'regNo').replaceAll('~', '/')
 
   let item = await dynamoDB.read<JsonDog>({ regNo })
 

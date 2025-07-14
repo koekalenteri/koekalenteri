@@ -11,7 +11,6 @@ import type {
 
 import { createHmac } from 'crypto'
 import { nanoid } from 'nanoid'
-import fetch from 'node-fetch'
 
 import { currentFinnishTime } from '../../i18n/dates'
 
