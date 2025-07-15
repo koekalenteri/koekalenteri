@@ -1,5 +1,7 @@
 import type {
+  ConfirmedEventStates,
   EventClassState,
+  EventState,
   JsonConfirmedEvent,
   JsonDogEvent,
   JsonRegistration,
@@ -27,8 +29,13 @@ import { audit, registrationAuditKey } from './audit'
 import { broadcastEvent } from './broadcast'
 import { LambdaError } from './lambda'
 
+type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
+
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTable)
+
+const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
+const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
 export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string): Promise<T> => {
   const jsonEvent = await dynamoDB.read<T>({ id }, eventTable)
@@ -38,8 +45,6 @@ export const getEvent = async <T extends JsonDogEvent = JsonDogEvent>(id: string
 
   return jsonEvent
 }
-
-type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
 
 export const findQualificationStartDate = async (
   eventType: string,
@@ -75,6 +80,28 @@ export const getStateFromTemplate = (template: string): EventClassState => {
   return 'picked'
 }
 
+export const upgradeClassState = (
+  oldState: EventClassState | undefined,
+  newState: EventClassState
+): EventClassState => {
+  if (!oldState) return newState
+  const oldIndex = EVENT_CLASS_STATES.indexOf(oldState)
+  const newIndex = EVENT_CLASS_STATES.indexOf(newState)
+
+  return oldIndex < newIndex ? newState : oldState
+}
+
+export const upgradeEventState = (
+  oldState: ConfirmedEventStates | undefined,
+  newState: ConfirmedEventStates
+): ConfirmedEventStates => {
+  if (!oldState) return newState
+  const oldIndex = EVENT_STATES.indexOf(oldState)
+  const newIndex = EVENT_STATES.indexOf(newState)
+
+  return oldIndex < newIndex ? newState : oldState
+}
+
 export const markParticipants = async (
   confirmedEvent: JsonConfirmedEvent,
   state: EventClassState,
@@ -85,13 +112,13 @@ export const markParticipants = async (
   if (eventClass) {
     for (const c of confirmedEvent.classes) {
       if (c.class === eventClass) {
-        c.state = state
+        c.state = upgradeClassState(c.state, state)
       }
     }
     allInvited = confirmedEvent.classes.filter((c) => c.state === state).length === confirmedEvent.classes.length
   }
   if (allInvited) {
-    confirmedEvent.state = state
+    confirmedEvent.state = upgradeEventState(confirmedEvent.state, state)
   }
 
   await dynamoDB.update(
