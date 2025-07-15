@@ -127,21 +127,6 @@ jobs:
             git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $SOURCE_BRANCH:$TARGET_BRANCH --force
           fi
 
-          # Check if Amplify branch exists
-          if aws amplify get-branch --app-id $APP_ID --branch-name $TARGET_BRANCH >/dev/null 2>&1; then
-            echo "Amplify branch $TARGET_BRANCH already exists. Skipping creation."
-          else
-            echo "Creating Amplify branch $TARGET_BRANCH"
-            aws amplify create-branch --app-id $APP_ID --branch-name $TARGET_BRANCH --no-enable-auto-build
-          fi
-
-          # Wait for Amplify to detect the branch
-          echo "Waiting for Amplify to detect branch $TARGET_BRANCH..."
-          until aws amplify get-branch --app-id $APP_ID --branch-name $TARGET_BRANCH >/dev/null 2>&1; do
-            sleep 5
-          done
-          echo "Amplify detected branch $TARGET_BRANCH"
-
           echo "Starting Amplify job for branch $TARGET_BRANCH"
           JOB_ID=$(aws amplify start-job --app-id $APP_ID --branch-name $TARGET_BRANCH --job-type RELEASE --output json | jq -r .jobSummary.jobId)
           echo "Job started with ID: $JOB_ID"
