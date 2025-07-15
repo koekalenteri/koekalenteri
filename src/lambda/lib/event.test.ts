@@ -60,6 +60,8 @@ const {
   saveEvent,
   saveGroup,
   updateRegistrations,
+  upgradeClassState,
+  upgradeEventState,
 } = await import('./event')
 
 const { LambdaError } = await import('./lambda')
@@ -139,6 +141,7 @@ describe('lib/event', () => {
     beforeEach(() => {
       mockUpdate.mockReset()
     })
+
     it('updates all classes and event state if all invited', async () => {
       const event = {
         id: 'e1',
@@ -163,6 +166,7 @@ describe('lib/event', () => {
         expect.anything()
       )
     })
+
     it('updates only one class if eventClass is given', async () => {
       const event = {
         id: 'e2',
@@ -176,6 +180,91 @@ describe('lib/event', () => {
       expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
       expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('pending')
     })
+
+    it('does not update event state if not all classes have the same state', async () => {
+      const event = {
+        id: 'e3',
+        state: 'confirmed',
+        classes: [
+          { class: 'ALO', state: 'pending' },
+          { class: 'AVO', state: 'pending' },
+          { class: 'VOI', state: 'pending' },
+        ],
+      } as unknown as JsonConfirmedEvent
+
+      await markParticipants(event, 'invited', 'ALO')
+
+      // Only ALO class should be updated
+      expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
+      expect(event.classes.find((c) => c.class === 'AVO')?.state).toBe('pending')
+      expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('pending')
+
+      // Event state should remain unchanged
+      expect(event.state).toBe('confirmed')
+    })
+
+    it('handles state progression correctly', async () => {
+      const event = {
+        id: 'e4',
+        state: 'confirmed',
+        classes: [
+          { class: 'ALO', state: 'picked' },
+          { class: 'AVO', state: 'picked' },
+        ],
+      } as unknown as JsonConfirmedEvent
+
+      // Update ALO class to 'invited'
+      await markParticipants(event, 'invited', 'ALO')
+
+      // ALO should be updated, AVO should remain the same
+      expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
+      expect(event.classes.find((c) => c.class === 'AVO')?.state).toBe('picked')
+
+      // Update AVO class to 'invited'
+      await markParticipants(event, 'invited', 'AVO')
+
+      // Both classes should now be 'invited'
+      expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
+      expect(event.classes.find((c) => c.class === 'AVO')?.state).toBe('invited')
+
+      // Event state should be updated to 'invited'
+      expect(event.state).toBe('invited')
+
+      // Verify update was called twice
+      expect(mockUpdate).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not downgrade state when lower state is provided', async () => {
+      const event = {
+        id: 'e5',
+        state: 'started',
+        classes: [
+          { class: 'ALO', state: 'started' },
+          { class: 'AVO', state: 'invited' },
+        ],
+      } as unknown as JsonConfirmedEvent
+
+      // Try to downgrade ALO from 'started' to 'invited'
+      await markParticipants(event, 'invited', 'ALO')
+
+      // ALO should remain 'started'
+      expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('started')
+
+      // Event state should remain 'started'
+      expect(event.state).toBe('started')
+    })
+
+    it('handles case with no eventClass parameter', async () => {
+      const event = {
+        id: 'e6',
+        state: 'confirmed',
+      } as unknown as JsonConfirmedEvent
+
+      await markParticipants(event, 'invited')
+
+      // Event state should be updated to 'invited'
+      expect(event.state).toBe('invited')
+    })
   })
 
   // updateRegistrations
@@ -187,6 +276,7 @@ describe('lib/event', () => {
       mockBroadcast.mockReset()
       mockHasPriority.mockReset()
     })
+
     it('updates event entries and members', async () => {
       const event = { id: 'e3', classes: [{ class: 'A' }], state: 'ready' }
       mockRead.mockResolvedValueOnce(event)
@@ -237,6 +327,125 @@ describe('lib/event', () => {
       expect(mockUpdate).not.toHaveBeenCalled()
       expect(mockBroadcast).not.toHaveBeenCalled()
     })
+
+    it('uses provided updatedRegistrations parameter when available', async () => {
+      const event = {
+        id: 'e5',
+        classes: [
+          { class: 'ALO', entries: 0, members: 0 },
+          { class: 'AVO', entries: 0, members: 0 },
+        ],
+        state: 'ready',
+      }
+      mockRead.mockResolvedValueOnce(event)
+
+      // These registrations should be used directly without querying the database
+      const updatedRegs = [
+        { eventId: 'e5', id: 'r1', class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
+        { eventId: 'e5', id: 'r2', class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
+        {
+          eventId: 'e5',
+          id: 'r3',
+          class: 'AVO',
+          state: 'ready',
+          cancelled: false,
+          paidAmount: 1,
+          handler: { membership: true },
+        },
+      ] as unknown as JsonRegistration[]
+
+      // Mock hasPriority to return true only for the AVO registration with membership
+      mockHasPriority.mockImplementation((event: any, reg: any) => {
+        return reg.class === 'AVO' && reg.handler?.membership === true
+      })
+
+      const result = await updateRegistrations('e5', updatedRegs)
+
+      // Verify database was not queried for registrations
+      expect(mockQuery).not.toHaveBeenCalled()
+
+      // Verify correct counts
+      expect(result.entries).toBe(3)
+      expect(result.members).toBe(1)
+
+      // Verify class counts
+      const aloClass = result.classes.find((c: any) => c.class === 'ALO')
+      const avoClass = result.classes.find((c: any) => c.class === 'AVO')
+      expect(aloClass?.entries).toBe(2)
+      expect(aloClass?.members).toBe(0)
+      expect(avoClass?.entries).toBe(1)
+      expect(avoClass?.members).toBe(1)
+
+      // Verify update was called with correct parameters
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'e5' },
+        {
+          set: {
+            entries: 3,
+            members: 1,
+            classes: result.classes,
+          },
+        },
+        expect.anything()
+      )
+
+      // Verify broadcast was called
+      expect(mockBroadcast).toHaveBeenCalled()
+    })
+
+    it('handles empty updatedRegistrations array', async () => {
+      const event = {
+        id: 'e6',
+        entries: 5,
+        members: 2,
+        classes: [
+          { class: 'ALO', entries: 3, members: 1 },
+          { class: 'AVO', entries: 2, members: 1 },
+        ],
+        state: 'ready',
+      }
+      mockRead.mockResolvedValueOnce(event)
+
+      // Empty registrations array
+      const updatedRegs: JsonRegistration[] = []
+
+      const result = await updateRegistrations('e6', updatedRegs)
+
+      // Verify database was not queried for registrations
+      expect(mockQuery).not.toHaveBeenCalled()
+
+      // Verify counts were updated to zero
+      expect(result.entries).toBe(0)
+      expect(result.members).toBe(0)
+
+      // Verify class counts were updated to zero
+      const aloClass = result.classes.find((c: any) => c.class === 'ALO')
+      const avoClass = result.classes.find((c: any) => c.class === 'AVO')
+      expect(aloClass?.entries).toBe(0)
+      expect(aloClass?.members).toBe(0)
+      expect(avoClass?.entries).toBe(0)
+      expect(avoClass?.members).toBe(0)
+
+      // Verify update was called with correct parameters
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'e6' },
+        {
+          set: {
+            entries: 0,
+            members: 0,
+            classes: result.classes,
+          },
+        },
+        expect.anything()
+      )
+    })
+
+    it('throws LambdaError when event is not found', async () => {
+      mockRead.mockResolvedValueOnce(undefined)
+
+      await expect(updateRegistrations('nonexistent-id')).rejects.toThrow(LambdaError)
+      await expect(updateRegistrations('nonexistent-id')).rejects.toThrow(/not found/i)
+    })
   })
 
   // saveGroup
@@ -245,11 +454,110 @@ describe('lib/event', () => {
       mockUpdate.mockReset()
       mockAudit.mockReset()
     })
+
     it('calls update and audit for cancelled group with reason', async () => {
       const group = { eventId: 'e4', id: 'r1', group: { key: 'cancelled', number: 1 } }
       await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' } as JsonUser, 'test', 'cancelled by user')
-      expect(mockUpdate).toHaveBeenCalled()
+
+      // Verify update was called with correct parameters
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'e4', id: 'r1' },
+        {
+          set: {
+            group: { key: 'cancelled', number: 1 },
+            cancelled: true,
+            cancelReason: 'cancelled by user',
+          },
+        },
+        expect.anything()
+      )
+
+      // Verify audit was called
       expect(mockAudit).toHaveBeenCalled()
+    })
+
+    it('calls update without cancelReason for non-cancelled group', async () => {
+      const group = {
+        eventId: 'e5',
+        id: 'r2',
+        group: { key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', time: 'ip' as const, number: 3 },
+      }
+      const previousGroup = { key: 'reserve', number: 1 }
+      const user = { name: 'admin' } as JsonUser
+
+      await saveGroup(group, previousGroup, user, 'manual assignment')
+
+      // Verify update was called with correct parameters (no cancelReason)
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'e5', id: 'r2' },
+        {
+          set: {
+            group: { key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', time: 'ip', number: 3 },
+            cancelled: false,
+          },
+        },
+        expect.anything()
+      )
+
+      // Verify audit was called with proper message
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'audit-key',
+        user: 'admin',
+        message: expect.stringContaining('Ryhmä: Ilmoittautuneet #1 -> la 3.8. ip #3 manual assignment'),
+      })
+    })
+
+    it('handles case with no previous group', async () => {
+      const group = { eventId: 'e6', id: 'r3', group: { key: 'reserve', number: 2 } }
+      const user = { name: 'secretary' } as JsonUser
+
+      await saveGroup(group, undefined, user, 'new registration')
+
+      // Verify update was called
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'e6', id: 'r3' },
+        {
+          set: {
+            group: { key: 'reserve', number: 2 },
+            cancelled: false,
+          },
+        },
+        expect.anything()
+      )
+
+      // Verify audit was called without the previous group info
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'audit-key',
+        user: 'secretary',
+        message: expect.stringContaining('Ryhmä: Ilmoittautuneet #2 new registration'),
+      })
+    })
+
+    it('handles cancelled group without cancelReason', async () => {
+      const group = { eventId: 'e7', id: 'r4', group: { key: 'cancelled', number: 5 } }
+      const previousGroup = { key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', time: 'ip' as const, number: 10 }
+      const user = { name: 'organizer' } as JsonUser
+
+      await saveGroup(group, previousGroup, user)
+
+      // Verify update was called without cancelReason
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'e7', id: 'r4' },
+        {
+          set: {
+            group: { key: 'cancelled', number: 5 },
+            cancelled: true,
+          },
+        },
+        expect.anything()
+      )
+
+      // Verify audit was called
+      expect(mockAudit).toHaveBeenCalledWith({
+        auditKey: 'audit-key',
+        user: 'organizer',
+        message: expect.stringContaining('Ryhmä: la 3.8. ip #10 -> Peruneet #5'),
+      })
     })
   })
 
@@ -525,6 +833,61 @@ describe('lib/event', () => {
       expect(getStateFromTemplate('unknown')).toBe('picked')
       expect(getStateFromTemplate('reserve')).toBe('picked')
       expect(getStateFromTemplate('receipt')).toBe('picked')
+    })
+  })
+
+  // upgradeClassState
+  describe('upgradeClassState', () => {
+    it('should return newState when oldState is undefined', () => {
+      expect(upgradeClassState(undefined, 'invited')).toBe('invited')
+    })
+
+    it('should return newState when it has higher precedence than oldState', () => {
+      expect(upgradeClassState('picked', 'invited')).toBe('invited')
+      expect(upgradeClassState('invited', 'started')).toBe('started')
+      expect(upgradeClassState('started', 'ended')).toBe('ended')
+    })
+
+    it('should return oldState when it has higher precedence than newState', () => {
+      expect(upgradeClassState('invited', 'picked')).toBe('invited')
+      expect(upgradeClassState('started', 'invited')).toBe('started')
+      expect(upgradeClassState('ended', 'started')).toBe('ended')
+    })
+
+    it('should return oldState when both states have the same precedence', () => {
+      expect(upgradeClassState('picked', 'picked')).toBe('picked')
+      expect(upgradeClassState('invited', 'invited')).toBe('invited')
+      expect(upgradeClassState('started', 'started')).toBe('started')
+      expect(upgradeClassState('ended', 'ended')).toBe('ended')
+    })
+  })
+
+  // upgradeEventState
+  describe('upgradeEventState', () => {
+    it('should return newState when oldState is undefined', () => {
+      expect(upgradeEventState(undefined, 'confirmed')).toBe('confirmed')
+    })
+
+    it('should return newState when it has higher precedence than oldState', () => {
+      expect(upgradeEventState('confirmed', 'picked')).toBe('picked')
+      expect(upgradeEventState('picked', 'invited')).toBe('invited')
+      expect(upgradeEventState('invited', 'started')).toBe('started')
+      expect(upgradeEventState('started', 'ended')).toBe('ended')
+    })
+
+    it('should return oldState when it has higher precedence than newState', () => {
+      expect(upgradeEventState('picked', 'confirmed')).toBe('picked')
+      expect(upgradeEventState('invited', 'picked')).toBe('invited')
+      expect(upgradeEventState('started', 'invited')).toBe('started')
+      expect(upgradeEventState('ended', 'started')).toBe('ended')
+    })
+
+    it('should return oldState when both states have the same precedence', () => {
+      expect(upgradeEventState('confirmed', 'confirmed')).toBe('confirmed')
+      expect(upgradeEventState('picked', 'picked')).toBe('picked')
+      expect(upgradeEventState('invited', 'invited')).toBe('invited')
+      expect(upgradeEventState('started', 'started')).toBe('started')
+      expect(upgradeEventState('ended', 'ended')).toBe('ended')
     })
   })
 })

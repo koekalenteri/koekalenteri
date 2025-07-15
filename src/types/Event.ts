@@ -105,6 +105,7 @@ export type JsonEventClass = {
 export type EventClass = Replace<JsonEventClass, 'date', Date>
 
 export type EventClassState = 'picked' | 'invited' | 'started' | 'ended' | 'completed'
+export type ConfirmedEventStates = 'confirmed' | EventClassState
 export type EventState = 'draft' | 'tentative' | 'cancelled' | 'confirmed' | EventClassState
 
 export type Headquarters = {
