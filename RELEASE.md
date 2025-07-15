@@ -2,6 +2,14 @@
 
 This document outlines the process for deploying the application to both test and production environments. The process is managed via a GitHub Actions workflow defined in `.github/workflows/release.yml`.
 
+## Release Branch Strategy
+
+The application uses the following branch strategy for deployments:
+
+- **Production**: Always deployed from the `release/prod` branch
+- **Test**: Always deployed from the `release/test` branch
+- **Development**: Always deployed from the `main` branch
+
 ## Release Types
 
 There are two primary ways to deploy the application:
@@ -36,9 +44,9 @@ This is the standard process for all production and pre-release deployments. The
 
 -   Publishing the release triggers the `Release` workflow.
 -   The workflow determines the environment (`prod` or `test`) based on whether it's a pre-release.
--   A new branch is created from the tag with the format `release/<env>/<tag>` (e.g., `release/prod/v1.2.3`).
--   This new branch is then deployed to the corresponding environment using AWS Amplify.
--   The release branches are kept for historical tracking.
+-   For production releases, the tag is force-pushed to the `release/prod` branch.
+-   For pre-releases, the tag is force-pushed to the `release/test` branch.
+-   The appropriate release branch is then deployed to the corresponding environment using AWS Amplify.
 
 ---
 
@@ -57,13 +65,14 @@ This process allows you to deploy any branch to the `test` environment for devel
 #### Automation:
 
 -   This triggers a `workflow_dispatch` event.
--   The workflow deploys the latest commit from the selected branch directly to the `test` environment using AWS Amplify.
+-   The workflow force-pushes the selected branch to the `release/test` branch.
+-   The `release/test` branch is then deployed to the test environment using AWS Amplify.
 
 ---
 
 ### 3. Continuous Deployment to Dev
 
-The `dev` environment is automatically updated whenever changes are pushed to the `main` branch. This process is handled by the `CI` workflow defined in `.github/workflows/ci.yml`.
+The `dev` environment is automatically updated whenever changes are pushed to the `main` branch. This process is handled by the `CI` workflow defined in `.github/workflows/ci.yml`. Unlike the test and production environments, which use dedicated release branches, the dev environment is always deployed directly from the `main` branch.
 
 #### Automation:
 
