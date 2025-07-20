@@ -1,7 +1,7 @@
-  GetRegistrationsFunction:
+  GetAdminRegistrationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/GetRegistrationsFunction
+      CodeUri: lambda/GetAdminRegistrationsFunction
       Handler: handler.default
       Layers:
         - !Ref CommonLayer
@@ -28,8 +28,8 @@
             Auth:
               Authorizer: CognitoAuthorizer
 
-  GetRegistrationsFunctionLogGroup:
+  GetAdminRegistrationsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetRegistrationsFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetAdminRegistrationsFunction]]
       RetentionInDays: 30

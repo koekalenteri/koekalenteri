@@ -27,9 +27,9 @@ jest.unstable_mockModule('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
 }))
 
-const { default: getRegistrationsLambda } = await import('./handler')
+const { default: getAdminRegistrationsLambda } = await import('./handler')
 
-describe('getRegistrationsLambda', () => {
+describe('getAdminRegistrationsLambda', () => {
   const event = {
     headers: {},
     body: '',
@@ -43,7 +43,7 @@ describe('getRegistrationsLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await getRegistrationsLambda(event)
+    await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
@@ -74,7 +74,7 @@ describe('getRegistrationsLambda', () => {
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(registrationsWithGroups)
 
-    await getRegistrationsLambda(event)
+    await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
@@ -96,7 +96,7 @@ describe('getRegistrationsLambda', () => {
     mockQuery.mockResolvedValueOnce(emptyRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(emptyRegistrations)
 
-    await getRegistrationsLambda(event)
+    await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
@@ -118,7 +118,7 @@ describe('getRegistrationsLambda', () => {
     mockQuery.mockResolvedValueOnce(undefined)
     mockFixRegistrationGroups.mockResolvedValueOnce(emptyRegistrations)
 
-    await getRegistrationsLambda(event)
+    await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
@@ -145,7 +145,7 @@ describe('getRegistrationsLambda', () => {
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(filteredRegistrations)
 
-    await getRegistrationsLambda(event)
+    await getAdminRegistrationsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
@@ -166,7 +166,7 @@ describe('getRegistrationsLambda', () => {
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockRejectedValueOnce(error)
 
-    await expect(getRegistrationsLambda(event)).rejects.toThrow(error)
+    await expect(getAdminRegistrationsLambda(event)).rejects.toThrow(error)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
@@ -190,7 +190,7 @@ describe('getRegistrationsLambda', () => {
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockRejectedValueOnce(error)
 
-    await expect(getRegistrationsLambda(event)).rejects.toThrow(error)
+    await expect(getAdminRegistrationsLambda(event)).rejects.toThrow(error)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')

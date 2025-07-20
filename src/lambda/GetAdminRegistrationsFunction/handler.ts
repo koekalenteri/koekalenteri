@@ -8,7 +8,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
 
-const getRegistrationsLambda = lambda('getRegistrations', async (event) => {
+const getAdminRegistrationsLambda = lambda('getAdminRegistrations', async (event) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -27,4 +27,4 @@ const getRegistrationsLambda = lambda('getRegistrations', async (event) => {
   return response(200, itemsWithGroups, event)
 })
 
-export default getRegistrationsLambda
+export default getAdminRegistrationsLambda
