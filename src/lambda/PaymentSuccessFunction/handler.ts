@@ -28,23 +28,23 @@ const handleSuccessfulPayment = async (
   const t = i18n.getFixedT(registration.language)
   const amount = parseInt(params['checkout-amount'] ?? '0') / 100
 
-  await dynamoDB.update(
-    { eventId, id: registrationId },
-    {
-      set: {
-        paidAmount: (registration.paidAmount ?? 0) + amount,
-        paidAt: new Date().toISOString(),
-        paymentStatus: 'SUCCESS',
-        state: 'ready',
-      },
-    },
-    registrationTable
-  )
-
   registration.paidAmount = (registration.paidAmount ?? 0) + amount
   registration.paidAt = new Date().toISOString()
   registration.paymentStatus = 'SUCCESS'
   registration.state = 'ready'
+
+  await dynamoDB.update(
+    { eventId, id: registrationId },
+    {
+      set: {
+        paidAmount: registration.paidAmount,
+        paidAt: registration.paidAt,
+        paymentStatus: registration.paymentStatus,
+        state: registration.state,
+      },
+    },
+    registrationTable
+  )
 
   const confirmedEvent = await updateRegistrations(registration.eventId)
 

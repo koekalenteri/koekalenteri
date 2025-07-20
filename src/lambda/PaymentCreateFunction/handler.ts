@@ -12,12 +12,12 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { paymentDescription } from '../lib/payment'
 import { createPayment } from '../lib/paytrail'
-import { getRegistration } from '../lib/registration'
+import { getRegistration, updateRegistrationField } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 
-const { organizerTable, registrationTable, transactionTable } = CONFIG
+const { organizerTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -93,15 +93,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
   await dynamoDB.write(transaction)
 
-  await dynamoDB.update(
-    { eventId, id: registrationId },
-    {
-      set: {
-        paymentStatus: 'PENDING',
-      },
-    },
-    registrationTable
-  )
+  await updateRegistrationField(eventId, registrationId, 'paymentStatus', 'PENDING')
 
   return response<CreatePaymentResponse>(200, result, event)
 })
