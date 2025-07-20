@@ -137,10 +137,10 @@ describe('RegistrationForm', () => {
 
     await flushPromises()
 
-    const cb1 = screen.getByLabelText('Cost 1 (5€)')
+    const cb1 = screen.getByLabelText(/Cost 1/)
     expect(cb1).toBeChecked()
 
-    const cb2 = screen.getByLabelText('Cost 2 (10€)')
+    const cb2 = screen.getByLabelText(/Cost 2/)
     expect(cb2).not.toBeChecked()
 
     await user.click(cb2)

@@ -2698,28 +2698,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       </div>
     </div>
     <div
-      class="MuiStack-root css-1mqo557-MuiStack-root"
+      class="MuiBox-root css-1hemky4"
     >
-      <div
-        class="MuiBox-root css-1snmjsk"
-      >
-        <b>
-          costNames.normal
-          :
-        </b>
-         
-        123
-         €
-      </div>
-      <div
-        class="MuiBox-root css-1snmjsk"
-      >
-        <b>
-          Maksettava: 
-          123
-          \\u00A0€
-        </b>
-      </div>
+      <b>
+        Maksettava: 
+        123,00 €
+      </b>
     </div>
     <div
       class="MuiStack-root css-1tokk9g-MuiStack-root"
@@ -5482,28 +5466,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       </div>
     </div>
     <div
-      class="MuiStack-root css-1mqo557-MuiStack-root"
+      class="MuiBox-root css-1hemky4"
     >
-      <div
-        class="MuiBox-root css-1snmjsk"
-      >
-        <b>
-          costNames.normal
-          :
-        </b>
-         
-        123
-         €
-      </div>
-      <div
-        class="MuiBox-root css-1snmjsk"
-      >
-        <b>
-          Maksettava: 
-          123
-          \\u00A0€
-        </b>
-      </div>
+      <b>
+        Maksettava: 
+        123,00 €
+      </b>
     </div>
     <div
       class="MuiStack-root css-1tokk9g-MuiStack-root"

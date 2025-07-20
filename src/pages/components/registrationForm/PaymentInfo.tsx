@@ -8,7 +8,9 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 
-import { getCostSegmentName, getCostValue } from '../../../lib/cost'
+import { getCostSegmentName, getCostValue, getStragegyBySegment } from '../../../lib/cost'
+import { formatMoney } from '../../../lib/money'
+import { isMinimalRegistrationForCost } from '../../../lib/typeGuards'
 import CollapsibleSection from '../CollapsibleSection'
 
 interface Props {
@@ -21,7 +23,7 @@ interface Props {
 
 const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) => {
   const { t } = useTranslation()
-  const { cost: eventCost } = event
+  const appliedCost = cost.cost ?? event.cost
 
   const handleCostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange?.({ selectedCost: event.target.value as DogEventCostSegment })
@@ -40,11 +42,11 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
     onChange?.({ optionalCosts: costs })
   }
 
-  if (typeof eventCost !== 'object') {
+  if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
     return null
   }
 
-  const open = !!registration.dog?.regNo
+  const open = !!registration.dog?.breedCode
   const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed']
   const breedCode = registration.dog?.breedCode
 
@@ -57,24 +59,25 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
     >
       <RadioGroup value={cost.segment} onChange={handleCostChange}>
         {segments.map((segment) => {
-          const value = getCostValue(eventCost, segment, breedCode)
+          const value = getCostValue(appliedCost, segment, breedCode)
           if (!value) return null
+          const strategy = getStragegyBySegment(segment)
           return (
             <FormControlLabel
               key={segment}
               value={segment}
-              disabled={disabled}
+              disabled={disabled && strategy?.isApplicable(appliedCost, registration, event)}
               control={<Radio />}
-              label={`${t(getCostSegmentName(segment), { code: breedCode })} (${value}€)`}
+              label={`${t(getCostSegmentName(segment), { code: breedCode })} (${formatMoney(value)})`}
             />
           )
         })}
-        {eventCost.custom && (
+        {appliedCost.custom && (
           <FormControlLabel
             value="custom"
-            disabled={disabled || !eventCost.custom}
+            disabled={disabled || !appliedCost.custom}
             control={<Radio />}
-            label={`${eventCost.custom.description.fi} (${eventCost.custom.cost}€)`}
+            label={`${appliedCost.custom.description.fi} (${formatMoney(appliedCost.custom.cost)})`}
           />
         )}
       </RadioGroup>
@@ -87,7 +90,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                 onChange={(e) => handleOptionalCostChange(e.target.checked, index)}
               />
             }
-            label={`${c.description.fi} (${c.cost}€)`}
+            label={`${c.description.fi} (${formatMoney(c.cost)})`}
           />
         </Box>
       ))}

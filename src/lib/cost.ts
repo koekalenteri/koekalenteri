@@ -76,6 +76,8 @@ const breedStrategy: CostStrategy = {
 
 export const costStrategies: CostStrategy[] = [customStrategy, earlyBirdStrategy, breedStrategy, normalStrategy]
 
+export const getStragegyBySegment = (key?: DogEventCostSegment) => costStrategies.find((s) => s.key === key)
+
 export const getApplicableStrategy = (
   event: Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>,
   registration: MinimalRegistrationForCost
@@ -85,7 +87,7 @@ export const getApplicableStrategy = (
     return normalStrategy
   }
   if (registration.selectedCost) {
-    const selectedStrategy = costStrategies.find((s) => s.key === registration.selectedCost)
+    const selectedStrategy = getStragegyBySegment(registration.selectedCost)
     if (selectedStrategy?.isApplicable(cost, registration, event)) {
       return selectedStrategy
     }

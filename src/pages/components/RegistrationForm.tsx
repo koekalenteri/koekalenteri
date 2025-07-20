@@ -30,8 +30,9 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import { diff } from 'deep-object-diff'
 
-import { calculateCost, getCostSegmentName } from '../../lib/cost'
+import { calculateCost } from '../../lib/cost'
 import { isDevEnv } from '../../lib/env'
+import { formatMoney } from '../../lib/money'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
 
@@ -370,18 +371,13 @@ export default function RegistrationForm({
         </Box>
       </Box>
 
-      <Stack spacing={1} direction="row" justifyContent="space-between" sx={{ p: 1 }}>
-        <Box my="auto">
-          <b>{t(getCostSegmentName(costResult.segment) as any)}:</b> {paymentAmount} €
-        </Box>
-        <Box my="auto">
-          {event.paymentTime === 'confirmation' && !registration.confirmed ? (
-            <b>Maksettava {paymentAmount - (registration.paidAmount ?? 0)}\u00A0€ koepaikan varmistuttua</b>
-          ) : (
-            <b>Maksettava: {paymentAmount - (registration.paidAmount ?? 0)}\u00A0€</b>
-          )}
-        </Box>
-      </Stack>
+      <Box textAlign="end" width="100%" p={1}>
+        {event.paymentTime === 'confirmation' && !registration.confirmed ? (
+          <b>Maksettava {formatMoney(paymentAmount - (registration.paidAmount ?? 0))} koepaikan varmistuttua</b>
+        ) : (
+          <b>Maksettava: {formatMoney(paymentAmount - (registration.paidAmount ?? 0))}</b>
+        )}
+      </Box>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
         <AsyncButton
