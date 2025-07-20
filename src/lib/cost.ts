@@ -15,6 +15,11 @@ import { addDays } from 'date-fns'
 
 import { isMember } from './registration'
 
+export const getEarlyBirdEndDate = (
+  event: Pick<PublicConfirmedEvent, 'entryStartDate'>,
+  cost: Pick<DogEventCost, 'earlyBird'>
+) => (cost.earlyBird ? addDays(event.entryStartDate, cost.earlyBird.days - 1) : undefined)
+
 /** Helper object that can be "auto-fixed" to contain all the keys */
 const EVENT_COST_MODEL: { [K in DogEventCostKey]: K } = {
   breed: 'breed',
@@ -47,7 +52,7 @@ const customStrategy: CostStrategy = {
 const earlyBirdStrategy: CostStrategy = {
   key: 'earlyBird',
   isApplicable: (cost, registration, event) =>
-    !!cost.earlyBird && registration.createdAt < addDays(event.entryStartDate, cost.earlyBird.days),
+    !!cost.earlyBird && registration.createdAt < (getEarlyBirdEndDate(event, cost) ?? event.entryStartDate),
   getValue: (cost) => cost.earlyBird?.cost ?? 0,
   setValue: (cost, value, data) => {
     const days = data && 'days' in data ? data.days : (cost.earlyBird?.days ?? 0)

@@ -27,7 +27,7 @@
   "costNames": {
     "breed": "Rotu: $t(breed:{{code}})",
     "custom": "Muu maksu",
-    "earlyBird": "Early bird",
+    "earlyBird": "Early bird ({{start, datespan(end: end)}})",
     "normal": "Normaali",
     "optionalAdditionalCosts": "Lisäpalvelu"
   },
@@ -106,9 +106,9 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "entryUpcoming": "Ilmoittautuminen tulossa",
   "error": {
+    "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia",
     "eventNotFound": "Tapahtumaa ei löydy",
     "eventWithIdNotFound": "Tapahtumaa tunnuksella {{id}} ei löytynyt",
-    "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia",
     "registrationNotFound": "Ilmoittautumista ei löydy"
   },
   "event": {
@@ -251,15 +251,15 @@
     "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
-  "paymentTime": "Maksuajankohta",
-  "paymentTimeOptions": {
-    "registration": "Maksu ilmoittautumisen yhteydessä",
-    "confirmation": "Maksu vasta koepaikan varmistuttua"
-  },
   "paymentStatus": {
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
     "success": "Olen maksanut"
+  },
+  "paymentTime": "Maksuajankohta",
+  "paymentTimeOptions": {
+    "confirmation": "Maksu vasta koepaikan varmistuttua",
+    "registration": "Maksu ilmoittautumisen yhteydessä"
   },
   "places": "Paikkoja",
   "priority": {
@@ -281,6 +281,8 @@
   "refund": "Palauta maksu",
   "register": "Ilmoittaudu",
   "registration": {
+    "accordionInfo": "Puutteelliset tiedot:",
+    "accordionTitle": "Miksi en voi siirtyä eteenpäin?",
     "agreeToTerms": "Ehdot ja tietosuojaseloste",
     "breeder": "Kasvattajan tiedot",
     "cancelDialog": {
@@ -317,6 +319,9 @@
     "cta": {
       "addResult": "Lisää tulos",
       "autofetch": "Hae koiran tiedot",
+      "confirmAndPay": "Vahvista ja siirry maksamaan",
+      "confirmAndSendLink": "Vahvista ja lähetä maksulinkki",
+      "confirmRegistration": "Vahvista ilmoittautuminen",
       "deleteResult": "Poista tulos",
       "error": "Syötä tiedot käsin",
       "fetch": "Hae koiran tiedot",
@@ -333,6 +338,7 @@
       "manual": "Tee uusi haku",
       "notfound": "Syötä tiedot käsin",
       "pay": "MAKSA",
+      "saveChanges": "Tallenna muutokset",
       "update": "Päivitä"
     },
     "dates": "Ryhmät",
@@ -376,10 +382,12 @@
     "paid": "Maksettu",
     "payer": "Maksajan tiedot",
     "payment": "Maksutiedot",
+    "paymentToBePaid": "Maksettava: {{amount}}",
+    "paymentToBePaidAfterConfirmation": "Maksettava {{amount}}, kun paikka tapahtumassa on vahvistettu",
     "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",
     "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{eventType}} {{class}}-luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
-    "qyalifyingResultsYes": "on oikeus",
+    "qualifyingResultsYes": "on oikeus",
     "rankingTime": "Karsinta-aika",
     "refundDialog": {
       "columns": {

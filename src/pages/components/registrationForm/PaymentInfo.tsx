@@ -8,7 +8,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 
-import { getCostSegmentName, getCostValue, getStragegyBySegment } from '../../../lib/cost'
+import { getCostSegmentName, getCostValue, getEarlyBirdEndDate, getStragegyBySegment } from '../../../lib/cost'
 import { formatMoney } from '../../../lib/money'
 import { isMinimalRegistrationForCost } from '../../../lib/typeGuards'
 import CollapsibleSection from '../CollapsibleSection'
@@ -66,9 +66,13 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
             <FormControlLabel
               key={segment}
               value={segment}
-              disabled={disabled && strategy?.isApplicable(appliedCost, registration, event)}
+              disabled={disabled || !strategy?.isApplicable(appliedCost, registration, event)}
               control={<Radio />}
-              label={`${t(getCostSegmentName(segment), { code: breedCode })} (${formatMoney(value)})`}
+              label={`${t(getCostSegmentName(segment), {
+                code: breedCode,
+                start: event.entryStartDate,
+                end: typeof appliedCost === 'object' ? getEarlyBirdEndDate(event, appliedCost) : undefined,
+              })} (${formatMoney(value)})`}
             />
           )
         })}

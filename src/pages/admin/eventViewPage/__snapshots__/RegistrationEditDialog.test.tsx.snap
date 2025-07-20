@@ -2432,29 +2432,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     </span>
                     <span
                       class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
-                    >
-                      Hyväksyn
-                       
-                      <a
-                        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                        href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                        rel="noopener"
-                        target="_blank"
-                      >
-                        ilmoittautmisen ehdot
-                      </a>
-                       
-                      ja
-                       
-                      <a
-                        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                        href="https://www.snj.fi/snj/tietosuojaseloste/"
-                        rel="noopener"
-                        target="_blank"
-                      >
-                        tietosuojaselosteen
-                      </a>
-                    </span>
+                    />
                   </label>
                 </div>
                 <p
@@ -2466,8 +2444,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               class="MuiBox-root css-1hemky4"
             >
               <b>
-                Maksettava: 
-                123,00 €
+                registration.paymentToBePaid amount
               </b>
             </div>
             <div
@@ -2494,7 +2471,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     />
                   </svg>
                 </span>
-                Tallenna muutokset
+                registration.cta.saveChanges
               </button>
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
@@ -2516,7 +2493,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     />
                   </svg>
                 </span>
-                Peruuta
+                cancel
               </button>
             </div>
           </div>
@@ -5164,29 +5141,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     </span>
                     <span
                       class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label Mui-disabled css-rizt0-MuiTypography-root"
-                    >
-                      Hyväksyn
-                       
-                      <a
-                        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                        href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                        rel="noopener"
-                        target="_blank"
-                      >
-                        ilmoittautmisen ehdot
-                      </a>
-                       
-                      ja
-                       
-                      <a
-                        class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                        href="https://www.snj.fi/snj/tietosuojaseloste/"
-                        rel="noopener"
-                        target="_blank"
-                      >
-                        tietosuojaselosteen
-                      </a>
-                    </span>
+                    />
                   </label>
                 </div>
                 <p
@@ -5198,8 +5153,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               class="MuiBox-root css-1hemky4"
             >
               <b>
-                Maksettava: 
-                123,00 €
+                registration.paymentToBePaid amount
               </b>
             </div>
             <div
@@ -5226,7 +5180,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     />
                   </svg>
                 </span>
-                Tallenna muutokset
+                registration.cta.saveChanges
               </button>
               <button
                 class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
@@ -5248,7 +5202,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     />
                   </svg>
                 </span>
-                Peruuta
+                cancel
               </button>
             </div>
           </div>

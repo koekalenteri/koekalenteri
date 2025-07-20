@@ -2665,29 +2665,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             </span>
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
-            >
-              Hyväksyn
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                rel="noopener"
-                target="_blank"
-              >
-                ilmoittautmisen ehdot
-              </a>
-               
-              ja
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                href="https://www.snj.fi/snj/tietosuojaseloste/"
-                rel="noopener"
-                target="_blank"
-              >
-                tietosuojaselosteen
-              </a>
-            </span>
+            />
           </label>
         </div>
         <p
@@ -2701,8 +2679,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
       class="MuiBox-root css-1hemky4"
     >
       <b>
-        Maksettava: 
-        123,00 €
+        registration.paymentToBePaid amount
       </b>
     </div>
     <div
@@ -2729,7 +2706,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             />
           </svg>
         </span>
-        Vahvista ja siirry maksamaan
+        registration.cta.confirmAndPay
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
@@ -2751,7 +2728,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             />
           </svg>
         </span>
-        Peruuta
+        cancel
       </button>
     </div>
     <div
@@ -2769,7 +2746,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           <span
             class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            Miksi en voi siirtyä eteenpäin?
+            registration.accordionTitle
           </span>
           <span
             class="MuiAccordionSummary-expandIconWrapper css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
@@ -2806,7 +2783,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                 class="MuiAccordionDetails-root css-1lj39kh-MuiAccordionDetails-root"
                 data-testid="missing-info"
               >
-                Puutteelliset tiedot:
+                registration.accordionInfo
                 <ul
                   style="margin: 0px;"
                 >
@@ -5433,29 +5410,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             </span>
             <span
               class="MuiTypography-root MuiTypography-body1 MuiFormControlLabel-label css-rizt0-MuiTypography-root"
-            >
-              Hyväksyn
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                rel="noopener"
-                target="_blank"
-              >
-                ilmoittautmisen ehdot
-              </a>
-               
-              ja
-               
-              <a
-                class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-l28e57-MuiTypography-root-MuiLink-root"
-                href="https://www.snj.fi/snj/tietosuojaseloste/"
-                rel="noopener"
-                target="_blank"
-              >
-                tietosuojaselosteen
-              </a>
-            </span>
+            />
           </label>
         </div>
         <p
@@ -5469,8 +5424,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
       class="MuiBox-root css-1hemky4"
     >
       <b>
-        Maksettava: 
-        123,00 €
+        registration.paymentToBePaid amount
       </b>
     </div>
     <div
@@ -5497,7 +5451,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             />
           </svg>
         </span>
-        Vahvista ja siirry maksamaan
+        registration.cta.confirmAndPay
       </button>
       <button
         class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
@@ -5519,7 +5473,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             />
           </svg>
         </span>
-        Peruuta
+        cancel
       </button>
     </div>
     <div
@@ -5537,7 +5491,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           <span
             class="MuiAccordionSummary-content MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            Miksi en voi siirtyä eteenpäin?
+            registration.accordionTitle
           </span>
           <span
             class="MuiAccordionSummary-expandIconWrapper css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
@@ -5574,7 +5528,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                 class="MuiAccordionDetails-root css-1lj39kh-MuiAccordionDetails-root"
                 data-testid="missing-info"
               >
-                Puutteelliset tiedot:
+                registration.accordionInfo
                 <ul
                   style="margin: 0px;"
                 >

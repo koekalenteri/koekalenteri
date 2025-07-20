@@ -119,7 +119,7 @@ describe('RegistrationCreatePage', () => {
     const { user } = renderWithRouter(path, { ...registrationWithStaticDates, id: '', agreeToTerms: true })
     await flushPromises()
 
-    const saveButton = screen.getByRole('button', { name: 'Vahvista ilmoittautuminen' })
+    const saveButton = screen.getByRole('button', { name: 'registration.cta.confirmRegistration' })
     expect(saveButton).toBeEnabled()
     await user.click(saveButton)
 

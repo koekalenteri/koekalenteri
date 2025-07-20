@@ -108,7 +108,7 @@ describe('RegistrationForm', () => {
     )
 
     await flushPromises()
-    const saveButton = screen.getByRole('button', { name: 'Tallenna muutokset' })
+    const saveButton = screen.getByRole('button', { name: 'registration.cta.saveChanges' })
 
     expect(saveButton).toBeEnabled()
 

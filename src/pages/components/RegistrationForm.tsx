@@ -88,11 +88,11 @@ export default function RegistrationForm({
   const costResult = calculateCost(event, registration)
   const paymentAmount = costResult.amount
   const ctaText = useMemo(() => {
-    if (registration.id) return 'Tallenna muutokset'
-    if (admin) return 'Vahvista ja lähetä maksulinkki'
-    if (event.paymentTime === 'confirmation') return 'Vahvista ilmoittautuminen'
-    return 'Vahvista ja siirry maksamaan'
-  }, [admin, registration.id, event.paymentTime])
+    if (registration.id) return t('registration.cta.saveChanges')
+    if (admin) return t('registration.cta.confirmAndSendLink')
+    if (event.paymentTime === 'confirmation') return t('registration.cta.confirmRegistration')
+    return t('registration.cta.confirmAndPay')
+  }, [admin, registration.id, event.paymentTime, t])
 
   const requirements = useMemo(
     () =>
@@ -349,20 +349,20 @@ export default function RegistrationForm({
                 />
               }
               label={
-                <Trans t={t} i18nKey="registration.terms">
-                  Hyväksyn{' '}
-                  <Link
-                    target="_blank"
-                    rel="noopener"
-                    href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
-                  >
-                    ilmoittautmisen ehdot
-                  </Link>{' '}
-                  ja{' '}
-                  <Link target="_blank" rel="noopener" href="https://www.snj.fi/snj/tietosuojaseloste/">
-                    tietosuojaselosteen
-                  </Link>
-                </Trans>
+                <Trans
+                  t={t}
+                  i18nKey="registration.terms"
+                  components={{
+                    2: (
+                      <Link
+                        target="_blank"
+                        rel="noopener"
+                        href="https://yttmk.yhdistysavain.fi/noutajien-metsastyskokeet-2/ohjeistukset/kokeen-ja-tai-kilpailun-ilmoitta/"
+                      />
+                    ),
+                    6: <Link target="_blank" rel="noopener" href="https://www.snj.fi/snj/tietosuojaseloste/" />,
+                  }}
+                />
               }
               name="agreeToTerms"
             />
@@ -373,9 +373,15 @@ export default function RegistrationForm({
 
       <Box textAlign="end" width="100%" p={1}>
         {event.paymentTime === 'confirmation' && !registration.confirmed ? (
-          <b>Maksettava {formatMoney(paymentAmount - (registration.paidAmount ?? 0))} koepaikan varmistuttua</b>
+          <b>
+            {t('registration.paymentToBePaidAfterConfirmation', {
+              amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)),
+            })}
+          </b>
         ) : (
-          <b>Maksettava: {formatMoney(paymentAmount - (registration.paidAmount ?? 0))}</b>
+          <b>
+            {t('registration.paymentToBePaid', { amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)) })}
+          </b>
         )}
       </Box>
 
@@ -390,14 +396,14 @@ export default function RegistrationForm({
           {ctaText}
         </AsyncButton>
         <Button startIcon={<Cancel />} variant="outlined" onClick={onCancel}>
-          Peruuta
+          {t('cancel')}
         </Button>
       </Stack>
       {!valid && (
         <Accordion variant="outlined" sx={{ backgroundColor: 'background.form' }}>
-          <AccordionSummary expandIcon={<ExpandMore />}>Miksi en voi siirtyä eteenpäin?</AccordionSummary>
+          <AccordionSummary expandIcon={<ExpandMore />}>{t('registration.accordionTitle')}</AccordionSummary>
           <AccordionDetails data-testid="missing-info">
-            Puutteelliset tiedot:
+            {t('registration.accordionInfo')}
             <ul style={{ margin: 0 }}>
               {errors.map((e, i) => (
                 <li key={i}>{t(`registration.${e.opts.field}` as any)} </li>
@@ -424,7 +430,7 @@ function getSectionHelperTexts(
     qualifyingResults: t('registration.qualifyingResultsInfo', {
       class: registration.class,
       eventType: registration.eventType,
-      qualifies: t(registration.qualifies ? 'registration.qyalifyingResultsYes' : 'registration.qualifyingResultsNo'),
+      qualifies: t(registration.qualifies ? 'registration.qualifyingResultsYes' : 'registration.qualifyingResultsNo'),
     }),
     reserve: t('registration.reserveHelp'),
   }
