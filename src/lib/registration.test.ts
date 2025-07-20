@@ -452,6 +452,7 @@ describe('lib/registration', () => {
       expect(result).toHaveProperty('text')
       expect(result).toHaveProperty('origin')
       expect(result).toHaveProperty('cancelReason')
+      expect(result).toHaveProperty('delayedPayment')
 
       // Check specific values that don't depend on the t function
       expect(result.link).toBe('https://example.com/r/event1/reg1')

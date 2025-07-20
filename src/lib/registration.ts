@@ -164,6 +164,7 @@ export const getRegistrationEmailTemplateData = (
     ...r,
     date: t('dateFormat.date', { date: r.date }),
   }))
+  const delayedPayment = confirmedEvent.paymentTime === 'confirmation'
 
   // Group information. Use previous group when provided.
   const group = previousGroup ?? registration.group
@@ -177,24 +178,25 @@ export const getRegistrationEmailTemplateData = (
     : (registration.cancelReason ?? '')
 
   return {
-    subject: t('registration.email.subject', { context, defaultValue: '' }),
-    title: t('registration.email.title', { context, defaultValue: '' }),
+    cancelReason,
+    delayedPayment,
     dogBreed,
-    link,
-    paymentLink,
     event: confirmedEvent,
     eventDate,
+    groupDate,
+    groupNumber,
+    groupTime,
     invitationLink,
+    link,
+    origin,
+    paymentLink,
     qualifyingResults,
     reg: registration,
     regDates,
     reserveText,
-    groupDate,
-    groupTime,
-    groupNumber,
+    subject: t('registration.email.subject', { context, defaultValue: '' }),
     text,
-    origin,
-    cancelReason,
+    title: t('registration.email.title', { context, defaultValue: '' }),
   }
 }
 
