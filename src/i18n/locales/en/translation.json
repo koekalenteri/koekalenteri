@@ -24,7 +24,7 @@
   },
   "costMemberAmount": "Amount for members",
   "costNames": {
-    "breed": "Breed specific",
+    "breed": "Breed: $t(breed:{{code}})",
     "custom": "Other",
     "earlyBird": "Early bird ({{start, datespan(end: end)}})",
     "normal": "Normal",

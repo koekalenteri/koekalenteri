@@ -87,7 +87,7 @@ describe('CostInfo', () => {
       })
 
       expect(screen.getByText('costNames.normal')).toBeInTheDocument()
-      expect(screen.getByText('costNames.earlyBird')).toBeInTheDocument()
+      expect(screen.getByText(/costNames.earlyBird/)).toBeInTheDocument()
       expect(screen.getByText('50 €')).toBeInTheDocument()
       expect(screen.getByText('45 €')).toBeInTheDocument()
     })

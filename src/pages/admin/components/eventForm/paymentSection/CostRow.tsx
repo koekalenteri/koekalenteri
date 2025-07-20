@@ -10,9 +10,8 @@ import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { addDays } from 'date-fns'
 
-import { getCostValue } from '../../../../../lib/cost'
+import { getCostValue, getEarlyBirdEndDate } from '../../../../../lib/cost'
 import { NumberInput } from '../../../../components/NumberInput'
 
 interface CostRowProps {
@@ -57,11 +56,15 @@ export const CostRow = ({
     }
 
     if (costKey === 'earlyBird') {
-      const days = (event.cost as DogEventCost)?.earlyBird?.days ?? 0
-      const earlyBirdEndDate = event.entryStartDate && days > 0 ? addDays(event.entryStartDate, days - 1) : undefined
       return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <span>{t(`costNames.${costKey}`, { days: (event.cost as DogEventCost)?.earlyBird?.days ?? 0 })}</span>
+          <span>
+            {t(`costNames.${costKey}`, {
+              days: (event.cost as DogEventCost)?.earlyBird?.days ?? 0,
+              start: event.entryStartDate,
+              end: getEarlyBirdEndDate(event, event.cost as DogEventCost),
+            })}
+          </span>
           <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
             <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mr: 1 }}>{t('costDescription.earlyBirdDays')}</Box>
             <NumberInput
@@ -73,9 +76,6 @@ export const CostRow = ({
             />
             <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', ml: 1 }}>
               {t('costDescription.earlyBirdDaysUnit')}
-              {earlyBirdEndDate
-                ? ` (${t('dateFormat.datespan', { start: event.entryStartDate, end: earlyBirdEndDate })})`
-                : null}
             </Box>
           </div>
         </div>

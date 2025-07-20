@@ -1,4 +1,4 @@
-import type { BreedCode, DogEvent } from '../../types'
+import type { BreedCode, DogEvent, PublicConfirmedEvent } from '../../types'
 import type { DogEventCost, DogEventCostSegment } from '../../types/Cost'
 
 import { useTranslation } from 'react-i18next'
@@ -10,11 +10,12 @@ import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import { useRecoilValue } from 'recoil'
 
-import { getCostSegmentName, getCostValue } from '../../lib/cost'
+import { getCostSegmentName, getCostValue, getEarlyBirdEndDate } from '../../lib/cost'
+import { keysOf } from '../../lib/typeGuards'
 import { languageAtom } from '../recoil'
 
 interface Props {
-  readonly event: Pick<DogEvent, 'cost' | 'costMember'>
+  readonly event: Pick<DogEvent, 'cost' | 'costMember' | 'entryStartDate'>
 }
 
 export default function CostInfo({ event }: Props) {
@@ -47,7 +48,12 @@ export default function CostInfo({ event }: Props) {
         ? (cost.custom.description[language] ?? cost.custom.description.fi)
         : segment === 'breed' && breedCode
           ? t(getCostSegmentName(segment), { code: breedCode })
-          : t(getCostSegmentName(segment))
+          : segment === 'earlyBird'
+            ? t(getCostSegmentName(segment), {
+                start: event.entryStartDate,
+                end: getEarlyBirdEndDate(event as PublicConfirmedEvent, cost),
+              })
+            : t(getCostSegmentName(segment))
 
     return { name, text }
   }
@@ -56,8 +62,8 @@ export default function CostInfo({ event }: Props) {
     .flatMap((segment) => {
       if (segment === 'breed') {
         const breeds = []
-        for (const breedCode of Object.keys(cost.breed ?? {})) {
-          breeds.push(getSegmentInfo(cost, costMember, segment, breedCode as BreedCode))
+        for (const breedCode of keysOf(cost.breed ?? {})) {
+          breeds.push(getSegmentInfo(cost, costMember, segment, breedCode))
         }
         return breeds
       }

@@ -16,9 +16,9 @@ import { addDays } from 'date-fns'
 import { isMember } from './registration'
 
 export const getEarlyBirdEndDate = (
-  event: Pick<PublicConfirmedEvent, 'entryStartDate'>,
+  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'>>,
   cost: Pick<DogEventCost, 'earlyBird'>
-) => (cost.earlyBird ? addDays(event.entryStartDate, cost.earlyBird.days - 1) : undefined)
+) => (cost.earlyBird && event.entryStartDate ? addDays(event.entryStartDate, cost.earlyBird.days - 1) : undefined)
 
 /** Helper object that can be "auto-fixed" to contain all the keys */
 const EVENT_COST_MODEL: { [K in DogEventCostKey]: K } = {
