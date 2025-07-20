@@ -9,9 +9,18 @@ import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { ISO8601DateTimeRE } from '../test-utils/constants'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+const mockSES = {
+  send: jest.fn(),
+}
+jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
+  SESClient: jest.fn(() => mockSES),
+  SendTemplatedEmailCommand: jest.fn((p) => p),
+}))
+
 const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonRegistration>>()
 const mockUpdateEventStatsForRegistration = jest.fn()
 const mockUpdateRegistrations = jest.fn()
+const mockDynamoDBWrite = jest.fn()
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
@@ -22,12 +31,17 @@ jest.unstable_mockModule('../lib/stats', () => ({
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
+jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+  default: jest.fn(() => ({
+    write: mockDynamoDBWrite,
+  })),
+}))
+
 const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
 const mockSaveRegistration = jest.fn()
 const mockfindExistingRegistrationToEventForDog = jest.fn<
   (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
 >(async () => undefined)
-const mockisParticipantGroup = jest.fn()
 
 const libRegistration = await import('../lib/registration')
 
@@ -36,23 +50,6 @@ jest.unstable_mockModule('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
   saveRegistration: mockSaveRegistration,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
-  isParticipantGroup: mockisParticipantGroup,
-}))
-
-const libAudit = await import('../lib/audit')
-const mockAudit = jest.fn()
-
-jest.unstable_mockModule('../lib/audit', () => ({
-  ...libAudit,
-  audit: mockAudit,
-}))
-
-const libEmail = await import('../lib/email')
-const mockSendTemplatedMail = jest.fn()
-
-jest.unstable_mockModule('../lib/email', () => ({
-  ...libEmail,
-  sendTemplatedMail: mockSendTemplatedMail,
 }))
 
 const { default: putRegistrationLabmda } = await import('./handler')
@@ -85,15 +82,17 @@ describe('putRegistrationLabmda', () => {
         modifiedBy: 'anonymous',
       })
     )
+    expect(mockSaveRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ state: expect.anything() }))
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
-      expect.objectContaining({ auditKey: expect.any(String), message: 'Ilmoittautui', user: 'anonymous' })
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
+      expect.objectContaining({ auditKey: expect.any(String), message: 'Ilmoittautui', user: 'anonymous' }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(1)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(1)
 
-    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(mockSES.send).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
 
     expect(res.statusCode).toEqual(200)
@@ -104,14 +103,22 @@ describe('putRegistrationLabmda', () => {
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisen vahvistus' })
+    expect(mockSaveRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        state: 'ready',
+      })
     )
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisen vahvistus"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toEqual(200)
   })
@@ -141,39 +148,44 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: auditMessage,
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['secretary@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'cancel-early-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'cancel-early',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['secretary@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
-
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
+    expect(mockSES.send).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
 
@@ -186,9 +198,8 @@ describe('putRegistrationLabmda', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { key: GROUP_KEY_RESERVE, number: 2 },
-      reserveNotified: true,
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify(registration))
+    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: true }))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -204,38 +215,43 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
-
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'cancel-reserve',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['secretary@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['secretary@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'cancel-reserve-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
 
@@ -248,9 +264,8 @@ describe('putRegistrationLabmda', () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { key: GROUP_KEY_RESERVE, number: 2 },
-      reserveNotified: false,
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify(registration))
+    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: false }))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -266,39 +281,44 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['secretary@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'cancel-early-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'cancel-early',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['secretary@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
-
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
+    expect(mockSES.send).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
 
@@ -307,7 +327,6 @@ describe('putRegistrationLabmda', () => {
 
   it('should notify secretary when cancelling from participants', async () => {
     jest.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
-    mockisParticipantGroup.mockReturnValueOnce(true)
 
     const registration: Registration = {
       ...registrationWithStaticDates,
@@ -329,37 +348,43 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Ilmoittautuminen peruttiin, syy: (ei täytetty)',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi on peruttu, to: handler@example.com, owner@example.com',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'cancel-picked',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['secretary@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(2)
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['secretary@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'cancel-picked-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
 
@@ -381,30 +406,34 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
         message: 'Muutti: Lisätiedot',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Ilmoittautumisesi tietoja on muokattu, to: handler@example.com, owner@example.com',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi tietoja on muokattu' })
-    )
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi tietoja on muokattu"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledTimes(1)
 
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
 
@@ -426,30 +455,34 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: expect.any(String),
         message: 'Ilmoittautumisen vahvistus',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
         message: 'Email: Vahvistit vastaanottavasi koepaikan, to: handler@example.com, owner@example.com',
         user: 'anonymous',
-      })
+      }),
+      'audit-table-not-found-in-env'
     )
-    expect(mockAudit).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDBWrite).toHaveBeenCalledTimes(2)
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Vahvistit vastaanottavasi koepaikan' })
-    )
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Vahvistit vastaanottavasi koepaikan"'),
+    })
+    expect(mockSES.send).toHaveBeenCalledTimes(1)
 
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
 
@@ -466,15 +499,17 @@ describe('putRegistrationLabmda', () => {
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
 
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
-      'fi',
-      'koekalenteri@koekalenteri.snj.fi',
-      ['handler@example.com', 'owner@example.com'],
-      expect.objectContaining({ subject: 'Ilmoittautumisesi on peruttu' })
-    )
+    expect(mockSES.send).toHaveBeenCalledWith({
+      ConfigurationSetName: 'Koekalenteri',
+      Destination: {
+        ToAddresses: ['handler@example.com', 'owner@example.com'],
+      },
+      Source: 'koekalenteri@koekalenteri.snj.fi',
+      Template: 'registration-local-fi',
+      TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
+    })
     // once for user, not for secretary
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+    expect(mockSES.send).toHaveBeenCalledTimes(1)
     expect(res.statusCode).toEqual(200)
   })
 
@@ -495,14 +530,14 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
 
     // No audit message for confirmation
-    expect(mockAudit).not.toHaveBeenCalledWith(
+    expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Ilmoittautumisen vahvistus',
       })
     )
 
     // No email for confirmation
-    expect(mockSendTemplatedMail).toHaveBeenCalledTimes(1)
+    expect(mockSES.send).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toEqual(200)
   })
@@ -515,5 +550,35 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 
     expect(res.statusCode).toEqual(409)
+  })
+
+  it('should not fail if secretary email fails', async () => {
+    const error = new Error('test error')
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    mockSES.send.mockImplementationOnce(() => Promise.resolve()) // first send is for user
+    mockSES.send.mockImplementationOnce(() => Promise.reject(error)) // second send is for secretary
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true }))
+    expect(res.statusCode).toEqual(200)
+    expect(errorSpy).toHaveBeenCalledWith('error notifying cancellation to secretary', error)
+  })
+
+  it('should send invitation read email', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, invitationRead: true })
+    )
+    expect(res.statusCode).toEqual(200)
+    expect(mockSES.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Template: 'registration-local-fi',
+        TemplateData: expect.stringContaining('"subject":"Olet kuitannut koekutsun"'),
+      })
+    )
   })
 })

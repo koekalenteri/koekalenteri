@@ -78,7 +78,7 @@ const sendMessages = async (
 
       const groupKey = existing?.group?.key ?? GROUP_KEY_RESERVE
       if (groupKey === GROUP_KEY_RESERVE) {
-        template = registration.reserveNotified ? 'cancel-reserve' : 'cancel-early'
+        template = existing?.reserveNotified ? 'cancel-reserve' : 'cancel-early'
       } else if (isParticipantGroup(groupKey)) {
         template = 'cancel-picked'
       }
@@ -126,6 +126,9 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     registration.id = nanoid(10)
     registration.createdAt = timestamp
     registration.createdBy = username
+    if (confirmedEvent.paymentTime === 'confirmation') {
+      registration.state = 'ready'
+    }
   }
 
   const update = !!existing
