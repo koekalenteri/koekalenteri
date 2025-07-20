@@ -1,20 +1,18 @@
+import type { ValidationError } from '../../../../i18n/validation'
 import type { BreedCode } from '../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../types/Cost'
-import type { SectionProps } from './types'
+import type { PartialEvent, SectionProps } from './types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddIcon from '@mui/icons-material/Add'
-import DeleteOutline from '@mui/icons-material/DeleteOutline'
-import EditIcon from '@mui/icons-material/Edit'
-import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid2'
-import IconButton from '@mui/material/IconButton'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import Stack from '@mui/material/Stack'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -23,12 +21,13 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 
 import { DOG_EVENT_COST_KEYS, setCostValue } from '../../../../lib/cost'
+import { keysOf } from '../../../../lib/typeGuards'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-import { NumberInput } from '../../../components/NumberInput'
 
 import { AddCostDialog } from './paymentSection/AddCostDialog'
 import { CostRow } from './paymentSection/CostRow'
 import { EditCostDescriptionDialog } from './paymentSection/EditCostDescriptionDialog'
+import { OptionalCostRow } from './paymentSection/OptionalCostRow'
 
 // Define the order for cost types
 const COST_TYPE_ORDER: Record<string, number> = {
@@ -39,6 +38,13 @@ const COST_TYPE_ORDER: Record<string, number> = {
   // optionalAdditionalCosts are handled separately
 }
 
+const costSort = (a: string, b: string) => {
+  // Sort by the defined order, or put unknown types at the end
+  const orderA = COST_TYPE_ORDER[a] || 999
+  const orderB = COST_TYPE_ORDER[b] || 999
+  return orderA - orderB
+}
+
 export default function PaymentSection({
   disabled: _disabled,
   errorStates,
@@ -47,15 +53,25 @@ export default function PaymentSection({
   onChange,
   open,
   onOpenChange,
+  errors,
 }: Readonly<SectionProps>) {
   const { t } = useTranslation()
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [dialogMode, setDialogMode] = useState<'optional' | 'other' | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [editingCostKey, setEditingCostKey] = useState<DogEventCostKey | null>(null)
   const [editingOptionalIndex, setEditingOptionalIndex] = useState<number | null>(null)
   const [editingDescriptions, setEditingDescriptions] = useState<{ fi: string; en?: string }>({ fi: '' })
   const error = errorStates?.cost ?? errorStates?.costMember
   const helperText = error ? t('validation.event.errors') : ''
+  const costErrorList = useMemo(
+    () =>
+      errors
+        ?.filter((e): e is ValidationError<PartialEvent, 'event'> => e !== false && e.key === 'costMemberHigh')
+        .flatMap((e) => e.opts.list)
+        .filter(Boolean) ?? [],
+    [errors]
+  )
+  const optionalAdditionalCosts = (typeof event.cost === 'object' && event.cost.optionalAdditionalCosts) || []
 
   useEffect(() => {
     const clean = (cost: DogEventCost | number | undefined) => {
@@ -100,6 +116,11 @@ export default function PaymentSection({
         (key) => !eventCostKeys.includes(key) || key === 'breed' || key === 'optionalAdditionalCosts'
       ),
     [eventCostKeys]
+  )
+
+  const otherAvailableKeys = useMemo(
+    () => availableEventCostKeys.filter((k) => k !== 'optionalAdditionalCosts'),
+    [availableEventCostKeys]
   )
 
   const handleAdd = useCallback(
@@ -289,8 +310,8 @@ export default function PaymentSection({
       error={error}
       helperText={helperText}
     >
-      <Grid container spacing={1}>
-        <Grid>
+      <Grid container spacing={1} maxWidth={1280}>
+        <Grid minWidth={600}>
           <FormControl fullWidth>
             <InputLabel id="payment-time-label">{t('paymentTime')}</InputLabel>
             <Select
@@ -305,33 +326,25 @@ export default function PaymentSection({
             </Select>
           </FormControl>
         </Grid>
-        <Grid width={900}>
+        <Grid minWidth={600} width="100%">
           <TableContainer>
             <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
               <TableHead>
                 <TableRow>
-                  <TableCell colSpan={4}>
-                    <Box sx={{ fontSize: '0.85rem', fontStyle: 'italic', color: 'text.secondary', mb: 2 }}>
-                      {t('costDescription.selectionOrder')}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
                   <TableCell>{t('cost')}</TableCell>
-                  <TableCell align="right">{t('costAmount')}</TableCell>
-                  <TableCell align="right">{t('costMemberAmount')}</TableCell>
-                  <TableCell></TableCell>
+                  <TableCell align="right" width={100}>
+                    {t('costAmount')}
+                  </TableCell>
+                  <TableCell align="right" width={130}>
+                    {t('costMemberAmount')}
+                  </TableCell>
+                  <TableCell width={40}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {eventCostKeys
                   .filter((key) => key !== 'optionalAdditionalCosts')
-                  .sort((a, b) => {
-                    // Sort by the defined order, or put unknown types at the end
-                    const orderA = COST_TYPE_ORDER[a] || 999
-                    const orderB = COST_TYPE_ORDER[b] || 999
-                    return orderA - orderB
-                  })
+                  .sort(costSort)
                   .flatMap((key) => {
                     if (key === 'breed') {
                       const breeds = (event.cost as DogEventCost).breed ?? {}
@@ -345,6 +358,7 @@ export default function PaymentSection({
                           onRemove={handleRemove}
                           onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
                           onCostChange={handleChange}
+                          error={costErrorList.includes(`breed[${breedCode}]`)}
                         />
                       ))
                     }
@@ -357,78 +371,61 @@ export default function PaymentSection({
                         onRemove={handleRemove}
                         onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
                         onCostChange={handleChange}
+                        error={costErrorList.includes(key)}
                       />
                     )
                   })}
-                {/* Optional additional costs section with description */}
-                {typeof event.cost === 'object' &&
-                  'optionalAdditionalCosts' in event.cost &&
-                  event.cost.optionalAdditionalCosts!.length > 0 && (
-                    <TableRow>
-                      <TableCell colSpan={4} sx={{ pt: 2, pb: 1, borderBottom: 'none' }}>
-                        <Box sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-                          {t('costDescription.optionalAdditionalCosts')}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                {/* Optional additional costs items */}
-                {typeof event.cost === 'object' &&
-                  event.cost.optionalAdditionalCosts?.map((optCost, index) => (
-                    <TableRow key={`optional-${index}`} sx={{ borderTop: '2px solid rgba(224, 224, 224, 1)' }}>
-                      <TableCell>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <span>{optCost.description.fi}</span>
-                          <IconButton
-                            data-testid={`edit-optional-${index}`}
-                            size="small"
-                            onClick={() => handleEditOptionalDescription(index)}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                        </div>
-                      </TableCell>
-                      <TableCell align="right">
-                        <NumberInput
-                          data-testid={`cost.optionalAdditionalCosts.${index}`}
-                          name={`cost.optionalAdditionalCosts.${index}`}
-                          value={optCost.cost}
-                          onChange={(v) => handleOptionalChange('cost', index, v)}
-                        />
-                      </TableCell>
-                      <TableCell align="right">
-                        <NumberInput
-                          data-testid={`costMember.optionalAdditionalCosts.${index}`}
-                          name={`costMember.optionalAdditionalCosts.${index}`}
-                          value={
-                            (event.costMember as DogEventCost).optionalAdditionalCosts?.[index]?.cost ?? optCost.cost
-                          }
-                          onChange={(v) => handleOptionalChange('costMember', index, v)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => handleRemoveOptional(index)}>
-                          <DeleteOutline />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                <TableRow>
-                  <TableCell colSpan={4} align="right">
-                    <Button variant="outlined" onClick={() => setDialogOpen(true)} startIcon={<AddIcon />}>
-                      {t('costAdd')}
-                    </Button>
-                  </TableCell>
-                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
+          <Stack direction="row" justifyContent="end" p={1}>
+            <Button variant="outlined" onClick={() => setDialogMode('other')} startIcon={<AddIcon />}>
+              {t('costAdd')}
+            </Button>
+          </Stack>
+          <br />
+          <TableContainer>
+            <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>{t('costNames.optionalAdditionalCosts')}</TableCell>
+                  <TableCell align="right" width={100}>
+                    {t('costAmount')}
+                  </TableCell>
+                  <TableCell align="right" width={130}>
+                    {t('costMemberAmount')}
+                  </TableCell>
+                  <TableCell width={40}></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {optionalAdditionalCosts.map((_optCost, index) => (
+                  <OptionalCostRow
+                    key={`optional-${index}`}
+                    event={event}
+                    index={index}
+                    onRemove={handleRemoveOptional}
+                    onEditDescription={handleEditOptionalDescription}
+                    onCostChange={handleOptionalChange}
+                    error={costErrorList.includes(`optionalAdditionalCosts[${index}]`)}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Stack direction="row" justifyContent="end" p={1}>
+            <Button variant="outlined" onClick={() => setDialogMode('optional')} startIcon={<AddIcon />}>
+              {t('costAddOptional')}
+            </Button>
+          </Stack>
         </Grid>
       </Grid>
       <AddCostDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        availableKeys={availableEventCostKeys}
+        open={dialogMode !== null}
+        mode={dialogMode}
+        onClose={() => setDialogMode(null)}
+        availableKeys={otherAvailableKeys}
+        existingBreedCodes={typeof event.cost === 'object' && event.cost.breed ? keysOf(event.cost.breed) : []}
         onAdd={handleAdd}
       />
       <EditCostDescriptionDialog

@@ -1,7 +1,7 @@
 import type { BreedCode } from '../../../../../types'
 import type { DogEventCostKey } from '../../../../../types/Cost'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
@@ -17,12 +17,14 @@ import { PRIORIZED_BREED_CODES } from '../../../../../lib/priority'
 
 interface Props {
   open: boolean
+  mode: 'optional' | 'other' | null
   availableKeys: DogEventCostKey[]
+  existingBreedCodes: BreedCode[]
   onClose: () => void
   onAdd: (key: DogEventCostKey, data?: any) => void
 }
 
-export const AddCostDialog = ({ open, availableKeys, onClose, onAdd }: Props) => {
+export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, onClose, onAdd }: Props) => {
   const { t } = useTranslation(['translation', 'breed'])
   const [key, setKey] = useState<DogEventCostKey | ''>('')
   const [breedCodes, setBreedCodes] = useState<BreedCode[]>([])
@@ -30,48 +32,57 @@ export const AddCostDialog = ({ open, availableKeys, onClose, onAdd }: Props) =>
   const [descriptionEn, setDescriptionEn] = useState('')
   const breeds = useMemo(
     () =>
-      PRIORIZED_BREED_CODES.map((value) => ({
+      PRIORIZED_BREED_CODES.filter((c) => !existingBreedCodes.includes(c)).map((value) => ({
         value,
         label: t(`breed:${value}`),
       })),
     [t]
   )
 
+  useEffect(() => {
+    if (mode === 'other' && availableKeys.length === 1) {
+      setKey(availableKeys[0])
+    }
+  }, [mode, availableKeys])
+
   const handleAdd = useCallback(() => {
-    if (!key) return
+    const finalKey = mode === 'optional' ? 'optionalAdditionalCosts' : key
+    if (!finalKey) return
 
     let data: any
-    if (key === 'breed') {
+    if (finalKey === 'breed') {
       data = { breedCode: breedCodes }
-    } else if (key === 'custom' || key === 'optionalAdditionalCosts') {
+    } else if (finalKey === 'custom' || finalKey === 'optionalAdditionalCosts') {
       data = { description: { fi: descriptionFi, en: descriptionEn } }
     }
 
-    onAdd(key, data)
+    onAdd(finalKey, data)
     onClose()
     setKey('')
     setBreedCodes([])
     setDescriptionFi('')
     setDescriptionEn('')
-  }, [key, breedCodes, descriptionFi, descriptionEn, onAdd, onClose])
+  }, [key, breedCodes, descriptionFi, descriptionEn, onAdd, onClose, mode])
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>{t('costChoose')}</DialogTitle>
       <DialogContent>
-        <Select
-          size="small"
-          value={key}
-          onChange={(e) => setKey(e.target.value as DogEventCostKey)}
-          displayEmpty
-          fullWidth
-        >
-          {availableKeys.map((k) => (
-            <MenuItem key={k} value={k}>
-              {t(`costNames.${k}`, { code: '' })}
-            </MenuItem>
-          ))}
-        </Select>
+        {mode === 'other' ? (
+          <Select
+            size="small"
+            value={key}
+            onChange={(e) => setKey(e.target.value as DogEventCostKey)}
+            displayEmpty
+            fullWidth
+          >
+            {availableKeys.map((k) => (
+              <MenuItem key={k} value={k}>
+                {t(`costNames.${k}`, { code: '' })}
+              </MenuItem>
+            ))}
+          </Select>
+        ) : null}
         {key === 'breed' && (
           <Autocomplete
             multiple
@@ -82,7 +93,7 @@ export const AddCostDialog = ({ open, availableKeys, onClose, onAdd }: Props) =>
             renderInput={(params) => <TextField {...params} label={t('dog.breed')} sx={{ mt: 1, minWidth: 300 }} />}
           />
         )}
-        {(key === 'custom' || key === 'optionalAdditionalCosts') && (
+        {(key === 'custom' || mode === 'optional') && (
           <>
             <TextField
               label={t('eventType.createDialog.description.fi')}
@@ -103,7 +114,7 @@ export const AddCostDialog = ({ open, availableKeys, onClose, onAdd }: Props) =>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('cancel')}</Button>
-        <Button onClick={handleAdd} disabled={!key}>
+        <Button onClick={handleAdd} disabled={!key && mode !== 'optional'}>
           {t('costAdd')}
         </Button>
       </DialogActions>

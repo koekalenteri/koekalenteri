@@ -6,9 +6,11 @@ import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import Box from '@mui/material/Box'
+import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
+import { addDays } from 'date-fns'
 
 import { getCostValue } from '../../../../../lib/cost'
 import { NumberInput } from '../../../../components/NumberInput'
@@ -17,6 +19,7 @@ interface CostRowProps {
   costKey: DogEventCostKey
   event: PartialEvent
   breedCode?: BreedCode
+  error?: boolean
   onEditDescription: (key: DogEventCostKey) => void
   onRemove: (key: DogEventCostKey, breedCode?: BreedCode) => void
   onEarlyBirdDaysChange: (days: number | undefined) => void
@@ -27,6 +30,7 @@ export const CostRow = ({
   costKey,
   event,
   breedCode,
+  error,
   onEditDescription,
   onRemove,
   onEarlyBirdDaysChange,
@@ -48,21 +52,18 @@ export const CostRow = ({
               <EditIcon fontSize="small" />
             </IconButton>
           </div>
-          <Box sx={{ fontSize: '0.75rem', fontStyle: 'italic', color: 'text.secondary', mt: 0.5 }}>
-            {t('costDescription.custom')}
-          </Box>
         </div>
       )
     }
 
     if (costKey === 'earlyBird') {
+      const days = (event.cost as DogEventCost)?.earlyBird?.days ?? 0
+      const earlyBirdEndDate = event.entryStartDate && days > 0 ? addDays(event.entryStartDate, days - 1) : undefined
       return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <span>{t(`costNames.${costKey}`, { days: (event.cost as DogEventCost)?.earlyBird?.days ?? 0 })}</span>
           <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
-            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mr: 1 }}>
-              {t('costDescription.earlyBirdDays')}:
-            </Box>
+            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mr: 1 }}>{t('costDescription.earlyBirdDays')}</Box>
             <NumberInput
               name="earlyBirdDays"
               data-testid="earlyBirdDays"
@@ -70,6 +71,12 @@ export const CostRow = ({
               onChange={onEarlyBirdDaysChange}
               sx={{ width: '6ch !important' }}
             />
+            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', ml: 1 }}>
+              {t('costDescription.earlyBirdDaysUnit')}
+              {earlyBirdEndDate
+                ? ` (${t('dateFormat.datespan', { start: event.entryStartDate, end: earlyBirdEndDate })})`
+                : null}
+            </Box>
           </div>
         </div>
       )
@@ -79,33 +86,47 @@ export const CostRow = ({
   }
 
   return (
-    <TableRow key={costKey}>
-      <TableCell>{renderCellContent()}</TableCell>
-      <TableCell align="right">
-        <NumberInput
-          name={costPath}
-          data-testid={costPath}
-          value={getCostValue(event.cost ?? 0, costKey, breedCode)}
-          onChange={(v) => onCostChange(costPath, v)}
-        />
-      </TableCell>
-      <TableCell align="right">
-        <NumberInput
-          name={memberCostPath}
-          data-testid={memberCostPath}
-          value={getCostValue(event.costMember ?? 0, costKey, breedCode)}
-          onChange={(v) => onCostChange(memberCostPath, v)}
-        />
-      </TableCell>
-      <TableCell>
-        <IconButton
-          disabled={costKey === 'normal'}
-          data-testid={`${costPath}-delete`}
-          onClick={() => onRemove(costKey, breedCode)}
-        >
-          <DeleteOutline />
-        </IconButton>
-      </TableCell>
-    </TableRow>
+    <>
+      <TableRow key={costKey} sx={{ '& td': { borderBottom: error ? 0 : undefined } }}>
+        <TableCell>{renderCellContent()}</TableCell>
+        <TableCell align="right">
+          <NumberInput
+            name={costPath}
+            data-testid={costPath}
+            value={getCostValue(event.cost ?? 0, costKey, breedCode)}
+            onChange={(v) => onCostChange(costPath, v)}
+            error={error}
+          />
+        </TableCell>
+        <TableCell align="right">
+          <NumberInput
+            name={memberCostPath}
+            data-testid={memberCostPath}
+            value={getCostValue(event.costMember ?? 0, costKey, breedCode)}
+            onChange={(v) => onCostChange(memberCostPath, v)}
+            error={error}
+          />
+        </TableCell>
+        <TableCell>
+          <IconButton
+            disabled={costKey === 'normal'}
+            data-testid={`${costPath}-delete`}
+            onClick={() => onRemove(costKey, breedCode)}
+          >
+            <DeleteOutline />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+      {error && (
+        <TableRow sx={{ '& td': { borderTop: 0, py: 0 } }}>
+          <TableCell colSpan={4}>
+            <FormHelperText error sx={{ m: 0 }}>
+              {t('validation.event.costMemberHigh')}
+            </FormHelperText>
+          </TableCell>
+          <TableCell />
+        </TableRow>
+      )}
+    </>
   )
 }

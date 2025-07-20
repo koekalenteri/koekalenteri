@@ -236,6 +236,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           disabled={allDisabled}
           errorStates={errorStates}
           event={event}
+          errors={errors}
           fields={fields}
           onChange={handleChange}
           onOpenChange={handlePaymentOpenChange}

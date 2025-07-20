@@ -6,6 +6,7 @@ import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './t
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { getCostValue } from '../../../../lib/cost'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
+import { keysOf } from '../../../../lib/typeGuards'
 import { unique } from '../../../../lib/utils'
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
@@ -96,21 +97,24 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
       // cost is object, costMember is not. This should not happen, but for type safety...
       return false
     }
+    const list: string[] = []
+
     for (const key of Object.keys(cost)) {
       if (key === 'optionalAdditionalCosts') {
         if (cost.optionalAdditionalCosts && costMember.optionalAdditionalCosts) {
           for (let i = 0; i < cost.optionalAdditionalCosts.length; i++) {
             if (cost.optionalAdditionalCosts[i].cost < costMember.optionalAdditionalCosts[i].cost) {
-              return 'costMemberHigh'
+              list.push(`optionalAdditionalCosts[${i}]`)
             }
           }
         }
       } else if (key === 'breed') {
         if (cost.breed && costMember.breed) {
-          for (const breedCode of Object.keys(cost.breed)) {
-            // @ts-expect-error partial..
-            if (cost.breed[breedCode] < costMember.breed[breedCode]) {
-              return 'costMemberHigh'
+          for (const breedCode of keysOf(cost.breed)) {
+            const costValue = getCostValue(cost, 'breed', breedCode)
+            const memberCostValue = getCostValue(costMember, 'breed', breedCode)
+            if (costValue < memberCostValue) {
+              list.push(`breed[${breedCode}]`)
             }
           }
         }
@@ -118,11 +122,11 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
         const costValue = getCostValue(cost, key as keyof DogEventCost)
         const memberCostValue = getCostValue(costMember, key as keyof DogEventCost)
         if (costValue < memberCostValue) {
-          return 'costMemberHigh'
+          list.push(key)
         }
       }
     }
-    return false
+    return list.length ? { key: 'costMemberHigh', opts: { field: 'costMember', list } } : false
   },
   headquarters: (event, _required) => {
     const headquarters = event.headquarters

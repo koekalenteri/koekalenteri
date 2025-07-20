@@ -41,7 +41,10 @@ describe('validation', () => {
     it('should return costMemberHigh for complex cost objects', () => {
       const cost = { normal: 10, earlyBird: { cost: 8, days: 5 } }
       const costMember = { normal: 10, earlyBird: { cost: 9, days: 5 } }
-      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toBe('costMemberHigh')
+      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toEqual({
+        key: 'costMemberHigh',
+        opts: { field: 'costMember', list: ['earlyBird'] },
+      })
     })
 
     it('should handle breed costs', () => {
@@ -53,7 +56,10 @@ describe('validation', () => {
     it('should return costMemberHigh for breed costs', () => {
       const cost = { normal: 10, breed: { '110': 8 } }
       const costMember = { normal: 10, breed: { '110': 9 } }
-      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toBe('costMemberHigh')
+      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toEqual({
+        key: 'costMemberHigh',
+        opts: { field: 'costMember', list: ['breed[110]'] },
+      })
     })
 
     it('should handle optional additional costs', () => {
@@ -77,7 +83,10 @@ describe('validation', () => {
         normal: 10,
         optionalAdditionalCosts: [{ cost: 6, description: { fi: 'Test' } }],
       }
-      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toBe('costMemberHigh')
+      expect(VALIDATORS.costMember?.({ ...emptyEvent, cost, costMember }, true)).toEqual({
+        key: 'costMemberHigh',
+        opts: { field: 'costMember', list: ['optionalAdditionalCosts[0]'] },
+      })
     })
   })
 })

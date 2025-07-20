@@ -13,6 +13,7 @@ import { createHmac } from 'crypto'
 import { nanoid } from 'nanoid'
 
 import { currentFinnishTime } from '../../i18n/dates'
+import { keysOf } from '../../lib/typeGuards'
 
 import { getPaytrailConfig } from './secrets'
 
@@ -32,7 +33,7 @@ export const HMAC_KEY_PREFIX = 'checkout-'
  * HTTP body in exactly the same format as it will be sent, or empty string if no body
  */
 export const calculateHmac = (secret: string, params: Partial<PaytrailHeaders>, body?: object | undefined): string => {
-  const hmacPayload = (Object.keys(params) as Array<keyof PaytrailHeaders>)
+  const hmacPayload = keysOf(params)
     .sort((a, b) => a.localeCompare(b))
     .map((key) => [key, params[key]].join(':'))
     .concat(body ? JSON.stringify(body) : '')

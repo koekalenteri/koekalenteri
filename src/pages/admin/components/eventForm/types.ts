@@ -1,3 +1,4 @@
+import type { ValidationResult } from '../../../../i18n/validation'
 import type { DeepPartial, DogEvent, EventState } from '../../../../types'
 
 export interface PartialEvent
@@ -35,6 +36,7 @@ export interface SectionProps {
   readonly fields?: FieldRequirements
   readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
   readonly helperTexts?: { [Property in keyof DogEvent]?: string }
+  readonly errors?: ValidationResult<PartialEvent, 'event'>[]
   readonly open?: boolean
   readonly onChange?: (event: DeepPartial<DogEvent>) => void
   readonly onOpenChange?: (value: boolean) => void

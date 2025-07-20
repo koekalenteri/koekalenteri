@@ -14,15 +14,14 @@
   },
   "copy": "Kopioi",
   "copyTest": "Kopioi ilmoineen",
-  "cost": "Maksu",
-  "costAdd": "Lisää maksu",
+  "cost": "Osallistumismaksu",
+  "costAdd": "Lisää osallistumismaksu",
+  "costAddOptional": "Lisää lisäpalvelu",
   "costAmount": "Hinta",
-  "costChoose": "Valitse liästtävä maksu",
+  "costChoose": "Valitse lisättävä maksu",
   "costDescription": {
-    "custom": "Tämä maksu ei ole automaattisesti valittavissa, mutta ilmoittautuja voi valita sen muiden maksujen automaattisen valinnan sijaan.",
-    "earlyBirdDays": "Päivää ilmoittautumisen alun jälkeen",
-    "optionalAdditionalCosts": "Nämä maksut ovat lisämaksuja osallistumismaksuun ja ovat ilmoittautujan valittavissa.",
-    "selectionOrder": "Edullisin soveltuva maksu valitaan automaattisesti. Valinnaiset lisämaksut lisätään aina valittuun perusmaksuun."
+    "earlyBirdDays": "Hinta on voimassa",
+    "earlyBirdDaysUnit": "päivää"
   },
   "costMemberAmount": "Hinta jäsenille",
   "costNames": {
@@ -30,7 +29,7 @@
     "custom": "Muu maksu",
     "earlyBird": "Early bird",
     "normal": "Normaali",
-    "optionalAdditionalCosts": "Valinnainen lisämaksu"
+    "optionalAdditionalCosts": "Lisäpalvelu"
   },
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
@@ -38,7 +37,6 @@
   "date": "Aika",
   "dateFormat": {
     "date": "{{ date, date }}",
-    "optionalAdditionalCosts": "Valinnaiset lisämaksut",
     "datespan": "{{ start, datespan(end: undefined) }}",
     "distance": "{{ date, distance }}",
     "distanceLeft": "{{ date, distance }} jäljellä",

@@ -48,16 +48,10 @@ describe('PaymentSection', () => {
     const { user } = renderPaymentSection(testEvent, onChange)
     await flushPromises()
 
-    await user.click(screen.getByRole('button', { name: 'costAdd' }))
+    await user.click(screen.getByRole('button', { name: 'costAddOptional' }))
     await flushPromises()
 
     const dialog = screen.getByRole('dialog')
-
-    const select = await within(dialog).findByRole('combobox')
-    await user.click(select)
-
-    const option = await screen.findByRole('option', { name: 'costNames.optionalAdditionalCosts code' })
-    await user.click(option)
 
     const fiInput = await screen.findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
     const enInput = await screen.findByRole('textbox', { name: 'eventType.createDialog.description.en' })
@@ -410,10 +404,10 @@ describe('PaymentSection', () => {
     await flushPromises()
 
     // Get all rows in the table body
-    const tableRows = screen.getAllByRole('row').slice(2) // Skip header rows
+    const tableRows = screen.getAllByRole('row').slice(1) // Skip header row
 
     // Check that the first row is normal cost
-    expect(within(tableRows[0]).getByText('costNames.normal code')).toBeInTheDocument()
+    expect(within(tableRows[0]).getByText(/costNames.normal/)).toBeInTheDocument()
 
     // Check that the second row is early bird cost
     expect(within(tableRows[1]).getByText(/costNames.earlyBird/)).toBeInTheDocument()

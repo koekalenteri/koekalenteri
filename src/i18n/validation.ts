@@ -1,6 +1,6 @@
 import type { ValidationErrorKey } from '.'
 
-type ValidationError<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = {
+export type ValidationError<T extends Record<string, any>, NS extends keyof ValidationErrorKey> = {
   key: keyof ValidationErrorKey[NS]
   opts: { field: keyof T; list?: Array<string>; length?: number; state?: string; type?: string }
 }

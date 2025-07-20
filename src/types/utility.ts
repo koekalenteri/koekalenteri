@@ -15,15 +15,6 @@ export type DeepPartial<T> = T extends (...arguments_: any[]) => unknown
         ? { [P in keyof T]?: DeepPartial<T[P]> }
         : T | undefined
 
-/** Mimics the result of Object.keys(...) */
-export type KeysOf<o> = o extends readonly unknown[]
-  ? number extends o['length']
-    ? `${number}`
-    : keyof o & `${number}`
-  : {
-      [K in keyof o]: K extends string ? K : K extends number ? `${K}` : never
-    }[keyof o]
-
 export type AtLeastOne<T> = [T, ...T[]]
 
 export type KeyofExcluding<T, E extends keyof T> = { [K in keyof T]: K extends E ? never : K }[keyof T]

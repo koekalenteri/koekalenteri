@@ -11,11 +11,12 @@ import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
 
 import { TIME_ZONE } from './i18n/dates'
+import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
 import { RULE_DATES } from './types'
 
-export function getRuleDate(date: Date | string, available: RuleDate[] = Object.keys(RULE_DATES) as RuleDate[]) {
+export function getRuleDate(date: Date | string, available: RuleDate[] = keysOf(RULE_DATES)) {
   if (typeof date === 'string') {
     date = new Date(date)
   }
@@ -38,7 +39,7 @@ export function getRequirements(eventType: string, regClass: Registration['class
   let results: EventResultRequirementsByDate | undefined
   if (requirements.results) {
     const resultRequirements = requirements.results
-    const ruleDates = Object.keys(resultRequirements) as Array<RuleDate>
+    const ruleDates = keysOf(resultRequirements)
     const ruleDate = getRuleDate(date, ruleDates)
     results = {
       date: ruleDate,

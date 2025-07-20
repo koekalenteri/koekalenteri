@@ -19,10 +19,8 @@
   "costAmount": "Amount",
   "costChoose": "Choose cost to add",
   "costDescription": {
-    "custom": "This cost is not automatically selectable, but can be chosen instead of automatic selection of other costs.",
-    "earlyBirdDays": "Days after entry start date",
-    "optionalAdditionalCosts": "These costs are additional to the entry fee and can be selected by the participant during registration.",
-    "selectionOrder": "The cheapest applicable cost is automatically selected. Optional additional costs are always added to the selected base cost."
+    "earlyBirdDays": "The price is valid for",
+    "earlyBirdDaysUnit": "days"
   },
   "costMemberAmount": "Amount for members",
   "costNames": {
