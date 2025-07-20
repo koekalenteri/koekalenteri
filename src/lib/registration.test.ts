@@ -11,6 +11,8 @@ import {
   GROUP_KEY_RESERVE,
   hasPriority,
   isMember,
+  isPredefinedReason,
+  isRegistrationClass,
   priorityDescriptionKey,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
@@ -340,8 +342,6 @@ describe('lib/registration', () => {
   })
 
   describe('isRegistrationClass', () => {
-    const { isRegistrationClass } = require('./registration')
-
     it('should return true for valid registration classes', () => {
       expect(isRegistrationClass('ALO')).toBe(true)
       expect(isRegistrationClass('AVO')).toBe(true)
@@ -390,8 +390,6 @@ describe('lib/registration', () => {
   })
 
   describe('isPredefinedReason', () => {
-    const { isPredefinedReason } = require('./registration')
-
     it('should return true for predefined reasons', () => {
       expect(isPredefinedReason('dog-heat')).toBe(true)
       expect(isPredefinedReason('handler-sick')).toBe(true)

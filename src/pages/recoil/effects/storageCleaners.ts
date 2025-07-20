@@ -1,5 +1,5 @@
+import { getStorageKeysStartingWith } from '../../../lib/client/storage'
 import { isTestEnv } from '../../../lib/env'
-import { getStorageKeysStartingWith } from '../../../lib/storage'
 import { appVersion, isEarlierVersionThan } from '../../../lib/version'
 
 export const cleanPre112 = () => {
