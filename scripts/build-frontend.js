@@ -38,8 +38,6 @@ if (!checkRequiredFiles([paths.appHtml, paths.appIndexJs])) {
   process.exit(1)
 }
 
-const argv = process.argv.slice(2)
-
 // Generate configuration
 const config = configFactory('production')
 
