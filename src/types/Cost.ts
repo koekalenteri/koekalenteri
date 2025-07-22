@@ -37,7 +37,7 @@ export interface MinimalRegistrationForCost
 }
 
 export interface CostStrategy {
-  key: DogEventCostKey
+  key: DogEventCostSegment
   isApplicable: (
     cost: DogEventCost,
     registration: MinimalRegistrationForCost,

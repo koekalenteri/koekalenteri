@@ -183,5 +183,5 @@ export const getCostSegment = (
     return 'legacy'
   }
   const strategy = getApplicableStrategy(event, registration)
-  return strategy.key as DogEventCostSegment
+  return strategy.key
 }
