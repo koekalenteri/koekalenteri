@@ -41,6 +41,17 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
       })
   }, [registrationId, savedRegistration, resetRegistration, event.id, open, token])
 
+  useEffect(() => {
+    if (!open || !token) return
+    if (registration?.eventId !== event.id) return
+    if (registration.eventType !== event.eventType) {
+      setRegistration({ ...registration, eventType: event.eventType })
+    }
+    if (!event.classes.length && registration.class) {
+      setRegistration({ ...registration, class: null })
+    }
+  }, [event, registration])
+
   return (
     <RegistrationDialogBase
       changes={changes}
