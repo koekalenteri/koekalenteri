@@ -22,14 +22,16 @@
     "earlyBirdDays": "The price is valid for",
     "earlyBirdDaysUnit": "days"
   },
+  "costForMembers": "member price",
   "costMemberAmount": "Amount for members",
   "costNames": {
     "breed": "Breed: $t(breed:{{code}})",
     "custom": "Other",
     "earlyBird": "Early bird ({{start, datespan(end: end)}})",
     "normal": "Normal",
-    "optionalAdditionalCosts": "Optional additional cost"
+    "optionalAdditionalCosts": "Optional additional costs"
   },
+  "costTotal": "Total",
   "create": "Create",
   "createEvent": "Create event",
   "createRegistration": "Add new registration",

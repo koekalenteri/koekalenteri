@@ -102,6 +102,8 @@ export function Component() {
         eventType: event.eventType,
         qualifies: undefined,
         qualifyingResults: [],
+        selectedCost: undefined,
+        optionalCosts: undefined,
       })
     }
   }, [event.eventType, event.id, registration, setRegistration])

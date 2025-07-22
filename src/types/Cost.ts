@@ -1,5 +1,5 @@
 import type { MinimalRegistrationForMembership } from '../lib/registration'
-import type { PublicConfirmedEvent, Registration } from '.'
+import type { JsonPublicConfirmedEvent, PublicConfirmedEvent, Registration } from '.'
 import type { BreedCode } from './Dog'
 import type { KeyofExcluding } from './utility'
 
@@ -28,11 +28,14 @@ export type DogEventCostKey = NonNullable<keyof DogEventCost>
 
 export type DogEventCostSegment = NonNullable<KeyofExcluding<DogEventCost, 'optionalAdditionalCosts'>>
 
-export type MinimalEventForCost = Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>
+export type MinimalEventForCost =
+  | Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>
+  | Pick<JsonPublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>
 
 export interface MinimalRegistrationForCost
   extends MinimalRegistrationForMembership,
-    Pick<Registration, 'selectedCost' | 'createdAt' | 'optionalCosts'> {
+    Pick<Registration, 'selectedCost' | 'optionalCosts' | 'paidAmount'> {
+  createdAt: Date | string
   dog: Pick<Registration['dog'], 'breedCode'>
 }
 
@@ -41,7 +44,7 @@ export interface CostStrategy {
   isApplicable: (
     cost: DogEventCost,
     registration: MinimalRegistrationForCost,
-    event: Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>,
+    event: MinimalEventForCost,
     next?: boolean
   ) => boolean
   getValue: (cost: DogEventCost, breedCode?: BreedCode) => number

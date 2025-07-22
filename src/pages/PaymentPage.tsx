@@ -1,5 +1,5 @@
 import type { Params } from 'react-router'
-import type { CreatePaymentResponse, PublicDogEvent, Registration } from '../types'
+import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
 
 import { Suspense, useEffect } from 'react'
 import { Await, Navigate, useLoaderData, useParams } from 'react-router'
@@ -13,6 +13,8 @@ import { createPayment } from '../api/payment'
 import { Path } from '../routeConfig'
 
 import { ErrorInfo } from './components/ErrorInfo'
+import { PaymentDetails } from './components/PaymentDetails'
+import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, newRegistrationAtom, registrationSelector } from './recoil'
@@ -42,7 +44,7 @@ export const loader = async ({ params }: { params: Params<string> }) => {
 interface Props {
   readonly id?: string
   readonly registrationId?: string
-  readonly event?: PublicDogEvent | null
+  readonly event?: PublicConfirmedEvent | null
   readonly registration?: Registration | null
   readonly response?: CreatePaymentResponse
 }
@@ -65,6 +67,9 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
+      <RegistrationEventInfo event={event} />
+      <PaymentDetails event={event} registration={registration} includePayable />
+
       <Typography variant="h5">Valitse maksutapa</Typography>
       <Typography variant="caption">
         <span dangerouslySetInnerHTML={{ __html: response.terms }} />

@@ -2678,6 +2678,22 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
     <div
       class="MuiBox-root css-1hemky4"
     >
+      <div
+        class="MuiBox-root css-66ud5b"
+      >
+        <p>
+          cost
+           
+          costNames.normal
+           
+          123.00 €
+        </p>
+        <p>
+          costTotal
+           
+          123.00 €
+        </p>
+      </div>
       <b>
         registration.paymentToBePaid amount
       </b>
@@ -2801,6 +2817,14 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                   </li>
                   <li>
                     registration.owner
+                     
+                  </li>
+                  <li>
+                    registration.selectedCost
+                     
+                  </li>
+                  <li>
+                    registration.optionalCosts
                      
                   </li>
                 </ul>
@@ -5423,6 +5447,22 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
     <div
       class="MuiBox-root css-1hemky4"
     >
+      <div
+        class="MuiBox-root css-66ud5b"
+      >
+        <p>
+          cost
+           
+          costNames.normal
+           
+          123.00 €
+        </p>
+        <p>
+          costTotal
+           
+          123.00 €
+        </p>
+      </div>
       <b>
         registration.paymentToBePaid amount
       </b>
@@ -5546,6 +5586,14 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                   </li>
                   <li>
                     registration.owner
+                     
+                  </li>
+                  <li>
+                    registration.selectedCost
+                     
+                  </li>
+                  <li>
+                    registration.optionalCosts
                      
                   </li>
                   <li>

@@ -1,6 +1,9 @@
-import type { Registration } from '../types'
+import type { CustomCost, MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../types'
 
 import { capitalize } from '../lambda/lib/string'
+
+import { additionalCost, getApplicableStrategy, getEarlyBirdEndDate, selectCost } from './cost'
+import { isMember } from './registration'
 
 export const PROVIDER_NAMES: Record<string, string> = {
   'apple-pay': 'Apple Pay',
@@ -39,4 +42,36 @@ export const getPaymentStatus = (registration: Pick<Registration, 'paymentStatus
   if (registration.paymentStatus === 'SUCCESS') return 'paymentStatus.success'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
   return 'paymentStatus.missing'
+}
+
+export const getRegistrationPaymentDetails = (event: MinimalEventForCost, registration: MinimalRegistrationForCost) => {
+  const cost = selectCost(event, registration)
+  const strategy = getApplicableStrategy(event, registration)
+
+  if (typeof cost === 'number') {
+    return {
+      strategy: 'legacy' as const,
+      isMember: isMember(registration),
+      cost,
+      optionalCosts: [] as CustomCost[],
+      total: cost,
+    }
+  }
+
+  const strategyCost = strategy.getValue(cost, registration.dog.breedCode)
+  const optional = additionalCost(registration, cost)
+  const optionalCosts = cost.optionalAdditionalCosts?.filter((c, i) => registration.optionalCosts?.includes(i)) ?? []
+
+  return {
+    strategy: strategy.key,
+    isMember: isMember(registration),
+    cost: strategyCost,
+    optionalCosts,
+    total: strategyCost + optional,
+    translationOptions: {
+      code: registration.dog.breedCode,
+      start: event.entryStartDate,
+      end: getEarlyBirdEndDate(event, cost),
+    },
+  }
 }

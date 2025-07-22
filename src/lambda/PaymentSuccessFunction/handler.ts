@@ -2,8 +2,9 @@ import type { JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 
 import { i18n } from '../../i18n/lambda'
+import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
-import { getProviderName } from '../../lib/payment'
+import { getProviderName, getRegistrationPaymentDetails } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
@@ -26,9 +27,10 @@ const handleSuccessfulPayment = async (
   const registration = await getRegistration(eventId, registrationId)
 
   const t = i18n.getFixedT(registration.language)
-  const amount = parseInt(params['checkout-amount'] ?? '0') / 100
+  const paidAmount = parseInt(params['checkout-amount'] ?? '0') / 100
 
-  registration.paidAmount = (registration.paidAmount ?? 0) + amount
+  const previouslyPaid = registration.paidAmount ?? 0
+  registration.paidAmount = previouslyPaid + paidAmount
   registration.paidAt = new Date().toISOString()
   registration.paymentStatus = 'SUCCESS'
   registration.state = 'ready'
@@ -51,17 +53,27 @@ const handleSuccessfulPayment = async (
   // send receipt
   try {
     const receiptTo = [registration.payer.email]
-    const receiptData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
+    const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
+    const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
+    const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
+    const registrationCost = `${t(getCostSegmentName(paymentDetails.strategy))}${memberPrice} ${formatMoney(paymentDetails.cost)}`
+    const optionalCosts = paymentDetails.optionalCosts
+      .map((o) => `${o.description[registration.language]}${memberPrice} ${formatMoney(o.cost)}`)
+      .join(', ')
     await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
-      ...receiptData,
+      ...templateData,
       ...transaction,
       createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-      amount: formatMoney(amount),
+      registrationCost,
+      optionalCosts,
+      amount: formatMoney(paidAmount),
+      previouslyPaid: formatMoney(previouslyPaid),
+      totalPaid: formatMoney(previouslyPaid + paidAmount),
     })
 
     await audit({
       auditKey: registrationAuditKey(registration),
-      message: `Email: ${receiptData.subject}, to: ${receiptTo.join(', ')}`,
+      message: `Email: ${templateData.subject}, to: ${receiptTo.join(', ')}`,
       user: transaction.user ?? 'anonymous',
     })
   } catch (e) {
@@ -71,7 +83,7 @@ const handleSuccessfulPayment = async (
 
   await audit({
     auditKey: registrationAuditKey(registration),
-    message: `Maksu (${getProviderName(provider)}), ${formatMoney(amount)}`,
+    message: `Maksu (${getProviderName(provider)}), ${formatMoney(paidAmount)}`,
     user: transaction.user ?? 'anonymous',
   })
 

@@ -48,6 +48,7 @@ import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
 import { AsyncButton } from './AsyncButton'
+import { PaymentDetails } from './PaymentDetails'
 
 interface Props {
   readonly admin?: boolean
@@ -372,6 +373,7 @@ export default function RegistrationForm({
       </Box>
 
       <Box textAlign="end" width="100%" p={1}>
+        <PaymentDetails event={event} registration={registration} />
         {event.paymentTime === 'confirmation' && !registration.confirmed ? (
           <b>
             {t('registration.paymentToBePaidAfterConfirmation', {

@@ -2443,6 +2443,22 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             <div
               class="MuiBox-root css-1hemky4"
             >
+              <div
+                class="MuiBox-root css-66ud5b"
+              >
+                <p>
+                  cost
+                   
+                  costNames.normal
+                   
+                  123.00 €
+                </p>
+                <p>
+                  costTotal
+                   
+                  123.00 €
+                </p>
+              </div>
               <b>
                 registration.paymentToBePaid amount
               </b>
@@ -5152,6 +5168,22 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             <div
               class="MuiBox-root css-1hemky4"
             >
+              <div
+                class="MuiBox-root css-66ud5b"
+              >
+                <p>
+                  cost
+                   
+                  costNames.normal
+                   
+                  123.00 €
+                </p>
+                <p>
+                  costTotal
+                   
+                  123.00 €
+                </p>
+              </div>
               <b>
                 registration.paymentToBePaid amount
               </b>

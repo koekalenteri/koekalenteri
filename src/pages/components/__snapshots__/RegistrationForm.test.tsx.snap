@@ -2409,6 +2409,22 @@ exports[`RegistrationForm renders 1`] = `
     <div
       class="MuiBox-root css-1hemky4"
     >
+      <div
+        class="MuiBox-root css-66ud5b"
+      >
+        <p>
+          cost
+           
+          costNames.normal
+           
+          123.00 €
+        </p>
+        <p>
+          costTotal
+           
+          123.00 €
+        </p>
+      </div>
       <b>
         registration.paymentToBePaid amount
       </b>
@@ -4881,6 +4897,22 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
     <div
       class="MuiBox-root css-1hemky4"
     >
+      <div
+        class="MuiBox-root css-66ud5b"
+      >
+        <p>
+          cost
+           
+          costNames.normal
+           
+          123.00 €
+        </p>
+        <p>
+          costTotal
+           
+          123.00 €
+        </p>
+      </div>
       <b>
         registration.paymentToBePaid amount
       </b>

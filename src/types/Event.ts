@@ -133,10 +133,15 @@ export type ConfirmedEvent = NotOptional<DogEvent, ConfirmedEventRequiredDates> 
 export type PublicConfirmedEvent = NotOptional<PublicDogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState
 }
+
 export type SanitizedPublicConfirmedDogEvent = PublicConfirmedEvent & {
   [K in NonPublicDogEventProperties]?: never
 }
 
 export type JsonConfirmedEvent = NotOptional<JsonDogEvent, ConfirmedEventRequiredDates> & {
+  state: 'confirmed' | EventClassState
+}
+
+export type JsonPublicConfirmedEvent = NotOptional<JsonPublicDogEvent, ConfirmedEventRequiredDates> & {
   state: 'confirmed' | EventClassState
 }

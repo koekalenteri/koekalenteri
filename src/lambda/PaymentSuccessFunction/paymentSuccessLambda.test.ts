@@ -8,8 +8,6 @@ const mockUpdateTransactionStatus = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
-const mockFormatMoney = jest.fn<any>()
-const mockGetProviderName = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 const mockUpdateRegistrations = jest.fn<any>()
@@ -36,14 +34,6 @@ jest.unstable_mockModule('../lib/registration', () => ({
 jest.unstable_mockModule('../lib/audit', () => ({
   audit: mockAudit,
   registrationAuditKey: mockRegistrationAuditKey,
-}))
-
-jest.unstable_mockModule('../../lib/money', () => ({
-  formatMoney: mockFormatMoney,
-}))
-
-jest.unstable_mockModule('../../lib/payment', () => ({
-  getProviderName: mockGetProviderName,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -123,13 +113,10 @@ describe('paymentSuccessLambda', () => {
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
-    mockFormatMoney.mockReturnValue('50,00 €')
-
-    mockGetProviderName.mockReturnValue('Paytrail')
-
     mockUpdateRegistrations.mockResolvedValue({
       id: 'event123',
       name: 'Test Event',
+      cost: 50,
     })
 
     mockGetFixedT.mockReturnValue((key: string, _options?: Record<string, any>) => {
@@ -199,7 +186,7 @@ describe('paymentSuccessLambda', () => {
       expect.objectContaining({
         eventName: 'Test Event',
         registrationId: 'reg456',
-        amount: '50,00 €',
+        amount: '50,00\u00a0€',
         createdAt: '1.1.2025',
       })
     )
@@ -219,7 +206,7 @@ describe('paymentSuccessLambda', () => {
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      message: 'Maksu (Paytrail), 50,00 €',
+      message: 'Maksu (Paytrail), 50,00\u00a0€',
       user: 'user123',
     })
 

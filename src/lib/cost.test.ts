@@ -383,6 +383,31 @@ describe('calculateCost', () => {
       },
     })
   })
+
+  it('should use early bird cost when applicable with string dates', () => {
+    const startDate = startOfDay(new Date())
+    const earlyDate = startDate
+    const event = {
+      cost: {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+      },
+      entryStartDate: startDate.toISOString(),
+    }
+    const registration = {
+      ...makeRegistration(false, false, '110', undefined, earlyDate),
+      createdAt: earlyDate.toISOString(),
+    }
+
+    expect(calculateCost(event as any, registration)).toEqual({
+      amount: 40,
+      segment: 'earlyBird',
+      cost: {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+      },
+    })
+  })
 })
 
 describe('getCostSegmentName', () => {

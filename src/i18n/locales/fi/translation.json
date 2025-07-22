@@ -23,14 +23,16 @@
     "earlyBirdDays": "Hinta on voimassa",
     "earlyBirdDaysUnit": "päivää"
   },
+  "costForMembers": "jäsenhinta",
   "costMemberAmount": "Hinta jäsenille",
   "costNames": {
     "breed": "Rotu: $t(breed:{{code}})",
     "custom": "Muu maksu",
     "earlyBird": "Early bird ({{start, datespan(end: end)}})",
     "normal": "Normaali",
-    "optionalAdditionalCosts": "Lisäpalvelu"
+    "optionalAdditionalCosts": "Lisäpalvelut"
   },
+  "costTotal": "Yhteensä",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
   "createRegistration": "Lisää uusi ilmoittautuminen",

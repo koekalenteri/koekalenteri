@@ -1,4 +1,4 @@
-import type { BreedCode, PublicConfirmedEvent } from '../types'
+import type { BreedCode, JsonPublicConfirmedEvent, PublicConfirmedEvent } from '../types'
 import type {
   CostResult,
   CostStrategy,
@@ -16,9 +16,10 @@ import { addDays } from 'date-fns'
 import { isMember } from './registration'
 
 export const getEarlyBirdEndDate = (
-  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'>>,
+  event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
   cost: Pick<DogEventCost, 'earlyBird'>
-) => (cost.earlyBird && event.entryStartDate ? addDays(event.entryStartDate, cost.earlyBird.days - 1) : undefined)
+) =>
+  cost.earlyBird && event.entryStartDate ? addDays(new Date(event.entryStartDate), cost.earlyBird.days - 1) : undefined
 
 /** Helper object that can be "auto-fixed" to contain all the keys */
 const EVENT_COST_MODEL: { [K in DogEventCostKey]: K } = {
@@ -51,8 +52,16 @@ const customStrategy: CostStrategy = {
 
 const earlyBirdStrategy: CostStrategy = {
   key: 'earlyBird',
-  isApplicable: (cost, registration, event) =>
-    !!cost.earlyBird && registration.createdAt < (getEarlyBirdEndDate(event, cost) ?? event.entryStartDate),
+  isApplicable: (cost, registration, event) => {
+    if (!cost.earlyBird || !event.entryStartDate) {
+      return false
+    }
+    const endDate = getEarlyBirdEndDate(event, cost)
+    if (!endDate) {
+      return false
+    }
+    return new Date(registration.createdAt) < endDate
+  },
   getValue: (cost) => cost.earlyBird?.cost ?? 0,
   setValue: (cost, value, data) => {
     const days = data && 'days' in data ? data.days : (cost.earlyBird?.days ?? 0)
@@ -84,7 +93,7 @@ export const costStrategies: CostStrategy[] = [customStrategy, earlyBirdStrategy
 export const getStragegyBySegment = (key?: DogEventCostSegment) => costStrategies.find((s) => s.key === key)
 
 export const getApplicableStrategy = (
-  event: Pick<PublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>,
+  event: MinimalEventForCost,
   registration: MinimalRegistrationForCost
 ): CostStrategy => {
   const cost = selectCost(event, registration)
