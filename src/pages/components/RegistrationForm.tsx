@@ -372,8 +372,10 @@ export default function RegistrationForm({
         </Box>
       </Box>
 
-      <Box textAlign="end" width="100%" p={1}>
+      <Stack direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
         <PaymentDetails event={event} registration={registration} />
+      </Stack>
+      <Stack direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
         {event.paymentTime === 'confirmation' && !registration.confirmed ? (
           <b>
             {t('registration.paymentToBePaidAfterConfirmation', {
@@ -382,10 +384,12 @@ export default function RegistrationForm({
           </b>
         ) : (
           <b>
-            {t('registration.paymentToBePaid', { amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)) })}
+            {t('registration.paymentToBePaid', {
+              amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)),
+            })}
           </b>
         )}
-      </Box>
+      </Stack>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
         <AsyncButton

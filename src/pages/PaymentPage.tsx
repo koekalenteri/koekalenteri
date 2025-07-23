@@ -3,6 +3,7 @@ import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '
 
 import { Suspense, useEffect } from 'react'
 import { Await, Navigate, useLoaderData, useParams } from 'react-router'
+import Divider from '@mui/material/Divider'
 import Grid2 from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
@@ -14,7 +15,7 @@ import { Path } from '../routeConfig'
 
 import { ErrorInfo } from './components/ErrorInfo'
 import { PaymentDetails } from './components/PaymentDetails'
-import RegistrationEventInfo from './components/RegistrationEventInfo'
+import { RegistrationDetails } from './components/RegistrationDetails'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, newRegistrationAtom, registrationSelector } from './recoil'
@@ -67,9 +68,10 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-      <RegistrationEventInfo event={event} />
+      <RegistrationDetails event={event} registration={registration} />
+      <Divider sx={{ my: 1 }} />
       <PaymentDetails event={event} registration={registration} includePayable />
-
+      <Divider sx={{ my: 1 }} />
       <Typography variant="h5">Valitse maksutapa</Typography>
       <Typography variant="caption">
         <span dangerouslySetInnerHTML={{ __html: response.terms }} />

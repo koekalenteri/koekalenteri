@@ -2546,24 +2546,42 @@ exports[`RegistrationEditPage should render 1`] = `
       </div>
     </div>
     <div
-      class="MuiBox-root css-1hemky4"
+      class="MuiStack-root css-1je84qz-MuiStack-root"
     >
       <div
-        class="MuiBox-root css-66ud5b"
+        class="MuiStack-root css-1k7wcam-MuiStack-root"
       >
-        <p>
-          cost
-           
-          costNames.normal
-           
-          123.00 €
-        </p>
-        <p>
-          costTotal
-           
-          123.00 €
-        </p>
+        <div
+          class="MuiBox-root css-mro3c9"
+        >
+          <h6
+            class="MuiTypography-root MuiTypography-subtitle2 css-1c29w3b-MuiTypography-root"
+          >
+            cost
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+          >
+            costNames.normal
+             
+            123,00 €
+          </p>
+          <hr
+            class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
+          />
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+          >
+            costTotal
+             
+            123,00 €
+          </p>
+        </div>
       </div>
+    </div>
+    <div
+      class="MuiStack-root css-1je84qz-MuiStack-root"
+    >
       <b>
         registration.paymentToBePaid amount
       </b>
