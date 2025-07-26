@@ -1,7 +1,6 @@
 import type { BreedCode, DogEvent } from '../../types'
 import type { DogEventCost, DogEventCostSegment } from '../../types/Cost'
 
-import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -41,56 +40,51 @@ export default function CostInfo({ event }: Props) {
     return <>invalid cost configuration</>
   }
 
-  const getSegmentInfo = useCallback(
-    (cost: DogEventCost, costMember: DogEventCost | undefined, segment: DogEventCostSegment, breedCode?: BreedCode) => {
-      const value = getCostValue(cost, segment, breedCode)
-      if (!value) return null
-      const memberValue = costMember && getCostValue(costMember, segment, breedCode)
-      const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
-      const name =
-        segment === 'custom' && cost.custom?.description
-          ? cost.custom.description[language] || cost.custom.description.fi
-          : segment === 'breed' && breedCode
-            ? t(getCostSegmentName(segment), { code: breedCode })
-            : segment === 'earlyBird'
-              ? t(getCostSegmentName(segment), {
-                  start: event.entryStartDate,
-                  end: getEarlyBirdEndDate(event, cost),
-                })
-              : t(getCostSegmentName(segment))
+  const getSegmentInfo = (
+    cost: DogEventCost,
+    costMember: DogEventCost | undefined,
+    segment: DogEventCostSegment,
+    breedCode?: BreedCode
+  ) => {
+    const value = getCostValue(cost, segment, breedCode)
+    if (!value) return null
+    const memberValue = costMember && getCostValue(costMember, segment, breedCode)
+    const text = memberValue ? `${value} / ${memberValue}\u00A0€` : `${value}\u00A0€`
+    const name =
+      segment === 'custom' && cost.custom?.description
+        ? cost.custom.description[language] || cost.custom.description.fi
+        : segment === 'breed' && breedCode
+          ? t(getCostSegmentName(segment), { code: breedCode })
+          : segment === 'earlyBird'
+            ? t(getCostSegmentName(segment), {
+                start: event.entryStartDate,
+                end: getEarlyBirdEndDate(event, cost),
+              })
+            : t(getCostSegmentName(segment))
 
+    return { name, text }
+  }
+
+  const costSegments = segments
+    .flatMap((segment) => {
+      if (segment === 'breed') {
+        const breeds = []
+        for (const breedCode of keysOf(cost.breed ?? {})) {
+          breeds.push(getSegmentInfo(cost, costMember, segment, breedCode))
+        }
+        return breeds
+      }
+      return getSegmentInfo(cost, costMember, segment)
+    })
+    .filter((c): c is { name: string; text: string } => !!c)
+
+  const optionalCosts =
+    cost.optionalAdditionalCosts?.map((c, index) => {
+      const name = c.description[language] || c.description.fi
+      const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
+      const text = memberCost ? `${c.cost} / ${memberCost}\u00A0€` : `${c.cost}\u00A0€`
       return { name, text }
-    },
-    [event, language]
-  )
-
-  const costSegments = useMemo(
-    () =>
-      segments
-        .flatMap((segment) => {
-          if (segment === 'breed') {
-            const breeds = []
-            for (const breedCode of keysOf(cost.breed ?? {})) {
-              breeds.push(getSegmentInfo(cost, costMember, segment, breedCode))
-            }
-            return breeds
-          }
-          return getSegmentInfo(cost, costMember, segment)
-        })
-        .filter((c): c is { name: string; text: string } => !!c),
-    [cost, costMember, getSegmentInfo]
-  )
-
-  const optionalCosts = useMemo(
-    () =>
-      cost.optionalAdditionalCosts?.map((c, index) => {
-        const name = c.description[language] || c.description.fi
-        const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
-        const text = memberCost ? `${c.cost} / ${memberCost}\u00A0€` : `${c.cost}\u00A0€`
-        return { name, text }
-      }) ?? [],
-    [cost, costMember, language]
-  )
+    }) ?? []
 
   return (
     <TableContainer component={Paper}>
