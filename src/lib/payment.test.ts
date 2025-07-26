@@ -72,6 +72,17 @@ describe('payment', () => {
         strategy: 'normal',
         isMember: false,
         cost: 10,
+        costObject: {
+          normal: 10,
+          optionalAdditionalCosts: [
+            {
+              cost: 2,
+              description: {
+                fi: 'test',
+              },
+            },
+          ],
+        },
         optionalCosts: [{ description: { fi: 'test' }, cost: 2 }],
         total: 12,
         translationOptions: {
@@ -103,6 +114,13 @@ describe('payment', () => {
         strategy: 'earlyBird',
         isMember: false,
         cost: 7,
+        costObject: {
+          earlyBird: {
+            cost: 7,
+            days: 10,
+          },
+          normal: 10,
+        },
         optionalCosts: [],
         total: 7,
         translationOptions: {
@@ -132,6 +150,12 @@ describe('payment', () => {
         strategy: 'breed',
         isMember: false,
         cost: 6,
+        costObject: {
+          breed: {
+            '101': 6,
+          },
+          normal: 10,
+        },
         optionalCosts: [],
         total: 6,
         translationOptions: {
@@ -162,6 +186,16 @@ describe('payment', () => {
         strategy: 'custom',
         isMember: false,
         cost: 1,
+        costObject: {
+          custom: {
+            cost: 1,
+            description: {
+              en: 'Volunteer',
+              fi: 'Talkoolainen',
+            },
+          },
+          normal: 10,
+        },
         optionalCosts: [],
         total: 1,
         translationOptions: {

@@ -66,6 +66,7 @@ export const getRegistrationPaymentDetails = (event: MinimalEventForCost, regist
     strategy: strategy.key,
     isMember: isMember(registration),
     cost: strategyCost,
+    costObject: cost,
     optionalCosts,
     total: strategyCost + optional,
     translationOptions: {

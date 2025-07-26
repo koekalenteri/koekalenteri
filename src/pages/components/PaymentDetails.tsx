@@ -24,6 +24,10 @@ export const PaymentDetails = ({ event, registration, includePayable }: Props) =
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
   const member = details.isMember ? ` (${t('costForMembers')})` : ''
+  const costDescription =
+    details.strategy === 'custom' && details.costObject?.custom?.description[language]
+      ? details.costObject?.custom?.description[language]
+      : t(costSegmentName, details.translationOptions)
 
   return (
     <Stack direction="row" justifyContent="start">
@@ -32,7 +36,7 @@ export const PaymentDetails = ({ event, registration, includePayable }: Props) =
           {t('cost')}
         </Typography>
         <Typography variant="body1" textAlign="right">
-          {t(costSegmentName, details.translationOptions)}
+          {costDescription}
           {member} {formatMoney(details.cost)}
         </Typography>
         {details.optionalCosts.length ? (
