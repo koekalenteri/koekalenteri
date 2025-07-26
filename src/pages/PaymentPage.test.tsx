@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router'
-import type { CreatePaymentResponse, Registration } from '../types'
+import type { CreatePaymentResponse } from '../types'
 
 import { Suspense } from 'react'
 import { useParams } from 'react-router'
@@ -10,7 +10,10 @@ import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
 
-import { registrationWithStaticDatesAndClass } from '../__mockData__/registrations'
+import {
+  registrationWithStaticDatesAndClass,
+  unpaidRegistrationWithStaticDatesAndClass,
+} from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
@@ -30,6 +33,8 @@ jest.mock('react-router', () => ({
 }))
 const mockUseParams = useParams as jest.Mock
 
+const { paymentStatus: _0, paidAt: _1, paidAmount: _2, ...testRegistration } = unpaidRegistrationWithStaticDatesAndClass
+
 describe('PaymentPage', () => {
   beforeAll(() => jest.useFakeTimers())
   afterEach(() => {
@@ -40,12 +45,17 @@ describe('PaymentPage', () => {
 
   it('renders loading indicator while loader is pending', async () => {
     mockUseParams.mockImplementation(() => ({
-      registrationId: registrationWithStaticDatesAndClass.id,
-      id: registrationWithStaticDatesAndClass.eventId,
+      registrationId: testRegistration.id,
+      id: testRegistration.eventId,
     }))
 
-    const path = Path.payment(registrationWithStaticDatesAndClass)
+    const path = Path.payment(testRegistration)
     const routes: RouteObject[] = [
+      {
+        path: Path.registration(testRegistration),
+        element: <>Registration Page</>,
+        hydrateFallbackElement: <>hydrate fallback</>,
+      },
       {
         path,
         element: <PaymentPage />,
@@ -76,12 +86,17 @@ describe('PaymentPage', () => {
 
   it('renders properly', async () => {
     mockUseParams.mockImplementation(() => ({
-      registrationId: registrationWithStaticDatesAndClass.id,
-      id: registrationWithStaticDatesAndClass.eventId,
+      registrationId: testRegistration.id,
+      id: testRegistration.eventId,
     }))
 
-    const path = Path.payment(registrationWithStaticDatesAndClass)
+    const path = Path.payment(testRegistration)
     const routes: RouteObject[] = [
+      {
+        path: Path.registration(testRegistration),
+        element: <>Registration Page</>,
+        hydrateFallbackElement: <>hydrate fallback</>,
+      },
       {
         path,
         element: <PaymentPage />,
@@ -111,20 +126,17 @@ describe('PaymentPage', () => {
   })
 
   describe('PaymentPageWithData', () => {
-    it('should show error message when event is not found', () => {
+    it('should show error message when event is not found', async () => {
       const { container } = render(
-        <PaymentPageWithData
-          id="test-id"
-          registrationId="test-reg-id"
-          event={null}
-          registration={registrationWithStaticDatesAndClass}
-        />
+        <PaymentPageWithData id="test-id" registrationId="test-reg-id" event={null} registration={testRegistration} />
       )
+
+      await flushPromises()
 
       expect(container).toHaveTextContent('Tapahtumaa test-id ei löydy.')
     })
 
-    it('should show error message when registration is not found', () => {
+    it('should show error message when registration is not found', async () => {
       const { container } = render(
         <PaymentPageWithData
           id="test-id"
@@ -134,23 +146,16 @@ describe('PaymentPage', () => {
         />
       )
 
+      await flushPromises()
+
       expect(container).toHaveTextContent('Ilmoittautumista test-reg-id ei löydy.')
     })
 
-    it('should navigate to registration page when payment status is SUCCESS', () => {
-      const successRegistration: Registration = {
-        ...registrationWithStaticDatesAndClass,
-        paymentStatus: 'SUCCESS',
-      }
-
-      // Create a test component that will be rendered at the target route
-      const TestComponent = () => <div data-testid="registration-page">Registration Page</div>
-
-      // Set up routes with the target route
+    it('should navigate to registration page when payment status is SUCCESS', async () => {
       const routes: RouteObject[] = [
         {
-          path: Path.registration(successRegistration),
-          element: <TestComponent />,
+          path: Path.registration(registrationWithStaticDatesAndClass),
+          element: <>Registration Page</>,
           hydrateFallbackElement: <>hydrate fallback</>,
         },
         {
@@ -160,7 +165,7 @@ describe('PaymentPage', () => {
               id="test-id"
               registrationId="test-reg-id"
               event={{ id: 'test-id' } as any}
-              registration={successRegistration}
+              registration={registrationWithStaticDatesAndClass}
               response={mockResponse as CreatePaymentResponse}
             />
           ),
@@ -170,21 +175,23 @@ describe('PaymentPage', () => {
 
       render(<DataMemoryRouter initialEntries={['/test-path']} routes={routes} />)
 
-      // Verify we've been redirected to the registration page
-      expect(screen.getByTestId('registration-page')).toBeInTheDocument()
+      await flushPromises()
+
       expect(screen.getByText('Registration Page')).toBeInTheDocument()
     })
 
-    it('should show error message when response.groups is not available', () => {
+    it('should show error message when response.groups is not available', async () => {
       const { container } = render(
         <PaymentPageWithData
           id="test-id"
           registrationId="test-reg-id"
           event={{ id: 'test-id' } as any}
-          registration={registrationWithStaticDatesAndClass}
+          registration={testRegistration}
           response={{} as CreatePaymentResponse}
         />
       )
+
+      await flushPromises()
 
       expect(container).toHaveTextContent('Jotakin meni pieleen')
     })
@@ -198,12 +205,17 @@ describe('PaymentPage', () => {
     jest.spyOn(require('recoil'), 'useResetRecoilState').mockReturnValue(mockResetRegistration)
 
     mockUseParams.mockImplementation(() => ({
-      registrationId: registrationWithStaticDatesAndClass.id,
-      id: registrationWithStaticDatesAndClass.eventId,
+      registrationId: testRegistration.id,
+      id: testRegistration.eventId,
     }))
 
-    const path = Path.payment(registrationWithStaticDatesAndClass)
+    const path = Path.payment(testRegistration)
     const routes: RouteObject[] = [
+      {
+        path: Path.registration(testRegistration),
+        element: <>Registration Page</>,
+        hydrateFallbackElement: <>hydrate fallback</>,
+      },
       {
         path,
         element: <PaymentPage />,

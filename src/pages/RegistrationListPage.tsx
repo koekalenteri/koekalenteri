@@ -40,8 +40,15 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   )
   const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
-  const [cancelOpen, setCancelOpen] = useState(!!cancel)
-  const [confirmOpen, setConfirmOpen] = useState(!!confirm)
+  const [cancelOpen, setCancelOpen] = useState(!!cancel && !registration?.cancelled)
+  const [confirmOpen, setConfirmOpen] = useState(
+    !!confirm &&
+      !registration?.confirmed &&
+      !registration?.cancelled &&
+      !!event &&
+      isConfirmedEvent(event) &&
+      !isPast(event.endDate)
+  )
   const [redirecting, setRedirecting] = useState(false)
   const [reloadCount, setReloadCount] = useState(0)
   const [paymentOpen, setPaymentOpen] = useState(false)
@@ -73,6 +80,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
 
   const handleConfirm = useCallback(() => {
     if (allDisabled || !registration || registration.confirmed || registration.cancelled) {
+      setConfirmOpen(false)
       return
     }
     actions.confirm(registration).then(
@@ -98,12 +106,6 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const handlePaymentClose = useCallback(() => setPaymentOpen(false), [])
 
   useEffect(() => {
-    if (cancelOpen && registration?.cancelled) {
-      setCancelOpen(false)
-    }
-    if (confirmOpen && (registration?.confirmed || registration?.cancelled)) {
-      setConfirmOpen(false)
-    }
     if (invitation && registration && event && !redirecting) {
       setRedirecting(true)
       actions.invitationRead(registration).then(
@@ -133,17 +135,16 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   }, [event, registration, t])
 
   useEffect(() => {
-    if (registration?.paymentStatus !== 'SUCCESS') return
-
+    if (!registration) return
     if (location.pathname.endsWith('/saved')) {
-      if (registration.messagesSent?.picked) {
+      if (registration?.messagesSent?.picked && registration.paymentStatus === 'SUCCESS') {
         enqueueSnackbar(
           t('registration.paidAndConfirmed', {
             to: registration.payer.email,
           }),
           { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
         )
-      } else {
+      } else if (registration?.paymentStatus === 'SUCCESS') {
         const emails = [registration.handler.email]
         if (registration.owner.email !== registration.handler.email) {
           emails.push(registration.owner.email)
@@ -181,7 +182,6 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (!event || !registration) return
 
     if ((registration.paidAmount ?? 0) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
-      console.log(registration.group)
       setPaymentOpen(true)
     }
   }, [event, registration, costResult])

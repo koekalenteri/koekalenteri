@@ -2471,6 +2471,15 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                      
                     123,00 €
                   </p>
+                  <hr
+                    class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
+                  />
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+                  >
+                    Aiemmin maksettu 
+                    123,00 €
+                  </p>
                 </div>
               </div>
             </div>
@@ -5212,6 +5221,15 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   >
                     costTotal
                      
+                    123,00 €
+                  </p>
+                  <hr
+                    class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
+                  />
+                  <p
+                    class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+                  >
+                    Aiemmin maksettu 
                     123,00 €
                   </p>
                 </div>

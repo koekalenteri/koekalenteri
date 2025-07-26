@@ -48,7 +48,7 @@ exports[`PaymentPage renders properly 1`] = `
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
         >
-          NOME-B
+          NOU
            
           dateFormat.datespan start, end
            
@@ -66,9 +66,9 @@ exports[`PaymentPage renders properly 1`] = `
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
         >
-          TESTDOG-0030
+          TESTDOG-0010
            
-          Dog Name 20
+          Dog Name 10
         </p>
         <h6
           class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"

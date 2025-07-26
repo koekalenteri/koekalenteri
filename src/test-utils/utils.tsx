@@ -40,10 +40,10 @@ export function DataMemoryRouter({
   return <RouterProvider router={router} />
 }
 
-export const flushPromises = async () => {
+export const flushPromises = async (timers: boolean = true) => {
   for (let i = 0; i <= 7; i++) {
     await act(async () => {
-      jest.runOnlyPendingTimers()
+      if (timers) jest.runOnlyPendingTimers()
       await Promise.resolve()
     })
   }

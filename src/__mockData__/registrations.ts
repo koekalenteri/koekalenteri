@@ -91,6 +91,39 @@ export const registrationWithStaticDates: Registration = {
   qualifyingResults: [],
   reserve: 'ANY',
   dog: registrationDogAged10MonthsAndNoResults,
+  paidAt: eventWithStaticDates.entryStartDate,
+  paidAmount: 123,
+  paymentStatus: 'SUCCESS',
+}
+
+export const unpaidRegistrationWithStaticDates: Registration = {
+  ...registrationWithStaticDates,
+  id: 'unpaid-nou-registration',
+  paidAt: undefined,
+  paidAmount: undefined,
+  paymentStatus: undefined,
+}
+
+export const unpaidPickedRegistrationWithStaticDates: Registration = {
+  ...unpaidRegistrationWithStaticDates,
+  id: 'unpaid-picked-nou-registration',
+  messagesSent: {
+    picked: true,
+  },
+}
+export const paidAndPickedRegistrationWithStaticDates: Registration = {
+  ...registrationWithStaticDates,
+  id: 'paid-and-picked-nou-registration',
+  paymentStatus: 'SUCCESS',
+  messagesSent: {
+    picked: true,
+  },
+}
+export const invitationAttachmentRegistration: Registration = {
+  ...registrationWithStaticDates,
+  eventId: 'testInvited',
+  id: 'invitation-attachment-registration',
+  invitationAttachment: 'attachment-file',
 }
 
 export const registrationWithStaticDatesAndClass: Registration = {
@@ -105,6 +138,14 @@ export const registrationWithStaticDatesAndClass: Registration = {
   qualifies: true,
   qualifyingResults: registrationDogAged28MonthsWithNOUResult.results.map((r) => ({ ...r, official: true })),
   dog: registrationDogAged28MonthsWithNOUResult,
+}
+
+export const unpaidRegistrationWithStaticDatesAndClass: Registration = {
+  ...registrationWithStaticDates,
+  id: 'unpaid-nome-b-alo-registration',
+  paidAt: undefined,
+  paidAmount: undefined,
+  paymentStatus: undefined,
 }
 
 export const registrationWithManualResults: Registration = {
@@ -270,7 +311,12 @@ export const jsonRegistrationsToEventWithALOInvited: JsonRegistration[] =
 
 export const mockRegistrationData = [
   registrationWithStaticDates,
+  unpaidRegistrationWithStaticDates,
+  unpaidPickedRegistrationWithStaticDates,
+  paidAndPickedRegistrationWithStaticDates,
+  invitationAttachmentRegistration,
   registrationWithStaticDatesAndClass,
+  unpaidRegistrationWithStaticDatesAndClass,
   registrationWithManualResults,
   registrationWithStaticDatesCancelled,
   ...registrationsToEventWithParticipantsInvited,

@@ -469,6 +469,126 @@ exports[`OrganizerListPage renders 1`] = `
               <h6
                 class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
               >
+                NOU - registration.timeLong.kp
+              </h6>
+            </td>
+          </tr>
+          <tr
+            class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
+          >
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              #
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Rotu
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Nimi
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Rekisterinumero
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Syntymäaika
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Siru
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Ohjaaja
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Puhelin
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Paikkakunta
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Varoitusaika
+            </td>
+          </tr>
+          <tr
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+          >
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            />
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              110.M ns, defaultValue
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Dog Name 10
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              TESTDOG-0010
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              dateFormat.isodate date
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              1234567890123456
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Handler Name
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              +3584054321
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              Handler Location
+            </td>
+            <td
+              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+            >
+              registration.reserveChoises.ANY
+            </td>
+          </tr>
+          <tr
+            class="amplify-table__row"
+          >
+            <td
+              class="amplify-table__td"
+              colspan="10"
+            >
+              <h6
+                class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
+              >
                 ALO - registration.timeLong.kp
               </h6>
             </td>
