@@ -311,7 +311,6 @@
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
     "confirmDialog": {
-      "alreadyConfirmed": "Koepaikka on jo vahvistettu",
       "confirmation": "Haluatko vahvistaa koepaikan?",
       "cta": "Vahvista koepaikka",
       "done": "Koepaikkasi on vahvistettu",
@@ -383,8 +382,16 @@
     "ownerIsMember": "Omistaja on järjestävän yhdistyksen jäsen",
     "ownerPays": "Omistaja maksaa",
     "paid": "Maksettu",
+    "paidAndConfirmed": "Osallistumismaksu maksettu ja osallistuminend vahvistettu.\nKuitti on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "payer": "Maksajan tiedot",
     "payment": "Maksutiedot",
+    "paymentDialog": {
+      "confirmation": "Haluatko maksaa ja vahvistaa osallistumisesi?",
+      "cta": "Maksa ja vahvista",
+      "done": "Osallistumisesi on maksettu ja vahvistettu",
+      "text": "Osallistumispaikka koiralle {{registration.dog.regNo}} {{registration.dog.name}} tapahtumaan {{event.startDate, date}} {{event.eventType}} {{event.location}} odottaa maksua.",
+      "title": "Osallistumismaksun maksaminen ja paikan vahvistaminen"
+    },
     "paymentToBePaid": "Maksettava: {{amount}}",
     "paymentToBePaidAfterConfirmation": "Maksettava {{amount}}, kun paikka tapahtumassa on vahvistettu",
     "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",

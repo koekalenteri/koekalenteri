@@ -311,7 +311,6 @@
     "class": "Event class",
     "classesDetails": "Event class details",
     "confirmDialog": {
-      "alreadyConfirmed": "The trial place has already been confirmed",
       "confirmation": "Do you want to confirm the trial place?",
       "cta": "Confirm trial place",
       "done": "Your trial place has been confirmed",
@@ -383,8 +382,16 @@
     "ownerIsMember": "Owner is a member of the organizing society",
     "ownerPays": "Owner pays",
     "paid": "Paid",
+    "paidAndConfirmed": "Participation paid and confirmed.\nReceipt was sent to:\n{{to}}",
     "payer": "Payer information",
     "payment": "Payment information",
+    "paymentDialog": {
+      "confirmation": "Do you want to pay and confirm the participation?",
+      "cta": "Confirm participation",
+      "done": "Your participation has been confirmed",
+      "text": "You are confirming the trial place for the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Pay and confirm"
+    },
     "paymentToBePaid": "To be paid: {{amount}}",
     "paymentToBePaidAfterConfirmation": "{{amount}} payable once your place in the event is confirmed",
     "qualifyingResults": "Qualifying results",

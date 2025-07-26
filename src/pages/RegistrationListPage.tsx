@@ -8,6 +8,7 @@ import { isPast, subDays } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
+import { calculateCost } from '../lib/cost'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 
@@ -18,9 +19,10 @@ import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import { InfoBox } from './registrationListPage/InfoBox'
+import { PaymentDialog } from './registrationListPage/PaymentDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
-import { eventSelector, registrationSelector, spaAtom } from './recoil'
+import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   readonly cancel?: boolean
@@ -32,7 +34,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const event = useRecoilValue(eventSelector(params.id))
+  const event = useRecoilValue(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
@@ -42,12 +44,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const [confirmOpen, setConfirmOpen] = useState(!!confirm)
   const [redirecting, setRedirecting] = useState(false)
   const [reloadCount, setReloadCount] = useState(0)
+  const [paymentOpen, setPaymentOpen] = useState(false)
   const actions = useRegistrationActions()
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
     () => !event || allDisabled || isPast(subDays(event.startDate, 2)),
     [allDisabled, event]
   )
+  const costResult = event && registration && calculateCost(event, registration)
 
   const handleCancel = useCallback(
     (reason: string) => {
@@ -82,8 +86,16 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     )
   }, [actions, allDisabled, registration, setRegistration])
 
+  const handlePayment = useCallback(async () => {
+    if (allDisabled || !registration || registration.cancelled) {
+      return
+    }
+    await navigate(Path.payment(registration))
+  }, [actions, allDisabled, registration, setRegistration])
+
   const handleCalcelClose = useCallback(() => setCancelOpen(false), [])
   const handleConfirmClose = useCallback(() => setConfirmOpen(false), [])
+  const handlePaymentClose = useCallback(() => setPaymentOpen(false), [])
 
   useEffect(() => {
     if (cancelOpen && registration?.cancelled) {
@@ -121,15 +133,22 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   }, [event, registration, t])
 
   useEffect(() => {
-    if (!registration) return
+    if (registration?.paymentStatus !== 'SUCCESS') return
 
     if (location.pathname.endsWith('/saved')) {
-      const emails = [registration.handler.email]
-      if (registration.owner.email !== registration.handler.email) {
-        emails.push(registration.owner.email)
-      }
+      if (registration.messagesSent?.picked) {
+        enqueueSnackbar(
+          t('registration.paidAndConfirmed', {
+            to: registration.payer.email,
+          }),
+          { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
+        )
+      } else {
+        const emails = [registration.handler.email]
+        if (registration.owner.email !== registration.handler.email) {
+          emails.push(registration.owner.email)
+        }
 
-      if (registration.paymentStatus === 'SUCCESS') {
         enqueueSnackbar(
           t('registration.saved', {
             count: emails.length,
@@ -157,6 +176,15 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
 
     return () => clearTimeout(timeout)
   }, [actions, registration, reloadCount, setRegistration])
+
+  useEffect(() => {
+    if (!event || !registration) return
+
+    if ((registration.paidAmount ?? 0) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
+      console.log(registration.group)
+      setPaymentOpen(true)
+    }
+  }, [event, registration, costResult])
 
   if (!event || !registration) {
     return <LoadingPage />
@@ -209,6 +237,13 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           registration={registration}
           event={event}
           onConfirm={handleConfirm}
+        />
+        <PaymentDialog
+          open={paymentOpen}
+          onClose={handlePaymentClose}
+          registration={registration}
+          event={event}
+          onConfirm={handlePayment}
         />
       </Box>
     </>
