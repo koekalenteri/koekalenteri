@@ -200,5 +200,5 @@ export const getRegistrationEmailTemplateData = (
   }
 }
 
-export const isPredefinedReason = (v?: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' =>
-  !!v && ['dog-heat', 'handler-sick', 'dog-sick', 'gdpr'].includes(v)
+export const isPredefinedReason = (v?: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' | 'unpaid' =>
+  !!v && ['dog-heat', 'handler-sick', 'dog-sick', 'gdpr', 'unpaid'].includes(v)

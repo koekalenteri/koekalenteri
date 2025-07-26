@@ -305,7 +305,8 @@
       "gdpr": "I don't want to disclose",
       "handler-sick": "The handler falling ill",
       "handler-sick-info": "For refunds due to handler illness, a medical certificate must be sent to the secretary",
-      "other": "Other reason"
+      "other": "Other reason",
+      "unpaid": "Unpaid registration"
     },
     "class": "Event class",
     "classesDetails": "Event class details",

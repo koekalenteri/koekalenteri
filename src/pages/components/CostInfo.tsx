@@ -59,8 +59,6 @@ export default function CostInfo({ event }: Props) {
                 })
               : t(getCostSegmentName(segment))
 
-      console.log(name, cost)
-
       return { name, text }
     },
     [event, language]

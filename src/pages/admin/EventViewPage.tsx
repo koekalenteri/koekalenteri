@@ -251,6 +251,7 @@ export default function EventViewPage() {
         )}
         {selectedRegistration && (
           <CancelDialog
+            admin
             event={event}
             open={cancelOpen}
             onClose={handleCancelClose}

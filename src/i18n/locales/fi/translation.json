@@ -305,7 +305,8 @@
       "gdpr": "En halua kertoa",
       "handler-sick": "Ohjaajan sairastuminen",
       "handler-sick-info": "Maksun palautusta varten sairastapauksista on lähetettävä lääkärintodistus koesihteerille",
-      "other": "Muu syy"
+      "other": "Muu syy",
+      "unpaid": "Maksamaton osallistumismaksu"
     },
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",

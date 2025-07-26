@@ -86,6 +86,9 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
             value={reason}
             onChange={handleReasonChange}
           >
+            {admin && !registration.paidAt ? (
+              <MenuItem value="gdpr">{t('registration.cancelReason.unpaid')}</MenuItem>
+            ) : null}
             <MenuItem value="dog-heat">{t('registration.cancelReason.dog-heat')}</MenuItem>
             <MenuItem value="handler-sick">{t('registration.cancelReason.handler-sick')}</MenuItem>
             <MenuItem value="dog-sick">{t('registration.cancelReason.dog-sick')}</MenuItem>
