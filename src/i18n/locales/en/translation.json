@@ -260,7 +260,7 @@
   },
   "paymentTime": "Payment time",
   "paymentTimeOptions": {
-    "confirmation": "Payment only after the event place has been confirmed",
+    "confirmation": "Payment after the event place has been confirmed",
     "registration": "Payment at the time of registration"
   },
   "places": "Places",

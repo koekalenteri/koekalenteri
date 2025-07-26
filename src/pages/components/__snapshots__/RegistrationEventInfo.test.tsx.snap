@@ -108,6 +108,12 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
                 paymentDetails
               </div>
               123 €, event.costMember 123 €
+              . 
+              <span
+                style="white-space: nowrap;"
+              >
+                paymentTimeOptions.registration
+              </span>
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-g8s1br-MuiGrid2-root"
@@ -273,6 +279,12 @@ exports[`RegistrationEventInfo renders 1`] = `
                 paymentDetails
               </div>
               123 €, event.costMember 123 €
+              . 
+              <span
+                style="white-space: nowrap;"
+              >
+                paymentTimeOptions.registration
+              </span>
             </div>
             <div
               class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-12 MuiGrid2-grid-md-6 MuiGrid2-grid-lg-4 MuiGrid2-grid-xl-2 css-g8s1br-MuiGrid2-root"
