@@ -56,7 +56,11 @@ const handleSuccessfulPayment = async (
     const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
     const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
     const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
-    const registrationCostName = `${t(getCostSegmentName(paymentDetails.strategy))}${memberPrice}`
+    const costSegmentName =
+      paymentDetails.strategy === 'custom' && paymentDetails.costObject?.custom?.description?.[registration.language]
+        ? paymentDetails.costObject.custom.description[registration.language]
+        : t(getCostSegmentName(paymentDetails.strategy), paymentDetails.translationOptions)
+    const registrationCostName = `${costSegmentName}${memberPrice}`
     const registrationCost = `${formatMoney(paymentDetails.cost)}`
     const optionalCosts = paymentDetails.optionalCosts
       .map((o) => `${o.description[registration.language]}${memberPrice} ${formatMoney(o.cost)}`)
