@@ -166,7 +166,7 @@ export const groupRegistrationsByClassAndGroup = (
  */
 export const findClassesToMark = (
   registrationsByClassAndGroup: Record<string, Record<string, Partial<JsonRegistration>[]>>,
-  template: string
+  template: EmailTemplateId
 ): string[] => {
   const classesToMark: string[] = []
 

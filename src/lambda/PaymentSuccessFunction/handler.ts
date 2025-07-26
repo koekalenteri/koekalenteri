@@ -35,6 +35,11 @@ const handleSuccessfulPayment = async (
   registration.paymentStatus = 'SUCCESS'
   registration.state = 'ready'
 
+  // registration is paid after picked to the event, this also confirms the place.
+  if (registration.messagesSent?.picked) {
+    registration.confirmed = true
+  }
+
   await dynamoDB.update(
     { eventId, id: registrationId },
     {
@@ -43,6 +48,7 @@ const handleSuccessfulPayment = async (
         paidAt: registration.paidAt,
         paymentStatus: registration.paymentStatus,
         state: registration.state,
+        confirmed: registration.confirmed,
       },
     },
     registrationTable

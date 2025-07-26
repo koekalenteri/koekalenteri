@@ -1,4 +1,15 @@
-import type { DbRecord, Dog, JsonDbRecord, JsonDog, JsonTestResult, Language, Person, Replace, TestResult } from '.'
+import type {
+  DbRecord,
+  Dog,
+  EmailTemplateId,
+  JsonDbRecord,
+  JsonDog,
+  JsonTestResult,
+  Language,
+  Person,
+  Replace,
+  TestResult,
+} from '.'
 import type { DogEventCostSegment } from './Cost'
 
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
@@ -10,6 +21,7 @@ export interface JsonRegistration extends JsonDbRecord {
   cancelled?: boolean
   cancelReason?: string
   class?: RegistrationClass | null
+  /** registrant has comfirmed participation */
   confirmed?: boolean
   dates: JsonRegistrationDate[]
   dog: JsonDog
@@ -22,7 +34,8 @@ export interface JsonRegistration extends JsonDbRecord {
   invitationRead?: boolean
   language: Language
   lastEmail?: string
-  messagesSent?: Record<string, boolean> // Track which message templates have been sent to this registration
+  /** tracks which message templates have been sent to this registration */
+  messagesSent?: Partial<Record<EmailTemplateId, boolean>>
   notes: string
   owner: RegistrationPerson
   ownerHandles?: boolean
