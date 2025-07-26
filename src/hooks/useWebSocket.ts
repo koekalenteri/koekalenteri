@@ -84,5 +84,5 @@ export const useWebSocket = () => {
       }
       wsRef.current?.close()
     }
-  })
+  }, [])
 }
