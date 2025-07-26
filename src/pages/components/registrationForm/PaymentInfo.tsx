@@ -1,6 +1,7 @@
 import type { DeepPartial, PublicConfirmedEvent, Registration } from '../../../types'
 import type { CostResult, DogEventCostSegment } from '../../../types/Cost'
 
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -42,6 +43,12 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
     onChange?.({ optionalCosts: costs })
   }
 
+  useEffect(() => {
+    if (!registration.selectedCost && cost.segment !== 'legacy') {
+      onChange?.({ selectedCost: cost.segment, optionalCosts: [] })
+    }
+  }, [registration, cost])
+
   if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
     return null
   }
@@ -81,7 +88,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
             value="custom"
             disabled={disabled || !appliedCost.custom}
             control={<Radio />}
-            label={`${appliedCost.custom.description.fi} (${formatMoney(appliedCost.custom.cost)})`}
+            label={`${appliedCost.custom.description[registration.language ?? 'fi']} (${formatMoney(appliedCost.custom.cost)})`}
           />
         )}
       </RadioGroup>

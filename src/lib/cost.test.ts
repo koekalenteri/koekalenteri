@@ -1,7 +1,7 @@
 import type { BreedCode } from '../types'
 import type { DogEventCost, DogEventCostSegment, MinimalRegistrationForCost } from '../types/Cost'
 
-import { addDays, startOfDay } from 'date-fns'
+import { startOfDay } from 'date-fns'
 
 import {
   additionalCost,
@@ -9,7 +9,6 @@ import {
   costStrategies,
   DOG_EVENT_COST_KEYS,
   getApplicableStrategy,
-  getCostSegment,
   getCostSegmentName,
   getCostValue,
   selectCost,
@@ -50,58 +49,6 @@ describe('selectCost', () => {
   })
   it('should select `cotsMember` when both are members', () => {
     expect(selectCost(makeEvent(100, 80), makeRegistration(true, true))).toEqual(80)
-  })
-})
-
-describe('getCostSegment', () => {
-  it('should return `normal` when it is the only option', () => {
-    const reg = makeRegistration(false, false)
-    const event = makeEvent({ normal: 10 }, undefined)
-    expect(getCostSegment(event, reg)).toEqual('normal')
-  })
-
-  it('should return `custom` when selected', () => {
-    const reg = makeRegistration(false, false, '110', 'custom')
-    const event = makeEvent({ custom: { cost: 5, description: { fi: '' } }, normal: 20 }, undefined)
-    expect(getCostSegment(event, reg)).toEqual('custom')
-  })
-
-  it('should return the cheapest applicable segment', () => {
-    const startDate = startOfDay(new Date())
-    const earlyDate = startDate
-    const lateDate = addDays(startDate, 6)
-
-    const cost1: DogEventCost = { earlyBird: { cost: 15, days: 5 }, normal: 20 }
-    const regEarly = makeRegistration(false, false, '110', undefined, earlyDate)
-    const regLate = makeRegistration(false, false, '110', undefined, lateDate)
-    // earlyBird is cheaper and applicable
-    expect(getCostSegment(makeEvent(cost1, undefined, startDate), regEarly)).toEqual('earlyBird')
-    // earlyBird is not applicable, so normal is chosen
-    expect(getCostSegment(makeEvent(cost1, undefined, startDate), regLate)).toEqual('normal')
-
-    const cost2: DogEventCost = { breed: { '110': 25 }, earlyBird: { cost: 30, days: 5 }, normal: 40 }
-    // breed is cheaper than earlyBird
-    expect(getCostSegment(makeEvent(cost2, undefined, startDate), regEarly)).toEqual('breed')
-
-    const cost3: DogEventCost = { breed: { '110': 35 }, earlyBird: { cost: 30, days: 5 }, normal: 40 }
-    // earlyBird is cheaper than breed
-    expect(getCostSegment(makeEvent(cost3, undefined, startDate), regEarly)).toEqual('earlyBird')
-  })
-
-  it('should ignore custom when not explicitly selected', () => {
-    const startDate = startOfDay(new Date())
-    const reg = makeRegistration(false, false)
-    const cost: DogEventCost = { custom: { cost: 5, description: { fi: '' } }, normal: 20 }
-    const event = makeEvent(cost, undefined, startDate)
-    expect(getCostSegment(event, reg)).toEqual('normal')
-  })
-
-  it('should respect selectedCost even if not the cheapest', () => {
-    const startDate = startOfDay(new Date())
-    const reg = makeRegistration(false, false, '110', 'normal', startDate)
-    const cost: DogEventCost = { earlyBird: { cost: 15, days: 5 }, normal: 20 }
-    const event = makeEvent(cost, undefined, startDate)
-    expect(getCostSegment(event, reg)).toEqual('normal')
   })
 })
 
@@ -600,27 +547,6 @@ describe('invalid input handling', () => {
     const result = calculateCost(event, invalidRegistration)
     expect(result.amount).toBe(50) // Should fall back to normal cost
     expect(result.segment).toBe('normal')
-  })
-})
-
-describe('getCostSegment with edge cases', () => {
-  it('should handle undefined cost segments', () => {
-    const event = makeEvent({ normal: 50, earlyBird: undefined }, undefined)
-    const registration = makeRegistration(false, false)
-    expect(getCostSegment(event, registration)).toBe('normal')
-  })
-
-  it('should handle empty breed object', () => {
-    const event = makeEvent({ normal: 50, breed: {} }, undefined)
-    const registration = makeRegistration(false, false, '110')
-    expect(getCostSegment(event, registration)).toBe('normal')
-  })
-
-  it('should handle zero cost values', () => {
-    const event = makeEvent({ normal: 50, earlyBird: { cost: 0, days: 5 } }, undefined, startOfDay(new Date()))
-    const registration = makeRegistration(false, false, '110', undefined, startOfDay(new Date()))
-    // Even though earlyBird is applicable and cheaper (0), it should still choose it
-    expect(getCostSegment(event, registration)).toBe('earlyBird')
   })
 })
 

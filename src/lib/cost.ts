@@ -182,15 +182,3 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
 
   return { amount, segment, cost }
 }
-
-export const getCostSegment = (
-  event: MinimalEventForCost,
-  registration: MinimalRegistrationForCost
-): DogEventCostSegment | 'legacy' => {
-  const cost = selectCost(event, registration)
-  if (typeof cost === 'number') {
-    return 'legacy'
-  }
-  const strategy = getApplicableStrategy(event, registration)
-  return strategy.key
-}

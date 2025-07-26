@@ -126,7 +126,7 @@ describe('RegistrationForm', () => {
         ],
       },
     }
-    const registration = { ...registrationWithStaticDates, optionalCosts: [0] }
+    const registration = { ...registrationWithStaticDates, selectedCost: 'normal' as const, optionalCosts: [0] }
     const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
 
     const { user } = renderWithUserEvents(
