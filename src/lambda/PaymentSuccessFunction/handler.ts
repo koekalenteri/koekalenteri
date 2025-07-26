@@ -56,7 +56,8 @@ const handleSuccessfulPayment = async (
     const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
     const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
     const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
-    const registrationCost = `${t(getCostSegmentName(paymentDetails.strategy))}${memberPrice} ${formatMoney(paymentDetails.cost)}`
+    const registrationCostName = `${t(getCostSegmentName(paymentDetails.strategy))}${memberPrice}`
+    const registrationCost = `${formatMoney(paymentDetails.cost)}`
     const optionalCosts = paymentDetails.optionalCosts
       .map((o) => `${o.description[registration.language]}${memberPrice} ${formatMoney(o.cost)}`)
       .join(', ')
@@ -64,6 +65,7 @@ const handleSuccessfulPayment = async (
       ...templateData,
       ...transaction,
       createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+      registrationCostName,
       registrationCost,
       optionalCosts,
       amount: formatMoney(paidAmount),
