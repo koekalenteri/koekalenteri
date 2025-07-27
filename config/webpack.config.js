@@ -56,7 +56,7 @@ const hasJsxRuntime = (() => {
   try {
     require.resolve('react/jsx-runtime')
     return true
-  } catch (e) {
+  } catch {
     return false
   }
 })()
@@ -329,6 +329,11 @@ module.exports = function (webpackEnv) {
     },
     module: {
       strictExportPresence: true,
+      parser: {
+        javascript: {
+          importExportsPresence: 'warn', // this is lowered to warn from default err for react-router 7.7.0+ to function with react 18.
+        },
+      },
       rules: [
         // Handle node_modules packages that contain sourcemaps
         shouldUseSourceMap && {
