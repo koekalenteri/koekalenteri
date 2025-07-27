@@ -177,7 +177,7 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
   if (typeof cost === 'number') return { amount: cost, segment: 'legacy' }
 
   const strategy = getApplicableStrategy(event, registration)
-  const segment = strategy.key as DogEventCostSegment
+  const segment = strategy.key
   const amount = strategy.getValue(cost, registration.dog.breedCode) + additionalCost(registration, cost)
 
   return { amount, segment, cost }
