@@ -39,7 +39,10 @@ export const EventInfo = ({ event }: Props) => {
     () => (event.classes.length ? unique(event.classes.map((c) => c.class)) : [event.eventType]),
     [event.classes, event.eventType]
   )
-  const judges = useMemo(() => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event)}`), [event, t])
+  const judges = useMemo(
+    () => event.judges.map((j) => `${judgeName(j, t)}${judgeClasses(j, event)}`).filter(Boolean),
+    [event, t]
+  )
   const rankingPeriod = getRankingPeriod(
     event.eventType,
     event.entryOrigEndDate ?? event.entryEndDate,
@@ -65,11 +68,13 @@ export const EventInfo = ({ event }: Props) => {
           ))}
         </ItemWithCaption>
       ) : null}
-      <ItemWithCaption label={t('event.judges')} order={{ xs: 3, lg: 2 }}>
-        {judges.map((j) => (
-          <Box key={j}>{j}</Box>
-        ))}
-      </ItemWithCaption>
+      {judges.length ? (
+        <ItemWithCaption label={t('event.judges')} order={{ xs: 3, lg: 2 }}>
+          {judges.map((j) => (
+            <Box key={j}>{j}</Box>
+          ))}
+        </ItemWithCaption>
+      ) : null}
       {official ? (
         <ItemWithCaption label={t('event.official')} order={{ xs: 4, lg: 2 }}>
           {official}

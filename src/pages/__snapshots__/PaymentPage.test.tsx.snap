@@ -3,7 +3,7 @@
 exports[`PaymentPage renders loading indicator while loader is pending 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19703gc"
+    class="MuiBox-root css-gedbwv"
   >
     <span
       class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1vzstpr-MuiCircularProgress-root"

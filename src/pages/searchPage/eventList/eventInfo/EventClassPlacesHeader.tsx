@@ -1,22 +1,9 @@
-import type { TypographyProps } from '@mui/material/Typography'
 import type { PublicDogEvent } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
-import { styled } from '@mui/material'
 import Grid2 from '@mui/material/Grid2'
-import Typography from '@mui/material/Typography'
 
-const Caption = (props: TypographyProps) => <Typography {...props} variant="caption" />
-
-const HeaderText = styled(Caption)(({ theme }) => ({
-  paddingLeft: 4,
-  paddingRight: 4,
-  paddingTop: 0,
-  paddingBottom: 0,
-  width: '100%',
-  display: 'block',
-  backgroundColor: theme.palette.background.tableHead,
-}))
+import InfoTableHeaderText from '../../../components/InfoTableHeaderText'
 
 export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => {
   const { t } = useTranslation()
@@ -26,21 +13,21 @@ export const EventClassPlacesHeader = ({ event }: { event: PublicDogEvent }) => 
   return (
     <Grid2 container>
       <Grid2 size={{ xs: showDates ? 2 : 6 }}>
-        <HeaderText>{t('event.classPlacesHeader.name')}</HeaderText>
+        <InfoTableHeaderText>{t('event.classPlacesHeader.name')}</InfoTableHeaderText>
       </Grid2>
       {showDates ? (
         <Grid2 size={{ xs: 4 }}>
-          <HeaderText>{t('event.classPlacesHeader.dates')}</HeaderText>
+          <InfoTableHeaderText>{t('event.classPlacesHeader.dates')}</InfoTableHeaderText>
         </Grid2>
       ) : null}
       <Grid2 size={{ xs: 2 }} textAlign="right">
-        <HeaderText>{t('event.classPlacesHeader.entries')}</HeaderText>
+        <InfoTableHeaderText>{t('event.classPlacesHeader.entries')}</InfoTableHeaderText>
       </Grid2>
       <Grid2 size={{ xs: 2 }} textAlign="right">
-        <HeaderText>{t('event.classPlacesHeader.places')}</HeaderText>
+        <InfoTableHeaderText>{t('event.classPlacesHeader.places')}</InfoTableHeaderText>
       </Grid2>
       <Grid2 size={{ xs: 2 }} textAlign="right">
-        <HeaderText>{t('event.classPlacesHeader.members')}</HeaderText>
+        <InfoTableHeaderText>{t('event.classPlacesHeader.members')}</InfoTableHeaderText>
       </Grid2>
     </Grid2>
   )

@@ -3,7 +3,7 @@
 exports[`ErrorPage should render 404 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19703gc"
+    class="MuiBox-root css-gedbwv"
   >
     <h1
       class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"
@@ -34,7 +34,7 @@ exports[`ErrorPage should render 404 1`] = `
 exports[`ErrorPage should render 500 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19703gc"
+    class="MuiBox-root css-gedbwv"
   >
     <h1
       class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"

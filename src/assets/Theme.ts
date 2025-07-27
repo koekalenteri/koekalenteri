@@ -6,8 +6,12 @@ import { createTheme, responsiveFontSizes } from '@mui/material/styles'
 
 declare module '@mui/material/styles/createPalette' {
   interface TypeBackground {
+    caption: string
     form: string
     oddRow: string
+    evenRow: string
+    filter: string
+    filterHeader: string
     tableHead: string
     ok: string
     hover: string
@@ -76,9 +80,13 @@ const theme = createTheme({
       main: red.A400,
     },
     background: {
-      default: '#fcfdfd',
+      caption: 'transparent',
+      default: '#f0f2f5',
+      filter: '#e3e8e6',
+      filterHeader: '#d5ddda',
       form: '#f2f2f2',
-      oddRow: '#f8f8f8',
+      evenRow: '#ffffff',
+      oddRow: '#f2f2f2',
       tableHead: '#d8d8d8',
       ok: '#c1d4c9',
       hover: '#AFC1B7',

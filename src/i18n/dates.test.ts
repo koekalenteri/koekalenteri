@@ -23,6 +23,21 @@ describe('formatDateSpan', () => {
       test.result
     )
   })
+
+  it.each([
+    { start: '2021-01-01', end: '2021-01-01', parentheses: true, result: '(1.1.2021)' },
+    { start: '2021-01-01', end: '2021-01-02', parentheses: true, result: '(1.–2.1.2021)' },
+    { start: '2021-01-31', end: '2021-02-02', parentheses: true, result: '(31.1.–2.2.2021)' },
+    { start: '2021-12-15', end: '2022-01-15', parentheses: true, result: '(15.12.2021–15.1.2022)' },
+    { start: '2021-01-01', end: '2021-01-01', noYear: true, parentheses: true, result: '(1.1.)' },
+    { start: '2021-01-01', end: '2021-01-02', noYear: true, parentheses: true, result: '(1.–2.1.)' },
+    { start: '2021-01-31', end: '2021-02-02', noYear: true, parentheses: true, result: '(31.1.–2.2.)' },
+    { start: '2021-12-15', end: '2022-01-15', noYear: true, parentheses: true, result: '(15.12.–15.1.)' },
+  ])('formats properly with parentheses %p', (test) => {
+    expect(
+      formatDateSpan(test.start, 'fi', { end: test.end, noYear: test.noYear, parentheses: test.parentheses })
+    ).toEqual(test.result)
+  })
 })
 
 describe('currentFinnishTime', () => {

@@ -6,7 +6,8 @@ import type { FilterProps } from '../recoil'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import ExpandMore from '@mui/icons-material/ExpandMore'
+import ExpandCircleDownOutlinedIcon from '@mui/icons-material/ExpandCircleDownOutlined'
+import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined'
 import { useMediaQuery } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -17,6 +18,7 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid2 from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
+import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
 import { HEADER_HEIGHT } from '../../assets/Theme'
@@ -98,25 +100,40 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     <Box
       component="nav"
       p={0}
-      bgcolor={'white'}
-      sx={{ position: 'sticky', top: `calc(${HEADER_HEIGHT} - 1px)`, zIndex: 2, borderBottom: '1px solid #eee' }}
+      sx={{
+        position: 'sticky',
+        top: `calc(${HEADER_HEIGHT} - 1px)`,
+        zIndex: 2,
+        borderBottom: '1px solid #708f85',
+        borderTop: '1px solid #708f85',
+      }}
     >
-      <Accordion defaultExpanded={md} expanded={expanded} onChange={(_e, expanded) => setExpanded(expanded)}>
+      <Accordion
+        defaultExpanded={md}
+        expanded={expanded}
+        onChange={(_e, expanded) => setExpanded(expanded)}
+        sx={{ boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+      >
         <AccordionSummary
-          expandIcon={<ExpandMore />}
+          expandIcon={
+            <Tooltip title={expanded ? 'Sulje suodattimet' : 'Avaa suodattimet'}>
+              <ExpandCircleDownOutlinedIcon />
+            </Tooltip>
+          }
           sx={{
-            bgcolor: 'background.selected',
+            bgcolor: 'background.filterHeader',
             minHeight: '28px',
             '&.Mui-expanded': { minHeight: '28px' },
             '& .MuiAccordionSummary-content': { margin: 0, overflow: 'hidden' },
             '& .MuiAccordionSummary-content.Mui-expanded': { margin: 0 },
           }}
         >
-          <Typography variant="caption" noWrap textOverflow="ellipsis">
+          <TuneOutlinedIcon fontSize="small" sx={{ p: 0.25 }} />
+          <Typography variant="caption" noWrap textOverflow="ellipsis" sx={{ pl: 0.5 }}>
             {filterText}
           </Typography>
         </AccordionSummary>
-        <AccordionDetails>
+        <AccordionDetails sx={{ bgcolor: 'background.filter' }}>
           <Grid2 container justifyContent="start" spacing={1}>
             <Grid2 size={{ xs: 12, md: 6 }}>
               <DateRange

@@ -35,7 +35,7 @@ exports[`JudgeListPage renders 1`] = `
         </button>
       </div>
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1lu635c-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-s3dg16-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 470px; --DataGrid-columnsTotalWidth: 470px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div

@@ -21,13 +21,15 @@ export const ItemWithCaption = ({ label, children, ...gridProps }: PropsWithChil
     <Typography
       variant="caption"
       color="text.secondary"
-      bgcolor="background.form"
+      bgcolor="background.caption"
       borderRadius="4px"
-      sx={{ p: 0.5, ml: -0.5, width: '100%', display: 'block' }}
+      sx={{ pt: 0.5, width: '100%', display: 'block' }}
       component="div"
     >
       {label}
     </Typography>
-    {children}
+    <Typography variant="body2" sx={{ ml: 0.5 }} component="div">
+      {children}
+    </Typography>
   </Grid2>
 )

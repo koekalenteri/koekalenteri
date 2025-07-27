@@ -2,23 +2,23 @@
 
 exports[`EventStateInfo should render with one class 1`] = `
 <div
-  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-19db06o-MuiGrid2-root"
+  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-14k2nc-MuiGrid2-root"
 >
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 css-1mzchvl-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 css-mjvau9-MuiGrid2-root"
   />
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     2
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     3
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     1
   </div>
@@ -27,30 +27,30 @@ exports[`EventStateInfo should render with one class 1`] = `
 
 exports[`EventStateInfo should render with two classes 1`] = `
 <div
-  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-19db06o-MuiGrid2-root"
+  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-14k2nc-MuiGrid2-root"
 >
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-933b1h-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1frhnbs-MuiGrid2-root"
   >
     ALO
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-1yb0kk6-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
   >
     eeeeee d.M.
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     2
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     3
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     1
   </div>
@@ -59,23 +59,23 @@ exports[`EventStateInfo should render with two classes 1`] = `
 
 exports[`EventStateInfo should render without classes 1`] = `
 <div
-  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-19db06o-MuiGrid2-root"
+  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-14k2nc-MuiGrid2-root"
 >
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 css-1mzchvl-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 css-mjvau9-MuiGrid2-root"
   />
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     2
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     3
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-zu9nup-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
   >
     1
   </div>

@@ -2,27 +2,21 @@ import type { PublicDogEvent } from '../../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { styled } from '@mui/material'
-import Grid2 from '@mui/material/Grid2'
 
-const TextGrid = styled(Grid2)({
-  paddingLeft: 4,
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-})
-const NumberGrid = styled(Grid2)({ paddingRight: 4, textAlign: 'right' })
+import InfoTableContainerGrid from '../../../components/InfoTableContainerGrid'
+import InfoTableNumberGrid from '../../../components/InfoTableNumberGrid'
+import InfoTableTextGrid from '../../../components/InfoTableTextGrid'
 
 export type MinimalEvent = Pick<PublicDogEvent, 'classes' | 'startDate' | 'entries' | 'places' | 'members'>
 
 export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; eventClass: string }) => {
   const { t } = useTranslation()
 
-  const classes = event.classes.filter((c) => c.class === eventClass)
+  const { dates, entryStatus } = useMemo(() => {
+    const classes = event.classes.filter((c) => c.class === eventClass)
+    const dates = classes.map((c) => c.date ?? event.startDate ?? new Date())
 
-  const dates = classes.map((c) => c.date ?? event.startDate ?? new Date())
-  const entryStatus = useMemo(() => {
-    const status = classes.reduce(
+    const entryStatus = classes.reduce(
       (acc, c) => {
         acc.places += c.places ?? 0
 
@@ -35,23 +29,26 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
     )
 
     if (event.classes.length <= 1) {
-      status.places = event.places
+      entryStatus.places = event.places
 
-      status.entries = event.entries ?? status.entries
-      status.members = event.members ?? 0
+      entryStatus.entries = event.entries ?? entryStatus.entries
+      entryStatus.members = event.members ?? 0
     }
-    return status
-  }, [classes, event.classes.length, event.entries, event.members, event.places])
+
+    return { dates, entryStatus }
+  }, [event.classes, event.entries, event.members, event.places, event.startDate, eventClass])
 
   return (
-    <Grid2 container size="auto">
-      <TextGrid size={{ xs: dates.length ? 2 : 6 }}>{eventClass}</TextGrid>
+    <InfoTableContainerGrid>
+      <InfoTableTextGrid size={{ xs: dates.length ? 2 : 6 }}>{eventClass}</InfoTableTextGrid>
       {dates.length ? (
-        <TextGrid size={{ xs: 4 }}>{dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}</TextGrid>
+        <InfoTableTextGrid size={{ xs: 4 }}>
+          {dates.map((date) => t('dateFormat.wdshort', { date })).join(', ')}
+        </InfoTableTextGrid>
       ) : null}
-      <NumberGrid size={{ xs: 2 }}>{entryStatus.entries}</NumberGrid>
-      <NumberGrid size={{ xs: 2 }}>{entryStatus.places}</NumberGrid>
-      <NumberGrid size={{ xs: 2 }}>{entryStatus.members}</NumberGrid>
-    </Grid2>
+      <InfoTableNumberGrid size={{ xs: 2 }}>{entryStatus.entries}</InfoTableNumberGrid>
+      <InfoTableNumberGrid size={{ xs: 2 }}>{entryStatus.places}</InfoTableNumberGrid>
+      <InfoTableNumberGrid size={{ xs: 2 }}>{entryStatus.members}</InfoTableNumberGrid>
+    </InfoTableContainerGrid>
   )
 }

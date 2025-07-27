@@ -29,7 +29,7 @@ export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithCh
         borderColor: 'background.hover',
         py: 1,
         pr: 1,
-        bgcolor: odd ? 'background.oddRow' : 'background.default',
+        bgcolor: odd ? 'background.oddRow' : 'background.evenRow',
         overflow: 'hidden',
         width: '100%',
       }}

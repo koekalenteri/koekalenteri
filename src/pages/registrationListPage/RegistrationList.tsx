@@ -110,9 +110,14 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
       getActions: (params: { row: Registration }) => {
         if (params.row.cancelled) {
           return [
-            <Box key="cancelled" sx={{ color: 'warning.main', textTransform: 'uppercase' }}>
-              {t('event.states.cancelled')}
-            </Box>,
+            <GridActionsCellItem
+              key="cancelled"
+              showInMenu
+              closeMenuOnClick
+              disabled
+              label={t('event.states.cancelled')}
+              sx={{ color: 'warning.main !important', textTransform: 'uppercase', cursor: 'default' }}
+            />,
           ]
         }
         const always = [
