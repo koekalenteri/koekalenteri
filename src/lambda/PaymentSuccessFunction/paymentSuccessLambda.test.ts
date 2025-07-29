@@ -169,6 +169,7 @@ describe('paymentSuccessLambda', () => {
           paidAt: expect.any(String),
           paymentStatus: 'SUCCESS',
           state: 'ready',
+          confirmed: false,
         },
       },
       expect.any(String) // registrationTable
@@ -389,6 +390,7 @@ describe('paymentSuccessLambda', () => {
           paidAt: expect.any(String),
           paymentStatus: 'SUCCESS',
           state: 'ready',
+          confirmed: false,
         },
       },
       expect.any(String) // registrationTable

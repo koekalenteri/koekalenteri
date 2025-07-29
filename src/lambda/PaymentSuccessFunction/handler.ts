@@ -48,7 +48,7 @@ const handleSuccessfulPayment = async (
         paidAt: registration.paidAt,
         paymentStatus: registration.paymentStatus,
         state: registration.state,
-        confirmed: registration.confirmed,
+        confirmed: registration.confirmed ?? false,
       },
     },
     registrationTable
