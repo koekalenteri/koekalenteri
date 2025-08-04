@@ -31,6 +31,7 @@ describe('validRegNo', () => {
     'SE39992/2017',
     'SHSB 742304',
     'S11405/2007',
+    'VDH/DRC-B14-1002',
   ])('should return true for %p', (regNo) => {
     expect(validateRegNo(regNo)).toEqual(true)
   })
