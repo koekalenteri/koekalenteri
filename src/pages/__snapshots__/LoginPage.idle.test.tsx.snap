@@ -4,7 +4,7 @@ exports[`LoginPage should render the login page mock when user is not logged in 
 <div>
   HEADER
   <div
-    class="MuiBox-root css-gedbwv"
+    class="MuiBox-root css-19703gc"
   >
     <p>
       MOCK AUTHENTICATOR

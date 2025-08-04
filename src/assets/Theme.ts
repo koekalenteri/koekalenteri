@@ -81,7 +81,7 @@ const theme = createTheme({
     },
     background: {
       caption: 'transparent',
-      default: '#f0f2f5',
+      default: '#fcfdfd',
       filter: '#e3e8e6',
       filterHeader: '#d5ddda',
       form: '#f2f2f2',
