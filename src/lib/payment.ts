@@ -2,7 +2,7 @@ import type { CustomCost, MinimalEventForCost, MinimalRegistrationForCost, Regis
 
 import { capitalize } from '../lambda/lib/string'
 
-import { additionalCost, getApplicableStrategy, getEarlyBirdEndDate, selectCost } from './cost'
+import { additionalCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
 import { isMember } from './registration'
 
 export const PROVIDER_NAMES: Record<string, string> = {
@@ -71,8 +71,7 @@ export const getRegistrationPaymentDetails = (event: MinimalEventForCost, regist
     total: strategyCost + optional,
     translationOptions: {
       code: registration.dog.breedCode,
-      start: event.entryStartDate,
-      end: getEarlyBirdEndDate(event, cost),
+      ...getEarlyBirdDates(event, cost),
     },
   }
 }

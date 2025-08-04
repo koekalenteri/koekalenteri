@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
-import { getCostValue, getEarlyBirdEndDate } from '../../../../../lib/cost'
+import { getCostValue, getEarlyBirdDates } from '../../../../../lib/cost'
 import { NumberInput } from '../../../../components/NumberInput'
 
 interface CostRowProps {
@@ -61,8 +61,7 @@ export const CostRow = ({
           <span>
             {t(`costNames.${costKey}`, {
               days: (event.cost as DogEventCost)?.earlyBird?.days ?? 0,
-              start: event.entryStartDate,
-              end: getEarlyBirdEndDate(event, event.cost as DogEventCost),
+              ...getEarlyBirdDates(event, event.cost as DogEventCost),
             })}
           </span>
           <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>

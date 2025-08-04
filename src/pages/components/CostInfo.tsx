@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
-import { getCostSegmentName, getCostValue, getEarlyBirdEndDate } from '../../lib/cost'
+import { getCostSegmentName, getCostValue, getEarlyBirdDates } from '../../lib/cost'
 import { keysOf } from '../../lib/typeGuards'
 import { languageAtom } from '../recoil'
 
@@ -60,10 +60,7 @@ export default function CostInfo({ event }: Props) {
         : segment === 'breed' && breedCode
           ? t(getCostSegmentName(segment), { code: breedCode })
           : segment === 'earlyBird'
-            ? t(getCostSegmentName(segment), {
-                start: event.entryStartDate,
-                end: getEarlyBirdEndDate(event, cost),
-              })
+            ? t(getCostSegmentName(segment), getEarlyBirdDates(event, cost))
             : t(getCostSegmentName(segment))
 
     return { name, text }
