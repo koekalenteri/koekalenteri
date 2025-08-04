@@ -29,7 +29,7 @@
     "breed": "Rotu: $t(breed:{{code}})",
     "custom": "Muu maksu",
     "earlyBird": "Early bird {{start, datespan(end: end; parentheses: true)}}",
-    "normal": "Normaali",
+    "normal": "Osallistumismaksu",
     "optionalAdditionalCosts": "Lisäpalvelut"
   },
   "costTotal": "Summa yhteensä",

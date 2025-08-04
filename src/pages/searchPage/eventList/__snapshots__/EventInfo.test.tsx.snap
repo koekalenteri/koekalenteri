@@ -93,17 +93,17 @@ exports[`EventInfo should render contact info 1`] = `
             eeeeee d.M.
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
           >
             22
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
           >
             11
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
           >
             2
           </div>
@@ -170,7 +170,7 @@ exports[`EventInfo should render contact info 1`] = `
         123 €, event.costMember 123 €
         . 
         <span
-          class="MuiTypography-root MuiTypography-caption css-2ymrj5-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
         >
           paymentTimeOptions.registration
         </span>
@@ -309,17 +309,17 @@ exports[`EventInfo should render event information 1`] = `
             eeeeee d.M.
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
           >
             22
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
           >
             11
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
           >
             2
           </div>
@@ -386,7 +386,7 @@ exports[`EventInfo should render event information 1`] = `
         123 €, event.costMember 123 €
         . 
         <span
-          class="MuiTypography-root MuiTypography-caption css-2ymrj5-MuiTypography-root"
+          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
         >
           paymentTimeOptions.registration
         </span>

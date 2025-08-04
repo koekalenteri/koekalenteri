@@ -211,17 +211,17 @@ exports[`EventList should render 1`] = `
                     eeeeee d.M.
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
                   >
                     0
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
                   >
                     10
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+                    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
                   >
                     0
                   </div>
@@ -288,7 +288,7 @@ exports[`EventList should render 1`] = `
                 123 €, event.costMember 123 €
                 . 
                 <span
-                  class="MuiTypography-root MuiTypography-caption css-2ymrj5-MuiTypography-root"
+                  class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                 >
                   paymentTimeOptions.registration
                 </span>

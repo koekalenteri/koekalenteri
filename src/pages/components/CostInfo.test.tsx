@@ -75,7 +75,7 @@ describe('CostInfo', () => {
       })
 
       expect(screen.getByText('costNames.normal')).toBeInTheDocument()
-      expect(screen.getByText('50 / 40 €')).toBeInTheDocument()
+      expect(screen.getByText('50 €, event.costMember 40 €')).toBeInTheDocument()
     })
 
     it('should render earlyBird cost segment', () => {
@@ -203,9 +203,9 @@ describe('CostInfo', () => {
       expect(screen.getByText('costNames.normal')).toBeInTheDocument()
       expect(screen.getByText('Lisämaksu 1')).toBeInTheDocument()
       expect(screen.getByText('Lisämaksu 2')).toBeInTheDocument()
-      expect(screen.getByText('50 / 40 €')).toBeInTheDocument()
-      expect(screen.getByText('10 / 8 €')).toBeInTheDocument()
-      expect(screen.getByText('15 / 12 €')).toBeInTheDocument()
+      expect(screen.getByText('50 €, event.costMember 40 €')).toBeInTheDocument()
+      expect(screen.getByText('10 €, event.costMember 8 €')).toBeInTheDocument()
+      expect(screen.getByText('15 €, event.costMember 12 €')).toBeInTheDocument()
     })
 
     it('should handle optional additional costs with missing member prices', () => {
@@ -225,7 +225,7 @@ describe('CostInfo', () => {
       })
 
       // First optional cost should have member price
-      expect(screen.getByText('10 / 8 €')).toBeInTheDocument()
+      expect(screen.getByText('10 €, event.costMember 8 €')).toBeInTheDocument()
       // Second optional cost should not have member price
       expect(screen.getByText('15 €')).toBeInTheDocument()
     })

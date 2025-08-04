@@ -28,7 +28,7 @@
     "breed": "Breed: $t(breed:{{code}})",
     "custom": "Other",
     "earlyBird": "Early bird {{start, datespan(end: end; parentheses: true)}}",
-    "normal": "Normal",
+    "normal": "Participation fee",
     "optionalAdditionalCosts": "Optional additional costs"
   },
   "costTotal": "Total",

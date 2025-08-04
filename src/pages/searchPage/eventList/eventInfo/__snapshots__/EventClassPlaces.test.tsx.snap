@@ -8,17 +8,17 @@ exports[`EventStateInfo should render with one class 1`] = `
     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 css-mjvau9-MuiGrid2-root"
   />
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     2
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     3
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     1
   </div>
@@ -40,17 +40,17 @@ exports[`EventStateInfo should render with two classes 1`] = `
     eeeeee d.M.
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     2
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     3
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     1
   </div>
@@ -65,17 +65,17 @@ exports[`EventStateInfo should render without classes 1`] = `
     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-6 css-mjvau9-MuiGrid2-root"
   />
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     2
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     3
   </div>
   <div
-    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-1carnal-MuiGrid2-root"
+    class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
   >
     1
   </div>

@@ -5,6 +5,7 @@ const InfoTableNumberGrid = styled(Grid2)(({ theme }) => ({
   ...theme.typography.body2,
   paddingRight: 4,
   textAlign: 'right',
+  whiteSpace: 'nowrap',
 }))
 
 export default InfoTableNumberGrid

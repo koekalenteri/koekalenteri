@@ -26,15 +26,16 @@ export default function CostInfo({ event }: Props) {
   const language = useRecoilValue(languageAtom)
   const { cost, costMember, paymentTime = 'registration' } = event
 
+  const costText = (c: number, cm?: number) =>
+    cm ? `${c}\u00A0€, ${t('event.costMember')} ${cm}\u00A0€` : `${c}\u00A0€`
+
   if (typeof cost === 'number') {
     if (typeof costMember === 'object') return <>invalid cost configuration</>
     return (
       <>
-        {costMember ? `${cost}\u00A0€, ${t('event.costMember')} ${costMember}\u00A0€` : `${cost}\u00A0€`}
+        {costText(cost, costMember)}
         {'. '}
-        <Typography color="info" variant="caption">
-          {t(`paymentTimeOptions.${paymentTime}`)}
-        </Typography>
+        <Typography variant="caption">{t(`paymentTimeOptions.${paymentTime}`)}</Typography>
       </>
     )
   }
@@ -52,7 +53,7 @@ export default function CostInfo({ event }: Props) {
     const value = getCostValue(cost, segment, breedCode)
     if (!value) return null
     const memberValue = costMember && getCostValue(costMember, segment, breedCode)
-    const text = memberValue ? `${value}\u00A0/\u00A0${memberValue}\u00A0€` : `${value}\u00A0€`
+    const text = costText(value, memberValue)
     const name =
       segment === 'custom' && cost.custom?.description
         ? cost.custom.description[language] || cost.custom.description.fi
@@ -85,21 +86,20 @@ export default function CostInfo({ event }: Props) {
     cost.optionalAdditionalCosts?.map((c, index) => {
       const name = c.description[language] || c.description.fi
       const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
-      const text = memberCost ? `${c.cost}\u00A0/\u00A0${memberCost}\u00A0€` : `${c.cost}\u00A0€`
+      const text = costText(c.cost, memberCost)
       return { name, text }
     }) ?? []
 
   // Note: using <Fragment key= below to suppress errors. The fragment is not rendered however, so the components inside need unique keys.
   return (
     <>
-      <CostInfoTableCaption text="Osallistumismaksut" />
       <InfoTableContainerGrid>
         {costSegments.map((segment, index) => (
           <Fragment key={segment.name}>
-            <InfoTableTextGrid key={segment.name + index + '-name'} size={{ xs: 9 }}>
+            <InfoTableTextGrid key={segment.name + index + '-name'} size={{ xs: 7 }}>
               {segment.name}
             </InfoTableTextGrid>
-            <InfoTableNumberGrid key={segment.name + index + '-text'} size={{ xs: 3 }}>
+            <InfoTableNumberGrid key={segment.name + index + '-text'} size={{ xs: 5 }}>
               {segment.text}
             </InfoTableNumberGrid>
           </Fragment>
@@ -107,14 +107,14 @@ export default function CostInfo({ event }: Props) {
       </InfoTableContainerGrid>
       {optionalCosts.length ? (
         <>
-          <CostInfoTableCaption text="Lisäpalvelut" />
+          <CostInfoTableCaption text={t('costNames.optionalAdditionalCosts')} />
           <InfoTableContainerGrid key="optional-costs">
             {optionalCosts.map((c, index) => (
               <Fragment key={c.name}>
-                <InfoTableTextGrid key={c.name + index + '-name'} size={{ xs: 9 }}>
+                <InfoTableTextGrid key={c.name + index + '-name'} size={{ xs: 7 }}>
                   {c.name}
                 </InfoTableTextGrid>
-                <InfoTableNumberGrid key={c.name + index + '-text'} size={{ xs: 3 }}>
+                <InfoTableNumberGrid key={c.name + index + '-text'} size={{ xs: 5 }}>
                   {c.text}
                 </InfoTableNumberGrid>
               </Fragment>
@@ -122,7 +122,7 @@ export default function CostInfo({ event }: Props) {
           </InfoTableContainerGrid>
         </>
       ) : null}
-      <Typography variant="caption" color="info" component="div" sx={{ width: '100%', px: 1.5 }} textAlign="right">
+      <Typography variant="caption" component="div" sx={{ width: '100%', px: 1.5, mt: 1 }} textAlign="right">
         {t(`paymentTimeOptions.${paymentTime}`)}
       </Typography>
     </>
