@@ -382,7 +382,7 @@
     "ownerIsMember": "Omistaja on järjestävän yhdistyksen jäsen",
     "ownerPays": "Omistaja maksaa",
     "paid": "Maksettu",
-    "paidAndConfirmed": "Osallistumismaksu maksettu ja osallistuminend vahvistettu.\nKuitti on lähetetty sähköpostiosoitteeseen:\n{{to}}",
+    "paidAndConfirmed": "Osallistumismaksu maksettu ja osallistuminen vahvistettu.\nKuitti on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "payer": "Maksajan tiedot",
     "payment": "Maksutiedot",
     "paymentDialog": {
