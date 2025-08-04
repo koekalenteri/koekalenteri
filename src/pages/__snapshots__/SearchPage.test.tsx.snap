@@ -23,7 +23,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-2qsqw0-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
               data-testid="TuneOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -628,7 +628,7 @@ exports[`SearchPage filters by date 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-2qsqw0-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
               data-testid="TuneOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -2598,7 +2598,7 @@ exports[`SearchPage filters by date/end 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-2qsqw0-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
               data-testid="TuneOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -4568,7 +4568,7 @@ exports[`SearchPage filters by event class 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-2qsqw0-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
               data-testid="TuneOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -6988,7 +6988,7 @@ exports[`SearchPage filters by event type 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-2qsqw0-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
               data-testid="TuneOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"
@@ -9400,7 +9400,7 @@ exports[`SearchPage filters by organizer 1`] = `
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-2qsqw0-MuiSvgIcon-root"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
               data-testid="TuneOutlinedIcon"
               focusable="false"
               viewBox="0 0 24 24"

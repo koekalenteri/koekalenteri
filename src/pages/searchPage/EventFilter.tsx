@@ -128,7 +128,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             '& .MuiAccordionSummary-content.Mui-expanded': { margin: 0 },
           }}
         >
-          <TuneOutlinedIcon fontSize="small" sx={{ p: 0.25 }} />
+          <TuneOutlinedIcon fontSize="small" />
           <Typography variant="caption" noWrap textOverflow="ellipsis" sx={{ pl: 0.5 }}>
             {filterText}
           </Typography>
