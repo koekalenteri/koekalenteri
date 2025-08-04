@@ -145,7 +145,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   // Update organizer event stats after registration change
   await updateEventStatsForRegistration(data, existing, confirmedEvent)
 
-  if (cancel) {
+  if (cancel || registration.state === 'ready') {
     await updateRegistrations(registration.eventId)
   }
 
