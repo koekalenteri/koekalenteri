@@ -19,7 +19,9 @@ export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
   cost: Pick<DogEventCost, 'earlyBird'>
 ) =>
-  cost.earlyBird && event.entryStartDate ? addDays(new Date(event.entryStartDate), cost.earlyBird.days - 1) : undefined
+  cost.earlyBird && event.entryStartDate
+    ? addDays(new Date(event.entryStartDate), Math.max(0, cost.earlyBird.days - 1))
+    : undefined
 
 /** Helper object that can be "auto-fixed" to contain all the keys */
 const EVENT_COST_MODEL: { [K in DogEventCostKey]: K } = {
