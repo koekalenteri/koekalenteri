@@ -269,7 +269,7 @@ describe('putRegistrationGroupsLambda', () => {
     // stored registrations before update
     const storedItems = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({
       ...r,
-      reserveNotified: r.group?.key === 'reserve' ? true : undefined,
+      reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
     }))
     mockDynamoDB.query.mockResolvedValueOnce(storedItems)
 
@@ -310,7 +310,7 @@ describe('putRegistrationGroupsLambda', () => {
     // stored registrations before update
     const storedItems = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
-      reserveNotified: r.group?.key === 'reserve' ? true : undefined,
+      reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
     }))
     mockDynamoDB.query.mockResolvedValueOnce(storedItems)
 
@@ -319,11 +319,11 @@ describe('putRegistrationGroupsLambda', () => {
 
     const updated = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
+      reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
       group:
         r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
           ? { date: eventWithParticipantsInvited.startDate.toISOString(), time: 'ap', number: 2, key: 'ALO-AP' }
           : r.group,
-      reserveNotified: r.group?.key === 'reserve' ? true : undefined,
     }))
 
     const res = await putRegistrationGroupsLambda(

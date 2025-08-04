@@ -199,7 +199,7 @@ describe('putRegistrationLabmda', () => {
       ...registrationWithStaticDates,
       group: { key: GROUP_KEY_RESERVE, number: 2 },
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: true }))
+    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: 2 }))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
@@ -265,7 +265,7 @@ describe('putRegistrationLabmda', () => {
       ...registrationWithStaticDates,
       group: { key: GROUP_KEY_RESERVE, number: 2 },
     }
-    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: false }))
+    const existingJson: JsonRegistration = JSON.parse(JSON.stringify({ ...registration, reserveNotified: undefined }))
 
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)

@@ -56,7 +56,14 @@ export const setReserveNotified = async (registrations: JsonRegistration[]) =>
   Promise.all(
     registrations
       .filter((r) => !r.reserveNotified)
-      .map(({ eventId, id }) => updateRegistrationField(eventId, id, 'reserveNotified', true))
+      .map(({ eventId, id, group }) => updateRegistrationField(eventId, id, 'reserveNotified', group?.number ?? 999))
+  )
+
+export const updateReserveNotified = async (registrations: JsonRegistration[]) =>
+  Promise.all(
+    registrations
+      .filter((r) => r.group?.number && r.reserveNotified !== r.group.number)
+      .map(({ eventId, id, group }) => updateRegistrationField(eventId, id, 'reserveNotified', group?.number ?? 999))
   )
 
 // exported for testing

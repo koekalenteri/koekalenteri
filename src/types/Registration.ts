@@ -52,7 +52,7 @@ export interface JsonRegistration extends JsonDbRecord {
   refundAt?: string
   refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''
-  reserveNotified?: boolean
+  reserveNotified?: number | true // true is only found in old records
   results?: Array<JsonTestResult & { id: string }>
   state?: 'creating' | 'ready'
   totalAmount?: number

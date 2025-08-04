@@ -8,7 +8,12 @@ import { authorize } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda, response } from '../lib/lambda'
-import { getCancelAuditMessage, isParticipantGroup, sendTemplatedEmailToEventRegistrations } from '../lib/registration'
+import {
+  getCancelAuditMessage,
+  isParticipantGroup,
+  sendTemplatedEmailToEventRegistrations,
+  updateReserveNotified,
+} from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { registrationTable } = CONFIG
@@ -148,22 +153,22 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       : { ok: [], failed: [] }
 
     /**
-     * Registrations in reserve group that moved up, receive updated 'reserve' email
+     * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email
      */
     const movedReserve = updatedItems.filter(
       (reg) =>
         classEquals(reg.class, cls) &&
         getRegistrationGroupKey(reg) === GROUP_KEY_RESERVE &&
         reg.reserveNotified &&
-        oldResCan.find(
-          (old) =>
-            old.id === reg.id &&
-            getRegistrationGroupKey(old) === GROUP_KEY_RESERVE &&
-            (old.group?.number ?? 999) > (reg.group?.number ?? 999)
-        )
+        (reg.reserveNotified === true
+          ? oldResCan.find(
+              (old) =>
+                old.id === reg.id &&
+                getRegistrationGroupKey(old) === GROUP_KEY_RESERVE &&
+                (old.group?.number ?? 999) > (reg.group?.number ?? 999)
+            )
+          : reg.reserveNotified > (reg.group?.number ?? 999))
     )
-
-    console.log({ movedReserve: movedReserve.map(regString) })
 
     const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
       GROUP_KEY_RESERVE,
@@ -174,6 +179,8 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user.name,
       ''
     )
+
+    await updateReserveNotified(movedReserve)
 
     Object.assign(emails, {
       invitedOk,
