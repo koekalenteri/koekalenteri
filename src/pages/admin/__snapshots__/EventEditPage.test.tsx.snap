@@ -2220,24 +2220,36 @@ exports[`EventEditPage renders properly 1`] = `
                               class="MuiTableRow-root MuiTableRow-head css-1fzcg66-MuiTableRow-root"
                             >
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-g6bqb5-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-imxzp1-MuiTableCell-root"
                                 scope="col"
                               >
-                                cost
+                                <h6
+                                  class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
+                                >
+                                  cost
+                                </h6>
                               </th>
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
                                 scope="col"
                                 width="100"
                               >
-                                costAmount
+                                <h6
+                                  class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
+                                >
+                                  costAmount
+                                </h6>
                               </th>
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
                                 scope="col"
-                                width="130"
+                                width="140"
                               >
-                                costMemberAmount
+                                <h6
+                                  class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
+                                >
+                                  costMemberAmount
+                                </h6>
                               </th>
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-g6bqb5-MuiTableCell-root"
@@ -2402,24 +2414,36 @@ exports[`EventEditPage renders properly 1`] = `
                               class="MuiTableRow-root MuiTableRow-head css-1fzcg66-MuiTableRow-root"
                             >
                               <th
-                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-g6bqb5-MuiTableCell-root"
+                                class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-imxzp1-MuiTableCell-root"
                                 scope="col"
                               >
-                                costNames.optionalAdditionalCosts
+                                <h6
+                                  class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
+                                >
+                                  costNames.optionalAdditionalCosts
+                                </h6>
                               </th>
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
                                 scope="col"
                                 width="100"
                               >
-                                costAmount
+                                <h6
+                                  class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
+                                >
+                                  costAmount
+                                </h6>
                               </th>
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-alignRight MuiTableCell-sizeSmall css-1ais0ar-MuiTableCell-root"
                                 scope="col"
-                                width="130"
+                                width="140"
                               >
-                                costMemberAmount
+                                <h6
+                                  class="MuiTypography-root MuiTypography-subtitle1 css-1i3tsf3-MuiTypography-root"
+                                >
+                                  costMemberAmount
+                                </h6>
                               </th>
                               <th
                                 class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeSmall css-g6bqb5-MuiTableCell-root"

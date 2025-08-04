@@ -19,6 +19,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 
 import { DOG_EVENT_COST_KEYS, setCostValue } from '../../../../lib/cost'
 import { keysOf } from '../../../../lib/typeGuards'
@@ -331,12 +332,14 @@ export default function PaymentSection({
             <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>{t('cost')}</TableCell>
-                  <TableCell align="right" width={100}>
-                    {t('costAmount')}
+                  <TableCell sx={{ pl: 1 }}>
+                    <Typography variant="subtitle1">{t('cost')}</Typography>
                   </TableCell>
-                  <TableCell align="right" width={130}>
-                    {t('costMemberAmount')}
+                  <TableCell align="right" width={100}>
+                    <Typography variant="subtitle1">{t('costAmount')}</Typography>
+                  </TableCell>
+                  <TableCell align="right" width={140}>
+                    <Typography variant="subtitle1">{t('costMemberAmount')}</Typography>
                   </TableCell>
                   <TableCell width={40}></TableCell>
                 </TableRow>
@@ -388,12 +391,14 @@ export default function PaymentSection({
             <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>{t('costNames.optionalAdditionalCosts')}</TableCell>
-                  <TableCell align="right" width={100}>
-                    {t('costAmount')}
+                  <TableCell sx={{ pl: 1 }}>
+                    <Typography variant="subtitle1">{t('costNames.optionalAdditionalCosts')}</Typography>
                   </TableCell>
-                  <TableCell align="right" width={130}>
-                    {t('costMemberAmount')}
+                  <TableCell align="right" width={100}>
+                    <Typography variant="subtitle1">{t('costAmount')}</Typography>
+                  </TableCell>
+                  <TableCell align="right" width={140}>
+                    <Typography variant="subtitle1">{t('costMemberAmount')}</Typography>
                   </TableCell>
                   <TableCell width={40}></TableCell>
                 </TableRow>
