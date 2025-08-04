@@ -58,53 +58,64 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
   const breedCode = registration.dog?.breedCode
 
   return (
-    <CollapsibleSection
-      title={t('registration.payment')}
-      open={open}
-      error={!open}
-      helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
-    >
-      <RadioGroup value={cost.segment} onChange={handleCostChange}>
-        {segments.map((segment) => {
-          const value = getCostValue(appliedCost, segment, breedCode)
-          if (!value) return null
-          const strategy = getStragegyBySegment(segment)
-          return (
-            <FormControlLabel
-              key={segment}
-              value={segment}
-              disabled={disabled || !strategy?.isApplicable(appliedCost, registration, event)}
-              control={<Radio />}
-              label={`${t(getCostSegmentName(segment), {
-                code: breedCode,
-                ...getEarlyBirdDates(event, appliedCost),
-              })} (${formatMoney(value)})`}
-            />
-          )
-        })}
-        {appliedCost.custom && (
-          <FormControlLabel
-            value="custom"
-            disabled={disabled || !appliedCost.custom}
-            control={<Radio />}
-            label={`${appliedCost.custom.description[registration.language ?? 'fi']} (${formatMoney(appliedCost.custom.cost)})`}
-          />
-        )}
-      </RadioGroup>
-      {cost.cost?.optionalAdditionalCosts?.map((c, index) => (
-        <Box key={index}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={registration.optionalCosts?.includes(index)}
-                onChange={(e) => handleOptionalCostChange(e.target.checked, index)}
+    <>
+      <CollapsibleSection
+        title={t('cost')}
+        open={open}
+        error={!open}
+        helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
+      >
+        <RadioGroup value={cost.segment} onChange={handleCostChange}>
+          {segments.map((segment) => {
+            const value = getCostValue(appliedCost, segment, breedCode)
+            if (!value) return null
+            const strategy = getStragegyBySegment(segment)
+            return (
+              <FormControlLabel
+                key={segment}
+                value={segment}
+                disabled={disabled || !strategy?.isApplicable(appliedCost, registration, event)}
+                control={<Radio />}
+                label={`${t(getCostSegmentName(segment), {
+                  code: breedCode,
+                  ...getEarlyBirdDates(event, appliedCost),
+                })} (${formatMoney(value)})`}
               />
-            }
-            label={`${c.description.fi} (${formatMoney(c.cost)})`}
-          />
-        </Box>
-      ))}
-    </CollapsibleSection>
+            )
+          })}
+          {appliedCost.custom && (
+            <FormControlLabel
+              value="custom"
+              disabled={disabled || !appliedCost.custom}
+              control={<Radio />}
+              label={`${appliedCost.custom.description[registration.language ?? 'fi']} (${formatMoney(appliedCost.custom.cost)})`}
+            />
+          )}
+        </RadioGroup>
+      </CollapsibleSection>
+      {cost.cost?.optionalAdditionalCosts?.length ? (
+        <CollapsibleSection
+          title={t('costNames.optionalAdditionalCosts')}
+          open={open}
+          error={!open}
+          helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
+        >
+          {cost.cost?.optionalAdditionalCosts?.map((c, index) => (
+            <Box key={index}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={registration.optionalCosts?.includes(index)}
+                    onChange={(e) => handleOptionalCostChange(e.target.checked, index)}
+                  />
+                }
+                label={`${c.description.fi} (${formatMoney(c.cost)})`}
+              />
+            </Box>
+          ))}
+        </CollapsibleSection>
+      ) : null}
+    </>
   )
 }
 
