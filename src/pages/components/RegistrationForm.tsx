@@ -95,6 +95,9 @@ export default function RegistrationForm({
     return t('registration.cta.confirmAndPay')
   }, [admin, registration.id, event.paymentTime, t])
 
+  const disabledForUserAfterPaid = !admin && !!registration.paidAt
+  const disabledForUserAfterPicked = !admin && !!registration.messagesSent?.picked
+
   const requirements = useMemo(
     () =>
       getRequirements(
@@ -246,7 +249,7 @@ export default function RegistrationForm({
           classDate={classDate}
           classDisabled={classDisabled}
           className={className}
-          disabled={disabled}
+          disabled={disabled || disabledForUserAfterPicked}
           errorStates={errorStates}
           helperTexts={helperTexts}
           onChange={handleChange}
@@ -257,7 +260,7 @@ export default function RegistrationForm({
           reg={registration}
           eventDate={event.startDate}
           minDogAgeMonths={9}
-          disabled={disabled}
+          disabled={disabled || disabledForUserAfterPaid}
           error={errorStates.dog}
           helperText={helperTexts.dog}
           onChange={handleChange}
@@ -267,7 +270,7 @@ export default function RegistrationForm({
         />
         <BreederInfo
           reg={registration}
-          disabled={disabled}
+          disabled={disabled || disabledForUserAfterPicked}
           error={errorStates.breeder}
           helperText={helperTexts.breeder}
           onChange={handleChange}
@@ -277,7 +280,7 @@ export default function RegistrationForm({
         <OwnerInfo
           admin={admin}
           reg={registration}
-          disabled={disabled}
+          disabled={disabled || disabledForUserAfterPicked}
           error={errorStates.owner}
           helperText={helperTexts.owner}
           onChange={handleChange}
@@ -289,7 +292,7 @@ export default function RegistrationForm({
           <HandlerInfo
             admin={admin}
             reg={registration}
-            disabled={disabled}
+            disabled={disabled || disabledForUserAfterPicked}
             error={errorStates.handler}
             helperText={helperTexts.handler}
             onChange={handleChange}
@@ -313,7 +316,7 @@ export default function RegistrationForm({
           eventType={event.eventType}
           regNo={registration.dog?.regNo}
           dob={registration.dog?.dob}
-          disabled={disabled}
+          disabled={disabled || disabledForUserAfterPicked}
           rankingPeriod={rankingPeriod}
           requirements={requirements}
           results={registration.results}
@@ -331,18 +334,23 @@ export default function RegistrationForm({
           onOpenChange={(value) => handleOpenChange('info', value)}
           open={open.info}
         />
-        <MembershipInfo reg={registration} orgId={event.organizer.id} onChange={handleChange} />
+        <MembershipInfo
+          disabled={disabled || disabledForUserAfterPaid}
+          reg={registration}
+          orgId={event.organizer.id}
+          onChange={handleChange}
+        />
         <PaymentInfo
           event={event}
           registration={registration}
           cost={costResult}
-          disabled={disabled}
+          disabled={disabled || disabledForUserAfterPaid}
           onChange={handleChange}
         />
         <Box sx={{ p: 1, pl: 4, borderTop: '1px solid #bdbdbd' }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
-              disabled={disabled}
+              disabled={disabled || disabledForUserAfterPaid}
               control={
                 <Checkbox
                   checked={registration.agreeToTerms}

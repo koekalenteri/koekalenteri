@@ -109,6 +109,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                     onChange={(e) => handleOptionalCostChange(e.target.checked, index)}
                   />
                 }
+                disabled={disabled}
                 label={`${c.description.fi} (${formatMoney(c.cost)})`}
               />
             </Box>
