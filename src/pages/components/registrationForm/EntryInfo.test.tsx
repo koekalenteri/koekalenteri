@@ -101,6 +101,21 @@ describe('EntryInfo', () => {
     )
   })
 
+  it('should clear class when event does not have classes', async () => {
+    const reg = merge(registrationWithStaticDatesAndClass, {})
+    const changeHandler = jest.fn()
+
+    render(
+      <EntryInfo reg={reg} event={eventWithStaticDates} errorStates={{}} helperTexts={{}} onChange={changeHandler} />,
+      {
+        wrapper: Wrapper,
+      }
+    )
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: undefined }))
+  })
+
   it('should allow changing reserve option', async () => {
     const reg = merge(registrationWithStaticDates, {})
     const changeHandler = jest.fn((props) => Object.assign(reg, props))

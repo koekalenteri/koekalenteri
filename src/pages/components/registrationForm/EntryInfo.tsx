@@ -144,7 +144,7 @@ export function EntryInfo({
   }, [dates, filterDates, showDatesFilter])
 
   // Handle class changes
-  const updateClassIfNeeded = useCallback((): RegistrationClass | undefined => {
+  const updateClassIfNeeded = useCallback((): RegistrationClass | undefined | null => {
     // Case 1: Override with provided className
     if (className && reg.class !== className) {
       return isRegistrationClass(className) ? className : undefined
@@ -161,7 +161,7 @@ export function EntryInfo({
     }
 
     // No change needed
-    return undefined
+    return null
   }, [className, reg.class, classes])
 
   // Helper to get valid dates based on class
@@ -208,7 +208,7 @@ export function EntryInfo({
 
     // Handle class changes
     const newClass = updateClassIfNeeded()
-    if (newClass !== undefined) {
+    if (newClass !== null) {
       changes.class = newClass
     }
 
@@ -242,7 +242,7 @@ export function EntryInfo({
     if (Object.keys(changes).length) {
       onChange?.(changes)
     }
-  }, [getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded])
+  }, [getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded, event.id])
 
   // Event handlers
   const handleClassChange = useCallback((value: RegistrationClass) => setSelectedClass(value), [setSelectedClass])
