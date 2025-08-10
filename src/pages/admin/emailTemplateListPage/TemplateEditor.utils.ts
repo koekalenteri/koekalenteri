@@ -26,7 +26,7 @@ type EachScope = {
 /** Very light parser: build a stack of #each scopes up to `pos` */
 function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
   const scopes: EachScope[] = [{ base: root }]
-  const tagRe = /{{{?([^}]*)}}}?/g
+  const tagRe = /{{{?([^{}]*)}}}?/g
   let m: RegExpExecArray | null
   while ((m = tagRe.exec(doc))) {
     const start = m.index
@@ -46,7 +46,7 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
     // Extract path and optional block params:  #each path  or  #each path as |item idx|
     const rest = eachOpen[1]
     // split before "as |...|"
-    const asMatch = /\bas\s*\|\s*([^|]+)\s*\|/.exec(rest)
+    const asMatch = /\bas\s*\|\s*([^|]{0,200})\s*\|/u.exec(rest)
     const beforeAs = asMatch ? rest.slice(0, asMatch.index).trim() : rest.trim()
 
     // path parts (respect ../ segments)

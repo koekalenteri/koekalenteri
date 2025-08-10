@@ -6,7 +6,7 @@ import { elemOf, isObj, resolveForCompletion, resolveScopeBaseForPath } from './
 
 const HELPERS = new Set(['if', 'unless', 'each', 'else'])
 
-const mustacheRe = /{{{?([\s\S]*?)}}}?/g // naive but effective for linting
+const mustacheRe = /{{{?([^{}]*?)}}}?/g // naive but effective for linting
 const identPathRe = /\b[A-Za-z_@][\w$]*(?:\.[A-Za-z_][\w$]*)*\b/g
 
 export const getLintSource =

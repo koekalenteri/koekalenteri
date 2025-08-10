@@ -17,8 +17,8 @@ export const getAutocomplete = (schema: object) => (ctx: CompletionContext) => {
 
   // Text typed inside the current mustache
   const typed = ctx.state.sliceDoc(start, ctx.pos)
-  // Capture the identifier path up to the cursor (including dots), e.g. "reg.", "reg.d", "", etc.
-  const m = /[{#/\s]*([A-Za-z0-9_.$]*)$/.exec(typed)
+  // Capture the trailing identifier path (letters/digits/_/.$) up to the cursor.
+  const m = /([A-Za-z0-9_.$]*)$/.exec(typed)
   const id = m ? m[1] : ''
 
   // If it ends with a dot, we’re completing children of that path
