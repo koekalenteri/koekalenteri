@@ -26,7 +26,10 @@ import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
 
 export default function EventFormPlaces({ event, disabled, helperTexts, onChange }: Readonly<SectionProps>) {
   const hasClasses = event.classes.length > 0
-  const [totalEnabled, setTotalEnabled] = useState(!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)
+  const classPlaces = event.classes.reduce((total, c) => total + (c.places ?? 0), 0)
+  const [totalEnabled, setTotalEnabled] = useState(
+    (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0) && classPlaces === 0
+  )
 
   const handleChange = (c: DeepPartial<EventClass>, value?: number) => {
     const newClasses = event.classes.map((ec) => structuredClone(ec))
@@ -69,7 +72,6 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
     [event.places, event.placesPerDay, onChange]
   )
 
-  // Combined handler for "Eriteltynä" checkbox
   const handleDetailedChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       setTotalEnabled(!checked)

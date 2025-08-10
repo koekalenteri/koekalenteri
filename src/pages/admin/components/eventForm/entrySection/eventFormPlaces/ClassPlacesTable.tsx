@@ -51,7 +51,7 @@ export default function ClassPlacesTable({
                   {cls ? (
                     <NumberInput
                       disabled={disabled || !classesEnabled}
-                      value={cls.places}
+                      value={cls.places || undefined}
                       onChange={(value) => handleChange(cls, value)}
                     />
                   ) : (

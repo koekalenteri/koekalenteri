@@ -96,6 +96,17 @@ describe('EventFormPlaces', () => {
       expect(class2).toBeEnabled()
       expect(total).toBeDisabled()
     })
+
+    it('should be disabled when classes have places but no classesPerDay', () => {
+      const event: PartialEvent = {
+        ...eventWithStaticDatesAndClass,
+        classes: [{ date: new Date('2021-02-10'), places: 10, class: 'ALO' }],
+      }
+      render(<EventFormPlaces event={event} />)
+      const inputs: HTMLInputElement[] = screen.getAllByRole('textbox')
+      const [_class1, total] = inputs
+      expect(total).toBeDisabled()
+    })
   })
 
   describe('without classes', () => {
