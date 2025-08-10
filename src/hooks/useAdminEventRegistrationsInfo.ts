@@ -1,4 +1,4 @@
-import type { DogEvent, EventState, Registration } from '../types'
+import type { ConfirmedEvent, EventState, Registration } from '../types'
 
 import { useMemo } from 'react'
 
@@ -14,7 +14,10 @@ interface EventClassInfoNumbers {
   invalid: boolean
 }
 
-export default function useAdminEventRegistrationInfo(event: DogEvent | undefined, registrations: Registration[]) {
+export default function useAdminEventRegistrationInfo(
+  event: ConfirmedEvent | undefined | null,
+  registrations: Registration[]
+) {
   const dates = useMemo(() => eventDates(event), [event])
 
   const registrationClasses = unique(registrations.map((r) => r.class ?? r.eventType))

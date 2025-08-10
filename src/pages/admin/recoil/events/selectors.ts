@@ -1,9 +1,10 @@
-import type { DogEvent } from '../../../../types'
+import type { ConfirmedEvent, DogEvent } from '../../../../types'
 
 import { isPast } from 'date-fns'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
 
+import { isConfirmedEvent } from '../../../../lib/typeGuards'
 import { uniqueFn } from '../../../../lib/utils'
 
 import {
@@ -37,6 +38,16 @@ export const adminEventSelector = selectorFamily<DogEvent, string | undefined>({
       const insert = index === -1
       newEvents.splice(insert ? newEvents.length : index, insert ? 0 : 1, value)
       set(adminEventsAtom, newEvents)
+    },
+})
+
+export const adminConfirmedEventSelector = selectorFamily<ConfirmedEvent | null, string | undefined>({
+  key: 'adminConfirmedEventSelector',
+  get:
+    (eventId) =>
+    ({ get }) => {
+      const event = get(adminEventSelector(eventId))
+      return isConfirmedEvent(event) ? event : null
     },
 })
 

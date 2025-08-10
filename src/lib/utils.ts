@@ -48,18 +48,18 @@ export const isEventOngoing = ({ startDate, endDate, state }: EventVitals, now =
 
 export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!endDate && zonedEndOfDay(endDate) < now
 
-export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'>) => {
+export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'> | null) => {
   if (!event) return []
   return event.classes.length
     ? uniqueDate(event.classes.map((c) => c.date ?? event.startDate))
     : eachDayOfInterval({ start: event.startDate, end: event.endDate })
 }
 
-export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'>) =>
+export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'> | null) =>
   unique((event?.classes ?? []).map((c) => c.class))
 
 export const placesForClass = (
-  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes'>> | undefined,
+  event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes'>> | undefined | null,
   cls: string
 ) => {
   if (!event) {

@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import type {
-  DogEvent,
+  ConfirmedEvent,
   JsonConfirmedEvent,
   JsonPublicDogEvent,
   JsonRegistration,
@@ -11,6 +11,7 @@ import type {
   RegistrationTemplateContext,
 } from '../types'
 
+import { getSelectedAdditionalCosts } from './cost'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
@@ -145,7 +146,7 @@ export const canRefund = <T extends JsonRegistration | Registration>(
 
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
-  confirmedEvent: JsonConfirmedEvent | DogEvent,
+  confirmedEvent: JsonConfirmedEvent | ConfirmedEvent,
   origin: string | undefined,
   context: RegistrationTemplateContext,
   text: string | undefined,
@@ -177,6 +178,11 @@ export const getRegistrationEmailTemplateData = (
     ? t(`registration.cancelReason.${registration.cancelReason}`)
     : (registration.cancelReason ?? '')
 
+  const selectedAdditionalCosts = getSelectedAdditionalCosts(confirmedEvent, registration)
+  const selectedServices = selectedAdditionalCosts
+    .map((c) => c.description[registration.language] ?? c.description.fi)
+    .join(', ')
+
   return {
     cancelReason,
     delayedPayment,
@@ -194,6 +200,7 @@ export const getRegistrationEmailTemplateData = (
     reg: registration,
     regDates,
     reserveText,
+    selectedServices,
     subject: t('registration.email.subject', { context, defaultValue: '' }),
     text,
     title: t('registration.email.title', { context, defaultValue: '' }),

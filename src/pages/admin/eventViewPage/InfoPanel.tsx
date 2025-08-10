@@ -1,5 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
-import type { DogEvent, EmailTemplateId, Registration } from '../../../types'
+import type { ConfirmedEvent, EmailTemplateId, Registration } from '../../../types'
 
 import { useCallback, useState } from 'react'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
@@ -31,7 +31,7 @@ import { idTokenAtom } from '../../recoil'
 import { adminEventSelector } from '../recoil'
 
 interface Props {
-  readonly event: DogEvent
+  readonly event: ConfirmedEvent
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }

@@ -1,4 +1,4 @@
-import type { DogEvent, Registration, RegistrationTemplateContext } from '../types'
+import type { ConfirmedEvent, Registration, RegistrationTemplateContext } from '../types'
 
 import { useTranslation } from 'react-i18next'
 
@@ -6,7 +6,7 @@ import { getRegistrationEmailTemplateData } from '../lib/registration'
 
 export const useRegistrationEmailTemplateData = (
   registration: Registration,
-  event: DogEvent,
+  event: ConfirmedEvent,
   context: RegistrationTemplateContext,
   text: string
 ) => {

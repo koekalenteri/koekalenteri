@@ -1,4 +1,4 @@
-import type { DogEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
+import type { ConfirmedEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -42,7 +42,7 @@ interface Props {
   readonly registrations: Registration[]
   readonly templateId?: EmailTemplateId
   readonly open: boolean
-  readonly event: DogEvent
+  readonly event: ConfirmedEvent
   readonly onClose?: () => void
 }
 

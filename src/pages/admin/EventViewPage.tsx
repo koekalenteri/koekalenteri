@@ -38,9 +38,9 @@ import Title from './eventViewPage/Title'
 import { useAdminRegistrationActions } from './recoil/registrations/actions'
 import {
   adminBackgroundActionsRunningAtom,
+  adminConfirmedEventSelector,
   adminEventClassAtom,
   adminEventRegistrationsSelector,
-  adminEventSelector,
   adminRegistrationIdAtom,
 } from './recoil'
 
@@ -55,7 +55,7 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
-  const event = useRecoilValue(adminEventSelector(eventId))
+  const event = useRecoilValue(adminConfirmedEventSelector(eventId))
   const actions = useAdminRegistrationActions(eventId)
 
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)

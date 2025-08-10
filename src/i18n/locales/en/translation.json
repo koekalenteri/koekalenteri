@@ -44,7 +44,6 @@
     "dtshort": "{{ date, dtshort }}",
     "isodate": "{{ date, isodate }}",
     "long": "{{ date, long }}",
-    "optionalAdditionalCosts": "Optional additional costs",
     "short": "{{ date, short }}",
     "wdshort": "{{ date, wdshort }}",
     "weekday": "{{ date, weekday }}"

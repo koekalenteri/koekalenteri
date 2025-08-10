@@ -14,6 +14,7 @@ import type { MinimalRegistrationForMembership } from './registration'
 import { addDays } from 'date-fns'
 
 import { isMember } from './registration'
+import { isDefined } from './typeGuards'
 
 export const getEarlyBirdEndDate = (
   event: Partial<Pick<PublicConfirmedEvent, 'entryStartDate'> | Pick<JsonPublicConfirmedEvent, 'entryStartDate'>>,
@@ -196,4 +197,15 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
   const amount = strategy.getValue(cost, registration.dog.breedCode) + additionalCost(registration, cost)
 
   return { amount, segment, cost }
+}
+
+export const getSelectedAdditionalCosts = (
+  event: MinimalEventForCost,
+  registration: MinimalRegistrationForCost
+): CustomCost[] => {
+  const cost = event.cost
+
+  if (typeof cost === 'number') return []
+
+  return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
 }
