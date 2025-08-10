@@ -1,37 +1,73 @@
-import type { ChangeEvent } from 'react'
-import type { EmailTemplate, Language } from '../../../types'
+import type { EmailTemplate, EmailTemplateId, Language } from '../../../types'
 
+import { useMemo } from 'react'
+import { autocompletion } from '@codemirror/autocomplete'
+import { linter, lintGutter } from '@codemirror/lint'
+import { EditorView } from '@codemirror/view'
 import Paper from '@mui/material/Paper'
-import Stack from '@mui/material/Stack'
+import CodeMirror from '@uiw/react-codemirror'
+import { handlebarsLanguage } from '@xiechao/codemirror-lang-handlebars'
+
+import { getAutocomplete } from './TemplateEditor.ac'
+import { getLintSource } from './TemplateEditor.lint'
+import { defaultSchema, templateSchema } from './TemplateEditor.schema'
 
 interface Props {
+  readonly templateId?: EmailTemplateId
   readonly template: EmailTemplate
   readonly language: Language
   readonly hidden?: boolean
   readonly onChange?: (template: EmailTemplate) => void
 }
-export function TemplateEditor({ template, language, hidden, onChange }: Props) {
-  const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) =>
-    onChange?.({ ...template, [language]: event.target.value })
+
+const theme = EditorView.theme({
+  '&': {
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+    fontSize: '10px',
+    height: '100%',
+    width: '100%',
+    border: '1px solid #ccc',
+  },
+})
+
+export function TemplateEditor({ templateId, template, language, hidden, onChange }: Props) {
+  const handleChange = (value: string) => onChange?.({ ...template, [language]: value })
+
+  const extensions = useMemo(() => {
+    const schema = (templateId && templateSchema[templateId]) ?? defaultSchema
+
+    return [
+      handlebarsLanguage,
+      handlebarsLanguage.data.of({
+        autocomplete: getAutocomplete(schema),
+      }),
+      autocompletion({ activateOnTyping: true }),
+      linter(getLintSource(schema), { delay: 250 }),
+      lintGutter(),
+      theme,
+    ]
+  }, [templateId])
 
   return (
-    <Stack spacing={2} alignItems="stretch" display={hidden ? 'none' : undefined} sx={{ flex: 1 }}>
-      <Paper sx={{ p: 1, flex: 1 }} elevation={0}>
-        <textarea
-          style={{
-            border: 0,
-            width: '100%',
-            height: '100%',
-            font: '10px monospace',
-            resize: 'none',
-            outlineColor: 'black',
-          }}
-          wrap="off"
-          spellCheck={false}
-          value={template?.[language]}
-          onChange={handleChange}
-        />
-      </Paper>
-    </Stack>
+    <Paper
+      sx={{
+        flex: 1,
+        display: hidden ? 'none' : undefined,
+        minHeight: 0,
+      }}
+      elevation={0}
+    >
+      <CodeMirror
+        value={template?.[language]}
+        onChange={handleChange}
+        extensions={extensions}
+        basicSetup={{ lineNumbers: true, foldGutter: true }}
+        indentWithTab={false}
+        style={{
+          height: '100%',
+          width: '100%',
+        }}
+      />
+    </Paper>
   )
 }

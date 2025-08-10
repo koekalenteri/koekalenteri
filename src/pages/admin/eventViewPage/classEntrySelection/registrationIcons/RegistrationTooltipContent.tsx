@@ -54,13 +54,13 @@ const RegistrationTooltipContent = ({
         key="owner-membership"
         condition={!!reg.owner.membership}
         icon={<PersonOutline fontSize="small" />}
-        text="Omistaja on järjestävän yhdistyksen jäsen"
+        text={t('registration.ownerIsMember')}
       />
       <TooltipIcon
         key="handler-membership"
         condition={!!reg.handler.membership}
         icon={<PersonOutline fontSize="small" />}
-        text="Ohjaaja on järjestävän yhdistyksen jäsen"
+        text={t('registration.handlerIsMember')}
       />
       <TooltipIcon
         key="payment-refund-pending"

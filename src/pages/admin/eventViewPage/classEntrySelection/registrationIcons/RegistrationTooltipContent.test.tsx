@@ -89,13 +89,13 @@ describe('RegistrationTooltipContent', () => {
 
     const handlerMembershipTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text') === 'Ohjaaja on järjestävän yhdistyksen jäsen')
+      .find((el) => el.getAttribute('data-text') === 'registration.handlerIsMember')
     expect(handlerMembershipTooltip).toBeInTheDocument()
 
     // Owner is not a member in our mock
     const ownerMembershipTooltip = screen
       .queryAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text') === 'Omistaja on järjestävän yhdistyksen jäsen')
+      .find((el) => el.getAttribute('data-text') === 'registration.ownerIsMember')
     expect(ownerMembershipTooltip).toBeUndefined()
   })
 

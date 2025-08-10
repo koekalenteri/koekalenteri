@@ -1,6 +1,6 @@
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { SyntheticEvent } from 'react'
-import type { EmailTemplate } from '../../types'
+import type { EmailTemplate, EmailTemplateId } from '../../types'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -29,7 +29,7 @@ import {
 export default function EmailTemplateListPage() {
   const emailTemplates = useRecoilValue(adminEmailTemplatesAtom)
   const [selectedTab, setSelectedTab] = useState<number>(0)
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>()
+  const [selectedTemplateId, setSelectedTemplateId] = useState<EmailTemplateId>()
   const storedTemplate = useRecoilValue(adminEmailTemplateSelector(selectedTemplateId))
   const [template, setTemplate] = useRecoilState(adminEditableTemplateByIdAtom(selectedTemplateId))
   const resetTemplate = useResetRecoilState(adminEditableTemplateByIdAtom(selectedTemplateId))
@@ -53,7 +53,7 @@ export default function EmailTemplateListPage() {
 
   const handleSelectionModeChange = (selection: GridRowSelectionModel) => {
     const value = typeof selection[0] === 'string' ? selection[0] : undefined
-    setSelectedTemplateId(value)
+    setSelectedTemplateId(value as EmailTemplateId)
   }
   const handleTabChange = (event: SyntheticEvent, value: number) => setSelectedTab(value)
   const handleChange = useCallback(
@@ -87,23 +87,44 @@ export default function EmailTemplateListPage() {
 
   return (
     <FullPageFlex>
-      <Stack direction="row" spacing={2} alignItems="stretch" flex={1}>
-        <Box flex={1}>
+      <Stack direction="row" spacing={1} alignItems="stretch" flex={1} height="100%" width="100%">
+        <Box flex={1} maxWidth={300}>
           <StyledDataGrid
             columns={columns}
             onRowSelectionModelChange={handleSelectionModeChange}
             rows={emailTemplates}
           />
         </Box>
-        <Paper sx={{ display: 'flex', p: 1, flex: 2, flexFlow: 'column' }} elevation={4}>
+        <Paper
+          sx={{
+            display: 'flex',
+            p: 1,
+            flex: 1,
+            flexFlow: 'column',
+            minHeight: 0,
+            overflow: 'hidden',
+          }}
+        >
           {template ? (
             <>
               <Tabs value={selectedTab} onChange={handleTabChange} sx={{ flex: 0 }}>
                 <Tab label={t('locale.fi')} id="fi"></Tab>
                 <Tab label={t('locale.en')} id="en"></Tab>
               </Tabs>
-              <TemplateEditor template={template} language="fi" hidden={selectedTab !== 0} onChange={handleChange} />
-              <TemplateEditor template={template} language="en" hidden={selectedTab !== 1} onChange={handleChange} />
+              <TemplateEditor
+                templateId={selectedTemplateId}
+                template={template}
+                language="fi"
+                hidden={selectedTab !== 0}
+                onChange={handleChange}
+              />
+              <TemplateEditor
+                templateId={selectedTemplateId}
+                template={template}
+                language="en"
+                hidden={selectedTab !== 1}
+                onChange={handleChange}
+              />
               <Box flex={0}>
                 <Stack
                   spacing={1}
