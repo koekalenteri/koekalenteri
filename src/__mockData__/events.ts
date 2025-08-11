@@ -2,7 +2,7 @@ import type { ConfirmedEvent } from '../types'
 
 import { addDays, parseISO } from 'date-fns'
 
-import { zonedStartOfDay } from '../i18n/dates'
+import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 
 import { emptyEvent } from './emptyEvent'
 
@@ -23,7 +23,7 @@ export const eventWithStaticDates: ConfirmedEvent = {
   startDate: parseDate('2021-02-10'),
   endDate: parseDate('2021-02-11'),
   entryStartDate: parseDate('2021-02-01'),
-  entryEndDate: parseDate('2021-02-07'),
+  entryEndDate: zonedEndOfDay(parseDate('2021-02-07')),
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
 }

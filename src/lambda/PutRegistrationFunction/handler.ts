@@ -3,6 +3,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 import { nanoid } from 'nanoid'
 
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
+import { isEntryOpen } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -106,9 +107,23 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const origin = getOrigin(event)
 
   const registration: JsonRegistration = parseJSONWithFallback(event.body)
+
+  // These data can not be submitted by user
+  delete registration.paidAmount
+  delete registration.paidAt
+  delete registration.paymentStatus
+
   const { confirmedEvent, existing } = await getData(registration)
 
+  if (!confirmedEvent) {
+    return response(404, { message: 'Not found' }, event)
+  }
+
   if (!existing) {
+    if (!isEntryOpen(confirmedEvent)) {
+      return response(410, { message: 'Gone: Entry is not open' }, event)
+    }
+
     // Prevent double registrations when trying to insert new registration
     const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
 
@@ -126,9 +141,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     registration.id = nanoid(10)
     registration.createdAt = timestamp
     registration.createdBy = username
-    if (confirmedEvent.paymentTime === 'confirmation') {
-      registration.state = 'ready'
-    }
+    registration.state = confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
   }
 
   const update = !!existing

@@ -1,6 +1,7 @@
 import type {
   DeepPartial,
   EventState,
+  JsonPublicDogEvent,
   JsonValue,
   PublicContactInfo,
   PublicDogEvent,
@@ -13,7 +14,9 @@ import { diff } from 'deep-object-diff'
 
 import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 
-type EventVitals = Partial<Pick<PublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>>
+type EventVitals = Partial<
+  Pick<PublicDogEvent | JsonPublicDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'state'>
+>
 
 export const isValidForEntry = (state?: EventState) => !['draft', 'tentative', 'cancelled'].includes(state ?? '')
 

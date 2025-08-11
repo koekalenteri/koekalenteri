@@ -1,4 +1,4 @@
-import type { JsonRegistration, Registration } from '../../types'
+import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
 
 import { jest } from '@jest/globals'
 import { addMinutes } from 'date-fns'
@@ -6,6 +6,7 @@ import { addMinutes } from 'date-fns'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
+import { LambdaError } from '../lib/lambda'
 import { ISO8601DateTimeRE } from '../test-utils/constants'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
@@ -17,7 +18,7 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
   SendTemplatedEmailCommand: jest.fn((p) => p),
 }))
 
-const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonRegistration>>()
+const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonDogEvent>>()
 const mockUpdateEventStatsForRegistration = jest.fn()
 const mockUpdateRegistrations = jest.fn()
 const mockDynamoDBWrite = jest.fn()
@@ -69,12 +70,14 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should do happy path for new registration', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
-    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+    const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, state: 'ready' }))
 
     expect(mockSaveRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
-        ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+        ...JSON.parse(JSON.stringify(registration)),
         id: expect.stringMatching(/^[A-Za-z0-9_-]{10}$/),
         createdAt: expect.stringMatching(ISO8601DateTimeRE),
         createdBy: 'anonymous',
@@ -82,7 +85,7 @@ describe('putRegistrationLabmda', () => {
         modifiedBy: 'anonymous',
       })
     )
-    expect(mockSaveRegistration).toHaveBeenCalledWith(expect.not.objectContaining({ state: expect.anything() }))
+    expect(mockSaveRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
@@ -99,6 +102,7 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should send email for new registration when paymentTime is confirmation', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
     const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
@@ -390,6 +394,7 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toEqual(200)
   })
+
   it('should do happy path for updating registration', async () => {
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
@@ -542,16 +547,6 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
-  it('should return 409 if dog is already registered to the event', async () => {
-    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(
-      JSON.parse(JSON.stringify(registrationWithStaticDates))
-    )
-
-    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
-
-    expect(res.statusCode).toEqual(409)
-  })
-
   it('should not fail if secretary email fails', async () => {
     const error = new Error('test error')
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
@@ -580,5 +575,109 @@ describe('putRegistrationLabmda', () => {
         TemplateData: expect.stringContaining('"subject":"Olet kuitannut koekutsun"'),
       })
     )
+  })
+
+  it('should return 404 if event is not found', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockRejectedValueOnce(new LambdaError(404, `Event with id '${eventWithStaticDates.id}' was not found`))
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+
+    expect(res.statusCode).toEqual(404)
+  })
+
+  it('should return 409 if dog is already registered to the event', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(
+      JSON.parse(JSON.stringify(registrationWithStaticDates))
+    )
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+
+    expect(res.statusCode).toEqual(409)
+  })
+
+  it('should return 410 when creating new registration before entry window opens', async () => {
+    // Move current time 1 minute before entryStartDate
+    jest.setSystemTime(addMinutes(eventWithStaticDates.entryStartDate, -1))
+
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+
+    expect(res.statusCode).toEqual(410)
+    expect(res.body).toContain('Entry is not open')
+
+    // No writes or side effects should occur
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockSES.send).not.toHaveBeenCalled()
+    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+  })
+
+  it('should return 410 when creating new registration after entry window closes', async () => {
+    // Move current time 1 minute after entryEndDate
+    jest.setSystemTime(addMinutes(eventWithStaticDates.entryEndDate, 1))
+
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
+
+    expect(res.statusCode).toEqual(410)
+    expect(res.body).toContain('Entry is not open')
+
+    // No writes or side effects should occur
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockSES.send).not.toHaveBeenCalled()
+    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+  })
+
+  it('should ignore client-supplied payment fields (paidAmount, paidAt, paymentStatus)', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+
+    const existingJson = JSON.parse(
+      JSON.stringify({
+        ...registrationWithStaticDates,
+        // establish trusted values that must not change from client update
+        paymentStatus: 'paid',
+        paidAmount: 5000,
+        paidAt: '2024-02-03T10:11:12.000Z',
+      })
+    )
+
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    // attempt to change payment fields via client payload
+    const maliciousUpdate = {
+      ...registrationWithStaticDates,
+      notes: 'legit note change',
+      paymentStatus: 'refunded',
+      paidAmount: 0,
+      paidAt: '2030-01-01T00:00:00.000Z',
+    }
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(maliciousUpdate))
+
+    expect(res.statusCode).toEqual(200)
+
+    // ensure saveRegistration received payment fields preserved from existing, not client-supplied values
+    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    const savedArg = (mockSaveRegistration as jest.Mock).mock.calls[0][0] as JsonRegistration
+
+    // allowed field updated
+    expect(savedArg.notes).toEqual('legit note change')
+
+    // payment fields preserved
+    expect(savedArg.paymentStatus).toEqual(existingJson.paymentStatus)
+    expect(savedArg.paidAmount).toEqual(existingJson.paidAmount)
+    expect(savedArg.paidAt).toEqual(existingJson.paidAt)
+
+    // and not equal to client-supplied values
+    expect(savedArg.paymentStatus).not.toEqual(maliciousUpdate.paymentStatus)
+    expect(savedArg.paidAmount).not.toEqual(maliciousUpdate.paidAmount)
+    expect(savedArg.paidAt).not.toEqual(maliciousUpdate.paidAt)
   })
 })
