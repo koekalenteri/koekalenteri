@@ -108,6 +108,7 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "entryUpcoming": "Ilmoittautuminen tulossa",
   "error": {
+    "entryNotOpen": "Ilmoittautuminen ei ole avoinna",
     "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia",
     "eventNotFound": "Tapahtumaa ei löydy",
     "eventWithIdNotFound": "Tapahtumaa tunnuksella {{id}} ei löytynyt",

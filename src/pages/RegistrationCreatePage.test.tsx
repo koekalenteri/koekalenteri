@@ -5,7 +5,7 @@ import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import { format } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
@@ -43,6 +43,7 @@ describe('RegistrationCreatePage', () => {
       {
         path: '/event/:eventType/:id',
         element: <RegistrationCreatePage />,
+        errorElement: <ErrorPage />,
         hydrateFallbackElement: <>hydrate fallback</>,
       },
       {
@@ -80,6 +81,7 @@ describe('RegistrationCreatePage', () => {
   }
 
   it('should render with event/eventType/id path', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
     const { eventType, id } = eventWithStaticDates
     const path = `/event/${eventType}/${id}`
 
@@ -89,6 +91,7 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should select the class on event/eventType/id/class path', async () => {
+    jest.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
     const { eventType, id, classes } = eventWithStaticDatesAnd3Classes
     const path = `/event/${eventType}/${id}/${classes[1].class}`
 
@@ -99,6 +102,7 @@ describe('RegistrationCreatePage', () => {
   })
 
   it('should select the date on event/eventType/id/class/date path', async () => {
+    jest.setSystemTime(eventWithStaticDatesAnd3Classes.entryStartDate)
     const { eventType, id, classes } = eventWithStaticDatesAnd3Classes
     const date = format(classes[2].date ?? new Date(), 'dd.MM.')
     const path = `/event/${eventType}/${id}/${classes[2].class}/${date}`
@@ -132,31 +136,29 @@ describe('RegistrationCreatePage', () => {
     const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
 
     const path = `/event/qwerty/asdf`
-    const routes: RouteObject[] = [
-      {
-        path: '/event/:eventType/:id',
-        element: <RegistrationCreatePage />,
-        errorElement: <ErrorPage />,
-        hydrateFallbackElement: <>hydrate fallback</>,
-      },
-    ]
 
-    render(
-      <ThemeProvider theme={theme}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
-            <Suspense fallback={<div>loading...</div>}>
-              <SnackbarProvider>
-                <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
-            </Suspense>
-          </RecoilRoot>
-        </LocalizationProvider>
-      </ThemeProvider>
-    )
+    jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([])
+    const { container } = renderWithRouter(path)
 
     await flushPromises()
     expect(mockConsoleError).toHaveBeenCalled()
-    expect(screen).toMatchSnapshot()
+    expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
+  })
+
+  it('should throw 410 when entry is not open', async () => {
+    const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
+
+    jest.setSystemTime(eventWithStaticDates.startDate)
+    const { eventType, id } = eventWithStaticDates
+    const path = `/event/${eventType}/${id}`
+
+    jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([eventWithStaticDates])
+    const { container } = renderWithRouter(path)
+
+    await flushPromises()
+    expect(mockConsoleError).toHaveBeenCalled()
+    expect(screen.getByText('error.entryNotOpen')).toBeInTheDocument()
+    expect(container).toMatchSnapshot()
   })
 })

@@ -107,6 +107,7 @@
   "entryTitle_test": "Register to test",
   "entryUpcoming": "Upcoming registration",
   "error": {
+    "entryNotOpen": "Entry is not open",
     "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied",
     "eventNotFound": "Event not found",
     "eventWithIdNotFound": "Event with ID {{id}} not found",

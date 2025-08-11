@@ -7,7 +7,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { APIError } from '../api/http'
-import { hasChanges, printContactInfo } from '../lib/utils'
+import { hasChanges, isEntryOpen, printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 
 import LinkButton from './components/LinkButton'
@@ -86,6 +86,10 @@ export function Component() {
 
   if (event === null) {
     throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
+  }
+
+  if (!isEntryOpen(event)) {
+    throw new Response('Entry not open', { status: 410, statusText: t('error.entryNotOpen') })
   }
 
   if (!registration) {
