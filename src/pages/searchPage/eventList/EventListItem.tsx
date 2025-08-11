@@ -6,7 +6,7 @@ import Grid2 from '@mui/material/Grid2'
 import Typography from '@mui/material/Typography'
 
 import { zonedStartOfDay } from '../../../i18n/dates'
-import { isEntryClosed, isEntryOpen, isEventOver, isValidForEntry } from '../../../lib/utils'
+import { isEntryClosed, isEntryOpen, isEntryUpcoming, isEventOver, isValidForEntry } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import { CollapsibleEvent } from '../../components/CollapsibleEvent'
 import LinkButton from '../../components/LinkButton'
@@ -30,6 +30,9 @@ const EventHeader = ({ event }: Props) => {
     if (event.state === 'picked') return t('event.states.picked')
 
     if (isEntryClosed(event)) return t('event.states.confirmed_entryClosed_info')
+
+    if (event.state !== 'tentative' && isEntryUpcoming(event))
+      return '⏳ ' + t('dateFormat.date', { date: event.entryStartDate })
 
     return null
   }, [event, t])

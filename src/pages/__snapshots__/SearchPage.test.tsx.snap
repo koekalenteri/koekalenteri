@@ -6730,7 +6730,9 @@ exports[`SearchPage filters by event class 1`] = `
             >
               <span
                 class="MuiBox-root css-1lejymi"
-              />
+              >
+                ⏳ dateFormat.date date
+              </span>
             </div>
           </div>
         </div>
