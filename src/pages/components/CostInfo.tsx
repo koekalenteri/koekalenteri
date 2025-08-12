@@ -54,16 +54,18 @@ export default function CostInfo({ event }: Props) {
     if (!value) return null
     const memberValue = costMember && getCostValue(costMember, segment, breedCode)
     const text = costText(value, memberValue)
-    const name =
-      segment === 'custom' && cost.custom?.description
-        ? cost.custom.description[language] || cost.custom.description.fi
-        : segment === 'breed' && breedCode
-          ? t(getCostSegmentName(segment), { code: breedCode })
-          : segment === 'earlyBird'
-            ? t(getCostSegmentName(segment), getEarlyBirdDates(event, cost))
-            : t(getCostSegmentName(segment))
 
-    return { name, text }
+    if (segment === 'custom' && cost.custom?.description) {
+      return { name: cost.custom.description[language] || cost.custom.description.fi, text }
+    }
+    if (segment === 'breed' && breedCode) {
+      return { name: t(getCostSegmentName(segment), { code: breedCode }), text }
+    }
+    if (segment === 'earlyBird') {
+      return { name: t(getCostSegmentName(segment), getEarlyBirdDates(event, cost)), text }
+    }
+
+    return { name: t(getCostSegmentName(segment)), text }
   }
 
   const costSegments = segments
