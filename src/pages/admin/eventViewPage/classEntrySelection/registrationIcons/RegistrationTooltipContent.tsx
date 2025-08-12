@@ -1,6 +1,7 @@
 import type { PublicDogEvent, Registration } from '../../../../../types'
 
 import { useTranslation } from 'react-i18next'
+import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
@@ -41,6 +42,12 @@ const RegistrationTooltipContent = ({
   const halfInfo = reg.owner.membership ? '(vain omistaja on jäsen)' : '(vain ohjaaja on jäsen)'
   const info50 = priority === 0.5 ? halfInfo : ''
   const priorityText = `Ilmoittautuja on etusijalla: ${descr} ${info50}`.trim()
+  const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
+  const optionalCosts =
+    reg.optionalCosts
+      ?.map((i) => additionalCosts[i]?.description.fi)
+      .filter(Boolean)
+      .join(', ') ?? []
 
   return (
     <>
@@ -79,6 +86,12 @@ const RegistrationTooltipContent = ({
         condition={!!reg.paidAt && !reg.refundAt && reg.refundStatus !== 'PENDING'}
         icon={<EuroOutlined fontSize="small" />}
         text={`Ilmoittautuja on maksanut ilmoittautumisen: ${formatMoney(reg.paidAmount ?? 0)}`}
+      />
+      <TooltipIcon
+        key="optional-costs"
+        condition={(reg.optionalCosts ?? []).length > 0}
+        icon={<AddTaskOutlinedIcon fontSize="small" />}
+        text={`Ilmoittautuja on valinnut lisäpalvelut: ${optionalCosts}`}
       />
       <TooltipIcon
         key="confirmed"

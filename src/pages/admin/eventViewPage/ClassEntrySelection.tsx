@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type React from 'react'
 import type { SetterOrUpdater } from 'recoil'
 import type {
+  CustomCost,
   DogEvent,
   EventClassState,
   EventState,
@@ -12,7 +13,7 @@ import type {
 } from '../../../types'
 import type { DragItem } from './classEntrySelection/types'
 
-import { useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
@@ -149,6 +150,41 @@ const ClassEntrySelection = ({
     }
     return byGroup
   }, [groups, registrations])
+
+  const selectedAdditionalCostsByGroup: Record<string, Array<{ cost: CustomCost; count: number }>> = useMemo(() => {
+    if (typeof event.cost === 'number') return {}
+
+    const costs = event.cost.optionalAdditionalCosts
+    if (!costs) return {}
+
+    const result: Record<string, Array<{ cost: CustomCost; count: number }>> = {}
+
+    groups.forEach((g) => {
+      result[g.key] = []
+      const regs = registrationsByGroup[g.key] ?? []
+      costs.forEach((cost, i) => {
+        const count = regs.reduce((acc, r) => acc + (r.optionalCosts?.includes(i) ? 1 : 0), 0)
+        if (count > 0) result[g.key].push({ cost, count })
+      })
+    })
+
+    return result
+  }, [groups, event.cost, registrationsByGroup])
+
+  const selectedAdditionalCostsTotal = useMemo(() => {
+    const totals = new Map<CustomCost, number>()
+    let count = 0
+    groups.forEach((g) => {
+      const selected = selectedAdditionalCostsByGroup[g.key] ?? []
+      selected.forEach((sac) => {
+        const acc = totals.get(sac.cost) ?? 0
+        totals.set(sac.cost, acc + sac.count)
+        count++
+      })
+    })
+    if (count <= 1) return ''
+    return Array.from(totals.entries().map(([cost, count]) => `${cost.description.fi} x ${count}`)).join(', ')
+  }, [groups, selectedAdditionalCostsByGroup])
 
   const reserveNotNotified = useMemo(
     () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),
@@ -288,38 +324,57 @@ const ClassEntrySelection = ({
         }}
       >
         {groups.map((group) => (
-          <DroppableDataGrid
-            canDrop={(item: DragItem | undefined) => {
-              return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
-            }}
-            flex={registrationsByGroup[group.key]?.length}
-            key={group.key}
-            group={group.key}
-            columns={participantColumns}
-            hideFooter={(registrationsByGroup[group.key] ?? []).length < 101}
-            columnHeaderHeight={0}
-            rows={registrationsByGroup[group.key] ?? []}
-            onRowSelectionModelChange={handleSelectionModeChange}
-            rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
-            onCellClick={handleCellClick}
-            onRowDoubleClick={handleDoubleClick}
-            slots={{
-              toolbar: GroupHeader,
-              noRowsOverlay: NoRowsOverlay,
-            }}
-            slotProps={{
-              toolbar: {
-                available: groups,
-                group: group,
-              },
-              row: {
-                groupKey: group.key,
-              },
-            }}
-            onDrop={handleDrop(group)}
-            onReject={handleReject(group)}
-          />
+          <Fragment key={group.key}>
+            <DroppableDataGrid
+              canDrop={(item: DragItem | undefined) => {
+                return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
+              }}
+              flex={registrationsByGroup[group.key]?.length}
+              key={group.key}
+              group={group.key}
+              columns={participantColumns}
+              hideFooter={(registrationsByGroup[group.key] ?? []).length < 101}
+              columnHeaderHeight={0}
+              rows={registrationsByGroup[group.key] ?? []}
+              onRowSelectionModelChange={handleSelectionModeChange}
+              rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
+              onCellClick={handleCellClick}
+              onRowDoubleClick={handleDoubleClick}
+              slots={{
+                toolbar: GroupHeader,
+                noRowsOverlay: NoRowsOverlay,
+              }}
+              slotProps={{
+                toolbar: {
+                  available: groups,
+                  group: group,
+                },
+                row: {
+                  groupKey: group.key,
+                },
+              }}
+              onDrop={handleDrop(group)}
+              onReject={handleReject(group)}
+            />
+            {(selectedAdditionalCostsByGroup[group.key] ?? []).length > 0 ? (
+              <Stack key={group.key + 'add'} direction="row" justifyContent="flex-end" px={1}>
+                <Typography variant="caption">
+                  {selectedAdditionalCostsByGroup[group.key]
+                    .map((sac) => `${sac.cost.description.fi} x ${sac.count}`)
+                    .join(', ')}
+                </Typography>
+              </Stack>
+            ) : null}
+          </Fragment>
         ))}
+        {selectedAdditionalCostsTotal ? (
+          <Stack direction="row" justifyContent="flex-end" px={1}>
+            <Typography variant="caption" sx={{ borderTop: '1px solid #ccc' }}>
+              {selectedAdditionalCostsTotal}
+            </Typography>
+          </Stack>
+        ) : null}
+
         <Stack direction="row" justifyContent="space-between" gap={2}>
           <Typography variant="h6">Ilmoittautuneet</Typography>
           <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />

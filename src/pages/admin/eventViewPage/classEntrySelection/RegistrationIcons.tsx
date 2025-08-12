@@ -1,6 +1,7 @@
 import type { PublicDogEvent, Registration } from '../../../../types'
 
 import { useMemo } from 'react'
+import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
@@ -53,6 +54,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
           icon={<PersonOutline fontSize="small" />}
         />
         <PaymentIcon reg={reg} />
+        <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
         <StatusIcon condition={reg.invitationRead} icon={<MarkEmailReadOutlined fontSize="small" />} />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />

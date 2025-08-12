@@ -95,7 +95,7 @@ export function useClassEntrySelectionColumns(
       {
         field: 'icons',
         headerName: '',
-        width: 200, // icons * 20 + 20 for padding
+        width: 220, // icons * 20 + 20 for padding
         align: 'center',
         renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
       },
