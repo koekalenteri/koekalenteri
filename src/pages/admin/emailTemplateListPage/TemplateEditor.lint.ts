@@ -49,12 +49,12 @@ export const getLintSource =
     const diagnostics: Diagnostic[] = []
     const doc = view.state.doc.toString()
 
-    for (let m; (m = mustacheRe.exec(doc)); ) {
+    for (const m of doc.matchAll(mustacheRe)) {
       const inner = m[1]
       const innerStart = m.index + (m[0].startsWith('{{{') ? 3 : 2)
       const stripped = inner.replace(/"(?:\\.|[^"]*)"|'(?:\\.|[^']*)'/g, (s) => ' '.repeat(s.length))
 
-      for (let idm; (idm = identPathRe.exec(stripped)); ) {
+      for (const idm of stripped.matchAll(identPathRe)) {
         const full = idm[0]
         if (HELPERS.has(full) || full.startsWith('@')) continue
 
