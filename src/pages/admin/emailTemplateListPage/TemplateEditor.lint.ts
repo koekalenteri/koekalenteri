@@ -9,6 +9,40 @@ const HELPERS = new Set(['if', 'unless', 'each', 'else'])
 const mustacheRe = /{{{?([^{}]*?)}}}?/g // naive but effective for linting
 const identPathRe = /\b[A-Za-z_@][\w$]*(?:\.[A-Za-z_][\w$]*)*\b/g
 
+type PathValidation = { ok: true } | { ok: false; badIdx: number }
+
+function validatePath(base: any, parts: string[], start: number): PathValidation {
+  let cur: any = base
+  for (let j = start; j < parts.length; j++) {
+    const seg = parts[j]
+    if (seg === 'this' || seg === '..') continue
+    if (!isObj(cur) || !(seg in cur)) return { ok: false, badIdx: j }
+    cur = (cur as any)[seg]
+    const el = elemOf(cur)
+    if (el !== undefined) cur = el
+  }
+  return { ok: true }
+}
+
+function computeSegmentRange(innerStart: number, idmIndex: number, parts: string[], badIdx: number) {
+  const before = parts.slice(0, badIdx).join('.')
+  const segOffset = before ? before.length + 1 : 0
+  const segStart = innerStart + idmIndex + segOffset
+  const segEnd = segStart + parts[badIdx].length
+  return { segStart, segEnd }
+}
+
+function getSuggestKeys(base: any, parts: string[], start: number, upToExclusive: number): string[] {
+  let p: any = base
+  for (let k = start; k < upToExclusive; k++) {
+    const s = parts[k]
+    if (s === 'this' || s === '..') continue
+    const next = p?.[s]
+    p = Array.isArray(next) ? (elemOf(next) ?? next) : next
+  }
+  return isObj(p) ? Object.keys(p) : []
+}
+
 export const getLintSource =
   (schema: object): LintSource =>
   (view) => {
@@ -24,47 +58,18 @@ export const getLintSource =
         const full = idm[0]
         if (HELPERS.has(full) || full.startsWith('@')) continue
 
-        const { parent } = resolveForCompletion(doc, innerStart + idm.index, schema, full)
+        const pos = innerStart + idm.index
+        const { parent } = resolveForCompletion(doc, pos, schema, full)
         if (!parent || !isObj(parent)) continue
 
-        const { base, parts, start } = resolveScopeBaseForPath(doc, innerStart + idm.index, schema, full)
+        const { base, parts, start } = resolveScopeBaseForPath(doc, pos, schema, full)
 
-        let cur: any = base
-        let badIdx = -1
+        const validation = validatePath(base, parts, start)
+        if (validation.ok) continue
 
-        for (let j = start; j < parts.length; j++) {
-          const seg = parts[j]
-          if (seg === 'this' || seg === '..') continue
-
-          if (!isObj(cur) || !(seg in cur)) {
-            badIdx = j
-            break
-          }
-
-          cur = (cur as any)[seg]
-          const el = elemOf(cur)
-          if (el !== undefined) cur = el // drill into array element type if needed
-        }
-
-        if (badIdx === -1) continue // path is valid
-
-        // compute highlight range for the bad segment
-        const before = parts.slice(0, badIdx).join('.')
-        const segOffset = before ? before.length + 1 : 0
-        const segStart = innerStart + idm.index + segOffset
-        const segEnd = segStart + parts[badIdx].length
-
-        // suggestions from the keys of the object we were trying to read
-        const suggestFrom = ((j) => {
-          // walk again up to j-1 to get the parent we failed on
-          let p: any = base
-          for (let k = start; k < j; k++) {
-            const s = parts[k]
-            if (s === 'this' || s === '..') continue
-            p = Array.isArray(p?.[s]) ? (elemOf(p[s]) ?? p[s]) : p?.[s]
-          }
-          return isObj(p) ? Object.keys(p) : []
-        })(badIdx)
+        const badIdx = validation.badIdx
+        const { segStart, segEnd } = computeSegmentRange(innerStart, idm.index, parts, badIdx)
+        const suggestFrom = getSuggestKeys(base, parts, start, badIdx)
 
         diagnostics.push({
           from: segStart,
