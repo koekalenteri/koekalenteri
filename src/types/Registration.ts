@@ -155,3 +155,9 @@ export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 
 export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'PENDING'
+
+export interface MinimalRegistrationForMembership {
+  handler?: Pick<Registration['handler'], 'membership'>
+  owner?: Pick<Registration['handler'], 'membership'>
+  ownerHandles?: Registration['ownerHandles']
+}

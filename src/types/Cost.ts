@@ -1,5 +1,4 @@
-import type { MinimalRegistrationForMembership } from '../lib/registration'
-import type { JsonPublicConfirmedEvent, PublicConfirmedEvent, Registration } from '.'
+import type { JsonPublicConfirmedEvent, MinimalRegistrationForMembership, PublicConfirmedEvent, Registration } from '.'
 import type { BreedCode } from './Dog'
 import type { KeyofExcluding } from './utility'
 

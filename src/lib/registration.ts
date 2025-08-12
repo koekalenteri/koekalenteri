@@ -1,18 +1,22 @@
 import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
+  CustomCost,
   JsonConfirmedEvent,
   JsonPublicDogEvent,
   JsonRegistration,
   JsonRegistrationGroup,
+  MinimalEventForCost,
+  MinimalRegistrationForCost,
+  MinimalRegistrationForMembership,
   PublicDogEvent,
   Registration,
   RegistrationClass,
   RegistrationTemplateContext,
 } from '../types'
 
-import { getSelectedAdditionalCosts } from './cost'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
+import { isDefined } from './typeGuards'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
@@ -37,12 +41,6 @@ type PriorityCheckFn<T, E extends PublicDogEvent | JsonPublicDogEvent = PublicDo
   event: Partial<Pick<E, 'eventType' | 'priority' | 'qualificationStartDate'>>,
   registration: RegistrationPriorityFields
 ) => T
-
-export interface MinimalRegistrationForMembership {
-  handler?: Pick<Registration['handler'], 'membership'>
-  owner?: Pick<Registration['handler'], 'membership'>
-  ownerHandles?: Registration['ownerHandles']
-}
 
 export const isMember = (registration: MinimalRegistrationForMembership): boolean =>
   Boolean((!registration.ownerHandles && registration.handler?.membership) || registration.owner?.membership)
@@ -143,6 +141,17 @@ export const canRefund = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount'>
 ): boolean =>
   (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) && REFUNDABLE_GROUP_KEYS.includes(getRegistrationGroupKey(reg))
+
+export const getSelectedAdditionalCosts = (
+  event: MinimalEventForCost,
+  registration: MinimalRegistrationForCost
+): CustomCost[] => {
+  const cost = event.cost
+
+  if (typeof cost === 'number') return []
+
+  return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
+}
 
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
