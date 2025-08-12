@@ -11,6 +11,32 @@ const mustacheStart = (ctx: CompletionContext) => {
   return open > close ? from + open : -1
 }
 
+const createOption = (parent: any, key: string): Completion => {
+  const val = parent[key]
+  const isObj = val && typeof val === 'object'
+  const insert = isObj ? key + '.' : key
+
+  return {
+    label: key,
+    type: isObj ? 'property' : 'variable',
+    detail: isObj ? '…' : String(val),
+    apply: (view, _c, fromPos, toPos) => {
+      // Replace [fromPos, toPos) and move the caret to the end of the inserted text
+      view.dispatch({
+        changes: { from: fromPos, to: toPos, insert },
+        selection: EditorSelection.cursor(fromPos + insert.length),
+        userEvent: 'input.complete',
+      })
+
+      // Kill the old list, then reopen a fresh one (so children show immediately after "event.")
+      closeCompletion(view)
+      if (isObj) {
+        queueMicrotask(() => startCompletion(view))
+      }
+    },
+  }
+}
+
 export const getAutocomplete = (schema: object) => (ctx: CompletionContext) => {
   const start = mustacheStart(ctx)
   if (start < 0) return null
@@ -35,31 +61,7 @@ export const getAutocomplete = (schema: object) => (ctx: CompletionContext) => {
   // When nothing is typed (top-level) or after a dot, start insertion *here*
   const from = hasTrailingDot || !lastToken ? ctx.pos : ctx.pos - lastToken.length
 
-  const options: Completion[] = Object.keys(parent).map((key) => {
-    const val = parent[key]
-    const isObj = val && typeof val === 'object'
-    const insert = isObj ? key + '.' : key
-
-    return {
-      label: key,
-      type: isObj ? 'property' : 'variable',
-      detail: isObj ? '…' : String(val),
-      apply: (view, _c, fromPos, toPos) => {
-        // Replace [fromPos, toPos) and move the caret to the end of the inserted text
-        view.dispatch({
-          changes: { from: fromPos, to: toPos, insert },
-          selection: EditorSelection.cursor(fromPos + insert.length),
-          userEvent: 'input.complete',
-        })
-
-        // Kill the old list, then reopen a fresh one (so children show immediately after "event.")
-        closeCompletion(view)
-        if (isObj) {
-          queueMicrotask(() => startCompletion(view))
-        }
-      },
-    }
-  })
+  const options: Completion[] = Object.keys(parent).map((key) => createOption(parent, key))
 
   return {
     from,
