@@ -36,7 +36,7 @@ export const getAutocomplete = (schema: object) => (ctx: CompletionContext) => {
   const from = hasTrailingDot || !lastToken ? ctx.pos : ctx.pos - lastToken.length
 
   const options: Completion[] = Object.keys(parent).map((key) => {
-    const val = (parent as any)[key]
+    const val = parent[key]
     const isObj = val && typeof val === 'object'
     const insert = isObj ? key + '.' : key
 
