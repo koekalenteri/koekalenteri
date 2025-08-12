@@ -404,9 +404,9 @@ export default function PaymentSection({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {optionalAdditionalCosts.map((_optCost, index) => (
+                {optionalAdditionalCosts.map((optCost, index) => (
                   <OptionalCostRow
-                    key={`optional-${index}`}
+                    key={`optional-${optCost.description.fi}`}
                     event={event}
                     index={index}
                     onRemove={handleRemoveOptional}
