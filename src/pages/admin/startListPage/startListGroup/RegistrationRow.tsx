@@ -16,6 +16,9 @@ const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
   return (
     <TableRow key={reg.id}>
       <TableCell>{reg.group?.number.toString().padStart(5)}</TableCell>
+      <TableCell>{reg.dog.regNo}</TableCell>
+      <TableCell>{t('dateFormat.isodate', { date: reg.dog.dob })}</TableCell>
+      <TableCell>{reg.dog.rfid}</TableCell>
       <TableCell>
         {reg.dog.breedCode && reg.dog.gender
           ? t(`${reg.dog.breedCode}.${reg.dog.gender}`, {
@@ -25,10 +28,10 @@ const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
           : ''}
       </TableCell>
       <TableCell>{reg.dog.name?.slice(0, nameLen).padEnd(nameLen) ?? ''}</TableCell>
-      <TableCell>{reg.dog.regNo}</TableCell>
-      <TableCell>{t('dateFormat.isodate', { date: reg.dog.dob })}</TableCell>
-      <TableCell>{reg.dog.rfid}</TableCell>
+      <TableCell>{reg.owner.name}</TableCell>
+      <TableCell align="center">{reg.owner.membership ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler.name}</TableCell>
+      <TableCell align="center">{reg.handler.membership ? '✘' : ''}</TableCell>
       <TableCell>{reg.handler.phone ?? '-ei puhelinta-'}</TableCell>
       {reserve ? (
         <>

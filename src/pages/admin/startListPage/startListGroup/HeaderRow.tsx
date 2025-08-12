@@ -9,13 +9,16 @@ const HeaderRow = ({ reserve }: Props) => {
   return (
     <TableRow selected>
       <TableCell>#</TableCell>
-      <TableCell>Rotu</TableCell>
-      <TableCell>Nimi</TableCell>
       <TableCell>Rekisterinumero</TableCell>
       <TableCell>Syntymäaika</TableCell>
       <TableCell>Siru</TableCell>
+      <TableCell>Rotu</TableCell>
+      <TableCell>Nimi</TableCell>
+      <TableCell>Omistaja</TableCell>
+      <TableCell>Omistajan jäsenyys</TableCell>
       <TableCell>Ohjaaja</TableCell>
-      <TableCell>Puhelin</TableCell>
+      <TableCell>Ohjaajan jäsenyys</TableCell>
+      <TableCell>Ohjaajan Puhelin</TableCell>
       {reserve ? (
         <>
           <TableCell>Paikkakunta</TableCell>
