@@ -2,7 +2,14 @@ type Schema = Record<string, any>
 
 export const isObj = (v: unknown): v is Record<string, unknown> => v !== null && typeof v === 'object'
 
-export const elemOf = (v: any) => (Array.isArray(v) ? v[0] : isObj(v) && v.__array ? v.__array : undefined)
+export const elemOf = (v: any) => {
+  if (Array.isArray(v)) {
+    return v[0]
+  }
+  if (isObj(v) && v.__array) {
+    return v.__array
+  }
+}
 
 export function getChild(obj: any, parts: string[]) {
   let cur = obj
@@ -23,75 +30,74 @@ type EachScope = {
   indexAlias?: string
 }
 
+const isCloseEach = (full: string) => /^\/\s*each\b/.test(full)
+const parseOpenEach = (full: string) => /^#\s*each\b([\s\S]*)/.exec(full)
+const parseAsBlock = (rest: string) => {
+  const asMatch = /\bas\s+\|\s?([^|]+)\|/u.exec(rest)
+  const beforeAs = asMatch ? rest.slice(0, asMatch.index).trim() : rest.trim()
+  const aliasList = (asMatch?.[1] ?? '').split(/\s+/).filter(Boolean)
+  return { beforeAs, aliasList }
+}
+
+const resolveStartBaseAndParts = (raw: string, allScopes: EachScope[]) => {
+  const rawParts = raw.split('.').filter(Boolean)
+  // handle leading ../ by popping scopes, but keep the root
+  const scopeStack = allScopes
+  let i = 0
+  while (rawParts[i] === '..') {
+    if (scopeStack.length > 1) scopeStack.pop()
+    i++
+  }
+  let startBase = scopeStack[scopeStack.length - 1].base
+  const parts = rawParts.slice(i)
+
+  if (parts[0] === 'this') {
+    parts.shift()
+    return { startBase, parts }
+  }
+
+  // If first segment equals any visible alias, switch to that base and consume it
+  const aliasOwner = parts[0] && [...scopeStack].reverse().find((s) => s.alias === parts[0])
+  if (aliasOwner) {
+    startBase = aliasOwner.base
+    parts.shift()
+  }
+  return { startBase, parts }
+}
+
 /** Very light parser: build a stack of #each scopes up to `pos` */
 function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
   const scopes: EachScope[] = [{ base: root }]
   const tagRe = /{{{?([^{}]*)}}}?/g
+
+  const pushScopeFromPath = (startBase: any, parts: string[], alias?: string, indexAlias?: string) => {
+    const iterTarget = parts.length ? getChild(startBase, parts) : startBase
+    const itemType = elemOf(iterTarget)
+    const base = itemType !== undefined ? itemType : {}
+    scopes.push({ base, alias, indexAlias })
+  }
+
   let m: RegExpExecArray | null
   while ((m = tagRe.exec(doc))) {
     const start = m.index
     const full = m[1].trim()
     if (start >= pos) break
 
-    // close?
-    if (/^\/\s*each\b/.test(full)) {
+    if (isCloseEach(full)) {
       if (scopes.length > 1) scopes.pop()
       continue
     }
 
-    // open?
-    const eachOpen = /^#\s*each\b([\s\S]*)/.exec(full)
+    const eachOpen = parseOpenEach(full)
     if (!eachOpen) continue
 
-    // Extract path and optional block params:  #each path  or  #each path as |item idx|
     const rest = eachOpen[1]
-    // split before "as |...|"
-    const asMatch = /\bas\s+\|\s?([^|\s]+)\s?\|/u.exec(rest)
-    const beforeAs = asMatch ? rest.slice(0, asMatch.index).trim() : rest.trim()
+    const { beforeAs, aliasList } = parseAsBlock(rest)
+    const path = (beforeAs.split(/\s+/)[0] || 'this').trim()
 
-    // path parts (respect ../ segments)
-    const path = beforeAs.split(/\s+/)[0] || 'this'
-    const rawParts = path.split('.').filter(Boolean)
-
-    // Resolve relative to current top scope
-    const curBase: any = scopes[scopes.length - 1].base
-    let i = 0
-    // handle leading ../
-    while (rawParts[i] === '..') {
-      if (scopes.length > 1) scopes.pop()
-      i++
-    }
-    // start from either alias/this/top
-    let startBase = curBase
-    const parts = rawParts.slice(i)
-    if (parts[0] === 'this') parts.shift()
-    else if (
-      parts[0] &&
-      scopes
-        .slice()
-        .reverse()
-        .some((s) => s.alias === parts[0])
-    ) {
-      // if path starts with a visible alias, switch to that alias' base
-      const s = scopes
-        .slice()
-        .reverse()
-        .find((s) => s.alias === parts[0])!
-      startBase = s.base
-      parts.shift()
-    }
-
-    const iterTarget = parts.length ? getChild(startBase, parts) : startBase
-    const itemType = elemOf(iterTarget)
-    const aliasList = (asMatch?.[1] ?? '').split(/\s+/).filter(Boolean)
+    const { startBase, parts } = resolveStartBaseAndParts(path, scopes)
     const [alias, indexAlias] = aliasList
-
-    if (itemType !== undefined) {
-      scopes.push({ base: itemType, alias, indexAlias })
-    } else {
-      // unknown or non-array → still push something so ../ will pop correctly
-      scopes.push({ base: {}, alias, indexAlias })
-    }
+    pushScopeFromPath(startBase, parts, alias, indexAlias)
   }
   return scopes
 }
@@ -100,47 +106,13 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
 export function resolveForCompletion(doc: string, pos: number, root: Schema, idText: string) {
   const scopes = buildEachScopes(doc, pos, root)
   const current = scopes[scopes.length - 1]
-  // Allow alias/this/../ and bare names (bare names → current base)
-  const parts = idText.split('.').filter(Boolean)
-  let base = current.base
-  let i = 0
 
-  // climb with ../
-  while (parts[i] === '..') {
-    if (scopes.length > 1) scopes.pop()
-    i++
-  }
-  const scopeNow = scopes[scopes.length - 1]
+  // Normalize and resolve base/parts using common helper to avoid duplication
+  const { startBase, parts } = resolveStartBaseAndParts(idText, scopes)
 
-  // switch base on alias
-  if (parts[i] && scopeNow && scopeNow.alias === parts[i]) {
-    base = scopeNow.base
-    i++
-  } else if (parts[i] === 'this') {
-    base = scopeNow.base
-    i++
-  } else if (
-    parts[i] &&
-    scopes
-      .slice(0, -1)
-      .reverse()
-      .some((s) => s.alias === parts[i])
-  ) {
-    const s = scopes
-      .slice(0, -1)
-      .reverse()
-      .find((s) => s.alias === parts[i])!
-    base = s.base
-    i++
-  } else if (parts.length && parts[0] in root) {
-    // explicit root reference (e.g. event.name)
-    base = root // leave full parts
-  } else {
-    // bare name inside each → start from current base
-  }
-
-  const parentPath = parts.slice(0, Math.max(0, parts.length - 1)).slice(i)
-  const parent = parentPath.length ? getChild(base, parentPath) : base
+  // Determine the parent object for completion (all but the last token)
+  const parentPath = parts.slice(0, Math.max(0, parts.length - 1))
+  const parent = parentPath.length ? getChild(startBase, parentPath) : startBase
   const lastToken = parts[parts.length - 1] ?? ''
 
   return { parent, lastToken, scopes, current }
@@ -148,38 +120,14 @@ export function resolveForCompletion(doc: string, pos: number, root: Schema, idT
 
 export function resolveScopeBaseForPath(doc: string, pos: number, root: Schema, id: string) {
   const scopes = buildEachScopes(doc, pos, root)
-  const parts = id.split('.').filter(Boolean)
-  let i = 0
+  // Use shared resolver to unify alias/this/../ handling
+  const { startBase, parts } = resolveStartBaseAndParts(id, scopes)
 
-  // climb with ../
-  while (parts[i] === '..') {
-    if (scopes.length > 1) scopes.pop()
-    i++
-  }
+  // In the old API we also returned the index from which unresolved parts start.
+  // With resolveStartBaseAndParts we have already consumed alias/this/../ at the front
+  // so the unresolved path always starts at 0 now.
+  const base = startBase
+  const start = 0
 
-  let base = scopes[scopes.length - 1].base
-
-  // alias / this / outer alias
-  const aliasHere = scopes[scopes.length - 1].alias
-  if (parts[i] === 'this') {
-    i++
-  } else if (aliasHere && parts[i] === aliasHere) {
-    base = scopes[scopes.length - 1].base
-    i++
-  } else {
-    const outer = scopes
-      .slice(0, -1)
-      .reverse()
-      .find((s) => s.alias === parts[i])
-    if (outer) {
-      base = outer.base
-      i++
-    } else if (parts[i] && parts[i] in root) {
-      // explicit root reference like "reg.owner.name":
-      // start from ROOT but do NOT consume the first segment (i stays as-is)
-      base = root
-    }
-  }
-
-  return { base, parts, start: i }
+  return { base, parts, start }
 }
