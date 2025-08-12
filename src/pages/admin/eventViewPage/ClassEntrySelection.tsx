@@ -1,19 +1,9 @@
-import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import type { Dispatch, SetStateAction } from 'react'
-import type React from 'react'
 import type { SetterOrUpdater } from 'recoil'
-import type {
-  CustomCost,
-  DogEvent,
-  EventClassState,
-  EventState,
-  Registration,
-  RegistrationDate,
-  RegistrationGroup,
-} from '../../../types'
-import type { DragItem } from './classEntrySelection/types'
+import type { CustomCost, DogEvent, EventClassState, EventState, Registration, RegistrationDate } from '../../../types'
+import type { DragItem, RegistrationWithGroups } from './classEntrySelection/types'
 
-import { Fragment, useCallback, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
@@ -21,26 +11,27 @@ import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-import { isSameDay } from 'date-fns'
 import { useConfirm } from 'material-ui-confirm'
-import { useSnackbar } from 'notistack'
 
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
-import { rum } from '../../../lib/client/rum'
-import { eventRegistrationDateKey } from '../../../lib/event'
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
-import { uniqueDate } from '../../../lib/utils'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 
-import { determineChangesFromDrop } from './classEntrySelection/dnd'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
+import {
+  buildRegistrationsByGroup,
+  buildSelectedAdditionalCostsByGroup,
+  buildSelectedAdditionalCostsTotal,
+} from './classEntrySelection/helpers'
 import NoRowsOverlay from './classEntrySelection/NoRowsOverlay'
 import UnlockArrange from './classEntrySelection/UnlockArrange'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
+import { useDnDHandlers } from './classEntrySelection/useDnDHandlers'
+import { useEntryHandlers } from './classEntrySelection/useEntryHandlers'
 
 interface Props {
   readonly event: DogEvent
@@ -54,11 +45,6 @@ interface Props {
   readonly state?: EventClassState | EventState
 }
 
-interface RegistrationWithGroups extends Registration {
-  groups: string[]
-  dropGroups: string[]
-}
-
 declare module '@mui/x-data-grid' {
   interface ToolbarPropsOverrides {
     available: RegistrationDate[]
@@ -67,18 +53,6 @@ declare module '@mui/x-data-grid' {
 }
 
 const ScrollDiv = withScrolling('div')
-
-const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
-  const key = getRegistrationGroupKey(reg)
-
-  if (key === GROUP_KEY_CANCELLED) return GROUP_KEY_CANCELLED
-
-  if (eventGroups.find((eg) => eg.key === key)) {
-    return key
-  }
-
-  return GROUP_KEY_RESERVE
-}
 
 const ClassEntrySelection = ({
   event,
@@ -93,33 +67,18 @@ const ClassEntrySelection = ({
 }: Props) => {
   const confirm = useConfirm()
   const { t } = useTranslation()
-  const { enqueueSnackbar } = useSnackbar()
   const actions = useAdminRegistrationActions(event.id)
   const [unlockArrange, setUnlockArrange] = useState(false)
 
-  const handleOpen = useCallback(
-    (id: string) => {
-      setSelectedRegistrationId?.(id)
-      setOpen?.(true)
-    },
-    [setOpen, setSelectedRegistrationId]
-  )
-
-  const handleCancel = useCallback(
-    (id: string) => {
-      setSelectedRegistrationId?.(id)
-      setCancelOpen?.(true)
-    },
-    [setCancelOpen, setSelectedRegistrationId]
-  )
-
-  const handleRefund = useCallback(
-    async (id: string) => {
-      setSelectedRegistrationId?.(id)
-      setRefundOpen?.(true)
-    },
-    [setRefundOpen, setSelectedRegistrationId]
-  )
+  // Extract entry handlers to dedicated hook
+  const { handleOpen, handleCancel, handleRefund, handleSelectionModeChange, handleCellClick, handleDoubleClick } =
+    useEntryHandlers({
+      setOpen,
+      setCancelOpen,
+      setRefundOpen,
+      setSelectedRegistrationId,
+      registrations,
+    })
 
   const dates = useAdminEventRegistrationDates(event, eventClass)
 
@@ -133,58 +92,20 @@ const ClassEntrySelection = ({
 
   const groups = useAdminEventRegistrationGroups(event, eventClass)
 
-  const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(() => {
-    const byGroup: Record<string, RegistrationWithGroups[]> = { cancelled: [], reserve: [] }
-    for (const reg of registrations) {
-      const key = listKey(reg, groups)
-      const regDates = uniqueDate(reg.dates.map((rd) => rd.date))
-      byGroup[key] = byGroup[key] ?? [] // make sure the array exists
-      byGroup[key].push({
-        ...reg,
-        groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
-        dropGroups: groups.filter((g) => regDates.find((d) => !g.date || isSameDay(g.date, d))).map((g) => g.key),
-      })
-    }
-    for (const regs of Object.values(byGroup)) {
-      regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
-    }
-    return byGroup
-  }, [groups, registrations])
+  const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(
+    () => buildRegistrationsByGroup(registrations, groups),
+    [groups, registrations]
+  )
 
-  const selectedAdditionalCostsByGroup: Record<string, Array<{ cost: CustomCost; count: number }>> = useMemo(() => {
-    if (typeof event.cost === 'number') return {}
+  const selectedAdditionalCostsByGroup: Record<string, Array<{ cost: CustomCost; count: number }>> = useMemo(
+    () => buildSelectedAdditionalCostsByGroup(event, groups, registrationsByGroup),
+    [event, groups, registrationsByGroup]
+  )
 
-    const costs = event.cost.optionalAdditionalCosts
-    if (!costs) return {}
-
-    const result: Record<string, Array<{ cost: CustomCost; count: number }>> = {}
-
-    groups.forEach((g) => {
-      result[g.key] = []
-      const regs = registrationsByGroup[g.key] ?? []
-      costs.forEach((cost, i) => {
-        const count = regs.reduce((acc, r) => acc + (r.optionalCosts?.includes(i) ? 1 : 0), 0)
-        if (count > 0) result[g.key].push({ cost, count })
-      })
-    })
-
-    return result
-  }, [groups, event.cost, registrationsByGroup])
-
-  const selectedAdditionalCostsTotal = useMemo(() => {
-    const totals = new Map<CustomCost, number>()
-    let count = 0
-    groups.forEach((g) => {
-      const selected = selectedAdditionalCostsByGroup[g.key] ?? []
-      selected.forEach((sac) => {
-        const acc = totals.get(sac.cost) ?? 0
-        totals.set(sac.cost, acc + sac.count)
-        count++
-      })
-    })
-    if (count <= 1) return ''
-    return Array.from(totals.entries().map(([cost, count]) => `${cost.description.fi} x ${count}`)).join(', ')
-  }, [groups, selectedAdditionalCostsByGroup])
+  const selectedAdditionalCostsTotal = useMemo(
+    () => buildSelectedAdditionalCostsTotal(groups, selectedAdditionalCostsByGroup),
+    [groups, selectedAdditionalCostsByGroup]
+  )
 
   const reserveNotNotified = useMemo(
     () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),
@@ -192,108 +113,16 @@ const ClassEntrySelection = ({
   )
   const canArrangeReserve = reserveNotNotified || unlockArrange
 
-  const handleDrop = useCallback(
-    (group: RegistrationGroup) => async (item: DragItem) => {
-      const reg = registrations.find((r) => r.id === item.id)
-      if (!reg) {
-        return
-      }
-
-      if (
-        (state === 'picked' || state === 'invited') &&
-        group.key !== GROUP_KEY_CANCELLED &&
-        group.key !== GROUP_KEY_RESERVE &&
-        ((item.targetGroupKey && item.targetGroupKey !== group.key) || item.groupKey !== group.key)
-      ) {
-        const extra = state === 'invited' ? ' sekä koekutsu' : ''
-        const { confirmed } = await confirm({
-          title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
-          description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
-          confirmationText: 'Lisää osallistujiin',
-          cancellationText: t('cancel'),
-        })
-        if (!confirmed) return
-      }
-
-      // make sure the dropped registration is selected, so its intuitive to user
-      setSelectedRegistrationId?.(reg.id)
-
-      // determine all the other registrations in group
-      const regs = registrations.filter((r) => r.group?.key === group.key && r.id !== reg.id)
-      // determine changes
-      const save = determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)
-
-      // send all the updates to backend
-      if (save.length) {
-        if (save.length === 1 && save[0].cancelled) handleCancel(save[0].id)
-        else await actions.saveGroups(reg.eventId, save)
-      }
-    },
-    [registrations, state, confirm, t, setSelectedRegistrationId, canArrangeReserve, handleCancel, actions]
-  )
-
-  const handleReject = useCallback(
-    (group: RegistrationGroup) => (item: DragItem) => {
-      const reg = registrations.find((r) => r.id === item.id)
-      if (!reg) return
-      if (getRegistrationGroupKey(reg) === group.key) {
-        if (group.key === GROUP_KEY_RESERVE) {
-          enqueueSnackbar(`Varasijalla olevia koiria ei voi enää järjestellä, kun varasijailmoituksia on lähetetty`, {
-            variant: 'info',
-          })
-        }
-        return
-      }
-      if (state === 'picked' && group.key === GROUP_KEY_RESERVE) {
-        enqueueSnackbar(`Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`, {
-          variant: 'warning',
-        })
-      } else {
-        rum()?.recordEvent('dnd-group-rejected', {
-          eventId: reg.eventId,
-          registrationId: reg.id,
-          targetGroup: group.key,
-          sourceGroup: reg.group?.key,
-          regGroups: reg.dates.map((rd) => eventRegistrationDateKey(rd)).join(', '),
-          dropGroups: item.groups.join(', '),
-        })
-        enqueueSnackbar(`Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, { variant: 'error' })
-      }
-    },
-    [registrations, state, enqueueSnackbar]
-  )
-
-  const handleSelectionModeChange = useCallback(
-    (selection: GridRowSelectionModel, _details: GridCallbackDetails) => {
-      const value = typeof selection[0] === 'string' ? selection[0] : undefined
-      if (value) {
-        const reg = registrations.find((r) => r.id === value)
-        setSelectedRegistrationId?.(reg?.id)
-      }
-    },
-    [registrations, setSelectedRegistrationId]
-  )
-
-  const handleCellClick = useCallback(
-    async (params: GridCellParams, event: MuiEvent<React.MouseEvent>) => {
-      if (params.field === 'dog.regNo') {
-        event.defaultMuiPrevented = true
-        await navigator.clipboard.writeText(params.value as string)
-        enqueueSnackbar({
-          message: t('registration.regNoCopied', 'Rekisterinumero kopioitu'),
-          variant: 'info',
-          autoHideDuration: 1000,
-          anchorOrigin: {
-            horizontal: 'center',
-            vertical: 'bottom',
-          },
-        })
-      }
-    },
-    [enqueueSnackbar, t]
-  )
-
-  const handleDoubleClick = useCallback(() => setOpen?.(true), [setOpen])
+  // Extract DnD handlers to dedicated hook
+  const { handleDrop, handleReject } = useDnDHandlers({
+    registrations,
+    state,
+    canArrangeReserve,
+    confirm,
+    setSelectedRegistrationId,
+    saveGroups: actions.saveGroups,
+    onCancelOpen: handleCancel,
+  })
 
   return (
     <DndProvider backend={HTML5Backend}>
