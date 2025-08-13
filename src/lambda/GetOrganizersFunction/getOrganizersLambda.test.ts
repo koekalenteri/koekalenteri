@@ -195,46 +195,4 @@ describe('getOrganizersLambda', () => {
       { jäsennumero: '123', strYhdistys: 'New Name' }
     )
   })
-
-  // Skip this test for now as it's difficult to mock correctly
-  // The issue is that getOrganizersLambda calls refreshOrganizersLambda directly,
-  // not through our mock, so we can't easily control its behavior
-  it.skip('handles KLAPI error in refresh mode', async () => {
-    const eventWithRefresh = {
-      ...event,
-      queryStringParameters: { refresh: '' },
-    }
-
-    const user = { id: 'admin1', admin: true }
-    const organizers = [{ id: 'org1', kcId: '123', name: 'Organizer 1' }]
-
-    // Mock the dependencies
-    mockAuthorize.mockResolvedValueOnce(user)
-    mockLueYhdistykset.mockResolvedValueOnce({
-      status: 500,
-      json: null,
-    })
-
-    // Important: We need to mock readAll twice because it's called twice in the handler
-    // First call is to get existing organizers before KLAPI call
-    mockReadAll.mockResolvedValueOnce(organizers)
-    // Second call is to get final list of organizers after KLAPI call
-    mockReadAll.mockResolvedValueOnce(organizers)
-
-    await getOrganizersLambda(eventWithRefresh)
-
-    expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
-    expect(mockLueYhdistykset).toHaveBeenCalled()
-    expect(mockBatchWrite).not.toHaveBeenCalled()
-    expect(mockUpdate).not.toHaveBeenCalled()
-    expect(mockReadAll).toHaveBeenCalledTimes(2)
-    expect(mockResponse).toHaveBeenCalledWith(200, organizers, eventWithRefresh)
-  })
-
-  // For this test, we need to make sure the error is thrown from the lambda wrapper
-  it.skip('handles errors from readAll', async () => {
-    // This test is skipped because it's difficult to mock the error handling behavior
-    // of the lambda wrapper correctly. The lambda wrapper catches all errors and returns
-    // a response with a 501 status code, but our test setup can't easily simulate this.
-  })
 })

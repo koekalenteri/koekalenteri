@@ -41,10 +41,10 @@ type ConditionCheckWithoutTable = Omit<ConditionCheck, 'TableName'>
 
 // Union of the valid stripped operations
 export type TransactWriteItemWithoutTable = {
-  Put?: PutWithoutTable | undefined
-  Update?: UpdateWithoutTable | undefined
-  Delete?: DeleteWithoutTable | undefined
-  ConditionCheck?: ConditionCheckWithoutTable | undefined
+  Put?: PutWithoutTable
+  Update?: UpdateWithoutTable
+  Delete?: DeleteWithoutTable
+  ConditionCheck?: ConditionCheckWithoutTable
 }
 
 function fromSamLocalTable(table: string) {
@@ -298,10 +298,10 @@ export default class CustomDynamoClient {
   async transaction(items: TransactWriteItemWithoutTable[], table?: string) {
     const tableName = table ? fromSamLocalTable(table) : this.table
     const itemsWithTable: TransactWriteItem[] = items.map((item) => ({
-      ConditionCheck: item.ConditionCheck && { ...item.ConditionCheck!, TableName: tableName },
-      Put: item.Put && { ...item.Put!, TableName: tableName },
-      Update: item.Update && { ...item.Update!, TableName: tableName },
-      Delete: item.Delete && { ...item.Delete!, TableName: tableName },
+      ConditionCheck: item.ConditionCheck && { ...item.ConditionCheck, TableName: tableName },
+      Put: item.Put && { ...item.Put, TableName: tableName },
+      Update: item.Update && { ...item.Update, TableName: tableName },
+      Delete: item.Delete && { ...item.Delete, TableName: tableName },
     }))
     console.log('DB.transaction', itemsWithTable)
 

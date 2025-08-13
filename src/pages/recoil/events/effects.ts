@@ -8,9 +8,11 @@ import { getEvents } from '../../../api/event'
 
 import { deserializeFilter, serializeFilter } from './filters'
 
+const eventSort = (a: PublicDogEvent, b: PublicDogEvent) => a.startDate.valueOf() - b.startDate.valueOf()
+
 export const remoteEventsEffect: AtomEffect<PublicDogEvent[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {
-    setSelf(getEvents().then((events) => events.sort((a, b) => a.startDate.valueOf() - b.startDate.valueOf())))
+    setSelf(getEvents().then((events) => events.sort(eventSort)))
   }
 }
 

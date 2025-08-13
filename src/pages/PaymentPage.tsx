@@ -29,7 +29,7 @@ export const loader = async ({ params }: { params: Params<string> }) => {
       try {
         const result = await createPayment(params.id, params.registrationId)
 
-        return result ? result : null
+        return result ?? null
       } catch (err) {
         // eat 404
         if (err instanceof APIError && err.status === 404) return null

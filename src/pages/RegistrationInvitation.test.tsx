@@ -58,37 +58,6 @@ describe('RegistrationInvitation', () => {
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
 
-  it.skip('renders error message when loader fails', async () => {
-    const path = Path.invitation(registrationWithStaticDates)
-    const routes: RouteObject[] = [
-      {
-        path,
-        element: <RegistrationInvitation />,
-        loader: async () => ({
-          data: Promise.reject(new Error('Test error')),
-        }),
-        hydrateFallbackElement: <>hydrate fallback</>,
-      },
-    ]
-
-    const { container } = render(
-      <ThemeProvider theme={theme}>
-        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
-          <RecoilRoot>
-            <Suspense fallback={<LoadingPage />}>
-              <SnackbarProvider>
-                <DataMemoryRouter initialEntries={[path]} routes={routes} />
-              </SnackbarProvider>
-            </Suspense>
-          </RecoilRoot>
-        </LocalizationProvider>
-      </ThemeProvider>
-    )
-    await flushPromises()
-    expect(container).toMatchSnapshot()
-    expect(screen.getByText('Koekutsun avaaminen epäonnistui')).toBeInTheDocument()
-  })
-
   it('redirects to registration page when no invitation URL is available', async () => {
     const path = Path.invitation(registrationWithStaticDates)
     const routes: RouteObject[] = [
