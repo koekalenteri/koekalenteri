@@ -112,7 +112,7 @@ function applyCache(
       result.rfid = true
     }
   } else {
-    result.dog = Object.assign({}, cache?.dog ?? {}, { regNo })
+    result.dog = { ...(cache?.dog ?? {}), regNo }
   }
 
   return result
