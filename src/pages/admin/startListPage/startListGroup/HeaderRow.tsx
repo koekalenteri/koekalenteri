@@ -18,7 +18,7 @@ const HeaderRow = ({ reserve }: Props) => {
       <TableCell>Omistajan jäsenyys</TableCell>
       <TableCell>Ohjaaja</TableCell>
       <TableCell>Ohjaajan jäsenyys</TableCell>
-      <TableCell>Ohjaajan Puhelin</TableCell>
+      <TableCell>Ohjaajan puhelin</TableCell>
       {reserve ? (
         <>
           <TableCell>Paikkakunta</TableCell>

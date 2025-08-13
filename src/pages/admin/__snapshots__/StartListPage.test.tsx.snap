@@ -99,7 +99,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan Puhelin
+              Ohjaajan puhelin
             </td>
           </tr>
           <tr
@@ -227,7 +227,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan Puhelin
+              Ohjaajan puhelin
             </td>
           </tr>
           <tr
@@ -355,7 +355,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan Puhelin
+              Ohjaajan puhelin
             </td>
           </tr>
           <tr
@@ -483,7 +483,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan Puhelin
+              Ohjaajan puhelin
             </td>
           </tr>
           <tr
@@ -633,7 +633,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan Puhelin
+              Ohjaajan puhelin
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -779,7 +779,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan Puhelin
+              Ohjaajan puhelin
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
