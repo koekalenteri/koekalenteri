@@ -2,17 +2,23 @@
     Type: AWS::Serverless::Api
     Properties:
       MethodSettings:
-        - DataTraceEnabled: true
-          MetricsEnabled: true
+        - ResourcePath: '/*'
           HttpMethod: '*'
-          ResourcePath: '/*'
+          DataTraceEnabled: false
+          MetricsEnabled: true
           LoggingLevel: INFO
+
+        # disable metrics on admin routes to reduce costs
+        - ResourcePath: '/admin/*'
+          HttpMethod: '*'
+          MetricsEnabled: false
+
       AccessLogSetting:
         DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
         Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
       Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       StageName: !Ref StageNameParam
-      TracingEnabled: true
+      TracingEnabled: false
       Cors:
         AllowOrigin: "'*'"
         AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,DELETE'"
