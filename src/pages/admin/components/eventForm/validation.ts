@@ -66,6 +66,55 @@ const getMinJudgeCount = (event: PartialEvent) => {
 
 const ZIPCODE_REGEXP = /^\d{5}$/
 
+// Helper functions for costMember validation
+const validateOptionalAdditionalCosts = (cost: DogEventCost, costMember: DogEventCost): string[] => {
+  const list: string[] = []
+  if (cost.optionalAdditionalCosts && costMember.optionalAdditionalCosts) {
+    for (let i = 0; i < cost.optionalAdditionalCosts.length; i++) {
+      if (cost.optionalAdditionalCosts[i].cost < costMember.optionalAdditionalCosts[i].cost) {
+        list.push(`optionalAdditionalCosts[${i}]`)
+      }
+    }
+  }
+  return list
+}
+
+const validateBreedCosts = (cost: DogEventCost, costMember: DogEventCost): string[] => {
+  const list: string[] = []
+  if (cost.breed && costMember.breed) {
+    for (const breedCode of keysOf(cost.breed)) {
+      const costValue = getCostValue(cost, 'breed', breedCode)
+      const memberCostValue = getCostValue(costMember, 'breed', breedCode)
+      if (costValue < memberCostValue) {
+        list.push(`breed[${breedCode}]`)
+      }
+    }
+  }
+  return list
+}
+
+const validateRegularCostField = (cost: DogEventCost, costMember: DogEventCost, key: string): string[] => {
+  const costValue = getCostValue(cost, key as keyof DogEventCost)
+  const memberCostValue = getCostValue(costMember, key as keyof DogEventCost)
+  return costValue < memberCostValue ? [key] : []
+}
+
+const validateComplexCostMember = (cost: DogEventCost, costMember: DogEventCost): string[] => {
+  const list: string[] = []
+
+  for (const key of Object.keys(cost)) {
+    if (key === 'optionalAdditionalCosts') {
+      list.push(...validateOptionalAdditionalCosts(cost, costMember))
+    } else if (key === 'breed') {
+      list.push(...validateBreedCosts(cost, costMember))
+    } else {
+      list.push(...validateRegularCostField(cost, costMember, key))
+    }
+  }
+
+  return list
+}
+
 export const VALIDATORS: Validators<PartialEvent, 'event'> = {
   classes: (event, required) => {
     if (!required) {
@@ -94,38 +143,10 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
       return typeof costMember === 'number' && cost < costMember ? 'costMemberHigh' : false
     }
     if (typeof costMember !== 'object') {
-      // cost is object, costMember is not. This should not happen, but for type safety...
       return false
     }
-    const list: string[] = []
 
-    for (const key of Object.keys(cost)) {
-      if (key === 'optionalAdditionalCosts') {
-        if (cost.optionalAdditionalCosts && costMember.optionalAdditionalCosts) {
-          for (let i = 0; i < cost.optionalAdditionalCosts.length; i++) {
-            if (cost.optionalAdditionalCosts[i].cost < costMember.optionalAdditionalCosts[i].cost) {
-              list.push(`optionalAdditionalCosts[${i}]`)
-            }
-          }
-        }
-      } else if (key === 'breed') {
-        if (cost.breed && costMember.breed) {
-          for (const breedCode of keysOf(cost.breed)) {
-            const costValue = getCostValue(cost, 'breed', breedCode)
-            const memberCostValue = getCostValue(costMember, 'breed', breedCode)
-            if (costValue < memberCostValue) {
-              list.push(`breed[${breedCode}]`)
-            }
-          }
-        }
-      } else {
-        const costValue = getCostValue(cost, key as keyof DogEventCost)
-        const memberCostValue = getCostValue(costMember, key as keyof DogEventCost)
-        if (costValue < memberCostValue) {
-          list.push(key)
-        }
-      }
-    }
+    const list = validateComplexCostMember(cost, costMember)
     return list.length ? { key: 'costMemberHigh', opts: { field: 'costMember', list } } : false
   },
   headquarters: (event, _required) => {
