@@ -103,7 +103,7 @@ export default function RegistrationForm({
       getRequirements(
         registration?.eventType ?? '',
         registration?.class,
-        registration?.dates && registration.dates.length ? registration.dates[0].date : new Date()
+        registration?.dates?.length ? registration.dates[0].date : new Date()
       ),
     [registration?.eventType, registration?.class, registration?.dates]
   )
@@ -419,8 +419,8 @@ export default function RegistrationForm({
           <AccordionDetails data-testid="missing-info">
             {t('registration.accordionInfo')}
             <ul style={{ margin: 0 }}>
-              {errors.map((e, i) => (
-                <li key={i}>{t(`registration.${e.opts.field}` as any)} </li>
+              {errors.map((e) => (
+                <li key={`error-${e.opts.field}`}>{t(`registration.${e.opts.field}` as any)} </li>
               ))}
               {!registration.qualifies ? <li>{t('registration.qualifyingResults')}</li> : null}
             </ul>

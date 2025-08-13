@@ -19,7 +19,7 @@ import { PriorityChips } from './PriorityChips'
 
 interface Props {
   readonly event: PublicDogEvent
-  readonly invitationAttachment?: string | undefined
+  readonly invitationAttachment?: string
 }
 
 const Header = ({ event }: Props) => {

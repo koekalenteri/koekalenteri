@@ -12,8 +12,14 @@ interface PriorityIconProps extends SvgIconProps {
   priority: ReturnType<typeof hasPriority>
 }
 
+const getIcon = (priority: ReturnType<typeof hasPriority>) => {
+  if (priority === 0.5) return StarHalfOutlined
+  if (priority) return StarOutlined
+  return StarBorderOutlined
+}
+
 export const PriorityIcon = ({ dim, priority, ...props }: PriorityIconProps) => {
-  const Icon = priority === 0.5 ? StarHalfOutlined : priority ? StarOutlined : StarBorderOutlined
+  const Icon = getIcon(priority)
   const opacity = !dim || priority ? 1 : DIM_OPACITY
 
   return <Icon {...props} opacity={opacity} />
