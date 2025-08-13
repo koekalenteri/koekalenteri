@@ -5,13 +5,45 @@
         - ResourcePath: '/*'
           HttpMethod: '*'
           DataTraceEnabled: false
-          MetricsEnabled: true
+          MetricsEnabled: false
           LoggingLevel: INFO
 
-        # disable metrics on admin routes to reduce costs
-        - ResourcePath: '/admin/*'
-          HttpMethod: '*'
-          MetricsEnabled: false
+        # enable metrics for these paths
+        - ResourcePath: '/event'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/event/{id}'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/file/{key}/{name}'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/dog/{regNo}'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/registration/{eventId}/{id}'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/startlist/{eventId}'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/yearly-stats'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/user'
+          HttpMethod: 'GET'
+          MetricsEnabled: true
+
+        - ResourcePath: '/registration'
+          HttpMethod: 'POST'
+          MetricsEnabled: true
 
       AccessLogSetting:
         DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
