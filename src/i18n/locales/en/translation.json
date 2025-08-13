@@ -496,6 +496,14 @@
     }
   },
   "users": "Users",
+  "invitation": {
+    "openingFailed": "Failed to open the event invitation",
+    "event": "Event",
+    "registeredDog": "Registered dog",
+    "handler": "Handler",
+    "open": "Open invitation",
+    "download": "Download invitation"
+  },
   "validation": {
     "event": {
       "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",

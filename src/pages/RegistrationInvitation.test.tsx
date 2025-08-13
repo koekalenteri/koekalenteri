@@ -140,12 +140,12 @@ describe('RegistrationInvitation', () => {
     expect(screen.getByText(registrationWithStaticDates.handler.name)).toBeInTheDocument()
 
     // Check that buttons are displayed
-    expect(screen.getByText('Avaa koekutsu')).toBeInTheDocument()
-    expect(screen.getByText('Lataa koekutsu')).toBeInTheDocument()
+    expect(screen.getByText('invitation.open')).toBeInTheDocument()
+    expect(screen.getByText('invitation.download')).toBeInTheDocument()
 
     // Check that links have correct URLs
-    const openButton = screen.getByText('Avaa koekutsu').closest('a')
-    const downloadButton = screen.getByText('Lataa koekutsu').closest('a')
+    const openButton = screen.getByText('invitation.open').closest('a')
+    const downloadButton = screen.getByText('invitation.download').closest('a')
 
     expect(openButton).toHaveAttribute('href', invitationUrl)
     expect(downloadButton).toHaveAttribute('href', `${invitationUrl}?dl`)

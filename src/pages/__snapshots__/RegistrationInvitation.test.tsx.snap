@@ -1,13 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`RegistrationInvitation renders error message when loader fails 1`] = `
-<div>
-  <div>
-    Koekutsun avaaminen epäonnistui
-  </div>
-</div>
-`;
-
 exports[`RegistrationInvitation renders invitation page when URL is available 1`] = `
 <div>
   <main
@@ -20,7 +12,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
       <span
         class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
       >
-        Koe
+        invitation.event
       </span>
       <p
         class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -37,7 +29,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
       <span
         class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
       >
-        Ilmoitettu koira
+        invitation.registeredDog
       </span>
       <p
         class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -51,7 +43,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
       <span
         class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
       >
-        Ohjaaja
+        invitation.handler
       </span>
       <p
         class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -72,7 +64,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
           href="/test-invitation-url"
           target="_blank"
         >
-          Avaa koekutsu
+          invitation.open
         </a>
       </div>
       <div
@@ -85,7 +77,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
           download="kutsu.pdf"
           href="/test-invitation-url?dl"
         >
-          Lataa koekutsu
+          invitation.download
         </a>
       </div>
     </div>

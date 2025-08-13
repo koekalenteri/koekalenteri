@@ -7,6 +7,7 @@ import { Await, Navigate, useLoaderData } from 'react-router'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import i18n from 'i18next'
 
 import { getEvent } from '../api/event'
 import { getRegistration, putRegistration } from '../api/registration'
@@ -41,6 +42,8 @@ export const deferredLoader = async (
 
   if (!event || !registration) throw new Error('not found')
 
+  i18n.changeLanguage(registration.language)
+
   if (!registration.invitationRead) {
     registration.invitationRead = true
     await putRegistration(registration, undefined, signal)
@@ -73,28 +76,28 @@ export const Component = () => {
 
   return (
     <Suspense fallback={<LoadingPage />}>
-      <Await resolve={loaderData.data} errorElement={<div>Koekutsun avaaminen epäonnistui</div>}>
+      <Await resolve={loaderData.data} errorElement={<div>{t('invitation.openingFailed')}</div>}>
         {({ url, event, registration }: DeferredData) => {
           if (!url) return <Navigate replace to={Path.registration(registration)} />
 
           return (
             <main style={{ padding: '8px' }}>
               <Paper sx={{ p: 1 }}>
-                <Typography variant="caption">Koe</Typography>
+                <Typography variant="caption">{t('invitation.event')}</Typography>
                 <Typography>
                   {event.eventType} {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}{' '}
                   {event.location} ({event.name})
                 </Typography>
-                <Typography variant="caption">Ilmoitettu koira</Typography>
+                <Typography variant="caption">{t('invitation.registeredDog')}</Typography>
                 <Typography>
                   {registration.dog.titles} {registration.dog.regNo} {registration.dog.name}
                 </Typography>
-                <Typography variant="caption">Ohjaaja</Typography>
+                <Typography variant="caption">{t('invitation.handler')}</Typography>
                 <Typography>{registration.handler.name}</Typography>
               </Paper>
               <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
-                <LinkButton target="_blank" to={url} text="Avaa koekutsu" />
-                <LinkButton download="kutsu.pdf" to={`${url}?dl`} text="Lataa koekutsu" />
+                <LinkButton target="_blank" to={url} text={t('invitation.open')} />
+                <LinkButton download="kutsu.pdf" to={`${url}?dl`} text={t('invitation.download')} />
               </Stack>
             </main>
           )

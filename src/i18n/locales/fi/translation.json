@@ -497,6 +497,14 @@
     }
   },
   "users": "Käyttäjät",
+  "invitation": {
+    "openingFailed": "Koeutsun avaaminen epäonnistui",
+    "event": "Tapahtuma",
+    "registeredDog": "Ilmoitettu koira",
+    "handler": "Ohjaaja",
+    "open": "Avaa koekutsu",
+    "download": "Lataa koekutsu"
+  },
   "validation": {
     "event": {
       "classes": "Koeluokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
