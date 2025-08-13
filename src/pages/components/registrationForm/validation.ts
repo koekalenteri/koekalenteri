@@ -169,7 +169,13 @@ export function filterRelevantResults(
 
   const usedEntryEndDate = entryOrigEndDate ?? entryEndDate
 
-  const check = checkRequiredResults(rules, officialResults, manualValid, usedEntryEndDate, qualificationStartDate)
+  const check = checkRequiredResults(
+    rules,
+    officialResults ?? [],
+    manualValid ?? [],
+    usedEntryEndDate,
+    qualificationStartDate
+  )
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
@@ -177,8 +183,8 @@ export function filterRelevantResults(
       nextClass &&
       checkRequiredResults(
         nextClassRules ?? undefined,
-        officialNotThisYear,
-        manulNotThisYear,
+        officialNotThisYear ?? [],
+        manulNotThisYear ?? [],
         usedEntryEndDate,
         qualificationStartDate,
         false
@@ -215,8 +221,8 @@ function findDisqualifyingResult(
 
 function checkRequiredResults(
   requirements: EventResultRequirementsByDate | undefined,
-  officialResults: TestResult[] = [],
-  manualResults: ManualTestResult[] = [],
+  officialResults: TestResult[],
+  manualResults: ManualTestResult[],
   entryEndDate: Date | undefined,
   qualificationStartDate: Date | undefined,
   qualifying = true
