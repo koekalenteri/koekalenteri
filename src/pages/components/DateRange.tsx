@@ -103,7 +103,7 @@ export default function DateRange({
           label={endLabel}
           value={end}
           format={t('dateFormatString.long')}
-          minDate={start ? start : range?.start}
+          minDate={start ?? range?.start}
           maxDate={range?.end}
           onChange={endChanged}
           slotProps={{
