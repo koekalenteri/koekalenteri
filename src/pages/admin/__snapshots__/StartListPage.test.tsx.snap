@@ -25,7 +25,7 @@ exports[`OrganizerListPage renders 1`] = `
               <h5
                 class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
               >
-                eeeeee d.M.
+                eee d.M.
               </h5>
             </td>
           </tr>

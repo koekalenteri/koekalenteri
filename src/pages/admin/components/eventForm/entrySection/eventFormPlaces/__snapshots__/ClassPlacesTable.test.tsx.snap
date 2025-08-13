@@ -41,7 +41,7 @@ exports[`ClassPlacesTable should render correctly 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
           scope="row"
         >
-          eeeeee d.M.
+          eee d.M.
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -91,7 +91,7 @@ exports[`ClassPlacesTable should render correctly 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
           scope="row"
         >
-          eeeeee d.M.
+          eee d.M.
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -231,7 +231,7 @@ exports[`ClassPlacesTable should render with classesEnabled=false 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
           scope="row"
         >
-          eeeeee d.M.
+          eee d.M.
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -282,7 +282,7 @@ exports[`ClassPlacesTable should render with classesEnabled=false 1`] = `
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
           scope="row"
         >
-          eeeeee d.M.
+          eee d.M.
         </th>
         <td
           class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"

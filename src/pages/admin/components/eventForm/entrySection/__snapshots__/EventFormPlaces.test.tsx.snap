@@ -86,7 +86,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               scope="row"
             >
-              eeeeee d.M.
+              eee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -137,7 +137,7 @@ exports[`EventFormPlaces should render with classes 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               scope="row"
             >
-              eeeeee d.M.
+              eee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -321,7 +321,7 @@ exports[`EventFormPlaces should render with minimal information 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               scope="row"
             >
-              eeeeee d.M.
+              eee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -500,7 +500,7 @@ exports[`EventFormPlaces should render with placesPerDay 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               scope="row"
             >
-              eeeeee d.M.
+              eee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -547,7 +547,7 @@ exports[`EventFormPlaces should render with placesPerDay 1`] = `
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               scope="row"
             >
-              eeeeee d.M.
+              eee d.M.
             </th>
             <td
               class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
