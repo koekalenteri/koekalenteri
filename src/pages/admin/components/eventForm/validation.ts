@@ -5,6 +5,7 @@ import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './t
 
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { getCostValue } from '../../../../lib/cost'
+import { isDevEnv } from '../../../../lib/env'
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
 import { keysOf } from '../../../../lib/typeGuards'
 import { unique } from '../../../../lib/utils'
@@ -206,9 +207,9 @@ export function requiredFields(event: PartialEvent): FieldRequirements {
   }
   for (const state of states) {
     const required = REQUIRED_BY_STATE[state]
-    for (const prop in required) {
-      result.state[prop as keyof DogEvent] = state
-      result.required[prop as keyof DogEvent] = resolve(required[prop as keyof DogEvent] ?? false, event)
+    for (const prop of keysOf(required)) {
+      result.state[prop] = state
+      result.required[prop] = resolve(required[prop], event)
     }
   }
   return result
@@ -251,13 +252,12 @@ export function validateEventField(
 export function validateEvent(event: PartialEvent) {
   const required = requiredFields(event).required
   const errors = []
-  let field: keyof DogEvent
-  const fields = unique(Object.keys(event).concat(Object.keys(required))) as Array<keyof DogEvent>
-  for (field of fields) {
+  const fields = unique(Object.keys(event).concat(keysOf(required))) as Array<keyof DogEvent>
+  for (const field of fields) {
     const result = validateEventField(event, field, !!required[field])
     if (result) {
-      if (typeof jest === 'undefined') {
-        console.log(result)
+      if (isDevEnv()) {
+        console.debug(result)
       }
       errors.push(result)
     }

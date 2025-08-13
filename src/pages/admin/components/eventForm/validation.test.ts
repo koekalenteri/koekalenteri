@@ -1,4 +1,5 @@
 import { emptyEvent } from '../../../../__mockData__/emptyEvent'
+import * as env from '../../../../lib/env'
 
 import { requiredFields, validateEvent, validateEventField, VALIDATORS } from './validation'
 
@@ -195,6 +196,27 @@ describe('validation', () => {
       const req = requiredFields({ ...emptyEvent, state: 'confirmed' as const, eventType: 'SOME' as any })
       expect(req.required.classes).toBeFalsy()
     })
+
+    it('handles undefined event state', () => {
+      const event = { ...emptyEvent, state: undefined } as any
+      const req = requiredFields(event)
+      // Should default to 'draft' state
+      expect(req.required.startDate).toBe(true)
+      expect(req.required.endDate).toBe(true)
+      expect(req.required.eventType).toBe(true)
+      expect(req.required.organizer).toBe(true)
+      expect(req.required.secretary).toBe(true)
+      expect(req.state.startDate).toBe('draft')
+    })
+
+    it('handles non-standard event states', () => {
+      const event = { ...emptyEvent, state: 'picked' as const } as any
+      const req = requiredFields(event)
+      // 'picked' should include 'confirmed' state requirements
+      expect(req.required.classes).toBeDefined()
+      expect(req.required.judges).toBe(true)
+      expect(req.required.places).toBe(true)
+    })
   })
 
   describe('validateEventField()', () => {
@@ -204,6 +226,15 @@ describe('validation', () => {
       expect(res).toEqual({
         key: 'validationError',
         opts: { field: 'name', state: 'draft' },
+      })
+    })
+
+    it('handles undefined event state', () => {
+      const event = { ...emptyEvent, state: undefined, secretary: undefined } as any
+      const res = validateEventField(event, 'secretary', true)
+      expect(res).toEqual({
+        key: 'validationError',
+        opts: { field: 'secretary', state: 'draft' }, // Should default to 'draft'
       })
     })
 
@@ -301,6 +332,20 @@ describe('validation', () => {
     it('returns false when required is false', () => {
       const ev = { ...emptyEvent, judges: [] } as any
       expect(VALIDATORS.judges?.(ev, false)).toBe(false)
+    })
+
+    it('counts judges with only name but no id', () => {
+      const event = {
+        ...emptyEvent,
+        classes: [],
+        eventType: 'NOME-A',
+        judges: [
+          { name: 'Judge with name only' }, // No id
+          { name: 'Another judge with name only' }, // No id
+        ],
+      } as any
+      const result = VALIDATORS.judges?.(event, true)
+      expect(result).toBe(false) // Should pass with 2 judges for NOME-A
     })
 
     it('handles array judges in class assignment validation', () => {
@@ -462,6 +507,16 @@ describe('validation', () => {
       const errors = validateEvent(event)
       // Ensure no error object with field 'official'
       expect(errors.find((e: any) => e?.opts?.field === 'official')).toBeUndefined()
+    })
+
+    it('logs to console in development environment', () => {
+      jest.spyOn(env, 'isDevEnv').mockReturnValue(true)
+      const consoleSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+      const event = { ...emptyEvent, state: 'confirmed' as const, eventType: 'SOME' as any, official: undefined } as any
+      const errors = validateEvent(event)
+
+      expect(errors.length).toBe(3)
+      expect(consoleSpy).toHaveBeenCalledTimes(3)
     })
   })
 })

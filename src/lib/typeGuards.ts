@@ -5,7 +5,7 @@ export const isConfirmedEvent = (event?: Partial<DogEvent> | null): event is Con
 
 export const isDefined = <T>(value: T | undefined): value is T => value !== undefined
 
-export const keysOf = <o extends object>(o: o) => Object.keys(o) as (keyof o)[]
+export const keysOf = <O extends Record<string, unknown>>(o: O) => Object.keys(o) as (keyof O)[]
 
 export const exhaustiveStringTuple =
   <T extends string>() =>
