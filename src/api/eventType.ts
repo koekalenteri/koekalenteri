@@ -2,7 +2,7 @@ import type { EventType, EventTypeData } from '../types'
 
 import http, { withToken } from './http'
 
-const PATH = '/eventType/'
+const PATH = '/admin/eventType/'
 
 export async function getEventTypes(token: string, refresh?: boolean, signal?: AbortSignal) {
   const qs = refresh ? '?refresh' : ''

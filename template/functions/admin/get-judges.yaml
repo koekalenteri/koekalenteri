@@ -29,7 +29,7 @@
         GetJudges:
           Type: Api
           Properties:
-            Path: /judge
+            Path: /admin/judge
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:

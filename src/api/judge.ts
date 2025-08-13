@@ -2,7 +2,7 @@ import type { Judge } from '../types'
 
 import http, { withToken } from './http'
 
-const PATH = '/judge/'
+const PATH = '/admin/judge/'
 
 export async function getJudges(token: string, refresh?: boolean, signal?: AbortSignal) {
   const qs = refresh ? '?refresh' : ''

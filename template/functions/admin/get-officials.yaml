@@ -29,7 +29,7 @@
         GetOfficials:
           Type: Api
           Properties:
-            Path: /official
+            Path: /admin/official
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:

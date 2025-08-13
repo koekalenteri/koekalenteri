@@ -27,7 +27,7 @@
         GetEventTypes:
           Type: Api
           Properties:
-            Path: /eventType
+            Path: /admin/eventType
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:

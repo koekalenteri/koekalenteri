@@ -24,7 +24,7 @@
         PutEventType:
           Type: Api
           Properties:
-            Path: /eventType
+            Path: /admin/eventType
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:

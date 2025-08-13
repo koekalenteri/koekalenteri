@@ -20,7 +20,7 @@
         PutJudge:
           Type: Api
           Properties:
-            Path: /judge
+            Path: /admin/judge
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:
