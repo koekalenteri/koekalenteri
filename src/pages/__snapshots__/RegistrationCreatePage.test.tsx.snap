@@ -2875,14 +2875,6 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     registration.owner
                      
                   </li>
-                  <li>
-                    registration.selectedCost
-                     
-                  </li>
-                  <li>
-                    registration.optionalCosts
-                     
-                  </li>
                 </ul>
               </div>
             </div>
@@ -5698,14 +5690,6 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                   </li>
                   <li>
                     registration.owner
-                     
-                  </li>
-                  <li>
-                    registration.selectedCost
-                     
-                  </li>
-                  <li>
-                    registration.optionalCosts
                      
                   </li>
                   <li>

@@ -39,6 +39,8 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   payer: (reg) => (reg.ownerPays ? false : validatePerson(reg.payer, false)),
   reserve: (reg) => (!reg.reserve ? 'reserve' : false),
   results: () => false,
+  selectedCost: () => false,
+  optionalCosts: () => false,
 }
 
 function validateRegistrationField(

@@ -47,6 +47,9 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
     if (!registration.selectedCost && cost.segment !== 'legacy') {
       onChange?.({ selectedCost: cost.segment, optionalCosts: [] })
     }
+    if (cost.segment === 'legacy' && (registration.selectedCost || registration.optionalCosts)) {
+      onChange?.({ selectedCost: undefined, optionalCosts: undefined })
+    }
   }, [registration, cost])
 
   if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
