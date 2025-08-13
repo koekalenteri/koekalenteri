@@ -203,7 +203,7 @@ export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']):
   if (group.key === GROUP_KEY_CANCELLED) return `Peruneet #${group.number}`
   if (group.key === GROUP_KEY_RESERVE) return `Ilmoittautuneet #${group.number}`
 
-  const groupKey = [group.date && formatDate(group.date, 'eeeeee d.M.'), group.time].filter(isDefined).join(' ')
+  const groupKey = [group.date && formatDate(group.date, 'eee d.M.'), group.time].filter(isDefined).join(' ')
 
   return `${groupKey} #${group.number}`
 }

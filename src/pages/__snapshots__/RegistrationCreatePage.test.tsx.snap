@@ -253,7 +253,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              NOU, eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip / eeeeee registration.timeLong.ap / eeeeee registration.timeLong.ip, registration.reserveChoises.DAY
+              NOU, eee registration.timeLong.ap / eee registration.timeLong.ip / eee registration.timeLong.ap / eee registration.timeLong.ip, registration.reserveChoises.DAY
             </p>
           </div>
           <div
@@ -455,7 +455,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee d.M.
+                                eee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -478,7 +478,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee d.M.
+                                eee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -600,7 +600,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ap
+                                eee registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -623,7 +623,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ip
+                                eee registration.timeLong.ip
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -646,7 +646,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ap
+                                eee registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -669,7 +669,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ip
+                                eee registration.timeLong.ip
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -3349,7 +3349,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee d.M.
+                                eee d.M.
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -3471,7 +3471,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ap
+                                eee registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -3494,7 +3494,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eeeeee registration.timeLong.ip
+                                eee registration.timeLong.ip
                               </span>
                               <svg
                                 aria-hidden="true"

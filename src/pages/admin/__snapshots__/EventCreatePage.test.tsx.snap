@@ -1617,7 +1617,7 @@ exports[`EventEditPage renders properly when creating a new event 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  eeeeee d.M.
+                                  eee d.M.
                                 </th>
                                 <td
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"

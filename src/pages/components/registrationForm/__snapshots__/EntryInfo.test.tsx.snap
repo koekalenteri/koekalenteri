@@ -36,7 +36,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
         >
-          ALO, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
+          ALO, eee registration.timeLong.ap, registration.reserveChoises.ANY
         </p>
       </div>
       <div
@@ -231,7 +231,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                           <span
                             class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                           >
-                            eeeeee d.M.
+                            eee d.M.
                           </span>
                           <svg
                             aria-hidden="true"
@@ -353,7 +353,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                           <span
                             class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                           >
-                            eeeeee registration.timeLong.ap
+                            eee registration.timeLong.ap
                           </span>
                           <svg
                             aria-hidden="true"
@@ -491,7 +491,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
         >
-          NOU, eeeeee registration.timeLong.ap, registration.reserveChoises.ANY
+          NOU, eee registration.timeLong.ap, registration.reserveChoises.ANY
         </p>
       </div>
       <div
@@ -686,7 +686,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                           <span
                             class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                           >
-                            eeeeee d.M.
+                            eee d.M.
                           </span>
                           <svg
                             aria-hidden="true"
@@ -808,7 +808,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                           <span
                             class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                           >
-                            eeeeee registration.timeLong.ap
+                            eee registration.timeLong.ap
                           </span>
                           <svg
                             aria-hidden="true"

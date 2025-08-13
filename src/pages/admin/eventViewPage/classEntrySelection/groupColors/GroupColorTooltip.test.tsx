@@ -39,7 +39,7 @@ describe('GroupColorTooltip', () => {
     await user.hover(screen.getByTestId('child-element'))
 
     // Check that the tooltip is shown with the correct text
-    expect(screen.getByLabelText('Sopivat ryhmät: eeeeee registration.time.ap')).toBeInTheDocument()
+    expect(screen.getByLabelText('Sopivat ryhmät: eee registration.time.ap')).toBeInTheDocument()
   })
 
   it('creates tooltip with correct title for multiple dates/times', async () => {
@@ -59,7 +59,7 @@ describe('GroupColorTooltip', () => {
 
     // Check that the tooltip is shown with the correct text
     expect(
-      screen.getByLabelText('Sopivat ryhmät: eeeeee registration.time.ap, eeeeee registration.time.ip')
+      screen.getByLabelText('Sopivat ryhmät: eee registration.time.ap, eee registration.time.ip')
     ).toBeInTheDocument()
   })
 

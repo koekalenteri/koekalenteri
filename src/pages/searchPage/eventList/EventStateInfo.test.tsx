@@ -25,14 +25,14 @@ describe('EventStateInfo', () => {
   it('should render start list link for invited event', () => {
     const { container } = render(<EventStateInfo id={'test-id'} state={'invited'} />, { wrapper: Wrapper })
 
-    expect(screen.getByText('Katso osallistujalista')).toBeInTheDocument()
+    expect(screen.getByText('viewStartList')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 
   it('should render start list link for started event', () => {
     const { container } = render(<EventStateInfo id={'test-id'} state={'started'} />, { wrapper: Wrapper })
 
-    expect(screen.getByText('Katso osallistujalista')).toBeInTheDocument()
+    expect(screen.getByText('viewStartList')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 

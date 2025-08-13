@@ -11,9 +11,9 @@ export const useTranslation = () => {
         case 'dateFormat.short':
           return 'dd.MM.'
         case 'dateFormat.wdshort':
-          return 'eeeeee d.M.'
+          return 'eee d.M.'
         case 'dateFormat.weekday':
-          return 'eeeeee'
+          return 'eee'
 
         case 'dateFormatString.long':
           return 'dd.MM.yyyy'

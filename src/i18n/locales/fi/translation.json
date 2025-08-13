@@ -286,6 +286,11 @@
   "registration": {
     "accordionInfo": "Puutteelliset tiedot:",
     "accordionTitle": "Miksi en voi siirtyä eteenpäin?",
+    "actions": {
+      "cancel": "Peru ilmoittautuminen",
+      "edit": "Muokkaa ilmoittautumista",
+      "pay": "Maksa ilmoittautuminen"
+    },
     "agreeToTerms": "Ehdot ja tietosuojaseloste",
     "breeder": "Kasvattajan tiedot",
     "cancelDialog": {
@@ -428,6 +433,11 @@
     "state": {
       "cancelled": "Tämä ilmoittautuminen on peruttu"
     },
+    "priority": {
+      "hasPriority": "Olen etusijalla",
+      "noPriority": "En ole etusijalla"
+    },
+    "registeredDogs": "Ilmoitetut koirat",
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",
     "time": {
       "ap": "(ap)",
@@ -522,5 +532,6 @@
       "terms": "Ilmoittautumisen ehtojen ja tietosuojaselosteen hyväksyminen on pakollista."
     }
   },
+  "viewStartList": "Katso osallistujalista",
   "withdraw": "Peru"
 }

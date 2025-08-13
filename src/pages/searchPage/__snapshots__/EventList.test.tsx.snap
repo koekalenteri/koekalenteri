@@ -208,7 +208,7 @@ exports[`EventList should render 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eeeeee d.M.
+                    eee d.M.
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"

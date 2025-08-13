@@ -18,7 +18,7 @@ export function EventStateInfo({ id, state, startListPublished, text = null }: P
   const { t } = useTranslation()
 
   if (isStartListAvailable({ state, startListPublished })) {
-    return <LinkButton to={Path.startList(id)} text="Katso osallistujalista" />
+    return <LinkButton to={Path.startList(id)} text={t('viewStartList')} />
   }
 
   return (

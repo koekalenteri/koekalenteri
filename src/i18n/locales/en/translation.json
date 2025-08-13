@@ -285,6 +285,11 @@
   "registration": {
     "accordionInfo": "Missing information:",
     "accordionTitle": "Why can't I proceed?",
+    "actions": {
+      "cancel": "Cancel registration",
+      "edit": "Edit registration",
+      "pay": "Pay registration"
+    },
     "agreeToTerms": "Terms and privacy policy",
     "breeder": "Breeder information",
     "cancelDialog": {
@@ -427,6 +432,11 @@
     "state": {
       "cancelled": "This registration is cancelled"
     },
+    "priority": {
+      "hasPriority": "I have priority",
+      "noPriority": "I don't have priority"
+    },
+    "registeredDogs": "Registered dogs",
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",
     "time": {
       "ap": "(am)",
@@ -521,5 +531,6 @@
       "terms": "It is mandatory to accept registration terms and the data protection statement."
     }
   },
+  "viewStartList": "View participant list",
   "withdraw": "Withdraw"
 }

@@ -108,7 +108,7 @@ describe('RegistrationListPage', () => {
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
     // Check that the main components are rendered
-    expect(screen.getByText('Ilmoitetut koirat')).toBeInTheDocument()
+    expect(screen.getByText('registration.registeredDogs')).toBeInTheDocument()
   })
 
   it('opens cancel dialog when on cancel route', async () => {

@@ -88,7 +88,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
               value="custom"
               disabled={disabled || !appliedCost.custom}
               control={<Radio />}
-              label={`${appliedCost.custom.description[registration.language ?? 'fi']} (${formatMoney(appliedCost.custom.cost)})`}
+              label={`${appliedCost.custom.description[registration.language ?? 'fi'] || appliedCost.custom.description.fi} (${formatMoney(appliedCost.custom.cost)})`}
             />
           )}
         </RadioGroup>
@@ -101,7 +101,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
           helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
         >
           {cost.cost?.optionalAdditionalCosts?.map((c, index) => (
-            <Box key={index}>
+            <Box key={c.description.fi}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -110,7 +110,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                   />
                 }
                 disabled={disabled}
-                label={`${c.description.fi} (${formatMoney(c.cost)})`}
+                label={`${c.description[registration.language ?? 'fi'] || c.description.fi} (${formatMoney(c.cost)})`}
               />
             </Box>
           ))}

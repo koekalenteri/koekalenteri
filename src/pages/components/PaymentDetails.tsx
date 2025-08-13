@@ -25,8 +25,8 @@ export const PaymentDetails = ({ event, registration, includePayable }: Props) =
   const costSegmentName = getCostSegmentName(details.strategy)
   const member = details.isMember ? ` (${t('costForMembers')})` : ''
   const costDescription =
-    details.strategy === 'custom' && details.costObject?.custom?.description[language]
-      ? details.costObject?.custom?.description[language]
+    details.strategy === 'custom' && details.costObject?.custom?.description.fi
+      ? details.costObject?.custom?.description[language] || details.costObject?.custom?.description.fi
       : t(costSegmentName, details.translationOptions)
 
   return (

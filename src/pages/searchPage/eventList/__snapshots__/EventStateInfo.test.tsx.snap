@@ -11,7 +11,7 @@ exports[`EventStateInfo should render start list link for invited event 1`] = `
       data-discover="true"
       href="/startlist/test-id"
     >
-      Katso osallistujalista
+      viewStartList
     </a>
   </div>
    
@@ -29,7 +29,7 @@ exports[`EventStateInfo should render start list link for started event 1`] = `
       data-discover="true"
       href="/startlist/test-id"
     >
-      Katso osallistujalista
+      viewStartList
     </a>
   </div>
    

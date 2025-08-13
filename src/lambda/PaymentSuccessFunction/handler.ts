@@ -63,13 +63,14 @@ const handleSuccessfulPayment = async (
     const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
     const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
     const costSegmentName =
-      paymentDetails.strategy === 'custom' && paymentDetails.costObject?.custom?.description?.[registration.language]
-        ? paymentDetails.costObject.custom.description[registration.language]
+      paymentDetails.strategy === 'custom' && paymentDetails.costObject?.custom?.description?.fi
+        ? paymentDetails.costObject.custom.description[registration.language] ||
+          paymentDetails.costObject?.custom?.description?.fi
         : t(getCostSegmentName(paymentDetails.strategy), paymentDetails.translationOptions)
     const registrationCostName = `${costSegmentName}${memberPrice}`
     const registrationCost = `${formatMoney(paymentDetails.cost)}`
     const optionalCosts = paymentDetails.optionalCosts
-      .map((o) => `${o.description[registration.language]}${memberPrice} ${formatMoney(o.cost)}`)
+      .map((o) => `${o.description[registration.language] || o.description.fi}${memberPrice} ${formatMoney(o.cost)}`)
       .join(', ')
     await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
       ...templateData,

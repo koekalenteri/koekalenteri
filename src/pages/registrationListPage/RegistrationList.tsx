@@ -38,7 +38,7 @@ const RegistrationListItemTooltipIcons = ({ registration, priority }: Registrati
     <>
       <TooltipIcon
         key="priority"
-        text={priority ? 'Olen etusijalla' : 'En ole etusijalla'}
+        text={priority ? t('registration.priority.hasPriority') : t('registration.priority.noPriority')}
         icon={<PriorityIcon dim priority={priority} fontSize="small" />}
       />
       <TooltipIcon
@@ -126,7 +126,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
             key="edit"
             color="info"
             icon={<EditOutlined />}
-            label="Muokkaa ilmoittautumista"
+            label={t('registration.actions.edit')}
             onClick={() => onEdit(params.row)}
           />,
           <GridActionsCellItem
@@ -134,7 +134,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
             key="cancel"
             color="error"
             icon={<CancelOutlined />}
-            label="Peru ilmoittautuminen"
+            label={t('registration.actions.cancel')}
             onClick={() => onUnregister(params.row)}
           />,
         ]
@@ -145,7 +145,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
               key="pay"
               color="info"
               icon={<EuroOutlined />}
-              label="Maksa ilmoittautuminen"
+              label={t('registration.actions.pay')}
               onClick={() => navigate(Path.payment(params.row))}
             />,
             ...always,
@@ -160,7 +160,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
 
   return (
     <Box sx={{ p: { xs: 0.5, md: 1 }, mb: 1, width: '100%' }}>
-      <Typography variant="h5">Ilmoitetut koirat</Typography>
+      <Typography variant="h5">{t('registration.registeredDogs')}</Typography>
       <Box sx={{ height: 120, '& .cancelled': { opacity: 0.75 }, width: '100%' }}>
         <StyledDataGrid
           hideFooter={true}

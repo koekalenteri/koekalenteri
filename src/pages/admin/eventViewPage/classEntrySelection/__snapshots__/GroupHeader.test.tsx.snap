@@ -12,7 +12,7 @@ exports[`GroupHeader renders 1`] = `
       data-testid="group-colors"
     />
     <b>
-      eeeeee d.M. registration.timeLong.ap
+      eee d.M. registration.timeLong.ap
     </b>
   </div>
 </div>
