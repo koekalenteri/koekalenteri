@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { EventState } from '../../../types'
 
 import { useTranslation } from 'react-i18next'
@@ -11,7 +12,7 @@ interface Props {
   readonly id: string
   readonly state: EventState
   readonly startListPublished?: boolean
-  readonly text?: string | null
+  readonly text?: string | ReactNode | null
 }
 
 export function EventStateInfo({ id, state, startListPublished, text = null }: Props) {

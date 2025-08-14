@@ -6731,7 +6731,16 @@ exports[`SearchPage filters by event class 1`] = `
               <span
                 class="MuiBox-root css-1lejymi"
               >
-                ⏳ dateFormat.date date
+                <div
+                  style="position: relative;"
+                >
+                  <span
+                    class="MuiTypography-root MuiTypography-caption css-1t3oyb4-MuiTypography-root"
+                  >
+                    entryOpens
+                  </span>
+                  dateFormat.date date
+                </div>
               </span>
             </div>
           </div>

@@ -32,7 +32,25 @@ const EventHeader = ({ event }: Props) => {
     if (isEntryClosed(event)) return t('event.states.confirmed_entryClosed_info')
 
     if (event.state !== 'tentative' && isEntryUpcoming(event))
-      return '⏳ ' + t('dateFormat.date', { date: event.entryStartDate })
+      return (
+        <div style={{ position: 'relative' }}>
+          <Typography
+            variant="caption"
+            color="textSecondary"
+            sx={{
+              position: 'absolute',
+              bottom: '20px',
+              lineHeight: '12px',
+              right: 0,
+              fontSize: '10px',
+              textAlign: 'right',
+            }}
+          >
+            {t('entryOpens')}
+          </Typography>
+          {t('dateFormat.date', { date: event.entryStartDate })}
+        </div>
+      )
 
     return null
   }, [event, t])
