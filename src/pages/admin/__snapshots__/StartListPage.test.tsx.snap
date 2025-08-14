@@ -84,7 +84,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Omistajan on jäsen
+              Omistaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -94,7 +94,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan on jäsen
+              Ohjaaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -212,7 +212,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Omistajan on jäsen
+              Omistaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -222,7 +222,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan on jäsen
+              Ohjaaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -340,7 +340,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Omistajan on jäsen
+              Omistaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -350,7 +350,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan on jäsen
+              Ohjaaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -468,7 +468,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Omistajan on jäsen
+              Omistaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -478,7 +478,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan on jäsen
+              Ohjaaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -618,7 +618,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Omistajan on jäsen
+              Omistaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -628,7 +628,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan on jäsen
+              Ohjaaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -764,7 +764,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Omistajan on jäsen
+              Omistaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -774,7 +774,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              Ohjaajan on jäsen
+              Ohjaaja on jäsen
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
