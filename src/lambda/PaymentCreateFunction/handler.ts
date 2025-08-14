@@ -72,7 +72,18 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     phone: registration.payer.phone,
   }
 
-  const result = await createPayment(getApiHost(event), getOrigin(event), amount, reference, stamp, items, customer)
+  const language = registration.language === 'en' ? 'EN' : 'FI'
+
+  const result = await createPayment(
+    getApiHost(event),
+    getOrigin(event),
+    amount,
+    reference,
+    stamp,
+    items,
+    customer,
+    language
+  )
 
   if (!result) {
     return response<undefined>(500, undefined, event)

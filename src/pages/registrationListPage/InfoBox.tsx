@@ -1,5 +1,6 @@
 import type { PublicDogEvent, Registration } from '../../types'
 
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Button } from '@aws-amplify/ui-react'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
@@ -10,7 +11,6 @@ import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
-import { t } from 'i18next'
 
 import { getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
@@ -20,21 +20,21 @@ const priorityIconColor = (event: PublicDogEvent, registration: Registration) =>
   hasPriority(event, registration) ? 'primary.main' : 'transparent'
 
 const priorityStatus = (event: PublicDogEvent, registration: Registration) =>
-  hasPriority(event, registration) ? 'Olen etusijalla' : 'En ole etusijalla'
+  hasPriority(event, registration) ? 'registration.priority.hasPriority' : 'registration.priority.noPriority'
 
 const paymentIconColor = (registration: Registration) =>
   registration.paymentStatus === 'SUCCESS' ? 'primary.main' : 'transparent'
 
 const registrationStatus = (registration: Registration) => {
   if (registration.cancelled) {
-    return 'Olen perunut ilmoittautumiseni'
+    return 'registration.status.cancelled'
   }
   if (registration.invitationRead) {
     return registration.confirmed
-      ? 'Olen vahvistanut osallistumiseni ja kuitannut koekutsun'
-      : 'Olen kuitannut koekutsun'
+      ? 'registration.status.confirmedAndInvitationRead'
+      : 'registration.status.invitationRead'
   }
-  return registration.confirmed ? 'Olen vahvistanut osallistumiseni' : 'Ilmoittautuminen vastaanotettu'
+  return registration.confirmed ? 'registration.status.confirmed' : 'registration.status.received'
 }
 
 interface Props {
@@ -43,6 +43,7 @@ interface Props {
 }
 
 export const InfoBox = ({ event, registration }: Props) => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const needsPayment =
     !registration.cancelled && registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
@@ -55,7 +56,7 @@ export const InfoBox = ({ event, registration }: Props) => {
             <PersonOutline fontSize="small" />
           </ListItemIcon>
           <ListItemText
-            primary={priorityStatus(event, registration)}
+            primary={t(priorityStatus(event, registration))}
             slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
           />
         </ListItem>
@@ -87,7 +88,7 @@ export const InfoBox = ({ event, registration }: Props) => {
             <CheckOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText
-            primary={registrationStatus(registration)}
+            primary={t(registrationStatus(registration))}
             slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
           />
         </ListItem>

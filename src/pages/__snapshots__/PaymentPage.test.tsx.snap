@@ -129,7 +129,7 @@ exports[`PaymentPage renders properly 1`] = `
     <h5
       class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
     >
-      Valitse maksutapa
+      paymentPage.choosePaymentMethod
     </h5>
     <span
       class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"

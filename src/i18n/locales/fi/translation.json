@@ -256,6 +256,12 @@
     "paytrailMerchantId": "Paytrail kauppiastunnus"
   },
   "paymentDetails": "Maksutiedot",
+  "paymentPage": {
+    "eventNotFound": "Tapahtumaa {{id}} ei löydy.",
+    "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy.",
+    "somethingWentWrong": "Jotakin meni pieleen",
+    "choosePaymentMethod": "Valitse maksutapa"
+  },
   "paymentStatus": {
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
@@ -438,6 +444,13 @@
     "priority": {
       "hasPriority": "Olen etusijalla",
       "noPriority": "En ole etusijalla"
+    },
+    "status": {
+      "cancelled": "Olen perunut ilmoittautumiseni",
+      "confirmedAndInvitationRead": "Olen vahvistanut osallistumiseni ja kuitannut koekutsun",
+      "invitationRead": "Olen kuitannut koekutsun",
+      "confirmed": "Olen vahvistanut osallistumiseni",
+      "received": "Ilmoittautuminen vastaanotettu"
     },
     "registeredDogs": "Ilmoitetut koirat",
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",

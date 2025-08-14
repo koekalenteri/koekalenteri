@@ -255,6 +255,12 @@
     "paytrailMerchantId": "Paytrail merchant ID"
   },
   "paymentDetails": "Payment details",
+  "paymentPage": {
+    "eventNotFound": "Event {{id}} not found.",
+    "registrationNotFound": "Registration {{registrationId}} not found.",
+    "somethingWentWrong": "Something went wrong",
+    "choosePaymentMethod": "Choose payment method"
+  },
   "paymentStatus": {
     "missing": "Test payment is still missing",
     "pending": "Waiting for payment processing",
@@ -437,6 +443,13 @@
     "priority": {
       "hasPriority": "I have priority",
       "noPriority": "I don't have priority"
+    },
+    "status": {
+      "cancelled": "I have cancelled my registration",
+      "confirmedAndInvitationRead": "I have confirmed my participation and acknowledged the invitation",
+      "invitationRead": "I have acknowledged the invitation",
+      "confirmed": "I have confirmed my participation",
+      "received": "Registration received"
     },
     "registeredDogs": "Registered dogs",
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",

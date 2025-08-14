@@ -2,6 +2,7 @@ import type { Params } from 'react-router'
 import type { CreatePaymentResponse, PublicConfirmedEvent, Registration } from '../types'
 
 import { Suspense, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData, useParams } from 'react-router'
 import Divider from '@mui/material/Divider'
 import Grid2 from '@mui/material/Grid2'
@@ -51,11 +52,12 @@ interface Props {
 }
 
 export const PaymentPageWithData = ({ id, registrationId, event, registration, response }: Props) => {
+  const { t } = useTranslation()
   if (!event) {
-    return <>Tapahtumaa {id} ei löydy.</>
+    return <>{t('paymentPage.eventNotFound', { id })}</>
   }
   if (!registration) {
-    return <>Ilmoittautumista {registrationId} ei löydy.</>
+    return <>{t('paymentPage.registrationNotFound', { registrationId })}</>
   }
 
   if (registration.paymentStatus === 'SUCCESS') {
@@ -63,7 +65,7 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
   }
 
   if (!response?.groups) {
-    return <>Jotakin meni pieleen</>
+    return <>{t('paymentPage.somethingWentWrong')}</>
   }
 
   return (
@@ -72,7 +74,7 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
       <Divider sx={{ my: 1 }} />
       <PaymentDetails event={event} registration={registration} includePayable />
       <Divider sx={{ my: 1 }} />
-      <Typography variant="h5">Valitse maksutapa</Typography>
+      <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
       <Typography variant="caption">
         <span dangerouslySetInnerHTML={{ __html: response.terms }} />
       </Typography>

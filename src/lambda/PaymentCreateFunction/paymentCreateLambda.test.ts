@@ -173,7 +173,8 @@ describe('paymentCreateLambda', () => {
         firstName: 'Test',
         lastName: 'Payer',
         phone: '1234567890',
-      }
+      },
+      'FI'
     )
 
     expect(mockWrite).toHaveBeenCalledWith(
@@ -213,7 +214,8 @@ describe('paymentCreateLambda', () => {
       expect.any(String),
       expect.any(String),
       expect.any(Array),
-      expect.any(Object)
+      expect.any(Object),
+      'FI'
     )
   })
 
@@ -286,7 +288,8 @@ describe('paymentCreateLambda', () => {
       expect.any(String),
       expect.any(String),
       expect.any(Array),
-      expect.any(Object)
+      expect.any(Object),
+      'FI'
     )
   })
 
@@ -323,7 +326,8 @@ describe('paymentCreateLambda', () => {
       expect.any(String),
       expect.any(String),
       expect.any(Array),
-      expect.any(Object)
+      expect.any(Object),
+      'FI'
     )
   })
 
@@ -342,7 +346,28 @@ describe('paymentCreateLambda', () => {
       expect.any(String),
       expect.any(String),
       expect.any(Array),
-      expect.any(Object)
+      expect.any(Object),
+      'FI'
+    )
+  })
+
+  it('should respect registration language', async () => {
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(createMockRegistration({ language: 'en' }))
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    await paymentCreateLambda(event)
+
+    expect(mockCreatePayment).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      4000, // 40 EUR * 100
+      expect.any(String),
+      expect.any(String),
+      expect.any(Array),
+      expect.any(Object),
+      'EN'
     )
   })
 })

@@ -133,7 +133,7 @@ describe('PaymentPage', () => {
 
       await flushPromises()
 
-      expect(container).toHaveTextContent('Tapahtumaa test-id ei löydy.')
+      expect(container).toHaveTextContent('paymentPage.eventNotFound id')
     })
 
     it('should show error message when registration is not found', async () => {
@@ -148,7 +148,7 @@ describe('PaymentPage', () => {
 
       await flushPromises()
 
-      expect(container).toHaveTextContent('Ilmoittautumista test-reg-id ei löydy.')
+      expect(container).toHaveTextContent('paymentPage.registrationNotFound registrationId')
     })
 
     it('should navigate to registration page when payment status is SUCCESS', async () => {
@@ -193,7 +193,7 @@ describe('PaymentPage', () => {
 
       await flushPromises()
 
-      expect(container).toHaveTextContent('Jotakin meni pieleen')
+      expect(container).toHaveTextContent('paymentPage.somethingWentWrong')
     })
   })
 

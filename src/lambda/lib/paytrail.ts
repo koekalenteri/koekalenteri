@@ -138,7 +138,8 @@ export const createPayment = async (
   reference: string,
   stamp: string,
   items: PaymentItem[],
-  customer: PaymentCustomer
+  customer: PaymentCustomer,
+  language: 'FI' | 'EN' | 'SV'
 ): Promise<CreatePaymentResponse | undefined> => {
   const redirectUrls = createPaymentRedirectUrls(origin)
   const callbackUrls = createPaymentCallbackUrls(apiHost)
@@ -148,7 +149,7 @@ export const createPayment = async (
     reference,
     amount,
     currency: 'EUR',
-    language: 'FI',
+    language,
     items,
     customer,
     redirectUrls,
