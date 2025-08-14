@@ -50,6 +50,7 @@
         Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
       Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       StageName: !Ref StageNameParam
+      OpenApiVersion: '3.0.1' # prevents the default 'Stage' creation
       TracingEnabled: false
       Cors:
         AllowOrigin: "'*'"
