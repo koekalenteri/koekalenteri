@@ -212,7 +212,8 @@
   "filter": {
     "eventClass": "Event class",
     "eventType": "Event type",
-    "organizer": "Organizer"
+    "organizer": "Organizer",
+    "title": "Filter"
   },
   "goBack": "Back",
   "goBackToSearch": "Back to search results",

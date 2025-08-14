@@ -3,7 +3,7 @@
 exports[`SearchPage filters by date - no-results 1`] = `
 <div>
   <nav
-    class="MuiBox-root css-418yos"
+    class="MuiBox-root css-1cf0fxd"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-2snfcj-MuiPaper-root-MuiAccordion-root"
@@ -14,46 +14,45 @@ exports[`SearchPage filters by date - no-results 1`] = `
       >
         <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1hsx5ay-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1h33qm1-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-              data-testid="TuneOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <div
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth css-1wcci5k-MuiButtonBase-root-MuiButton-root"
+              role="button"
+              tabindex="0"
             >
-              <path
-                d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
-              />
-            </svg>
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-17r1idj-MuiTypography-root"
-            >
-              daterangeBoth: 1.–2.3.2021
-            </span>
-          </span>
-          <span
-            class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
-          >
-            <svg
-              aria-hidden="true"
-              aria-label="Sulje suodattimet"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-              data-mui-internal-clone-element="true"
-              data-testid="ExpandCircleDownOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.08 9.59 12 12.67 8.92 9.59 7.5 11l4.5 4.5 4.5-4.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
-              />
-            </svg>
+              <span
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  data-testid="TuneOutlinedIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
+              >
+                <b>
+                  Rajaa (
+                  1
+                  )
+                </b>
+                 • 
+                daterangeBoth: 1.–2.3.2021
+              </span>
+            </div>
           </span>
         </button>
       </h3>
@@ -72,7 +71,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root css-1nhy44u-MuiAccordionDetails-root"
+                class="MuiAccordionDetails-root css-127zmcs-MuiAccordionDetails-root"
               >
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-12t8mzx-MuiGrid2-root"
@@ -608,7 +607,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
 exports[`SearchPage filters by date 1`] = `
 <div>
   <nav
-    class="MuiBox-root css-418yos"
+    class="MuiBox-root css-1cf0fxd"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-2snfcj-MuiPaper-root-MuiAccordion-root"
@@ -619,46 +618,45 @@ exports[`SearchPage filters by date 1`] = `
       >
         <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1hsx5ay-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1h33qm1-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-              data-testid="TuneOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <div
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth css-1wcci5k-MuiButtonBase-root-MuiButton-root"
+              role="button"
+              tabindex="0"
             >
-              <path
-                d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
-              />
-            </svg>
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-17r1idj-MuiTypography-root"
-            >
-              daterangeBoth: 1.1.–1.3.2021
-            </span>
-          </span>
-          <span
-            class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
-          >
-            <svg
-              aria-hidden="true"
-              aria-label="Sulje suodattimet"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-              data-mui-internal-clone-element="true"
-              data-testid="ExpandCircleDownOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.08 9.59 12 12.67 8.92 9.59 7.5 11l4.5 4.5 4.5-4.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
-              />
-            </svg>
+              <span
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  data-testid="TuneOutlinedIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
+              >
+                <b>
+                  Rajaa (
+                  1
+                  )
+                </b>
+                 • 
+                daterangeBoth: 1.1.–1.3.2021
+              </span>
+            </div>
           </span>
         </button>
       </h3>
@@ -677,7 +675,7 @@ exports[`SearchPage filters by date 1`] = `
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root css-1nhy44u-MuiAccordionDetails-root"
+                class="MuiAccordionDetails-root css-127zmcs-MuiAccordionDetails-root"
               >
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-12t8mzx-MuiGrid2-root"
@@ -1197,7 +1195,7 @@ exports[`SearchPage filters by date 1`] = `
     </div>
   </nav>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -1516,7 +1514,7 @@ exports[`SearchPage filters by date 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -1849,7 +1847,7 @@ exports[`SearchPage filters by date 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -2240,7 +2238,7 @@ exports[`SearchPage filters by date 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -2578,7 +2576,7 @@ exports[`SearchPage filters by date 1`] = `
 exports[`SearchPage filters by date/end 1`] = `
 <div>
   <nav
-    class="MuiBox-root css-418yos"
+    class="MuiBox-root css-1cf0fxd"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-2snfcj-MuiPaper-root-MuiAccordion-root"
@@ -2589,46 +2587,45 @@ exports[`SearchPage filters by date/end 1`] = `
       >
         <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1hsx5ay-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1h33qm1-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-              data-testid="TuneOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <div
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth css-1wcci5k-MuiButtonBase-root-MuiButton-root"
+              role="button"
+              tabindex="0"
             >
-              <path
-                d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
-              />
-            </svg>
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-17r1idj-MuiTypography-root"
-            >
-              daterangeEnd: 01.03.2021
-            </span>
-          </span>
-          <span
-            class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
-          >
-            <svg
-              aria-hidden="true"
-              aria-label="Sulje suodattimet"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-              data-mui-internal-clone-element="true"
-              data-testid="ExpandCircleDownOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.08 9.59 12 12.67 8.92 9.59 7.5 11l4.5 4.5 4.5-4.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
-              />
-            </svg>
+              <span
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  data-testid="TuneOutlinedIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
+              >
+                <b>
+                  Rajaa (
+                  1
+                  )
+                </b>
+                 • 
+                daterangeEnd: 01.03.2021
+              </span>
+            </div>
           </span>
         </button>
       </h3>
@@ -2647,7 +2644,7 @@ exports[`SearchPage filters by date/end 1`] = `
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root css-1nhy44u-MuiAccordionDetails-root"
+                class="MuiAccordionDetails-root css-127zmcs-MuiAccordionDetails-root"
               >
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-12t8mzx-MuiGrid2-root"
@@ -3167,7 +3164,7 @@ exports[`SearchPage filters by date/end 1`] = `
     </div>
   </nav>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -3486,7 +3483,7 @@ exports[`SearchPage filters by date/end 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -3819,7 +3816,7 @@ exports[`SearchPage filters by date/end 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -4210,7 +4207,7 @@ exports[`SearchPage filters by date/end 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -4548,7 +4545,7 @@ exports[`SearchPage filters by date/end 1`] = `
 exports[`SearchPage filters by event class 1`] = `
 <div>
   <nav
-    class="MuiBox-root css-418yos"
+    class="MuiBox-root css-1cf0fxd"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-2snfcj-MuiPaper-root-MuiAccordion-root"
@@ -4559,46 +4556,45 @@ exports[`SearchPage filters by event class 1`] = `
       >
         <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1hsx5ay-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1h33qm1-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-              data-testid="TuneOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <div
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth css-1wcci5k-MuiButtonBase-root-MuiButton-root"
+              role="button"
+              tabindex="0"
             >
-              <path
-                d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
-              />
-            </svg>
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-17r1idj-MuiTypography-root"
-            >
-              event.classes: AVO
-            </span>
-          </span>
-          <span
-            class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
-          >
-            <svg
-              aria-hidden="true"
-              aria-label="Sulje suodattimet"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-              data-mui-internal-clone-element="true"
-              data-testid="ExpandCircleDownOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.08 9.59 12 12.67 8.92 9.59 7.5 11l4.5 4.5 4.5-4.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
-              />
-            </svg>
+              <span
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  data-testid="TuneOutlinedIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
+              >
+                <b>
+                  Rajaa (
+                  1
+                  )
+                </b>
+                 • 
+                event.classes: AVO
+              </span>
+            </div>
           </span>
         </button>
       </h3>
@@ -4617,7 +4613,7 @@ exports[`SearchPage filters by event class 1`] = `
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root css-1nhy44u-MuiAccordionDetails-root"
+                class="MuiAccordionDetails-root css-127zmcs-MuiAccordionDetails-root"
               >
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-12t8mzx-MuiGrid2-root"
@@ -5179,7 +5175,7 @@ exports[`SearchPage filters by event class 1`] = `
     </div>
   </nav>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -5570,7 +5566,7 @@ exports[`SearchPage filters by event class 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -5903,7 +5899,7 @@ exports[`SearchPage filters by event class 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -6270,7 +6266,7 @@ exports[`SearchPage filters by event class 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -6644,7 +6640,7 @@ exports[`SearchPage filters by event class 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -6979,7 +6975,7 @@ exports[`SearchPage filters by event class 1`] = `
 exports[`SearchPage filters by event type 1`] = `
 <div>
   <nav
-    class="MuiBox-root css-418yos"
+    class="MuiBox-root css-1cf0fxd"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-2snfcj-MuiPaper-root-MuiAccordion-root"
@@ -6990,46 +6986,45 @@ exports[`SearchPage filters by event type 1`] = `
       >
         <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1hsx5ay-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1h33qm1-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-              data-testid="TuneOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <div
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth css-1wcci5k-MuiButtonBase-root-MuiButton-root"
+              role="button"
+              tabindex="0"
             >
-              <path
-                d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
-              />
-            </svg>
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-17r1idj-MuiTypography-root"
-            >
-              eventTypes: NOME-B
-            </span>
-          </span>
-          <span
-            class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
-          >
-            <svg
-              aria-hidden="true"
-              aria-label="Sulje suodattimet"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-              data-mui-internal-clone-element="true"
-              data-testid="ExpandCircleDownOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.08 9.59 12 12.67 8.92 9.59 7.5 11l4.5 4.5 4.5-4.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
-              />
-            </svg>
+              <span
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  data-testid="TuneOutlinedIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
+              >
+                <b>
+                  Rajaa (
+                  1
+                  )
+                </b>
+                 • 
+                eventTypes: NOME-B
+              </span>
+            </div>
           </span>
         </button>
       </h3>
@@ -7048,7 +7043,7 @@ exports[`SearchPage filters by event type 1`] = `
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root css-1nhy44u-MuiAccordionDetails-root"
+                class="MuiAccordionDetails-root css-127zmcs-MuiAccordionDetails-root"
               >
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-12t8mzx-MuiGrid2-root"
@@ -7588,7 +7583,7 @@ exports[`SearchPage filters by event type 1`] = `
     </div>
   </nav>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -7921,7 +7916,7 @@ exports[`SearchPage filters by event type 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -8312,7 +8307,7 @@ exports[`SearchPage filters by event type 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -8645,7 +8640,7 @@ exports[`SearchPage filters by event type 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1by1d0w"
+    class="MuiBox-root css-1t733h9"
   >
     <div
       aria-level="2"
@@ -9012,7 +9007,7 @@ exports[`SearchPage filters by event type 1`] = `
     </div>
   </article>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"
@@ -9391,7 +9386,7 @@ exports[`SearchPage filters by event type 1`] = `
 exports[`SearchPage filters by organizer 1`] = `
 <div>
   <nav
-    class="MuiBox-root css-418yos"
+    class="MuiBox-root css-1cf0fxd"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAccordion-root MuiAccordion-rounded Mui-expanded MuiAccordion-gutters css-2snfcj-MuiPaper-root-MuiAccordion-root"
@@ -9402,46 +9397,45 @@ exports[`SearchPage filters by organizer 1`] = `
       >
         <button
           aria-expanded="true"
-          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1hsx5ay-MuiButtonBase-root-MuiAccordionSummary-root"
+          class="MuiButtonBase-root MuiAccordionSummary-root Mui-expanded MuiAccordionSummary-gutters css-1h33qm1-MuiButtonBase-root-MuiAccordionSummary-root"
           tabindex="0"
           type="button"
         >
           <span
             class="MuiAccordionSummary-content Mui-expanded MuiAccordionSummary-contentGutters css-yfrx4k-MuiAccordionSummary-content"
           >
-            <svg
-              aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
-              data-testid="TuneOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
+            <div
+              class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary MuiButton-fullWidth css-1wcci5k-MuiButtonBase-root-MuiButton-root"
+              role="button"
+              tabindex="0"
             >
-              <path
-                d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
-              />
-            </svg>
-            <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-17r1idj-MuiTypography-root"
-            >
-              Järjestäjät: 1
-            </span>
-          </span>
-          <span
-            class="MuiAccordionSummary-expandIconWrapper Mui-expanded css-1wqf3nl-MuiAccordionSummary-expandIconWrapper"
-          >
-            <svg
-              aria-hidden="true"
-              aria-label="Sulje suodattimet"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-              data-mui-internal-clone-element="true"
-              data-testid="ExpandCircleDownOutlinedIcon"
-              focusable="false"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M15.08 9.59 12 12.67 8.92 9.59 7.5 11l4.5 4.5 4.5-4.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
-              />
-            </svg>
+              <span
+                class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeSmall css-d8i980-MuiButton-startIcon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-120dh41-MuiSvgIcon-root"
+                  data-testid="TuneOutlinedIcon"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+                  />
+                </svg>
+              </span>
+              <span
+                class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
+              >
+                <b>
+                  Rajaa (
+                  1
+                  )
+                </b>
+                 • 
+                Järjestäjät: 1
+              </span>
+            </div>
           </span>
         </button>
       </h3>
@@ -9460,7 +9454,7 @@ exports[`SearchPage filters by organizer 1`] = `
               role="region"
             >
               <div
-                class="MuiAccordionDetails-root css-1nhy44u-MuiAccordionDetails-root"
+                class="MuiAccordionDetails-root css-127zmcs-MuiAccordionDetails-root"
               >
                 <div
                   class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-12t8mzx-MuiGrid2-root"
@@ -10022,7 +10016,7 @@ exports[`SearchPage filters by organizer 1`] = `
     </div>
   </nav>
   <article
-    class="MuiBox-root css-1t733h9"
+    class="MuiBox-root css-q5c7nu"
   >
     <div
       aria-level="2"

@@ -2,11 +2,9 @@ import type { Theme } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
 import type { DateValue } from '../components/DateRange'
-import type { FilterProps } from '../recoil'
 
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import ExpandCircleDownOutlinedIcon from '@mui/icons-material/ExpandCircleDownOutlined'
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined'
 import { useMediaQuery } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
@@ -18,14 +16,13 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid2 from '@mui/material/Grid2'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
-import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
 import SelectMulti from '../components/SelectMulti'
-import { filterString } from '../recoil'
+import { type FilterProps, filterStrings } from '../recoil'
 
 interface Props {
   readonly eventTypes: string[]
@@ -42,7 +39,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
   const [expanded, setExpanded] = useState(md)
-  const filterText = useMemo(() => filterString(filter, t), [filter, t])
+  const filters = useMemo(() => filterStrings(filter, t), [filter, t])
 
   const setFilter = useCallback(
     (props: Partial<FilterProps>) => onChange && onChange({ ...filter, ...props }),
@@ -104,8 +101,10 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         position: 'sticky',
         top: `calc(${HEADER_HEIGHT} - 1px)`,
         zIndex: 2,
-        borderBottom: '1px solid #708f85',
-        borderTop: '1px solid #708f85',
+        border: '1px solid #708f85',
+        borderRadius: '4px',
+        m: '1px',
+        // borderTop: '1px solid #708f85',
       }}
     >
       <Accordion
@@ -115,23 +114,26 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         sx={{ boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
       >
         <AccordionSummary
-          expandIcon={
-            <Tooltip title={expanded ? 'Sulje suodattimet' : 'Avaa suodattimet'}>
-              <ExpandCircleDownOutlinedIcon />
-            </Tooltip>
-          }
           sx={{
             bgcolor: 'background.filterHeader',
             minHeight: '28px',
             '&.Mui-expanded': { minHeight: '28px' },
             '& .MuiAccordionSummary-content': { margin: 0, overflow: 'hidden' },
             '& .MuiAccordionSummary-content.Mui-expanded': { margin: 0 },
+            p: '1px',
           }}
         >
-          <TuneOutlinedIcon fontSize="small" />
-          <Typography variant="caption" noWrap textOverflow="ellipsis" sx={{ pl: 0.5 }}>
-            {filterText}
-          </Typography>
+          <Button
+            component="div"
+            variant="contained"
+            startIcon={<TuneOutlinedIcon fontSize="small" />}
+            size="small"
+            fullWidth
+          >
+            <Typography variant="caption" noWrap textOverflow="ellipsis">
+              <b>Rajaa ({filters.length})</b> • {filters.join(' | ')}
+            </Typography>
+          </Button>
         </AccordionSummary>
         <AccordionDetails sx={{ bgcolor: 'background.filter' }}>
           <Grid2 container justifyContent="start" spacing={1}>

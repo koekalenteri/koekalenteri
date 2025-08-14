@@ -496,7 +496,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       class="MuiBox-root css-1hvfy3o"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-184sttc-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -1033,7 +1033,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -1583,7 +1583,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -2133,7 +2133,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -2683,7 +2683,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -3242,7 +3242,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -3787,7 +3787,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 760px; --DataGrid-columnsTotalWidth: 760px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -4867,7 +4867,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       class="MuiBox-root css-1hvfy3o"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-184sttc-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -5404,7 +5404,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -5954,7 +5954,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -6504,7 +6504,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -7054,7 +7054,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -7613,7 +7613,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 616px; --DataGrid-columnsTotalWidth: 616px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -9669,7 +9669,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-1h3eduv-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 760px; --DataGrid-columnsTotalWidth: 760px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div

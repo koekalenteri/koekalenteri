@@ -117,7 +117,7 @@
   },
   "event": {
     "attachments": "Liitteet",
-    "classPlaces": "Koepaikat",
+    "classPlaces": "Paikat",
     "classPlacesHeader": {
       "dates": "päivä(t)",
       "entries": "ilmoja",
@@ -125,7 +125,7 @@
       "name": "luokka",
       "places": "paikkoja"
     },
-    "classes": "Koeluokat",
+    "classes": "Luokat",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksutiedot",
     "costMember": "jäsenille",
@@ -213,7 +213,8 @@
   "filter": {
     "eventClass": "Luokka",
     "eventType": "Tapahtumatyyppi",
-    "organizer": "Järjestäjä"
+    "organizer": "Järjestäjä",
+    "title": "Rajaa"
   },
   "goBack": "Takaisin",
   "goBackToSearch": "Takaisin hakutuloksiin",
@@ -508,7 +509,7 @@
   },
   "validation": {
     "event": {
-      "classes": "Koeluokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
+      "classes": "Luokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",
       "classesJudge": "Tila \"$t(event.states.{{state}})\": {{list}} $t(validation.event.classesMissing, {\"count\": {{length}} }) puuttuu tuomari.",
       "classesMissing_one": "koeluokalta",
       "classesMissing_other": "koeluokilta",

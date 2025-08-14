@@ -124,7 +124,7 @@ export function deserializeFilter(input: string) {
   return result
 }
 
-export function filterString(filter: FilterProps, t: TFunction): string {
+export function filterStrings(filter: FilterProps, t: TFunction): string[] {
   const filters: string[] = []
   if (filter.start) {
     if (filter.end) {
@@ -154,5 +154,5 @@ export function filterString(filter: FilterProps, t: TFunction): string {
     filters.push(t('entryUpcoming'))
   }
 
-  return filters.join(' | ')
+  return filters
 }
