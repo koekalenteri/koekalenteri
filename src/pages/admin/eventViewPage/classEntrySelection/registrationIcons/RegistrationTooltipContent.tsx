@@ -85,7 +85,7 @@ const RegistrationTooltipContent = ({
         key="payment-paid"
         condition={!!reg.paidAt && !reg.refundAt && reg.refundStatus !== 'PENDING'}
         icon={<EuroOutlined fontSize="small" />}
-        text={`Ilmoittautuja on maksanut ilmoittautumisen: ${formatMoney(reg.paidAmount ?? 0)}`}
+        text={`Ilmoittautuja on maksanut: ${formatMoney(reg.paidAmount ?? 0)}`}
       />
       <TooltipIcon
         key="optional-costs"

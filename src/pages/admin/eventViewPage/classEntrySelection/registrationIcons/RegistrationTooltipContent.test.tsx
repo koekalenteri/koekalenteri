@@ -112,7 +112,7 @@ describe('RegistrationTooltipContent', () => {
 
     const paymentTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text')?.includes('Ilmoittautuja on maksanut ilmoittautumisen'))
+      .find((el) => el.getAttribute('data-text')?.includes('Ilmoittautuja on maksanut'))
     expect(paymentTooltip).toBeInTheDocument()
   })
 
