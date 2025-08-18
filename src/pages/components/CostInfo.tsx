@@ -56,7 +56,10 @@ export default function CostInfo({ event }: Props) {
     const text = costText(value, memberValue)
 
     if (segment === 'custom' && cost.custom?.description) {
-      return { name: cost.custom.description[language] || cost.custom.description.fi, text }
+      return {
+        name: t(getCostSegmentName(segment), { name: cost.custom.description[language] || cost.custom.description.fi }),
+        text,
+      }
     }
     if (segment === 'breed' && breedCode) {
       return { name: t(getCostSegmentName(segment), { code: breedCode }), text }

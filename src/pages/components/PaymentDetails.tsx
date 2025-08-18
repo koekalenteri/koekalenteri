@@ -16,9 +16,10 @@ interface Props {
   readonly event: MinimalEventForCost
   readonly registration: MinimalRegistrationForCost
   readonly includePayable?: boolean
+  readonly includeTotal?: boolean
 }
 
-export const PaymentDetails = ({ event, registration, includePayable }: Props) => {
+export const PaymentDetails = ({ event, registration, includePayable, includeTotal }: Props) => {
   const { t } = useTranslation()
   const language = useRecoilValue(languageAtom)
   const details = getRegistrationPaymentDetails(event, registration)
@@ -32,32 +33,24 @@ export const PaymentDetails = ({ event, registration, includePayable }: Props) =
   return (
     <Stack direction="row" justifyContent="start">
       <Box px={1}>
-        <Typography variant="subtitle2" color="textSecondary" textAlign="left">
-          {t('cost')}
-        </Typography>
         <Typography variant="body1" textAlign="right">
           {costDescription}
           {member} {formatMoney(details.cost)}
         </Typography>
-        {details.optionalCosts.length ? (
-          <>
-            <Typography variant="subtitle2" color="textSecondary" textAlign="left">
-              {t('costNames.optionalAdditionalCosts')}
-            </Typography>
-            {details.optionalCosts.map((c, index) => (
-              <Typography variant="body1" key={c.description.fi + index} textAlign="right">
-                {c.description[language]}
-                {member}&nbsp;
-                {formatMoney(c.cost)}
-              </Typography>
-            ))}
-          </>
-        ) : null}
+        {details.optionalCosts.map((c, index) => (
+          <Typography variant="body1" key={c.description.fi + index} textAlign="right">
+            {c.description[language]}
+            {member}&nbsp;
+            {formatMoney(c.cost)}
+          </Typography>
+        ))}
         <Divider />
-        <Typography variant="body1" textAlign="right">
-          {t('costTotal')} {formatMoney(details.total)}
-        </Typography>
-        {registration.paidAmount ? (
+        {includeTotal ? (
+          <Typography variant="body1" textAlign="right">
+            {t('costTotal')} {formatMoney(details.total)}
+          </Typography>
+        ) : null}
+        {registration.paidAmount && registration.paidAmount > 0 ? (
           <>
             <Divider />
             <Typography variant="body1" textAlign="right">

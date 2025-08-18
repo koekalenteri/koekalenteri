@@ -34,98 +34,6 @@ exports[`PaymentPage renders properly 1`] = `
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-a0rqo0-MuiPaper-root"
     style="--Paper-shadow: none;"
   >
-    <div
-      class="MuiStack-root css-1k7wcam-MuiStack-root"
-    >
-      <div
-        class="MuiBox-root css-mro3c9"
-      >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
-        >
-          eventInfo
-        </h6>
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
-        >
-          NOU
-           
-          dateFormat.datespan start, end
-           
-          test location
-           
-          (
-          test
-          )
-        </p>
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
-        >
-          registration.dog
-        </h6>
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
-        >
-          TESTDOG-0010
-           
-          Dog Name 10
-        </p>
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
-        >
-          registration.handler
-        </h6>
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
-        >
-          Handler Name
-        </p>
-      </div>
-    </div>
-    <hr
-      class="MuiDivider-root MuiDivider-fullWidth css-hv6zls-MuiDivider-root"
-    />
-    <div
-      class="MuiStack-root css-1k7wcam-MuiStack-root"
-    >
-      <div
-        class="MuiBox-root css-mro3c9"
-      >
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 css-1c29w3b-MuiTypography-root"
-        >
-          cost
-        </h6>
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
-        >
-          costNames.normal
-           
-          123,00 €
-        </p>
-        <hr
-          class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
-        />
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
-        >
-          costTotal
-           
-          123,00 €
-        </p>
-        <h6
-          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
-        />
-        <p
-          class="MuiTypography-root MuiTypography-body1 css-c021hg-MuiTypography-root"
-        >
-          registration.paymentToBePaid amount
-        </p>
-      </div>
-    </div>
-    <hr
-      class="MuiDivider-root MuiDivider-fullWidth css-hv6zls-MuiDivider-root"
-    />
     <h5
       class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
     >
@@ -1806,6 +1714,86 @@ exports[`PaymentPage renders properly 1`] = `
             </button>
           </form>
         </div>
+      </div>
+    </div>
+    <hr
+      class="MuiDivider-root MuiDivider-fullWidth css-hv6zls-MuiDivider-root"
+    />
+    <div
+      class="MuiStack-root css-1k7wcam-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-mro3c9"
+      >
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
+        >
+          eventInfo
+        </h6>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+        >
+          NOU
+           
+          dateFormat.datespan start, end
+           
+          test location
+           
+          (
+          test
+          )
+        </p>
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
+        >
+          registration.dog
+        </h6>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+        >
+          TESTDOG-0010
+           
+          Dog Name 10
+        </p>
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
+        >
+          registration.handler
+        </h6>
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
+        >
+          Handler Name
+        </p>
+      </div>
+    </div>
+    <hr
+      class="MuiDivider-root MuiDivider-fullWidth css-hv6zls-MuiDivider-root"
+    />
+    <div
+      class="MuiStack-root css-1k7wcam-MuiStack-root"
+    >
+      <div
+        class="MuiBox-root css-mro3c9"
+      >
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
+        >
+          costNames.normal
+           
+          123,00 €
+        </p>
+        <hr
+          class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
+        />
+        <h6
+          class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
+        />
+        <p
+          class="MuiTypography-root MuiTypography-body1 css-c021hg-MuiTypography-root"
+        >
+          registration.paymentToBePaid amount
+        </p>
       </div>
     </div>
   </div>

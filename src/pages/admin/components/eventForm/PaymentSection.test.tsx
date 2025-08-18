@@ -416,7 +416,7 @@ describe('PaymentSection', () => {
     expect(within(tableRows[2]).getByText(/costNames.breed/)).toBeInTheDocument()
 
     // Check that the fourth row is custom cost
-    expect(within(tableRows[3]).getByText('Erikoismaksu')).toBeInTheDocument()
+    expect(within(tableRows[3]).getByText(/costNames.custom/)).toBeInTheDocument()
   })
 
   it('validates input in the EditCostDescriptionDialog', async () => {

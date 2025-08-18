@@ -22,7 +22,7 @@ import { InfoBox } from './registrationListPage/InfoBox'
 import { PaymentDialog } from './registrationListPage/PaymentDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, registrationSelector, spaAtom } from './recoil'
+import { confirmedEventSelector, languageAtom, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   readonly cancel?: boolean
@@ -38,6 +38,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
+  const [language, setLanguage] = useRecoilState(languageAtom)
   const spa = useRecoilValue(spaAtom)
   const { t } = useTranslation()
   const [cancelOpen, setCancelOpen] = useState(!!cancel && !registration?.cancelled)
@@ -185,6 +186,12 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       setPaymentOpen(true)
     }
   }, [event, registration, costResult])
+
+  useEffect(() => {
+    if (registration?.language && registration.language !== language) {
+      setLanguage(registration.language)
+    }
+  }, [])
 
   if (!event || !registration) {
     return <LoadingPage />

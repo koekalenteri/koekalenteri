@@ -42,7 +42,7 @@ export const deferredLoader = async (
 
   if (!event || !registration) throw new Error('not found')
 
-  i18n.changeLanguage(registration.language)
+  await i18n.changeLanguage(registration.language)
 
   if (!registration.invitationRead) {
     registration.invitationRead = true

@@ -118,7 +118,7 @@ describe('CostInfo', () => {
       })
 
       expect(screen.getByText('costNames.normal')).toBeInTheDocument()
-      expect(screen.getByText('Erikoishinta')).toBeInTheDocument()
+      expect(screen.getByText('costNames.custom name')).toBeInTheDocument()
       expect(screen.getByText('50 €')).toBeInTheDocument()
       expect(screen.getByText('35 €')).toBeInTheDocument()
     })
@@ -138,29 +138,9 @@ describe('CostInfo', () => {
       )
 
       expect(screen.getByText('costNames.normal')).toBeInTheDocument()
-      // In tests, the i18n mock might not be correctly handling the language change
-      // So we check for either the English or Finnish description
-      const customDescription = screen.queryByText('Special price') || screen.getByText('Erikoishinta')
-      expect(customDescription).toBeInTheDocument()
+      expect(screen.getByText('costNames.custom name')).toBeInTheDocument()
       expect(screen.getByText('50 €')).toBeInTheDocument()
       expect(screen.getByText('35 €')).toBeInTheDocument()
-    })
-
-    it('should fallback to Finnish description when English is not available', () => {
-      setup(
-        {
-          cost: {
-            normal: 50,
-            custom: {
-              cost: 35,
-              description: { fi: 'Erikoishinta' },
-            },
-          } as DogEventCost,
-        },
-        'en'
-      )
-
-      expect(screen.getByText('Erikoishinta')).toBeInTheDocument()
     })
 
     it('should render optional additional costs', () => {

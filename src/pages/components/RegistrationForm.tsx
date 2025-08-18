@@ -28,6 +28,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
 import { diff } from 'deep-object-diff'
 
 import { calculateCost } from '../../lib/cost'
@@ -383,20 +384,17 @@ export default function RegistrationForm({
       <Stack direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
         <PaymentDetails event={event} registration={registration} />
       </Stack>
-      <Stack direction="row" justifyContent="flex-end" sx={{ p: 1 }}>
-        {event.paymentTime === 'confirmation' && !registration.confirmed ? (
-          <b>
-            {t('registration.paymentToBePaidAfterConfirmation', {
+      <Stack direction="row" justifyContent="flex-end" sx={{ px: 2 }}>
+        <Typography fontWeight="bold">
+          {t(
+            event.paymentTime === 'confirmation' && !registration.confirmed
+              ? 'registration.paymentToBePaidAfterConfirmation'
+              : 'registration.paymentToBePaid',
+            {
               amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)),
-            })}
-          </b>
-        ) : (
-          <b>
-            {t('registration.paymentToBePaid', {
-              amount: formatMoney(paymentAmount - (registration.paidAmount ?? 0)),
-            })}
-          </b>
-        )}
+            }
+          )}
+        </Typography>
       </Stack>
 
       <Stack spacing={1} direction="row" justifyContent="flex-end" sx={{ p: 1 }}>

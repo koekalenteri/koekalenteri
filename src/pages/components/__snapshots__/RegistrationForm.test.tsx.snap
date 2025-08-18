@@ -2403,11 +2403,6 @@ exports[`RegistrationForm renders 1`] = `
         <div
           class="MuiBox-root css-mro3c9"
         >
-          <h6
-            class="MuiTypography-root MuiTypography-subtitle2 css-1c29w3b-MuiTypography-root"
-          >
-            cost
-          </h6>
           <p
             class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
           >
@@ -2418,13 +2413,6 @@ exports[`RegistrationForm renders 1`] = `
           <hr
             class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
           />
-          <p
-            class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
-          >
-            costTotal
-             
-            123,00 €
-          </p>
           <hr
             class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
           />
@@ -2438,11 +2426,13 @@ exports[`RegistrationForm renders 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-1je84qz-MuiStack-root"
+      class="MuiStack-root css-1v7a767-MuiStack-root"
     >
-      <b>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-lhsbas-MuiTypography-root"
+      >
         registration.paymentToBePaid amount
-      </b>
+      </p>
     </div>
     <div
       class="MuiStack-root css-1tokk9g-MuiStack-root"
@@ -4902,11 +4892,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
         <div
           class="MuiBox-root css-mro3c9"
         >
-          <h6
-            class="MuiTypography-root MuiTypography-subtitle2 css-1c29w3b-MuiTypography-root"
-          >
-            cost
-          </h6>
           <p
             class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
           >
@@ -4917,13 +4902,6 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           <hr
             class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
           />
-          <p
-            class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
-          >
-            costTotal
-             
-            123,00 €
-          </p>
           <hr
             class="MuiDivider-root MuiDivider-fullWidth css-1jpc804-MuiDivider-root"
           />
@@ -4937,11 +4915,13 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
       </div>
     </div>
     <div
-      class="MuiStack-root css-1je84qz-MuiStack-root"
+      class="MuiStack-root css-1v7a767-MuiStack-root"
     >
-      <b>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-lhsbas-MuiTypography-root"
+      >
         registration.paymentToBePaid amount
-      </b>
+      </p>
     </div>
     <div
       class="MuiStack-root css-1tokk9g-MuiStack-root"

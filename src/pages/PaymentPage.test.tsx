@@ -128,7 +128,9 @@ describe('PaymentPage', () => {
   describe('PaymentPageWithData', () => {
     it('should show error message when event is not found', async () => {
       const { container } = render(
-        <PaymentPageWithData id="test-id" registrationId="test-reg-id" event={null} registration={testRegistration} />
+        <RecoilRoot>
+          <PaymentPageWithData id="test-id" registrationId="test-reg-id" event={null} registration={testRegistration} />
+        </RecoilRoot>
       )
 
       await flushPromises()
@@ -138,12 +140,14 @@ describe('PaymentPage', () => {
 
     it('should show error message when registration is not found', async () => {
       const { container } = render(
-        <PaymentPageWithData
-          id="test-id"
-          registrationId="test-reg-id"
-          event={{ id: 'test-id' } as any}
-          registration={null}
-        />
+        <RecoilRoot>
+          <PaymentPageWithData
+            id="test-id"
+            registrationId="test-reg-id"
+            event={{ id: 'test-id' } as any}
+            registration={null}
+          />
+        </RecoilRoot>
       )
 
       await flushPromises()
@@ -173,7 +177,11 @@ describe('PaymentPage', () => {
         },
       ]
 
-      render(<DataMemoryRouter initialEntries={['/test-path']} routes={routes} />)
+      render(
+        <RecoilRoot>
+          <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+        </RecoilRoot>
+      )
 
       await flushPromises()
 
@@ -182,13 +190,15 @@ describe('PaymentPage', () => {
 
     it('should show error message when response.groups is not available', async () => {
       const { container } = render(
-        <PaymentPageWithData
-          id="test-id"
-          registrationId="test-reg-id"
-          event={{ id: 'test-id' } as any}
-          registration={testRegistration}
-          response={{} as CreatePaymentResponse}
-        />
+        <RecoilRoot>
+          <PaymentPageWithData
+            id="test-id"
+            registrationId="test-reg-id"
+            event={{ id: 'test-id' } as any}
+            registration={testRegistration}
+            response={{} as CreatePaymentResponse}
+          />
+        </RecoilRoot>
       )
 
       await flushPromises()

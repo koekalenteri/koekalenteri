@@ -46,7 +46,7 @@ export const CostRow = ({
       return (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span>{(event.cost as DogEventCost)?.custom?.description?.fi ?? t('costNames.custom')}</span>
+            <span>{t('costNames.custom', { name: (event.cost as DogEventCost)?.custom?.description?.fi })}</span>
             <IconButton size="small" data-testid={`${costPath}-edit`} onClick={() => onEditDescription('custom')}>
               <EditIcon fontSize="small" />
             </IconButton>

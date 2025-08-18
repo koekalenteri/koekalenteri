@@ -22,12 +22,12 @@
     "earlyBirdDays": "The price is valid for",
     "earlyBirdDaysUnit": "days from the entry start date"
   },
-  "costForMembers": "member price",
+  "costForMembers": "for members",
   "costMemberAmount": "Amount for members",
   "costNames": {
-    "breed": "Breed: $t(breed:{{code}})",
-    "custom": "Other",
-    "earlyBird": "Early bird {{start, datespan(end: end; parentheses: true)}}",
+    "breed": "Participation fee $t(breed:{{code}})",
+    "custom": "Participation fee {{name}}",
+    "earlyBird": "Participation fee {{start, datespan(end: end; parentheses: true)}}",
     "normal": "Participation fee",
     "optionalAdditionalCosts": "Optional additional costs"
   },

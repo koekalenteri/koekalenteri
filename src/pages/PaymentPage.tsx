@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider'
 import Grid2 from '@mui/material/Grid2'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { useRecoilValue, useResetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
@@ -19,7 +19,7 @@ import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { ProviderButton } from './paymentPage/ProviderButton'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, newRegistrationAtom, registrationSelector } from './recoil'
+import { confirmedEventSelector, languageAtom, newRegistrationAtom, registrationSelector } from './recoil'
 
 /**
  * @lintignore
@@ -52,6 +52,7 @@ interface Props {
 }
 
 export const PaymentPageWithData = ({ id, registrationId, event, registration, response }: Props) => {
+  const [language, setLanguage] = useRecoilState(languageAtom)
   const { t } = useTranslation()
   if (!event) {
     return <>{t('paymentPage.eventNotFound', { id })}</>
@@ -68,12 +69,14 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
     return <>{t('paymentPage.somethingWentWrong')}</>
   }
 
+  useEffect(() => {
+    if (language !== registration.language) {
+      setLanguage(registration.language)
+    }
+  }, [language, registration.language])
+
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-      <RegistrationDetails event={event} registration={registration} />
-      <Divider sx={{ my: 1 }} />
-      <PaymentDetails event={event} registration={registration} includePayable />
-      <Divider sx={{ my: 1 }} />
       <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
       <Typography variant="caption">
         <span dangerouslySetInnerHTML={{ __html: response.terms }} />
@@ -93,6 +96,11 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
           </Grid2>
         </Paper>
       ))}
+
+      <Divider sx={{ my: 1 }} />
+      <RegistrationDetails event={event} registration={registration} />
+      <Divider sx={{ my: 1 }} />
+      <PaymentDetails event={event} registration={registration} includePayable />
     </Paper>
   )
 }

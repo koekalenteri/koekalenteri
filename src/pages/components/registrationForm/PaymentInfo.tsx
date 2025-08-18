@@ -57,7 +57,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
   }
 
   const open = !!registration.dog?.breedCode
-  const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed']
+  const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed', 'custom']
   const breedCode = registration.dog?.breedCode
 
   return (
@@ -81,19 +81,14 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                 control={<Radio />}
                 label={`${t(getCostSegmentName(segment), {
                   code: breedCode,
+                  name:
+                    appliedCost.custom?.description[registration.language ?? 'fi'] ||
+                    appliedCost.custom?.description.fi,
                   ...getEarlyBirdDates(event, appliedCost),
                 })} (${formatMoney(value)})`}
               />
             )
           })}
-          {appliedCost.custom && (
-            <FormControlLabel
-              value="custom"
-              disabled={disabled || !appliedCost.custom}
-              control={<Radio />}
-              label={`${appliedCost.custom.description[registration.language ?? 'fi'] || appliedCost.custom.description.fi} (${formatMoney(appliedCost.custom.cost)})`}
-            />
-          )}
         </RadioGroup>
       </CollapsibleSection>
       {cost.cost?.optionalAdditionalCosts?.length ? (
