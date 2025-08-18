@@ -80,7 +80,7 @@ const handleSuccessfulPayment = async (
       registrationCost,
       optionalCosts,
       amount: formatMoney(paidAmount),
-      previouslyPaid: formatMoney(previouslyPaid),
+      previouslyPaid: previouslyPaid ? formatMoney(previouslyPaid) : undefined,
       totalPaid: formatMoney(previouslyPaid + paidAmount),
     })
 
