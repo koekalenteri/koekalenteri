@@ -2406,7 +2406,7 @@ exports[`RegistrationForm renders 1`] = `
           <p
             class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
           >
-            costNames.normal
+            costNames.normal name
              
             123,00 €
           </p>
@@ -4895,7 +4895,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
           <p
             class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
           >
-            costNames.normal
+            costNames.normal name
              
             123,00 €
           </p>

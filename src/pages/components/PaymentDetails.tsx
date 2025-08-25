@@ -24,11 +24,11 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   const language = useRecoilValue(languageAtom)
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
-  const member = details.isMember ? ` (${t('costForMembers')})` : ''
-  const costDescription =
-    details.strategy === 'custom' && details.costObject?.custom?.description.fi
-      ? details.costObject?.custom?.description[language] || details.costObject?.custom?.description.fi
-      : t(costSegmentName, details.translationOptions)
+  const member = details.isMember ? ` ${t('costForMembers')}` : ''
+  const costDescription = t(costSegmentName, {
+    ...details.translationOptions,
+    name: details.costObject?.custom?.description?.[language] ?? details.costObject?.custom?.description?.fi,
+  })
 
   return (
     <Stack direction="row" justifyContent="start">

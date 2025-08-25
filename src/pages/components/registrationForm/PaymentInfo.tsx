@@ -8,10 +8,13 @@ import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
+import { useRecoilValue } from 'recoil'
 
 import { getCostSegmentName, getCostValue, getEarlyBirdDates, getStragegyBySegment } from '../../../lib/cost'
 import { formatMoney } from '../../../lib/money'
+import { isMember } from '../../../lib/registration'
 import { isMinimalRegistrationForCost } from '../../../lib/typeGuards'
+import { languageAtom } from '../../recoil'
 import CollapsibleSection from '../CollapsibleSection'
 
 interface Props {
@@ -24,6 +27,7 @@ interface Props {
 
 const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) => {
   const { t } = useTranslation()
+  const language = useRecoilValue(languageAtom)
   const appliedCost = cost.cost ?? event.cost
 
   const handleCostChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +56,12 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
     }
   }, [registration, cost])
 
+  useEffect(() => {
+    if (registration.language !== language) {
+      onChange?.({ language })
+    }
+  }, [registration.language, language])
+
   if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
     return null
   }
@@ -59,6 +69,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
   const open = !!registration.dog?.breedCode
   const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed', 'custom']
   const breedCode = registration.dog?.breedCode
+  const member = isMember(registration) ? ` ${t('costForMembers')}` : ''
 
   return (
     <>
@@ -81,11 +92,9 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                 control={<Radio />}
                 label={`${t(getCostSegmentName(segment), {
                   code: breedCode,
-                  name:
-                    appliedCost.custom?.description[registration.language ?? 'fi'] ||
-                    appliedCost.custom?.description.fi,
+                  name: appliedCost.custom?.description[language] || appliedCost.custom?.description.fi,
                   ...getEarlyBirdDates(event, appliedCost),
-                })} (${formatMoney(value)})`}
+                })}${member} ${formatMoney(value)}`}
               />
             )
           })}
@@ -108,7 +117,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                   />
                 }
                 disabled={disabled}
-                label={`${c.description[registration.language ?? 'fi'] || c.description.fi} (${formatMoney(c.cost)})`}
+                label={`${c.description[language] || c.description.fi} (${formatMoney(c.cost)})`}
               />
             </Box>
           ))}

@@ -1779,7 +1779,7 @@ exports[`PaymentPage renders properly 1`] = `
         <p
           class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
         >
-          costNames.normal
+          costNames.normal name
            
           123,00 €
         </p>

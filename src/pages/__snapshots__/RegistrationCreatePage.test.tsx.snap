@@ -2725,7 +2725,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           <p
             class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
           >
-            costNames.normal
+            costNames.normal name
              
             123,00 €
           </p>
@@ -5532,7 +5532,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           <p
             class="MuiTypography-root MuiTypography-body1 css-su9w05-MuiTypography-root"
           >
-            costNames.normal
+            costNames.normal name
              
             123,00 €
           </p>
