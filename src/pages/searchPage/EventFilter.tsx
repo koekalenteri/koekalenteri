@@ -126,8 +126,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
           <Button
             component="div"
             variant="contained"
-            startIcon={<TuneOutlinedIcon fontSize="small" />}
-            size="small"
+            startIcon={<TuneOutlinedIcon />}
+            sx={{ bgcolor: 'background.filterHeader', color: 'black' }}
             fullWidth
           >
             <Typography variant="caption" noWrap textOverflow="ellipsis">

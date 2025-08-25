@@ -83,7 +83,7 @@ const theme = createTheme({
       caption: 'transparent',
       default: '#fcfdfd',
       filter: '#fff',
-      filterHeader: '#fff',
+      filterHeader: '#d5e1db',
       form: '#f2f2f2',
       oddRow: '#ffffff',
       evenRow: '#f5f5f5',
