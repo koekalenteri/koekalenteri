@@ -19,6 +19,7 @@ import { PriorityChips } from './PriorityChips'
 
 interface Props {
   readonly event: PublicDogEvent
+  readonly hideCostInfo?: boolean
   readonly invitationAttachment?: string
 }
 
@@ -52,7 +53,7 @@ const Header = ({ event }: Props) => {
   )
 }
 
-export default function RegistrationEventInfo({ event, invitationAttachment }: Props) {
+export default function RegistrationEventInfo({ event, hideCostInfo, invitationAttachment }: Props) {
   const { t } = useTranslation()
   const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges])
 
@@ -73,9 +74,11 @@ export default function RegistrationEventInfo({ event, invitationAttachment }: P
             {printContactInfo(event.contactInfo?.secretary)}
           </ItemWithCaption>
         ) : null}
-        <ItemWithCaption label={t('paymentDetails')}>
-          <CostInfo event={event} />
-        </ItemWithCaption>
+        {!hideCostInfo ? (
+          <ItemWithCaption label={t('paymentDetails')}>
+            <CostInfo event={event} />
+          </ItemWithCaption>
+        ) : null}
         {event.priority ? (
           <ItemWithCaption label={t('event.priority')}>
             <PriorityChips priority={event.priority} />

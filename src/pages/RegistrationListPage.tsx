@@ -223,7 +223,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             <InfoBox event={event} registration={registration} />
           </Grid2>
         </Grid2>
-        <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
+        <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} hideCostInfo />
         <RegistrationList
           disabled={allDisabled}
           event={event}
