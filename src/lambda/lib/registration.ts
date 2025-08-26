@@ -97,12 +97,13 @@ export const sendTemplatedEmailToEventRegistrations = async (
   for (const registration of registrations) {
     const to = emailTo(registration)
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, text)
+    const auditSubject = context ? data.subject : templateName
     try {
       await sendTemplatedMail(template, registration.language, emailFrom, to, data)
       ok.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `Email: ${templateName}, to: ${to.join(', ')}`,
+        message: `Email: ${auditSubject}, to: ${to.join(', ')}`,
         user,
       })
       await setLastEmail(registration, getLastEmailInfo(template, templateName, registration, lastEmailDate))
@@ -118,7 +119,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       failed.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
-        message: `FAILED ${templateName}: ${to.join(', ')}`,
+        message: `FAILED ${auditSubject}: ${to.join(', ')}`,
         user,
       })
       console.error(e)
