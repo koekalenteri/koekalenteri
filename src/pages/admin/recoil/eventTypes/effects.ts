@@ -12,9 +12,11 @@ export const adminRemoteEventTypesEffect: AtomEffect<EventType[]> = ({ getPromis
     setSelf(
       getPromise(idTokenAtom).then((token) =>
         token
-          ? getEventTypes(token).then((eventTypes) =>
+          ? getEventTypes(token).then((eventTypes) => {
               eventTypes.sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
-            )
+
+              return eventTypes
+            })
           : new DefaultValue()
       )
     )

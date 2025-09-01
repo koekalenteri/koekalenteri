@@ -12,9 +12,11 @@ export const adminRemoteOfficialsEffect: AtomEffect<Official[]> = ({ getPromise,
     setSelf(
       getPromise(idTokenAtom).then((token) =>
         token
-          ? getOfficials(token).then((officials) =>
+          ? getOfficials(token).then((officials) => {
               officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
-            )
+
+              return officials
+            })
           : new DefaultValue()
       )
     )
