@@ -54,9 +54,17 @@ interface Props {
 export const PaymentPageWithData = ({ id, registrationId, event, registration, response }: Props) => {
   const [language, setLanguage] = useRecoilState(languageAtom)
   const { t } = useTranslation()
+
+  useEffect(() => {
+    if (registration && language !== registration.language) {
+      setLanguage(registration.language)
+    }
+  }, [language, registration?.language])
+
   if (!event) {
     return <>{t('paymentPage.eventNotFound', { id })}</>
   }
+
   if (!registration) {
     return <>{t('paymentPage.registrationNotFound', { registrationId })}</>
   }
@@ -68,12 +76,6 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
   if (!response?.groups) {
     return <>{t('paymentPage.somethingWentWrong')}</>
   }
-
-  useEffect(() => {
-    if (language !== registration.language) {
-      setLanguage(registration.language)
-    }
-  }, [language, registration.language])
 
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
