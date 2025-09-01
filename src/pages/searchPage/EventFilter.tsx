@@ -42,7 +42,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
   const filters = useMemo(() => filterStrings(filter, t), [filter, t])
 
   const setFilter = useCallback(
-    (props: Partial<FilterProps>) => onChange && onChange({ ...filter, ...props }),
+    (props: Partial<FilterProps>) => onChange?.({ ...filter, ...props }),
     [filter, onChange]
   )
   const handleDateRangeChange = useCallback(
