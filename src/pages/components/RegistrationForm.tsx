@@ -125,7 +125,9 @@ export default function RegistrationForm({
       }
 
       // Create new state by merging or replacing
-      const newState = replace ? Object.assign({}, registration, props) : merge<Registration>(registration, props ?? {})
+      const newState: Registration = replace
+        ? ({ ...registration, ...props } as Registration)
+        : merge<Registration>(registration, props ?? {})
 
       // Only update if there are actual changes
       if (hasChanges(registration, newState)) {
