@@ -49,8 +49,13 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
       {
         align: 'right',
         field: 'amount',
-        valueGetter: (value, row) =>
-          row.status === 'ok' ? formatMoney(value / (row.type === 'refund' ? -100 : 100)) : '',
+        valueGetter: (value, row) => {
+          if (row.status !== 'ok') return ''
+
+          const divider = row.type === 'refund' ? -100 : 100
+
+          return formatMoney(value / divider)
+        },
         width: 100,
         headerName: t('registration.refundDialog.columns.amount'),
       },
