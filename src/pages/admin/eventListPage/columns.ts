@@ -86,7 +86,7 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       headerName: t('judgeChief'),
       minWidth: 100,
       flex: 1,
-      valueGetter: (_value, row) => row.judges && row.judges[0]?.name,
+      valueGetter: (_value, row) => row.judges?.[0]?.name,
       sortComparator: localeSortComparator,
     },
     {
