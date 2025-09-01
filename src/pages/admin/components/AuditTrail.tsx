@@ -1,10 +1,8 @@
 import type { AuditRecord } from '../../../types'
 
-import { forwardRef } from 'react'
-
 import { formatDate } from '../../../i18n/dates'
 import CollapsibleSection from '../../components/CollapsibleSection'
-import { NullComponent } from '../../components/NullComponent'
+import { NullComponentWithRef } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 
 interface Props {
@@ -36,7 +34,7 @@ export const AuditTrail = ({ auditTrail }: Props) => {
         hideFooter
         rows={auditTrail}
         slots={{
-          columnHeaders: forwardRef((_props, _ref) => <NullComponent />),
+          columnHeaders: NullComponentWithRef,
         }}
       />
     </CollapsibleSection>
