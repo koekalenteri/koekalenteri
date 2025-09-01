@@ -74,16 +74,16 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
-  const result = await createPayment(
-    getApiHost(event),
-    getOrigin(event),
+  const result = await createPayment({
+    apiHost: getApiHost(event),
+    origin: getOrigin(event),
     amount,
     reference,
     stamp,
     items,
     customer,
-    language
-  )
+    language,
+  })
 
   if (!result) {
     return response<undefined>(500, undefined, event)

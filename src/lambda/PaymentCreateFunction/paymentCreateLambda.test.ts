@@ -153,29 +153,27 @@ describe('paymentCreateLambda', () => {
 
     const expectedAmount = 4000 // 40 EUR * 100
 
-    expect(mockCreatePayment).toHaveBeenCalledWith(
-      'api.example.com/',
-      'https://example.com',
-      expectedAmount,
-      'event123:reg456',
-      expect.any(String), // stamp
-      [
-        expect.objectContaining({
-          unitPrice: expectedAmount,
-          productCode: 'event123',
+    expect(mockCreatePayment).toHaveBeenCalledWith({
+      amount: 4000,
+      apiHost: 'api.example.com/',
+      customer: { email: 'test@example.com.local', firstName: 'Test', lastName: 'Payer', phone: '1234567890' },
+      items: [
+        {
           description: 'Test Type 1.–2.1. Test Location Test Event',
-          reference: 'reg456',
           merchant: 'merchant123',
-        }),
+          productCode: 'event123',
+          reference: 'reg456',
+          stamp: expect.any(String),
+          unitPrice: 4000,
+          units: 1,
+          vatPercentage: 0,
+        },
       ],
-      {
-        email: 'test@example.com.local',
-        firstName: 'Test',
-        lastName: 'Payer',
-        phone: '1234567890',
-      },
-      'FI'
-    )
+      language: 'FI',
+      origin: 'https://example.com',
+      reference: 'event123:reg456',
+      stamp: expect.any(String),
+    })
 
     expect(mockWrite).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -207,16 +205,27 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockCreatePayment).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      5000, // 50 EUR * 100
-      expect.any(String),
-      expect.any(String),
-      expect.any(Array),
-      expect.any(Object),
-      'FI'
-    )
+    expect(mockCreatePayment).toHaveBeenCalledWith({
+      amount: 5000,
+      apiHost: 'api.example.com/',
+      customer: { email: 'test@example.com.local', firstName: 'Test', lastName: 'Payer', phone: '1234567890' },
+      items: [
+        {
+          description: 'Test Type 1.–2.1. Test Location Test Event',
+          merchant: 'merchant123',
+          productCode: 'event123',
+          reference: 'reg456',
+          stamp: expect.any(String),
+          unitPrice: 5000,
+          units: 1,
+          vatPercentage: 0,
+        },
+      ],
+      language: 'FI',
+      origin: 'https://example.com',
+      reference: 'event123:reg456',
+      stamp: expect.any(String),
+    })
   })
 
   it('returns 404 if registration is cancelled', async () => {
@@ -281,16 +290,16 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockCreatePayment).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      500, // (25 EUR - 20 EUR) * 100
-      expect.any(String),
-      expect.any(String),
-      expect.any(Array),
-      expect.any(Object),
-      'FI'
-    )
+    expect(mockCreatePayment).toHaveBeenCalledWith({
+      apiHost: expect.any(String),
+      origin: expect.any(String),
+      amount: 500, // (25 EUR - 20 EUR) * 100
+      reference: expect.any(String),
+      stamp: expect.any(String),
+      items: expect.any(Array),
+      customer: expect.any(Object),
+      language: 'FI',
+    })
   })
 
   it('uses payer name for transaction if authorization fails', async () => {
@@ -319,16 +328,32 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockCreatePayment).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      6000, // 60 EUR * 100
-      expect.any(String),
-      expect.any(String),
-      expect.any(Array),
-      expect.any(Object),
-      'FI'
-    )
+    expect(mockCreatePayment).toHaveBeenCalledWith({
+      amount: 6000,
+      apiHost: 'api.example.com/',
+      customer: {
+        email: 'test@example.com.local',
+        firstName: 'Test',
+        lastName: 'Payer',
+        phone: '1234567890',
+      },
+      items: [
+        {
+          description: 'Test Type 1.–2.1. Test Location Test Event',
+          merchant: 'merchant123',
+          productCode: 'event123',
+          reference: 'reg456',
+          stamp: expect.any(String),
+          unitPrice: 6000,
+          units: 1,
+          vatPercentage: 0,
+        },
+      ],
+      language: 'FI',
+      origin: 'https://example.com',
+      reference: 'event123:reg456',
+      stamp: expect.any(String),
+    })
   })
 
   it('should handle undefined paidAmount', async () => {
@@ -340,14 +365,10 @@ describe('paymentCreateLambda', () => {
     await paymentCreateLambda(event)
 
     expect(mockCreatePayment).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      4000, // 40 EUR * 100
-      expect.any(String),
-      expect.any(String),
-      expect.any(Array),
-      expect.any(Object),
-      'FI'
+      expect.objectContaining({
+        amount: 4000, // 40 EUR * 100
+        language: 'FI',
+      })
     )
   })
 
@@ -360,14 +381,10 @@ describe('paymentCreateLambda', () => {
     await paymentCreateLambda(event)
 
     expect(mockCreatePayment).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.any(String),
-      4000, // 40 EUR * 100
-      expect.any(String),
-      expect.any(String),
-      expect.any(Array),
-      expect.any(Object),
-      'EN'
+      expect.objectContaining({
+        amount: 4000, // 40 EUR * 100
+        language: 'EN',
+      })
     )
   })
 })

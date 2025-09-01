@@ -131,16 +131,27 @@ export const createPaymentRedirectUrls = (origin: string): CallbackUrl => create
 
 export const createPaymentCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/payment`)
 
-export const createPayment = async (
-  apiHost: string,
-  origin: string,
-  amount: number,
-  reference: string,
-  stamp: string,
-  items: PaymentItem[],
-  customer: PaymentCustomer,
+type CreatePaymentParams = {
+  apiHost: string
+  origin: string
+  amount: number
+  reference: string
+  stamp: string
+  items: PaymentItem[]
+  customer: PaymentCustomer
   language: 'FI' | 'EN' | 'SV'
-): Promise<CreatePaymentResponse | undefined> => {
+}
+
+export const createPayment = async ({
+  apiHost,
+  origin,
+  amount,
+  reference,
+  stamp,
+  items,
+  customer,
+  language,
+}: CreatePaymentParams): Promise<CreatePaymentResponse | undefined> => {
   const redirectUrls = createPaymentRedirectUrls(origin)
   const callbackUrls = createPaymentCallbackUrls(apiHost)
 
