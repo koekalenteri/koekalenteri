@@ -49,6 +49,20 @@ const RolesTooltip = styled(({ className, ...props }: TooltipProps) => (
 
 const RolesTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
 
+const RoleIcon = ({ admin, orgRoleCount }: { admin?: boolean; orgRoleCount: number }) => {
+  if (admin) return <StarsOutlined fontSize="small" />
+
+  if (orgRoleCount) {
+    return (
+      <Badge badgeContent={orgRoleCount}>
+        <Support fontSize="small" />
+      </Badge>
+    )
+  }
+
+  return <IconPlaceholder />
+}
+
 const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   const { t } = useTranslation()
   const orgs = useRecoilValue(adminUsersOrganizersSelector)
@@ -71,15 +85,7 @@ const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   return (
     <RolesTooltip placement="right" title={<RolesTooltipContent roles={roleStrings.join('\n')} />}>
       <Stack direction="row" alignItems="center">
-        {admin ? (
-          <StarsOutlined fontSize="small" />
-        ) : orgRoleCount ? (
-          <Badge badgeContent={orgRoleCount}>
-            <Support fontSize="small" />
-          </Badge>
-        ) : (
-          <IconPlaceholder />
-        )}
+        <RoleIcon admin orgRoleCount={orgRoleCount} />
         {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
         {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
       </Stack>
