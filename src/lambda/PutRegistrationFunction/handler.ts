@@ -177,7 +177,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     registration.handler?.email &&
     registration.owner?.email
   ) {
-    await sendMessages(origin, context, registration, confirmedEvent, existing)
+    await sendMessages(origin, context, data, confirmedEvent, existing)
   }
 
   return response(200, data, event)
