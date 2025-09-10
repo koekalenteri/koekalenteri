@@ -59,7 +59,7 @@ describe('PaymentSection', () => {
     await user.type(fiInput, 'testi')
     await user.type(enInput, 'test')
 
-    await user.click(within(dialog).getByRole('button', { name: 'costAdd' }))
+    await user.click(within(dialog).getByRole('button', { name: 'costAddOptional' }))
 
     expect(onChange).toHaveBeenCalledWith({
       cost: {
@@ -149,7 +149,7 @@ describe('PaymentSection', () => {
     await user.click(select)
     await flushPromises()
 
-    const option = await screen.findByRole('option', { name: 'costNames.earlyBird code' })
+    const option = await screen.findByRole('option', { name: 'costNamesAdd.earlyBird' })
     await user.click(option)
     await flushPromises()
 
@@ -249,7 +249,7 @@ describe('PaymentSection', () => {
     await user.click(select)
     await flushPromises()
 
-    const option = await screen.findByRole('option', { name: 'costNames.custom code' })
+    const option = await screen.findByRole('option', { name: 'costNamesAdd.custom' })
     await user.click(option)
     await flushPromises()
 

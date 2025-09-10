@@ -151,9 +151,11 @@ export default function PaymentSection({
   const handleRemove = useCallback(
     (key: DogEventCostKey, breedCode?: BreedCode) => {
       const cost: DogEventCost =
-        typeof event.cost !== 'object' ? { normal: event.cost ?? 0 } : { ...(event.cost ?? {}) }
+        typeof event.cost !== 'object' ? { normal: event.cost ?? 0 } : structuredClone(event.cost ?? {})
       const costMember: DogEventCost =
-        typeof event.costMember !== 'object' ? { normal: event.costMember ?? 0 } : { ...(event.costMember ?? {}) }
+        typeof event.costMember !== 'object'
+          ? { normal: event.costMember ?? 0 }
+          : structuredClone(event.costMember ?? {})
 
       if (key === 'breed' && breedCode) {
         if (cost.breed) delete cost.breed[breedCode]

@@ -43,7 +43,7 @@ export const EditCostDescriptionDialog = ({ open, costKey, initialDescriptions, 
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{t('editWhat', { what: t(`costNames.${costKey}`) })}</DialogTitle>
+      <DialogTitle>{t('editWhat', { what: t(`costNames.${costKey}`, { name: descriptionFi }) })}</DialogTitle>
       <DialogContent>
         <TextField
           label={t('eventType.createDialog.description.fi')}

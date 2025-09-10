@@ -19,6 +19,7 @@
   "costAddOptional": "Lisää lisäpalvelu",
   "costAmount": "Hinta",
   "costChoose": "Valitse lisättävä maksu",
+  "costOptionalAdd": "Nimeä lisättävä lisäpalvelu",
   "costDescription": {
     "earlyBirdDays": "Hinta on voimassa",
     "earlyBirdDaysUnit": "päivää ilmoittautumisajan alusta"
@@ -29,6 +30,13 @@
     "breed": "Osallistumismaksu $t(breed:{{code}})",
     "custom": "Osallistumismaksu {{name}}",
     "earlyBird": "Osallistumismaksu {{start, datespan(end: end; parentheses: true)}}",
+    "normal": "Osallistumismaksu",
+    "optionalAdditionalCosts": "Lisäpalvelut"
+  },
+  "costNamesAdd": {
+    "breed": "Rotukohtainen osallistumismaksu",
+    "custom": "Muu osallistumismaksu",
+    "earlyBird": "Early bird -osallistumismaksu",
     "normal": "Osallistumismaksu",
     "optionalAdditionalCosts": "Lisäpalvelut"
   },

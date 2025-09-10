@@ -43,6 +43,9 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
     if (mode === 'other' && availableKeys.length === 1) {
       setKey(availableKeys[0])
     }
+    if (mode === 'optional') {
+      setKey('')
+    }
   }, [mode, availableKeys])
 
   const handleAdd = useCallback(() => {
@@ -66,7 +69,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{t('costChoose')}</DialogTitle>
+      <DialogTitle>{t(mode === 'optional' ? 'costOptionalAdd' : 'costChoose')}</DialogTitle>
       <DialogContent>
         {mode === 'other' ? (
           <Select
@@ -78,7 +81,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
           >
             {availableKeys.map((k) => (
               <MenuItem key={k} value={k}>
-                {t(`costNames.${k}`, { code: '' })}
+                {t(`costNamesAdd.${k}`)}
               </MenuItem>
             ))}
           </Select>
@@ -115,7 +118,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
       <DialogActions>
         <Button onClick={onClose}>{t('cancel')}</Button>
         <Button onClick={handleAdd} disabled={!key && mode !== 'optional'}>
-          {t('costAdd')}
+          {t(mode === 'optional' ? 'costAddOptional' : 'costAdd')}
         </Button>
       </DialogActions>
     </Dialog>

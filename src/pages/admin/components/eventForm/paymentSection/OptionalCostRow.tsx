@@ -72,7 +72,7 @@ export const OptionalCostRow = ({
       </TableRow>
       {error && (
         <TableRow sx={{ '& td': { borderTop: 0, py: 0 } }}>
-          <TableCell colSpan={4}>
+          <TableCell colSpan={3}>
             <FormHelperText error sx={{ m: 0 }}>
               {t('validation.event.costMemberHigh')}
             </FormHelperText>
