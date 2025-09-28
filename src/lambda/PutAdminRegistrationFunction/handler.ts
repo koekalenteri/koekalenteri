@@ -10,7 +10,12 @@ import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../li
 import { updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import { getRegistration, getRegistrationChanges, saveRegistration } from '../lib/registration'
+import {
+  findExistingRegistrationToEventForDog,
+  getRegistration,
+  getRegistrationChanges,
+  saveRegistration,
+} from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
 
 const { emailFrom } = CONFIG
@@ -30,6 +35,20 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   if (update) {
     existing = await getRegistration(registration.eventId, registration.id)
   } else {
+    // Prevent double registrations when trying to insert new registration
+    const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
+
+    if (alreadyRegistered) {
+      return response(
+        409,
+        {
+          message: 'Conflict: Dog already registered to this event',
+          cancelled: Boolean(alreadyRegistered.cancelled),
+        },
+        event
+      )
+    }
+
     registration.id = nanoid(10)
     registration.createdAt = timestamp
     registration.createdBy = user.name
