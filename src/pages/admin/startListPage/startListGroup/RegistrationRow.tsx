@@ -28,14 +28,14 @@ const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
           : ''}
       </TableCell>
       <TableCell>{reg.dog.name?.slice(0, nameLen).padEnd(nameLen) ?? ''}</TableCell>
-      <TableCell>{reg.owner.name}</TableCell>
-      <TableCell align="center">{reg.owner.membership ? '✘' : ''}</TableCell>
-      <TableCell>{reg.handler.name}</TableCell>
-      <TableCell align="center">{reg.handler.membership ? '✘' : ''}</TableCell>
-      <TableCell>{reg.handler.phone ?? '-ei puhelinta-'}</TableCell>
+      <TableCell>{reg.owner?.name}</TableCell>
+      <TableCell align="center">{reg.owner?.membership ? '✘' : ''}</TableCell>
+      <TableCell>{reg.handler?.name}</TableCell>
+      <TableCell align="center">{reg.handler?.membership ? '✘' : ''}</TableCell>
+      <TableCell>{reg.handler?.phone ?? '-ei puhelinta-'}</TableCell>
       {reserve ? (
         <>
-          <TableCell>{reg.handler.location}</TableCell>
+          <TableCell>{reg.handler?.location}</TableCell>
           <TableCell>{reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''}</TableCell>
         </>
       ) : null}

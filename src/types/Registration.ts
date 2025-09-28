@@ -28,7 +28,7 @@ export interface JsonRegistration extends JsonDbRecord {
   eventId: string
   eventType: string
   group?: JsonRegistrationGroup
-  handler: RegistrationPerson
+  handler?: RegistrationPerson
   internalNotes?: string
   invitationAttachment?: string
   invitationRead?: boolean
@@ -37,13 +37,13 @@ export interface JsonRegistration extends JsonDbRecord {
   /** tracks which message templates have been sent to this registration */
   messagesSent?: Partial<Record<EmailTemplateId, boolean>>
   notes: string
-  owner: RegistrationPerson
+  owner?: RegistrationPerson
   ownerHandles?: boolean
   ownerPays?: boolean
   optionalCosts?: number[]
   paidAmount?: number
   paidAt?: string
-  payer: Omit<RegistrationPerson, 'location' | 'membership'>
+  payer?: Omit<RegistrationPerson, 'location' | 'membership'>
   paymentStatus?: PaymentStatus
   priorityByInvitation?: boolean
   qualifies?: boolean
@@ -157,7 +157,7 @@ export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'PENDING'
 
 export interface MinimalRegistrationForMembership {
-  handler?: Pick<Registration['handler'], 'membership'>
-  owner?: Pick<Registration['handler'], 'membership'>
+  handler?: Pick<RegistrationPerson, 'membership'>
+  owner?: Pick<RegistrationPerson, 'membership'>
   ownerHandles?: Registration['ownerHandles']
 }

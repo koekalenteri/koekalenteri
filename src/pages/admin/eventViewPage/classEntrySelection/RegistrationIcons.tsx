@@ -50,7 +50,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
       <Stack direction="row" alignItems="center" mt="3px">
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
         <StatusIcon
-          condition={reg.handler.membership || reg.owner.membership}
+          condition={reg.handler?.membership || reg.owner?.membership}
           icon={<PersonOutline fontSize="small" />}
         />
         <PaymentIcon reg={reg} />
