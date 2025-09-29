@@ -219,3 +219,12 @@ export const getRegistrationEmailTemplateData = (
 
 export const isPredefinedReason = (v?: string): v is 'dog-heat' | 'handler-sick' | 'dog-sick' | 'gdpr' | 'unpaid' =>
   !!v && ['dog-heat', 'handler-sick', 'dog-sick', 'gdpr', 'unpaid'].includes(v)
+
+export const getNextClass = (c: RegistrationClass | undefined | null): RegistrationClass | undefined => {
+  if (c === 'ALO') {
+    return 'AVO'
+  }
+  if (c === 'AVO') {
+    return 'VOI'
+  }
+}

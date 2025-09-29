@@ -1,9 +1,10 @@
-import type { JsonQualifyingResult, QualifyingResult } from '../types'
+import type { JsonQualifyingResult, QualifyingResult, RegistrationClass } from '../types'
 import type { SortableRegistration } from './registration'
 
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
+  getNextClass,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
@@ -512,6 +513,17 @@ describe('lib/registration', () => {
 
       // Verify some default values
       expect(result.groupNumber).toBe('?')
+    })
+  })
+
+  describe('getNextClass', () => {
+    it.each<[RegistrationClass | undefined, RegistrationClass | undefined]>([
+      ['AVO', 'ALO'],
+      ['VOI', 'AVO'],
+      [undefined, 'VOI'],
+      [undefined, undefined],
+    ])('should return %p for %p', (expected, current) => {
+      expect(getNextClass(current)).toEqual(expected)
     })
   })
 })

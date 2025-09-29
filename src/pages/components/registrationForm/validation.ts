@@ -13,12 +13,12 @@ import type {
   QualifyingResults,
   Registration,
   RegistrationBreeder,
-  RegistrationClass,
   TestResult,
 } from '../../../types'
 
 import { differenceInMonths, startOfYear } from 'date-fns'
 
+import { getNextClass } from '../../../lib/registration'
 import { validatePerson } from '../../../lib/validation'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
 
@@ -157,7 +157,7 @@ export function filterRelevantResults(
   officialResults?: TestResult[],
   manualResults?: ManualTestResult[]
 ): QualifyingResults {
-  const nextClass = regClass && getNextClass(regClass)
+  const nextClass = getNextClass(regClass)
   const rules = getRequirements(eventType, regClass, startDate)
   const nextClassRules = nextClass && getRequirements(eventType, nextClass, startDate)
   const manualValid = manualResults?.filter((r) => r.type && r.date && r.location && r.judge)
@@ -243,6 +243,7 @@ function checkRequiredResults(
   const checkResult = (result: Partial<TestResult>, r: EventResultRequirement, official: boolean) => {
     const { count, ...resultProps } = r
     if (objectContains(result, resultProps)) {
+      // @todo: 2 tulosta samalle päivälle?
       if (!relevant.find((rel) => rel.date === result.date))
         relevant.push({ ...result, qualifying, official } as QualifyingResult)
       if (getCount(r) >= count) {
@@ -284,13 +285,4 @@ function bestResults(
     .sort(byDate)
     .slice(0, 3)
     .map((r) => (r.qualifying === false ? { ...r, qualifying: undefined } : r))
-}
-
-function getNextClass(c: RegistrationClass | undefined): RegistrationClass | undefined {
-  if (c === 'ALO') {
-    return 'AVO'
-  }
-  if (c === 'AVO') {
-    return 'VOI'
-  }
 }
