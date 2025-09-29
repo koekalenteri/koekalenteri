@@ -91,7 +91,12 @@ export default function RegistrationForm({
   const paymentAmount = costResult.amount
   const ctaText = useMemo(() => {
     if (registration.id) return t('registration.cta.saveChanges')
-    if (admin) return t('registration.cta.confirmAndSendLink')
+    if (admin) {
+      if (event.paymentTime === 'confirmation') {
+        return t('registration.cta.confirmRegistration')
+      }
+      return t('registration.cta.confirmAndSendLink')
+    }
     if (event.paymentTime === 'confirmation') return t('registration.cta.confirmRegistration')
     return t('registration.cta.confirmAndPay')
   }, [admin, registration.id, event.paymentTime, t])
