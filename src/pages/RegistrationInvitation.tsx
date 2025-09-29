@@ -93,7 +93,7 @@ export const Component = () => {
                   {registration.dog.titles} {registration.dog.regNo} {registration.dog.name}
                 </Typography>
                 <Typography variant="caption">{t('invitation.handler')}</Typography>
-                <Typography>{registration.handler.name}</Typography>
+                <Typography>{registration.handler?.name}</Typography>
               </Paper>
               <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
                 <LinkButton target="_blank" to={url} text={t('invitation.open')} />

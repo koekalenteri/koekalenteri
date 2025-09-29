@@ -11,15 +11,15 @@ export function useRegistrationActions() {
 
   return {
     save: async (reg: Registration) => {
-      const regWithOverrides = {
+      const regWithOverrides: Registration = {
         ...reg,
-        handler: reg.ownerHandles ? { ...reg.owner } : reg.handler,
-        payer: reg.ownerPays ? { ...reg.owner } : reg.payer,
+        handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
+        payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
       const saved = await putRegistration(regWithOverrides)
-      const emails = [saved.handler.email]
-      if (saved.owner.email !== saved.handler.email) {
-        emails.push(saved.owner.email)
+      const emails = [saved.handler?.email]
+      if (saved.owner?.email !== saved.handler?.email) {
+        emails.push(saved.owner?.email)
       }
       if (reg.paymentStatus === 'SUCCESS') {
         enqueueSnackbar(

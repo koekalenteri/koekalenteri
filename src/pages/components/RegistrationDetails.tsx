@@ -32,7 +32,7 @@ export const RegistrationDetails = ({ event, registration }: Props) => {
         <Typography variant="subtitle2" color="textSecondary">
           {t('registration.handler')}
         </Typography>
-        <Typography variant="body1">{registration.handler.name}</Typography>
+        <Typography variant="body1">{registration.handler?.name}</Typography>
       </Box>
     </Stack>
   )

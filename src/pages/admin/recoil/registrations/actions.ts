@@ -38,8 +38,8 @@ export const useAdminRegistrationActions = (eventId: string) => {
       if (!token) throw new Error('missing token')
       const regWithOverrides = {
         ...reg,
-        handler: reg.ownerHandles ? { ...reg.owner } : reg.handler,
-        payer: reg.ownerPays ? { ...reg.owner } : reg.payer,
+        handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
+        payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
       const saved = await putAdminRegistration(regWithOverrides, token)
       updateAdminRegistration(saved)

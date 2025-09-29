@@ -83,7 +83,7 @@ export function useClassEntrySelectionColumns(
         headerName: t('registration.handler'),
         width: 150,
         flex: 1,
-        valueGetter: (_value, row) => row.handler.name,
+        valueGetter: (_value, row) => row.handler?.name,
       },
       {
         field: 'lastEmail',

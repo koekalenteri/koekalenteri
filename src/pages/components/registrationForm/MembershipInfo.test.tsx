@@ -42,7 +42,7 @@ describe('MembershipInfo', () => {
   it('should render when owner handles and is member', () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     reg.ownerHandles = true
-    reg.owner.membership = true
+    reg.owner!.membership = true
 
     const { container } = render(<MembershipInfo reg={reg} orgId={'test'} />, { wrapper: Wrapper })
     expect(container).toMatchSnapshot()
@@ -51,8 +51,8 @@ describe('MembershipInfo', () => {
   it('should call onChange', async () => {
     const reg = clone<Registration>(registrationWithStaticDates)
     reg.ownerHandles = false
-    reg.owner.membership = false
-    reg.handler.membership = false
+    reg.owner!.membership = false
+    reg.handler!.membership = false
 
     const onChange = jest.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(

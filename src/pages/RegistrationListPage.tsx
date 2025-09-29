@@ -141,13 +141,13 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       if (registration?.messagesSent?.picked && registration.paymentStatus === 'SUCCESS') {
         enqueueSnackbar(
           t('registration.paidAndConfirmed', {
-            to: registration.payer.email,
+            to: registration.payer?.email,
           }),
           { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
         )
       } else if (registration?.paymentStatus === 'SUCCESS') {
-        const emails = [registration.handler.email]
-        if (registration.owner.email !== registration.handler.email) {
+        const emails = [registration.handler?.email]
+        if (registration.owner && registration.owner?.email !== registration.handler?.email) {
           emails.push(registration.owner.email)
         }
 

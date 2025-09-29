@@ -137,7 +137,7 @@ describe('RegistrationInvitation', () => {
     expect(screen.getByText(String(registrationWithStaticDates.dog.name), { exact: false })).toBeInTheDocument()
 
     // Check that handler information is displayed
-    expect(screen.getByText(registrationWithStaticDates.handler.name)).toBeInTheDocument()
+    expect(screen.getByText(registrationWithStaticDates.handler!.name)).toBeInTheDocument()
 
     // Check that buttons are displayed
     expect(screen.getByText('invitation.open')).toBeInTheDocument()

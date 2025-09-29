@@ -256,8 +256,8 @@ export default function SendMessageDialog({ event, registrations, templateId, op
 }
 
 function listEmails(r: Registration): string {
-  if (r.ownerHandles || r.owner.email === r.handler.email) {
-    return r.owner.email
+  if (r.ownerHandles || r.owner?.email === r.handler?.email) {
+    return r.owner?.email ?? ''
   }
-  return [r.owner.email, r.handler.email].join(', ')
+  return [r.owner?.email, r.handler?.email].filter(Boolean).join(', ')
 }

@@ -21,8 +21,8 @@ describe('RegistrationIcons component', () => {
   it('should render icons with correct opacity based on registration properties', () => {
     // Mock a registration with all properties set
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner, membership: true },
-      handler: { ...registrationWithStaticDates.handler, membership: true },
+      owner: { ...registrationWithStaticDates.owner!, membership: true },
+      handler: { ...registrationWithStaticDates.handler!, membership: true },
       paidAt: new Date(),
       confirmed: true,
       invitationRead: true,
@@ -59,8 +59,8 @@ describe('RegistrationIcons component', () => {
   it('should render icons with correct opacity when properties are not set', () => {
     // Mock a registration with no properties set
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner, membership: false },
-      handler: { ...registrationWithStaticDates.handler, membership: false },
+      owner: { ...registrationWithStaticDates.owner!, membership: false },
+      handler: { ...registrationWithStaticDates.handler!, membership: false },
       paidAt: undefined,
       confirmed: false,
       invitationRead: false,
@@ -215,8 +215,8 @@ describe('RegistrationIcons component', () => {
   it('should handle priority 0.5 with owner membership correctly', () => {
     // Mock a registration with priority 0.5 and owner membership
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner, membership: true },
-      handler: { ...registrationWithStaticDates.handler, membership: false },
+      owner: { ...registrationWithStaticDates.owner!, membership: true },
+      handler: { ...registrationWithStaticDates.handler!, membership: false },
     })
 
     // Spy on the hasPriority function to return 0.5
@@ -237,8 +237,8 @@ describe('RegistrationIcons component', () => {
   it('should handle priority 0.5 with handler membership correctly', () => {
     // Mock a registration with priority 0.5 and handler membership
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner, membership: false },
-      handler: { ...registrationWithStaticDates.handler, membership: true },
+      owner: { ...registrationWithStaticDates.owner!, membership: false },
+      handler: { ...registrationWithStaticDates.handler!, membership: true },
     })
 
     // Spy on the hasPriority function to return 0.5
