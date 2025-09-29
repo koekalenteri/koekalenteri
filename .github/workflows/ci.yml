@@ -309,6 +309,6 @@ jobs:
       - name: Set version
         run: echo -e "\nsonar.projectVersion=${{ steps.package-version.outputs.current-version}}" >> sonar-project.properties
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
