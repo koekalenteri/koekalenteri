@@ -37,12 +37,8 @@ export async function sendTemplatedMail(
     Source: from,
   }
 
-  try {
-    console.log(`Sending email ${from} -> ${to} (template=${template}) `)
-    return ses.send(new SendTemplatedEmailCommand(params))
-  } catch (e) {
-    console.log('Failed to send email', e)
-  }
+  console.log(`Sending email ${from} -> ${to} (template=${template}) `)
+  return ses.send(new SendTemplatedEmailCommand(params))
 }
 
 export function emailTo(registration: JsonRegistration) {

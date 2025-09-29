@@ -307,6 +307,8 @@ export const jsonRegistrationsToEventWithALOInvited: JsonRegistration[] =
     ...r,
     eventId: eventWithALOClassInvited.id,
     id: `${eventWithALOClassInvited.id}${i + 1}`,
+    handler: { ...r.handler!, email: r.handler!.email.split('@').join(`${i + 1}@`) },
+    owner: { ...r.owner!, email: r.owner!.email.split('@').join(`${i + 1}@`) },
   }))
 
 export const mockRegistrationData = [
