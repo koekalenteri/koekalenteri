@@ -12,6 +12,7 @@ import type {
   PublicDogEvent,
   Registration,
   RegistrationClass,
+  RegistrationPerson,
   RegistrationTemplateContext,
 } from '../types'
 
@@ -31,8 +32,8 @@ export const isRegistrationClass = (cls?: string | null): cls is RegistrationCla
 const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
 
 type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation' | 'ownerHandles'> & {
-  owner?: Pick<Registration['owner'], 'membership'>
-  handler?: Pick<Registration['handler'], 'membership'>
+  owner?: Pick<RegistrationPerson, 'membership'>
+  handler?: Pick<RegistrationPerson, 'membership'>
   dog?: Pick<Registration['dog'], 'breedCode'>
   qualifyingResults?: Registration['qualifyingResults'] | JsonRegistration['qualifyingResults']
 }

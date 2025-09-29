@@ -185,7 +185,7 @@ export const refundPayment = async (
   refundStamp: string,
   items: RefundItem[] | undefined,
   amount: number | undefined,
-  email: PaymentCustomer['email']
+  email: PaymentCustomer['email'] | undefined = ''
 ) => {
   const callbackUrls = createRefundCallbackUrls(apiHost)
 

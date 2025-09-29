@@ -25,7 +25,7 @@ const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | und
 const classEquals = (a: string | null | undefined, b: string | null | undefined) => (!a && !b) || a === b
 
 const regString = (r: JsonRegistration) =>
-  `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler.name} [${r.reserveNotified}]`
+  `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
 
 const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegistrationGroupInfo[], user: JsonUser) => {
   // create a new copy of oldItems, so we can update without touching the original ones

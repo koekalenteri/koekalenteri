@@ -91,7 +91,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     items,
     // if there are no items, this is a full refund and needs amount provided.
     items ? undefined : amount,
-    registration?.payer.email
+    registration?.payer?.email
   )
 
   if (!result) {

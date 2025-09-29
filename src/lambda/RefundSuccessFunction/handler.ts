@@ -75,7 +75,9 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
 
     // send refund notification
     try {
-      const recipient = [registration.payer.email]
+      const recipient: string[] = []
+      if (registration.payer?.email) recipient.push(registration.payer?.email)
+
       const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund')
       await sendTemplatedMail('refund', registration.language, emailFrom, recipient, {
         ...templateData,

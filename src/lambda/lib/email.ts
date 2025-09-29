@@ -23,6 +23,10 @@ export async function sendTemplatedMail(
   to: string[],
   data: Record<string, unknown>
 ) {
+  if (to.length === 0) {
+    console.log('sendTemplatedEmail: no recipients')
+    return
+  }
   const params: SendTemplatedEmailCommandInput = {
     ConfigurationSetName: 'Koekalenteri',
     Destination: {
@@ -42,8 +46,9 @@ export async function sendTemplatedMail(
 }
 
 export function emailTo(registration: JsonRegistration) {
-  const to: string[] = [registration.handler.email]
-  if (registration.owner.email !== registration.handler.email) {
+  const to: string[] = []
+  if (registration.handler?.email) to.push(registration.handler.email)
+  if (registration.owner?.email && registration.owner?.email !== registration.handler?.email) {
     to.push(registration.owner.email)
   }
   return to

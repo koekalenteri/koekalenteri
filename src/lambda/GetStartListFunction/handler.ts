@@ -27,8 +27,8 @@ const getStartListLambda = lambda('getStartList', async (event) => {
           class: reg.class,
           dog: reg.dog,
           group: reg.group,
-          handler: reg.handler?.name,
-          owner: reg.owner?.name,
+          handler: reg.handler?.name ?? '',
+          owner: reg.owner?.name ?? '',
           breeder: reg.breeder?.name,
           ownerHandles: reg.ownerHandles,
         }))

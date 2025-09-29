@@ -58,7 +58,9 @@ const handleSuccessfulPayment = async (
 
   // send receipt
   try {
-    const receiptTo = [registration.payer.email]
+    const receiptTo: string[] = []
+    if (registration.payer?.email) receiptTo.push(registration.payer?.email)
+
     const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
     const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
     const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''

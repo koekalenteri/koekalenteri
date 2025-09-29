@@ -619,8 +619,8 @@ describe('lib/stats', () => {
       } as unknown as JsonRegistration
 
       // Calculate expected hash values
-      const hashedHandlerEmail = hashStatValue(registration.handler.email)
-      const hashedOwnerEmail = hashStatValue(registration.owner.email)
+      const hashedHandlerEmail = hashStatValue(registration.handler?.email)
+      const hashedOwnerEmail = hashStatValue(registration.owner?.email)
       const hashedRegNo = hashStatValue(registration.dog.regNo)
 
       await updateYearlyParticipationStats(registration, 2024)
@@ -658,7 +658,7 @@ describe('lib/stats', () => {
       } as unknown as JsonRegistration
 
       // Calculate expected hash values
-      const hashedHandlerEmail = hashStatValue(registration.handler.email)
+      const hashedHandlerEmail = hashStatValue(registration.handler?.email)
       const hashedRegNo = hashStatValue(registration.dog.regNo)
 
       await updateYearlyParticipationStats(registration, 2024)

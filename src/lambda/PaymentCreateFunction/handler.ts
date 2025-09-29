@@ -67,9 +67,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const customer: PaymentCustomer = {
     // We don't want to deliver the receipt from Paytrail to the customer, hence adding '.local' to the email. KOE-763
-    email: registration.payer.email && `${registration.payer.email}.local`,
-    ...splitName(registration?.payer.name),
-    phone: registration.payer.phone,
+    email: (registration.payer?.email && `${registration.payer.email}.local`) ?? '',
+    ...splitName(registration?.payer?.name),
+    phone: registration.payer?.phone,
   }
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
@@ -100,7 +100,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     stamp,
     items,
     createdAt: new Date().toISOString(),
-    user: user?.name ?? registration.payer.name,
+    user: user?.name ?? registration.payer?.name,
   }
   await dynamoDB.write(transaction)
 

@@ -328,7 +328,7 @@ export async function updateEntityStats(
  * taking only 12 bytes of the digest and encoding as base64
  * for a shorter representation while maintaining uniqueness
  */
-export function hashStatValue(value: string): string {
+export function hashStatValue(value: string | undefined = ''): string {
   const fullDigest = crypto.createHash('sha256').update(value.toLowerCase().trim()).digest()
 
   // Use first 12 bytes of the digest, convert to base64 and remove padding characters
@@ -340,9 +340,9 @@ export function hashStatValue(value: string): string {
  */
 export async function updateYearlyParticipationStats(registration: JsonRegistration, year: number): Promise<void> {
   // Hash email addresses for privacy
-  const hashedHandlerEmail = hashStatValue(registration.handler.email)
-  const hashedOwnerEmail = hashStatValue(registration.owner.email)
-  const hashedRegNo = hashStatValue(registration.dog.regNo)
+  const hashedHandlerEmail = hashStatValue(registration.handler?.email)
+  const hashedOwnerEmail = hashStatValue(registration.owner?.email)
+  const hashedRegNo = hashStatValue(registration.dog?.regNo)
 
   const identifiers: Record<YearlyStatTypes, string> = {
     eventType: registration.eventType,
