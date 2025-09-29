@@ -45,8 +45,7 @@ interface Props {
 export const InfoBox = ({ event, registration }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const needsPayment =
-    !registration.cancelled && registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
+  const needsPayment = Boolean(registration.shouldPay)
 
   return (
     <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1 }}>

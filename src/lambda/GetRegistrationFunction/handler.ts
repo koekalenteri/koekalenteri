@@ -16,6 +16,12 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     registration.invitationAttachment = dogEvent?.invitationAttachment
   }
 
+  const shouldPay =
+    !registration.cancelled && registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
+  const shouldPayConfirmed = isParticipantGroup(registration?.group?.key) && shouldPay
+
+  registration.shouldPay = dogEvent.paymentTime === 'confirmation' ? shouldPayConfirmed : shouldPay
+
   // Make sure not to leak information to user
   delete registration.group
   delete registration.internalNotes

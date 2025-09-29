@@ -50,6 +50,9 @@ const {
 } = await import('./registration')
 
 describe('registration', () => {
+  beforeAll(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => {})
+  })
   describe('getLastEmailInfo', () => {
     const reg = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[6]))
     const date = '2024-08-08T08:32:00.000Z'

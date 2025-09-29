@@ -55,6 +55,7 @@ export interface JsonRegistration extends JsonDbRecord {
   reserveNotified?: number | true // true is only found in old records
   results?: Array<JsonTestResult & { id: string }>
   state?: 'creating' | 'ready'
+  shouldPay?: boolean
   totalAmount?: number
   selectedCost?: DogEventCostSegment
 }

@@ -30,27 +30,18 @@ jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
-// Import the actual implementations
-import { getStateFromTemplate } from '../lib/event'
-import {
-  findClassesToMark,
-  groupRegistrationsByClass,
-  groupRegistrationsByClassAndGroup,
-  isParticipantGroup,
-} from '../lib/registration'
+import * as eventLib from '../lib/event'
+import * as regLib from '../lib/registration'
 
 jest.unstable_mockModule('../lib/registration', () => ({
+  ...regLib,
   sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
   setReserveNotified: mockSetReserveNotified,
-  isParticipantGroup,
-  groupRegistrationsByClass,
-  groupRegistrationsByClassAndGroup,
-  findClassesToMark,
 }))
 
 jest.unstable_mockModule('../lib/event', () => ({
+  ...eventLib,
   markParticipants: mockMarkParticipants,
-  getStateFromTemplate,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({

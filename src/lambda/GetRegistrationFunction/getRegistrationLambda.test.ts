@@ -1,4 +1,4 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonRegistration, PaymentStatus, PaymentTime, Registration } from '../../types'
 
 import { jest } from '@jest/globals'
 
@@ -8,12 +8,18 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockEventWithInvitationAttachment = { ...eventWithParticipantsInvited, invitationAttachment: 'test.pdf' }
 
-const mockIsParticipantGroup = jest.fn(() => true)
-const mockGetRegistration = jest.fn(() => ({ ...registrationsToEventWithParticipantsInvited[0] }))
+const mockGetRegistration = jest.fn(
+  (): Registration => ({
+    ...registrationsToEventWithParticipantsInvited[0],
+    paymentStatus: 'SUCCESS',
+  })
+)
+
+import * as libRegistration from '../lib/registration'
 
 jest.unstable_mockModule('../lib/registration', () => ({
+  ...libRegistration,
   getRegistration: mockGetRegistration,
-  isParticipantGroup: mockIsParticipantGroup,
 }))
 
 const mockGetEvent = jest.fn(() => mockEventWithInvitationAttachment)
@@ -51,10 +57,14 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toEqual('test.pdf')
+    expect(reg.shouldPay).toBe(false)
   })
 
   it('should not add invitationAttachment when registration is not in participant group', async () => {
-    mockIsParticipantGroup.mockReturnValueOnce(false)
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      group: undefined,
+    })
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
@@ -64,4 +74,61 @@ describe('getRegistration', () => {
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toBeUndefined()
   })
+
+  it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([
+    [true, 'confirmation', undefined],
+    [false, 'confirmation', 'PENDING'],
+    [false, 'confirmation', 'SUCCESS'],
+    [true, 'confirmation', 'CANCEL'],
+    [true, 'registration', undefined],
+    [false, 'registration', 'PENDING'],
+    [false, 'registration', 'SUCCESS'],
+    [true, 'registration', 'CANCEL'],
+  ])(
+    'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p',
+    async (expected, paymentTime, paymentStatus) => {
+      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      mockGetRegistration.mockReturnValueOnce({
+        ...registrationsToEventWithParticipantsInvited[0],
+        paymentStatus,
+      })
+
+      const res = await getRegistrationLambda(
+        constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      const reg: JsonRegistration = JSON.parse(res.body)
+      expect(reg.shouldPay).toBe(expected)
+    }
+  )
+
+  it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([
+    [false, 'confirmation', undefined],
+    [false, 'confirmation', 'PENDING'],
+    [false, 'confirmation', 'SUCCESS'],
+    [false, 'confirmation', 'CANCEL'],
+    [true, 'registration', undefined],
+    [false, 'registration', 'PENDING'],
+    [false, 'registration', 'SUCCESS'],
+    [true, 'registration', 'CANCEL'],
+  ])(
+    'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p and not picked',
+    async (expected, paymentTime, paymentStatus) => {
+      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      mockGetRegistration.mockReturnValueOnce({
+        ...registrationsToEventWithParticipantsInvited[0],
+        paymentStatus,
+        group: undefined,
+      })
+
+      const res = await getRegistrationLambda(
+        constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+      )
+
+      expect(res.statusCode).toEqual(200)
+      const reg: JsonRegistration = JSON.parse(res.body)
+      expect(reg.shouldPay).toBe(expected)
+    }
+  )
 })
