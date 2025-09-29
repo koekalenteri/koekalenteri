@@ -79,7 +79,7 @@ export const adminFilteredEventsSelector = selector({
     return events.filter((event) => {
       return (
         !event.deletedAt &&
-        (showPast || !event.startDate || !isPast(event.startDate)) &&
+        (showPast || !event.endDate || !isPast(event.endDate)) &&
         (!filter ||
           [event.eventType, event.name, event.location, event.official?.name, event.secretary?.name]
             .join(' ')
