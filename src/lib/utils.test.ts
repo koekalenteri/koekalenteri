@@ -19,12 +19,14 @@ import {
 
 describe('utils', () => {
   describe('isDateString', () => {
-    it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2016-12-31T23:59:60+00:00', '2018-06-19T04:06Z'])(
-      'should return true for valid date string: %p',
-      (dateStr) => {
-        expect(isDateString(dateStr)).toEqual(true)
-      }
-    )
+    it.each([
+      '2016-09-18T17:34:02.666Z',
+      '2021-05-10T09:05:12.000Z',
+      '2016-12-31T23:59:60+00:00',
+      '2018-06-19T04:06Z',
+    ])('should return true for valid date string: %p', (dateStr) => {
+      expect(isDateString(dateStr)).toEqual(true)
+    })
     it.each([
       null,
       undefined,
@@ -218,18 +220,18 @@ describe('utils', () => {
   describe('isEntryUpcoming', () => {
     const now = new Date(1700000000000)
     const future = new Date(1700000001000)
-    it.each<EventState>(['confirmed', 'tentative'])(
-      'should return true when entryStartDate is in the future and event state is %s',
-      (state) => {
-        expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(true)
-      }
-    )
-    it.each<EventState>(['draft', 'cancelled'])(
-      'should return false when entryStartDate is in the future, but event state is %s',
-      (state) => {
-        expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(false)
-      }
-    )
+    it.each<EventState>([
+      'confirmed',
+      'tentative',
+    ])('should return true when entryStartDate is in the future and event state is %s', (state) => {
+      expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(true)
+    })
+    it.each<EventState>([
+      'draft',
+      'cancelled',
+    ])('should return false when entryStartDate is in the future, but event state is %s', (state) => {
+      expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(false)
+    })
 
     it('should return false when entryStartDate is not in the future', () => {
       expect(isEntryUpcoming({ entryStartDate: now, state: 'confirmed' }, now)).toBe(false)

@@ -34,25 +34,32 @@ describe('validation', () => {
       expect(validateDog(testEvent, { dog: { ...testDog, name: '' } })).toEqual('required')
     })
 
-    it.each<BreedCode>(['110', '111', '121', '122', '263', '312'])(
-      'should allow breed %p for NOU event',
-      (breedCode) => {
-        const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-        expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
-      }
-    )
+    it.each<BreedCode>([
+      '110',
+      '111',
+      '121',
+      '122',
+      '263',
+      '312',
+    ])('should allow breed %p for NOU event', (breedCode) => {
+      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
+    })
 
-    it.each<BreedCode | '' | undefined>(['1', '13', '148.1P', '', undefined])(
-      'should not allow breed %p for NOU event',
-      (testBreed) => {
-        const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-        const breedCode = testBreed || '0'
-        expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
-          key: 'dogBreed',
-          opts: { field: 'dog', type: breedCode.replace('.', '-') },
-        })
-      }
-    )
+    it.each<BreedCode | '' | undefined>([
+      '1',
+      '13',
+      '148.1P',
+      '',
+      undefined,
+    ])('should not allow breed %p for NOU event', (testBreed) => {
+      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const breedCode = testBreed || '0'
+      expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
+        key: 'dogBreed',
+        opts: { field: 'dog', type: breedCode.replace('.', '-') },
+      })
+    })
 
     it.each([
       ['2021-01-01', { key: 'dogAge', opts: { field: 'dog', length: 9 } }],

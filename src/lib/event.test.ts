@@ -28,39 +28,50 @@ import {
 
 describe('lib/event', () => {
   describe('isStartListPublished', () => {
-    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
-      'Should return true when state is %p and startListPublished is undefined or true',
-      (state) => {
-        expect(isStartListAvailable({ state })).toEqual(true)
-        expect(isStartListAvailable({ state, startListPublished: true })).toEqual(true)
-      }
-    )
+    it.each<EventState>([
+      'invited',
+      'started',
+      'ended',
+      'completed',
+    ])('Should return true when state is %p and startListPublished is undefined or true', (state) => {
+      expect(isStartListAvailable({ state })).toEqual(true)
+      expect(isStartListAvailable({ state, startListPublished: true })).toEqual(true)
+    })
 
-    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
-      'Should return false when state is %p and startListPublished is false',
-      (state) => {
-        expect(isStartListAvailable({ state, startListPublished: false })).toEqual(false)
-      }
-    )
+    it.each<EventState>([
+      'invited',
+      'started',
+      'ended',
+      'completed',
+    ])('Should return false when state is %p and startListPublished is false', (state) => {
+      expect(isStartListAvailable({ state, startListPublished: false })).toEqual(false)
+    })
 
-    it.each<EventState>(['draft', 'tentative', 'cancelled', 'confirmed', 'picked'])(
-      'Should return false when state is %p',
-      (state) => {
-        expect(isStartListAvailable({ state })).toEqual(false)
-      }
-    )
+    it.each<EventState>([
+      'draft',
+      'tentative',
+      'cancelled',
+      'confirmed',
+      'picked',
+    ])('Should return false when state is %p', (state) => {
+      expect(isStartListAvailable({ state })).toEqual(false)
+    })
   })
 
   describe('isEventDeletable', () => {
     it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
       expect(isEventDeletable({ state })).toEqual(true)
     })
-    it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
-      'Should return false when event state is %p',
-      (state) => {
-        expect(isEventDeletable({ state })).toEqual(false)
-      }
-    )
+    it.each<EventState>([
+      'completed',
+      'confirmed',
+      'ended',
+      'invited',
+      'picked',
+      'started',
+    ])('Should return false when event state is %p', (state) => {
+      expect(isEventDeletable({ state })).toEqual(false)
+    })
     it('should return false when event is undefined', () => {
       expect(isEventDeletable()).toEqual(false)
     })
@@ -117,12 +128,12 @@ describe('lib/event', () => {
       const endDate = new TZDate(2023, 11, 24, TIME_ZONE)
 
       it.each`
-        classes                                                                                                  | expected
-        ${[]}                                                                                                    | ${[{ day: startDate, classes: [] }, { day: endDate, classes: [] }]}
-        ${[{ class: 'ALO' }]}                                                                                    | ${[{ day: startDate, classes: [{ class: 'ALO' }] }, { day: endDate, classes: [] }]}
-        ${[{ class: 'ALO', date: startDate }]}                                                                   | ${[{ day: startDate, classes: [{ class: 'ALO', date: startDate }] }, { day: endDate, classes: [] }]}
-        ${[{ class: 'ALO', date: startDate }, { class: 'ALO', date: endDate }]}                                  | ${[{ day: startDate, classes: [{ class: 'ALO', date: startDate }] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }] }]}
-        ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }]}                                    | ${[{ day: startDate, classes: [] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }] }]}
+        classes                                                                 | expected
+        ${[]}                                                                   | ${[{ day: startDate, classes: [] }, { day: endDate, classes: [] }]}
+        ${[{ class: 'ALO' }]}                                                   | ${[{ day: startDate, classes: [{ class: 'ALO' }] }, { day: endDate, classes: [] }]}
+        ${[{ class: 'ALO', date: startDate }]}                                  | ${[{ day: startDate, classes: [{ class: 'ALO', date: startDate }] }, { day: endDate, classes: [] }]}
+        ${[{ class: 'ALO', date: startDate }, { class: 'ALO', date: endDate }]} | ${[{ day: startDate, classes: [{ class: 'ALO', date: startDate }] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }] }]}
+        ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }]} | ${[{ day: startDate, classes: [] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }] }]}
         ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }, { class: 'VOI', date: startDate }]} | ${[{ day: startDate, classes: [{ class: 'VOI', date: startDate }] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }] }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length, day: $expected.1.day, classes.length: $expected.1.classes.length for test $#',

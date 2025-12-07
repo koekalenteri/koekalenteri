@@ -14,7 +14,7 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "useUnknownInCatchVariables": true,
-    "target": "es2022",
+    "target": "es2022"
   },
   "include": ["../i18n", "../lib", "../__mockData__", "./**/*.ts"]
 }

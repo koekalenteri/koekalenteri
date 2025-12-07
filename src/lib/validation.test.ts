@@ -106,12 +106,15 @@ describe('isModernFinnishRegNo', () => {
     expect(isModernFinnishRegNo(regNo)).toEqual(true)
   })
 
-  it.each(['SF00028/1899', 'SF00107/12', 'SF00291U/80', 'SF30121/94', 'FIN45793/08'])(
-    'should return false for %p',
-    (regNo) => {
-      expect(isModernFinnishRegNo(regNo)).toEqual(false)
-    }
-  )
+  it.each([
+    'SF00028/1899',
+    'SF00107/12',
+    'SF00291U/80',
+    'SF30121/94',
+    'FIN45793/08',
+  ])('should return false for %p', (regNo) => {
+    expect(isModernFinnishRegNo(regNo)).toEqual(false)
+  })
 })
 
 describe('validatePerson', () => {

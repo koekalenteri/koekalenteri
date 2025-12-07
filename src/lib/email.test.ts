@@ -2,12 +2,14 @@ import { validEmail } from './email'
 
 describe('email', () => {
   describe('validEmail', () => {
-    it.each(['user@domain.com', 'user.name@domain.fi', 'long.user.name@long.domain.name.blog', 'user@äö.com'])(
-      'should return true for %p',
-      (value) => {
-        expect(validEmail(value)).toEqual(true)
-      }
-    )
+    it.each([
+      'user@domain.com',
+      'user.name@domain.fi',
+      'long.user.name@long.domain.name.blog',
+      'user@äö.com',
+    ])('should return true for %p', (value) => {
+      expect(validEmail(value)).toEqual(true)
+    })
     it.each([
       '',
       '@',
