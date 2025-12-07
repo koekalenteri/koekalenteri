@@ -1,6 +1,5 @@
-import type { Properties } from 'hast'
+import type { Element, Properties } from 'hast'
 import type { Link } from 'mdast'
-import type { Element } from 'mdast-util-to-hast/lib/handlers/link'
 import type { Handler } from 'mdast-util-to-hast/lib/state'
 
 export const linkHandler: Handler = (state, node: Link) => {
