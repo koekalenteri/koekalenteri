@@ -1,6 +1,6 @@
 import type { Element, ElementContent } from 'hast'
-import type { Table } from 'mdast'
-import type { Handler, MdastParents, State } from 'mdast-util-to-hast/lib/state'
+import type { Parents, Table } from 'mdast'
+import type { Handler, State } from 'mdast-util-to-hast/lib/state'
 
 import { u } from 'unist-builder'
 
@@ -105,7 +105,7 @@ function addResultToValues(values: ElementContent[], result: ElementContent | El
 /**
  * Process all children of a parent node
  */
-export function all(state: State, parent: MdastParents) {
+export function all(state: State, parent: Parents) {
   const values: ElementContent[] = []
 
   if (!('children' in parent)) {
