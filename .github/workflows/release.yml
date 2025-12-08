@@ -7,7 +7,7 @@ on:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       env: ${{ steps.setEnv.outputs.env }}
     steps:
@@ -23,7 +23,7 @@ jobs:
 
   deploy-backend:
     needs: [setup]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     environment: ${{ needs.setup.outputs.env }}
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +85,7 @@ jobs:
 
   deploy-frontend:
     needs: [setup, deploy-backend]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     environment: ${{ needs.setup.outputs.env }}
     steps:
       - name: Checkout code
