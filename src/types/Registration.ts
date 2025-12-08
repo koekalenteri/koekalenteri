@@ -82,7 +82,8 @@ export interface ManualTestResult extends QualifyingResult {
 }
 
 export interface Registration
-  extends Omit<
+  extends
+    Omit<
       JsonRegistration,
       'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'refundAt' | 'results' | 'group' | keyof JsonDbRecord
     >,
