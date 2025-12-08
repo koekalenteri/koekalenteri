@@ -1,11 +1,10 @@
 import type { ValidationResult } from '../../../../i18n/validation'
 import type { DeepPartial, DogEvent, EventState } from '../../../../types'
 
-export interface PartialEvent
-  extends Omit<
-    DeepPartial<DogEvent>,
-    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates'
-  > {
+export interface PartialEvent extends Omit<
+  DeepPartial<DogEvent>,
+  'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates'
+> {
   startDate: DogEvent['startDate']
   endDate: DogEvent['endDate']
   classes: DogEvent['classes']

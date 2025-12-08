@@ -22,9 +22,8 @@ jest.unstable_mockModule('@aws-sdk/client-apigatewaymanagementapi', () => {
   }
 })
 
-const { wsConnect, wsDisconnect, broadcastEvent, broadcastConnectionCount, CONNECTION_COUNT_ID } = await import(
-  './broadcast'
-)
+const { wsConnect, wsDisconnect, broadcastEvent, broadcastConnectionCount, CONNECTION_COUNT_ID } =
+  await import('./broadcast')
 
 describe('broadcast', () => {
   jest.spyOn(console, 'log').mockImplementation(() => undefined)
