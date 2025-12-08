@@ -1733,15 +1733,7 @@ exports[`PaymentPage renders properly 1`] = `
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
         >
-          NOU
-           
-          dateFormat.datespan start, end
-           
-          test location
-           
-          (
-          test
-          )
+          NOU dateFormat.datespan start, end test location (test)
         </p>
         <h6
           class="MuiTypography-root MuiTypography-subtitle2 css-fm6l08-MuiTypography-root"
