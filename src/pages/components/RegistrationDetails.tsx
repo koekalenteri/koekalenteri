@@ -20,8 +20,14 @@ export const RegistrationDetails = ({ event, registration }: Props) => {
           {t('eventInfo')}
         </Typography>
         <Typography variant="body1">
-          {event.eventType} {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })} {event.location}{' '}
-          ({event.name})
+          {[
+            event.eventType,
+            t('dateFormat.datespan', { start: event.startDate, end: event.endDate }),
+            event.location,
+            event.name ? `(${event.name})` : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
         </Typography>
         <Typography variant="subtitle2" color="textSecondary">
           {t('registration.dog')}
