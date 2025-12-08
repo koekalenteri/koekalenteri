@@ -52,7 +52,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   )
   const [redirecting, setRedirecting] = useState(false)
   const [reloadCount, setReloadCount] = useState(0)
-  const [paymentOpen, setPaymentOpen] = useState(false)
+  const [paymentOpen, setPaymentOpen] = useState<boolean | null>(null)
   const actions = useRegistrationActions()
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
@@ -183,7 +183,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (!event || !registration) return
 
     if ((registration.paidAmount ?? 0) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
-      setPaymentOpen(true)
+      setPaymentOpen((current) => (current === null ? true : current))
     }
   }, [event, registration, costResult])
 
@@ -246,7 +246,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           onConfirm={handleConfirm}
         />
         <PaymentDialog
-          open={paymentOpen}
+          open={paymentOpen ?? false}
           onClose={handlePaymentClose}
           registration={registration}
           event={event}
