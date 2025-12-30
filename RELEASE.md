@@ -26,27 +26,49 @@ This is the standard process for all production and pre-release deployments. The
 #### Steps:
 
 1.  **Create a Git Tag**: Create and push a new tag for your release. Use semantic versioning (e.g., `v1.2.3` for a release, `v1.2.3-beta.1` for a pre-release).
+
     ```bash
     git tag v1.2.3
     git push origin v1.2.3
     ```
 
 2.  **Publish a Release on GitHub**:
-    *   Go to the "Releases" page in your GitHub repository.
-    *   Click "Draft a new release".
-    *   Choose the tag you just created.
-    *   **For a Pre-release (to test environment)**: Check the "This is a pre-release" box.
-    *   **For a Production Release**: Leave the "This is a pre-release" box unchecked.
-    *   Fill in the release title and description.
-    *   Click "Publish release".
+    - Go to the "Releases" page in your GitHub repository.
+    - Click "Draft a new release".
+    - Choose the tag you just created.
+    - **For a Pre-release (to test environment)**: Check the "This is a pre-release" box.
+    - **For a Production Release**: Leave the "This is a pre-release" box unchecked.
+    - Fill in the release title and description.
+    - Click "Publish release".
 
 #### Automation:
 
--   Publishing the release triggers the `Release` workflow.
--   The workflow determines the environment (`prod` or `test`) based on whether it's a pre-release.
--   For production releases, the tag is force-pushed to the `release/prod` branch.
--   For pre-releases, the tag is force-pushed to the `release/test` branch.
--   The appropriate release branch is then deployed to the corresponding environment using AWS Amplify.
+- Publishing the release triggers the `Release` workflow.
+- The workflow determines the environment (`prod` or `test`) based on whether it's a pre-release.
+- For production releases, the tag is force-pushed to the `release/prod` branch.
+- For pre-releases, the tag is force-pushed to the `release/test` branch.
+- The appropriate release branch is then deployed to the corresponding environment using AWS Amplify.
+
+#### Publishing a Pre-release as a Full Release
+
+If you have published a pre-release and now want to promote it to a full production release:
+
+1. Create a new tag for the production release (e.g., `v1.2.3` from `v1.2.3-beta.1`):
+
+   ```bash
+   git tag v1.2.3
+   git push origin v1.2.3
+   ```
+
+2. Publish a new release on GitHub:
+   - Go to the "Releases" page in your GitHub repository.
+   - Click "Draft a new release".
+   - Choose the new production tag.
+   - Leave the "This is a pre-release" box unchecked.
+   - Fill in the release title and description.
+   - Click "Publish release".
+
+This will trigger the deployment to production.
 
 ---
 
@@ -64,9 +86,9 @@ This process allows you to deploy any branch to the `test` environment for devel
 
 #### Automation:
 
--   This triggers a `workflow_dispatch` event.
--   The workflow force-pushes the selected branch to the `release/test` branch.
--   The `release/test` branch is then deployed to the test environment using AWS Amplify.
+- This triggers a `workflow_dispatch` event.
+- The workflow force-pushes the selected branch to the `release/test` branch.
+- The `release/test` branch is then deployed to the test environment using AWS Amplify.
 
 ---
 
@@ -76,9 +98,9 @@ The `dev` environment is automatically updated whenever changes are pushed to th
 
 #### Automation:
 
--   On a push to `main`, the workflow checks for changes in the `frontend` and `backend` directories.
--   **Backend**: If backend files have changed, the `deploy-backend` job deploys the latest commit from `main` to the `dev` environment's backend infrastructure.
--   **Frontend**: If frontend files have changed, the `deploy-frontend` job triggers a webhook (`DEPLOY_TRIGGER_HOOK`) that builds and deploys the latest commit from the `main` branch to the `dev` environment's frontend.
+- On a push to `main`, the workflow checks for changes in the `frontend` and `backend` directories.
+- **Backend**: If backend files have changed, the `deploy-backend` job deploys the latest commit from `main` to the `dev` environment's backend infrastructure.
+- **Frontend**: If frontend files have changed, the `deploy-frontend` job triggers a webhook (`DEPLOY_TRIGGER_HOOK`) that builds and deploys the latest commit from the `main` branch to the `dev` environment's frontend.
 
 ---
 
@@ -86,9 +108,9 @@ The `dev` environment is automatically updated whenever changes are pushed to th
 
 The release workflow requires the following secrets to be configured in your GitHub repository settings (`Settings > Secrets and variables > Actions`):
 
--   `AWS_ACCESS_KEY_ID`: Your AWS access key.
--   `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
--   `AWS_REGION`: The AWS region for your resources (e.g., `eu-west-1`).
--   `AMPLIFY_APP_ID`: The App ID of your AWS Amplify application. This is retrieved from the CloudFormation stack outputs of the `prod` and `test` environments.
--   `DEPLOY_TRIGGER_HOOK`: A webhook URL that triggers a build of the `main` branch in the `dev` environment's Amplify app.
--   `GITHUB_TOKEN`: A GitHub token with permissions to create and push branches. The default `GITHUB_TOKEN` provided by Actions should suffice.
+- `AWS_ACCESS_KEY_ID`: Your AWS access key.
+- `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
+- `AWS_REGION`: The AWS region for your resources (e.g., `eu-west-1`).
+- `AMPLIFY_APP_ID`: The App ID of your AWS Amplify application. This is retrieved from the CloudFormation stack outputs of the `prod` and `test` environments.
+- `DEPLOY_TRIGGER_HOOK`: A webhook URL that triggers a build of the `main` branch in the `dev` environment's Amplify app.
+- `GITHUB_TOKEN`: A GitHub token with permissions to create and push branches. The default `GITHUB_TOKEN` provided by Actions should suffice.
