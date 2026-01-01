@@ -214,17 +214,23 @@ describe('putEventLambda', () => {
 
   it('should store the original entryEndDate for a confirmed event', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, entryEndDate: '2025-01-01T00:00:00Z', state: 'confirmed' })
+    getEventMock.mockResolvedValueOnce({
+      ...mockEvent,
+      entryStartDate: '2025-03-01T00:00:00Z',
+      entryEndDate: '2025-03-25T00:00:00Z',
+      state: 'confirmed',
+    })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', entryEndDate: '2025-02-02T00:00:00Z' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', entryEndDate: '2025-04-01T00:00:00Z' })
     )
 
     expect(saveEventMock).toHaveBeenCalledWith({
       ...mockEvent,
       state: 'confirmed',
-      entryEndDate: '2025-02-02T00:00:00Z',
-      entryOrigEndDate: '2025-01-01T00:00:00Z',
+      entryEndDate: '2025-04-01T00:00:00Z',
+      entryOrigEndDate: '2025-03-25T00:00:00Z',
+      entryStartDate: '2025-03-01T00:00:00Z',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
     })

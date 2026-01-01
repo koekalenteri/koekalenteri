@@ -3,7 +3,7 @@ import type { JsonConfirmedEvent, JsonUser } from '../../types'
 import { nanoid } from 'nanoid'
 
 import { isEventDeletable } from '../../lib/event'
-import { isValidForEntry } from '../../lib/utils'
+import { isEntryOpen } from '../../lib/utils'
 import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -49,7 +49,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   if (
     existing &&
-    isValidForEntry(existing?.state) &&
+    isEntryOpen(existing) &&
     existing.entryEndDate &&
     !existing.entryOrigEndDate &&
     item.entryEndDate &&
