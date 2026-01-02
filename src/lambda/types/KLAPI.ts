@@ -23,6 +23,7 @@ export const KLKieliToLang: Record<number, 'fi' | 'sv' | 'en'> = {
 }
 
 export type KLKoiraParametrit = {
+  id?: number
   Rekisterinumero?: string
   Tunnistusmerkintä?: string
   Kieli: KLKieli
@@ -56,6 +57,10 @@ export type KLKoira = {
   id_Sukupuoli: number
   id_Alkuperä: number
   id_Tila: number
+
+  //
+  id_Isä?: number
+  id_Emä?: number
 }
 
 export type KLKoemuotoParametrit = {

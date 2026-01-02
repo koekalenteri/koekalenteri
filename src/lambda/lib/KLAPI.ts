@@ -108,7 +108,7 @@ export default class KLAPI {
   }
 
   async lueKoiranPerustiedot(parametrit: KLKoiraParametrit): KLAPIResult<KLKoira> {
-    if (!parametrit.Rekisterinumero && !parametrit.Tunnistusmerkintä) {
+    if (!parametrit.Rekisterinumero && !parametrit.Tunnistusmerkintä && !parametrit.id) {
       return { status: 404 }
     }
     const result = await this.get<KLKoira>('Koira/Lue/Perustiedot', parametrit)

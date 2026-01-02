@@ -94,6 +94,27 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
       console.error(err, 'readDogResultsFromKlapi failed')
       dog.results = []
     }
+
+    // sire & dam
+
+    if (json.id_Isä) {
+      const sire = await klapi.lueKoiranPerustiedot({
+        id: json.id_Isä,
+        Kieli: KLKieli.Suomi,
+      })
+      if (sire.status === 200 && sire.json?.rekisterinumero) {
+        dog.sire = { name: json.tittelit + ' ' + json.nimi }
+      }
+    }
+    if (json.id_Emä) {
+      const dam = await klapi.lueKoiranPerustiedot({
+        id: json.id_Emä,
+        Kieli: KLKieli.Suomi,
+      })
+      if (dam.status === 200 && dam.json?.rekisterinumero) {
+        dog.dam = { name: json.tittelit + ' ' + json.nimi }
+      }
+    }
   } else {
     console.error('lueKoiranPerustiedot failed', { status, json, error })
   }
