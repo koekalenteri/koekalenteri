@@ -3,19 +3,19 @@
     Properties:
       TableName: !Join ['-', [event-table, 'v3', !Ref AWS::StackName]]
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
+          - AttributeName: id
+            KeyType: HASH
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-        - AttributeName: season
-          AttributeType: S
-        - AttributeName: eventType
-          AttributeType: S
-        - AttributeName: modifiedAt
-          AttributeType: S
-        - AttributeName: entryEndDate
-          AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: season
+            AttributeType: S
+          - AttributeName: eventType
+            AttributeType: S
+          - AttributeName: modifiedAt
+            AttributeType: S
+          - AttributeName: entryEndDate
+            AttributeType: S
       GlobalSecondaryIndexes:
         - IndexName: gsiSeasonModifiedAt
           KeySchema:
@@ -34,13 +34,13 @@
           Projection:
             ProjectionType: INCLUDE
             NonKeyAttributes:
-              - entryOrigEndDate
+              - origEntryEndDate
               - entryEndDate
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
         - Key: Label
-          Value: 'koekalenteri'
+          Value: "koekalenteri"
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: false
