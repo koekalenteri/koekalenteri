@@ -98,19 +98,25 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
     // sire & dam
 
     if (json.id_Isä) {
-      const sire = await klapi.lueKoiranPerustiedot({
-        id: json.id_Isä,
-        Kieli: KLKieli.Suomi,
-      })
+      const sire = await klapi.lueKoiranPerustiedot(
+        {
+          id: json.id_Isä,
+          Kieli: KLKieli.Suomi,
+        },
+        true
+      )
       if (sire.status === 200 && sire.json?.rekisterinumero) {
         dog.sire = { name: sire.json.tittelit + ' ' + sire.json.nimi }
       }
     }
     if (json.id_Emä) {
-      const dam = await klapi.lueKoiranPerustiedot({
-        id: json.id_Emä,
-        Kieli: KLKieli.Suomi,
-      })
+      const dam = await klapi.lueKoiranPerustiedot(
+        {
+          id: json.id_Emä,
+          Kieli: KLKieli.Suomi,
+        },
+        true
+      )
       if (dam.status === 200 && dam.json?.rekisterinumero) {
         dog.dam = { name: dam.json.tittelit + ' ' + dam.json.nimi }
       }

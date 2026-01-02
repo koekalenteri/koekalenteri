@@ -107,7 +107,7 @@ export default class KLAPI {
     return { status, error, json }
   }
 
-  async lueKoiranPerustiedot(parametrit: KLKoiraParametrit): KLAPIResult<KLKoira> {
+  async lueKoiranPerustiedot(parametrit: KLKoiraParametrit, allowDead: boolean = false): KLAPIResult<KLKoira> {
     if (!parametrit.Rekisterinumero && !parametrit.Tunnistusmerkintä && !parametrit.id) {
       return { status: 404 }
     }
@@ -116,7 +116,7 @@ export default class KLAPI {
       console.warn('KLAPI returned json without rekisterinumero, converting to 404')
       return { status: 404, error: 'not found' }
     }
-    if (result.json?.kuollut) {
+    if (result.json?.kuollut && !allowDead) {
       console.warn('KLAPI returned json with kuollut -date, converting to 404')
       return { status: 404, error: 'diseased' }
     }
