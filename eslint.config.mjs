@@ -23,7 +23,7 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['build/**/*', 'dist/**/*'],
+    ignores: ['build/**/*', 'dist/**/*', 'template/*'],
   },
   ...compat.extends(
     'eslint:recommended',
