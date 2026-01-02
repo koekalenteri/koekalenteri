@@ -103,7 +103,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
         Kieli: KLKieli.Suomi,
       })
       if (sire.status === 200 && sire.json?.rekisterinumero) {
-        dog.sire = { name: json.tittelit + ' ' + json.nimi }
+        dog.sire = { name: sire.json.tittelit + ' ' + sire.json.nimi }
       }
     }
     if (json.id_Emä) {
@@ -112,7 +112,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
         Kieli: KLKieli.Suomi,
       })
       if (dam.status === 200 && dam.json?.rekisterinumero) {
-        dog.dam = { name: json.tittelit + ' ' + json.nimi }
+        dog.dam = { name: dam.json.tittelit + ' ' + dam.json.nimi }
       }
     }
   } else {
