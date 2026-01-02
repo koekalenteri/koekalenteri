@@ -6,17 +6,8 @@
         - AttributeName: regNo
           KeyType: HASH
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: N
         - AttributeName: regNo
           AttributeType: S
-      GlobalSecondaryIndexes:
-        - IndexName: gsiId
-          KeySchema:
-            - AttributeName: id
-              KeyType: HASH
-          Projection:
-            ProjectionType: ALL
       Tags:
         - Key: Env
           Value: !Ref AWS::StackName
