@@ -152,7 +152,7 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-fetch-mock": "^3.0.3",
     "jest-watch-typeahead": "^2.2.2",
-    "knip": "^5.78.0",
+    "knip": "^5.79.0",
     "mdast-util-to-hast": "^13.2.1",
     "mini-css-extract-plugin": "^2.9.4",
     "prettier": "^3.7.4",
