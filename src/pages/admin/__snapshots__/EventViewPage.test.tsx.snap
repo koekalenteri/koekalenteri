@@ -1043,7 +1043,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               class="MuiBox-root css-55zn6h"
             />
             <b>
-              eee d.M. registration.timeLong.ap
+              dateFormat.wdshort date registration.timeLong.ap
             </b>
           </div>
           <div
@@ -1593,7 +1593,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               class="MuiBox-root css-q8fzbv"
             />
             <b>
-              eee d.M. registration.timeLong.ip
+              dateFormat.wdshort date registration.timeLong.ip
             </b>
           </div>
           <div
@@ -2143,7 +2143,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               class="MuiBox-root css-169orto"
             />
             <b>
-              eee d.M. registration.timeLong.ap
+              dateFormat.wdshort date registration.timeLong.ap
             </b>
           </div>
           <div
@@ -2693,7 +2693,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               class="MuiBox-root css-1myeusk"
             />
             <b>
-              eee d.M. registration.timeLong.ip
+              dateFormat.wdshort date registration.timeLong.ip
             </b>
           </div>
           <div
@@ -5414,7 +5414,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               class="MuiBox-root css-55zn6h"
             />
             <b>
-              eee d.M. registration.timeLong.ap
+              dateFormat.wdshort date registration.timeLong.ap
             </b>
           </div>
           <div
@@ -5964,7 +5964,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               class="MuiBox-root css-q8fzbv"
             />
             <b>
-              eee d.M. registration.timeLong.ip
+              dateFormat.wdshort date registration.timeLong.ip
             </b>
           </div>
           <div
@@ -6514,7 +6514,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               class="MuiBox-root css-169orto"
             />
             <b>
-              eee d.M. registration.timeLong.ap
+              dateFormat.wdshort date registration.timeLong.ap
             </b>
           </div>
           <div
@@ -7064,7 +7064,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               class="MuiBox-root css-1myeusk"
             />
             <b>
-              eee d.M. registration.timeLong.ip
+              dateFormat.wdshort date registration.timeLong.ip
             </b>
           </div>
           <div
@@ -8155,7 +8155,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         />
                       </svg>
                       <div
-                        aria-label="Sopivat ryhmät: eee registration.time.ap"
+                        aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
@@ -8458,7 +8458,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         />
                       </svg>
                       <div
-                        aria-label="Sopivat ryhmät: eee registration.time.ap"
+                        aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
@@ -8761,7 +8761,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         />
                       </svg>
                       <div
-                        aria-label="Sopivat ryhmät: eee registration.time.ap"
+                        aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
@@ -9064,7 +9064,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         />
                       </svg>
                       <div
-                        aria-label="Sopivat ryhmät: eee registration.time.ap"
+                        aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
@@ -9367,7 +9367,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         />
                       </svg>
                       <div
-                        aria-label="Sopivat ryhmät: eee registration.time.ap"
+                        aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
@@ -10261,7 +10261,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         />
                       </svg>
                       <div
-                        aria-label="Sopivat ryhmät: eee registration.time.ap"
+                        aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
                         class="MuiStack-root css-156fqfh-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >

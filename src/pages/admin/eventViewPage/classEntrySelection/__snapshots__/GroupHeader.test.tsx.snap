@@ -12,7 +12,7 @@ exports[`GroupHeader renders 1`] = `
       data-testid="group-colors"
     />
     <b>
-      eee d.M. registration.timeLong.ap
+      dateFormat.wdshort date registration.timeLong.ap
     </b>
   </div>
 </div>

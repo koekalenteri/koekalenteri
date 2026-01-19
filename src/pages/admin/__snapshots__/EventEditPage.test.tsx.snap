@@ -1621,7 +1621,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 <span
                                   class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                 >
-                                  eee registration.timeLong.ap
+                                  dateFormat.weekday date registration.timeLong.ap
                                 </span>
                                 <svg
                                   aria-hidden="true"
@@ -1644,7 +1644,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 <span
                                   class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                 >
-                                  eee registration.timeLong.ip
+                                  dateFormat.weekday date registration.timeLong.ip
                                 </span>
                                 <svg
                                   aria-hidden="true"
@@ -1667,7 +1667,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 <span
                                   class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                 >
-                                  eee registration.timeLong.ap
+                                  dateFormat.weekday date registration.timeLong.ap
                                 </span>
                                 <svg
                                   aria-hidden="true"
@@ -1690,7 +1690,7 @@ exports[`EventEditPage renders properly 1`] = `
                                 <span
                                   class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                 >
-                                  eee registration.timeLong.ip
+                                  dateFormat.weekday date registration.timeLong.ip
                                 </span>
                                 <svg
                                   aria-hidden="true"
@@ -1843,7 +1843,7 @@ exports[`EventEditPage renders properly 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  eee d.M.
+                                  dateFormat.wdshort date
                                 </th>
                                 <td
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
@@ -1891,7 +1891,7 @@ exports[`EventEditPage renders properly 1`] = `
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
                                   scope="row"
                                 >
-                                  eee d.M.
+                                  dateFormat.wdshort date
                                 </th>
                                 <td
                                   class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"

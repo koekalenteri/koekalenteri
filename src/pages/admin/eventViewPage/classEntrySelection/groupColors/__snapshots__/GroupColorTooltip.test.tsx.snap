@@ -3,7 +3,7 @@
 exports[`GroupColorTooltip renders 1`] = `
 <div>
   <div
-    aria-label="Sopivat ryhmät: eee registration.time.ap"
+    aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
     class=""
     data-mui-internal-clone-element="true"
     data-testid="child-element"

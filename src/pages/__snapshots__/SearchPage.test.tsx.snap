@@ -1719,7 +1719,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M., eee d.M.
+                    dateFormat.wdshort date, dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -2052,7 +2052,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -2081,7 +2081,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -2110,7 +2110,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -2443,7 +2443,7 @@ exports[`SearchPage filters by date 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -3688,7 +3688,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M., eee d.M.
+                    dateFormat.wdshort date, dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -4021,7 +4021,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -4050,7 +4050,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -4079,7 +4079,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -4412,7 +4412,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -5380,7 +5380,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -5409,7 +5409,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -5438,7 +5438,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -5771,7 +5771,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -6104,7 +6104,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -6133,7 +6133,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -6478,7 +6478,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -6507,7 +6507,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -6842,7 +6842,7 @@ exports[`SearchPage filters by event class 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -7788,7 +7788,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M., eee d.M.
+                    dateFormat.wdshort date, dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -8121,7 +8121,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -8150,7 +8150,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -8179,7 +8179,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -8512,7 +8512,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -8845,7 +8845,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -8874,7 +8874,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -9219,7 +9219,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -9248,7 +9248,7 @@ exports[`SearchPage filters by event type 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"
@@ -10221,7 +10221,7 @@ exports[`SearchPage filters by organizer 1`] = `
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-4 css-z2hj94-MuiGrid2-root"
                   >
-                    eee d.M.
+                    dateFormat.wdshort date
                   </div>
                   <div
                     class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-2 css-kfgvc3-MuiGrid2-root"

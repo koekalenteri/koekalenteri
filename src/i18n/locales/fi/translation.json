@@ -54,8 +54,8 @@
     "isodate": "{{ date, isodate }}",
     "long": "{{ date, long }}",
     "short": "{{ date, short }}",
-    "wdshort": "{{ date, wdshort }}",
-    "weekday": "{{ date, weekday }}"
+    "wdshort": "{{ date, wdshort2 }}",
+    "weekday": "{{ date, weekday2 }}"
   },
   "dateFormatString": {
     "long": "dd.MM.yyyy",

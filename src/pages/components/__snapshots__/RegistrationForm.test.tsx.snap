@@ -43,7 +43,7 @@ exports[`RegistrationForm renders 1`] = `
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              NOU, eee registration.timeLong.ap, registration.reserveChoises.ANY
+              NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div
@@ -245,7 +245,7 @@ exports[`RegistrationForm renders 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eee d.M.
+                                dateFormat.wdshort date
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -367,7 +367,7 @@ exports[`RegistrationForm renders 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eee registration.timeLong.ap
+                                dateFormat.weekday date registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2530,7 +2530,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
             <p
               class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
             >
-              NOU, eee registration.timeLong.ap, registration.reserveChoises.ANY
+              NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
             </p>
           </div>
           <div
@@ -2732,7 +2732,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eee d.M.
+                                dateFormat.wdshort date
                               </span>
                               <svg
                                 aria-hidden="true"
@@ -2854,7 +2854,7 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                               <span
                                 class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                               >
-                                eee registration.timeLong.ap
+                                dateFormat.weekday date registration.timeLong.ap
                               </span>
                               <svg
                                 aria-hidden="true"

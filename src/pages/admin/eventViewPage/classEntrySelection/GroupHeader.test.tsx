@@ -32,7 +32,7 @@ describe('GroupHeader', () => {
   it('renders with the correct date and time', () => {
     renderWithUserEvents(<GroupHeader available={mockAvailable} group={mockGroup} />)
 
-    expect(screen.getByText('eee d.M. registration.timeLong.ap')).toBeInTheDocument()
+    expect(screen.getByText('dateFormat.wdshort date registration.timeLong.ap')).toBeInTheDocument()
   })
 
   it('passes the correct props to GroupColors', () => {
@@ -47,7 +47,7 @@ describe('GroupHeader', () => {
   it('renders with the correct styling', () => {
     renderWithUserEvents(<GroupHeader available={mockAvailable} group={mockGroup} />)
 
-    const header = screen.getByText('eee d.M. registration.timeLong.ap').closest('.header')
+    const header = screen.getByText('dateFormat.wdshort date registration.timeLong.ap').closest('.header')
     expect(header).toHaveStyle({
       height: '24px',
       lineHeight: '24px',
@@ -58,6 +58,6 @@ describe('GroupHeader', () => {
     const afternoonGroup = { date: mockDate, time: 'ip' as const }
     renderWithUserEvents(<GroupHeader available={mockAvailable} group={afternoonGroup} />)
 
-    expect(screen.getByText('eee d.M. registration.timeLong.ip')).toBeInTheDocument()
+    expect(screen.getByText('dateFormat.wdshort date registration.timeLong.ip')).toBeInTheDocument()
   })
 })

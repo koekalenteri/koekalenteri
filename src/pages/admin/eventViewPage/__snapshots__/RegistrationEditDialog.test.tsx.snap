@@ -102,7 +102,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
                     >
-                      NOU, eee registration.timeLong.ap, registration.reserveChoises.ANY
+                      NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
                     </p>
                   </div>
                   <div
@@ -308,7 +308,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                       <span
                                         class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                       >
-                                        eee d.M.
+                                        dateFormat.wdshort date
                                       </span>
                                       <svg
                                         aria-hidden="true"
@@ -413,7 +413,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                       <span
                                         class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                       >
-                                        eee registration.timeLong.ap
+                                        dateFormat.weekday date registration.timeLong.ap
                                       </span>
                                       <svg
                                         aria-hidden="true"
@@ -2825,7 +2825,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     <p
                       class="MuiFormHelperText-root css-p42slg-MuiFormHelperText-root"
                     >
-                      NOU, eee registration.timeLong.ap, registration.reserveChoises.ANY
+                      NOU, dateFormat.weekday date registration.timeLong.ap, registration.reserveChoises.ANY
                     </p>
                   </div>
                   <div
@@ -3027,7 +3027,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <span
                                         class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                       >
-                                        eee d.M.
+                                        dateFormat.wdshort date
                                       </span>
                                       <svg
                                         aria-hidden="true"
@@ -3149,7 +3149,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                       <span
                                         class="MuiChip-label MuiChip-labelMedium css-1dybbl5-MuiChip-label"
                                       >
-                                        eee registration.timeLong.ap
+                                        dateFormat.weekday date registration.timeLong.ap
                                       </span>
                                       <svg
                                         aria-hidden="true"
