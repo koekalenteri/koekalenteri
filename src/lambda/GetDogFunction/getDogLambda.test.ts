@@ -448,4 +448,171 @@ describe('getDogHandler', () => {
 
     expect(JSON.parse(res.body)).toEqual(refreshedDog)
   })
+
+  it('should refresh data when refresh query parameter is present', async () => {
+    mockDynamoDB.read.mockResolvedValueOnce({ regNo: 'FI12345/24', refreshDate: '2024-06-20T09:55:00.000Z' })
+    mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
+      status: 200,
+      json: {
+        id: 123,
+        rekisterinumero: 'FI12345/24',
+        tunnistusmerkintä: '456',
+        nimi: 'koera',
+        rotukoodi: '122',
+        tittelit: '',
+        syntymäaika: '2021-01-01T00:00:00',
+        sukupuoli: 'female',
+      } as KLKoira,
+    })
+    mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({ status: 200, json: [] })
+    const res = await getDogHandler(
+      constructAPIGwEvent('test', {
+        pathParameters: { regNo: 'FI12345~24' },
+        query: { refresh: 'true' },
+      })
+    )
+
+    expect(mockDynamoDB.read).toHaveBeenCalledWith({ regNo: 'FI12345/24' })
+    expect(mockDynamoDB.write).toHaveBeenCalled()
+    expect(res.statusCode).toBe(200)
+    expect(logSpy).toHaveBeenCalledWith('itemAge: 5, refresh: true')
+  })
+
+  it('should handle sire and dam API failures', async () => {
+    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockKLAPI.lueKoiranPerustiedot
+      .mockResolvedValueOnce({
+        status: 200,
+        json: {
+          id: 123,
+          rekisterinumero: 'FI12345/24',
+          tunnistusmerkintä: '456',
+          nimi: 'koera',
+          rotukoodi: '122',
+          tittelit: '',
+          syntymäaika: '2021-01-01T00:00:00',
+          sukupuoli: 'female',
+          id_Isä: 456,
+          id_Emä: 789,
+        } as KLKoira,
+      })
+      .mockResolvedValueOnce({ status: 404 }) // sire fails
+      .mockResolvedValueOnce({ status: 404 }) // dam fails
+    mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({ status: 200, json: [] })
+    const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+
+    const refreshedDog = {
+      breedCode: '122',
+      dob: '2021-01-01T00:00:00',
+      gender: 'F',
+      kcId: 123,
+      name: 'koera',
+      refreshDate: '2024-06-20T10:00:00.000Z',
+      regNo: 'FI12345/24',
+      rfid: '456',
+      titles: '',
+      results: [],
+      // sire and dam not set due to failures
+    }
+
+    expect(JSON.parse(res.body)).toEqual(refreshedDog)
+  })
+
+  it('should fetch and include sire and dam successfully', async () => {
+    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockKLAPI.lueKoiranPerustiedot
+      .mockResolvedValueOnce({
+        status: 200,
+        json: {
+          id: 123,
+          rekisterinumero: 'FI12345/24',
+          tunnistusmerkintä: '456',
+          nimi: 'koera',
+          rotukoodi: '122',
+          tittelit: '',
+          syntymäaika: '2021-01-01T00:00:00',
+          sukupuoli: 'female',
+          id_Isä: 456,
+          id_Emä: 789,
+        } as KLKoira,
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: {
+          rekisterinumero: 'FI99999/20',
+          nimi: 'Sire Name',
+          tittelit: 'CH',
+        } as KLKoira,
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        json: {
+          rekisterinumero: 'FI88888/19',
+          nimi: 'Dam Name',
+          tittelit: 'INT CH',
+        } as KLKoira,
+      })
+    mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({ status: 200, json: [] })
+    const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+
+    const refreshedDog = {
+      breedCode: '122',
+      dob: '2021-01-01T00:00:00',
+      gender: 'F',
+      kcId: 123,
+      name: 'koera',
+      refreshDate: '2024-06-20T10:00:00.000Z',
+      regNo: 'FI12345/24',
+      rfid: '456',
+      titles: '',
+      results: [],
+      sire: { name: 'CH Sire Name' },
+      dam: { name: 'INT CH Dam Name' },
+    }
+
+    expect(JSON.parse(res.body)).toEqual(refreshedDog)
+  })
+
+  it('should handle different gender mappings', async () => {
+    mockDynamoDB.read.mockResolvedValueOnce(undefined)
+    mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
+      status: 200,
+      json: {
+        id: 123,
+        rekisterinumero: 'FI12345/24',
+        tunnistusmerkintä: '456',
+        nimi: 'koera',
+        rotukoodi: '122',
+        tittelit: '',
+        syntymäaika: '2021-01-01T00:00:00',
+        sukupuoli: 'uros',
+      } as KLKoira,
+    })
+    mockKLAPI.lueKoiranKoetulokset.mockResolvedValueOnce({ status: 200, json: [] })
+    const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+
+    expect(JSON.parse(res.body).gender).toBe('M')
+  })
+
+  it('should handle KLAPI 200 response without rekisterinumero', async () => {
+    mockDynamoDB.read.mockResolvedValueOnce({ regNo: 'FI12345/24', name: 'existing' })
+    mockKLAPI.lueKoiranPerustiedot.mockResolvedValueOnce({
+      status: 200,
+      json: {
+        id: 123,
+        tunnistusmerkintä: '456',
+        nimi: 'koera',
+        rotukoodi: '122',
+        tittelit: '',
+        syntymäaika: '2021-01-01T00:00:00',
+        sukupuoli: 'female',
+        // no rekisterinumero
+      } as KLKoira,
+    })
+    const res = await getDogHandler(constructAPIGwEvent('test', { pathParameters: { regNo: 'FI12345~24' } }))
+
+    // Should return the existing dog without refreshing
+    expect(JSON.parse(res.body)).toEqual({ regNo: 'FI12345/24', name: 'existing' })
+    expect(mockDynamoDB.write).not.toHaveBeenCalled()
+  })
 })

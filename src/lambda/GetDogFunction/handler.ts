@@ -34,7 +34,7 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
   const results: JsonTestResult[] = []
 
   for (const result of apiResult.json || []) {
-    const notes = result.lisämerkinnät.toLocaleLowerCase().trim()
+    const notes = (result.lisämerkinnät || '').toLocaleLowerCase().trim()
     const resCert = /vara[ -]sert/.test(notes)
     const cert = !resCert && /sert/.test(notes)
     const resCacit = /vara[ -]cacit/.test(notes)
