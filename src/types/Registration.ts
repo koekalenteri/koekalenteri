@@ -83,11 +83,11 @@ export interface ManualTestResult extends QualifyingResult {
 
 export interface Registration
   extends
-    Omit<
-      JsonRegistration,
-      'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'refundAt' | 'results' | 'group' | keyof JsonDbRecord
-    >,
-    DbRecord {
+  Omit<
+    JsonRegistration,
+    'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'refundAt' | 'results' | 'group' | keyof JsonDbRecord
+  >,
+  DbRecord {
   dates: RegistrationDate[]
   dog: Dog
   paidAt?: Date
@@ -156,7 +156,7 @@ export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 
-export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'PENDING'
+export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'PENDING' | 'NEW'
 
 export interface MinimalRegistrationForMembership {
   handler?: Pick<RegistrationPerson, 'membership'>

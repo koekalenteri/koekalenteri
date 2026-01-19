@@ -1,6 +1,7 @@
 import { getEvent } from '../lib/event'
 import { getParam, lambda, LambdaError, response } from '../lib/lambda'
 import { getRegistration, isParticipantGroup } from '../lib/registration'
+import { getTransactionsByReference } from '../lib/payment'
 
 const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const eventId = getParam(event, 'eventId')
@@ -16,11 +17,23 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     registration.invitationAttachment = dogEvent?.invitationAttachment
   }
 
-  const shouldPay =
-    !registration.cancelled && registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
-  const shouldPayConfirmed = isParticipantGroup(registration?.group?.key) && shouldPay
+  if (registration.paymentStatus === 'PENDING') {
+    const transactions = await getTransactionsByReference(`${eventId}:${id}`)
+    const hasNew = transactions?.find((tx) => tx.status === 'new')
+    if (hasNew) {
+      registration.paymentStatus = 'NEW'
+    }
+  }
 
-  registration.shouldPay = dogEvent.paymentTime === 'confirmation' ? shouldPayConfirmed : shouldPay
+  if (!registration.cancelled) {
+    const shouldPay = registration.paymentStatus !== 'SUCCESS' && registration.paymentStatus !== 'PENDING'
+
+    if (dogEvent.paymentTime === 'confirmation') {
+      registration.shouldPay = isParticipantGroup(registration?.group?.key) && shouldPay
+    } else {
+      registration.shouldPay = shouldPay
+    }
+  }
 
   // Make sure not to leak information to user
   delete registration.group

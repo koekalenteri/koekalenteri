@@ -10,7 +10,7 @@ import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import { paymentDescription } from '../lib/payment'
+import { getTransactionsByReference, paymentDescription, updateTransactionStatus } from '../lib/payment'
 import { createPayment } from '../lib/paytrail'
 import { getRegistration, updateRegistrationField } from '../lib/registration'
 import { splitName } from '../lib/string'
@@ -39,13 +39,24 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
+
+  // Cancel any existing 'new' transactions for this reference
+  const existingTransactions = await getTransactionsByReference(reference)
+  if (existingTransactions) {
+    for (const tx of existingTransactions) {
+      if (tx.status === 'new') {
+        await updateTransactionStatus(tx, 'fail')
+      }
+    }
+  }
+
   const amount = Math.round(
     100 *
-      (calculateCost(
-        { ...jsonEvent, entryStartDate: new Date(jsonEvent.entryStartDate) },
-        { ...registration, createdAt: new Date(registration.createdAt) }
-      ).amount -
-        (registration.paidAmount ?? 0))
+    (calculateCost(
+      { ...jsonEvent, entryStartDate: new Date(jsonEvent.entryStartDate) },
+      { ...registration, createdAt: new Date(registration.createdAt) }
+    ).amount -
+      (registration.paidAmount ?? 0))
   )
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)

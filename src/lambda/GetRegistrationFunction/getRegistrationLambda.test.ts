@@ -1,4 +1,4 @@
-import type { JsonRegistration, PaymentStatus, PaymentTime, Registration } from '../../types'
+import type { JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
 
 import { jest } from '@jest/globals'
 
@@ -26,6 +26,12 @@ const mockGetEvent = jest.fn(() => mockEventWithInvitationAttachment)
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
+}))
+
+const mockGetTransactionsByReference = jest.fn(() => [] as JsonTransaction[])
+
+jest.unstable_mockModule('../lib/payment', () => ({
+  getTransactionsByReference: mockGetTransactionsByReference,
 }))
 
 const { default: getRegistrationLambda } = await import('./handler')
@@ -57,7 +63,7 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toEqual('test.pdf')
-    expect(reg.shouldPay).toBe(false)
+    expect(reg.shouldPay).toBeFalsy()
   })
 
   it('should not add invitationAttachment when registration is not in participant group', async () => {
@@ -73,6 +79,24 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toBeUndefined()
+  })
+
+  it('should update paymentStatus from PENDING to NEW when there is a new transaction', async () => {
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      paymentStatus: 'PENDING',
+    })
+    mockGetTransactionsByReference.mockReturnValueOnce([{ status: 'new' } as JsonTransaction])
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.paymentStatus).toEqual('NEW')
+    expect(reg.shouldPay).toBe(true)
+    expect(mockGetTransactionsByReference).toHaveBeenCalledWith('123:456')
   })
 
   it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([

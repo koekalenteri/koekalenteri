@@ -8,6 +8,8 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 const mockAuthorize = jest.fn<() => Promise<{ id: string; name: string } | null>>()
 const mockGetEvent = jest.fn<() => Promise<JsonConfirmedEvent | undefined>>()
 const mockCreatePayment = jest.fn<() => Promise<CreatePaymentResponse | null>>()
+const mockGetTransactionsByReference = jest.fn<() => Promise<any[] | undefined>>()
+const mockUpdateTransactionStatus = jest.fn<() => Promise<boolean>>()
 const mockRead = jest.fn<() => Promise<JsonRegistration | Organizer | undefined>>()
 const mockWrite = jest.fn()
 const mockUpdate = jest.fn()
@@ -24,6 +26,12 @@ jest.unstable_mockModule('../lib/paytrail', () => ({
   createPayment: mockCreatePayment,
   HMAC_KEY_PREFIX: 'checkout-',
   calculateHmac: jest.fn(),
+}))
+
+jest.unstable_mockModule('../lib/payment', () => ({
+  getTransactionsByReference: mockGetTransactionsByReference,
+  paymentDescription: jest.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
+  updateTransactionStatus: mockUpdateTransactionStatus,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -133,7 +141,7 @@ describe('paymentCreateLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    jest.spyOn(console, 'debug').mockImplementation(() => {})
+    jest.spyOn(console, 'debug').mockImplementation(() => { })
 
     // Default mock implementations
     mockGetEvent.mockResolvedValue(createMockConfirmedEvent())
@@ -142,6 +150,8 @@ describe('paymentCreateLambda', () => {
       .mockResolvedValueOnce(createMockOrganizer()) // for organizer
     mockCreatePayment.mockResolvedValue(createMockPaymentResponse())
     mockAuthorize.mockResolvedValue({ id: 'user123', name: 'Test User' })
+    mockGetTransactionsByReference.mockResolvedValue([])
+    mockUpdateTransactionStatus.mockResolvedValue(true)
   })
 
   it('creates a payment successfully for a member', async () => {
@@ -386,5 +396,15 @@ describe('paymentCreateLambda', () => {
         language: 'EN',
       })
     )
+  })
+
+  it('should cancel existing new transactions for the same reference', async () => {
+    const existingTransaction = { transactionId: 'oldTx', status: 'new', reference: 'event123:reg456' }
+    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+
+    await paymentCreateLambda(event)
+
+    expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
+    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
   })
 })
