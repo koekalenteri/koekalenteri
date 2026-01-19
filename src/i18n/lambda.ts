@@ -5,7 +5,11 @@ import { registerFormatters } from './formatters'
 
 export { i18n }
 
-i18n.init(i18nInit).catch((reason) => console.error(reason))
+try {
+  await i18n.init(i18nInit)
+} catch (error) {
+  console.error(error)
+}
 
 //  additional formats
 registerFormatters(i18n)

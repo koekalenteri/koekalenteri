@@ -23,10 +23,11 @@ export const muiLocales: Record<Language, Localization> = {
   en: { ...enUS, components: { ...enUS.components, ...genUS.components, ...denUS.components } },
 }
 
-i18n
-  .use(initReactI18next)
-  .init(i18nInit)
-  .catch((reason) => console.error(reason))
+try {
+  await i18n.use(initReactI18next).init(i18nInit)
+} catch (err) {
+  console.error(err)
+}
 
 //  additional formats
 registerFormatters(i18n)
