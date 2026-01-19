@@ -11,6 +11,8 @@
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref TransactionTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetEvent:
