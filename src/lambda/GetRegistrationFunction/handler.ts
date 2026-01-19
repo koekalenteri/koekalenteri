@@ -1,7 +1,7 @@
 import { getEvent } from '../lib/event'
 import { getParam, lambda, LambdaError, response } from '../lib/lambda'
-import { getRegistration, isParticipantGroup } from '../lib/registration'
 import { getTransactionsByReference } from '../lib/payment'
+import { getRegistration, isParticipantGroup } from '../lib/registration'
 
 const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const eventId = getParam(event, 'eventId')

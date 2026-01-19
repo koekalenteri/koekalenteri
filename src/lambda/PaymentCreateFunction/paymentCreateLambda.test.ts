@@ -141,7 +141,7 @@ describe('paymentCreateLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
-    jest.spyOn(console, 'debug').mockImplementation(() => { })
+    jest.spyOn(console, 'debug').mockImplementation(() => {})
 
     // Default mock implementations
     mockGetEvent.mockResolvedValue(createMockConfirmedEvent())

@@ -52,11 +52,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const amount = Math.round(
     100 *
-    (calculateCost(
-      { ...jsonEvent, entryStartDate: new Date(jsonEvent.entryStartDate) },
-      { ...registration, createdAt: new Date(registration.createdAt) }
-    ).amount -
-      (registration.paidAmount ?? 0))
+      (calculateCost(
+        { ...jsonEvent, entryStartDate: new Date(jsonEvent.entryStartDate) },
+        { ...registration, createdAt: new Date(registration.createdAt) }
+      ).amount -
+        (registration.paidAmount ?? 0))
   )
   if (amount <= 0) {
     return response<string>(204, 'Already paid', event)
