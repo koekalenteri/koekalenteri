@@ -64,6 +64,33 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
   return results
 }
 
+const createDogFromJson = (json: any, existing?: JsonDog): JsonDog => ({
+  ...existing, // keep refined info on refresh
+  breedCode: json.rotukoodi as BreedCode,
+  dob: json.syntymäaika,
+  gender: GENDER[json.sukupuoli],
+  kcId: json.id,
+  name: json.nimi,
+  refreshDate: new Date().toISOString(),
+  regNo: json.rekisterinumero,
+  rfid: json.tunnistusmerkintä,
+  titles: json.tittelit,
+})
+
+const readParentFromKlapi = async (klapi: KLAPI, id: number): Promise<{ name: string } | undefined> => {
+  const parent = await klapi.lueKoiranPerustiedot(
+    {
+      id,
+      Kieli: KLKieli.Suomi,
+    },
+    true
+  )
+  if (parent.status === 200 && parent.json?.rekisterinumero) {
+    return { name: parent.json.tittelit + ' ' + parent.json.nimi }
+  }
+  return undefined
+}
+
 const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
   const klapi = new KLAPI(getKLAPIConfig)
   const { status, json, error } = await klapi.lueKoiranPerustiedot({
@@ -74,19 +101,7 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
   let dog = existing
 
   if (status === 200 && json?.rekisterinumero) {
-    // Cache
-    dog = {
-      ...existing, // keep refined info on refres
-      breedCode: json.rotukoodi as BreedCode,
-      dob: json.syntymäaika,
-      gender: GENDER[json.sukupuoli],
-      kcId: json.id,
-      name: json.nimi,
-      refreshDate: new Date().toISOString(),
-      regNo: json.rekisterinumero,
-      rfid: json.tunnistusmerkintä,
-      titles: json.tittelit,
-    }
+    dog = createDogFromJson(json, existing)
 
     try {
       dog.results = await readDogResultsFromKlapi(klapi, dog.regNo)
@@ -96,30 +111,11 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
     }
 
     // sire & dam
-
     if (json.id_Isä) {
-      const sire = await klapi.lueKoiranPerustiedot(
-        {
-          id: json.id_Isä,
-          Kieli: KLKieli.Suomi,
-        },
-        true
-      )
-      if (sire.status === 200 && sire.json?.rekisterinumero) {
-        dog.sire = { name: sire.json.tittelit + ' ' + sire.json.nimi }
-      }
+      dog.sire = await readParentFromKlapi(klapi, json.id_Isä)
     }
     if (json.id_Emä) {
-      const dam = await klapi.lueKoiranPerustiedot(
-        {
-          id: json.id_Emä,
-          Kieli: KLKieli.Suomi,
-        },
-        true
-      )
-      if (dam.status === 200 && dam.json?.rekisterinumero) {
-        dog.dam = { name: dam.json.tittelit + ' ' + dam.json.nimi }
-      }
+      dog.dam = await readParentFromKlapi(klapi, json.id_Emä)
     }
   } else {
     console.error('lueKoiranPerustiedot failed', { status, json, error })
