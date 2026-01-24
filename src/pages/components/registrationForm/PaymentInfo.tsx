@@ -48,7 +48,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
   }
 
   useEffect(() => {
-    if (!registration.selectedCost && cost.segment !== 'legacy') {
+    if (registration.selectedCost === undefined && cost.segment !== 'legacy') {
       onChange?.({ selectedCost: cost.segment, optionalCosts: [] })
     }
     if (cost.segment === 'legacy' && (registration.selectedCost || registration.optionalCosts)) {

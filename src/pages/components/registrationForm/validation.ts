@@ -48,7 +48,7 @@ function validateRegistrationField(
   field: keyof Registration,
   event: PublicConfirmedEvent
 ): ValidationResult<Registration, 'registration'> {
-  const validator = VALIDATORS[field] ?? ((value) => typeof value[field] === 'undefined' || value[field] === '')
+  const validator = VALIDATORS[field] ?? ((value) => value[field] === undefined || value[field] === '')
   const result = validator(registration, true, event)
   if (!result) {
     return false
@@ -216,12 +216,14 @@ function findDisqualifyingResult(
 ): QualifyingResults | undefined {
   const compare = (r: Partial<TestResult>) =>
     r.type === eventType && ((r.class && r.class === nextClass) || r.result === 'NOU1')
-  const officialResult = officialResults?.find(compare)
-  if (officialResult) {
+  if (officialResults?.some(compare)) {
+    // `.some` is used for the existence check; `find` is only used to fetch the value
+    // and is safe here because `some` already guaranteed a match.
+    const officialResult = officialResults.find(compare) as TestResult
     return { relevant: [{ ...officialResult, qualifying: false, official: true }], qualifies: false }
   }
-  const manualResult = manualResults?.find(compare)
-  if (manualResult) {
+  if (manualResults?.some(compare)) {
+    const manualResult = manualResults.find(compare) as TestResult
     return { relevant: [{ ...manualResult, qualifying: false, official: false } as QualifyingResult], qualifies: false }
   }
 }
@@ -250,8 +252,8 @@ function checkRequiredResults(
   const checkResult = (result: Partial<TestResult>, r: EventResultRequirement, official: boolean) => {
     const { count, ...resultProps } = r
     if (objectContains(result, resultProps)) {
-      // @todo: 2 tulosta samalle päivälle?
-      if (!relevant.find((rel) => rel.date === result.date))
+      // do not include duplicates for the same date
+      if (!relevant.some((rel) => rel.date === result.date))
         relevant.push({ ...result, qualifying, official } as QualifyingResult)
       if (getCount(r) >= count) {
         qualifies = true

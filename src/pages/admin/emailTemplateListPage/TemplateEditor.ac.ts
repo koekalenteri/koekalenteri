@@ -53,7 +53,7 @@ export const getAutocomplete = (schema: object) => (ctx: CompletionContext) => {
 
   const parts = basePath.split('.').filter(Boolean)
   const parentPath = hasTrailingDot ? parts : parts.slice(0, -1)
-  const lastToken = hasTrailingDot ? '' : (parts[parts.length - 1] ?? '')
+  const lastToken = hasTrailingDot ? '' : (parts.at(-1) ?? '')
 
   const parent = parentPath.length ? getChild(schema, parentPath) : schema
   if (!parent || typeof parent !== 'object') return null

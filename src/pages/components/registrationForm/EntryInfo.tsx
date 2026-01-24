@@ -79,7 +79,7 @@ export function EntryInfo({
 
   // Helper function to determine initial filter dates
   const getInitialFilterDates = useCallback(() => {
-    const selectedDates = reg?.dates?.filter((rd) => dates.find((d) => isSameDay(d, rd.date))) ?? []
+    const selectedDates = reg?.dates?.filter((rd) => dates.some((d) => isSameDay(d, rd.date))) ?? []
     const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
 
     return uniqueDate(
@@ -111,7 +111,7 @@ export function EntryInfo({
 
   // Helper functions for date filtering
   const isValidRegistrationDate = useCallback(
-    (rd: RegistrationDate) => filterDates.find((fd) => isSameDay(fd, rd.date)),
+    (rd: RegistrationDate) => filterDates.some((fd) => isSameDay(fd, rd.date)),
     [filterDates]
   )
 
@@ -136,7 +136,7 @@ export function EntryInfo({
   // Update filter dates when dates change
   useEffect(() => {
     if (!showDatesFilter) {
-      const validFilters = filterDates.filter((fd) => dates.find((d) => d.valueOf() === fd.valueOf()))
+      const validFilters = filterDates.filter((fd) => dates.some((d) => d.valueOf() === fd.valueOf()))
       if (!validFilters.length && dates.length) {
         setFilterDates(dates)
       }
@@ -184,7 +184,7 @@ export function EntryInfo({
 
       // Find dates in filter that aren't in current selection
       const missingFilterDates = filterDates.filter(
-        (filterDate) => !currentDates.find((ud) => isSameDay(ud.date, filterDate))
+        (filterDate) => !currentDates.some((ud) => isSameDay(ud.date, filterDate))
       )
 
       // No missing dates, no changes needed
@@ -194,7 +194,7 @@ export function EntryInfo({
 
       // Add available dates that match missing filter dates
       const datesToAdd = availableDates.filter((availableDate) =>
-        missingFilterDates.find((date) => isSameDay(date, availableDate.date))
+        missingFilterDates.some((date) => isSameDay(date, availableDate.date))
       )
 
       return datesToAdd.length ? [...currentDates, ...datesToAdd] : undefined
@@ -216,7 +216,7 @@ export function EntryInfo({
     const validDates = getValidDates(changes.class)
 
     const validCurrentDates =
-      reg.dates?.filter((rd) => validDates.find((d) => isSameDay(d.date, rd.date) && d.time === rd.time)) ?? []
+      reg.dates?.filter((rd) => validDates.some((d) => isSameDay(d.date, rd.date) && d.time === rd.time)) ?? []
 
     // Update dates if current selection is invalid
     if (!validCurrentDates.length || validCurrentDates.length !== reg.dates?.length) {

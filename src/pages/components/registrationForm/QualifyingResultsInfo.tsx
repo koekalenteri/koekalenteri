@@ -65,7 +65,7 @@ export default function QualifyingResultsInfo({
     }))
     if (results) {
       for (const result of results) {
-        if (!newResults.find((r) => !r.official && r.id && r.id === result.id)) {
+        if (!newResults.some((r) => !r.official && r.id && r.id === result.id)) {
           newResults.push({ ...result, official: false, qualifying: undefined })
         }
       }
