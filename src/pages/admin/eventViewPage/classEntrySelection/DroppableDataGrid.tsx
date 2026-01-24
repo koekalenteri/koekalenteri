@@ -68,6 +68,9 @@ const DroppableDataGrid = (props: Props) => {
   return (
     <div ref={ref} className={className} style={{ display: 'flex', flexGrow: props.flex ?? 1, width: '100%' }}>
       <StyledDataGrid
+        {...props}
+        // NOTE: keep these AFTER `{...props}` so they can't be accidentally
+        // overridden by `undefined` coming from the caller.
         disableVirtualization
         disableAutosize
         disableColumnResize
@@ -79,7 +82,6 @@ const DroppableDataGrid = (props: Props) => {
         disableEval
         disableMultipleRowSelection
         rowHeight={40}
-        {...props}
         slots={{
           ...props.slots,
           row: DraggableRow,

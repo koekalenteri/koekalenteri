@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`EventClasses should render with classes 1`] = `
 <div>
@@ -80,7 +80,7 @@ exports[`EventClasses should render with classes and value 1`] = `
         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
@@ -159,7 +159,7 @@ exports[`EventClasses should render with classes and values 1`] = `
         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
@@ -170,7 +170,7 @@ exports[`EventClasses should render with classes and values 1`] = `
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="1"
           tabindex="-1"
         >
@@ -249,7 +249,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
@@ -265,7 +265,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="1"
           tabindex="-1"
         >
@@ -342,7 +342,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
     data-popper-placement="bottom"
     data-popper-reference-hidden=""
     role="presentation"
-    style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; transform: translate(0px, 0px);"
+    style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; right: auto; bottom: auto; transform: translate(0px, 0px);"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
@@ -481,7 +481,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
         class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1e3qgpi-MuiInputBase-root-MuiOutlinedInput-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="0"
           tabindex="-1"
         >
@@ -492,7 +492,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
           </span>
         </div>
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-eaf2yf-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault MuiAutocomplete-tag MuiAutocomplete-tagSizeMedium css-w202af-MuiChip-root"
           data-tag-index="1"
           tabindex="-1"
         >
@@ -564,7 +564,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
     data-popper-placement="bottom"
     data-popper-reference-hidden=""
     role="presentation"
-    style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; transform: translate(0px, 0px);"
+    style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; right: auto; bottom: auto; transform: translate(0px, 0px);"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"

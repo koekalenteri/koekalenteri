@@ -3,7 +3,7 @@ import type { ConfirmedEvent, PublicDogEvent } from '../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 
@@ -32,14 +32,14 @@ const Header = ({ event }: Props) => {
 
   return (
     <>
-      <Grid2 container columnSpacing={1} size={12}>
-        <Grid2 overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
+      <Grid container columnSpacing={1} size={12}>
+        <Grid overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
           <Typography variant="caption" color="text.secondary">
             {event.organizer.name}
           </Typography>
-        </Grid2>
-      </Grid2>
-      <Grid2
+        </Grid>
+      </Grid>
+      <Grid
         container
         columnSpacing={1}
         size={{
@@ -48,7 +48,7 @@ const Header = ({ event }: Props) => {
         }}
       >
         {title}
-      </Grid2>
+      </Grid>
     </>
   )
 }
@@ -59,7 +59,7 @@ export default function RegistrationEventInfo({ event, hideCostInfo, invitationA
 
   return (
     <CollapsibleEvent eventId={event.id} header={<Header event={event} />}>
-      <Grid2 container justifyContent="space-between" alignItems="flex-start" columnSpacing={1}>
+      <Grid container justifyContent="space-between" alignItems="flex-start" columnSpacing={1}>
         <ItemWithCaption label={t('entryTime')}>
           {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
           <EntryStatus event={event} />
@@ -101,7 +101,7 @@ export default function RegistrationEventInfo({ event, hideCostInfo, invitationA
             </Link>
           </ItemWithCaption>
         ) : null}
-      </Grid2>
+      </Grid>
     </CollapsibleEvent>
   )
 }

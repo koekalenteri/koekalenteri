@@ -1,7 +1,7 @@
 import type { ContactInfo, DeepPartial, PublicContactInfo, User } from '../../../../types'
 
 import { useTranslation } from 'react-i18next'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
@@ -47,9 +47,9 @@ export default function ContactInfoSection({
       error={error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1}>
-        <Grid2 container spacing={1}>
-          <Grid2 sx={{ width: 300 }}>
+      <Grid container spacing={1}>
+        <Grid container spacing={1}>
+          <Grid sx={{ width: 300 }}>
             {t(`event.official`)}
             <ContactInfoSelect
               disabled={disabled}
@@ -58,8 +58,8 @@ export default function ContactInfoSection({
               show={contactInfo?.official}
               onChange={handleChange}
             />
-          </Grid2>
-          <Grid2 sx={{ width: 300 }}>
+          </Grid>
+          <Grid sx={{ width: 300 }}>
             {t(`event.secretary`)}
             <ContactInfoSelect
               disabled={disabled}
@@ -68,9 +68,9 @@ export default function ContactInfoSection({
               show={contactInfo?.secretary}
               onChange={handleChange}
             />
-          </Grid2>
-        </Grid2>
-      </Grid2>
+          </Grid>
+        </Grid>
+      </Grid>
     </CollapsibleSection>
   )
 }

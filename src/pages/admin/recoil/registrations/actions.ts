@@ -142,7 +142,9 @@ export const useAdminRegistrationActions = (eventId: string) => {
             style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
-        setEventRegistrations(items)
+        // Defensive against backend returning sparse arrays / null items.
+        // MUI X v7 will crash if `rows` contains nullish entries.
+        setEventRegistrations((items as Array<Registration | null | undefined>).filter(Boolean) as Registration[])
         if (event) {
           setEvent({ ...event, classes, entries })
         }

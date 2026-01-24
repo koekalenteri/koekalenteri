@@ -48,7 +48,7 @@ describe('GroupColors', () => {
           const expectedColor = GROUP_COLORS[index % GROUP_COLORS.length]
           expect(box).toHaveStyle(`background-color: ${expectedColor}`)
         } else {
-          expect(box).toHaveStyle('background-color: transparent')
+          expect(box).toHaveStyle('background-color: rgba(0, 0, 0, 0);')
         }
       })
     }

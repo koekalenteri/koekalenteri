@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`SendMessageDialog renders hidden when open is false 1`] = `<div />`;
 
@@ -15,8 +15,8 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
   >
     <div
       aria-hidden="true"
-      class="MuiBackdrop-root MuiModal-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
-      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      class="MuiBackdrop-root MuiModal-backdrop MuiDialog-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     />
     <div
       data-testid="sentinelStart"
@@ -25,7 +25,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
     <div
       class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
       role="presentation"
-      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
       tabindex="-1"
     >
       <div
@@ -97,7 +97,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiAccordion-region"
+                        class="MuiAccordion-region css-at4ued-MuiAccordion-region"
                         role="region"
                       >
                         <div
@@ -166,7 +166,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeMedium MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="true"
                       for=":rf:"
                       id=":rf:-label"
@@ -957,8 +957,8 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
   >
     <div
       aria-hidden="true"
-      class="MuiBackdrop-root MuiModal-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
-      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      class="MuiBackdrop-root MuiModal-backdrop MuiDialog-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     />
     <div
       data-testid="sentinelStart"
@@ -967,7 +967,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
     <div
       class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
       role="presentation"
-      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
       tabindex="-1"
     >
       <div
@@ -1039,7 +1039,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                       class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                     >
                       <div
-                        class="MuiAccordion-region"
+                        class="MuiAccordion-region css-at4ued-MuiAccordion-region"
                         role="region"
                       >
                         <div
@@ -1071,7 +1071,7 @@ exports[`SendMessageDialog renders with minimal parameters 1`] = `
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
                   >
                     <label
-                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+                      class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                       data-shrink="false"
                       for=":r6:"
                       id=":r6:-label"

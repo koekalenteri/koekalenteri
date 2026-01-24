@@ -4,7 +4,7 @@ import type { SectionProps } from '../types'
 import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
 
@@ -25,8 +25,8 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
   const value = judges.find((j) => j.id === judge.id)
 
   return (
-    <Grid2 container spacing={1} alignItems="center" width="100%">
-      <Grid2 sx={{ width: 300 }}>
+    <Grid container spacing={1} alignItems="center" width="100%">
+      <Grid sx={{ width: 300 }}>
         <AutocompleteSingle
           disabled={disabled}
           value={value}
@@ -50,9 +50,9 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
             })
           }}
         />
-      </Grid2>
+      </Grid>
       <JudgeClasses disabled={disabled} event={event} index={index} judge={judge} onChange={onChange} />
-      <Grid2>
+      <Grid>
         <Button
           startIcon={<DeleteOutline />}
           disabled={disabled || (selectedEventType?.official && index === 0)}
@@ -65,7 +65,7 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
         >
           Poista tuomari
         </Button>
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   )
 }

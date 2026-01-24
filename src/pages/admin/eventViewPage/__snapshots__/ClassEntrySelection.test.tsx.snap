@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`ClassEntrySelection renders 1`] = `
 <div>
@@ -511,13 +511,13 @@ exports[`ClassEntrySelection renders 1`] = `
           >
             <div
               class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-              style="width: 0px;"
+              style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
             />
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
             role="presentation"
-            style="width: auto; flex-shrink: 0;"
+            style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1058,7 +1058,7 @@ exports[`ClassEntrySelection renders 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               >
                 <div
                   class="no-rows MuiBox-root css-1jpcp03"
@@ -1070,7 +1070,7 @@ exports[`ClassEntrySelection renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1608,7 +1608,7 @@ exports[`ClassEntrySelection renders 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               >
                 <div
                   class="no-rows MuiBox-root css-1jpcp03"
@@ -1620,7 +1620,7 @@ exports[`ClassEntrySelection renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2157,7 +2157,7 @@ exports[`ClassEntrySelection renders 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               >
                 <div
                   class="MuiDataGrid-overlay css-ok32b7-MuiDataGrid-overlay"
@@ -2169,7 +2169,7 @@ exports[`ClassEntrySelection renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2752,7 +2752,7 @@ exports[`ClassEntrySelection renders 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               >
                 <div
                   class="MuiDataGrid-overlay css-ok32b7-MuiDataGrid-overlay"
@@ -2764,7 +2764,7 @@ exports[`ClassEntrySelection renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -3304,13 +3304,13 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
           >
             <div
               class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-              style="width: 0px;"
+              style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
             />
           </div>
           <div
             class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
             role="presentation"
-            style="width: auto; flex-shrink: 0;"
+            style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
           >
             <div
               class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -3851,7 +3851,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               >
                 <div
                   class="no-rows MuiBox-root css-1jpcp03"
@@ -3863,7 +3863,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -4401,7 +4401,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               >
                 <div
                   class="no-rows MuiBox-root css-1jpcp03"
@@ -4413,7 +4413,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -4948,7 +4948,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0; flex-basis: 28px;"
+              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -5836,7 +5836,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0; flex-basis: 28px;"
+              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"

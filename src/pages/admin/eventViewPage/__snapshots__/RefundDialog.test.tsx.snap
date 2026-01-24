@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`RefundDialog renders hidden when open is false 1`] = `<div />`;
 
@@ -15,8 +15,8 @@ exports[`RefundDialog renders with open dialog 1`] = `
   >
     <div
       aria-hidden="true"
-      class="MuiBackdrop-root MuiModal-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
-      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      class="MuiBackdrop-root MuiModal-backdrop MuiDialog-backdrop css-1cennmq-MuiBackdrop-root-MuiDialog-backdrop"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
     />
     <div
       data-testid="sentinelStart"
@@ -25,7 +25,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
     <div
       class="MuiDialog-container MuiDialog-scrollPaper css-19do60a-MuiDialog-container"
       role="presentation"
-      style="opacity: 1; webkit-transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
+      style="opacity: 1; transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
       tabindex="-1"
     >
       <div
@@ -616,7 +616,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                 <div
                   class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                   role="presentation"
-                  style="width: auto; flex-shrink: 0; flex-basis: 80px;"
+                  style="width: auto; flex-basis: 80px; flex-shrink: 0;"
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1019,7 +1019,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
             class="MuiFormControl-root MuiTextField-root css-zin0rh-MuiFormControl-root-MuiTextField-root"
           >
             <label
-              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-sizeMedium MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+              class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
               data-shrink="false"
               for=":r7:"
               id=":r7:-label"

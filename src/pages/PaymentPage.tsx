@@ -5,7 +5,7 @@ import { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData, useParams } from 'react-router'
 import Divider from '@mui/material/Divider'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
@@ -87,15 +87,15 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
       {response.groups.map((group) => (
         <Paper key={group.id} sx={{ p: 1, m: 1 }} elevation={0}>
           <Typography variant="h6">{group.name}</Typography>
-          <Grid2 container spacing={1}>
+          <Grid container spacing={1}>
             {response.providers
               .filter((provider) => provider.group === group.id)
               .map((provider, index) => (
-                <Grid2 key={provider.id + index}>
+                <Grid key={provider.id + index}>
                   <ProviderButton provider={provider} />
-                </Grid2>
+                </Grid>
               ))}
-          </Grid2>
+          </Grid>
         </Paper>
       ))}
 

@@ -13,7 +13,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
@@ -136,8 +136,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
           </Button>
         </AccordionSummary>
         <AccordionDetails sx={{ bgcolor: 'background.filter' }}>
-          <Grid2 container justifyContent="start" spacing={1}>
-            <Grid2 size={{ xs: 12, md: 6 }}>
+          <Grid container justifyContent="start" spacing={1}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <DateRange
                 start={filter.start}
                 end={filter.end}
@@ -146,16 +146,16 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 endLabel={t('daterangeEnd')}
                 onChange={handleDateRangeChange}
               />
-            </Grid2>
-            <Grid2 size={{ xs: 12, sm: 6, md: 4 }}>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <SelectMulti
                 label={t('filter.eventType')}
                 onChange={handleEventTypeChange}
                 options={eventTypes}
                 value={filter.eventType}
               />
-            </Grid2>
-            <Grid2 size={{ xs: 12, sm: 6, md: 2 }}>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <AutocompleteMulti
                 getOptionLabel={getString}
                 label={t('filter.eventClass')}
@@ -163,8 +163,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 options={eventClasses}
                 value={filter.eventClass}
               />
-            </Grid2>
-            <Grid2 size={{ xs: 12, sm: 6 }}>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <AutocompleteMulti
                 getOptionLabel={getName}
                 isOptionEqualToValue={compareId}
@@ -173,8 +173,8 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 options={organizers}
                 value={organizers.filter((o) => filter.organizer.includes(o.id))}
               />
-            </Grid2>
-            <Grid2 size={{ xs: 12, sm: 6 }}>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <AutocompleteMulti
                 getOptionLabel={getJudgeName}
                 isOptionEqualToValue={compareJudge}
@@ -183,10 +183,10 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 options={judges}
                 value={judges.filter((j) => filter.judge.includes(j.name))}
               />
-            </Grid2>
-            <Grid2 size={{ xs: 12, md: 12 }}>
-              <Grid2 container>
-                <Grid2 size="auto">
+            </Grid>
+            <Grid size={{ xs: 12, md: 12 }}>
+              <Grid container>
+                <Grid size="auto">
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="start">
                     <FormControlLabel
                       value="withOpenEntry"
@@ -206,15 +206,15 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                       onChange={handleWithUpcomingEntryChange}
                     />
                   </Stack>
-                </Grid2>
-                <Grid2 display={{ xs: undefined, md: 'none' }} alignSelf="end">
+                </Grid>
+                <Grid display={{ xs: undefined, md: 'none' }} alignSelf="end">
                   <Button variant="contained" onClick={() => setExpanded(false)}>
                     OK
                   </Button>
-                </Grid2>
-              </Grid2>
-            </Grid2>
-          </Grid2>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
         </AccordionDetails>
       </Accordion>
     </Box>

@@ -3,7 +3,7 @@ import type { PublicDogEvent, PublicJudge } from '../../../types'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import { zonedEndOfDay } from '../../../i18n/dates'
 import { judgeName } from '../../../lib/judge'
@@ -50,7 +50,7 @@ export const EventInfo = ({ event }: Props) => {
   )
 
   return (
-    <Grid2 container columnSpacing={1} sx={{ py: 0.5 }}>
+    <Grid container columnSpacing={1} sx={{ py: 0.5 }}>
       <ItemWithCaption label={t('entryTime')} order={{ xs: 1 }}>
         {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
         <EntryStatus event={event} />
@@ -105,6 +105,6 @@ export const EventInfo = ({ event }: Props) => {
           {event.description}
         </ItemWithCaption>
       ) : null}
-    </Grid2>
+    </Grid>
   )
 }

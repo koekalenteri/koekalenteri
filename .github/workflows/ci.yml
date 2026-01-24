@@ -2,11 +2,11 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   merge_group:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   setup:
@@ -39,7 +39,6 @@ jobs:
             echo "sha=$(git merge-base origin/main ${{ github.sha }})" >> $GITHUB_OUTPUT
           fi
 
-
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -68,6 +67,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
 
@@ -90,6 +90,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
@@ -115,7 +116,21 @@ jobs:
       - name: Rename coverage
         run: |
           mkdir -p coverage
-          mv src/lambda/coverage/lcov.info coverage/lcov.info
+          # Jest 30 multi-project config writes coverage to <repo>/coverage by default.
+          # Older config wrote it under src/lambda/coverage. Support both.
+          if [ -f src/lambda/coverage/lcov.info ]; then
+            mv src/lambda/coverage/lcov.info coverage/lcov.info
+          elif [ -f coverage/lcov.info ]; then
+            echo "backend lcov already present at coverage/lcov.info"
+          else
+            echo "backend lcov.info not found in expected locations" >&2
+            echo "Tried: src/lambda/coverage/lcov.info and coverage/lcov.info" >&2
+            echo "Files under ./coverage (if any):" >&2
+            ls -la coverage || true
+            echo "Files under ./src/lambda/coverage (if any):" >&2
+            ls -la src/lambda/coverage || true
+            exit 1
+          fi
       - name: Cache coverage report
         uses: actions/cache/save@v4
         with:
@@ -130,6 +145,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
@@ -163,6 +179,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
@@ -204,7 +221,7 @@ jobs:
 
   deploy-backend:
     runs-on: ubuntu-latest
-    needs: [setup,backend,frontend-test]
+    needs: [setup, backend, frontend-test]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.backend == 'true' }}
     concurrency:
       group: deploy-backend-${{ github.ref }}
@@ -214,6 +231,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Download backend build
@@ -231,7 +249,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       - name: SAM Validate
         run: |
-         sam validate --lint -t dist/template.yaml
+          sam validate --lint -t dist/template.yaml
       - name: Configure variables
         shell: bash
         run: |
@@ -263,7 +281,7 @@ jobs:
 
   deploy-frontend:
     runs-on: ubuntu-latest
-    needs: [setup,frontend-test,deploy-backend]
+    needs: [setup, frontend-test, deploy-backend]
     if: ${{ always() && !failure() && !cancelled() && github.event_name == 'push' && needs.setup.outputs.frontend == 'true' }}
     concurrency:
       group: deploy-frontend-${{ github.ref }}
@@ -275,14 +293,15 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
-    needs: [backend,frontend-coverage]
+    needs: [backend, frontend-coverage]
     if: ${{ always() && !failure() && !cancelled() }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis (SonarCloud)
       - uses: actions/setup-node@v4
         with:
+          node-version: 24
           cache: npm
           cache-dependency-path: package-lock.json
       - name: Restore node_modules

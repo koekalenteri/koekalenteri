@@ -10,7 +10,7 @@ import type {
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
 
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
@@ -270,11 +270,8 @@ export function EntryInfo({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid2 container spacing={1}>
-        <Grid2
-          sx={{ display: event.classes.length === 0 ? 'none' : 'block' }}
-          size={{ xs: 12, md: sizeSwitch ? 6 : 2 }}
-        >
+      <Grid container spacing={1}>
+        <Grid sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} size={{ xs: 12, md: sizeSwitch ? 6 : 2 }}>
           <AutocompleteSingle
             disableClearable
             disabled={classDisabled || disabled}
@@ -285,8 +282,8 @@ export function EntryInfo({
             options={classes}
             value={selectedClass ?? undefined}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 12, md: sizeSwitch ? 6 : 4 }}>
+        </Grid>
+        <Grid size={{ xs: 12, md: sizeSwitch ? 6 : 4 }}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
@@ -298,8 +295,8 @@ export function EntryInfo({
             options={['ANY', 'DAY', 'WEEK' /*, 'NO'*/] as ReserveChoise[]}
             value={selectedReserve}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 12, md: 6 }} sx={{ display: showDatesFilter ? undefined : 'none' }}>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: showDatesFilter ? undefined : 'none' }}>
           <AutocompleteMulti
             disabled={disabled}
             error={errorStates.dates || (showDatesFilter && filterDates.length === 0)}
@@ -313,8 +310,8 @@ export function EntryInfo({
             options={dates}
             value={filterDates}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 12, md: 6 }} sx={{ display: showDatesAndTimes ? undefined : 'none' }}>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }} sx={{ display: showDatesAndTimes ? undefined : 'none' }}>
           <AutocompleteMulti
             disabled={disabled}
             error={errorStates.dates}
@@ -326,8 +323,8 @@ export function EntryInfo({
             options={datesAndTimes}
             value={selectedDates}
           />
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </CollapsibleSection>
   )
 }

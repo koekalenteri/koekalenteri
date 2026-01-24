@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`PaymentPage renders loading indicator while loader is pending 1`] = `
 <div>
@@ -62,10 +62,10 @@ exports[`PaymentPage renders properly 1`] = `
         Pankkimaksutavat
       </h6>
       <div
-        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://services.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/osuuspankki/loading-and-redirect"
@@ -117,7 +117,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://epmt.nordea.fi/cgi-bin/SOLOPM01"
@@ -249,7 +249,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://verkkopankki.danskebank.fi/SP/vemaha/VemahaApp"
@@ -321,7 +321,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://online.s-pankki.fi/service/paybutton"
@@ -428,7 +428,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://verkkomaksu.poppankki.fi/vm/login.html"
@@ -515,7 +515,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://verkkomaksu.omasp.fi/vm/login.html"
@@ -602,7 +602,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://auth.aktia.fi/vmtest"
@@ -694,7 +694,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://verkkomaksu.handelsbanken.fi/vm/login.html"
@@ -781,7 +781,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://verkkomaksu.saastopankki.fi/vm/login.html"
@@ -868,7 +868,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://online.alandsbanken.fi/service/paybutton"
@@ -986,10 +986,10 @@ exports[`PaymentPage renders properly 1`] = `
         Korttimaksutavat
       </h6>
       <div
-        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
@@ -1141,7 +1141,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
@@ -1293,7 +1293,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
@@ -1445,7 +1445,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
@@ -1608,10 +1608,10 @@ exports[`PaymentPage renders properly 1`] = `
         Lasku- ja osamaksutavat
       </h6>
       <div
-        class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://pay.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/collectorb2c/"
@@ -1663,7 +1663,7 @@ exports[`PaymentPage renders properly 1`] = `
           </form>
         </div>
         <div
-          class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
         >
           <form
             action="https://pay.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/collectorb2b/"

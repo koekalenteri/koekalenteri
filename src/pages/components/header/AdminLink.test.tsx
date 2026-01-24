@@ -22,7 +22,7 @@ describe('AdminLink', () => {
     expect(container).toMatchSnapshot()
 
     const link = screen.getByRole('link', { name: 'admin' })
-    expect(link).toHaveStyle({ borderBottom: '1px solid red' })
+    expect(link).toHaveStyle({ 'border-bottom': '1px solid red' })
   })
 
   it('should not render border when not active', () => {
@@ -30,6 +30,6 @@ describe('AdminLink', () => {
     expect(container).toMatchSnapshot()
 
     const link = screen.getByRole('link', { name: 'admin' })
-    expect(link).not.toHaveStyle({ borderBottom: '1px solid red' })
+    expect(link).not.toHaveStyle({ 'border-bottom': '1px solid red' })
   })
 })

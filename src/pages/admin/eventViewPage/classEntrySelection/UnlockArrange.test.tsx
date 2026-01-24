@@ -24,20 +24,20 @@ describe('UnlockArrange', () => {
     renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} />)
 
     expect(screen.getByText('Järjestä varasijoja, vaikka varasijailmoitukset on jo lähetetty')).toBeInTheDocument()
-    expect(screen.getByRole('checkbox')).toBeInTheDocument()
+    expect(screen.getByRole('switch')).toBeInTheDocument()
   })
 
   it('should render the switch in unchecked state when checked is false', () => {
     renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} />)
 
-    const checkbox = screen.getByRole('checkbox')
+    const checkbox = screen.getByRole('switch')
     expect(checkbox).not.toBeChecked()
   })
 
   it('should render the switch in checked state when checked is true', () => {
     renderWithUserEvents(<UnlockArrange checked={true} onChange={jest.fn()} />)
 
-    const checkbox = screen.getByRole('checkbox')
+    const checkbox = screen.getByRole('switch')
     expect(checkbox).toBeChecked()
   })
 
@@ -45,7 +45,7 @@ describe('UnlockArrange', () => {
     const handleChange = jest.fn()
     const { user } = renderWithUserEvents(<UnlockArrange checked={false} onChange={handleChange} />)
 
-    const checkbox = screen.getByRole('checkbox')
+    const checkbox = screen.getByRole('switch')
     await user.click(checkbox)
 
     expect(handleChange).toHaveBeenCalledWith(true)
@@ -60,7 +60,7 @@ describe('UnlockArrange', () => {
   it('should not disable the switch when disabled prop is false', () => {
     renderWithUserEvents(<UnlockArrange checked={false} onChange={jest.fn()} disabled={false} />)
 
-    const checkbox = screen.getByRole('checkbox')
+    const checkbox = screen.getByRole('switch')
     expect(checkbox).not.toBeDisabled()
   })
 

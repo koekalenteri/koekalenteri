@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
@@ -106,8 +106,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
       onOpenChange={onOpenChange}
     >
       <form>
-        <Grid2 container spacing={1}>
-          <Grid2 size={{ xs: 12, sm: 6 }}>
+        <Grid container spacing={1}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               disabled={disabled}
               error={!reg.owner?.name}
@@ -121,8 +121,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
                 input: { autoComplete: 'name' },
               }}
             />
-          </Grid2>
-          <Grid2 size={{ xs: 12, sm: 6 }}>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               disabled={disabled}
               error={!reg.owner?.location}
@@ -136,8 +136,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
                 input: { autoComplete: 'address-level2' },
               }}
             />
-          </Grid2>
-          <Grid2 size={{ xs: 12, sm: 6 }}>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               disabled={disabled}
               error={!reg.owner?.email}
@@ -151,8 +151,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
                 input: { autoComplete: 'email' },
               }}
             />
-          </Grid2>
-          <Grid2 size={{ xs: 12, sm: 6 }}>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <MuiTelInput
               langOfCountryName={i18n.language}
               defaultCountry="FI"
@@ -167,8 +167,8 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
               onChange={(value) => updateField('phone', value)}
               value={formValues.phone}
             />
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
       </form>
       <FormGroup>
         <FormControlLabel

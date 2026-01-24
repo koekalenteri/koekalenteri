@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phone":""},"secretary":{"name":"","email":"","phone":""}} 1`] = `
 <div>
@@ -51,13 +51,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -249,7 +249,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -502,13 +502,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -700,7 +700,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -954,13 +954,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -1152,7 +1152,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -1406,13 +1406,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -1604,7 +1604,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -1859,13 +1859,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -2057,7 +2057,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -2311,13 +2311,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -2509,7 +2509,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -2764,13 +2764,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -2962,7 +2962,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -3217,13 +3217,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -3415,7 +3415,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -3671,13 +3671,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -3870,7 +3870,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -4123,13 +4123,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -4322,7 +4322,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -4576,13 +4576,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -4775,7 +4775,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -5029,13 +5029,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -5228,7 +5228,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -5483,13 +5483,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -5682,7 +5682,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -5936,13 +5936,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -6135,7 +6135,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -6390,13 +6390,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -6589,7 +6589,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -6844,13 +6844,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -7043,7 +7043,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"","phon
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -7299,13 +7299,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -7498,7 +7498,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -7751,13 +7751,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -7950,7 +7950,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -8204,13 +8204,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -8403,7 +8403,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -8657,13 +8657,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -8856,7 +8856,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -9111,13 +9111,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -9310,7 +9310,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -9564,13 +9564,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -9763,7 +9763,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -10018,13 +10018,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -10217,7 +10217,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -10472,13 +10472,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -10671,7 +10671,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -10927,13 +10927,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -11127,7 +11127,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -11380,13 +11380,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -11580,7 +11580,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -11834,13 +11834,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -12034,7 +12034,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -12288,13 +12288,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -12488,7 +12488,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -12743,13 +12743,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -12943,7 +12943,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -13197,13 +13197,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -13397,7 +13397,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -13652,13 +13652,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -13852,7 +13852,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -14107,13 +14107,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -14307,7 +14307,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"","email":"officia
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -14563,13 +14563,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -14762,7 +14762,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -15015,13 +15015,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -15214,7 +15214,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -15468,13 +15468,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -15667,7 +15667,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -15921,13 +15921,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -16120,7 +16120,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -16375,13 +16375,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -16574,7 +16574,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -16828,13 +16828,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -17027,7 +17027,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -17282,13 +17282,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -17481,7 +17481,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -17736,13 +17736,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -17935,7 +17935,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -18191,13 +18191,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -18391,7 +18391,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -18644,13 +18644,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -18844,7 +18844,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -19098,13 +19098,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -19298,7 +19298,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -19552,13 +19552,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -19752,7 +19752,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -20007,13 +20007,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -20207,7 +20207,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -20461,13 +20461,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -20661,7 +20661,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -20916,13 +20916,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -21116,7 +21116,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -21371,13 +21371,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -21571,7 +21571,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -21827,13 +21827,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -22027,7 +22027,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -22280,13 +22280,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -22480,7 +22480,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -22734,13 +22734,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -22934,7 +22934,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -23188,13 +23188,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -23388,7 +23388,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -23643,13 +23643,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -23843,7 +23843,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -24097,13 +24097,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -24297,7 +24297,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -24552,13 +24552,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -24752,7 +24752,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -25007,13 +25007,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -25207,7 +25207,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -25463,13 +25463,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -25664,7 +25664,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -25917,13 +25917,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -26118,7 +26118,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -26372,13 +26372,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -26573,7 +26573,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -26827,13 +26827,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -27028,7 +27028,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -27283,13 +27283,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -27484,7 +27484,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -27738,13 +27738,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -27939,7 +27939,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -28194,13 +28194,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -28395,7 +28395,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div
@@ -28650,13 +28650,13 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
               class="MuiBox-root css-e1h6et"
             >
               <div
-                class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-octady-MuiGrid2-root"
+                class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row MuiGrid2-spacing-xs-1 css-44clmb-MuiGrid2-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-11jcen5-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.official
                     <div
@@ -28851,7 +28851,7 @@ exports[`ContactInfoSection renders with {"official":{"name":"Test Official","em
                     </div>
                   </div>
                   <div
-                    class="MuiGrid2-root MuiGrid2-direction-xs-row css-hg963k-MuiGrid2-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row css-1wi3v0o-MuiGrid-root"
                   >
                     event.secretary
                     <div

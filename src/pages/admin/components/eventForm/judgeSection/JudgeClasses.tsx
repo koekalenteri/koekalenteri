@@ -1,7 +1,7 @@
 import type { PublicJudge } from '../../../../../types'
 import type { SectionProps } from '../types'
 
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import EventClasses from '../components/EventClasses'
 
@@ -14,7 +14,7 @@ interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
 
 const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
   return (
-    <Grid2 flex={1} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
+    <Grid flex={1} display={event.eventType === 'NOWT' ? 'NONE' : undefined}>
       <EventClasses
         id={`class${index}`}
         disabled={disabled}
@@ -29,7 +29,7 @@ const JudgeClasses = ({ disabled, event, index, judge, onChange }: Props) => {
           })
         }
       />
-    </Grid2>
+    </Grid>
   )
 }
 
