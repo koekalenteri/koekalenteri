@@ -106,9 +106,9 @@ const paytrailRequest = async <T extends object>(
         error = await res.text()
         console.error('not ok', status, error)
       }
-    } catch (jse) {
-      console.error(jse)
-      if (jse instanceof Error) error = jse.message
+    } catch (error_) {
+      console.error(error_)
+      if (error_ instanceof Error) error = error_.message
     }
   } catch (e: unknown) {
     console.error(e)

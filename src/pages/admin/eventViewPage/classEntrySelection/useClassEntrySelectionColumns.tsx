@@ -151,7 +151,7 @@ export function useClassEntrySelectionColumns(
     const participantColumns = [...entryColumns]
 
     const cancelledColumns = [...participantColumns]
-    cancelledColumns.splice(cancelledColumns.length - 2, 0, {
+    cancelledColumns.splice(-2, 0, {
       field: 'cancelReason',
       headerName: 'Perumisen syy',
       width: 144,

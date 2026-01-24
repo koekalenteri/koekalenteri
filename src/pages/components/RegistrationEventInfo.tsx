@@ -23,7 +23,9 @@ interface Props {
   readonly invitationAttachment?: string
 }
 
-const Header = ({ event }: Props) => {
+type HeaderProps = Pick<Props, 'event'>
+
+const Header = ({ event }: HeaderProps) => {
   const { t } = useTranslation()
 
   const title = `${event.eventType} ${t('dateFormat.datespan', { start: event.startDate, end: event.endDate })} ${

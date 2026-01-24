@@ -30,9 +30,7 @@ export const priorityValuesToPriority = (values: Partial<PublicDogEvent['priorit
 
   for (const value of unique(values)) {
     const priority = PRIORITY.find((p) => p.value === value)
-    if (priority) {
-      result.push(priority)
-    }
+    if (priority) result.push(priority)
   }
   return result
 }

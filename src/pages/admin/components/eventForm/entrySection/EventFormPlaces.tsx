@@ -41,7 +41,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
     const total = calculateTotalFromClasses(newClasses)
 
     // Update placesPerDay based on classes
-    const newPlacesPerDay = !totalEnabled ? updatePlacesPerDayFromClasses({ ...event, classes: newClasses }) : {}
+    const newPlacesPerDay = totalEnabled ? updatePlacesPerDayFromClasses({ ...event, classes: newClasses }) : {}
 
     onChange?.({
       classes: newClasses,

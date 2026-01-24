@@ -72,8 +72,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           setRegistration(saved)
           setCancelOpen(false)
         },
-        (reason) => {
-          console.error(reason)
+        (error_) => {
+          console.error(error_)
         }
       )
     },
@@ -90,8 +90,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         setRegistration(saved)
         setConfirmOpen(false)
       },
-      (reason) => {
-        console.error(reason)
+      (error_) => {
+        console.error(error_)
       }
     )
   }, [actions, allDisabled, registration, setRegistration])
@@ -121,8 +121,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             navigate(Path.registration(registration))
           }
         },
-        (reason) => {
-          console.error(reason)
+        (error_) => {
+          console.error(error_)
         }
       )
     }
@@ -192,7 +192,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (registration?.language && registration.language !== language) {
       setLanguage(registration.language)
     }
-  }, [])
+  }, [language, registration?.language, setLanguage])
 
   if (!event || !registration) {
     return <LoadingPage />

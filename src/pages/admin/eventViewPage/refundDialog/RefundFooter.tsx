@@ -41,7 +41,7 @@ export const RefundFooter = ({
   onHandlingCostChange,
 }: RefundFooterProps) => {
   const parseAmount = useCallback((value: string) => {
-    return Math.round(Number.parseFloat(value.replace(',', '.')) * 100)
+    return Math.round(Number.parseFloat(value.replaceAll(',', '.')) * 100)
   }, [])
   const formatAmount = useCallback((amount: number | undefined) => formatMoneyWithoutCurrency((amount ?? 0) / 100), [])
 

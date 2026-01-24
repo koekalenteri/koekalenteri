@@ -52,7 +52,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
   }
 
   useEffect(() => {
-    if (org && !availableOrgs.find((o) => o.id === org.id)) {
+    if (org && !availableOrgs.some((o) => o.id === org.id)) {
       setOrg(null)
     }
   }, [org, availableOrgs])

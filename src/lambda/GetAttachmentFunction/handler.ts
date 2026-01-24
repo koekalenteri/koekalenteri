@@ -24,7 +24,7 @@ const getAttachmentLambda = lambda('getAttachment', async (event) => {
 
   const dl = event.queryStringParameters && 'dl' in event.queryStringParameters
   const fileName = getParam(event, 'name', 'kutsu.pdf')
-  const params = `filename="${fileName.replace(/[^a-zA-Z0-9]/g, '')}"; filename*=utf-8''${encodeURIComponent(fileName)}`
+  const params = `filename="${fileName.replaceAll(/[^a-zA-Z0-9]/g, '')}"; filename*=utf-8''${encodeURIComponent(fileName)}`
   const disposition = dl ? 'attachment' : 'inline'
   const dispositionWithParams = `${disposition}; ${params}`
 

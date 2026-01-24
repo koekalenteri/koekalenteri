@@ -27,7 +27,7 @@ export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ g
         getEmailTemplates(token).then((emailTemplates) => {
           if (emailTemplates.length < templateIds.length) {
             for (const id of templateIds) {
-              if (!emailTemplates.find((t) => t.id === id)) {
+              if (!emailTemplates.some((t) => t.id === id)) {
                 emailTemplates.push({
                   createdAt: new Date(),
                   createdBy: '',

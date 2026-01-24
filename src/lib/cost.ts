@@ -35,7 +35,7 @@ export const getEarlyBirdDates = (
       end: addDays(new Date(event.entryStartDate), cost.earlyBird.days - 1),
     }
   }
-  return {}
+  return { start: undefined, end: undefined }
 }
 
 /** Helper object that can be "auto-fixed" to contain all the keys */

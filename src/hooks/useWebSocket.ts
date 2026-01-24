@@ -36,7 +36,7 @@ export const useWebSocket = () => {
     []
   )
   const wsRef = useRef<WebSocket | null>(null)
-  const reconnectTimeoutRef = useRef<number | null>(null)
+  const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
   const reconnectAttempts = useRef(0)
 
   const connect = useCallback(() => {
@@ -51,7 +51,7 @@ export const useWebSocket = () => {
       // Try to reconnect with exponential backoff
       const delay = Math.min(30000, RECONNECT_INTERVAL * 2 ** reconnectAttempts.current)
       reconnectAttempts.current++
-      reconnectTimeoutRef.current = window.setTimeout(connect, delay)
+      reconnectTimeoutRef.current = globalThis.setTimeout(connect, delay)
     }
 
     ws.onerror = () => {

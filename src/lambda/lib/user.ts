@@ -172,9 +172,9 @@ export const updateUsersFromOfficialsOrJudges = async (
 
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
   const allUsersWithEmail = allUsers.filter((u) => validEmail(u.email))
-  const existingUsers = allUsersWithEmail.filter((u) => items.find((o) => o.email === u.email.toLocaleLowerCase()))
+  const existingUsers = allUsersWithEmail.filter((u) => items.some((o) => o.email === u.email.toLocaleLowerCase()))
   const itemsWithEmail = items.filter((i) => validEmail(i.email))
-  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.find((u) => u.email.toLocaleLowerCase() === i.email))
+  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.some((u) => u.email.toLocaleLowerCase() === i.email))
 
   const write = buildUserUpdates(itemsWithEmail, newItems, existingUsers, eventTypesFiled)
 

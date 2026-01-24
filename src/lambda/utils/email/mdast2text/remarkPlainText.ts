@@ -11,7 +11,7 @@ function compiler(node: Node, file: { extname: string }) {
   }
 
   // Add an eof eol.
-  return node?.type === 'root' && result && /[^\r\n]/.test(result.charAt(result.length - 1)) ? result + '\n' : result
+  return node?.type === 'root' && result && /[^\r\n]/.test(result.at(-1) ?? '') ? result + '\n' : result
 }
 
 export function remarkPlainText(this: Processor) {
