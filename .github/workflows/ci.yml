@@ -116,7 +116,21 @@ jobs:
       - name: Rename coverage
         run: |
           mkdir -p coverage
-          mv src/lambda/coverage/lcov.info coverage/lcov.info
+          # Jest 30 multi-project config writes coverage to <repo>/coverage by default.
+          # Older config wrote it under src/lambda/coverage. Support both.
+          if [ -f src/lambda/coverage/lcov.info ]; then
+            mv src/lambda/coverage/lcov.info coverage/lcov.info
+          elif [ -f coverage/lcov.info ]; then
+            echo "backend lcov already present at coverage/lcov.info"
+          else
+            echo "backend lcov.info not found in expected locations" >&2
+            echo "Tried: src/lambda/coverage/lcov.info and coverage/lcov.info" >&2
+            echo "Files under ./coverage (if any):" >&2
+            ls -la coverage || true
+            echo "Files under ./src/lambda/coverage (if any):" >&2
+            ls -la src/lambda/coverage || true
+            exit 1
+          fi
       - name: Cache coverage report
         uses: actions/cache/save@v4
         with:
