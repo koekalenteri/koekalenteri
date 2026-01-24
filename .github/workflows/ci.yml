@@ -82,6 +82,9 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
 
+      - name: Knip (unused files/exports/deps)
+        run: npm run knip
+
   backend:
     runs-on: ubuntu-latest
     needs: setup
