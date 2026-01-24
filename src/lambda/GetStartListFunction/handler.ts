@@ -1,5 +1,4 @@
 import type { JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGroup } from '../../types'
-
 import { isStartListAvailable } from '../../lib/event'
 import { CONFIG } from '../config'
 import { getEvent } from '../lib/event'
@@ -24,12 +23,12 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         ?.filter<JsonRegistrationWithGroup>((reg): reg is JsonRegistrationWithGroup => !!reg.group)
         .filter((reg) => reg.group.date && !reg.cancelled)
         .map<JsonPublicRegistration>((reg) => ({
+          breeder: reg.breeder?.name,
           class: reg.class,
           dog: reg.dog,
           group: reg.group,
           handler: reg.handler?.name ?? '',
           owner: reg.owner?.name ?? '',
-          breeder: reg.breeder?.name,
           ownerHandles: reg.ownerHandles,
         }))
         .sort((a, b) => a.group.number - b.group.number) ?? []

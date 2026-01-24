@@ -1,13 +1,10 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonUser } from '../../types'
-
 import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 
 interface UserLink {
@@ -70,13 +67,13 @@ export async function getAndUpdateUserByEmail(
   const email = rawEmail.toLocaleLowerCase().trim()
   const existing = await findUserByEmail(email)
   const newUser: JsonUser = {
-    id: nanoid(10),
-    name: '',
-    email,
     createdAt: dateString,
     createdBy: modifiedBy,
+    email,
+    id: nanoid(10),
     modifiedAt: dateString,
     modifiedBy,
+    name: '',
   }
 
   const changes = { ...props }
@@ -118,10 +115,10 @@ export const authorizeWithMemberOf = async (event: APIGatewayProxyEvent) => {
   const memberOf = userIsMemberOf(user)
   if (!memberOf.length && !user?.admin) {
     console.error(`User ${user.id} is not admin or member of any organizations.`)
-    return { user, res: response(403, 'Forbidden', event) }
+    return { res: response(403, 'Forbidden', event), user }
   }
 
   console.log(`User ${user.id} is member of ['${memberOf.join("', '")}'].`)
 
-  return { user, memberOf }
+  return { memberOf, user }
 }

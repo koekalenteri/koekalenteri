@@ -1,5 +1,4 @@
 import type { TransactWriteItemWithoutTable } from './CustomDynamoClient'
-
 import { jest } from '@jest/globals'
 
 // Mock AWS SDK v3
@@ -25,21 +24,21 @@ class MockTransactionCanceledException extends Error {
 
 jest.mock('@aws-sdk/client-dynamodb', () => ({
   DynamoDBClient: mockDynamoDBClient,
-  TransactWriteItemsCommand: jest.fn().mockImplementation((params) => params),
   TransactionCanceledException: MockTransactionCanceledException,
+  TransactWriteItemsCommand: jest.fn().mockImplementation((params) => params),
 }))
 
 jest.mock('@aws-sdk/lib-dynamodb', () => ({
+  BatchWriteCommand: jest.fn().mockImplementation((params) => params),
+  DeleteCommand: jest.fn().mockImplementation((params) => params),
   DynamoDBDocumentClient: {
     from: mockFrom,
   },
-  ScanCommand: jest.fn().mockImplementation((params) => params),
   GetCommand: jest.fn().mockImplementation((params) => params),
-  QueryCommand: jest.fn().mockImplementation((params) => params),
   PutCommand: jest.fn().mockImplementation((params) => params),
-  BatchWriteCommand: jest.fn().mockImplementation((params) => params),
+  QueryCommand: jest.fn().mockImplementation((params) => params),
+  ScanCommand: jest.fn().mockImplementation((params) => params),
   UpdateCommand: jest.fn().mockImplementation((params) => params),
-  DeleteCommand: jest.fn().mockImplementation((params) => params),
 }))
 
 // Import the class dynamically after mocking
@@ -94,8 +93,8 @@ describe('CustomDynamoClient', () => {
       const result = await client.readAll()
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
         FilterExpression: 'attribute_not_exists(deletedAt)',
+        TableName: 'test-table',
       })
       expect(result).toEqual([{ id: '1' }, { id: '2' }])
     })
@@ -107,9 +106,9 @@ describe('CustomDynamoClient', () => {
       await client.readAll(undefined, 'attribute = :value', { ':value': 'test' })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
-        FilterExpression: '(attribute_not_exists(deletedAt)) AND (attribute = :value)',
         ExpressionAttributeValues: { ':value': 'test' },
+        FilterExpression: '(attribute_not_exists(deletedAt)) AND (attribute = :value)',
+        TableName: 'test-table',
       })
     })
 
@@ -148,8 +147,8 @@ describe('CustomDynamoClient', () => {
       const result = await client.read({ id: '1' })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
         Key: { id: '1' },
+        TableName: 'test-table',
       })
       expect(result).toEqual({ id: '1', name: 'Test' })
     })
@@ -188,14 +187,14 @@ describe('CustomDynamoClient', () => {
       })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
-        KeyConditionExpression: 'id = :id',
-        ExpressionAttributeValues: { ':id': '1' },
-        IndexName: undefined,
         ExpressionAttributeNames: undefined,
-        ScanIndexForward: undefined,
-        Limit: undefined,
+        ExpressionAttributeValues: { ':id': '1' },
         FilterExpression: undefined,
+        IndexName: undefined,
+        KeyConditionExpression: 'id = :id',
+        Limit: undefined,
+        ScanIndexForward: undefined,
+        TableName: 'test-table',
       })
       expect(result).toEqual([{ id: '1' }, { id: '2' }])
     })
@@ -217,25 +216,25 @@ describe('CustomDynamoClient', () => {
       mockSend.mockResolvedValueOnce({ Items: [] })
 
       await client.query({
-        key: 'id = :id',
-        values: { ':id': '1' },
-        table: 'CustomTable',
-        index: 'GSI1',
-        names: { '#name': 'name' },
-        forward: false,
-        limit: 10,
         filterExpression: '#attr = :value',
+        forward: false,
+        index: 'GSI1',
+        key: 'id = :id',
+        limit: 10,
+        names: { '#name': 'name' },
+        table: 'CustomTable',
+        values: { ':id': '1' },
       })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'custom-table',
-        KeyConditionExpression: 'id = :id',
-        ExpressionAttributeValues: { ':id': '1' },
-        IndexName: 'GSI1',
         ExpressionAttributeNames: { '#name': 'name' },
-        ScanIndexForward: false,
-        Limit: 10,
+        ExpressionAttributeValues: { ':id': '1' },
         FilterExpression: '#attr = :value',
+        IndexName: 'GSI1',
+        KeyConditionExpression: 'id = :id',
+        Limit: 10,
+        ScanIndexForward: false,
+        TableName: 'custom-table',
       })
     })
   })
@@ -249,8 +248,8 @@ describe('CustomDynamoClient', () => {
       await client.write(item)
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
         Item: item,
+        TableName: 'test-table',
       })
     })
 
@@ -323,11 +322,11 @@ describe('CustomDynamoClient', () => {
       await client.update({ id: '1' }, { set: { name: 'Updated', status: 'active' } })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
-        Key: { id: '1' },
-        UpdateExpression: 'SET #name = :name, #status = :status',
         ExpressionAttributeNames: { '#name': 'name', '#status': 'status' },
         ExpressionAttributeValues: { ':name': 'Updated', ':status': 'active' },
+        Key: { id: '1' },
+        TableName: 'test-table',
+        UpdateExpression: 'SET #name = :name, #status = :status',
       })
     })
 
@@ -338,11 +337,11 @@ describe('CustomDynamoClient', () => {
       await client.update({ id: '1' }, { add: { count: 1, points: 5 } })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
-        Key: { id: '1' },
-        UpdateExpression: 'ADD #count :count, #points :points',
         ExpressionAttributeNames: { '#count': 'count', '#points': 'points' },
         ExpressionAttributeValues: { ':count': 1, ':points': 5 },
+        Key: { id: '1' },
+        TableName: 'test-table',
+        UpdateExpression: 'ADD #count :count, #points :points',
       })
     })
 
@@ -353,27 +352,27 @@ describe('CustomDynamoClient', () => {
       await client.update(
         { id: '1' },
         {
-          set: { name: 'Updated', status: 'active' },
           add: { count: 1, points: 5 },
+          set: { name: 'Updated', status: 'active' },
         }
       )
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
-        Key: { id: '1' },
-        UpdateExpression: 'SET #name = :name, #status = :status ADD #count :count, #points :points',
         ExpressionAttributeNames: {
-          '#name': 'name',
-          '#status': 'status',
           '#count': 'count',
+          '#name': 'name',
           '#points': 'points',
+          '#status': 'status',
         },
         ExpressionAttributeValues: {
-          ':name': 'Updated',
-          ':status': 'active',
           ':count': 1,
+          ':name': 'Updated',
           ':points': 5,
+          ':status': 'active',
         },
+        Key: { id: '1' },
+        TableName: 'test-table',
+        UpdateExpression: 'SET #name = :name, #status = :status ADD #count :count, #points :points',
       })
     })
 
@@ -381,13 +380,13 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
 
       await expect(client.update({ id: '1' }, {})).rejects.toThrow('No update operations provided')
-      await expect(client.update({ id: '1' }, { set: {}, add: {} })).rejects.toThrow('No update operations provided')
+      await expect(client.update({ id: '1' }, { add: {}, set: {} })).rejects.toThrow('No update operations provided')
     })
 
     it('throws an error when set and add operations are attempted for same field', async () => {
       const client = new CustomDynamoClient('TestTable')
 
-      await expect(client.update({ id: '1', cnt: 1 }, { set: { cnt: 3 }, add: { cnt: 1 } })).rejects.toThrow(
+      await expect(client.update({ cnt: 1, id: '1' }, { add: { cnt: 1 }, set: { cnt: 3 } })).rejects.toThrow(
         'DynamoDB: can not SET and ADD same field: cnt'
       )
     })
@@ -427,8 +426,8 @@ describe('CustomDynamoClient', () => {
       const result = await client.delete({ id: '1' })
 
       expect(mockSend).toHaveBeenCalledWith({
-        TableName: 'test-table',
         Key: { id: '1' },
+        TableName: 'test-table',
       })
       expect(result).toBe(true)
     })
@@ -490,10 +489,10 @@ describe('CustomDynamoClient', () => {
         { Put: { Item: { id: { S: '1' } } } },
         {
           Update: {
-            Key: { id: { S: '2' } },
-            UpdateExpression: 'SET #name = :name',
             ExpressionAttributeNames: { '#name': 'name' },
             ExpressionAttributeValues: { ':name': { S: 'value' } },
+            Key: { id: { S: '2' } },
+            UpdateExpression: 'SET #name = :name',
           },
         },
       ]
@@ -507,11 +506,11 @@ describe('CustomDynamoClient', () => {
             { Put: { Item: { id: { S: '1' } }, TableName: 'test-table' } },
             {
               Update: {
-                Key: { id: { S: '2' } },
-                UpdateExpression: 'SET #name = :name',
                 ExpressionAttributeNames: { '#name': 'name' },
                 ExpressionAttributeValues: { ':name': { S: 'value' } },
+                Key: { id: { S: '2' } },
                 TableName: 'test-table',
+                UpdateExpression: 'SET #name = :name',
               },
             },
           ],
@@ -538,9 +537,9 @@ describe('CustomDynamoClient', () => {
       const items = [
         {
           ConditionCheck: {
-            Key: { id: { S: '1' } },
             ConditionExpression: 'attribute_exists(id)',
             ExpressionAttributeNames: { '#id': 'id' },
+            Key: { id: { S: '1' } },
           },
         },
       ]
@@ -553,9 +552,9 @@ describe('CustomDynamoClient', () => {
           TransactItems: [
             {
               ConditionCheck: {
-                Key: { id: { S: '1' } },
                 ConditionExpression: 'attribute_exists(id)',
                 ExpressionAttributeNames: { '#id': 'id' },
+                Key: { id: { S: '1' } },
                 TableName: 'test-table',
               },
             },

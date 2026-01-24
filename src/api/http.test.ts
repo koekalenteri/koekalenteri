@@ -1,9 +1,7 @@
 import * as awsAuth from 'aws-amplify/auth'
 import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
-
 import { API_BASE_URL } from '../routeConfig'
-
 import http from './http'
 
 fetchMock.enableMocks()

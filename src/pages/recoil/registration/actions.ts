@@ -1,8 +1,6 @@
 import type { Registration } from '../../../types'
-
-import { useTranslation } from 'react-i18next'
 import { useSnackbar } from 'notistack'
-
+import { useTranslation } from 'react-i18next'
 import { getRegistration, putRegistration } from '../../../api/registration'
 
 export function useRegistrationActions() {
@@ -10,29 +8,6 @@ export function useRegistrationActions() {
   const { enqueueSnackbar } = useSnackbar()
 
   return {
-    save: async (reg: Registration) => {
-      const regWithOverrides: Registration = {
-        ...reg,
-        handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
-        payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
-      }
-      const saved = await putRegistration(regWithOverrides)
-      const emails = [saved.handler?.email]
-      if (saved.owner?.email !== saved.handler?.email) {
-        emails.push(saved.owner?.email)
-      }
-      if (reg.paymentStatus === 'SUCCESS') {
-        enqueueSnackbar(
-          t(reg.id ? 'registration.modified' : 'registration.saved', {
-            count: emails.length,
-            to: emails.join('\n'),
-          }),
-          { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
-        )
-      }
-      return saved
-    },
-
     cancel: async (reg: Registration, reason: string) => {
       const mod = structuredClone(reg)
       mod.cancelled = true
@@ -62,6 +37,28 @@ export function useRegistrationActions() {
       const reg = await getRegistration(eventId, id)
 
       return reg
+    },
+    save: async (reg: Registration) => {
+      const regWithOverrides: Registration = {
+        ...reg,
+        handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
+        payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
+      }
+      const saved = await putRegistration(regWithOverrides)
+      const emails = [saved.handler?.email]
+      if (saved.owner?.email !== saved.handler?.email) {
+        emails.push(saved.owner?.email)
+      }
+      if (reg.paymentStatus === 'SUCCESS') {
+        enqueueSnackbar(
+          t(reg.id ? 'registration.modified' : 'registration.saved', {
+            count: emails.length,
+            to: emails.join('\n'),
+          }),
+          { style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' }, variant: 'success' }
+        )
+      }
+      return saved
     },
   }
 }

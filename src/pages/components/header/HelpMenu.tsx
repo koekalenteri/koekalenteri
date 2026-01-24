@@ -1,13 +1,11 @@
 import type { MouseEvent } from 'react'
-
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import HelpOutlineOutlined from '@mui/icons-material/HelpOutlineOutlined'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router'
 import AppBarButton from './AppBarButton'
 
 export default function HelpMenu() {
@@ -16,8 +14,8 @@ export default function HelpMenu() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const handleClick = useCallback((event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [setAnchorEl])
-  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const handleClick = (event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget)
+  const handleClose = () => setAnchorEl(null)
 
   return (
     <>
@@ -31,8 +29,8 @@ export default function HelpMenu() {
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         open={open}
         onClose={handleClose}
         onClick={handleClose}

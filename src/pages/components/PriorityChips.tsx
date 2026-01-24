@@ -1,7 +1,6 @@
+import Chip from '@mui/material/Chip'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import Chip from '@mui/material/Chip'
-
 import { getPrioritySort, priorityValuesToPriority } from '../../lib/priority'
 
 interface Props {
@@ -19,7 +18,7 @@ export const PriorityChips = ({ priority }: Props) => {
   return (
     <>
       {sortedPriorities.map((p) => (
-        <Chip key={p.value} label={t(p.name)} size="small" sx={{ mx: '1px', height: '20px' }} />
+        <Chip key={p.value} label={t(p.name)} size="small" sx={{ height: '20px', mx: '1px' }} />
       ))}
     </>
   )

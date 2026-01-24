@@ -1,9 +1,7 @@
 import type { PublicDogEvent } from '../../../../types'
-
+import Box from '@mui/material/Box'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-
 import { isEntryOpen } from '../../../../lib/utils'
 
 export const EventPlaces = ({ event }: { event: PublicDogEvent }) => {

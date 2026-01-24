@@ -7,19 +7,16 @@ import type {
   RegistrationTime,
   ReserveChoise,
 } from '../../../types'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import { format, isSameDay } from 'date-fns'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { isRegistrationClass } from '../../../lib/registration'
 import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../lib/utils'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useLocalState } from './hooks/useLocalState'
 
 // Helper to sort registration dates
@@ -73,7 +70,7 @@ export function EntryInfo({
   )
 
   // Extract date and class calculations
-  const classes = uniqueClasses(event)
+  const classes = useMemo(() => uniqueClasses(event), [event])
   const regDates = useAdminEventRegistrationDates(event, reg.class ?? className)
   const dates = uniqueDate(regDates.map((rd) => rd.date))
 
@@ -105,7 +102,7 @@ export function EntryInfo({
     setSelectedClass(reg.class)
     setSelectedDates(reg.dates)
     setSelectedReserve(reg.reserve)
-  }, [reg.class, reg.dates, reg.reserve])
+  }, [reg.class, reg.dates, reg.reserve, setSelectedClass, setSelectedDates, setSelectedReserve])
 
   const [filterDates, setFilterDates] = useState<Date[]>(() => getInitialFilterDates())
 
@@ -242,7 +239,7 @@ export function EntryInfo({
     if (Object.keys(changes).length) {
       onChange?.(changes)
     }
-  }, [getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded, event.id])
+  }, [getValidDates, handleDateFiltering, onChange, reg.dates, showDatesFilter, updateClassIfNeeded])
 
   // Event handlers
   const handleClassChange = useCallback((value: RegistrationClass) => setSelectedClass(value), [setSelectedClass])
@@ -271,7 +268,7 @@ export function EntryInfo({
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} size={{ xs: 12, md: sizeSwitch ? 6 : 2 }}>
+        <Grid sx={{ display: event.classes.length === 0 ? 'none' : 'block' }} size={{ md: sizeSwitch ? 6 : 2, xs: 12 }}>
           <AutocompleteSingle
             disableClearable
             disabled={classDisabled || disabled}
@@ -283,7 +280,7 @@ export function EntryInfo({
             value={selectedClass ?? undefined}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: sizeSwitch ? 6 : 4 }}>
+        <Grid size={{ md: sizeSwitch ? 6 : 4, xs: 12 }}>
           <AutocompleteSingle
             disableClearable
             disabled={disabled}
@@ -296,7 +293,7 @@ export function EntryInfo({
             value={selectedReserve}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }} sx={{ display: showDatesFilter ? undefined : 'none' }}>
+        <Grid size={{ md: 6, xs: 12 }} sx={{ display: showDatesFilter ? undefined : 'none' }}>
           <AutocompleteMulti
             disabled={disabled}
             error={errorStates.dates || (showDatesFilter && filterDates.length === 0)}
@@ -311,7 +308,7 @@ export function EntryInfo({
             value={filterDates}
           />
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }} sx={{ display: showDatesAndTimes ? undefined : 'none' }}>
+        <Grid size={{ md: 6, xs: 12 }} sx={{ display: showDatesAndTimes ? undefined : 'none' }}>
           <AutocompleteMulti
             disabled={disabled}
             error={errorStates.dates}

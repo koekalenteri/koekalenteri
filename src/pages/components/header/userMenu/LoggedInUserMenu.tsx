@@ -1,10 +1,9 @@
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useUserActions } from '../../../recoil/user/actions'
 import AppBarButton from '../AppBarButton'
 
@@ -17,11 +16,9 @@ export default function LoggedInUserMenu({ userName }: Props) {
   const { t } = useTranslation()
   const actions = useUserActions()
 
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget),
-    [setAnchorEl]
-  )
-  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget)
+  const handleClose = () => setAnchorEl(null)
+  const logout = async () => actions.signOut()
 
   return (
     <>
@@ -30,13 +27,13 @@ export default function LoggedInUserMenu({ userName }: Props) {
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         open={!!anchorEl}
         onClose={handleClose}
         onClick={handleClose}
       >
-        <MenuItem onClick={async () => actions.signOut()}>{t('logout')}</MenuItem>
+        <MenuItem onClick={logout}>{t('logout')}</MenuItem>
       </Menu>
     </>
   )

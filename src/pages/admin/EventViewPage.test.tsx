@@ -1,20 +1,17 @@
 import type { RouteObject } from 'react-router'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
-
 import EventViewPage from './EventViewPage'
 
 jest.mock('../../api/event')
@@ -34,8 +31,8 @@ describe('EventViewPage', () => {
   it('renders properly for event without classes', async () => {
     const routes: RouteObject[] = [
       {
-        path: Path.admin.viewEvent(),
         element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
       },
     ]
 
@@ -61,8 +58,8 @@ describe('EventViewPage', () => {
   it('renders properly for event with classes', async () => {
     const routes: RouteObject[] = [
       {
-        path: Path.admin.viewEvent(),
         element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
       },
     ]
 

@@ -36,13 +36,15 @@ const parseAsBlock = (rest: string) => {
   const asMatch = /\bas\s+\|\s?([^|]+)\|/u.exec(rest)
   const beforeAs = asMatch ? rest.slice(0, asMatch.index).trim() : rest.trim()
   const aliasList = (asMatch?.[1] ?? '').split(/\s+/).filter(Boolean)
-  return { beforeAs, aliasList }
+  return { aliasList, beforeAs }
 }
 
 const resolveStartBaseAndParts = (raw: string, allScopes: EachScope[]) => {
   const rawParts = raw.split('.').filter(Boolean)
   // handle leading ../ by popping scopes, but keep the root
-  const scopeStack = allScopes
+  // Important: never mutate the incoming scope array. We only want to
+  // *simulate* popping scopes for a path like "../foo".
+  const scopeStack = [...allScopes]
   let i = 0
   while (rawParts[i] === '..') {
     if (scopeStack.length > 1) scopeStack.pop()
@@ -53,7 +55,7 @@ const resolveStartBaseAndParts = (raw: string, allScopes: EachScope[]) => {
 
   if (parts[0] === 'this') {
     parts.shift()
-    return { startBase, parts }
+    return { parts, startBase }
   }
 
   // If first segment equals any visible alias, switch to that base and consume it
@@ -62,7 +64,7 @@ const resolveStartBaseAndParts = (raw: string, allScopes: EachScope[]) => {
     startBase = aliasOwner.base
     parts.shift()
   }
-  return { startBase, parts }
+  return { parts, startBase }
 }
 
 /** Very light parser: build a stack of #each scopes up to `pos` */
@@ -74,11 +76,10 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
     const iterTarget = parts.length ? getChild(startBase, parts) : startBase
     const itemType = elemOf(iterTarget)
     const base = itemType !== undefined ? itemType : {}
-    scopes.push({ base, alias, indexAlias })
+    scopes.push({ alias, base, indexAlias })
   }
 
-  let m: RegExpExecArray | null
-  while ((m = tagRe.exec(doc))) {
+  for (let m = tagRe.exec(doc); m; m = tagRe.exec(doc)) {
     const start = m.index
     const full = m[1].trim()
     if (start >= pos) break
@@ -115,7 +116,7 @@ export function resolveForCompletion(doc: string, pos: number, root: Schema, idT
   const parent = parentPath.length ? getChild(startBase, parentPath) : startBase
   const lastToken = parts[parts.length - 1] ?? ''
 
-  return { parent, lastToken, scopes, current }
+  return { current, lastToken, parent, scopes }
 }
 
 export function resolveScopeBaseForPath(doc: string, pos: number, root: Schema, id: string) {

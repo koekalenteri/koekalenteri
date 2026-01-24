@@ -7,9 +7,7 @@ import type {
   Language,
   RegistrationTemplateContext,
 } from '../../types'
-
-import { SendTemplatedEmailCommand, SESClient } from '@aws-sdk/client-ses'
-
+import { SESClient, SendTemplatedEmailCommand } from '@aws-sdk/client-ses'
 import { i18n } from '../../i18n/lambda'
 import { getRegistrationEmailTemplateData } from '../../lib/registration'
 import { CONFIG } from '../config'
@@ -32,9 +30,9 @@ export async function sendTemplatedMail(
     Destination: {
       ToAddresses: to,
     },
+    Source: from,
     Template: `${template}-${CONFIG.stackName}-${language}`,
     TemplateData: JSON.stringify(data),
-    Source: from,
   }
 
   console.log(`Sending email ${from} -> ${to} (template=${template}) `)

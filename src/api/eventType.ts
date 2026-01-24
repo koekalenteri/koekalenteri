@@ -1,5 +1,4 @@
 import type { EventType, EventTypeData } from '../types'
-
 import http, { withToken } from './http'
 
 const PATH = '/admin/eventType/'

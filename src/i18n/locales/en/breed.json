@@ -1,5 +1,7 @@
 {
   "0": "Mixed breed or unregistered",
+  "5": "Cocker Spaniel",
+  "37": "Portuguese Water Dog",
   "104": "German Spaniel",
   "105": "French Water Dog",
   "109": "Clumber Spaniel",
@@ -19,7 +21,5 @@
   "312": "Nova Scotia Duck Tolling Retriever",
   "314": "kooikerhondje",
   "336": "Spanish Waterdog",
-  "37": "Portuguese Water Dog",
-  "5": "Cocker Spaniel",
   "923": "Russian Spaniel"
 }

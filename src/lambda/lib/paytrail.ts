@@ -8,13 +8,10 @@ import type {
   RefundItem,
   RefundRequest,
 } from '../types/paytrail'
-
-import { nanoid } from 'nanoid'
 import { createHmac } from 'node:crypto'
-
+import { nanoid } from 'nanoid'
 import { currentFinnishTime } from '../../i18n/dates'
 import { keysOf } from '../../lib/typeGuards'
-
 import { getPaytrailConfig } from './secrets'
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
@@ -82,8 +79,8 @@ const paytrailRequest = async <T extends object>(
   const headers = {
     'content-type': 'application/json; charset=utf-8',
     ...paytrailHeaders,
-    signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
     'platform-name': 'koekalenteri.snj.fi',
+    signature: calculateHmac(cfg.PAYTRAIL_SECRET, paytrailHeaders, body),
   }
 
   console.log(headers, body)
@@ -93,9 +90,9 @@ const paytrailRequest = async <T extends object>(
   let error: string | undefined
   try {
     const res = await fetch(`${PAYTRAIL_API_ENDPOINT}/${path}`, {
-      method,
-      headers,
       body: JSON.stringify(body),
+      headers,
+      method,
     })
     status = res.status
     try {
@@ -123,8 +120,8 @@ const paytrailRequest = async <T extends object>(
 }
 
 const createCallbackUrls = (baseUrl: string): CallbackUrl => ({
-  success: `${baseUrl}/success`,
   cancel: `${baseUrl}/cancel`,
+  success: `${baseUrl}/success`,
 })
 
 export const createPaymentRedirectUrls = (origin: string): CallbackUrl => createCallbackUrls(`${origin}/p`)
@@ -156,15 +153,15 @@ export const createPayment = async ({
   const callbackUrls = createPaymentCallbackUrls(apiHost)
 
   const body: CreatePaymentRequest = {
-    stamp,
-    reference,
     amount,
-    currency: 'EUR',
-    language,
-    items,
-    customer,
-    redirectUrls,
     callbackUrls,
+    currency: 'EUR',
+    customer,
+    items,
+    language,
+    redirectUrls,
+    reference,
+    stamp,
   }
 
   return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
@@ -190,12 +187,12 @@ export const refundPayment = async (
   const callbackUrls = createRefundCallbackUrls(apiHost)
 
   const body: RefundRequest = {
-    email,
-    refundStamp,
-    refundReference,
-    callbackUrls,
-    items,
     amount,
+    callbackUrls,
+    email,
+    items,
+    refundReference,
+    refundStamp,
   }
 
   return paytrailRequest<RefundPaymentResponse>('POST', `payments/${transactionId}/refund`, body, transactionId)

@@ -1,8 +1,5 @@
 import type { ChangeEvent } from 'react'
 import type { Organizer } from '../../../types'
-
-import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Save from '@mui/icons-material/Save'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -11,6 +8,8 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
+import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   readonly organizer: Organizer | null | undefined

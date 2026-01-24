@@ -1,6 +1,5 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
 import type { PropsWithChildren, ReactNode } from 'react'
-
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'

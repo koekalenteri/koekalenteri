@@ -1,5 +1,4 @@
 import type { EmailTemplate, EventClass, EventState, Registration, RegistrationMessage } from '../types'
-
 import http, { withToken } from './http'
 
 const PATH = '/admin/email-templates'

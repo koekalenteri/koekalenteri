@@ -1,12 +1,11 @@
 import type { ChangeEvent } from 'react'
 import type { PublicContactInfo } from '../../../../../types'
-
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import TextField from '@mui/material/TextField'
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   readonly disabled?: boolean
@@ -19,8 +18,8 @@ interface Props {
 export default function ContactInfoSelect({ disabled, name, show, defaults, onChange }: Props) {
   const { t } = useTranslation()
   const [state, setState] = useState({
-    name: show?.name ?? '',
     email: show?.email ?? '',
+    name: show?.name ?? '',
     phone: show?.phone ?? '',
   })
 

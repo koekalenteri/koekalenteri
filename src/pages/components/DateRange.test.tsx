@@ -1,13 +1,10 @@
 import type { Props } from './DateRange'
-
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen } from '@testing-library/react'
 import { format, parseISO, startOfMonth } from 'date-fns'
-
 import { locales } from '../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
-
 import DateRange from './DateRange'
 
 const renderComponent = (props: Props) => {
@@ -21,16 +18,16 @@ const renderComponent = (props: Props) => {
 
   const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
   const buttons = screen.getAllByTestId('CalendarIcon')
-  return { ...res, startInput: inputs[0], endInput: inputs[1], startCalendar: buttons[0], endCalendar: buttons[1] }
+  return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
 }
 
 describe('DateRange', () => {
   it('should render labels', () => {
     renderComponent({
-      startLabel: 'Start Label',
-      start: parseISO('2021-01-01'),
-      endLabel: 'End Label',
       end: parseISO('2021-02-01'),
+      endLabel: 'End Label',
+      start: parseISO('2021-01-01'),
+      startLabel: 'Start Label',
     })
 
     expect(screen.getAllByText('Start Label').length).toEqual(2)
@@ -39,11 +36,11 @@ describe('DateRange', () => {
 
   it('should render labels when required', () => {
     renderComponent({
-      startLabel: 'Start Label',
-      start: parseISO('2021-01-01'),
-      endLabel: 'End Label',
       end: parseISO('2021-02-01'),
+      endLabel: 'End Label',
       required: true,
+      start: parseISO('2021-01-01'),
+      startLabel: 'Start Label',
     })
 
     expect(screen.getAllByText('Start Label').length).toEqual(1)
@@ -66,11 +63,11 @@ describe('DateRange', () => {
       const changeHandler = jest.fn()
 
       const { startCalendar, endCalendar, user } = renderComponent({
-        startLabel: 'start',
-        start,
-        endLabel: 'end',
         end: null,
+        endLabel: 'end',
         onChange: changeHandler,
+        start,
+        startLabel: 'start',
       })
 
       await user.click(startCalendar)
@@ -97,17 +94,17 @@ describe('DateRange', () => {
     it('should not allow selecting dates outside of range', async () => {
       const changeHandler = jest.fn()
       const range = {
-        start: new Date(date.getFullYear(), date.getMonth(), 10),
         end: new Date(date.getFullYear(), date.getMonth(), 20),
+        start: new Date(date.getFullYear(), date.getMonth(), 10),
       }
 
       const { startCalendar, user } = renderComponent({
-        startLabel: 'start',
-        start,
-        endLabel: 'end',
         end: null,
+        endLabel: 'end',
         onChange: changeHandler,
         range,
+        start,
+        startLabel: 'start',
       })
 
       await user.click(startCalendar)
@@ -130,11 +127,11 @@ describe('DateRange', () => {
       const changeHandler = jest.fn()
 
       const { startInput, endInput, user } = renderComponent({
-        startLabel: 'start',
-        start,
-        endLabel: 'end',
         end: null,
+        endLabel: 'end',
         onChange: changeHandler,
+        start,
+        startLabel: 'start',
       })
 
       await user.type(startInput, day15String)

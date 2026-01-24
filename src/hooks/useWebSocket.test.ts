@@ -1,8 +1,6 @@
 import type { PublicDogEvent } from '../types'
-
 import { renderHook } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-
 import { applyPatch, useWebSocket } from './useWebSocket'
 
 // Mock console.debug to avoid noise in tests
@@ -41,10 +39,10 @@ describe('useWebSocket', () => {
     // Create mock WebSocket instance
     mockWebSocketInstance = {
       close: jest.fn(),
-      onopen: null,
       onclose: null,
       onerror: null,
       onmessage: null,
+      onopen: null,
     }
 
     // Mock WebSocket constructor

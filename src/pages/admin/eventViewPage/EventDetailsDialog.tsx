@@ -1,11 +1,9 @@
 import type { ConfirmedEvent } from '../../../types'
-
-import { useCallback } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
+import { useCallback } from 'react'
 import { useRecoilState } from 'recoil'
-
 import EventForm from '../components/EventForm'
 import useEventForm from '../hooks/useEventForm'
 import { adminEventSelector } from '../recoil'
@@ -62,12 +60,12 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
       slotProps={{
         paper: {
           sx: {
-            m: 1,
-            maxHeight: 'calc(100% - 16px)',
-            width: 'calc(100% - 16px)',
             '& .MuiDialogTitle-root': {
               fontSize: '1rem',
             },
+            m: 1,
+            maxHeight: 'calc(100% - 16px)',
+            width: 'calc(100% - 16px)',
           },
         },
       }}

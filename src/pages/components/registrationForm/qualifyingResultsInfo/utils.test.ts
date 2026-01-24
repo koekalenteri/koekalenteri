@@ -13,8 +13,8 @@ describe('QualifyingResultsInfo utils', () => {
         availableTypes({
           date: '1977-01-01',
           rules: [
-            { type: 'NOME-B', result: 'ALO1', count: 1 },
-            { type: 'NOME-B', result: 'ALO2', count: 1 },
+            { count: 1, result: 'ALO1', type: 'NOME-B' },
+            { count: 1, result: 'ALO2', type: 'NOME-B' },
           ],
         })
       ).toEqual(['NOME-B'])
@@ -23,8 +23,8 @@ describe('QualifyingResultsInfo utils', () => {
         availableTypes({
           date: '1977-01-01',
           rules: [
-            { type: 'NOME-B', result: 'ALO1', count: 1 },
-            { type: 'NOWT', result: 'ALO1', count: 1 },
+            { count: 1, result: 'ALO1', type: 'NOME-B' },
+            { count: 1, result: 'ALO1', type: 'NOWT' },
           ],
         })
       ).toEqual(['NOME-B', 'NOWT'])
@@ -36,8 +36,8 @@ describe('QualifyingResultsInfo utils', () => {
           date: '1977-01-01',
           rules: [
             [
-              { type: 'NOME-B', result: 'ALO1', count: 1 },
-              { type: 'NOWT', result: 'ALO1', count: 1 },
+              { count: 1, result: 'ALO1', type: 'NOME-B' },
+              { count: 1, result: 'ALO1', type: 'NOWT' },
             ],
           ],
         })
@@ -55,8 +55,8 @@ describe('QualifyingResultsInfo utils', () => {
         availableResults({
           date: '1977-01-01',
           rules: [
-            { type: 'NOME-B', result: 'ALO1', count: 1 },
-            { type: 'NOME-B', result: 'ALO2', count: 1 },
+            { count: 1, result: 'ALO1', type: 'NOME-B' },
+            { count: 1, result: 'ALO2', type: 'NOME-B' },
           ],
         })
       ).toEqual(['ALO1', 'ALO2'])
@@ -65,8 +65,8 @@ describe('QualifyingResultsInfo utils', () => {
         availableResults({
           date: '1977-01-01',
           rules: [
-            { type: 'NOME-B', result: 'ALO1', count: 1 },
-            { type: 'NOWT', result: 'ALO1', count: 1 },
+            { count: 1, result: 'ALO1', type: 'NOME-B' },
+            { count: 1, result: 'ALO1', type: 'NOWT' },
           ],
         })
       ).toEqual(['ALO1'])
@@ -78,8 +78,8 @@ describe('QualifyingResultsInfo utils', () => {
           date: '1977-01-01',
           rules: [
             [
-              { type: 'NOME-B', result: 'ALO1', count: 1 },
-              { type: 'NOWT', result: 'ALO1', count: 1 },
+              { count: 1, result: 'ALO1', type: 'NOME-B' },
+              { count: 1, result: 'ALO1', type: 'NOWT' },
             ],
           ],
         })
@@ -90,8 +90,8 @@ describe('QualifyingResultsInfo utils', () => {
           date: '1977-01-01',
           rules: [
             [
-              { type: 'NOME-B', result: 'ALO1', count: 1 },
-              { type: 'NOWT', result: 'ALO2', count: 1 },
+              { count: 1, result: 'ALO1', type: 'NOME-B' },
+              { count: 1, result: 'ALO2', type: 'NOWT' },
             ],
           ],
         })
@@ -107,8 +107,8 @@ describe('QualifyingResultsInfo utils', () => {
             date: '1977-01-01',
             rules: [
               [
-                { type: 'NOME-B', result: 'ALO1', count: 1 },
-                { type: 'NOWT', result: 'ALO2', count: 1 },
+                { count: 1, result: 'ALO1', type: 'NOME-B' },
+                { count: 1, result: 'ALO2', type: 'NOWT' },
               ],
             ],
           },
@@ -117,13 +117,13 @@ describe('QualifyingResultsInfo utils', () => {
         )
       ).toEqual(
         expect.objectContaining({
+          class: '',
           id: expect.stringMatching(ID_REGEXP),
-          regNo: 'test-reg-no',
           official: false,
           qualifying: true,
-          type: 'NOME-B',
+          regNo: 'test-reg-no',
           result: 'ALO1',
-          class: '',
+          type: 'NOME-B',
         })
       )
 
@@ -133,35 +133,35 @@ describe('QualifyingResultsInfo utils', () => {
             date: '1977-01-01',
             rules: [
               [
-                { type: 'NOME-B', result: 'ALO1', count: 1 },
-                { type: 'NOWT', result: 'AVO2', class: 'AVO', count: 1 },
+                { count: 1, result: 'ALO1', type: 'NOME-B' },
+                { class: 'AVO', count: 1, result: 'AVO2', type: 'NOWT' },
               ],
             ],
           },
           [
             {
-              id: 'test',
-              regNo: 'test-reg-no',
-              official: true,
-              type: 'NOME-B',
-              result: 'ALO1',
-              date: new Date(),
               class: 'ALO',
+              date: new Date(),
+              id: 'test',
               judge: 'Judge Dredd',
               location: 'Location',
+              official: true,
+              regNo: 'test-reg-no',
+              result: 'ALO1',
+              type: 'NOME-B',
             },
           ],
           'test-reg-no'
         )
       ).toEqual(
         expect.objectContaining({
+          class: 'AVO',
           id: expect.stringMatching(ID_REGEXP),
-          regNo: 'test-reg-no',
           official: false,
           qualifying: true,
-          type: 'NOWT',
+          regNo: 'test-reg-no',
           result: 'AVO2',
-          class: 'AVO',
+          type: 'NOWT',
         })
       )
     })
@@ -171,44 +171,44 @@ describe('QualifyingResultsInfo utils', () => {
         createMissingResult(
           {
             date: '1977-01-01',
-            rules: [[{ type: 'NOME-B', result: 'ALO1', count: 1 }]],
+            rules: [[{ count: 1, result: 'ALO1', type: 'NOME-B' }]],
           },
           [
             {
-              id: 'test',
-              regNo: 'test-reg-no',
-              official: true,
-              type: 'NOME-B',
-              result: 'ALO1',
-              date: new Date(),
               class: 'ALO',
+              date: new Date(),
+              id: 'test',
               judge: 'Judge Dredd',
               location: 'Location',
+              official: true,
+              regNo: 'test-reg-no',
+              result: 'ALO1',
+              type: 'NOME-B',
             },
           ],
           'test-reg-no'
         )
       ).toEqual(
         expect.objectContaining({
+          class: '',
           id: expect.stringMatching(ID_REGEXP),
-          regNo: 'test-reg-no',
           official: false,
           qualifying: true,
-          type: '',
+          regNo: 'test-reg-no',
           result: '',
-          class: '',
+          type: '',
         })
       )
 
       expect(createMissingResult(undefined, [], 'test-reg-no')).toEqual(
         expect.objectContaining({
+          class: '',
           id: expect.stringMatching(ID_REGEXP),
-          regNo: 'test-reg-no',
           official: false,
           qualifying: true,
-          type: '',
+          regNo: 'test-reg-no',
           result: '',
-          class: '',
+          type: '',
         })
       )
     })

@@ -1,9 +1,7 @@
 import type { TextFieldProps } from '@mui/material'
 import type { ChangeEventHandler } from 'react'
-
-import { useCallback, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
-
+import { useCallback, useEffect, useState } from 'react'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
 
 interface Props extends Omit<TextFieldProps<'standard'>, 'onChange'> {
@@ -70,7 +68,7 @@ export const NumberInput = ({
           inputProps: {
             pattern,
             // @ts-expect-error wtf
-            style: { textAlign: 'right', padding: 4, ...props.slotProps?.input?.inputProps?.style },
+            style: { padding: 4, textAlign: 'right', ...props.slotProps?.input?.inputProps?.style },
           },
         },
       }}

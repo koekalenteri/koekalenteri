@@ -17,8 +17,8 @@ const { default: getUserLambda } = await import('./handler')
 
 describe('getUserLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
   } as any
 
   beforeEach(() => {
@@ -36,10 +36,10 @@ describe('getUserLambda', () => {
 
   it('returns user if authorized', async () => {
     const user = {
+      admin: false,
+      email: 'test@example.com',
       id: 'user1',
       name: 'Test User',
-      email: 'test@example.com',
-      admin: false,
     }
 
     mockAuthorize.mockResolvedValueOnce(user)

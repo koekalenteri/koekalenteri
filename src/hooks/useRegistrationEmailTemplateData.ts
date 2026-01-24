@@ -1,7 +1,5 @@
 import type { ConfirmedEvent, Registration, RegistrationTemplateContext } from '../types'
-
 import { useTranslation } from 'react-i18next'
-
 import { getRegistrationEmailTemplateData } from '../lib/registration'
 
 export const useRegistrationEmailTemplateData = (

@@ -1,10 +1,8 @@
 import type { CustomCost, DogEvent, Registration, RegistrationGroup } from '../../../../types'
 import type { RegistrationWithGroups } from './types'
-
 import { isSameDay } from 'date-fns'
-
 import { eventRegistrationDateKey } from '../../../../lib/event'
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
 import { uniqueDate } from '../../../../lib/utils'
 
 /**
@@ -33,8 +31,8 @@ export const buildRegistrationsByGroup = (
     byGroup[key] = byGroup[key] ?? []
     byGroup[key].push({
       ...reg,
-      groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
       dropGroups: groups.filter((g) => regDates.some((d) => !g.date || isSameDay(g.date, d))).map((g) => g.key),
+      groups: reg.dates.map((rd) => eventRegistrationDateKey(rd)),
     })
   }
   for (const regs of Object.values(byGroup)) {

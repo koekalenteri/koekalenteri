@@ -1,5 +1,4 @@
 import type { User, UserRole } from '../types'
-
 import http, { withToken } from './http'
 
 export const getUser = async (token: string, signal?: AbortSignal) =>

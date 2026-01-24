@@ -1,18 +1,15 @@
 import type { MouseEvent } from 'react'
 import type { Language } from '../../../types'
-
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import LanguageIcon from '@mui/icons-material/Language'
 import Menu from '@mui/material/Menu'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import { locales } from '../../../i18n'
 import { languageAtom } from '../../recoil'
-
-import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 import AppBarButton from './AppBarButton'
+import { LanguageMenuItem } from './languageMenu/LanguageMenuItem'
 
 export default function LanguageMenu() {
   const { t } = useTranslation()
@@ -20,8 +17,8 @@ export default function LanguageMenu() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
 
-  const handleClick = useCallback((event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [setAnchorEl])
-  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const handleClick = (event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget)
+  const handleClose = () => setAnchorEl(null)
 
   return (
     <>
@@ -35,8 +32,8 @@ export default function LanguageMenu() {
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         open={open}
         onClose={handleClose}
         onClick={handleClose}

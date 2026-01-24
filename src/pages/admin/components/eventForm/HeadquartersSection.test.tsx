@@ -1,16 +1,13 @@
 import type { Headquarters } from '../../../../types'
-
 import { render, screen } from '@testing-library/react'
-
 import { renderWithUserEvents } from '../../../../test-utils/utils'
-
 import HeadquartersSection from './HeadquartersSection'
 
 const testRenderHQ: Headquarters = {
-  name: 'HQ',
   address: 'HQ Address',
-  zipCode: '123456',
+  name: 'HQ',
   postalDistrict: 'HQ Postal District',
+  zipCode: '123456',
 }
 
 describe('HeadquartersSection', () => {

@@ -1,6 +1,5 @@
 import type { ParseKeys, TFunction } from 'i18next'
 import type { PublicDogEvent } from '../types'
-
 import { unique } from './utils'
 
 export interface Priority {

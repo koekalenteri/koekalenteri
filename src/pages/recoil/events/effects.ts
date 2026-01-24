@@ -1,11 +1,8 @@
 import type { AtomEffect } from 'recoil'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './types'
-
 import { DefaultValue } from 'recoil'
-
 import { getEvents } from '../../../api/event'
-
 import { deserializeFilter, serializeFilter } from './filters'
 
 const eventSort = (a: PublicDogEvent, b: PublicDogEvent) => a.startDate.valueOf() - b.startDate.valueOf()

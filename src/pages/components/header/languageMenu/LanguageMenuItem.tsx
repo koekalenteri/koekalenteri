@@ -1,10 +1,8 @@
 import type { Language } from '../../../../types'
-
+import MenuItem from '@mui/material/MenuItem'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import MenuItem from '@mui/material/MenuItem'
 import { useRecoilState } from 'recoil'
-
 import { languageAtom } from '../../../recoil'
 
 interface Props {

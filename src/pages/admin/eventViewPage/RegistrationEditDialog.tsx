@@ -1,14 +1,11 @@
 import type { AuditRecord, DogEvent } from '../../../types'
-
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-
 import { getRegistrationAuditTrail } from '../../../api/registration'
 import { reportError } from '../../../lib/client/error'
 import { hasChanges } from '../../../lib/utils'
 import { idTokenAtom } from '../../recoil'
 import { adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistrationSelector } from '../recoil'
-
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
@@ -39,7 +36,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
         reportError(e)
         setAuditTrail([])
       })
-  }, [registrationId, savedRegistration, resetRegistration, event.id, open, token])
+  }, [registrationId, resetRegistration, event.id, open, token])
 
   useEffect(() => {
     if (!open || !token) return
@@ -50,7 +47,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
     if (!event.classes.length && registration.class) {
       setRegistration({ ...registration, class: null })
     }
-  }, [event, registration])
+  }, [event, registration, open, setRegistration, token])
 
   return (
     <RegistrationDialogBase

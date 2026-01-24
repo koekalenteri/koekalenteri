@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-
 import Fade from '@mui/material/Fade'
 import Paper from '@mui/material/Paper'
 import Popover from '@mui/material/Popover'
@@ -18,12 +17,12 @@ export default function HelpPopover({ anchorEl, onClose, children }: Props) {
       anchorEl={anchorEl}
       open={helpOpen}
       anchorOrigin={{
-        vertical: 'center',
         horizontal: 'center',
+        vertical: 'center',
       }}
       transformOrigin={{
-        vertical: 'top',
         horizontal: 'left',
+        vertical: 'top',
       }}
       slots={{
         transition: Fade,
@@ -32,9 +31,9 @@ export default function HelpPopover({ anchorEl, onClose, children }: Props) {
     >
       <Paper
         sx={{
+          backgroundColor: 'secondary.light',
           maxWidth: 400,
           p: 1,
-          backgroundColor: 'secondary.light',
         }}
       >
         {children}

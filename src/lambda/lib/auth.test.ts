@@ -1,5 +1,4 @@
 import type { JsonUser } from '../../types'
-
 import { jest } from '@jest/globals'
 
 jest.useFakeTimers()
@@ -59,7 +58,7 @@ describe('auth', () => {
       const cognitoUser = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+          authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
       } as any
       const link = { cognitoUser, userId: 'test-id' }
@@ -85,18 +84,18 @@ describe('auth', () => {
       const cognitoUser = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+          authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
       } as any
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser = {
-        id: 'test-id',
-        name: 'test-user',
-        email: 'test@example.com',
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
+        email: 'test@example.com',
+        id: 'test-id',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
+        name: 'test-user',
       }
 
       mockRead.mockResolvedValueOnce(existingUser)
@@ -117,13 +116,13 @@ describe('auth', () => {
       await getAndUpdateUserByEmail('AddReSS@DoMaIn.COM', {})
 
       const expectedUser: JsonUser = {
-        id: 'test-id',
-        name: '',
-        email: 'address@domain.com',
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
+        email: 'address@domain.com',
+        id: 'test-id',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
+        name: '',
       }
 
       expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
@@ -135,13 +134,13 @@ describe('auth', () => {
       await getAndUpdateUserByEmail(' AddReSS@DoMaIn.COM\n', {})
 
       const expectedUser: JsonUser = {
-        id: 'test-id',
-        name: '',
-        email: 'address@domain.com',
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
+        email: 'address@domain.com',
+        id: 'test-id',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
+        name: '',
       }
 
       expect(findUserByEmail).toHaveBeenCalledWith('address@domain.com')
@@ -153,14 +152,14 @@ describe('auth', () => {
       await getAndUpdateUserByEmail('user@example.com', {}, false, true)
 
       const expectedUser: JsonUser = {
-        id: 'test-id',
-        name: '',
-        email: 'user@example.com',
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
+        email: 'user@example.com',
+        id: 'test-id',
+        lastSeen: '2023-11-30T20:00:00.000Z',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
-        lastSeen: '2023-11-30T20:00:00.000Z',
+        name: '',
       }
 
       expect(updateUser).toHaveBeenCalledWith(expectedUser)
@@ -177,13 +176,13 @@ describe('auth', () => {
       'with oldName="$oldName", newName="$newName" should result to "$expected"',
       async ({ oldName, newName, expected }) => {
         ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
-          id: 'test-id',
-          name: oldName,
-          email: 'address@domain.com',
           createdAt: '2023-11-30T20:00:00.000Z',
           createdBy: 'system',
+          email: 'address@domain.com',
+          id: 'test-id',
           modifiedAt: '2023-11-30T20:00:00.000Z',
           modifiedBy: 'system',
+          name: oldName,
         })
 
         const user = await getAndUpdateUserByEmail('AddReSS@DoMaIn.COM', { name: newName })
@@ -193,13 +192,13 @@ describe('auth', () => {
 
     it('should update name when requested', async () => {
       ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
-        id: 'test-id',
-        name: 'old name',
-        email: 'user@email.com',
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
+        email: 'user@email.com',
+        id: 'test-id',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
+        name: 'old name',
       })
 
       const user = await getAndUpdateUserByEmail('user@email.com', { name: 'new name' }, true)
@@ -218,18 +217,18 @@ describe('auth', () => {
       const cognitoUser = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+          authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
         },
       } as any
       const link = { cognitoUser, userId: 'test-id' }
       const existingUser = {
-        id: 'test-id',
-        name: 'test-user',
-        email: 'test@example.com',
         createdAt: '2023-11-30T20:00:00.000Z',
         createdBy: 'system',
+        email: 'test@example.com',
+        id: 'test-id',
         modifiedAt: '2023-11-30T20:00:00.000Z',
         modifiedBy: 'system',
+        name: 'test-user',
       }
 
       mockRead.mockResolvedValueOnce(existingUser)

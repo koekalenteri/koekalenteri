@@ -1,29 +1,27 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate, useParams } from 'react-router'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { isPast, subDays } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import { calculateCost } from '../lib/cost'
 import { redirectTo } from '../lib/navigation'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
-
 import CancelDialog from './components/CancelDialog'
 import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
+import { LoadingPage } from './LoadingPage'
+import { confirmedEventSelector, languageAtom, registrationSelector, spaAtom } from './recoil'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import { InfoBox } from './registrationListPage/InfoBox'
 import { PaymentDialog } from './registrationListPage/PaymentDialog'
 import RegistrationList from './registrationListPage/RegistrationList'
-import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, languageAtom, registrationSelector, spaAtom } from './recoil'
 
 interface Props {
   readonly cancel?: boolean
@@ -101,7 +99,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       return
     }
     await navigate(Path.payment(registration))
-  }, [actions, allDisabled, registration, setRegistration])
+  }, [allDisabled, registration, navigate])
 
   const handleCalcelClose = useCallback(() => setCancelOpen(false), [])
   const handleConfirmClose = useCallback(() => setConfirmOpen(false), [])
@@ -126,7 +124,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
         }
       )
     }
-  }, [cancelOpen, confirmOpen, registration, invitation, event, actions, setRegistration, navigate, redirecting])
+  }, [registration, invitation, event, actions, setRegistration, navigate, redirecting])
 
   useEffect(() => {
     if (event === null) {
@@ -144,7 +142,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           t('registration.paidAndConfirmed', {
             to: registration.payer?.email,
           }),
-          { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
+          { style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' }, variant: 'success' }
         )
       } else if (registration?.paymentStatus === 'SUCCESS') {
         const emails = [registration.handler?.email]
@@ -157,7 +155,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             count: emails.length,
             to: emails.join('\n'),
           }),
-          { variant: 'success', style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' } }
+          { style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' }, variant: 'success' }
         )
       }
       navigate(Path.registration(registration), { replace: true })
@@ -203,10 +201,10 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       <Header />
       <Box
         sx={{
-          overflow: 'hidden',
+          alignItems: 'flex-start',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
+          overflow: 'hidden',
         }}
       >
         <Grid

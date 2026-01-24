@@ -1,7 +1,6 @@
 import type { JsonDbRecord, JsonUser, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
-
 import { jest } from '@jest/globals'
 
 jest.useFakeTimers()
@@ -17,38 +16,38 @@ const defaults: Omit<JsonDbRecord, 'id'> = {
   modifiedBy: 'system',
 }
 
-const admin: JsonUser = { ...defaults, id: 'a', name: 'admin', email: 'a@exmaple.com', admin: true }
-const judge: JsonUser = { ...defaults, id: 'b', name: 'judge', email: 'b@exmaple.com', judge: ['NOME-B'] }
-const officer: JsonUser = { ...defaults, id: 'c', name: 'officer', email: 'c@exmaple.com', officer: ['NOME-B'] }
+const admin: JsonUser = { ...defaults, admin: true, email: 'a@exmaple.com', id: 'a', name: 'admin' }
+const judge: JsonUser = { ...defaults, email: 'b@exmaple.com', id: 'b', judge: ['NOME-B'], name: 'judge' }
+const officer: JsonUser = { ...defaults, email: 'c@exmaple.com', id: 'c', name: 'officer', officer: ['NOME-B'] }
 const orgAdmin: JsonUser = {
   ...defaults,
+  email: 'd@exmaple.com',
   id: 'd',
   name: 'org admin',
-  email: 'd@exmaple.com',
   roles: { testOrg: 'admin' },
 }
 const orgSecretary: JsonUser = {
   ...defaults,
+  email: 'e@exmaple.com',
   id: 'e',
   name: 'org secretary',
-  email: 'e@exmaple.com',
   roles: { testOrg: 'secretary' },
 }
 const otherOrgAdmin: JsonUser = {
   ...defaults,
+  email: 'f@exmaple.com',
   id: 'f',
   name: 'other org admin',
-  email: 'f@exmaple.com',
   roles: { otherOrg: 'admin' },
 }
 const otherOrgSecretary: JsonUser = {
   ...defaults,
+  email: 'g@exmaple.com',
   id: 'g',
   name: 'other org secretary',
-  email: 'g@exmaple.com',
   roles: { otherOrg: 'secretary' },
 }
-const justUser: JsonUser = { ...defaults, id: 'h', name: 'common user', email: 'h@exmaple.com' }
+const justUser: JsonUser = { ...defaults, email: 'h@exmaple.com', id: 'h', name: 'common user' }
 
 const testUsers: JsonUser[] = [
   admin,
@@ -134,8 +133,8 @@ describe('lib/user', () => {
     const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
     const mockBatchWrite = jest.fn()
     const mockDB = {
-      readAll: mockReadAll,
       batchWrite: mockBatchWrite,
+      readAll: mockReadAll,
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty judges array', async () => {
@@ -147,20 +146,20 @@ describe('lib/user', () => {
 
     it('should add user from official', async () => {
       const added1: Official = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'surname firstname',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
       const added2: Official = {
-        id: 333,
-        name: 'dredd official',
-        email: 'dredd@example.com',
         district: 'some district',
+        email: 'dredd@example.com',
         eventTypes: ['NOME-A', 'NOU'],
-        phone: 'phone',
+        id: 333,
         location: 'location',
+        name: 'dredd official',
+        phone: 'phone',
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'officer')
@@ -174,23 +173,23 @@ describe('lib/user', () => {
             createdBy: 'system',
             email: 'other@example.com',
             id: 'test-id',
-            officer: ['NOME-A'],
             kcId: 222,
             modifiedAt: '2024-05-30T20:00:00.000Z',
             modifiedBy: 'system',
             name: 'firstname surname',
+            officer: ['NOME-A'],
           },
           {
             createdAt: '2024-05-30T20:00:00.000Z',
             createdBy: 'system',
             email: 'dredd@example.com',
             id: 'test-id',
-            officer: ['NOME-A', 'NOU'],
             kcId: 333,
             location: 'location',
             modifiedAt: '2024-05-30T20:00:00.000Z',
             modifiedBy: 'system',
             name: 'official dredd',
+            officer: ['NOME-A', 'NOU'],
             phone: 'phone',
           },
         ],
@@ -206,23 +205,23 @@ describe('lib/user', () => {
         createdBy: 'system',
         email: 'dredd@eXaMpLe.com',
         id: 'test-id',
-        officer: ['NOME-A', 'NOU'],
         kcId: 333,
         location: 'location',
         modifiedAt: '2024-05-30T20:00:00.000Z',
         modifiedBy: 'system',
         name: 'official dredd',
+        officer: ['NOME-A', 'NOU'],
         phone: 'phone',
       }
 
       mockReadAll.mockResolvedValueOnce([existing])
 
       const official: Official = {
+        district: 'other district',
+        email: 'dredd@example.com',
+        eventTypes: ['NOME-A'],
         id: 333,
         name: 'dredd official',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
         phone: 'new phone',
       }
 
@@ -235,12 +234,12 @@ describe('lib/user', () => {
             createdBy: 'system',
             email: 'dredd@example.com',
             id: 'test-id',
-            officer: ['NOME-A'],
             kcId: 333,
             location: 'location',
             modifiedAt: '2024-05-30T20:00:00.000Z',
             modifiedBy: 'system',
             name: 'official dredd',
+            officer: ['NOME-A'],
             phone: 'new phone',
           },
         ],
@@ -254,20 +253,20 @@ describe('lib/user', () => {
 
     it('should add user from judge', async () => {
       const added1: PartialJsonJudge = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'surname firstname',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
       const added2: PartialJsonJudge = {
-        id: 333,
-        name: 'dredd judge',
-        email: 'dredd@example.com',
         district: 'some district',
+        email: 'dredd@example.com',
         eventTypes: ['NOME-A', 'NOU'],
-        phone: 'phone',
+        id: 333,
         location: 'location',
+        name: 'dredd judge',
+        phone: 'phone',
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'judge')
@@ -325,11 +324,11 @@ describe('lib/user', () => {
       mockReadAll.mockResolvedValueOnce([existing])
 
       const judge: PartialJsonJudge = {
+        district: 'other district',
+        email: 'dredd@example.com',
+        eventTypes: ['NOME-A'],
         id: 333,
         name: 'dredd judge',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
         phone: 'new phone',
       }
 

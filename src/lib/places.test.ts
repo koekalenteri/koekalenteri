@@ -1,6 +1,5 @@
 import type { PartialEvent } from '../pages/admin/components/eventForm/types'
 import type { DeepPartial, EventClass } from '../types'
-
 import * as eventLib from './event'
 import {
   calculateTotalFromClasses,
@@ -71,9 +70,9 @@ describe('places', () => {
           { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
           { class: 'VOI', date: new Date('2023-01-02'), places: 15 },
         ],
-        startDate: new Date('2023-01-01'),
         endDate: new Date('2023-01-02'),
         judges: [],
+        startDate: new Date('2023-01-01'),
       }
       const result = updatePlacesPerDayFromClasses(event)
       expect(result).toEqual({
@@ -90,9 +89,9 @@ describe('places', () => {
           { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
           { class: 'VOI', date: new Date('2023-01-02'), places: 15 },
         ],
-        startDate: new Date('2023-01-01'),
         endDate: new Date('2023-01-02'),
         judges: [],
+        startDate: new Date('2023-01-01'),
       }
       const result = updatePlacesPerDayFromClasses(event)
       expect(result).toEqual({
@@ -108,9 +107,9 @@ describe('places', () => {
           { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
           { class: 'VOI', date: new Date('2023-01-02'), places: 0 },
         ],
-        startDate: new Date('2023-01-01'),
         endDate: new Date('2023-01-02'),
         judges: [],
+        startDate: new Date('2023-01-01'),
       }
       const result = updatePlacesPerDayFromClasses(event)
       expect(result).toEqual({
@@ -125,9 +124,9 @@ describe('places', () => {
           { class: 'ALO', date: new Date('2023-01-01'), places: 5 },
           { class: 'AVO', date: new Date('2023-01-01'), places: 10 },
         ],
-        startDate: new Date('2023-01-01'),
         endDate: new Date('2023-01-02'),
         judges: [],
+        startDate: new Date('2023-01-01'),
       }
       const newClasses: DeepPartial<EventClass>[] = [{ class: 'VOI', date: new Date('2023-01-02'), places: 15 }]
       const result = updatePlacesPerDayFromClasses(event, newClasses)
@@ -142,10 +141,10 @@ describe('places', () => {
       const mockGetEventDays = jest.spyOn(eventLib, 'getEventDays').mockReturnValueOnce([])
 
       const result = distributePlacesAmongDays({
-        startDate: new Date(),
-        endDate: new Date(),
         classes: [],
+        endDate: new Date(),
         judges: [],
+        startDate: new Date(),
       })
       expect(result).toStrictEqual({})
 
@@ -153,11 +152,11 @@ describe('places', () => {
     })
     it('should distribute places evenly among days', () => {
       const event: PartialEvent = {
+        classes: [],
+        endDate: new Date('2023-01-03T12:00:00Z'),
+        judges: [],
         places: 30,
         startDate: new Date('2023-01-01T12:00:00Z'),
-        endDate: new Date('2023-01-03T12:00:00Z'),
-        classes: [],
-        judges: [],
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -169,11 +168,11 @@ describe('places', () => {
 
     it('should handle uneven distribution with remainder going to first day', () => {
       const event: PartialEvent = {
+        classes: [],
+        endDate: new Date('2023-01-03'),
+        judges: [],
         places: 32,
         startDate: new Date('2023-01-01'),
-        endDate: new Date('2023-01-03'),
-        classes: [],
-        judges: [],
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -185,11 +184,11 @@ describe('places', () => {
 
     it('should handle 0 places', () => {
       const event: PartialEvent = {
+        classes: [],
+        endDate: new Date('2023-01-03'),
+        judges: [],
         places: 0,
         startDate: new Date('2023-01-01'),
-        endDate: new Date('2023-01-03'),
-        classes: [],
-        judges: [],
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({
@@ -201,10 +200,10 @@ describe('places', () => {
 
     it('should handle undefined places', () => {
       const event: PartialEvent = {
-        startDate: new Date('2023-01-01'),
-        endDate: new Date('2023-01-03'),
         classes: [],
+        endDate: new Date('2023-01-03'),
         judges: [],
+        startDate: new Date('2023-01-01'),
       }
       const result = distributePlacesAmongDays(event)
       expect(result).toEqual({

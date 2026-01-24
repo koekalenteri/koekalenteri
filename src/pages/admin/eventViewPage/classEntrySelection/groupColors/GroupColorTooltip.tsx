@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react'
 import type { RegistrationDate } from '../../../../../types'
-
+import Tooltip from '@mui/material/Tooltip'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import Tooltip from '@mui/material/Tooltip'
 
 interface Props {
   readonly children: ReactElement

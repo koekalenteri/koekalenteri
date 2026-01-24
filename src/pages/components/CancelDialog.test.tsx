@@ -1,9 +1,7 @@
 import { render, screen } from '@testing-library/react'
-
 import { eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import { registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
 import { sanitizeDogEvent } from '../../lib/event'
-
 import CancelDialog from './CancelDialog'
 
 const publicEventWithStaticDatesAndClass = sanitizeDogEvent(eventWithStaticDatesAndClass)

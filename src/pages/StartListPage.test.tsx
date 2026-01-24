@@ -1,10 +1,8 @@
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
-
-import { useLoaderData, useParams } from 'react-router'
 import { render, screen } from '@testing-library/react'
+import { useLoaderData, useParams } from 'react-router'
 import { useRecoilValue } from 'recoil'
-
 import { StartListPage } from './StartListPage'
 
 // Mock react-router
@@ -15,8 +13,8 @@ jest.mock('react-router', () => ({
 
 // Mock recoil
 jest.mock('recoil', () => ({
-  useRecoilValue: jest.fn(),
   selectorFamily: jest.fn(() => 'mocked-selector'),
+  useRecoilValue: jest.fn(),
 }))
 
 // Mock the confirmedEventSelector
@@ -39,56 +37,56 @@ jest.mock('./startListPage/ParticipantList', () => ({
 
 describe('StartListPage', () => {
   const mockEvent: PublicConfirmedEvent = {
-    id: 'event-1',
-    eventType: 'Test Event Type',
-    location: 'Test Location',
-    name: 'Test Name',
-    startDate: new Date('2023-01-01'),
-    endDate: new Date('2023-01-02'),
-    entryStartDate: new Date('2022-12-01'),
-    entryEndDate: new Date('2022-12-31'),
-    state: 'confirmed',
     classes: [],
     cost: 0,
     costMember: 0,
+    createdAt: new Date(),
     description: '',
+    endDate: new Date('2023-01-02'),
+    entryEndDate: new Date('2022-12-31'),
+    entryStartDate: new Date('2022-12-01'),
+    eventType: 'Test Event Type',
+    id: 'event-1',
     judges: [],
+    location: 'Test Location',
+    modifiedAt: new Date(),
+    name: 'Test Name',
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
+    startDate: new Date('2023-01-01'),
+    state: 'confirmed',
   }
 
   const mockParticipants: PublicRegistration[] = [
     {
-      class: 'AVO',
+      breeder: 'Test Breeder',
       cancelled: false,
+      class: 'AVO',
       dog: {
-        name: 'Test Dog',
-        titles: 'CH',
-        regNo: 'REG123',
         breedCode: '111',
-        gender: 'M',
-        dob: new Date('2020-01-01'),
-        sire: {
-          name: 'Sire Dog',
-          titles: 'CH',
-        },
         dam: {
           name: 'Dam Dog',
           titles: 'CH',
         },
+        dob: new Date('2020-01-01'),
+        gender: 'M',
+        name: 'Test Dog',
+        regNo: 'REG123',
         results: [],
+        sire: {
+          name: 'Sire Dog',
+          titles: 'CH',
+        },
+        titles: 'CH',
       },
       group: {
-        number: 123,
-        key: 'group-123',
         date: new Date('2023-01-01'),
+        key: 'group-123',
+        number: 123,
         time: 'ap',
       },
-      owner: 'Test Owner',
       handler: 'Test Handler',
-      breeder: 'Test Breeder',
+      owner: 'Test Owner',
       ownerHandles: false,
     },
   ]

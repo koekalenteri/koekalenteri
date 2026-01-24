@@ -1,8 +1,6 @@
 import type { TFunction } from 'i18next'
 import type { DogEvent } from '../types'
-
 import { useTranslation } from 'react-i18next'
-
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver } from '../lib/utils'
 

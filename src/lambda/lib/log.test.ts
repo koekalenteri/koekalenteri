@@ -1,7 +1,5 @@
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
-
 import { debugProxyEvent } from './log'
 
 const errorSpy = jest.spyOn(console, 'error')

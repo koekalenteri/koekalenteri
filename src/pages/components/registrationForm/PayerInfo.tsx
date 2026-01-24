@@ -1,13 +1,10 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
-
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
-
+import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
@@ -36,8 +33,8 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
   // Group local state for all form fields with a single debounced update
   const [formValues, updateField] = useLocalStateGroup(
     {
-      name: reg.payer?.name ?? '',
       email: reg.payer?.email ?? '',
+      name: reg.payer?.name ?? '',
       phone: reg.payer?.phone ?? '',
     },
     (values) => {
@@ -55,7 +52,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.payer?.name}
@@ -70,7 +67,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.payer?.email}
@@ -85,7 +82,7 @@ export function PayerInfo({ reg, disabled, error, helperText, onChange, onOpenCh
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <MuiTelInput
             langOfCountryName={i18n.language}
             defaultCountry="FI"

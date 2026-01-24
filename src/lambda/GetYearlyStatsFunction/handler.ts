@@ -1,5 +1,4 @@
 import type { YearlyTotalStat } from '../../types/Stats'
-
 import { lambda, response } from '../lib/lambda'
 import { getAvailableYears, getDogHandlerBuckets, getYearlyTotalStats } from '../lib/stats'
 
@@ -13,7 +12,7 @@ const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
     const totals = await getYearlyTotalStats(year)
     const dogHandlerBuckets = await getDogHandlerBuckets(year)
 
-    return response(200, { year, totals, dogHandlerBuckets }, event)
+    return response(200, { dogHandlerBuckets, totals, year }, event)
   }
 
   // Otherwise, return stats for all available years
@@ -27,8 +26,8 @@ const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
   }
 
   const result: { years: number[]; stats: YearStats[] } = {
-    years,
     stats: [],
+    years,
   }
 
   // Get stats for each year
@@ -37,9 +36,9 @@ const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
     const dogHandlerBuckets = await getDogHandlerBuckets(year)
 
     result.stats.push({
-      year,
-      totals,
       dogHandlerBuckets,
+      totals,
+      year,
     })
   }
 

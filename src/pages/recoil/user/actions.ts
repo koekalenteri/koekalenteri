@@ -1,12 +1,10 @@
-import { useCallback } from 'react'
-import { useLocation, useNavigate } from 'react-router'
 import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
+import { useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router'
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
-
 import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
-
 import { idTokenAtom, loginPathAtom } from './atoms'
 import { userSelector } from './selectors'
 

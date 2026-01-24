@@ -1,9 +1,6 @@
 import type { DogEvent, PublicDogEvent } from '../types'
-
 import { addDays, nextSaturday } from 'date-fns'
-
 import { zonedStartOfDay } from '../i18n/dates'
-
 import http, { withToken } from './http'
 
 const PATH = '/event/'

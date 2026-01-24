@@ -1,8 +1,6 @@
 import type { JsonRegistration } from '../../types'
-
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
@@ -49,8 +47,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const registrations = await dynamoDB.query<JsonRegistration>({
     key: 'eventId = :id',
-    values: { ':id': id },
     table: registrationTable,
+    values: { ':id': id },
   })
   for (const reg of registrations ?? []) {
     reg.eventId = item.id

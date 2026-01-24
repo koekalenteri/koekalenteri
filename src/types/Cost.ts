@@ -32,7 +32,8 @@ export type MinimalEventForCost =
   | Pick<JsonPublicConfirmedEvent, 'cost' | 'costMember' | 'entryStartDate'>
 
 export interface MinimalRegistrationForCost
-  extends MinimalRegistrationForMembership, Pick<Registration, 'selectedCost' | 'optionalCosts' | 'paidAmount'> {
+  extends MinimalRegistrationForMembership,
+    Pick<Registration, 'selectedCost' | 'optionalCosts' | 'paidAmount'> {
   createdAt: Date | string
   dog: Pick<Registration['dog'], 'breedCode'>
 }

@@ -1,17 +1,14 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
 import type { PublicDogEvent, Registration, RegistrationDate } from '../../../../types'
-
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
 import CircularProgress from '@mui/material/CircularProgress'
 import { GridActionsCellItem } from '@mui/x-data-grid'
-
+import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { canRefund, isPredefinedReason } from '../../../../lib/registration'
-
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'
 
@@ -24,21 +21,21 @@ export function useClassEntrySelectionColumns(
 ) {
   const { t } = useTranslation()
 
-  const createColumnDefinitions = () => {
+  const createColumnDefinitions = useCallback(() => {
     const columnConfigs: Array<Partial<GridColDef<Registration>> & { field: string }> = [
       {
         cellClassName: 'nopad',
+        display: 'flex',
         field: 'dates',
         headerName: '',
-        width: 56,
         minWidth: 56,
-        display: 'flex',
         renderCell: (p) => (
           <>
             <DragIndicatorOutlined />
             <GroupColors available={available} selected={p.row.dates} />
           </>
         ),
+        width: 56,
       },
       {
         align: 'right',
@@ -47,7 +44,6 @@ export function useClassEntrySelectionColumns(
         headerAlign: 'right',
         headerClassName: 'nopad',
         headerName: '#',
-        width: 30,
         minWidth: 30,
         renderCell: (p) => {
           const n = p.row.group?.number
@@ -55,57 +51,54 @@ export function useClassEntrySelectionColumns(
           if (Number.isInteger(n)) return `${n}`
           return <CircularProgress size={10} thickness={5} />
         },
+        width: 30,
       },
       {
         field: 'dog.name',
-        headerName: t('dog.name'),
-        width: 250,
         flex: 1,
+        headerName: t('dog.name'),
         valueGetter: (_value, row) => row.dog.name,
+        width: 250,
       },
       {
         field: 'dog.regNo',
         headerName: t('dog.regNo'),
-        width: 130,
         valueGetter: (_value, row) => row.dog.regNo,
+        width: 130,
       },
       {
         field: 'dob.breed',
         headerName: t('dog.breed'),
-        width: 150,
         valueGetter: (_value, row) =>
           row.dog?.breedCode && row.dog?.gender
-            ? t(`${row.dog.breedCode}.${row.dog.gender}`, { ns: 'breedAbbr', defaultValue: row.dog.breedCode })
+            ? t(`${row.dog.breedCode}.${row.dog.gender}`, { defaultValue: row.dog.breedCode, ns: 'breedAbbr' })
             : '',
+        width: 150,
       },
       {
         field: 'handler',
-        headerName: t('registration.handler'),
-        width: 150,
         flex: 1,
+        headerName: t('registration.handler'),
         valueGetter: (_value, row) => row.handler?.name,
+        width: 150,
       },
       {
         field: 'lastEmail',
-        headerName: 'Viesti',
-        width: 130,
         flex: 1,
+        headerName: 'Viesti',
         valueGetter: (_value, row) => row.lastEmail ?? '',
+        width: 130,
       },
       {
+        align: 'center',
         field: 'icons',
         headerName: '',
-        width: 220, // icons * 20 + 20 for padding
-        align: 'center',
         renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
+        width: 220, // icons * 20 + 20 for padding
       },
       {
         cellClassName: 'nopad',
         field: 'actions',
-        type: 'actions',
-        headerName: '',
-        width: 30,
-        minWidth: 30,
         getActions: (p) =>
           [
             <GridActionsCellItem
@@ -135,6 +128,10 @@ export function useClassEntrySelectionColumns(
               />
             ) : null,
           ].filter((a): a is ReactElement => a !== null),
+        headerName: '',
+        minWidth: 30,
+        type: 'actions',
+        width: 30,
       },
     ]
 
@@ -143,7 +140,7 @@ export function useClassEntrySelectionColumns(
       ...config,
       sortable: false, // Common property for all columns
     })) as GridColDef<Registration>[]
-  }
+  }, [available, cancelRegistration, event, openEditDialog, refundRegistration, t])
 
   return useMemo(() => {
     const entryColumns = createColumnDefinitions()
@@ -154,11 +151,11 @@ export function useClassEntrySelectionColumns(
     cancelledColumns.splice(-2, 0, {
       field: 'cancelReason',
       headerName: 'Perumisen syy',
-      width: 144,
       sortable: false,
       valueFormatter: (v: string) => (isPredefinedReason(v) ? t(`registration.cancelReason.${v}`) : v),
+      width: 144,
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [available, cancelRegistration, event, openEditDialog, refundRegistration, t])
+  }, [t, createColumnDefinitions])
 }

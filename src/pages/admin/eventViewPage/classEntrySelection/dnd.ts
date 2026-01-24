@@ -1,6 +1,5 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
 import type { DragItem } from './types'
-
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 
 export const determineChangesFromDrop = (
@@ -15,7 +14,7 @@ export const determineChangesFromDrop = (
 
   if (item.groupKey !== newGroup.key) {
     // move from list to another (always last)
-    return [{ eventId: reg.eventId, id: reg.id, group: newGroup, cancelled: newGroup.key === GROUP_KEY_CANCELLED }]
+    return [{ cancelled: newGroup.key === GROUP_KEY_CANCELLED, eventId: reg.eventId, group: newGroup, id: reg.id }]
   }
 
   if (targetGroup.key === GROUP_KEY_CANCELLED || (targetGroup.key === GROUP_KEY_RESERVE && !canArrangeReserve)) {
@@ -44,8 +43,8 @@ export const determineChangesFromDrop = (
     return [
       {
         eventId: reg.eventId,
-        id: reg.id,
         group: { ...newGroup, number: newGroup.number + hoverModifier },
+        id: reg.id,
       },
     ]
   }

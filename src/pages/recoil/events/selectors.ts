@@ -1,11 +1,8 @@
 import type { EventClass, PublicConfirmedEvent, PublicDogEvent, PublicJudge } from '../../../types'
-
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
-
 import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { unique, uniqueFn } from '../../../lib/utils'
-
 import { eventFilterAtom, eventsAtom } from './atoms'
 import {
   withinDateFilters,
@@ -17,7 +14,6 @@ import {
 } from './filters'
 
 const eventSelector = selectorFamily<PublicDogEvent | null, string | undefined>({
-  key: 'event',
   get:
     (eventId) =>
     ({ get }) => {
@@ -26,20 +22,20 @@ const eventSelector = selectorFamily<PublicDogEvent | null, string | undefined>(
       }
       return get(eventsAtom).find((event) => event.id === eventId) ?? null
     },
+  key: 'event',
 })
 
 export const confirmedEventSelector = selectorFamily<PublicConfirmedEvent | null, string | undefined>({
-  key: 'confirmedEvent',
   get:
     (eventId) =>
     ({ get }) => {
       const event = get(eventSelector(eventId))
       return isConfirmedEvent(event) ? event : null
     },
+  key: 'confirmedEvent',
 })
 
 export const filteredEventsSelector = selector({
-  key: 'filteredEvents',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
     const events = get(eventsAtom)
@@ -56,10 +52,10 @@ export const filteredEventsSelector = selector({
       )
     })
   },
+  key: 'filteredEvents',
 })
 
 const filteredEventsForTypeSelector = selector({
-  key: 'filteredEventsForType',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
     const events = get(eventsAtom)
@@ -75,10 +71,10 @@ const filteredEventsForTypeSelector = selector({
       )
     })
   },
+  key: 'filteredEventsForType',
 })
 
 const filteredEventsForEventClassSelector = selector({
-  key: 'filteredEventsForEventClass',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
     const events = get(eventsAtom)
@@ -94,10 +90,10 @@ const filteredEventsForEventClassSelector = selector({
       )
     })
   },
+  key: 'filteredEventsForEventClass',
 })
 
 const filteredEventsForOrganizerSelector = selector({
-  key: 'filteredEventsForOrganizer',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
     const events = get(eventsAtom)
@@ -113,10 +109,10 @@ const filteredEventsForOrganizerSelector = selector({
       )
     })
   },
+  key: 'filteredEventsForOrganizer',
 })
 
 const filteredEventsForJudgeSelector = selector({
-  key: 'filteredEventsForJudge',
   get: ({ get }) => {
     const filter = get(eventFilterAtom)
     const events = get(eventsAtom)
@@ -132,20 +128,20 @@ const filteredEventsForJudgeSelector = selector({
       )
     })
   },
+  key: 'filteredEventsForJudge',
 })
 
 export const filterEventTypesSelector = selector({
-  key: 'filterEventTypes',
   get: ({ get }) => {
     const events = get(filteredEventsForTypeSelector)
     const uniqueEventTypes = unique<string>(events.map((e) => e.eventType))
     uniqueEventTypes.sort((a, b) => a.localeCompare(b, i18next.language))
     return uniqueEventTypes
   },
+  key: 'filterEventTypes',
 })
 
 export const filterEventClassesSelector = selector({
-  key: 'filterEventClasses',
   get: ({ get }) => {
     const events = get(filteredEventsForEventClassSelector)
     const uniqueEventClasses = unique(
@@ -154,10 +150,10 @@ export const filterEventClassesSelector = selector({
     uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))
     return uniqueEventClasses
   },
+  key: 'filterEventClasses',
 })
 
 const eventOrganizersSelector = selector({
-  key: 'eventOrganizers',
   get: ({ get }) => {
     const events = get(eventsAtom)
     return uniqueFn(
@@ -165,10 +161,10 @@ const eventOrganizersSelector = selector({
       (a, b) => a.id === b.id
     ).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
+  key: 'eventOrganizers',
 })
 
 export const filterOrganizersSelector = selector({
-  key: 'filterOrganizers',
   get: ({ get }) => {
     const events = get(filteredEventsForOrganizerSelector)
     const organizers = get(eventOrganizersSelector)
@@ -181,10 +177,10 @@ export const filterOrganizersSelector = selector({
       .filter((o) => usedOrganizerIds.includes(o.id))
       .sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
+  key: 'filterOrganizers',
 })
 
 export const filterJudgesSelector = selector({
-  key: 'filterJudges',
   get: ({ get }) => {
     const events = get(filteredEventsForJudgeSelector)
     const filter = get(eventFilterAtom)
@@ -200,4 +196,5 @@ export const filterJudgesSelector = selector({
 
     return usedJudges
   },
+  key: 'filterJudges',
 })

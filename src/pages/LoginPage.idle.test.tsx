@@ -3,11 +3,9 @@ import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { RecoilRoot } from 'recoil'
-
 import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter } from '../test-utils/utils'
-
 import { Component as LoginPage } from './LoginPage'
 
 jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
@@ -17,15 +15,15 @@ describe('LoginPage', () => {
   it('should render the login page mock when user is not logged in', () => {
     const routes = [
       {
-        path: Path.login,
         element: <LoginPage />,
+        path: Path.login,
       },
     ]
     const { container } = render(
       <RecoilRoot>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
             classes={{ containerRoot: 'snack' }}
             disableWindowBlurListener
             maxSnack={3}

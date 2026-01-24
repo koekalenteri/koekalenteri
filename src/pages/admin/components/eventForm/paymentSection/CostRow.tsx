@@ -1,8 +1,6 @@
 import type { BreedCode } from '../../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../../types/Cost'
 import type { PartialEvent } from '../types'
-
-import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import Box from '@mui/material/Box'
@@ -10,7 +8,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-
+import { useTranslation } from 'react-i18next'
 import { getCostValue, getEarlyBirdDates } from '../../../../../lib/cost'
 import { NumberInput } from '../../../../components/NumberInput'
 
@@ -44,8 +42,8 @@ export const CostRow = ({
   const renderCellContent = () => {
     if (costKey === 'custom') {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ alignItems: 'center', display: 'flex' }}>
             <span>{t('costNames.custom', { name: (event.cost as DogEventCost)?.custom?.description?.fi })}</span>
             <IconButton size="small" data-testid={`${costPath}-edit`} onClick={() => onEditDescription('custom')}>
               <EditIcon fontSize="small" />
@@ -57,15 +55,15 @@ export const CostRow = ({
 
     if (costKey === 'earlyBird') {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <div style={{ alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}>
           <span>
             {t(`costNames.${costKey}`, {
               days: (event.cost as DogEventCost)?.earlyBird?.days ?? 0,
               ...getEarlyBirdDates(event, event.cost as DogEventCost),
             })}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', marginTop: '4px' }}>
-            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', mr: 1 }}>{t('costDescription.earlyBirdDays')}</Box>
+          <div style={{ alignItems: 'center', display: 'flex', marginTop: '4px' }}>
+            <Box sx={{ color: 'text.secondary', fontSize: '0.75rem', mr: 1 }}>{t('costDescription.earlyBirdDays')}</Box>
             <NumberInput
               name="earlyBirdDays"
               data-testid="earlyBirdDays"
@@ -73,7 +71,7 @@ export const CostRow = ({
               onChange={onEarlyBirdDaysChange}
               sx={{ width: '6ch !important' }}
             />
-            <Box sx={{ fontSize: '0.75rem', color: 'text.secondary', ml: 1 }}>
+            <Box sx={{ color: 'text.secondary', fontSize: '0.75rem', ml: 1 }}>
               {t('costDescription.earlyBirdDaysUnit')}
             </Box>
           </div>

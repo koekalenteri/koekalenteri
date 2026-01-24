@@ -1,8 +1,6 @@
 import type { PublicDogEvent } from '../types'
-
 import { useMemo } from 'react'
 import { useRecoilValue } from 'recoil'
-
 import { getEventDays } from '../lib/event'
 import { adminEventTypeGroupsSelector } from '../pages/admin/recoil'
 

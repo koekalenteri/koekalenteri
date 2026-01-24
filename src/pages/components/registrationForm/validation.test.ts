@@ -1,58 +1,63 @@
-import type { BreedCode, Dog, ManualTestResult } from '../../../types'
-import type { Registration } from '../../../types'
-
+import type { BreedCode, Dog, ManualTestResult, Registration } from '../../../types'
 import { filterRelevantResults, objectContains, validateDog, validateRegistration } from './validation'
 
 const testDog: Dog = {
   breedCode: '122',
-  regNo: 'test-123',
-  rfid: 'test-id',
-  name: 'Test Dog',
+  dam: { name: 'Dam', titles: '' },
   dob: new Date('2018-03-28'),
+  name: 'Test Dog',
+  regNo: 'test-123',
   results: [],
-  sire: { titles: '', name: 'Sire' },
-  dam: { titles: '', name: 'Dam' },
+  rfid: 'test-id',
+  sire: { name: 'Sire', titles: '' },
 }
 
 describe('validation', () => {
   describe('validateDog', () => {
-    it('should validate registration number', function () {
+    it('should validate registration number', () => {
       const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, regNo: '' } })).toEqual('required')
     })
 
-    it('should validate identification number', function () {
+    it('should validate identification number', () => {
       const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, rfid: '' } })).toEqual('required')
     })
 
-    it('should validate name', function () {
+    it('should validate name', () => {
       const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, name: '' } })).toEqual('required')
     })
 
-    it.each<BreedCode>(['110', '111', '121', '122', '263', '312'])(
-      'should allow breed %p for NOU event',
-      (breedCode) => {
-        const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-        expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
-      }
-    )
+    it.each<BreedCode>([
+      '110',
+      '111',
+      '121',
+      '122',
+      '263',
+      '312',
+    ])('should allow breed %p for NOU event', (breedCode) => {
+      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual(false)
+    })
 
-    it.each<BreedCode | '' | undefined>(['1', '13', '148.1P', '', undefined])(
-      'should not allow breed %p for NOU event',
-      (testBreed) => {
-        const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
-        const breedCode = testBreed || '0'
-        expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
-          key: 'dogBreed',
-          opts: { field: 'dog', type: breedCode.replace('.', '-') },
-        })
-      }
-    )
+    it.each<BreedCode | '' | undefined>([
+      '1',
+      '13',
+      '148.1P',
+      '',
+      undefined,
+    ])('should not allow breed %p for NOU event', (testBreed) => {
+      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      const breedCode = testBreed || '0'
+      expect(validateDog(testEvent, { dog: { ...testDog, breedCode } })).toEqual({
+        key: 'dogBreed',
+        opts: { field: 'dog', type: breedCode.replace('.', '-') },
+      })
+    })
 
     it.each([
       ['2021-01-01', { key: 'dogAge', opts: { field: 'dog', length: 9 } }],
@@ -98,146 +103,146 @@ describe('validation', () => {
       ).toEqual(false)
     })
 
-    describe('filterRelevantResults', function () {
-      describe('NOU', function () {
-        it('Should allow a dog with no results', function () {
+    describe('filterRelevantResults', () => {
+      describe('NOU', () => {
+        it('Should allow a dog with no results', () => {
           expect(
             filterRelevantResults({ eventType: 'NOU', startDate: new Date('2022-08-01') }, undefined, []).qualifies
           ).toEqual(true)
         })
       })
 
-      describe('NOME-B - ALO', function () {
-        it('Should allow a dog with NOU1', function () {
+      describe('NOME-B - ALO', () => {
+        it('Should allow a dog with NOU1', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with NOU0', function () {
+        it('Should reject a dog with NOU0', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const NOU0 = {
-            type: 'NOU',
-            result: 'NOU0',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU0',
+            type: 'NOU',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU0]).qualifies).toEqual(false)
         })
 
-        it('Should allow a dog with 2xALO1 the same year 2016..2022', function () {
+        it('Should allow a dog with 2xALO1 the same year 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2015-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with 2xALO1 the next year 2016..2022', function () {
+        it('Should reject a dog with 2xALO1 the next year 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2019-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2]).qualifies).toEqual(false)
         })
 
-        it('Should reject a dog with any AVO result', function () {
+        it('Should reject a dog with any AVO result', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const AVO2 = {
-            type: 'NOME-B',
-            result: 'AVO2',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO2',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1, AVO2]).qualifies).toEqual(false)
         })
 
-        it('Should change result.qualifying from false to undefined when manual results are updated back and forth', function () {
+        it('Should change result.qualifying from false to undefined when manual results are updated back and forth', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2015-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const r1 = filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1_1, ALO1_2])
           expect(r1.qualifies).toEqual(true)
@@ -255,198 +260,198 @@ describe('validation', () => {
         })
       })
 
-      describe('NOME-B - AVO', function () {
-        it('Should allow a dog with 2xALO1 2016..2022', function () {
+      describe('NOME-B - AVO', () => {
+        it('Should allow a dog with 2xALO1 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with only 1xALO1 2016..2022', function () {
+        it('Should reject a dog with only 1xALO1 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const ALO2 = {
-            type: 'NOME-B',
-            result: 'ALO2',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO2',
+            type: 'NOME-B',
           }
           const ALO1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO2, ALO1]).qualifies).toEqual(false)
           expect(filterRelevantResults(testEvent, 'AVO', [ALO2], [ALO1 as ManualTestResult]).qualifies).toEqual(false)
         })
 
-        it('Should allow a dog with 2xAVO1 the same year 2016..2022', function () {
+        it('Should allow a dog with 2xAVO1 the same year 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2018-08-01') }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2017-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const AVO1_1 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2017-07-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           const AVO1_2 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2, AVO1_1, AVO1_2]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with 2xAVO1 the next year 2016..2022', function () {
+        it('Should reject a dog with 2xAVO1 the next year 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2019-08-01') }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2017-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const AVO1_1 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2017-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           const AVO1_2 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2, AVO1_1, AVO1_2]).qualifies).toEqual(false)
         })
 
-        it('Should reject a dog with any VOI result', function () {
+        it('Should reject a dog with any VOI result', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const ALO1_1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const ALO1_2 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2017-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           const VOI = {
-            type: 'NOME-B',
-            result: 'VOI-',
             class: 'VOI',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI-',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2, VOI]).qualifies).toEqual(false)
         })
 
-        it('Should allow a dog with 1xALO1 2009..2015', function () {
+        it('Should allow a dog with 1xALO1 2009..2015', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2015-06-01') }
           const ALO1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2014-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1]).qualifies).toEqual(true)
         })
 
-        it('Should allow a dog with 1xALO1 2005..2008', function () {
+        it('Should allow a dog with 1xALO1 2005..2008', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2008-06-01') }
           const ALO1 = {
-            type: 'NOME-B',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2007-07-12'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1]).qualifies).toEqual(true)
         })
       })
 
-      describe('NOME-B - VOI', function () {
-        it('Should allow a dog with 2xAVO1 2016..2022', function () {
+      describe('NOME-B - VOI', () => {
+        it('Should allow a dog with 2xAVO1 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-06-01') }
           const AVO1_1 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           const AVO1_2 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'VOI', [AVO1_1, AVO1_2]).qualifies).toEqual(true)
           expect(filterRelevantResults(testEvent, 'VOI', [AVO1_1], [AVO1_2 as ManualTestResult]).qualifies).toEqual(
@@ -454,165 +459,165 @@ describe('validation', () => {
           )
         })
 
-        it('Should reject a dog with only 1xAVO1 2016..2022', function () {
+        it('Should reject a dog with only 1xAVO1 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const AVO2 = {
-            type: 'NOME-B',
-            result: 'AVO2',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO2',
+            type: 'NOME-B',
           }
           const AVO1 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'VOI', [AVO2, AVO1]).qualifies).toEqual(false)
           expect(filterRelevantResults(testEvent, 'VOI', [AVO2], [AVO1 as ManualTestResult]).qualifies).toEqual(false)
         })
 
-        it('Should allow a dog with 1xAVO1 2006..2008', function () {
+        it('Should allow a dog with 1xAVO1 2006..2008', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2007-08-01') }
           const AVO2 = {
-            type: 'NOME-B',
-            result: 'AVO2',
             class: 'AVO',
             date: new Date('2006-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO2',
+            type: 'NOME-B',
           }
           const AVO1 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2007-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'VOI', [AVO2, AVO1]).qualifies).toEqual(true)
           expect(filterRelevantResults(testEvent, 'VOI', [AVO2], [AVO1 as ManualTestResult]).qualifies).toEqual(true)
         })
       })
 
-      describe('NOWT - ALO', function () {
-        it('Should allow a dog with NOU1', function () {
+      describe('NOWT - ALO', () => {
+        it('Should allow a dog with NOU1', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1]).qualifies).toEqual(true)
           expect(filterRelevantResults(testEvent, 'ALO', [], [NOU1 as ManualTestResult]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with NOU0', function () {
+        it('Should reject a dog with NOU0', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const NOU0 = {
-            type: 'NOU',
-            result: 'NOU0',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU0',
+            type: 'NOU',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU0]).qualifies).toEqual(false)
           expect(filterRelevantResults(testEvent, 'ALO', [], [NOU0 as ManualTestResult]).qualifies).toEqual(false)
         })
 
-        it('Should allow a dog with ALO1 the same year 2016..2022', function () {
+        it('Should allow a dog with ALO1 the same year 2016..2022', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2018-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const ALO1 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1]).qualifies).toEqual(true)
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1], [ALO1 as ManualTestResult]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with ALO1 the next year 2016..2022', function () {
+        it('Should reject a dog with ALO1 the next year 2016..2022', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2019-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const ALO1 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2018-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1, ALO1]).qualifies).toEqual(false)
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1], [ALO1 as ManualTestResult]).qualifies).toEqual(false)
         })
 
-        it('Should reject a dog with any AVO result', function () {
+        it('Should reject a dog with any AVO result', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const NOU1 = {
-            type: 'NOU',
-            result: 'NOU1',
             class: '',
             date: new Date('2022-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'NOU1',
+            type: 'NOU',
           }
           const AVO0 = {
-            type: 'NOWT',
-            result: 'AVO0',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO0',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1, AVO0]).qualifies).toEqual(false)
           expect(filterRelevantResults(testEvent, 'ALO', [NOU1], [AVO0 as ManualTestResult]).qualifies).toEqual(false)
         })
       })
 
-      describe('NOWT - AVO', function () {
-        it('Should allow a dog with 1xALO1', function () {
+      describe('NOWT - AVO', () => {
+        it('Should allow a dog with 1xALO1', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const ALO1_1 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           const ALO1_2 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2]).qualifies).toEqual(true)
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1], [ALO1_2 as ManualTestResult]).qualifies).toEqual(
@@ -620,151 +625,151 @@ describe('validation', () => {
           )
         })
 
-        it('Should reject a dog with no ALO1', function () {
+        it('Should reject a dog with no ALO1', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const ALO2 = {
-            type: 'NOWT',
-            result: 'ALO2',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO2',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO2]).qualifies).toEqual(false)
           expect(filterRelevantResults(testEvent, 'AVO', [], [ALO2 as ManualTestResult]).qualifies).toEqual(false)
         })
 
-        it('Should allow a dog with AVO1 the same year', function () {
+        it('Should allow a dog with AVO1 the same year', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2018-08-01') }
           const ALO1 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           const AVO1 = {
-            type: 'NOWT',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2018-07-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1, AVO1, AVO1]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with 2xAVO1 the next year', function () {
+        it('Should reject a dog with 2xAVO1 the next year', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2019-08-01') }
           const ALO1 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           const AVO1 = {
-            type: 'NOWT',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2018-07-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1, AVO1]).qualifies).toEqual(false)
         })
 
-        it('Should reject a dog with any VOI result', function () {
+        it('Should reject a dog with any VOI result', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const ALO1 = {
-            type: 'NOWT',
-            result: 'ALO1',
             class: 'ALO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOWT',
           }
           const VOI = {
-            type: 'NOWT',
-            result: 'VOI-',
             class: 'VOI',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI-',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1, VOI]).qualifies).toEqual(false)
         })
       })
 
-      describe('NOWT - VOI', function () {
-        it('Should allow a dog with AVO1', function () {
+      describe('NOWT - VOI', () => {
+        it('Should allow a dog with AVO1', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-06-01') }
           const AVO1 = {
-            type: 'NOWT',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'VOI', [AVO1]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with no AVO1', function () {
+        it('Should reject a dog with no AVO1', () => {
           const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
           const AVO2 = {
-            type: 'NOWT',
-            result: 'AVO2',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO2',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'VOI', [AVO2]).qualifies).toEqual(false)
         })
       })
 
-      describe('NOME-A', function () {
-        it('Should allow a dog with 2x NOME-B AVO1', function () {
+      describe('NOME-A', () => {
+        it('Should allow a dog with 2x NOME-B AVO1', () => {
           const testEvent = { eventType: 'NOME-A', startDate: new Date('2022-06-01') }
           const AVO1_1 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           const AVO1_2 = {
-            type: 'NOME-B',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, undefined, [AVO1_1, AVO1_2]).qualifies).toEqual(true)
         })
 
-        it('Should allow a dog with 2x NOWT AVO1', function () {
+        it('Should allow a dog with 2x NOWT AVO1', () => {
           const testEvent = { eventType: 'NOME-A', startDate: new Date('2022-06-01') }
           const AVO1_1 = {
-            type: 'NOWT',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOWT',
           }
           const AVO1_2 = {
-            type: 'NOWT',
-            result: 'AVO1',
             class: 'AVO',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, undefined, [AVO1_1, AVO1_2]).qualifies).toEqual(true)
         })
@@ -772,129 +777,129 @@ describe('validation', () => {
         it.todo('Should allow a dog rewarded in international field trial')
       })
 
-      describe('NKM', function () {
-        it('Should allow a dog with 2x NOME-B VOI1', function () {
+      describe('NKM', () => {
+        it('Should allow a dog with 2x NOME-B VOI1', () => {
           const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
           const VOI1_1 = {
-            type: 'NOME-B',
-            result: 'VOI1',
             class: 'VOI',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOME-B',
           }
           const VOI1_2 = {
-            type: 'NOME-B',
-            result: 'VOI1',
             class: 'VOI',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, undefined, [VOI1_1, VOI1_2]).qualifies).toEqual(true)
         })
 
-        it('Should allow a dog with 2x CERT from NOWT', function () {
+        it('Should allow a dog with 2x CERT from NOWT', () => {
           const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
           const VOI1_1 = {
-            type: 'NOWT',
-            result: 'VOI1',
             cert: true,
             class: 'VOI',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOWT',
           }
           const VOI1_2 = {
-            type: 'NOWT',
-            result: 'VOI1',
             cert: true,
             class: 'VOI',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, undefined, [VOI1_1, VOI1_2]).qualifies).toEqual(true)
         })
 
-        it('Should reject a dog with only 1x NOME-B VOI1 + 1x CERT from NOWT', function () {
+        it('Should reject a dog with only 1x NOME-B VOI1 + 1x CERT from NOWT', () => {
           const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
           const RES1 = {
-            type: 'NOME-B',
-            result: 'VOI1',
             class: 'VOI',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOME-B',
           }
           const RES2 = {
-            type: 'NOWT',
-            result: 'VOI1',
             cert: true,
             class: 'VOI',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, undefined, [RES1, RES2]).qualifies).toEqual(false)
         })
 
-        it('Should reject a dog with only 1x CERT from NOWT', function () {
+        it('Should reject a dog with only 1x CERT from NOWT', () => {
           const testEvent = { eventType: 'NKM', startDate: new Date('2022-08-20') }
           const VOI1_1 = {
-            type: 'NOWT',
-            result: 'VOI1',
             cert: false,
             class: 'VOI',
             date: new Date('2016-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOWT',
           }
           const VOI1_2 = {
-            type: 'NOWT',
-            result: 'VOI1',
             cert: true,
             class: 'VOI',
             date: new Date('2016-06-15'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, undefined, [VOI1_1, VOI1_2]).qualifies).toEqual(false)
         })
       })
 
       describe('NOME-A SM', () => {
-        it('Should include relevant results', function () {
+        it('Should include relevant results', () => {
           const testEvent = {
-            eventType: 'NOME-A SM',
-            startDate: new Date('2022-06-01'),
             entryEndDate: new Date('2022-05-20'),
             entryOrigEndDate: new Date('2022-04-20'),
+            eventType: 'NOME-A SM',
+            startDate: new Date('2022-06-01'),
           }
 
           const OLD_A1 = {
-            type: 'NOME-A',
-            result: 'A1',
             class: '',
             date: new Date('2019-05-30'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'A1',
+            type: 'NOME-A',
           }
           const A1 = {
-            type: 'NOME-A',
-            result: 'A1',
             class: '',
             date: new Date('2021-05-01'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'A1',
+            type: 'NOME-A',
           }
           const A1_ORIG = {
-            type: 'NOME-A',
-            result: 'A1',
             class: '',
             date: new Date('2020-04-21'),
-            location: 'Test',
             judge: 'Test Judge',
+            location: 'Test',
+            result: 'A1',
+            type: 'NOME-A',
           }
           const result = filterRelevantResults(testEvent, undefined, [OLD_A1, A1, A1_ORIG])
           expect(result.qualifies).toEqual(true)
@@ -932,25 +937,25 @@ describe('validation', () => {
   describe('validateRegistration', () => {
     it('should skip fields in NOT_VALIDATED list', () => {
       const mockEvent = {
+        classes: [],
         eventType: 'NOU',
         startDate: new Date('2020-10-15'),
-        classes: [],
       } as any
 
       const mockReg = {
+        agreeToTerms: false,
         createdAt: new Date(),
-        modifiedAt: new Date(),
         createdBy: 'user1',
-        modifiedBy: 'user2',
+        dates: ['2020-10-15'],
         deletedAt: null,
         deletedBy: null,
-        agreeToTerms: false,
-        reserve: true,
-        dates: ['2020-10-15'],
         dog: testDog,
-        owner: { name: 'Owner', email: 'owner@example.com' },
+        modifiedAt: new Date(),
+        modifiedBy: 'user2',
+        owner: { email: 'owner@example.com', name: 'Owner' },
         ownerHandles: true,
         ownerPays: true,
+        reserve: true,
       } as unknown as Registration
 
       const errors = validateRegistration(mockReg, mockEvent)
@@ -975,13 +980,13 @@ describe('validation', () => {
 
       const mockReg = {
         agreeToTerms: false,
-        dates: [],
         class: undefined,
-        reserve: false,
+        dates: [],
         dog: testDog,
-        owner: { name: 'Owner', email: 'owner@example.com' },
+        owner: { email: 'owner@example.com', name: 'Owner' },
         ownerHandles: true,
         ownerPays: true,
+        reserve: false,
       } as unknown as Registration
 
       const errors = validateRegistration(mockReg, mockEvent)
@@ -1003,11 +1008,11 @@ describe('validation', () => {
       const mockReg = {
         agreeToTerms: true,
         dates: ['2020-10-15'],
-        reserve: true,
         dog: testDog,
-        owner: { name: 'Owner', email: 'owner@example.com', phone: '+35840123456', location: 'somewhere' },
+        owner: { email: 'owner@example.com', location: 'somewhere', name: 'Owner', phone: '+35840123456' },
         ownerHandles: true,
         ownerPays: true,
+        reserve: true,
       } as unknown as Registration
 
       const errors = validateRegistration(mockReg, mockEvent)
@@ -1058,25 +1063,25 @@ describe('validation', () => {
       expect(result1.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with empty name
-      const reg2 = { breeder: { name: '', location: 'Helsinki' } } as any
+      const reg2 = { breeder: { location: 'Helsinki', name: '' } } as any
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with empty location
-      const reg3 = { breeder: { name: 'Test Breeder', location: '' } } as any
+      const reg3 = { breeder: { location: '', name: 'Test Breeder' } } as any
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'breeder')).toBe(true)
 
       // Test with valid breeder
       const reg4 = {
-        breeder: { name: 'Test Breeder', location: 'Helsinki' },
         agreeToTerms: true,
+        breeder: { location: 'Helsinki', name: 'Test Breeder' },
         dates: ['2020-10-15'],
-        reserve: true,
         dog: testDog,
-        owner: { name: 'Owner', email: 'owner@example.com' },
+        owner: { email: 'owner@example.com', name: 'Owner' },
         ownerHandles: true,
         ownerPays: true,
+        reserve: true,
       } as any
       const result4 = validateRegistration(reg4, mockEvent)
       expect(result4.some((e) => e.opts?.field === 'breeder')).toBe(false)
@@ -1096,24 +1101,24 @@ describe('validation', () => {
 
       // Test with ownerHandles = true
       const reg1 = {
+        handler: { email: '', name: '' }, // Invalid handler, but should be ignored
         ownerHandles: true,
-        handler: { name: '', email: '' }, // Invalid handler, but should be ignored
       } as any
       const result1 = validateRegistration(reg1, mockEvent)
       expect(result1.some((e) => e.opts?.field === 'handler')).toBe(false)
 
       // Test with ownerHandles = false and invalid handler
       const reg2 = {
+        handler: { email: '', name: '' },
         ownerHandles: false,
-        handler: { name: '', email: '' },
       } as any
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'handler')).toBe(true)
 
       // Test with ownerHandles = false and valid handler
       const reg3 = {
+        handler: { email: 'handler@example.com', location: 'somewhere', name: 'Handler', phone: '+35840123456' },
         ownerHandles: false,
-        handler: { name: 'Handler', email: 'handler@example.com', phone: '+35840123456', location: 'somewhere' },
       } as any
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'handler')).toBe(false)
@@ -1125,7 +1130,7 @@ describe('validation', () => {
       // Test with ownerPays = true
       const reg1 = {
         ownerPays: true,
-        payer: { name: '', email: '' }, // Invalid payer, but should be ignored
+        payer: { email: '', name: '' }, // Invalid payer, but should be ignored
       } as any
       const result1 = validateRegistration(reg1, mockEvent)
       expect(result1.some((e) => e.opts?.field === 'payer')).toBe(false)
@@ -1133,7 +1138,7 @@ describe('validation', () => {
       // Test with ownerPays = false and invalid payer
       const reg2 = {
         ownerPays: false,
-        payer: { name: '', email: '' },
+        payer: { email: '', name: '' },
       } as any
       const result2 = validateRegistration(reg2, mockEvent)
       expect(result2.some((e) => e.opts?.field === 'payer')).toBe(true)
@@ -1141,7 +1146,7 @@ describe('validation', () => {
       // Test with ownerPays = false and valid payer
       const reg3 = {
         ownerPays: false,
-        payer: { name: 'Payer', email: 'payer@example.com', phone: '+35840123456' },
+        payer: { email: 'payer@example.com', name: 'Payer', phone: '+35840123456' },
       } as any
       const result3 = validateRegistration(reg3, mockEvent)
       expect(result3.some((e) => e.opts?.field === 'payer')).toBe(false)
@@ -1154,8 +1159,8 @@ describe('validation', () => {
       const reg = {
         id: 'test-id',
         notes: 'Some notes',
-        results: [],
         optionalCosts: [],
+        results: [],
       } as any
 
       const result = validateRegistration(reg, mockEvent)
@@ -1172,8 +1177,8 @@ describe('validation', () => {
 
       // Test with a field that doesn't exist in VALIDATORS
       const reg = {
-        unknownField: '', // This should trigger the default validator
         anotherUnknown: 'value', // This should not trigger the default validator
+        unknownField: '', // This should trigger the default validator
       } as any
 
       const result = validateRegistration(reg, mockEvent)

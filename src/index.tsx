@@ -1,15 +1,15 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
 import { StyledEngineProvider } from '@mui/material/styles'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
 import { RecoilEnv, RecoilRoot } from 'recoil'
 
 import './i18n'
 
+import App from './App'
 import theme from './assets/Theme'
 import { isDevEnv } from './lib/env'
-import App from './App'
 
 import './index.css'
 

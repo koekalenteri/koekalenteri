@@ -1,8 +1,6 @@
 import type { AtomEffect } from 'recoil'
 import type { Registration } from '../../../../types'
-
 import { DefaultValue } from 'recoil'
-
 import { getRegistrations } from '../../../../api/registration'
 import { idTokenAtom } from '../../../recoil'
 

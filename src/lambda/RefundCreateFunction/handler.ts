@@ -6,9 +6,7 @@ import type {
   RefundPaymentResponse,
 } from '../../types'
 import type { RefundItem } from '../types/paytrail'
-
 import { nanoid } from 'nanoid'
-
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
@@ -16,7 +14,7 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, LambdaError, response } from '../lib/lambda'
+import { LambdaError, lambda, response } from '../lib/lambda'
 import { refundPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -42,7 +40,7 @@ const getData = async (transactionId: string) => {
     throw new LambdaError(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`)
   }
 
-  return { paymentTransaction, eventId, registration, registrationId }
+  return { eventId, paymentTransaction, registration, registrationId }
 }
 
 /**
@@ -77,9 +75,9 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   const items: RefundItem[] | undefined = paymentItem && [
     {
       amount,
-      stamp: paymentItem.stamp,
-      refundStamp: nanoid(),
       refundReference: registrationId,
+      refundStamp: nanoid(),
+      stamp: paymentItem.stamp,
     },
   ]
 
@@ -99,15 +97,15 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   }
 
   const transaction: JsonRefundTransaction = {
-    transactionId: result.transactionId,
-    status: result.status,
     amount,
-    reference,
-    provider: result.provider,
-    type: 'refund',
-    stamp,
-    items,
     createdAt: new Date().toISOString(),
+    items,
+    provider: result.provider,
+    reference,
+    stamp,
+    status: result.status,
+    transactionId: result.transactionId,
+    type: 'refund',
     user: user.name,
   }
   await dynamoDB.write(transaction)

@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react'
-
-import { Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import {
   eventWithStaticDates,
   eventWithStaticDatesAnd3Classes,
@@ -16,7 +14,6 @@ import { registrationWithStaticDates, registrationWithStaticDatesAndClass } from
 import { locales } from '../../../i18n'
 import { merge } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { EntryInfo } from './EntryInfo'
 
 function Wrapper(props: { readonly children?: ReactNode }) {

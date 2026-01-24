@@ -1,11 +1,9 @@
 import type { GridRowProps } from '@mui/x-data-grid'
 import type { Identifier } from 'dnd-core'
 import type { DragItem } from '../types'
-
+import { GridRow, useGridApiContext } from '@mui/x-data-grid'
 import { useRef } from 'react'
 import { useDrag, useDragDropManager, useDrop } from 'react-dnd'
-import { GridRow, useGridApiContext } from '@mui/x-data-grid'
-
 import { determinePosition } from './position'
 
 // augment the props for the row slot
@@ -77,17 +75,17 @@ const DraggableRow = ({ groupKey, ...props }: Props) => {
   })
 
   const [{ opacity }, drag] = useDrag<DragItem, void, { opacity: number }>({
-    type: 'row',
     canDrag,
-    item: () => ({
-      id: rowId as any,
-      groups: (props.row as any)?.dropGroups ?? [],
-      index: props.index,
-      groupKey: groupKey,
-    }),
     collect: (monitor) => ({
       opacity: monitor.isDragging() ? 0.4 : 1,
     }),
+    item: () => ({
+      groupKey: groupKey,
+      groups: (props.row as any)?.dropGroups ?? [],
+      id: rowId as any,
+      index: props.index,
+    }),
+    type: 'row',
   })
 
   // Only attach DnD refs when we have a valid id.
@@ -110,9 +108,9 @@ const DraggableRow = ({ groupKey, ...props }: Props) => {
       ref={ref}
       {...props}
       style={{
-        opacity,
-        display: 'flex',
         boxSizing: 'content-box',
+        display: 'flex',
+        opacity,
       }}
       className={hovered ? `hovered ${position}` : ''}
       data-handler-id={handlerId}

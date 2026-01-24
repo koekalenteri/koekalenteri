@@ -1,13 +1,11 @@
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
+import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isAdminSelector } from '../recoil'
-
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import useJudgeListColumns from './judgeListPage/columns'
@@ -43,9 +41,9 @@ export default function JudgeListPage() {
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
-            value: searchText,
-            onChange,
             clearSearch,
+            onChange,
+            value: searchText,
           },
         }}
         rows={judges}

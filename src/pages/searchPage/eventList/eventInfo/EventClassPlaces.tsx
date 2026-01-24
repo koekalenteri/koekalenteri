@@ -1,8 +1,6 @@
 import type { PublicDogEvent } from '../../../../types'
-
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
 import InfoTableContainerGrid from '../../../components/InfoTableContainerGrid'
 import InfoTableNumberGrid from '../../../components/InfoTableNumberGrid'
 import InfoTableTextGrid from '../../../components/InfoTableTextGrid'
@@ -25,7 +23,7 @@ export const EventClassPlaces = ({ event, eventClass }: { event: MinimalEvent; e
         acc.members = c.members ?? 0
         return acc
       },
-      { entries: 0, places: 0, members: 0 }
+      { entries: 0, members: 0, places: 0 }
     )
 
     if (event.classes.length <= 1) {

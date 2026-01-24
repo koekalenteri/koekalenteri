@@ -1,19 +1,16 @@
 import type { Language } from '../../i18n'
-
-import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot, snapshot_UNSTABLE } from 'recoil'
-
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { flushPromises } from '../../test-utils/utils'
-
 import EventCreatePage from './EventCreatePage'
 import { adminNewEventAtom } from './recoil'
 
@@ -38,11 +35,11 @@ describe('EventEditPage', () => {
     const defaultValue = await snapshot_UNSTABLE().getPromise(adminNewEventAtom)
     const initialValue = {
       ...defaultValue,
-      startDate: eventDate,
-      endDate: eventDate,
-      entryStartDate: new Date('2021-03-23'),
-      entryEndDate: new Date('2021-04-09'),
       cost: { normal: 0 },
+      endDate: eventDate,
+      entryEndDate: new Date('2021-04-09'),
+      entryStartDate: new Date('2021-03-23'),
+      startDate: eventDate,
     }
 
     const { container } = render(

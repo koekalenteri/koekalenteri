@@ -1,5 +1,4 @@
 import type { Registration } from '../../../../../types'
-
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 
