@@ -18,6 +18,5 @@ export const isJestDefined = (): boolean => {
 
   // Jest always sets this environment variable for workers.
   // (Works in both node and jsdom environments.)
-  const p = typeof process !== 'undefined' ? process : undefined
-  return p?.env?.JEST_WORKER_ID !== undefined
+  return process?.env?.JEST_WORKER_ID !== undefined
 }
