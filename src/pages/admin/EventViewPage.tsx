@@ -78,14 +78,14 @@ export default function EventViewPage() {
   const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
   const backgroundActionsRunning = useRecoilValue(adminBackgroundActionsRunningAtom)
 
-  const activeTab = useMemo(
-    () => Math.max(allClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
-    [allClasses, selectedEventClass]
-  )
+  const activeTab = useMemo(() => Math.max(allClasses.indexOf(selectedEventClass), 0), [allClasses, selectedEventClass])
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
-      setSelectedEventClass(allClasses[newValue])
+      const next = allClasses[newValue]
+      if (next && isRegistrationClass(next)) {
+        setSelectedEventClass(next)
+      }
     },
     [allClasses, setSelectedEventClass]
   )
@@ -117,7 +117,10 @@ export default function EventViewPage() {
 
   useEffect(() => {
     if (selectedEventClass && !allClasses.includes(selectedEventClass)) {
-      setSelectedEventClass(allClasses[0])
+      const fallback = allClasses[0]
+      if (fallback && isRegistrationClass(fallback)) {
+        setSelectedEventClass(fallback)
+      }
     }
   }, [allClasses, selectedEventClass, setSelectedEventClass])
 

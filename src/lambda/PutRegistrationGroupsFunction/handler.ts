@@ -20,7 +20,7 @@ const { registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
-  Boolean(event.state === state || (cls && event.classes.find((c) => c.class === cls && c.state === state)))
+  Boolean(event.state === state || (cls && event.classes.some((c) => c.class === cls && c.state === state)))
 
 const classEquals = (a: string | null | undefined, b: string | null | undefined) => (!a && !b) || a === b
 
@@ -123,7 +123,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
      */
     const newParticipants = updatedItems.filter(
       (reg) =>
-        classEquals(reg.class, cls) && isParticipantGroup(reg.group?.key) && oldResCan.find((old) => old.id === reg.id)
+        classEquals(reg.class, cls) && isParticipantGroup(reg.group?.key) && oldResCan.some((old) => old.id === reg.id)
     )
 
     console.log({
@@ -199,7 +199,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     (reg) =>
       classEquals(reg.class, cls) &&
       getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED &&
-      !oldCancelled.find((old) => old.id === reg.id)
+      !oldCancelled.some((old) => old.id === reg.id)
   )
 
   console.log({ cancelled: cancelled.map(regString) })

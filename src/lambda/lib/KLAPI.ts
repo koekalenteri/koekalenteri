@@ -30,7 +30,7 @@ function toURLParams(params: Record<string, string | number | undefined> = {}): 
   const result: Record<string, string> = {}
   for (const param in params) {
     const value = params[param]
-    if (typeof value === 'undefined') {
+    if (value === undefined) {
       continue
     }
     if (typeof value === 'number') {
@@ -92,8 +92,8 @@ export default class KLAPI {
           error = await res.text()
           console.error('KLAPI not ok', status, error)
         }
-      } catch (jse) {
-        console.error('KLAPI JSON expection', jse)
+      } catch (error_) {
+        console.error('KLAPI JSON expection', error_)
         console.log(status, JSON.stringify(res))
       }
     } catch (e: unknown) {

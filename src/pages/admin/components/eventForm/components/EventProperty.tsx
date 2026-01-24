@@ -28,7 +28,7 @@ type Property = keyof Omit<
   | 'invitationAttachment'
 >
 
-export type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
+type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
   AutocompleteProps<PartialEvent[P], false, false, freeSolo>,
   'id' | 'renderInput' | 'onChange' | 'value'
 > & {
@@ -79,7 +79,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
       if (!acProps.options.length) {
         return
       }
-      const valueOrUndef = value || undefined
+      const valueOrUndef = value ?? undefined
       const mappedValueOrUndef = valueOrUndef && mapValue ? mapValue(valueOrUndef) : valueOrUndef
       onChange?.({ [id]: mappedValueOrUndef })
     },

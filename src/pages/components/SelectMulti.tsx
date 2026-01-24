@@ -23,8 +23,8 @@ type Props = Readonly<{
 export default function SelectMulti({ options, value, onChange, label = 'Select options' }: Props) {
   const [open, setOpen] = useState(false)
   const uniqueOptions = useMemo(() => unique(options ?? []), [options])
-  const labelId = `${label.replace(/\s+/g, '-').toLowerCase()}-label`
-  const selectId = `${label.replace(/\s+/g, '-').toLowerCase()}-select`
+  const labelId = `${label.replaceAll(/\s+/g, '-').toLowerCase()}-label`
+  const selectId = `${label.replaceAll(/\s+/g, '-').toLowerCase()}-select`
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value
     setOpen(false)

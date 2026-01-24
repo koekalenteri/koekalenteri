@@ -84,7 +84,7 @@ function removeLeadingWhitespace(result: ElementContent | ElementContent[]): voi
       result.value = result.value.replace(/^\s+/, '')
     } else if (result.type === 'element') {
       const head = result.children[0]
-      if (head && head.type === 'text') {
+      if (head?.type === 'text') {
         head.value = head.value.replace(/^\s+/, '')
       }
     }

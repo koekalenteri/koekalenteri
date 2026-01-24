@@ -1,5 +1,5 @@
 export function capitalize(s?: string): string {
-  return s?.toLowerCase().replace(/(^|[ -])[^ -]/g, (l: string) => l.toUpperCase()) ?? ''
+  return s?.toLowerCase().replaceAll(/(^|[ -])[^ -]/g, (l: string) => l.toUpperCase()) ?? ''
 }
 
 export function reverseName(name?: string): string {

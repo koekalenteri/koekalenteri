@@ -27,7 +27,7 @@ const handleSuccessfulPayment = async (
   const registration = await getRegistration(eventId, registrationId)
 
   const t = i18n.getFixedT(registration.language)
-  const paidAmount = parseInt(params['checkout-amount'] ?? '0') / 100
+  const paidAmount = Number.parseInt(params['checkout-amount'] ?? '0', 10) / 100
 
   const previouslyPaid = registration.paidAmount ?? 0
   registration.paidAmount = previouslyPaid + paidAmount

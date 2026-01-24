@@ -16,7 +16,7 @@ import { uniqueDate } from '../../../../lib/utils'
 export const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
   const key = getRegistrationGroupKey(reg)
   if (key === GROUP_KEY_CANCELLED) return GROUP_KEY_CANCELLED
-  if (eventGroups.find((eg) => eg.key === key)) return key
+  if (eventGroups.some((eg) => eg.key === key)) return key
   return GROUP_KEY_RESERVE
 }
 

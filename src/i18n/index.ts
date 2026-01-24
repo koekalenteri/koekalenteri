@@ -11,11 +11,10 @@ import i18n from 'i18next'
 
 import { fiAuthenticationDict } from './locales/fi/auth'
 import { i18nInit } from './config'
-import { locales } from './dates'
 import { registerFormatters } from './formatters'
 
-export { locales }
-export type { Language }
+export { locales } from './dates'
+export type { Language } from '../types'
 export type ValidationErrorKey = typeof fi.validation
 
 export const muiLocales: Record<Language, Localization> = {
@@ -26,7 +25,7 @@ export const muiLocales: Record<Language, Localization> = {
 i18n
   .use(initReactI18next)
   .init(i18nInit)
-  .catch((reason) => console.error(reason))
+  .catch((error_) => console.error(error_))
 
 //  additional formats
 registerFormatters(i18n)

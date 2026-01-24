@@ -28,7 +28,7 @@ const onlyValidJudges = (
     judges: validJudges,
     classes: classes.map((c) => ({
       ...c,
-      judge: makeArray(c.judge).filter((j) => validJudges.find((vj) => vj.id === j.id)),
+      judge: makeArray(c.judge).filter((j) => validJudges.some((vj) => vj.id === j.id)),
     })),
   }
 }
@@ -52,7 +52,7 @@ export default function JudgesSection({
     [event, fields?.required.judges]
   )
   const error = useMemo(
-    () => !!validationError || officialJudges.some((ej) => ej.id && !judges.find((j) => j.id === ej.id)),
+    () => !!validationError || officialJudges.some((ej) => ej.id && !judges.some((j) => j.id === ej.id)),
     [judges, officialJudges, validationError]
   )
   const helperText: string = useMemo(() => {

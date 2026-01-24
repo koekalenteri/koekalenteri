@@ -41,8 +41,8 @@ const COST_TYPE_ORDER: Record<string, number> = {
 
 const costSort = (a: string, b: string) => {
   // Sort by the defined order, or put unknown types at the end
-  const orderA = COST_TYPE_ORDER[a] || 999
-  const orderB = COST_TYPE_ORDER[b] || 999
+  const orderA = COST_TYPE_ORDER[a] ?? 999
+  const orderB = COST_TYPE_ORDER[b] ?? 999
   return orderA - orderB
 }
 

@@ -35,7 +35,7 @@ export const fetchOfficialsForEventTypes = async (
 
     for (const item of json) {
       // Same official is returned for all the event types it is allowed to be officer for. Avoid duplicates.
-      if (officials.find((j) => j.id === item.jäsennumero)) continue
+      if (officials.some((j) => j.id === item.jäsennumero)) continue
 
       const name = capitalize(item.nimi)
       const location = capitalize(item.paikkakunta)
@@ -58,8 +58,8 @@ export const updateOfficials = async (dynamoDB: CustomDynamoClient, officials: O
   if (!officials.length) return
 
   const existingOfficials = (await dynamoDB.readAll<JsonOfficial>(officialTable)) ?? []
-  const newOfficials = officials.filter((o) => !existingOfficials.find((ej) => ej.id === o.id))
-  const deletedOfficials = existingOfficials.filter((eo) => !eo.deletedAt && !officials.find((j) => j.id === eo.id))
+  const newOfficials = officials.filter((o) => !existingOfficials.some((ej) => ej.id === o.id))
+  const deletedOfficials = existingOfficials.filter((eo) => !eo.deletedAt && !officials.some((j) => j.id === eo.id))
 
   const write: JsonOfficial[] = []
   const now = new Date().toISOString()

@@ -59,7 +59,7 @@ export const findQualificationStartDate = async (
     limit: 1,
   })
 
-  if (result && result.length === 1 && result[0].entryEndDate) {
+  if (result?.length === 1 && result[0]?.entryEndDate) {
     const date = new Date(result[0].entryOrigEndDate ?? result[0].entryEndDate)
     const qualificationStartDate = zonedStartOfDay(addDays(date, 1))
     return qualificationStartDate.toISOString()

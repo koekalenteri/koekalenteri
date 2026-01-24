@@ -104,14 +104,14 @@ export const unpaidRegistrationWithStaticDates: Registration = {
   paymentStatus: undefined,
 }
 
-export const unpaidPickedRegistrationWithStaticDates: Registration = {
+const unpaidPickedRegistrationWithStaticDates: Registration = {
   ...unpaidRegistrationWithStaticDates,
   id: 'unpaid-picked-nou-registration',
   messagesSent: {
     picked: true,
   },
 }
-export const paidAndPickedRegistrationWithStaticDates: Registration = {
+const paidAndPickedRegistrationWithStaticDates: Registration = {
   ...registrationWithStaticDates,
   id: 'paid-and-picked-nou-registration',
   paymentStatus: 'SUCCESS',
@@ -119,7 +119,7 @@ export const paidAndPickedRegistrationWithStaticDates: Registration = {
     picked: true,
   },
 }
-export const invitationAttachmentRegistration: Registration = {
+const invitationAttachmentRegistration: Registration = {
   ...registrationWithStaticDates,
   eventId: 'testInvited',
   id: 'invitation-attachment-registration',

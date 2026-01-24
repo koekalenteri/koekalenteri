@@ -21,7 +21,7 @@ export const userIsMemberOf = (user: Pick<JsonUser, 'roles'>): string[] =>
 
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) => {
   const memberOf = userIsMemberOf(user)
-  const filteredOrgs = orgs.filter((o) => memberOf.includes(o))
+  const filteredOrgs = new Set(orgs.filter((o) => memberOf.includes(o)))
 
   return user.admin
     ? users
@@ -30,7 +30,7 @@ export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: str
           u.admin || // admins are always included
           u.judge?.length || // judges are always included
           u.officer?.length || // officers are always included
-          Object.keys(u.roles ?? {}).some((orgId) => filteredOrgs.includes(orgId))
+          Object.keys(u.roles ?? {}).some((orgId) => filteredOrgs.has(orgId))
       )
 }
 
@@ -172,9 +172,9 @@ export const updateUsersFromOfficialsOrJudges = async (
 
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
   const allUsersWithEmail = allUsers.filter((u) => validEmail(u.email))
-  const existingUsers = allUsersWithEmail.filter((u) => items.find((o) => o.email === u.email.toLocaleLowerCase()))
+  const existingUsers = allUsersWithEmail.filter((u) => items.some((o) => o.email === u.email.toLocaleLowerCase()))
   const itemsWithEmail = items.filter((i) => validEmail(i.email))
-  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.find((u) => u.email.toLocaleLowerCase() === i.email))
+  const newItems = itemsWithEmail.filter((i) => !allUsersWithEmail.some((u) => u.email.toLocaleLowerCase() === i.email))
 
   const write = buildUserUpdates(itemsWithEmail, newItems, existingUsers, eventTypesFiled)
 

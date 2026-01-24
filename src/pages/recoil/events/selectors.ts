@@ -16,7 +16,7 @@ import {
   withinSwitchFilters,
 } from './filters'
 
-export const eventSelector = selectorFamily<PublicDogEvent | null, string | undefined>({
+const eventSelector = selectorFamily<PublicDogEvent | null, string | undefined>({
   key: 'event',
   get:
     (eventId) =>

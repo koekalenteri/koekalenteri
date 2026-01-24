@@ -12,15 +12,11 @@ export const isJestDefined = (): boolean => {
     describe?: unknown
   }
 
-  if (typeof g?.jest !== 'undefined') return true
+  if (g?.jest !== undefined) return true
   // In many Jest setups, `expect`/`describe` exist even when `jest` is not global.
-  if (typeof g?.expect !== 'undefined' && typeof g?.describe !== 'undefined') return true
+  if (g?.expect !== undefined && g?.describe !== undefined) return true
 
   // Jest always sets this environment variable for workers.
   // (Works in both node and jsdom environments.)
-  return (
-    typeof process !== 'undefined' &&
-    typeof process.env !== 'undefined' &&
-    typeof process.env.JEST_WORKER_ID !== 'undefined'
-  )
+  return process?.env?.JEST_WORKER_ID !== undefined
 }

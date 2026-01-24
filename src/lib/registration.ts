@@ -24,12 +24,12 @@ export const GROUP_KEY_RESERVE = 'reserve'
 
 export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:00Z')
 
-const REG_CLASSES = ['ALO', 'AVO', 'VOI']
+const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
 export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
-  !!(cls && REG_CLASSES.includes(cls))
+  !!(cls && REG_CLASSES.has(cls as RegistrationClass))
 
-const REFUNDABLE_GROUP_KEYS = [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE]
+const REFUNDABLE_GROUP_KEYS = new Set<string>([GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE])
 
 type RegistrationPriorityFields = Pick<Registration, 'priorityByInvitation' | 'ownerHandles'> & {
   owner?: Pick<RegistrationPerson, 'membership'>
@@ -140,8 +140,7 @@ export const getRegistrationGroupKey = <T extends JsonRegistration | Registratio
 
 export const canRefund = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount'>
-): boolean =>
-  (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) && REFUNDABLE_GROUP_KEYS.includes(getRegistrationGroupKey(reg))
+): boolean => (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,

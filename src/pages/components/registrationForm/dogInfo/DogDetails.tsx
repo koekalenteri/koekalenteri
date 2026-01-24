@@ -12,7 +12,7 @@ import AutocompleteSingle from '../../AutocompleteSingle'
 
 import { TitlesAndName } from './TitlesAndName'
 
-export interface DogFormValues {
+interface DogFormValues {
   rfid: string
   name: string
   titles: string

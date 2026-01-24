@@ -123,7 +123,7 @@ export default function EventListPage() {
   useEffect(() => {
     if (orgs.length === 1) {
       setOrgId(orgs[0].id)
-    } else if (!orgs.find((org) => org.id === orgId)) {
+    } else if (!orgs.some((org) => org.id === orgId)) {
       setOrgId('')
     }
   }, [orgId, orgs, setOrgId])

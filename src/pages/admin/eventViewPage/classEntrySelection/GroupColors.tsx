@@ -40,7 +40,7 @@ const GroupColors = ({ available, selected, disableTooltip = false }: Props) => 
       <Stack direction="row" spacing={0} sx={{ width: 36, height: '100%' }}>
         {available.map((dt, index) => {
           const color = GROUP_COLORS[index % GROUP_COLORS.length]
-          const isSelected = !!selected.find((s) => s.date.getTime() === dt.date.getTime() && s.time === dt.time)
+          const isSelected = selected.some((s) => s.date.getTime() === dt.date.getTime() && s.time === dt.time)
           return <Box key={color} sx={{ bgcolor: isSelected ? color : 'transparent', width: 6, height: '100%' }} />
         })}
       </Stack>

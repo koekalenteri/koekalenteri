@@ -1,7 +1,7 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type { EventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 
-import crypto from 'crypto'
+import crypto from 'node:crypto'
 
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
@@ -168,7 +168,7 @@ export async function getAvailableYears(): Promise<number[]> {
   }
 
   // Convert SK (year as string) to numbers and sort
-  return items.map((item) => parseInt(item.SK, 10)).sort((a, b) => a - b)
+  return items.map((item) => Number.parseInt(item.SK, 10)).sort((a, b) => a - b)
 }
 
 /**

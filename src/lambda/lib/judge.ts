@@ -37,7 +37,7 @@ export const fetchJudgesForEventTypes = async (
 
     for (const item of json) {
       // Same judge is returned for all the event types it is allowed to judge. Avoid duplicates.
-      if (judges.find((j) => j.id === item.jäsennumero)) continue
+      if (judges.some((j) => j.id === item.jäsennumero)) continue
 
       const name = capitalize(item.nimi)
       const location = capitalize(item.paikkakunta)
@@ -72,8 +72,8 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
   if (!judges.length) return
 
   const existingJudges = (await dynamoDB.readAll<JsonJudge>(judgeTable)) ?? []
-  const newJudges = judges.filter((j) => !existingJudges.find((ej) => ej.id === j.id))
-  const deletedJudges = existingJudges.filter((ej) => !ej.deletedAt && !judges.find((j) => j.id === ej.id))
+  const newJudges = judges.filter((j) => !existingJudges.some((ej) => ej.id === j.id))
+  const deletedJudges = existingJudges.filter((ej) => !ej.deletedAt && !judges.some((j) => j.id === ej.id))
 
   const write: JsonJudge[] = []
   const now = new Date().toISOString()

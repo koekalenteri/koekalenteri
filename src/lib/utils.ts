@@ -107,7 +107,7 @@ export const isDateString = (value: unknown): value is string => {
 function dateReviver(_key: string, value: JsonValue): JsonValue | Date {
   if (isDateString(value)) {
     const dateObj = new Date(value)
-    if (!isNaN(+dateObj)) {
+    if (!Number.isNaN(+dateObj)) {
       return dateObj
     }
   }

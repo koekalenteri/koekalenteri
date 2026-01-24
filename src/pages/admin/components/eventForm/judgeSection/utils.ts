@@ -14,10 +14,10 @@ export const filterJudges = (
 ) =>
   judges
     .filter((j) => !eventType?.official || j.eventTypes.includes(eventType.eventType))
-    .filter((j) => j.id === id || !eventJudges.find((ej) => ej.id === j.id))
+    .filter((j) => j.id === id || !eventJudges.some((ej) => ej.id === j.id))
 
 export const hasJudge = (c: DeepPartial<EventClass>, id?: number): boolean =>
-  Array.isArray(c.judge) ? !!c.judge.find((j) => j.id === id) : c.judge?.id === id
+  Array.isArray(c.judge) ? c.judge.some((j) => j.id === id) : c.judge?.id === id
 
 export const filterClassesByJudgeId = (classes?: DeepPartial<EventClass>[], id?: number) =>
   classes?.filter((c) => hasJudge(c, id))
@@ -63,7 +63,7 @@ export const updateJudge = (
   values?: DeepPartial<EventClass>[]
 ) => {
   const isSelected = (c: DeepPartial<EventClass>) =>
-    values?.find((v) => event && isSameDay(v.date ?? event.startDate, c.date ?? event.startDate) && v.class === c.class)
+    values?.some((v) => isSameDay(v.date ?? event.startDate, c.date ?? event.startDate) && v.class === c.class)
 
   return event.classes?.map((c) => ({
     ...c,

@@ -19,7 +19,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
 
   if (registration.paymentStatus === 'PENDING') {
     const transactions = await getTransactionsByReference(`${eventId}:${id}`)
-    const hasNew = transactions?.find((tx) => tx.status === 'new')
+    const hasNew = transactions?.some((tx) => tx.status === 'new')
     if (hasNew) {
       registration.paymentStatus = 'NEW'
     }

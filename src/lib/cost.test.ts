@@ -11,6 +11,7 @@ import {
   getApplicableStrategy,
   getCostSegmentName,
   getCostValue,
+  getEarlyBirdEndDate,
   selectCost,
   setCostValue,
 } from './cost'
@@ -102,6 +103,57 @@ describe('additionalCost', () => {
         normal: 10,
       })
     ).toEqual(0)
+  })
+})
+
+describe('getEarlyBirdEndDate', () => {
+  it('should return undefined when earlyBird is missing', () => {
+    expect(
+      getEarlyBirdEndDate({ entryStartDate: new Date('2026-01-01T00:00:00.000Z') } as any, { earlyBird: undefined })
+    ).toBeUndefined()
+  })
+
+  it('should return undefined when entryStartDate is missing', () => {
+    expect(getEarlyBirdEndDate({} as any, { earlyBird: { cost: 40, days: 5 } })).toBeUndefined()
+  })
+
+  it('should return undefined when earlyBird.days is 0', () => {
+    expect(
+      getEarlyBirdEndDate({ entryStartDate: new Date('2026-01-01T00:00:00.000Z') } as any, {
+        earlyBird: { cost: 40, days: 0 },
+      })
+    ).toBeUndefined()
+  })
+
+  it('should return undefined when earlyBird.days is negative', () => {
+    expect(
+      getEarlyBirdEndDate({ entryStartDate: new Date('2026-01-01T00:00:00.000Z') } as any, {
+        earlyBird: { cost: 40, days: -2 },
+      })
+    ).toBeUndefined()
+  })
+
+  it('should return the end date as entryStartDate + (days - 1)', () => {
+    const entryStartDate = new Date('2026-01-01T00:00:00.000Z')
+    const result = getEarlyBirdEndDate({ entryStartDate } as any, {
+      earlyBird: { cost: 40, days: 5 },
+    })
+    expect(result?.toISOString()).toBe('2026-01-05T00:00:00.000Z')
+  })
+
+  it('should treat days=1 as ending on the same day as entryStartDate', () => {
+    const entryStartDate = new Date('2026-01-01T00:00:00.000Z')
+    const result = getEarlyBirdEndDate({ entryStartDate } as any, {
+      earlyBird: { cost: 40, days: 1 },
+    })
+    expect(result?.toISOString()).toBe('2026-01-01T00:00:00.000Z')
+  })
+
+  it('should work when entryStartDate is an ISO string', () => {
+    const result = getEarlyBirdEndDate({ entryStartDate: '2026-01-01T00:00:00.000Z' } as any, {
+      earlyBird: { cost: 40, days: 3 },
+    })
+    expect(result?.toISOString()).toBe('2026-01-03T00:00:00.000Z')
   })
 })
 

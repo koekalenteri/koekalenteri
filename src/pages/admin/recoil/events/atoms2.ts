@@ -7,7 +7,7 @@ import { logEffect, sessionStorageEffect } from '../../../recoil'
 
 import { adminCurrentEventSelector, adminEventSelector } from './selectors'
 
-export const adminEventClassAtom = atom<RegistrationClass | string>({
+export const adminEventClassAtom = atom<RegistrationClass>({
   key: 'adminEventClass',
   default: selector({
     key: 'adminEventClass/default',
