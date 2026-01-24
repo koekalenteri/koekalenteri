@@ -1,7 +1,5 @@
 import type { DogEvent, PublicDogEvent } from '../../types'
-
 import { parseISO } from 'date-fns'
-
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import {
   eventWithEntryClosed,
@@ -22,18 +20,18 @@ export const mockEvents: DogEvent[] = [
   eventWithStaticDatesAnd3Classes,
   {
     ...emptyEvent,
+    classes: [{ class: 'AVO', date: parseISO('2021-02-12') }],
+    endDate: parseISO('2021-02-13'),
+    entryEndDate: parseISO('2021-02-12'),
+    entryStartDate: parseISO('2021-02-01'),
+    eventType: 'NOME-B',
     id: 'test2',
+    judges: [{ id: 223, name: 'Tuomari 2' }],
     organizer: {
       id: '2',
       name: 'Järjestäjä 2',
     },
-    eventType: 'NOME-B',
-    classes: [{ class: 'AVO', date: parseISO('2021-02-12') }],
     startDate: parseISO('2021-02-12'),
-    endDate: parseISO('2021-02-13'),
-    entryStartDate: parseISO('2021-02-01'),
-    entryEndDate: parseISO('2021-02-12'),
-    judges: [{ id: 223, name: 'Tuomari 2' }],
   },
   eventWithEntryOpen,
   eventWithEntryNotYetOpen,

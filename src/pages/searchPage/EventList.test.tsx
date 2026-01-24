@@ -1,15 +1,12 @@
 import type { DogEvent } from '../../types'
-
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithEntryOpen } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
-
 import { EventList } from './EventList'
 
 jest.mock('../../api/judge')
@@ -26,11 +23,11 @@ describe('EventList', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('should render', async function () {
+  it('should render', async () => {
     const event: DogEvent = {
       ...emptyEvent,
-      startDate: parseISO('2021-02-10'),
       endDate: parseISO('2021-02-11'),
+      startDate: parseISO('2021-02-10'),
     }
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -42,7 +39,7 @@ describe('EventList', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('should render registration link', async function () {
+  it('should render registration link', async () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>

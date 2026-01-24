@@ -1,14 +1,11 @@
 import type { DeepPartial, DogEvent, EventType, Judge } from '../../../../types'
 import type { PartialEvent, SectionProps } from './types'
-
-import { useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-
+import { useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-
 import { OfficialJudge } from './judgeSection/OfficialJudge'
 import { UnofficialJudge } from './judgeSection/UnofficialJudge'
 import { makeArray } from './judgeSection/utils'
@@ -25,11 +22,11 @@ const onlyValidJudges = (
 ): Pick<DeepPartial<DogEvent>, 'judges' | 'classes'> => {
   const validJudges = judges.filter((j) => j.official || j.foreing)
   return {
-    judges: validJudges,
     classes: classes.map((c) => ({
       ...c,
       judge: makeArray(c.judge).filter((j) => validJudges.some((vj) => vj.id === j.id)),
     })),
+    judges: validJudges,
   }
 }
 
@@ -122,10 +119,10 @@ export default function JudgesSection({
             onClick={() => {
               onChange?.({
                 judges: [...event.judges].concat({
+                  foreing: true,
                   id: (otherJudges.length + 1) * -1,
                   name: '',
                   official: false,
-                  foreing: true,
                 }),
               })
             }}

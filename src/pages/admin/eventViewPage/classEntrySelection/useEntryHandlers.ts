@@ -2,9 +2,8 @@ import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEve
 import type React from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import type { SetterOrUpdater } from 'recoil'
-
-import { useTranslation } from 'react-i18next'
 import { useSnackbar } from 'notistack'
+import { useTranslation } from 'react-i18next'
 
 interface UseEntryHandlersArgs {
   setOpen?: Dispatch<SetStateAction<boolean>>
@@ -50,13 +49,13 @@ export const useEntryHandlers = ({
       event.defaultMuiPrevented = true
       await navigator.clipboard.writeText(params.value as string)
       enqueueSnackbar({
-        message: t('registration.regNoCopied', 'Rekisterinumero kopioitu'),
-        variant: 'info',
-        autoHideDuration: 1000,
         anchorOrigin: {
           horizontal: 'center',
           vertical: 'bottom',
         },
+        autoHideDuration: 1000,
+        message: t('registration.regNoCopied', 'Rekisterinumero kopioitu'),
+        variant: 'info',
       })
     }
   }
@@ -64,11 +63,11 @@ export const useEntryHandlers = ({
   const handleDoubleClick = () => setOpen?.(true)
 
   return {
-    handleOpen,
     handleCancel,
-    handleRefund,
-    handleSelectionModeChange,
     handleCellClick,
     handleDoubleClick,
+    handleOpen,
+    handleRefund,
+    handleSelectionModeChange,
   }
 }

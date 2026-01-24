@@ -1,52 +1,49 @@
 import type { AuditRecord, ConfirmedEvent, Registration, RegistrationGroupInfo } from '../../types'
-
 import { parseISO } from 'date-fns'
-
 import { mockRegistrationData } from '../../__mockData__/registrations'
-
 import { mockEvents } from './event'
 
 export const mockRegistrations: { [key: string]: Registration[] } = {
   test2: [
     {
-      id: 'reg1',
-      createdAt: parseISO('2021-02-01'),
-      createdBy: 'some user',
-      modifiedAt: parseISO('2021-02-01'),
-      modifiedBy: 'some user',
       agreeToTerms: true,
       breeder: {
-        name: 'breeder name',
         location: 'breeder location',
+        name: 'breeder name',
       },
-      handler: {
-        name: 'handler name',
-        email: 'handler@e.mail',
-        phone: 'phone',
-        location: 'handler location',
-        membership: false,
-      },
-      owner: {
-        name: 'owner name',
-        email: 'owner@e.mail',
-        phone: 'owner phone',
-        location: 'owner location',
-        membership: false,
-      },
-      payer: {
-        name: 'payer name',
-        email: 'payer@e.mail',
-        phone: 'payer phone',
-      },
-      eventId: 'test2',
-      eventType: 'NOME-B',
+      createdAt: parseISO('2021-02-01'),
+      createdBy: 'some user',
       dates: [],
-      language: 'fi',
-      notes: 'notes',
       dog: {
         name: 'dog name',
         regNo: 'dog reg',
         results: [],
+      },
+      eventId: 'test2',
+      eventType: 'NOME-B',
+      handler: {
+        email: 'handler@e.mail',
+        location: 'handler location',
+        membership: false,
+        name: 'handler name',
+        phone: 'phone',
+      },
+      id: 'reg1',
+      language: 'fi',
+      modifiedAt: parseISO('2021-02-01'),
+      modifiedBy: 'some user',
+      notes: 'notes',
+      owner: {
+        email: 'owner@e.mail',
+        location: 'owner location',
+        membership: false,
+        name: 'owner name',
+        phone: 'owner phone',
+      },
+      payer: {
+        email: 'payer@e.mail',
+        name: 'payer name',
+        phone: 'payer phone',
       },
       qualifyingResults: [],
       reserve: 'ANY',
@@ -100,7 +97,7 @@ export const getRegistrationAuditTrail = async (
 ): Promise<AuditRecord[] | undefined> => {
   return new Promise((resolve) => {
     process.nextTick(() =>
-      resolve([{ auditKey: 'somekey', timestamp: new Date(), user: 'test user', message: 'example audit record' }])
+      resolve([{ auditKey: 'somekey', message: 'example audit record', timestamp: new Date(), user: 'test user' }])
     )
   })
 }

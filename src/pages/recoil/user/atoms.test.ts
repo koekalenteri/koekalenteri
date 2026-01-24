@@ -1,6 +1,5 @@
 import i18n from 'i18next'
 import { snapshot_UNSTABLE } from 'recoil'
-
 import { languageAtom } from './atoms'
 
 describe('languageAtom', () => {

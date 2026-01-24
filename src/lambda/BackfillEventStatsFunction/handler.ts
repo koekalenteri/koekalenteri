@@ -1,5 +1,4 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
-
 import { CONFIG } from '../config'
 import { updateEventStatsForRegistration } from '../lib/stats'
 import CustomDynamoClient from '../utils/CustomDynamoClient'

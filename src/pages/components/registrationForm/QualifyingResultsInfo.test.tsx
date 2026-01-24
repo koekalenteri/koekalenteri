@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react'
-
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
-
 import {
   registrationWithManualResults,
   registrationWithStaticDates,
@@ -11,7 +9,6 @@ import {
 } from '../../../__mockData__/registrations'
 import { locales } from '../../../i18n'
 import { getRequirements } from '../../../rules'
-
 import QualifyingResultsInfo from './QualifyingResultsInfo'
 
 const Provider = ({ children }: { readonly children: ReactNode }) => (

@@ -1,5 +1,4 @@
 import type { Organizer } from '../../types'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'

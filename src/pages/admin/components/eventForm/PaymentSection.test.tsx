@@ -1,17 +1,15 @@
-import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen, within } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates } from '../../../../__mockData__/events'
 import theme from '../../../../assets/Theme'
 import { locales } from '../../../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
-
 import PaymentSection from './PaymentSection'
 
 // Helper function to render the PaymentSection component with all required providers
@@ -95,11 +93,11 @@ describe('PaymentSection', () => {
       ...eventWithStaticDates,
       cost: {
         normal: 20,
-        optionalAdditionalCosts: [{ cost: 16, description: { fi: 'alkuperäinen', en: 'original' } }],
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'original', fi: 'alkuperäinen' } }],
       },
       costMember: {
         normal: 10,
-        optionalAdditionalCosts: [{ cost: 12, description: { fi: 'alkuperäinen', en: 'original' } }],
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'original', fi: 'alkuperäinen' } }],
       },
     }
     const onChange = jest.fn((props) => Object.assign(testEvent, props))
@@ -125,11 +123,11 @@ describe('PaymentSection', () => {
     expect(onChange).toHaveBeenCalledWith({
       cost: {
         ...testEvent.cost,
-        optionalAdditionalCosts: [{ cost: 16, description: { fi: 'muokattu', en: 'edited' } }],
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'edited', fi: 'muokattu' } }],
       },
       costMember: {
         ...testEvent.costMember,
-        optionalAdditionalCosts: [{ cost: 12, description: { fi: 'muokattu', en: 'edited' } }],
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'edited', fi: 'muokattu' } }],
       },
     })
   })
@@ -159,12 +157,12 @@ describe('PaymentSection', () => {
     // Verify early bird cost was added with default days (0)
     expect(onChange).toHaveBeenCalledWith({
       cost: {
-        normal: 123,
         earlyBird: { cost: 0, days: 0 },
+        normal: 123,
       },
       costMember: {
-        normal: 123,
         earlyBird: { cost: 0, days: 0 },
+        normal: 123,
       },
     })
 
@@ -177,8 +175,8 @@ describe('PaymentSection', () => {
 
     expect(onChange).toHaveBeenLastCalledWith({
       cost: {
-        normal: 123,
         earlyBird: { cost: 100, days: 0 },
+        normal: 123,
       },
     })
 
@@ -191,12 +189,12 @@ describe('PaymentSection', () => {
     // Verify days value was updated
     expect(onChange).toHaveBeenCalledWith({
       cost: {
-        normal: 123,
         earlyBird: { cost: 100, days: 14 },
+        normal: 123,
       },
       costMember: {
-        normal: 123,
         earlyBird: { cost: 0, days: 14 },
+        normal: 123,
       },
     })
   })
@@ -206,12 +204,12 @@ describe('PaymentSection', () => {
     const testEvent = {
       ...eventWithStaticDates,
       cost: {
-        normal: 123,
         breed: { '123': 0 },
+        normal: 123,
       },
       costMember: {
-        normal: 123,
         breed: { '123': 0 },
+        normal: 123,
       },
     }
     const onChange = jest.fn((props) => Object.assign(testEvent, props))
@@ -228,8 +226,8 @@ describe('PaymentSection', () => {
     // Verify breed cost was updated
     expect(onChange).toHaveBeenCalledWith({
       cost: {
-        normal: 123,
         breed: { '123': 90 },
+        normal: 123,
       },
     })
   })
@@ -266,12 +264,12 @@ describe('PaymentSection', () => {
     // Verify custom cost was added
     expect(onChange).toHaveBeenCalledWith({
       cost: {
+        custom: { cost: 0, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
         normal: 123,
-        custom: { cost: 0, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
       },
       costMember: {
+        custom: { cost: 0, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
         normal: 123,
-        custom: { cost: 0, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
       },
     })
 
@@ -285,8 +283,8 @@ describe('PaymentSection', () => {
     // Verify custom cost was updated
     expect(onChange).toHaveBeenLastCalledWith({
       cost: {
+        custom: { cost: 75, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
         normal: 123,
-        custom: { cost: 75, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
       },
     })
 
@@ -308,12 +306,12 @@ describe('PaymentSection', () => {
     // Verify description was updated
     expect(onChange).toHaveBeenLastCalledWith({
       cost: {
+        custom: { cost: 75, description: { en: 'Special fee', fi: 'Päivitetty maksu' } },
         normal: 123,
-        custom: { cost: 75, description: { fi: 'Päivitetty maksu', en: 'Special fee' } },
       },
       costMember: {
+        custom: { cost: 0, description: { en: 'Special fee', fi: 'Päivitetty maksu' } },
         normal: 123,
-        custom: { cost: 0, description: { fi: 'Päivitetty maksu', en: 'Special fee' } },
       },
     })
   })
@@ -322,14 +320,14 @@ describe('PaymentSection', () => {
     const testEvent = {
       ...eventWithStaticDates,
       cost: {
-        normal: 20,
-        earlyBird: { cost: 15, days: 7 },
         breed: { '123': 18 },
+        earlyBird: { cost: 15, days: 7 },
+        normal: 20,
       },
       costMember: {
-        normal: 10,
-        earlyBird: { cost: 8, days: 7 },
         breed: { '123': 9 },
+        earlyBird: { cost: 8, days: 7 },
+        normal: 10,
       },
     }
     const onChange = jest.fn((props) => Object.assign(testEvent, props))
@@ -343,12 +341,12 @@ describe('PaymentSection', () => {
     // Verify early bird cost was removed
     expect(onChange).toHaveBeenLastCalledWith({
       cost: {
-        normal: 20,
         breed: { '123': 18 },
+        normal: 20,
       },
       costMember: {
-        normal: 10,
         breed: { '123': 9 },
+        normal: 10,
       },
     })
   })
@@ -358,12 +356,12 @@ describe('PaymentSection', () => {
     const testEvent = {
       ...eventWithStaticDates,
       cost: {
+        breed: { '123': 18, '456': 16, abc: 15 },
         normal: 20,
-        breed: { '123': 18, abc: 15, '456': 16 },
       },
       costMember: {
+        breed: { '123': 9, '456': 8, xyz: 8 },
         normal: 10,
-        breed: { '123': 9, xyz: 8, '456': 8 },
       },
     }
     const onChange = jest.fn((props) => Object.assign(testEvent, props))
@@ -373,12 +371,12 @@ describe('PaymentSection', () => {
     // Verify cleanup was performed on component mount
     expect(onChange).toHaveBeenCalledWith({
       cost: {
-        normal: 20,
         breed: { '123': 18, '456': 16 },
+        normal: 20,
       },
       costMember: {
-        normal: 10,
         breed: { '123': 9, '456': 8 },
+        normal: 10,
       },
     })
   })
@@ -388,16 +386,16 @@ describe('PaymentSection', () => {
     const testEvent = {
       ...eventWithStaticDates,
       cost: {
-        normal: 20,
-        custom: { cost: 15, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
-        earlyBird: { cost: 18, days: 7 },
         breed: { '123': 16 },
+        custom: { cost: 15, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
+        earlyBird: { cost: 18, days: 7 },
+        normal: 20,
       },
       costMember: {
-        normal: 10,
-        custom: { cost: 8, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
-        earlyBird: { cost: 9, days: 7 },
         breed: { '123': 8 },
+        custom: { cost: 8, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
+        earlyBird: { cost: 9, days: 7 },
+        normal: 10,
       },
     }
     renderPaymentSection(testEvent, jest.fn())
@@ -423,12 +421,12 @@ describe('PaymentSection', () => {
     const testEvent = {
       ...eventWithStaticDates,
       cost: {
+        custom: { cost: 15, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
         normal: 20,
-        custom: { cost: 15, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
       },
       costMember: {
+        custom: { cost: 8, description: { en: 'Special fee', fi: 'Erikoismaksu' } },
         normal: 10,
-        custom: { cost: 8, description: { fi: 'Erikoismaksu', en: 'Special fee' } },
       },
     }
     const onChange = jest.fn((props) => Object.assign(testEvent, props))
@@ -470,12 +468,12 @@ describe('PaymentSection', () => {
     // Verify the description was updated
     expect(onChange).toHaveBeenLastCalledWith({
       cost: {
+        custom: { cost: 15, description: { en: 'Special fee', fi: 'Uusi erikoismaksu' } },
         normal: 20,
-        custom: { cost: 15, description: { fi: 'Uusi erikoismaksu', en: 'Special fee' } },
       },
       costMember: {
+        custom: { cost: 8, description: { en: 'Special fee', fi: 'Uusi erikoismaksu' } },
         normal: 10,
-        custom: { cost: 8, description: { fi: 'Uusi erikoismaksu', en: 'Special fee' } },
       },
     })
   })

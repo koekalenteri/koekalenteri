@@ -7,11 +7,9 @@ import type {
   Language,
 } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { calculateHmac, HMAC_KEY_PREFIX } from './paytrail'
 import { getPaytrailConfig } from './secrets'
 
@@ -23,10 +21,10 @@ export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
 
   return {
     eventId,
-    registrationId,
-    transactionId: params['checkout-transaction-id'],
-    status: params['checkout-status'],
     provider: params['checkout-provider'],
+    registrationId,
+    status: params['checkout-status'],
+    transactionId: params['checkout-transaction-id'],
   }
 }
 
@@ -42,7 +40,7 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   const hmac = calculateHmac(cfg.PAYTRAIL_SECRET, hmacParams)
 
   if (hmac !== signature) {
-    console.error('Verifying payment signature failed', { hmac, signature, params })
+    console.error('Verifying payment signature failed', { hmac, params, signature })
     throw new Error('Verifying payment signature failed')
   }
 }
@@ -84,9 +82,9 @@ export const paymentDescription = (
 ) => {
   const t = i18n.getFixedT(language)
   const eventDate = t('dateFormat.datespan', {
-    start: jsonEvent.startDate,
     end: jsonEvent.endDate,
     noYear: true,
+    start: jsonEvent.startDate,
   })
 
   return [jsonEvent.eventType, eventDate, jsonEvent.location, jsonEvent.name].filter(Boolean).join(' ')
@@ -94,11 +92,11 @@ export const paymentDescription = (
 
 export const getTransactionsByReference = async (reference: string) =>
   dynamoDB.query<JsonPaymentTransaction | JsonRefundTransaction>({
-    key: '#reference = :reference',
-    values: { ':reference': reference },
-    table: transactionTable,
     index: 'gsiReference',
+    key: '#reference = :reference',
     names: {
       '#reference': 'reference',
     },
+    table: transactionTable,
+    values: { ':reference': reference },
   })

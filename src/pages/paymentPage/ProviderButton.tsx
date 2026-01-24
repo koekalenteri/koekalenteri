@@ -1,5 +1,4 @@
 import type { Provider } from '../../types'
-
 import { ParameterInput } from './ParameterInput'
 
 import './ProviderButton.css'
@@ -14,7 +13,7 @@ export const ProviderButton = ({ provider }: Props) => {
       {provider.parameters.map(({ name, value }) => (
         <ParameterInput key={provider.id + name} name={name} value={value} />
       ))}
-      <button className="provider-button">
+      <button type="button" className="provider-button">
         <img src={provider.svg} alt={provider.name} />
       </button>
     </form>

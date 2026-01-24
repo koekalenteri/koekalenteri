@@ -1,7 +1,5 @@
 import type { JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
-
 import { jest } from '@jest/globals'
-
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import { constructAPIGwEvent } from '../test-utils/helpers'
@@ -137,8 +135,8 @@ describe('getRegistration', () => {
     mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
     mockGetRegistration.mockReturnValueOnce({
       ...registrationsToEventWithParticipantsInvited[0],
-      paymentStatus,
       group: undefined,
+      paymentStatus,
     })
 
     const res = await getRegistrationLambda(

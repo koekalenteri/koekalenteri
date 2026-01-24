@@ -1,6 +1,5 @@
 import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
-
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../lib/registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -100,14 +99,14 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
 
   const emails = {
-    invitedOk: [],
-    invitedFailed: [],
-    pickedOk: [],
-    pickedFailed: [],
-    reserveOk: [],
-    reserveFailed: [],
-    cancelledOk: [],
     cancelledFailed: [],
+    cancelledOk: [],
+    invitedFailed: [],
+    invitedOk: [],
+    pickedFailed: [],
+    pickedOk: [],
+    reserveFailed: [],
+    reserveOk: [],
   }
 
   const oldCancelled = oldItems.filter((reg) => getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED)
@@ -150,7 +149,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
           user.name,
           ''
         )
-      : { ok: [], failed: [] }
+      : { failed: [], ok: [] }
 
     /**
      * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email
@@ -183,12 +182,12 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     await updateReserveNotified(movedReserve)
 
     Object.assign(emails, {
-      invitedOk,
       invitedFailed,
-      pickedOk,
+      invitedOk,
       pickedFailed,
-      reserveOk,
+      pickedOk,
       reserveFailed,
+      reserveOk,
     })
   }
 
@@ -224,11 +223,11 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     })
   }
 
-  Object.assign(emails, { cancelledOk, cancelledFailed })
+  Object.assign(emails, { cancelledFailed, cancelledOk })
 
   return response(
     200,
-    { items: updatedItems, classes: confirmedEvent.classes, entries: confirmedEvent.entries, ...emails },
+    { classes: confirmedEvent.classes, entries: confirmedEvent.entries, items: updatedItems, ...emails },
     event
   )
 })

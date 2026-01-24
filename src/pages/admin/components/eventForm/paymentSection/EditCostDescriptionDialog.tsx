@@ -1,13 +1,12 @@
 import type { DogEventCostKey } from '../../../../../types/Cost'
-
-import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
+import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   open: boolean
@@ -35,8 +34,8 @@ export const EditCostDescriptionDialog = ({ open, costKey, initialDescriptions, 
 
   const handleSave = useCallback(() => {
     onSave(costKey, {
-      fi: descriptionFi,
       en: descriptionEn || undefined,
+      fi: descriptionFi,
     })
     onClose()
   }, [costKey, descriptionFi, descriptionEn, onSave, onClose])

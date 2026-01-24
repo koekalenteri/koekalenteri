@@ -3,8 +3,8 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 
-import { toHaveNoViolations } from 'jest-axe'
 import { TextDecoder, TextEncoder } from 'node:util'
+import { toHaveNoViolations } from 'jest-axe'
 
 // https://github.com/jsdom/jsdom/issues/3363
 // jest/jsdom runtime doesn't provide structuredClone in all configs.

@@ -1,9 +1,7 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
-
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
-
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'

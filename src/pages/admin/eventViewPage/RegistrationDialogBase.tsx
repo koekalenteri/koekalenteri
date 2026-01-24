@@ -1,13 +1,11 @@
 import type { Resetter, SetterOrUpdater } from 'recoil'
 import type { AuditRecord, ConfirmedEvent, DogEvent, Registration } from '../../../types'
-
-import { useCallback, useMemo } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-
+import { useCallback, useMemo } from 'react'
 import { hasChanges } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import RegistrationForm from '../../components/RegistrationForm'
@@ -100,12 +98,12 @@ export default function RegistrationDialogBase({
       slotProps={{
         paper: {
           sx: {
-            m: 1,
-            maxHeight: 'calc(100% - 16px)',
-            width: 'calc(100% - 16px)',
             '& .MuiDialogTitle-root': {
               fontSize: '1rem',
             },
+            m: 1,
+            maxHeight: 'calc(100% - 16px)',
+            width: 'calc(100% - 16px)',
           },
         },
       }}

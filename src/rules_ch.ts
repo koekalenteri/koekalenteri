@@ -5,9 +5,7 @@ import type {
   QualifyingResults,
   TestResult,
 } from './types'
-
 import { subYears } from 'date-fns'
-
 import { zonedEndOfDay } from './i18n/dates'
 import { NOME_B_CH_qualificationStartDate2023 } from './lib/registration'
 
@@ -86,11 +84,11 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
   // 5 best results after last NOME-B SM event's registrationEndDate are considered
   const relevant: QualifyingResult[] = officialResults
     .filter(resultFilter)
-    .map((r) => ({ ...r, qualifying: true, official: true, rankingPoints: resultPoints(r) }))
+    .map((r) => ({ ...r, official: true, qualifying: true, rankingPoints: resultPoints(r) }))
     .concat(
       manualResults
         .filter(resultFilter)
-        .map((r) => ({ ...r, qualifying: true, official: false, rankingPoints: resultPoints(r) }))
+        .map((r) => ({ ...r, official: false, qualifying: true, rankingPoints: resultPoints(r) }))
     )
     .sort(byPointsAndDate)
 
@@ -112,7 +110,7 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
    */
   const qualifies = Boolean(relevant.find((r) => r.result === 'VOI1'))
 
-  return { relevant: relevant.slice(0, maxResults), qualifies, minResultDate, maxResultDate }
+  return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
 }
 
 export const NOME_A_CH_requirements: EventResultRequirementFn = (
@@ -160,15 +158,15 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
 
   const relevant: QualifyingResult[] = officialResults
     .filter(resultFilter)
-    .map((r) => ({ ...r, qualifying: true, official: true, rankingPoints: resultPoints(r) }))
+    .map((r) => ({ ...r, official: true, qualifying: true, rankingPoints: resultPoints(r) }))
     .concat(
       manualResults
         .filter(resultFilter)
-        .map((r) => ({ ...r, qualifying: true, official: false, rankingPoints: resultPoints(r) }))
+        .map((r) => ({ ...r, official: false, qualifying: true, rankingPoints: resultPoints(r) }))
     )
     .sort(byPointsAndDate)
 
-  return { relevant: relevant.slice(0, maxResults), qualifies, minResultDate, maxResultDate }
+  return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
 }
 
 export const NOWT_CH_requirements: EventResultRequirementFn = (
@@ -220,15 +218,15 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
 
   const relevant: QualifyingResult[] = officialResults
     .filter(resultFilter)
-    .map((r) => ({ ...r, qualifying: true, official: true, rankingPoints: resultPoints(r) }))
+    .map((r) => ({ ...r, official: true, qualifying: true, rankingPoints: resultPoints(r) }))
     .concat(
       manualResults
         .filter(resultFilter)
-        .map((r) => ({ ...r, qualifying: true, official: false, rankingPoints: resultPoints(r) }))
+        .map((r) => ({ ...r, official: false, qualifying: true, rankingPoints: resultPoints(r) }))
     )
     .sort(byPointsAndDate)
 
   const qualifies = relevant.some((r) => r.result === 'VOI1')
 
-  return { relevant: relevant.slice(0, maxResults), qualifies, minResultDate, maxResultDate }
+  return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
 }

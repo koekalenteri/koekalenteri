@@ -1,8 +1,6 @@
 import type { AtomEffect } from 'recoil'
 import type { EmailTemplate, EmailTemplateId } from '../../../../types'
-
 import i18next from 'i18next'
-
 import { getEmailTemplates } from '../../../../api/email'
 import { exhaustiveStringTuple } from '../../../../lib/typeGuards'
 import { idTokenAtom } from '../../../recoil'

@@ -1,25 +1,22 @@
 import type { RouteObject } from 'react-router'
 import type { Registration } from '../types'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen } from '@testing-library/react'
 import { format } from 'date-fns'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
-
 import { ErrorPage } from './ErrorPage'
-import { newRegistrationAtom } from './recoil'
 import { Component as RegistrationCreatePage } from './RegistrationCreatePage'
+import { newRegistrationAtom } from './recoil'
 
 jest.mock('../api/user')
 jest.mock('../api/event')
@@ -41,25 +38,25 @@ describe('RegistrationCreatePage', () => {
   const renderWithRouter = (path: string, registration?: Registration) => {
     const routes: RouteObject[] = [
       {
-        path: '/event/:eventType/:id',
         element: <RegistrationCreatePage />,
         errorElement: <ErrorPage />,
         hydrateFallbackElement: <>hydrate fallback</>,
+        path: '/event/:eventType/:id',
       },
       {
+        element: <RegistrationCreatePage />,
+        hydrateFallbackElement: <>hydrate fallback</>,
         path: '/event/:eventType/:id/:class',
-        element: <RegistrationCreatePage />,
-        hydrateFallbackElement: <>hydrate fallback</>,
       },
       {
+        element: <RegistrationCreatePage />,
+        hydrateFallbackElement: <>hydrate fallback</>,
         path: '/event/:eventType/:id/:class/:date',
-        element: <RegistrationCreatePage />,
-        hydrateFallbackElement: <>hydrate fallback</>,
       },
       {
-        path: '/r/:eventId/:registrationId',
         element: <>registration list page</>,
         hydrateFallbackElement: <>hydrate fallback</>,
+        path: '/r/:eventId/:registrationId',
       },
     ]
 
@@ -120,7 +117,7 @@ describe('RegistrationCreatePage', () => {
     jest.setSystemTime(eventWithConfirmationPayment.entryStartDate)
 
     jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([eventWithConfirmationPayment])
-    const { user } = renderWithRouter(path, { ...registrationWithStaticDates, id: '', agreeToTerms: true })
+    const { user } = renderWithRouter(path, { ...registrationWithStaticDates, agreeToTerms: true, id: '' })
     await flushPromises()
 
     const saveButton = screen.getByRole('button', { name: 'registration.cta.confirmRegistration' })

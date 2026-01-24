@@ -19,7 +19,6 @@
   "costAddOptional": "Lisää lisäpalvelu",
   "costAmount": "Hinta",
   "costChoose": "Valitse lisättävä maksu",
-  "costOptionalAdd": "Nimeä lisättävä lisäpalvelu",
   "costDescription": {
     "earlyBirdDays": "Hinta on voimassa",
     "earlyBirdDaysUnit": "päivää ilmoittautumisajan alusta"
@@ -40,6 +39,7 @@
     "normal": "Osallistumismaksu",
     "optionalAdditionalCosts": "Lisäpalvelut"
   },
+  "costOptionalAdd": "Nimeä lisättävä lisäpalvelu",
   "costTotal": "Summa yhteensä",
   "create": "Lisää uusi",
   "createEvent": "Uusi tapahtuma",
@@ -125,6 +125,7 @@
   },
   "event": {
     "attachments": "Liitteet",
+    "classes": "Luokat",
     "classPlaces": "Paikat",
     "classPlacesHeader": {
       "dates": "päivä(t)",
@@ -133,7 +134,6 @@
       "name": "luokka",
       "places": "paikkoja"
     },
-    "classes": "Luokat",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksutiedot",
     "costMember": "jäsenille",
@@ -199,6 +199,7 @@
     "statusText": ""
   },
   "eventInfo": "Tapahtuman tiedot",
+  "events": "Tapahtumat",
   "eventTime": "Ajankohta",
   "eventType": {
     "create": "Lisää uusi tapahtumatyyppi",
@@ -217,7 +218,6 @@
     "eventType": "Lyhenne"
   },
   "eventTypes": "Tapahtumatyypit",
-  "events": "Tapahtumat",
   "filter": {
     "eventClass": "Luokka",
     "eventType": "Tapahtumatyyppi",
@@ -228,6 +228,14 @@
   "goBackToSearch": "Takaisin hakutuloksiin",
   "goHome": "Etusivulle",
   "id": "Tunnus",
+  "invitation": {
+    "download": "Lataa koekutsu",
+    "event": "Tapahtuma",
+    "handler": "Ohjaaja",
+    "open": "Avaa koekutsu",
+    "openingFailed": "Koeutsun avaaminen epäonnistui",
+    "registeredDog": "Ilmoitettu koira"
+  },
   "judge": "Tuomari",
   "judgeActive": "Arvostelee",
   "judgeChief": "Ylituomari",
@@ -265,10 +273,10 @@
   },
   "paymentDetails": "Maksutiedot",
   "paymentPage": {
+    "choosePaymentMethod": "Valitse maksutapa",
     "eventNotFound": "Tapahtumaa {{id}} ei löydy.",
     "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy.",
-    "somethingWentWrong": "Jotakin meni pieleen",
-    "choosePaymentMethod": "Valitse maksutapa"
+    "somethingWentWrong": "Jotakin meni pieleen"
   },
   "paymentStatus": {
     "missing": "Koemaksu puuttuu vielä",
@@ -416,6 +424,10 @@
     },
     "paymentToBePaid": "Maksettava: {{amount}}",
     "paymentToBePaidAfterConfirmation": "Maksettava {{amount}}, kun paikka tapahtumassa on vahvistettu",
+    "priority": {
+      "hasPriority": "Olen etusijalla",
+      "noPriority": "En ole etusijalla"
+    },
     "qualifyingResults": "Osallistumisoikeuteen vaikuttavat tulokset",
     "qualifyingResultsInfo": "Tulosten perusteella koiralla {{qualifies}} osallistua {{eventType}} {{class}}-luokkaan.",
     "qualifyingResultsNo": "ei ole oikeutta",
@@ -436,6 +448,7 @@
       "text": "Valitse palautettava maksu.",
       "title": "Maksun palautus, {{regNo}} / {{payer}}"
     },
+    "registeredDogs": "Ilmoitetut koirat",
     "reserve": "Pystyn ottamaan koepaikan vastaan varasijalta",
     "reserveChoises": {
       "ANY": "Koepäivänä",
@@ -449,18 +462,13 @@
     "state": {
       "cancelled": "Tämä ilmoittautuminen on peruttu"
     },
-    "priority": {
-      "hasPriority": "Olen etusijalla",
-      "noPriority": "En ole etusijalla"
-    },
     "status": {
       "cancelled": "Olen perunut ilmoittautumiseni",
+      "confirmed": "Olen vahvistanut osallistumiseni",
       "confirmedAndInvitationRead": "Olen vahvistanut osallistumiseni ja kuitannut koekutsun",
       "invitationRead": "Olen kuitannut koekutsun",
-      "confirmed": "Olen vahvistanut osallistumiseni",
       "received": "Ilmoittautuminen vastaanotettu"
     },
-    "registeredDogs": "Ilmoitetut koirat",
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",
     "time": {
       "ap": "(ap)",
@@ -520,14 +528,6 @@
     }
   },
   "users": "Käyttäjät",
-  "invitation": {
-    "openingFailed": "Koeutsun avaaminen epäonnistui",
-    "event": "Tapahtuma",
-    "registeredDog": "Ilmoitettu koira",
-    "handler": "Ohjaaja",
-    "open": "Avaa koekutsu",
-    "download": "Lataa koekutsu"
-  },
   "validation": {
     "event": {
       "classes": "Luokat on vaadittu tieto \"$t(event.states.{{state}})\" -tilassa olevalle {{type}}-tapahtumalle",

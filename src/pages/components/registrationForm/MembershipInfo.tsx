@@ -1,13 +1,11 @@
 import type { DeepPartial, Registration } from '../../../types'
-
-import { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import type { DogCachedInfo } from '../../recoil/dog'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
-
+import { useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalState } from './hooks/useLocalState'
 
@@ -37,12 +35,13 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
   useEffect(() => {
     setOwnerIsMember(reg.owner?.membership ?? false)
     setHandlerIsMember(reg.ownerHandles ? (reg.owner?.membership ?? false) : (reg.handler?.membership ?? false))
-  }, [reg.owner?.membership, reg.handler?.membership, reg.ownerHandles])
+  }, [reg.owner?.membership, reg.handler?.membership, reg.ownerHandles, setOwnerIsMember, setHandlerIsMember])
 
   const handleChange = useCallback(
     (props: DeepPartial<Pick<Registration, 'owner' | 'handler'>>) => {
       const changes = {}
-      let cachedOwner, cachedHandler
+      let cachedOwner: DeepPartial<DogCachedInfo['owner']> | undefined
+      let cachedHandler: DeepPartial<DogCachedInfo['handler']> | undefined
 
       if (props.owner) {
         const membership =
@@ -80,7 +79,18 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
         onChange?.(changes)
       }
     },
-    [handlerCache, onChange, orgId, ownerCache, setHandlerCache, setOwnerCache]
+    [
+      handlerCache,
+      onChange,
+      orgId,
+      ownerCache,
+      setHandlerCache,
+      setOwnerCache,
+      reg.ownerHandles,
+      reg.handler,
+      reg.owner,
+      reg.ownerPays,
+    ]
   )
 
   const open = !!reg.dog?.regNo

@@ -1,6 +1,5 @@
 import type { DeepPartial, EventClass, EventType, Judge, PublicJudge } from '../../../../../types'
 import type { PartialEvent } from '../types'
-
 import { isSameDay } from 'date-fns'
 
 type PartialPublicJudge = Partial<PublicJudge>

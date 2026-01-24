@@ -1,36 +1,80 @@
 {
-  "transactionId": "77d4e112-af02-11ee-ba91-779a11063706",
-  "href": "https://pay.paytrail.com/pay/77d4e112-af02-11ee-ba91-779a11063706",
-  "reference": "6812465688",
-  "terms": "Valitsemalla maksutavan hyväksyt <a href=\"https://www.paytrail.com/kuluttaja/maksupalveluehdot\" target=\"_blank\">maksupalveluehdot</a>",
+  "customProviders": {
+    "applepay": {
+      "group": "mobile",
+      "id": "apple-pay",
+      "name": "Apple Pay",
+      "parameters": [
+        {
+          "name": "checkout-transaction-id",
+          "value": "77d4e112-af02-11ee-ba91-779a11063706"
+        },
+        {
+          "name": "checkout-account",
+          "value": "695861"
+        },
+        {
+          "name": "checkout-method",
+          "value": "POST"
+        },
+        {
+          "name": "checkout-algorithm",
+          "value": "sha256"
+        },
+        {
+          "name": "checkout-timestamp",
+          "value": "2024-01-09T15:19:23.046Z"
+        },
+        {
+          "name": "checkout-nonce",
+          "value": "98cb6ceb-7070-4ba0-b0ef-b8ce7fccd0c8"
+        },
+        {
+          "name": "signature",
+          "value": "51415fa581154211ca693d1468599eb4cca213b1afff50db5700572102bd837a"
+        },
+        {
+          "name": "amount",
+          "value": "20.00"
+        },
+        {
+          "name": "label",
+          "value": "Paytrail Oyj"
+        },
+        {
+          "name": "currency",
+          "value": "EUR"
+        }
+      ]
+    }
+  },
   "groups": [
     {
+      "icon": "https://resources.paytrail.com/images/payment-group-icons/bank.png",
       "id": "bank",
       "name": "Pankkimaksutavat",
-      "icon": "https://resources.paytrail.com/images/payment-group-icons/bank.png",
       "svg": "https://resources.paytrail.com/images/payment-group-icons/bank.svg"
     },
     {
+      "icon": "https://resources.paytrail.com/images/payment-group-icons/creditcard.png",
       "id": "creditcard",
       "name": "Korttimaksutavat",
-      "icon": "https://resources.paytrail.com/images/payment-group-icons/creditcard.png",
       "svg": "https://resources.paytrail.com/images/payment-group-icons/creditcard.svg"
     },
     {
+      "icon": "https://resources.paytrail.com/images/payment-group-icons/credit.png",
       "id": "credit",
       "name": "Lasku- ja osamaksutavat",
-      "icon": "https://resources.paytrail.com/images/payment-group-icons/credit.png",
       "svg": "https://resources.paytrail.com/images/payment-group-icons/credit.svg"
     }
   ],
+  "href": "https://pay.paytrail.com/pay/77d4e112-af02-11ee-ba91-779a11063706",
   "providers": [
     {
-      "name": "OP",
-      "url": "https://services.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/osuuspankki/loading-and-redirect",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/osuuspankki.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/osuuspankki.svg",
-      "id": "osuuspankki",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/osuuspankki.png",
+      "id": "osuuspankki",
+      "name": "OP",
       "parameters": [
         {
           "name": "checkout-transaction-id",
@@ -60,15 +104,15 @@
           "name": "signature",
           "value": "1f76c69451f3bd6a2b7dca0c87c0182407ffe47ded28c6ab5673d928460ee6ef"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/osuuspankki.svg",
+      "url": "https://services.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/osuuspankki/loading-and-redirect"
     },
     {
-      "name": "Nordea",
-      "url": "https://epmt.nordea.fi/cgi-bin/SOLOPM01",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/nordea.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/nordea.svg",
-      "id": "nordea",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/nordea.png",
+      "id": "nordea",
+      "name": "Nordea",
       "parameters": [
         {
           "name": "VERSION",
@@ -162,15 +206,15 @@
           "name": "MAC",
           "value": "E74287F61B2E7F15027FC9A480A52B0D5DE64B081F32A4ECACAD2A6C3EA755B26089F8F2DB243757C0C454C1BEC3ACEE96847F4BD34412AFAD6B3595BC1AB554"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/nordea.svg",
+      "url": "https://epmt.nordea.fi/cgi-bin/SOLOPM01"
     },
     {
-      "url": "https://verkkopankki.danskebank.fi/SP/vemaha/VemahaApp",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/danske.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/danske.svg",
-      "name": "Danske Bank",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/danske.png",
       "id": "danske",
+      "name": "Danske Bank",
       "parameters": [
         {
           "name": "VERSIO",
@@ -216,15 +260,15 @@
           "name": "TARKISTE",
           "value": "AF7961D8D90428A5156B37FDEEB90DBD5C13D2D65FF6B9E15BC7511C0E0FA7A5"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/danske.svg",
+      "url": "https://verkkopankki.danskebank.fi/SP/vemaha/VemahaApp"
     },
     {
-      "name": "S-pankki",
-      "url": "https://online.s-pankki.fi/service/paybutton",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/spankki.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/spankki.svg",
-      "id": "spankki",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/spankki.png",
+      "id": "spankki",
+      "name": "S-pankki",
       "parameters": [
         {
           "name": "AAB_VERSION",
@@ -298,15 +342,15 @@
           "name": "AAB_MAC",
           "value": "388DC5DD8CF3AA345A984CB5B2B0F6C56BA501731DD1B4616206AD5808F2E56F"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/spankki.svg",
+      "url": "https://online.s-pankki.fi/service/paybutton"
     },
     {
-      "name": "POP Pankki",
-      "url": "https://verkkomaksu.poppankki.fi/vm/login.html",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/pop.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/pop.svg",
-      "id": "pop",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/pop.png",
+      "id": "pop",
+      "name": "POP Pankki",
       "parameters": [
         {
           "name": "NET_VERSION",
@@ -364,15 +408,15 @@
           "name": "NET_MAC",
           "value": "C3862344D55958F381565D110F69727D451DCE8161BDA6215449271F9CDD5165"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/pop.svg",
+      "url": "https://verkkomaksu.poppankki.fi/vm/login.html"
     },
     {
-      "name": "Oma Säästöpankki",
-      "url": "https://verkkomaksu.omasp.fi/vm/login.html",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/omasp.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/omasp.svg",
-      "id": "omasp",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/omasp.png",
+      "id": "omasp",
+      "name": "Oma Säästöpankki",
       "parameters": [
         {
           "name": "NET_VERSION",
@@ -430,15 +474,15 @@
           "name": "NET_MAC",
           "value": "85DE76FF0EF7C01958544104DE533C3F4F632F2F64CEB822383829C9E9AC08B0"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/omasp.svg",
+      "url": "https://verkkomaksu.omasp.fi/vm/login.html"
     },
     {
-      "name": "Aktia",
-      "url": "https://auth.aktia.fi/vmtest",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/aktia.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/aktia.svg",
-      "id": "aktia",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/aktia.png",
+      "id": "aktia",
+      "name": "Aktia",
       "parameters": [
         {
           "name": "NET_VERSION",
@@ -500,15 +544,15 @@
           "name": "NET_MAC",
           "value": "80F7E8B915BBF13661A259A23F59F0117449CAB477BFA99C8F5DDF8D958D53B8"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/aktia.svg",
+      "url": "https://auth.aktia.fi/vmtest"
     },
     {
-      "name": "Handelsbanken",
-      "url": "https://verkkomaksu.handelsbanken.fi/vm/login.html",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/handelsbanken.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/handelsbanken.svg",
-      "id": "handelsbanken",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/handelsbanken.png",
+      "id": "handelsbanken",
+      "name": "Handelsbanken",
       "parameters": [
         {
           "name": "NET_VERSION",
@@ -566,15 +610,15 @@
           "name": "NET_MAC",
           "value": "9B74023E4226F98C8110116562572DB0F1FDD0F073153AB5E0472D37024554E5"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/handelsbanken.svg",
+      "url": "https://verkkomaksu.handelsbanken.fi/vm/login.html"
     },
     {
-      "name": "Säästöpankki",
-      "url": "https://verkkomaksu.saastopankki.fi/vm/login.html",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/saastopankki.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/saastopankki.svg",
-      "id": "saastopankki",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/saastopankki.png",
+      "id": "saastopankki",
+      "name": "Säästöpankki",
       "parameters": [
         {
           "name": "NET_VERSION",
@@ -632,15 +676,15 @@
           "name": "NET_MAC",
           "value": "2CDDBFBECCEF1116896AD65B2D283AE449B4DCBA6BE49FFAC057C74B0109A28A"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/saastopankki.svg",
+      "url": "https://verkkomaksu.saastopankki.fi/vm/login.html"
     },
     {
-      "name": "Ålandsbanken",
-      "url": "https://online.alandsbanken.fi/service/paybutton",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/alandsbanken.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/alandsbanken.svg",
-      "id": "alandsbanken",
       "group": "bank",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/alandsbanken.png",
+      "id": "alandsbanken",
+      "name": "Ålandsbanken",
       "parameters": [
         {
           "name": "AAB_VERSION",
@@ -714,15 +758,15 @@
           "name": "AAB_MAC",
           "value": "1AAA7011044B026573F99A908418ACE4"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/alandsbanken.svg",
+      "url": "https://online.alandsbanken.fi/service/paybutton"
     },
     {
-      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/visa-electron.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/visa-electron.svg",
-      "name": "Visa Electron",
       "group": "creditcard",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/visa-electron.png",
       "id": "creditcard",
+      "name": "Visa Electron",
       "parameters": [
         {
           "name": "sph-account",
@@ -832,15 +876,15 @@
           "name": "signature",
           "value": "SPH1 checkout_1 c93d4b375206226ba08c5be6f6f4bad28b423ffdb9a92f1116b7534ee743f023"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/visa-electron.svg",
+      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
     },
     {
-      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/visa.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/visa.svg",
-      "name": "Visa",
       "group": "creditcard",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/visa.png",
       "id": "creditcard",
+      "name": "Visa",
       "parameters": [
         {
           "name": "sph-account",
@@ -950,15 +994,15 @@
           "name": "signature",
           "value": "SPH1 checkout_1 47e1305bf4799142dfcd281048d1b4dd9f79405e7ba5d805136f0f9ad22231ec"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/visa.svg",
+      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
     },
     {
-      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/mastercard.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/mastercard.svg",
-      "name": "Mastercard",
       "group": "creditcard",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/mastercard.png",
       "id": "creditcard",
+      "name": "Mastercard",
       "parameters": [
         {
           "name": "sph-account",
@@ -1068,15 +1112,15 @@
           "name": "signature",
           "value": "SPH1 checkout_1 7812b98bdc11fadfa35f0e22137e624b5a4298f1bab8d982d5d8a39f5f214099"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/mastercard.svg",
+      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
     },
     {
-      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card",
-      "icon": "https://resources.paytrail.com/images/payment-method-logos/amex.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/amex.svg",
-      "name": "American Express",
       "group": "creditcard",
+      "icon": "https://resources.paytrail.com/images/payment-method-logos/amex.png",
       "id": "amex",
+      "name": "American Express",
       "parameters": [
         {
           "name": "sph-account",
@@ -1186,13 +1230,15 @@
           "name": "signature",
           "value": "SPH1 checkout_1 ab886e550d5df42e692a72f21cecdd1fb2234b2f7eb708707e60ab9e807c973d"
         }
-      ]
+      ],
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/amex.svg",
+      "url": "https://v1-hub-staging.sph-test-solinor.com/form/view/pay_with_card"
     },
     {
-      "name": "Collector",
-      "url": "https://pay.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/collectorb2c/",
+      "group": "credit",
       "icon": "https://resources.paytrail.com/images/payment-method-logos/walley.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/walley.svg",
+      "id": "collectorb2c",
+      "name": "Collector",
       "parameters": [
         {
           "name": "checkout-transaction-id",
@@ -1223,14 +1269,14 @@
           "value": "fb96e5ed5c4f2889e2fdd447117f455e0acd8dbf94ab273ee95af730a9f058e6"
         }
       ],
-      "id": "collectorb2c",
-      "group": "credit"
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/walley.svg",
+      "url": "https://pay.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/collectorb2c/"
     },
     {
-      "name": "Collector B2B",
-      "url": "https://pay.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/collectorb2b/",
+      "group": "credit",
       "icon": "https://resources.paytrail.com/images/payment-method-logos/walley-yrityslasku.png",
-      "svg": "https://resources.paytrail.com/images/payment-method-logos/walley-yrityslasku.svg",
+      "id": "collectorb2b",
+      "name": "Collector B2B",
       "parameters": [
         {
           "name": "checkout-transaction-id",
@@ -1261,57 +1307,11 @@
           "value": "e40f1d3390ce59c6c73bd9d222be3c9309557bae30da9a74b1e0437b2bb2f17f"
         }
       ],
-      "id": "collectorb2b",
-      "group": "credit"
+      "svg": "https://resources.paytrail.com/images/payment-method-logos/walley-yrityslasku.svg",
+      "url": "https://pay.paytrail.com/payments/77d4e112-af02-11ee-ba91-779a11063706/collectorb2b/"
     }
   ],
-  "customProviders": {
-    "applepay": {
-      "group": "mobile",
-      "id": "apple-pay",
-      "name": "Apple Pay",
-      "parameters": [
-        {
-          "name": "checkout-transaction-id",
-          "value": "77d4e112-af02-11ee-ba91-779a11063706"
-        },
-        {
-          "name": "checkout-account",
-          "value": "695861"
-        },
-        {
-          "name": "checkout-method",
-          "value": "POST"
-        },
-        {
-          "name": "checkout-algorithm",
-          "value": "sha256"
-        },
-        {
-          "name": "checkout-timestamp",
-          "value": "2024-01-09T15:19:23.046Z"
-        },
-        {
-          "name": "checkout-nonce",
-          "value": "98cb6ceb-7070-4ba0-b0ef-b8ce7fccd0c8"
-        },
-        {
-          "name": "signature",
-          "value": "51415fa581154211ca693d1468599eb4cca213b1afff50db5700572102bd837a"
-        },
-        {
-          "name": "amount",
-          "value": "20.00"
-        },
-        {
-          "name": "label",
-          "value": "Paytrail Oyj"
-        },
-        {
-          "name": "currency",
-          "value": "EUR"
-        }
-      ]
-    }
-  }
+  "reference": "6812465688",
+  "terms": "Valitsemalla maksutavan hyväksyt <a href=\"https://www.paytrail.com/kuluttaja/maksupalveluehdot\" target=\"_blank\">maksupalveluehdot</a>",
+  "transactionId": "77d4e112-af02-11ee-ba91-779a11063706"
 }

@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
-
 import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
-
 import EventClasses from './EventClasses'
 
 const date = parseISO('2023-01-17')

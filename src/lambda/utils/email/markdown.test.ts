@@ -27,19 +27,19 @@ describe('markdown', () => {
   describe('markdownToTemplate', () => {
     it('should return the template name', async () => {
       expect(await markdownToTemplate('testTemplateName', '')).toEqual({
-        TemplateName: 'testTemplateName',
-        SubjectPart: '',
-        TextPart: '',
         HtmlPart: '',
+        SubjectPart: '',
+        TemplateName: 'testTemplateName',
+        TextPart: '',
       })
     })
 
     it('should return render detect [subject]', async () => {
       expect(await markdownToTemplate('testTemplateName', '[subject]: # (test)\n# content')).toEqual({
-        TemplateName: 'testTemplateName',
-        SubjectPart: 'test',
-        TextPart: 'content\n\n',
         HtmlPart: '<h1>content</h1>\n',
+        SubjectPart: 'test',
+        TemplateName: 'testTemplateName',
+        TextPart: 'content\n\n',
       })
     })
   })

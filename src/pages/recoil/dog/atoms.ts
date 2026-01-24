@@ -1,7 +1,5 @@
 import type { Dog, ManualTestResult, RegistrationBreeder, RegistrationPerson } from '../../../types'
-
 import { atom, atomFamily } from 'recoil'
-
 import { logEffect } from '../effects'
 import { localStorageEffect } from '../effects/storage'
 
@@ -30,13 +28,13 @@ export interface DogCachedInfo {
 export type DogCache = Record<string, Partial<DogCachedInfo>>
 
 export const dogCacheAtom = atom<DogCache>({
-  key: 'dog-cache',
   default: {},
   effects: [localStorageEffect],
+  key: 'dog-cache',
 })
 
 export const dogAtom = atomFamily<Dog | undefined, string>({
-  key: 'dog/regNo',
   default: undefined,
   effects: [logEffect],
+  key: 'dog/regNo',
 })

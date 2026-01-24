@@ -1,11 +1,8 @@
 import type { EmailTemplate } from '../../../../types'
-
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import { putEmailTemplate } from '../../../../api/email'
 import { idTokenAtom } from '../../../recoil'
-
 import { adminEmailTemplatesAtom } from './atoms'
 
 export const useAdminEmailTemplatesActions = () => {

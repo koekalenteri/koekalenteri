@@ -1,12 +1,11 @@
 import type { Person } from '../types'
-
 import { isFinnishRegNo, isModernFinnishRegNo, validatePerson, validateRegNo } from './validation'
 
 const testPerson: Person = {
-  name: 'Matti Meikäläinen',
   email: 'email@domain.com',
-  phone: '0401234567',
   location: 'Helsinki',
+  name: 'Matti Meikäläinen',
+  phone: '0401234567',
 }
 
 describe('validRegNo', () => {

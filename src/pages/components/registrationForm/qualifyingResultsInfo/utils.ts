@@ -5,9 +5,7 @@ import type {
   ManualTestResult,
   QualifyingResult,
 } from '../../../../types'
-
 import { nanoid } from 'nanoid'
-
 import { unique } from '../../../../lib/utils'
 import { objectContains } from '../validation'
 
@@ -87,16 +85,16 @@ export function createMissingResult(
 ): ManualTestResult {
   const rule = findFirstMissing(requirements, results)
   return {
-    id: nanoid(10),
-    regNo,
+    class: '',
     date: new Date(),
-    official: false,
-    qualifying: true,
-    type: '',
+    id: nanoid(10),
     judge: '',
     location: '',
+    official: false,
+    qualifying: true,
+    regNo,
     result: '',
-    class: '',
+    type: '',
     ...rule,
   }
 }

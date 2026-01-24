@@ -11,10 +11,10 @@ jest.unstable_mockModule('../lib/file', () => ({
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
-  getParam: mockGetParam,
-  lambda: mockLambda,
-  LambdaError: mockLambdaError,
   allowOrigin: mockAllowOrigin,
+  getParam: mockGetParam,
+  LambdaError: mockLambdaError,
+  lambda: mockLambda,
 }))
 
 // Mock Node.js Readable stream that implements async iterable
@@ -38,8 +38,8 @@ const { default: getAttachmentLambda } = await import('./handler')
 
 describe('getAttachmentLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { key: 'test-file.pdf' },
     queryStringParameters: {},
   } as any
@@ -88,14 +88,14 @@ describe('getAttachmentLambda', () => {
     expect(mockAllowOrigin).toHaveBeenCalledWith(event)
 
     expect(result).toEqual({
-      statusCode: 200,
       body: expect.any(String), // Base64 encoded content
-      isBase64Encoded: true,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/pdf',
         'Content-Disposition': expect.stringContaining('inline'),
+        'Content-Type': 'application/pdf',
       },
+      isBase64Encoded: true,
+      statusCode: 200,
     })
 
     // Verify the content disposition header includes the filename
@@ -125,14 +125,14 @@ describe('getAttachmentLambda', () => {
     expect(mockAllowOrigin).toHaveBeenCalledWith(eventWithDl)
 
     expect(result).toEqual({
-      statusCode: 200,
       body: expect.any(String), // Base64 encoded content
-      isBase64Encoded: true,
       headers: {
         'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/pdf',
         'Content-Disposition': expect.stringContaining('attachment'),
+        'Content-Type': 'application/pdf',
       },
+      isBase64Encoded: true,
+      statusCode: 200,
     })
 
     // Verify the content disposition header includes the filename

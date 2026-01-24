@@ -1,8 +1,6 @@
 import type { AtomEffect } from 'recoil'
 import type { DogEvent } from '../../../../types'
-
 import { DefaultValue } from 'recoil'
-
 import { getAdminEvents } from '../../../../api/event'
 import { idTokenAtom } from '../../../recoil'
 

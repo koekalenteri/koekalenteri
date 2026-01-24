@@ -24,8 +24,8 @@ const { default: getEventLambda } = await import('./handler')
 
 describe('getEventLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { id: 'event123' },
   } as any
 
@@ -36,12 +36,12 @@ describe('getEventLambda', () => {
   it('retrieves and returns a sanitized event', async () => {
     const eventId = 'event123'
     const rawEvent = {
-      id: eventId,
-      name: 'Test Event',
       createdBy: 'user1',
+      id: eventId,
       modifiedBy: 'user2',
-      secretary: { id: 'sec1', name: 'Secretary' },
+      name: 'Test Event',
       official: { id: 'off1', name: 'Official' },
+      secretary: { id: 'sec1', name: 'Secretary' },
       // other fields...
     }
 
@@ -92,40 +92,40 @@ describe('getEventLambda', () => {
   it('preserves all public fields after sanitization', async () => {
     const eventId = 'event123'
     const rawEvent = {
-      id: eventId,
-      name: 'Test Event',
-      description: 'Event description',
-      startDate: '2025-07-01T00:00:00.000Z',
-      endDate: '2025-07-02T00:00:00.000Z',
-      location: 'Test Location',
-      eventType: 'NOME-A',
-      organizer: { id: 'org1', name: 'Organizer' },
       classes: [{ class: 'ALO', date: '2025-07-01T00:00:00.000Z' }],
-      places: 10,
       cost: 50,
       costMember: 40,
-      state: 'confirmed',
 
       // Fields that should be removed by sanitization
       createdBy: 'user1',
+      description: 'Event description',
+      endDate: '2025-07-02T00:00:00.000Z',
+      eventType: 'NOME-A',
+      id: eventId,
+      location: 'Test Location',
       modifiedBy: 'user2',
-      secretary: { id: 'sec1', name: 'Secretary' },
+      name: 'Test Event',
       official: { id: 'off1', name: 'Official' },
+      organizer: { id: 'org1', name: 'Organizer' },
+      places: 10,
+      secretary: { id: 'sec1', name: 'Secretary' },
+      startDate: '2025-07-01T00:00:00.000Z',
+      state: 'confirmed',
     }
 
     const sanitizedEvent = {
-      id: eventId,
-      name: 'Test Event',
-      description: 'Event description',
-      startDate: '2025-07-01T00:00:00.000Z',
-      endDate: '2025-07-02T00:00:00.000Z',
-      location: 'Test Location',
-      eventType: 'NOME-A',
-      organizer: { id: 'org1', name: 'Organizer' },
       classes: [{ class: 'ALO', date: '2025-07-01T00:00:00.000Z' }],
-      places: 10,
       cost: 50,
       costMember: 40,
+      description: 'Event description',
+      endDate: '2025-07-02T00:00:00.000Z',
+      eventType: 'NOME-A',
+      id: eventId,
+      location: 'Test Location',
+      name: 'Test Event',
+      organizer: { id: 'org1', name: 'Organizer' },
+      places: 10,
+      startDate: '2025-07-01T00:00:00.000Z',
       state: 'confirmed',
     }
 

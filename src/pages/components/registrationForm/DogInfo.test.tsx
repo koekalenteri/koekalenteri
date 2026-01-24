@@ -1,19 +1,16 @@
 import type { ReactNode } from 'react'
-
-import { Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { registrationDogAged20MonthsAndNoResults } from '../../../__mockData__/dogs'
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import * as dogApi from '../../../api/dog'
 import { locales } from '../../../i18n'
 import { merge } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { DogInfo } from './DogInfo'
 
 const eventDate = registrationWithStaticDates.dates[0].date
@@ -73,8 +70,8 @@ describe('DogInfo', () => {
     expect(changeHandler).toHaveBeenLastCalledWith(
       expect.objectContaining({
         dog: expect.objectContaining({ regNo: '' }),
-        owner: undefined,
         handler: undefined,
+        owner: undefined,
         ownerHandles: true,
         ownerPays: true,
         results: [],

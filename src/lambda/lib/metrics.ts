@@ -1,6 +1,5 @@
 import type { MetricsLogger } from 'aws-embedded-metrics'
 import type { APIGatewayEventRequestContext } from 'aws-lambda'
-
 import { Unit } from 'aws-embedded-metrics'
 
 const metricsCount = (

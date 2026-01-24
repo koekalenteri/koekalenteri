@@ -1,18 +1,16 @@
 import type { GridRenderCellParams } from '@mui/x-data-grid'
 import type React from 'react'
 import type { Judge } from '../../../../types'
-
-import { useCallback } from 'react'
 import { styled } from '@mui/material'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import { t } from 'i18next'
+import { useCallback } from 'react'
 import { useRecoilValue } from 'recoil'
-
 import { isAdminSelector } from '../../../recoil'
 import { useAdminJudgesActions } from '../../recoil'
 
-const LangToggle = styled(ToggleButton)({ paddingTop: 1, paddingBottom: 1 })
+const LangToggle = styled(ToggleButton)({ paddingBottom: 1, paddingTop: 1 })
 
 const LanguagesCell = (props: GridRenderCellParams<Judge, Judge>) => {
   const actions = useAdminJudgesActions()

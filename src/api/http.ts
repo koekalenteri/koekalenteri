@@ -1,6 +1,5 @@
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
-
 import { reportError } from '../lib/client/error'
 import { parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
@@ -90,7 +89,7 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
       enqueueSnackbar(`${err}`, { variant: 'error' })
     } else if (err.status === 401) {
       const msg = err.body?.message ?? err.body ?? err.message
-      if (msg == 'The incoming token has expired' && init.headers && 'Authorization' in init.headers) {
+      if (msg === 'The incoming token has expired' && init.headers && 'Authorization' in init.headers) {
         // token expired, try to refresh
         const session = await fetchAuthSession({ forceRefresh: true })
         const idToken = session.tokens?.idToken?.toString()
@@ -98,7 +97,7 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
           const key = 'idToken'
           const newValue = JSON.stringify(idToken)
           localStorage.setItem(key, newValue)
-          dispatchEvent(new StorageEvent('storage', { storageArea: localStorage, key, newValue }))
+          dispatchEvent(new StorageEvent('storage', { key, newValue, storageArea: localStorage }))
           // retry with new token after a little delay
           await new Promise((resolve) => setTimeout(resolve, 50))
           init = withToken(init, idToken)
@@ -113,11 +112,14 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
 }
 
 const HTTP = {
+  async delete<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
+    return http<U>(path, { body: JSON.stringify(body), method: 'delete', ...init }, reviveDates)
+  },
   async get<T>(path: string, init?: RequestInit, reviveDates: boolean = true): Promise<T> {
     return http<T>(path, { method: 'get', ...init }, reviveDates)
   },
   async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { method: 'post', body: JSON.stringify(body), ...init }, reviveDates)
+    return http<U>(path, { body: JSON.stringify(body), method: 'post', ...init }, reviveDates)
   },
   async postRaw<T extends BodyInit, U>(
     path: string,
@@ -125,13 +127,10 @@ const HTTP = {
     init?: RequestInit,
     reviveDates: boolean = true
   ): Promise<U> {
-    return http<U>(path, { method: 'post', body, ...init }, reviveDates)
+    return http<U>(path, { body, method: 'post', ...init }, reviveDates)
   },
   async put<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { method: 'put', body: JSON.stringify(body), ...init }, reviveDates)
-  },
-  async delete<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { method: 'delete', body: JSON.stringify(body), ...init }, reviveDates)
+    return http<U>(path, { body: JSON.stringify(body), method: 'put', ...init }, reviveDates)
   },
 }
 

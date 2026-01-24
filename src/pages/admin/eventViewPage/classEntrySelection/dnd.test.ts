@@ -1,8 +1,6 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
 import type { DragItem } from './types'
-
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
-
 import { determineChangesFromDrop } from './dnd'
 
 describe('dnd', () => {
@@ -50,12 +48,12 @@ describe('dnd', () => {
     ])('should return %p when moving within %p group and canArrangeReserve=%p', (expecterNumbers, groupKey, canArrangeReserve, index, targetIndex, position) => {
       const item: DragItem = {
         groupKey,
+        groups: [],
         id: 'reg-id',
         index,
-        groups: [],
-        targetIndex,
-        targetGroupKey: groupKey,
         position,
+        targetGroupKey: groupKey,
+        targetIndex,
       }
       const group: RegistrationGroup = {
         key: groupKey,
@@ -63,18 +61,18 @@ describe('dnd', () => {
       }
       const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
         eventId: 'event-id',
-        group: { number: index + 1, key: groupKey },
+        group: { key: groupKey, number: index + 1 },
         id: 'reg-id',
       }
       const regs: Pick<Registration, 'group'>[] = [
-        { group: { number: 1, key: groupKey } },
-        { group: { number: 2, key: groupKey } },
-        { group: { number: 3, key: groupKey } },
+        { group: { key: groupKey, number: 1 } },
+        { group: { key: groupKey, number: 2 } },
+        { group: { key: groupKey, number: 3 } },
       ].filter((r) => r.group.number !== reg.group?.number)
 
       const expected = expecterNumbers.map<RegistrationGroupInfo>((number) => ({
         eventId: 'event-id',
-        group: { number, key: groupKey },
+        group: { key: groupKey, number },
         id: 'reg-id',
       }))
 
@@ -91,12 +89,12 @@ describe('dnd', () => {
     ])('should return %p when moving from group %p to %p', (expecterNumbers, groupKey, targetGroupKey, index, targetIndex, position) => {
       const item: DragItem = {
         groupKey,
+        groups: [],
         id: 'reg-id',
         index,
-        groups: [],
-        targetIndex,
-        targetGroupKey,
         position,
+        targetGroupKey,
+        targetIndex,
       }
       const group: RegistrationGroup = {
         key: targetGroupKey,
@@ -104,19 +102,19 @@ describe('dnd', () => {
       }
       const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
         eventId: 'event-id',
-        group: { number: index + 1, key: groupKey },
+        group: { key: groupKey, number: index + 1 },
         id: 'reg-id',
       }
       const regs: Pick<Registration, 'group'>[] = [
-        { group: { number: 1, key: targetGroupKey } },
-        { group: { number: 2, key: targetGroupKey } },
-        { group: { number: 3, key: targetGroupKey } },
+        { group: { key: targetGroupKey, number: 1 } },
+        { group: { key: targetGroupKey, number: 2 } },
+        { group: { key: targetGroupKey, number: 3 } },
       ]
 
       const expected = expecterNumbers.map<RegistrationGroupInfo>((number) => ({
         cancelled: targetGroupKey === GROUP_KEY_CANCELLED,
         eventId: 'event-id',
-        group: { number, key: targetGroupKey },
+        group: { key: targetGroupKey, number },
         id: 'reg-id',
       }))
 

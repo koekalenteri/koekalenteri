@@ -1,7 +1,5 @@
 import type { PublicRegistration } from '../../types/Registration'
-
 import { render, screen } from '@testing-library/react'
-
 import { RegistrationDetails } from './RegistrationDetails'
 
 // Mock i18next
@@ -21,34 +19,34 @@ jest.mock('react-i18next', () => ({
 
 describe('RegistrationDetails', () => {
   const mockRegistration: PublicRegistration = {
-    class: 'AVO',
+    breeder: 'Test Breeder',
     cancelled: false,
+    class: 'AVO',
     dog: {
-      name: 'Test Dog',
-      titles: 'CH',
-      regNo: 'REG123',
       breedCode: '111',
-      gender: 'M',
-      dob: new Date('2020-01-01'),
-      sire: {
-        name: 'Sire Dog',
-        titles: 'CH',
-      },
       dam: {
         name: 'Dam Dog',
         titles: 'CH',
       },
+      dob: new Date('2020-01-01'),
+      gender: 'M',
+      name: 'Test Dog',
+      regNo: 'REG123',
       results: [],
+      sire: {
+        name: 'Sire Dog',
+        titles: 'CH',
+      },
+      titles: 'CH',
     },
     group: {
-      number: 123,
-      key: 'group-123',
       date: new Date('2023-01-01'),
+      key: 'group-123',
+      number: 123,
       time: 'ap',
     },
-    owner: 'Test Owner',
     handler: 'Test Handler',
-    breeder: 'Test Breeder',
+    owner: 'Test Owner',
     ownerHandles: false,
   }
 

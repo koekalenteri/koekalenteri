@@ -1,8 +1,6 @@
 import type { DeepPartial } from '../../../../types'
 import type { DogCachedInfo } from '../../../recoil/dog'
-
 import { useCallback } from 'react'
-
 import { useDogCache } from './useDogCache'
 
 type CacheKey = keyof DogCachedInfo

@@ -1,14 +1,11 @@
 import type { ReactNode } from 'react'
-
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
-
+import { MemoryRouter } from 'react-router'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-
 import { EventStateInfo } from './EventStateInfo'
 
 function Wrapper({ children }: { readonly children: ReactNode }) {

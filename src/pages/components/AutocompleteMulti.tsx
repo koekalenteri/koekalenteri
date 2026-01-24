@@ -1,5 +1,4 @@
 import type { AutocompleteProps } from '@mui/material'
-
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Autocomplete from '@mui/material/Autocomplete'

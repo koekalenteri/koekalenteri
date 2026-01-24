@@ -1,8 +1,4 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
-
-import { useCallback, useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
@@ -12,20 +8,20 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import { useConfirm } from 'material-ui-confirm'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-
 import { formatDistance } from '../../i18n/dates'
 import { isDevEnv } from '../../lib/env'
 import { isEventDeletable } from '../../lib/event'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
-
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
 import useEventListColumns from './eventListPage/columns'
-import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 import {
   adminCurrentEventSelector,
   adminEventColumnsAtom,
@@ -36,6 +32,7 @@ import {
   adminShowPastEventsAtom,
   useAdminEventActions,
 } from './recoil'
+import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 
 export default function EventListPage() {
   const confirm = useConfirm()
@@ -58,10 +55,10 @@ export default function EventListPage() {
 
   const deleteAction = useCallback(() => {
     confirm({
-      title: t('confirmTitle'),
-      description: t('deleteEventText'),
-      confirmationText: t('delete'),
       cancellationText: t('cancel'),
+      confirmationText: t('delete'),
+      description: t('deleteEventText'),
+      title: t('confirmTitle'),
     }).then(async ({ confirmed }) => {
       if (confirmed) {
         await actions.deleteCurrent()
@@ -72,13 +69,13 @@ export default function EventListPage() {
   const createAction = useCallback(() => {
     if (newEvent.modifiedAt) {
       confirm({
-        title: t('confirmTitle'),
+        cancellationText: 'Luo uusi tapahtuma',
+        confirmationText: 'Jatka muokkausta',
         description: `Sinulla on tallentamaton tapahtuman luonnos (muokattu ${formatDistance(
           newEvent.modifiedAt,
           'fi'
         )} sitten). Haluatko jatkaa muokkaamista vai luoda kokonaan uuden tapahtuman?`,
-        confirmationText: 'Jatka muokkausta',
-        cancellationText: 'Luo uusi tapahtuma',
+        title: t('confirmTitle'),
       }).then(async ({ confirmed }) => {
         if (!confirmed) {
           resetNewEvent()
@@ -172,10 +169,6 @@ export default function EventListPage() {
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
-            value: searchText,
-            onChange,
-            clearSearch,
-            columnSelector: true,
             children: (
               <Stack direction="row" mx={1} flex={1}>
                 <AutocompleteSingle
@@ -205,6 +198,10 @@ export default function EventListPage() {
                 />
               </Stack>
             ),
+            clearSearch,
+            columnSelector: true,
+            onChange,
+            value: searchText,
           },
         }}
       />

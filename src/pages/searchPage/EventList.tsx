@@ -1,5 +1,4 @@
 import type { PublicDogEvent } from '../../types'
-
 import { EmptyResult } from './eventList/EmptyResult'
 import { EventListItem } from './eventList/EventListItem'
 

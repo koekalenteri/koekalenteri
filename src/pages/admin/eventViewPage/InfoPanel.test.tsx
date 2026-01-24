@@ -1,13 +1,10 @@
 import type { Registration } from '../../../types'
-
 import { screen } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { renderWithUserEvents } from '../../../test-utils/utils'
-
 import InfoPanel from './InfoPanel'
 
 // Mock the API calls
@@ -50,8 +47,8 @@ describe('InfoPanel>', () => {
           ...r,
           group: {
             ...r.dates[0],
-            number: i,
             key: getGroupKey(r, i),
+            number: i,
           },
         }))}
       />,

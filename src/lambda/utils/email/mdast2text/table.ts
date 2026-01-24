@@ -1,5 +1,4 @@
 import type { Plugin } from 'unified'
-
 import { SKIP, visit } from 'unist-util-visit'
 
 export const removeTableHead: Plugin = () => (tree: any) =>

@@ -1,14 +1,11 @@
 import type { JsonUser, Official, Organizer, UserRole } from '../../types'
 import type { PartialJsonJudge } from './judge'
-
 import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
-
 import { i18n } from '../../i18n/lambda'
 import { validEmail } from '../../lib/email'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { sendTemplatedMail } from './email'
 import { reverseName } from './string'
 
@@ -44,10 +41,10 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
   if (!email) return undefined
 
   const users = await dynamoDB.query<JsonUser>({
-    key: 'email = :email',
-    values: { ':email': email },
-    table: userTable,
     index: 'gsiEmail',
+    key: 'email = :email',
+    table: userTable,
+    values: { ':email': email },
   })
 
   return users?.find((user) => user.email === email)
@@ -76,9 +73,9 @@ export const setUserRole = async (
     { id: user.id },
     {
       set: {
-        roles,
         modifiedAt: timestamp,
         modifiedBy,
+        roles,
       },
     },
     userTable
@@ -88,15 +85,15 @@ export const setUserRole = async (
 
   if (role !== 'none') {
     await sendTemplatedMail('access', 'fi', emailFrom, [user.email], {
-      user: {
-        firstName: (user.name ?? 'Nimetön').split(' ')[0],
-        email: user.email,
-      },
+      admin: role === 'admin',
       link: `${origin}/login`,
       orgName: org?.name ?? 'Tuntematon',
       roleName: t(`user.roles.${role}`),
-      admin: role === 'admin',
       secretary: role === 'secretary',
+      user: {
+        email: user.email,
+        firstName: (user.name ?? 'Nimetön').split(' ')[0],
+      },
     })
   }
 
@@ -120,14 +117,14 @@ const buildUserUpdates = (
     }
     console.log(`creating user from item: ${item.name}, email: ${item.email}`)
     const newUser: JsonUser = {
-      id: nanoid(10),
       createdAt: dateString,
       createdBy: modifiedBy,
+      email: item.email,
+      id: nanoid(10),
+      kcId: item.id,
       modifiedAt: dateString,
       modifiedBy,
       name: reverseName(item.name),
-      email: item.email,
-      kcId: item.id,
       [eventTypesFiled]: item.eventTypes,
     }
 
@@ -142,10 +139,10 @@ const buildUserUpdates = (
     if (!item) continue
     const updated: JsonUser = {
       ...existing,
-      name: reverseName(item.name),
       email: item.email,
       kcId: item.id,
       location: item.location ?? existing.location,
+      name: reverseName(item.name),
       phone: item.phone ?? existing.phone,
       [eventTypesFiled]: item.eventTypes,
     }

@@ -15,9 +15,7 @@ import type {
   RegistrationBreeder,
   TestResult,
 } from '../../../types'
-
 import { differenceInMonths, startOfYear } from 'date-fns'
-
 import { getNextClass } from '../../../lib/registration'
 import { validatePerson } from '../../../lib/validation'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
@@ -35,12 +33,12 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   handler: (reg) => (reg.ownerHandles ? false : validatePerson(reg.handler)),
   id: () => false,
   notes: () => false,
+  optionalCosts: () => false,
   owner: (reg) => validatePerson(reg.owner),
   payer: (reg) => (reg.ownerPays ? false : validatePerson(reg.payer, false)),
   reserve: (reg) => (!reg.reserve ? 'reserve' : false),
   results: () => false,
   selectedCost: () => false,
-  optionalCosts: () => false,
 }
 
 function validateRegistrationField(
@@ -198,8 +196,8 @@ export function filterRelevantResults(
       )
     if (dis?.qualifies) {
       return {
-        relevant: check.relevant.concat(dis.relevant).sort(byDate),
         qualifies: false,
+        relevant: check.relevant.concat(dis.relevant).sort(byDate),
       }
     } else {
       check.relevant.push(...bestResults(eventType, regClass, officialResults, manualValid))
@@ -218,11 +216,11 @@ function findDisqualifyingResult(
     r.type === eventType && ((r.class && r.class === nextClass) || r.result === 'NOU1')
   const officialResult = officialResults?.find(compare)
   if (officialResult) {
-    return { relevant: [{ ...officialResult, qualifying: false, official: true }], qualifies: false }
+    return { qualifies: false, relevant: [{ ...officialResult, official: true, qualifying: false }] }
   }
   const manualResult = manualResults?.find(compare)
   if (manualResult) {
-    return { relevant: [{ ...manualResult, qualifying: false, official: false } as QualifyingResult], qualifies: false }
+    return { qualifies: false, relevant: [{ ...manualResult, official: false, qualifying: false } as QualifyingResult] }
   }
 }
 
@@ -235,7 +233,7 @@ function checkRequiredResults(
   qualifying = true
 ): QualifyingResults {
   if (!requirements) {
-    return { relevant: [], qualifies: qualifying }
+    return { qualifies: qualifying, relevant: [] }
   }
 
   const relevant: QualifyingResult[] = []
@@ -252,7 +250,7 @@ function checkRequiredResults(
     if (objectContains(result, resultProps)) {
       // @todo: 2 tulosta samalle päivälle?
       if (!relevant.find((rel) => rel.date === result.date))
-        relevant.push({ ...result, qualifying, official } as QualifyingResult)
+        relevant.push({ ...result, official, qualifying } as QualifyingResult)
       if (getCount(r) >= count) {
         qualifies = true
       }
@@ -274,7 +272,7 @@ function checkRequiredResults(
     }
   }
 
-  return { relevant, qualifies }
+  return { qualifies, relevant }
 }
 
 function bestResults(

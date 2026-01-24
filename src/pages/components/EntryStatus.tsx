@@ -1,7 +1,5 @@
 import type { MinimalEventForStatus } from '../../hooks/useEventStatus'
-
 import Typography from '@mui/material/Typography'
-
 import useEventStatus from '../../hooks/useEventStatus'
 
 interface Props {

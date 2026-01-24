@@ -1,5 +1,4 @@
 import type { Dispatch, SetStateAction } from 'react'
-
 import InfoOutlined from '@mui/icons-material/InfoOutlined'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -16,7 +15,7 @@ const UnlockArrange = ({ checked, disabled, onChange }: Props) => {
   if (disabled) return null
 
   return (
-    <FormControl sx={{ maxWidth: 450, flexDirection: 'row', alignItems: 'center' }}>
+    <FormControl sx={{ alignItems: 'center', flexDirection: 'row', maxWidth: 450 }}>
       <FormControlLabel
         control={<Switch checked={checked} size="small" />}
         disableTypography

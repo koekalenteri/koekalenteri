@@ -1,13 +1,10 @@
 import type { DeepPartial, Dog } from '../../../types'
 import type { DogCachedInfo } from './atoms'
-
 import { act, renderHook } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-
 import { getDog } from '../../../api/dog'
 import { emptyDog } from '../../../lib/data'
 import { RecoilObserver } from '../../../test-utils/utils'
-
 import { useDogActions } from './actions'
 import { dogAtom, dogCacheAtom } from './atoms'
 
@@ -27,8 +24,8 @@ const mockGetDog = getDog as jest.MockedFunction<typeof getDog>
 describe('useDogActions', () => {
   const testRegNo = 'TEST123/45'
   const testDog: Dog = {
-    regNo: testRegNo,
     name: 'Test Dog',
+    regNo: testRegNo,
     results: [],
   }
 
@@ -154,8 +151,8 @@ describe('useDogActions', () => {
 
       const cachedInfo: DeepPartial<DogCachedInfo> = {
         dog: {
-          titles: 'Champion',
           rfid: '123456789',
+          titles: 'Champion',
         },
         rfid: true,
       }
@@ -184,8 +181,8 @@ describe('useDogActions', () => {
     it('returns cached dog when manually input (no refreshDate)', async () => {
       // Create a manually input cached dog (no refreshDate)
       const cachedDog: DeepPartial<Dog> = {
-        regNo: testRegNo,
         name: 'Manually Input Dog',
+        regNo: testRegNo,
         results: [],
       }
 
@@ -423,8 +420,8 @@ describe('useDogActions', () => {
     it('handles diff/hasChanges logic correctly', async () => {
       // Set up initial dog in Recoil state
       const initialDog: Dog = {
-        regNo: testRegNo,
         name: 'Initial Dog',
+        regNo: testRegNo,
         results: [],
       }
 
@@ -477,8 +474,8 @@ describe('useDogActions', () => {
       // Create cache with titles and rfid
       const cacheWithTitlesRfid: DeepPartial<DogCachedInfo> = {
         dog: {
-          titles: 'Champion',
           rfid: '123456789',
+          titles: 'Champion',
         },
       }
 
