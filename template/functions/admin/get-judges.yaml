@@ -1,42 +1,46 @@
-  GetJudgesFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambda/GetJudgesFunction
-      Handler: handler.default
-      Layers:
-        - !Ref CommonLayer
-      Tracing: Active
-      Policies:
-        - Statement:
-            - Sid: SSMGetParameterPolicy
-              Effect: Allow
-              Action:
+GetJudgesFunction:
+  Type: AWS::Serverless::Function
+  Properties:
+    CodeUri: lambda/GetJudgesFunction
+    Handler: handler.default
+    Layers:
+      - !Ref CommonLayer
+    Tracing: Active
+    Policies:
+      - Statement:
+          - Sid: SSMGetParameterPolicy
+            Effect: Allow
+            Action:
               - ssm:GetParameters
               - ssm:GetParameter
-              Resource: '*'
-        - DynamoDBCrudPolicy:
-            TableName: !Ref JudgeTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref EventTypeTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UserTable
-        - DynamoDBReadPolicy:
-            TableName: !Ref UserLinkTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref AuditTable
-        - CloudWatchPutMetricPolicy: {}
-      Events:
-        GetJudges:
-          Type: Api
-          Properties:
-            Path: /admin/judge
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: CognitoAuthorizer
+            Resource: '*'
+      - DynamoDBCrudPolicy:
+          TableName: !Ref JudgeTable
+      - DynamoDBReadPolicy:
+          TableName: !Ref EventTypeTable
+      # Needed by updateUsersFromOfficialsOrJudges(): rewrites event.official/event.secretary references
+      # after merging duplicate users (kcId stable, KL email may change).
+      - DynamoDBCrudPolicy:
+          TableName: !Ref EventTable
+      - DynamoDBCrudPolicy:
+          TableName: !Ref UserTable
+      - DynamoDBReadPolicy:
+          TableName: !Ref UserLinkTable
+      - DynamoDBCrudPolicy:
+          TableName: !Ref AuditTable
+      - CloudWatchPutMetricPolicy: {}
+    Events:
+      GetJudges:
+        Type: Api
+        Properties:
+          Path: /admin/judge
+          Method: GET
+          RestApiId: !Ref KoekalenteriApi
+          Auth:
+            Authorizer: CognitoAuthorizer
 
-  GetJudgesFunctionLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetJudgesFunction]]
-      RetentionInDays: 30
+GetJudgesFunctionLogGroup:
+  Type: AWS::Logs::LogGroup
+  Properties:
+    LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetJudgesFunction]]
+    RetentionInDays: 30
