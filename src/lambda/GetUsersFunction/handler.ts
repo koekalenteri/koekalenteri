@@ -11,9 +11,7 @@ function dedupeUsersByEmail<
     roles?: Record<string, unknown>
     modifiedAt?: string
   },
->(
-  users: T[]
-): T[] {
+>(users: T[]): T[] {
   const byEmail = new Map<string, T>()
 
   const score = (u: T) => {

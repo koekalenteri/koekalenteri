@@ -170,7 +170,12 @@ const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string): Json
   return write
 }
 
-const toEventUser = (user: JsonUser | undefined, fallback: Partial<{ id?: string; name?: string; email?: string; phone?: string; location?: string; kcId?: number }> | undefined) => {
+const toEventUser = (
+  user: JsonUser | undefined,
+  fallback:
+    | Partial<{ id?: string; name?: string; email?: string; phone?: string; location?: string; kcId?: number }>
+    | undefined
+) => {
   if (!user) return fallback ?? {}
   // Event stores a Partial<User>; keep it small but consistent.
   return {
@@ -269,7 +274,6 @@ export const updateUsersFromOfficialsOrJudges = async (
   const dateString = new Date().toISOString()
 
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-  const allUsersWithEmail = allUsers.filter((u) => validEmail(u.email))
 
   // Normalize incoming emails from KL to lowercase.
   const itemsWithEmail = items
@@ -322,9 +326,7 @@ export const updateUsersFromOfficialsOrJudges = async (
 
       if (!newOfficialId && !newSecretaryId) continue
 
-      const updatedOfficial = newOfficialId
-        ? toEventUser(mergedUserMap.get(newOfficialId), evt.official)
-        : evt.official
+      const updatedOfficial = newOfficialId ? toEventUser(mergedUserMap.get(newOfficialId), evt.official) : evt.official
       const updatedSecretary = newSecretaryId
         ? toEventUser(mergedUserMap.get(newSecretaryId), evt.secretary)
         : evt.secretary

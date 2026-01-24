@@ -162,18 +162,39 @@ describe('lib/user', () => {
     })
 
     it('mergeRoles merges objects, right wins on conflict', () => {
-      expect(__testables.mergeRoles({ org1: 'admin' }, { org2: 'secretary' })).toEqual({ org1: 'admin', org2: 'secretary' })
+      expect(__testables.mergeRoles({ org1: 'admin' }, { org2: 'secretary' })).toEqual({
+        org1: 'admin',
+        org2: 'secretary',
+      })
       expect(__testables.mergeRoles({ org1: 'admin' }, { org1: 'secretary' })).toEqual({ org1: 'secretary' })
       expect(__testables.mergeRoles(undefined, undefined)).toBeUndefined()
     })
 
     it('pickCanonicalUser prefers higher score (roles/admin/officer/judge), then modifiedAt', () => {
       const base: JsonUser = { ...defaults, id: 'u1', name: 'u1', email: 'u1@example.com' }
-      const withRoles: JsonUser = { ...defaults, id: 'u2', name: 'u2', email: 'u2@example.com', roles: { org: 'admin' } }
+      const withRoles: JsonUser = {
+        ...defaults,
+        id: 'u2',
+        name: 'u2',
+        email: 'u2@example.com',
+        roles: { org: 'admin' },
+      }
       expect(__testables.pickCanonicalUser([base, withRoles]).id).toBe('u2')
 
-      const older: JsonUser = { ...defaults, id: 'u3', name: 'u3', email: 'u3@example.com', modifiedAt: '2020-01-01T00:00:00.000Z' }
-      const newer: JsonUser = { ...defaults, id: 'u4', name: 'u4', email: 'u4@example.com', modifiedAt: '2021-01-01T00:00:00.000Z' }
+      const older: JsonUser = {
+        ...defaults,
+        id: 'u3',
+        name: 'u3',
+        email: 'u3@example.com',
+        modifiedAt: '2020-01-01T00:00:00.000Z',
+      }
+      const newer: JsonUser = {
+        ...defaults,
+        id: 'u4',
+        name: 'u4',
+        email: 'u4@example.com',
+        modifiedAt: '2021-01-01T00:00:00.000Z',
+      }
       expect(__testables.pickCanonicalUser([older, newer]).id).toBe('u4')
     })
 
@@ -209,7 +230,15 @@ describe('lib/user', () => {
     })
 
     it('toEventUser maps JsonUser to a compact event user shape', () => {
-      const u: JsonUser = { ...defaults, id: 'id1', name: 'Name', email: 'e@example.com', kcId: 123, phone: 'p', location: 'l' }
+      const u: JsonUser = {
+        ...defaults,
+        id: 'id1',
+        name: 'Name',
+        email: 'e@example.com',
+        kcId: 123,
+        phone: 'p',
+        location: 'l',
+      }
       expect(__testables.toEventUser(u, { id: 'fallback' })).toEqual({
         id: 'id1',
         name: 'Name',

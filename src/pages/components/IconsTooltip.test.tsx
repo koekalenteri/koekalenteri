@@ -46,4 +46,3 @@ describe('IconsTooltip', () => {
     expect(await screen.findByText('IconText')).toBeInTheDocument()
   })
 })
-
