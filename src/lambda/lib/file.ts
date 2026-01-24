@@ -6,7 +6,7 @@ import type {
 } from '@aws-sdk/client-s3'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { FileInfo } from 'busboy'
-import type { Readable } from 'stream'
+import type { Readable } from 'node:stream'
 
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import Busboy from 'busboy'

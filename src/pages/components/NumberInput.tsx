@@ -18,7 +18,7 @@ const defaultFormatter = (value: number | undefined) => (value !== undefined ? `
 
 export const NumberInput = ({
   formatValue = defaultFormatter,
-  parseInput = parseInt,
+  parseInput = (value: string) => Number.parseInt(value, 10),
   pattern = '[0-9]{1,3}',
   value,
   onChange,
@@ -34,7 +34,7 @@ export const NumberInput = ({
         setStringValue(e.target.value)
       }
       let newValue: number | undefined = parseInput(e.target.value)
-      if (isNaN(newValue)) {
+      if (Number.isNaN(newValue)) {
         newValue = undefined
       }
       if (newValue !== value) {

@@ -45,7 +45,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   const updated = await updateTransactionStatus(transaction, status)
   if (updated && status === 'ok') {
     const t = i18n.getFixedT(registration.language)
-    const amount = parseInt(params['checkout-amount'] ?? '0') / 100
+    const amount = Number.parseInt(params['checkout-amount'] ?? '0', 10) / 100
     const provider = params['checkout-provider']
     const providerName = getProviderName(provider)
 

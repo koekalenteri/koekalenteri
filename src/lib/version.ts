@@ -15,9 +15,9 @@ export const isEarlierVersionThan = (version: string, current: string = appVersi
     // current does not include '-beta' for example, but current does not
     if (current.length < compared.length) return false
     // absolute number is smaller
-    if (parseInt(current[0], 10) < parseInt(compared[0], 10)) return true
+    if (Number.parseInt(current[0], 10) < Number.parseInt(compared[0], 10)) return true
     // absolute number is larger
-    if (parseInt(current[0], 10) > parseInt(compared[0], 10)) return false
+    if (Number.parseInt(current[0], 10) > Number.parseInt(compared[0], 10)) return false
     // '-alpha' vs '-beta' etc, in aplhabetical order
     if (compared.length > 1 && current[1].localeCompare(compared[1]) < 0) return true
   }

@@ -68,13 +68,20 @@ function validateRegistrationField(
   return result
 }
 
-const NOT_VALIDATED = ['createdAt', 'createdBy', 'modifiedAt', 'modifiedBy', 'deletedAt', 'deletedBy']
+const NOT_VALIDATED = new Set<keyof Registration>([
+  'createdAt',
+  'createdBy',
+  'modifiedAt',
+  'modifiedBy',
+  'deletedAt',
+  'deletedBy',
+])
 
 export function validateRegistration(registration: Registration, event: PublicConfirmedEvent) {
   const errors = []
   let field: keyof Registration
   for (field in registration) {
-    if (NOT_VALIDATED.includes(field)) {
+    if (NOT_VALIDATED.has(field)) {
       continue
     }
     const result = validateRegistrationField(registration, field, event)

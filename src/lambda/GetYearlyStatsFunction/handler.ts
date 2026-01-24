@@ -8,7 +8,7 @@ const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
   const yearParam = event.queryStringParameters?.year
 
   // If year is provided, return stats for that specific year
-  if (yearParam && !isNaN(Number(yearParam))) {
+  if (yearParam && !Number.isNaN(Number(yearParam))) {
     const year = Number(yearParam)
     const totals = await getYearlyTotalStats(year)
     const dogHandlerBuckets = await getDogHandlerBuckets(year)

@@ -78,10 +78,7 @@ export default function EventViewPage() {
   const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
   const backgroundActionsRunning = useRecoilValue(adminBackgroundActionsRunningAtom)
 
-  const activeTab = useMemo(
-    () => Math.max(allClasses.findIndex((c) => c === selectedEventClass) ?? 0, 0),
-    [allClasses, selectedEventClass]
-  )
+  const activeTab = useMemo(() => Math.max(allClasses.indexOf(selectedEventClass), 0), [allClasses, selectedEventClass])
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {

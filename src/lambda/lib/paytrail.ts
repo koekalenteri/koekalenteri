@@ -9,8 +9,8 @@ import type {
   RefundRequest,
 } from '../types/paytrail'
 
-import { createHmac } from 'crypto'
 import { nanoid } from 'nanoid'
+import { createHmac } from 'node:crypto'
 
 import { currentFinnishTime } from '../../i18n/dates'
 import { keysOf } from '../../lib/typeGuards'

@@ -4,10 +4,14 @@
 // learn more: https://github.com/testing-library/jest-dom
 
 import { toHaveNoViolations } from 'jest-axe'
-import { TextDecoder, TextEncoder } from 'util'
+import { TextDecoder, TextEncoder } from 'node:util'
 
 // https://github.com/jsdom/jsdom/issues/3363
-import 'core-js/stable/structured-clone'
+// jest/jsdom runtime doesn't provide structuredClone in all configs.
+if (typeof globalThis.structuredClone !== 'function') {
+  globalThis.structuredClone = (value: unknown) => JSON.parse(JSON.stringify(value))
+}
+
 import '@testing-library/jest-dom'
 // initialize i18n
 import './i18n'

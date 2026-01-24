@@ -21,7 +21,7 @@ export const userIsMemberOf = (user: Pick<JsonUser, 'roles'>): string[] =>
 
 export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: string[]) => {
   const memberOf = userIsMemberOf(user)
-  const filteredOrgs = orgs.filter((o) => memberOf.includes(o))
+  const filteredOrgs = new Set(orgs.filter((o) => memberOf.includes(o)))
 
   return user.admin
     ? users
@@ -30,7 +30,7 @@ export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: str
           u.admin || // admins are always included
           u.judge?.length || // judges are always included
           u.officer?.length || // officers are always included
-          Object.keys(u.roles ?? {}).some((orgId) => filteredOrgs.includes(orgId))
+          Object.keys(u.roles ?? {}).some((orgId) => filteredOrgs.has(orgId))
       )
 }
 

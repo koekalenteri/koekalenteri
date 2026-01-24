@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 
 import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
-import { gzipSync } from 'zlib'
+import { gzipSync } from 'node:zlib'
 
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'

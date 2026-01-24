@@ -1,5 +1,5 @@
 import type { StreamingBlobTypes } from '@smithy/types'
-import type { Readable } from 'stream'
+import type { Readable } from 'node:stream'
 
 import { downloadFile } from '../lib/file'
 import { allowOrigin, getParam, lambda, LambdaError } from '../lib/lambda'
