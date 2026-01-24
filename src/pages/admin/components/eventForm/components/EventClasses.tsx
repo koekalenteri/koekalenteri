@@ -98,9 +98,9 @@ export default function EventClasses(props: Props) {
       renderInput={(inputProps) => (
         <TextField {...inputProps} required={required} error={!!error} helperText={helperText} label={label} />
       )}
-      renderTags={(tagValue, getTagProps) =>
+      renderValue={(tagValue, getItemProps) =>
         tagValue.map((option, index) => {
-          const { key, ...props } = getTagProps({ index })
+          const { key, ...props } = getItemProps({ index })
           return (
             <Chip
               key={key}

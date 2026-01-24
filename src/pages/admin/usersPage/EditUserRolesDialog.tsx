@@ -1,6 +1,7 @@
+import type { SelectChangeEvent } from '@mui/material/Select'
 import type { Organizer, User } from '../../../types'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
@@ -40,6 +41,11 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
   const [role, setRole] = useState<'admin' | 'secretary'>('secretary')
   const roles = user?.roles ?? {}
   const availableOrgs = organizers.filter((org) => !Object.keys(roles).includes(org.id))
+
+  const handleRoleChange = useCallback((event: SelectChangeEvent<'admin' | 'secretary'>) => {
+    setRole(event.target.value)
+  }, [])
+
   const handleAdminChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return
     await actions.setAdmin({ ...user, admin: event.target.checked })
@@ -118,7 +124,7 @@ export function EditUserRolesDialog({ onClose, open, user }: Props) {
                   />
                 </TableCell>
                 <TableCell>
-                  <Select value={role} onChange={(event) => setRole(event.target.value as 'admin' | 'secretary')}>
+                  <Select value={role} onChange={handleRoleChange}>
                     <MenuItem value="admin">{t('user.roles.admin')}</MenuItem>
                     <MenuItem value="secretary">{t('user.roles.secretary')}</MenuItem>
                   </Select>
