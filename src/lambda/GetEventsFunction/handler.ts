@@ -9,7 +9,20 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const getEventsLambda = lambda('getEvents', async (event) => {
   const items = await dynamoDB.readAll<JsonDogEvent>()
-  const publicItems = items?.filter((item) => item.state !== 'draft').map((item) => sanitizeDogEvent(item))
+  let publicItems = items?.filter((item) => item.state !== 'draft').map((item) => sanitizeDogEvent(item)) ?? []
+
+  const start = event.queryStringParameters?.start ? new Date(event.queryStringParameters.start) : undefined
+  const end = event.queryStringParameters?.end ? new Date(event.queryStringParameters.end) : undefined
+
+  if (start || end) {
+    publicItems = publicItems.filter((item) => {
+      const eventStart = new Date(item.startDate)
+      const eventEnd = item.endDate ? new Date(item.endDate) : eventStart
+      if (start && eventEnd < start) return false
+      if (end && eventStart > end) return false
+      return true
+    })
+  }
 
   return response(200, publicItems, event)
 })
