@@ -13,7 +13,7 @@ import type {
 import { tz } from '@date-fns/tz'
 import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, sub } from 'date-fns'
 
-import { formatDate, TIME_ZONE, zonedStartOfDay } from '../i18n/dates'
+import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
 
 import { unique } from './utils'
 
@@ -62,7 +62,10 @@ export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDa
     classes: event.classes?.filter((c) => isSameDay(c.date ?? event.startDate, day)) ?? [],
   }))
 
-export const eventRegistrationDateKey = (rd: RegistrationDate) => rd.date.toISOString().slice(0, 10) + '-' + rd.time
+// IMPORTANT: Use event timezone (Europe/Helsinki) when generating date keys.
+// Using `Date.toISOString().slice(0, 10)` would key by *UTC day*, which can differ
+// from the event day for users in other timezones and would make DnD/group matching fail.
+export const eventRegistrationDateKey = (rd: RegistrationDate) => zonedDateString(rd.date) + '-' + rd.time
 
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent

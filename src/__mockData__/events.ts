@@ -6,8 +6,9 @@ import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 
 import { emptyEvent } from './emptyEvent'
 
-const today = zonedStartOfDay(new Date())
-const parseDate = (iso: string) => zonedStartOfDay(parseISO(`${iso}T12:00:00`))
+const isoDay = new Date().toISOString().substring(0, 10)
+const parseDate = (iso: string) => zonedStartOfDay(parseISO(`${iso}T12:00:00Z`))
+const today = parseDate(isoDay)
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,

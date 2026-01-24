@@ -395,6 +395,15 @@ describe('eventRegistrationDateKey', () => {
     expect(eventRegistrationDateKey(registrationDate)).toEqual(expected)
   })
 
+  it('should use event timezone (Europe/Helsinki) day, not UTC day', () => {
+    // Helsinki summer time is +03:00.
+    // This instant is June 15th in Helsinki, but still June 14th in UTC.
+    const date = new Date('2023-06-15T00:30:00+03:00')
+    expect(date.toISOString().slice(0, 10)).toEqual('2023-06-14') // would be wrong key if used
+
+    expect(eventRegistrationDateKey({ date, time: 'ap' })).toEqual('2023-06-15-ap')
+  })
+
   it('should handle different times', () => {
     const date = new Date(2023, 5, 15, 12)
 
