@@ -21,9 +21,6 @@ import { ProviderButton } from './paymentPage/ProviderButton'
 import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, languageAtom, newRegistrationAtom, registrationSelector } from './recoil'
 
-/**
- * @lintignore
- */
 export const loader = async ({ params }: { params: Params<string> }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {

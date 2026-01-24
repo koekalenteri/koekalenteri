@@ -1,7 +1,7 @@
 import type { Dog, TestResult } from './Dog'
 import type { ManualTestResult, QualifyingResults } from './Registration'
 
-export enum RULE_DATES {
+export const RULE_DATES = [
   '1977-01-01',
   '1986-01-01',
   '1991-01-01',
@@ -10,9 +10,9 @@ export enum RULE_DATES {
   '2009-01-01',
   '2016-04-01',
   '2023-04-15',
-}
+] as const
 
-export type RuleDate = keyof typeof RULE_DATES
+export type RuleDate = (typeof RULE_DATES)[number]
 
 export type EventResultRequirementFn = (
   officialResults: TestResult[],

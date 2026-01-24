@@ -28,7 +28,7 @@ type Property = keyof Omit<
   | 'invitationAttachment'
 >
 
-export type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
+type EventPropertyProps<P extends Property, freeSolo extends boolean> = Omit<
   AutocompleteProps<PartialEvent[P], false, false, freeSolo>,
   'id' | 'renderInput' | 'onChange' | 'value'
 > & {

@@ -2,12 +2,11 @@
   "workspaces": {
     ".": {
       "ignore": ["aws/split.js", "scripts/knip-config.mjs", "scripts/marshall.cjs"],
-      "ignoreBinaries": ["sam"],
-      "ignoreDependencies": ["@aws-amplify/core"],
+      "ignoreBinaries": ["sam", "scripts/prebuild-backend.sh"],
+      "ignoreDependencies": ["@aws-amplify/core", "@codemirror/lang-html"],
       "entry": [
         "src/lambda/BackfillEventStatsFunction/handler.ts",
         "src/lambda/CopyEventFunction/handler.ts",
-        "src/lambda/DemoEventsFunction/handler.ts",
         "src/lambda/GetAdminEventFunction/handler.ts",
         "src/lambda/GetAdminEventsFunction/handler.ts",
         "src/lambda/GetAdminRegistrationsFunction/handler.ts",
@@ -51,10 +50,13 @@
         "src/lambda/SetAdminFunction/handler.ts",
         "src/lambda/SetRoleFunction/handler.ts",
         "src/index.tsx",
-        "scripts/build-backend.js",
-        "scripts/build-frontend.js"
+        "scripts/build-template.mjs",
+        "scripts/layer-modules.mjs"
       ]
     }
+  },
+  "ignoreIssues": {
+    "src/pages/global-mocks/**": ["exports"]
   },
   "tags": ["-lintignore"]
 }

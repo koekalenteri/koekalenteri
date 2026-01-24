@@ -1,3 +1,5 @@
+import type { TransactWriteItemWithoutTable } from './CustomDynamoClient'
+
 import { jest } from '@jest/globals'
 
 // Mock AWS SDK v3
@@ -564,8 +566,11 @@ describe('CustomDynamoClient', () => {
 
     it('handles empty operation objects in transaction items', async () => {
       const client = new CustomDynamoClient('TestTable')
-      // Use proper types that match TransactWriteItemWithoutTable
-      const items = [{ Delete: { Key: { id: { S: '3' } } } }, { Put: undefined }, { Update: undefined }]
+      const items: TransactWriteItemWithoutTable[] = [
+        { Delete: { Key: { id: { S: '3' } } } },
+        { Put: undefined },
+        { Update: undefined },
+      ]
       mockSend.mockResolvedValueOnce({})
 
       await client.transaction(items)
