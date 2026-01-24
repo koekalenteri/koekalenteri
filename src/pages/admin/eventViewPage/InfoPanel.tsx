@@ -5,10 +5,10 @@ import { useCallback, useState } from 'react'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
-import { Grid2 } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Collapse from '@mui/material/Collapse'
+import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Link from '@mui/material/Link'
 import Paper from '@mui/material/Paper'
@@ -79,8 +79,8 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
         },
       }}
     >
-      <Grid2 container alignItems="center">
-        <Grid2 size="grow">
+      <Grid container alignItems="center">
+        <Grid size="grow">
           <Tabs
             variant="fullWidth"
             value={tab}
@@ -93,13 +93,13 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
             <Tab label="Tapahtuman tilanne" />
             <Tab label="Tehtävälista" />
           </Tabs>
-        </Grid2>
-        <Grid2 size="auto">
+        </Grid>
+        <Grid size="auto">
           <IconButton size="small" color={'primary'} onClick={toggle}>
             {expanded ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
           </IconButton>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
       <Collapse in={expanded} timeout="auto">
         <TableContainer component={Paper} elevation={0} hidden={tab !== 0}>
           <Table>

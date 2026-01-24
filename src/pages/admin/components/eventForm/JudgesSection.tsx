@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
@@ -79,7 +79,7 @@ export default function JudgesSection({
       error={error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1} maxWidth={1280}>
+      <Grid container spacing={1} maxWidth={1280}>
         {event.judges.map((judge, index) =>
           judge.official ? (
             <OfficialJudge
@@ -104,7 +104,7 @@ export default function JudgesSection({
             />
           )
         )}
-        <Grid2>
+        <Grid>
           <Button
             disabled={disabled}
             startIcon={<AddOutlined />}
@@ -144,8 +144,8 @@ export default function JudgesSection({
           >
             Lisää epävirallinen tuomari
           </Button>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </CollapsibleSection>
   )
 }

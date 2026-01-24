@@ -12,7 +12,7 @@ import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
@@ -127,14 +127,14 @@ export default function EventViewPage() {
 
   return (
     <>
-      <Grid2 container justifyContent="end">
-        <Grid2 flexGrow={1}>
+      <Grid container justifyContent="end">
+        <Grid flexGrow={1}>
           <Title event={event} />
-        </Grid2>
-        <Grid2>
+        </Grid>
+        <Grid>
           <InfoPanel event={event} registrations={allRegistrations} onOpenMessageDialog={handleOpenMsgDialog} />
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
 
       <Stack direction="row" spacing={2}>
         <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>

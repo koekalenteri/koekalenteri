@@ -57,8 +57,8 @@ describe('OwnerInfo', () => {
     const locationInput = screen.getByRole('textbox', { name: 'contact.city' })
     const emailInput = screen.getByRole('textbox', { name: 'contact.email' })
     const phoneInput = screen.getByRole('textbox', { name: 'contact.phone' })
-    const handlerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerHandles' })
-    const payerCheckbox = screen.getByRole('checkbox', { name: 'registration.ownerPays' })
+    const handlerCheckbox = screen.getAllByRole('switch', { name: 'registration.ownerHandles' })[1]
+    const payerCheckbox = screen.getAllByRole('switch', { name: 'registration.ownerPays' })[1]
 
     await user.clear(input)
     await flushPromises()

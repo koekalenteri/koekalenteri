@@ -2,7 +2,7 @@ import type { DeepPartial, Registration, RegistrationPerson } from '../../../typ
 
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
 
@@ -71,8 +71,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid2 container spacing={1}>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+      <Grid container spacing={1}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             disabled={disabled}
             error={!reg.handler?.name}
@@ -86,8 +86,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
               input: { autoComplete: 'name' },
             }}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             disabled={disabled}
             error={!reg.handler?.location}
@@ -101,8 +101,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
               input: { autoComplete: 'address-level2' },
             }}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TextField
             disabled={disabled}
             error={!reg.handler?.email}
@@ -116,8 +116,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
               input: { autoComplete: 'email' },
             }}
           />
-        </Grid2>
-        <Grid2 size={{ xs: 12, sm: 6 }}>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <MuiTelInput
             langOfCountryName={i18n.language}
             defaultCountry="FI"
@@ -132,8 +132,8 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             onChange={(value) => updateField('phone', value)}
             value={formValues.phone}
           />
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </CollapsibleSection>
   )
 }

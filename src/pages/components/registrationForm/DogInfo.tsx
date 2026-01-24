@@ -4,7 +4,7 @@ import type { DogCachedInfo } from '../../recoil/dog'
 
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import { useRecoilValue } from 'recoil'
 
 import { emptyDog } from '../../../lib/data'
@@ -231,8 +231,8 @@ export const DogInfo = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <Grid2 container spacing={1} alignItems="flex-start">
-        <Grid2 size={{ xs: 12, sm: 7, md: 6, lg: 3 }}>
+      <Grid container spacing={1} alignItems="flex-start">
+        <Grid size={{ xs: 12, sm: 7, md: 6, lg: 3 }}>
           <DogSearch
             regNo={state.regNo}
             disabled={disabled}
@@ -247,7 +247,7 @@ export const DogInfo = ({
             onRegNoSelect={handleRegNoSelect}
             onButtonClick={buttonClick}
           />
-        </Grid2>
+        </Grid>
 
         <DogDetails
           formValues={formValues}
@@ -261,7 +261,7 @@ export const DogInfo = ({
           eventDate={eventDate}
           minDogAgeMonths={minDogAgeMonths}
         />
-      </Grid2>
+      </Grid>
     </CollapsibleSection>
   )
 }

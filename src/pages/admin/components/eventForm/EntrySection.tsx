@@ -7,7 +7,7 @@ import type { SectionProps } from './types'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import { clamp, sub } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 
@@ -79,8 +79,8 @@ export default function EntrySection(props: Props) {
       error={!!error}
       helperText={helperText}
     >
-      <Grid2 container spacing={1} maxWidth={900}>
-        <Grid2 width="100%">
+      <Grid container spacing={1} maxWidth={900}>
+        <Grid width="100%">
           <DateRange
             startDisabled={disabled}
             startLabel="Ilmoittautumisaika alkaa"
@@ -98,14 +98,14 @@ export default function EntrySection(props: Props) {
             onChange={handleDateChange}
           />
           <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
-        </Grid2>
-        <Grid2 width="100%">
+        </Grid>
+        <Grid width="100%">
           <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />
-        </Grid2>
-        <Grid2 width="100%">
+        </Grid>
+        <Grid width="100%">
           <EventFormPlaces disabled={disabled} {...props} />
-        </Grid2>
-        <Grid2 width="100%">
+        </Grid>
+        <Grid width="100%">
           <AutocompleteMulti
             disabled={disabled}
             disablePortal
@@ -117,8 +117,8 @@ export default function EntrySection(props: Props) {
             value={eventPriority}
             label={'Etusijat'}
           />
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </CollapsibleSection>
   )
 }

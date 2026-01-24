@@ -2,7 +2,7 @@ import type { PublicDogEvent } from '../../../types'
 
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 import { zonedStartOfDay } from '../../../i18n/dates'
@@ -63,17 +63,17 @@ const EventHeader = ({ event }: Props) => {
 
   return (
     <>
-      <Grid2 container columnSpacing={1} size={12}>
-        <Grid2 overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
+      <Grid container columnSpacing={1} size={12}>
+        <Grid overflow={'hidden'} textOverflow={'ellipsis'} sx={{ textWrap: 'nowrap' }} size="grow">
           <Typography variant="caption" color="text.secondary">
             {event.organizer.name}
           </Typography>
-        </Grid2>
-        <Grid2 display={{ xs: 'none', sm: 'block' }} offset="auto">
+        </Grid>
+        <Grid display={{ xs: 'none', sm: 'block' }} offset="auto">
           {showPlaces ? <EventPlaces event={event} /> : null}
-        </Grid2>
-      </Grid2>
-      <Grid2
+        </Grid>
+      </Grid>
+      <Grid
         container
         columnSpacing={1}
         size={{
@@ -81,8 +81,8 @@ const EventHeader = ({ event }: Props) => {
           sm: 'auto',
         }}
       >
-        <Grid2>{t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}</Grid2>
-        <Grid2
+        <Grid>{t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}</Grid>
+        <Grid
           overflow={'hidden'}
           textOverflow={'ellipsis'}
           sx={{ textWrap: 'nowrap' }}
@@ -92,12 +92,12 @@ const EventHeader = ({ event }: Props) => {
           }}
         >
           {event.eventType}
-        </Grid2>
-        <Grid2 display={{ sm: 'none' }} offset="auto">
+        </Grid>
+        <Grid display={{ sm: 'none' }} offset="auto">
           {showPlaces ? <EventPlaces event={event} /> : null}
-        </Grid2>
-      </Grid2>
-      <Grid2
+        </Grid>
+      </Grid>
+      <Grid
         container
         columnSpacing={1}
         size={{
@@ -105,8 +105,8 @@ const EventHeader = ({ event }: Props) => {
           sm: 'grow',
         }}
       >
-        <Grid2>{event.location}</Grid2>
-        <Grid2
+        <Grid>{event.location}</Grid>
+        <Grid
           overflow={'hidden'}
           textOverflow={'ellipsis'}
           sx={{ textWrap: 'nowrap' }}
@@ -116,8 +116,8 @@ const EventHeader = ({ event }: Props) => {
           }}
         >
           {event.name ? event.name : ''}
-        </Grid2>
-        <Grid2
+        </Grid>
+        <Grid
           alignContent="center"
           size="auto"
           offset={{
@@ -136,8 +136,8 @@ const EventHeader = ({ event }: Props) => {
               />
             )}
           </Typography>
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
     </>
   )
 }

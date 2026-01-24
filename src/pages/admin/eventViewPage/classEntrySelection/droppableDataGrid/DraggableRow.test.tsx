@@ -1,51 +1,36 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import type { ForwardedRef } from 'react'
-
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { render, screen } from '@testing-library/react'
 
 import DraggableRow from './DraggableRow'
 
+// DraggableRow uses `useGridApiContext()` to verify the row exists in grid state.
+// In unit tests we render it in isolation, so we provide a minimal DataGrid api.
 jest.mock('@mui/x-data-grid', () => {
+  const actual = jest.requireActual('@mui/x-data-grid')
   const React = jest.requireActual('react')
+
   return {
-    GridRow: React.forwardRef(
-      (
-        {
-          children,
-          rowId,
-          rowHeight,
-          offsetLeft,
-          columnsTotalWidth,
-          visibleColumns,
-          renderedColumns,
-          firstColumnToRender,
-          lastColumnToRender,
-          rowIndex,
-          cellFocus,
-          cellTabIndex,
-          editRowsState,
-          isLastVisible,
-          tabbableCell,
-          firstColumnIndex,
-          lastColumnIndex,
-          pinnedColumns,
-          focusedColumnIndex,
-          isFirstVisible,
-          isNotVisible,
-          showBottomBorder,
-          scrollbarWidth,
-          gridHasFiller,
-          ...props
-        }: any,
-        ref: ForwardedRef<any>
-      ) => (
-        <div data-testid="grid-row" ref={ref} {...props}>
-          {children}
-        </div>
-      )
-    ),
+    ...actual,
+    GridRow: React.forwardRef(({ children, style, className, ...rest }: any, ref: any) => (
+      // Do not spread unknown props to the DOM to avoid React warnings.
+      <div
+        data-testid="grid-row"
+        ref={ref}
+        style={style}
+        className={className}
+        // Keep only safe / asserted attributes
+        aria-label={rest['aria-label']}
+        data-handler-id={rest['data-handler-id']}
+      >
+        {children}
+      </div>
+    )),
+    useGridApiContext: () => ({
+      current: {
+        getRow: (id: any) => ({ id }),
+      },
+    }),
   }
 })
 

@@ -120,22 +120,22 @@ describe('SearchPage', () => {
   it('filters by entryUpcoming', async () => {
     renderPage('/?b=u', locales.fi)
     await flushPromises()
-    expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()
+    expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(1)
   })
 
   it('filters by entryOpen', async () => {
     renderPage('/?b=o', locales.fi)
     await flushPromises()
-    expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
+    expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(2)
   })
 
   it('filters by both entryOpen and entryUpcoming', async () => {
     renderPage('/?b=o&b=u', locales.fi)
     await flushPromises()
-    expect(screen.getByRole('checkbox', { name: 'entryUpcoming' })).toBeChecked()
-    expect(screen.getByRole('checkbox', { name: 'entryOpen' })).toBeChecked()
+    expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
+    expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(3)
   })
 })

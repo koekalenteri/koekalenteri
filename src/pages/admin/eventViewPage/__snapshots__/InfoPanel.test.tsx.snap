@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`InfoPanel> renders with event with closed entry and registrations 1`] = `
 <div>
@@ -6,10 +6,10 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
     class="MuiBox-root css-1eydqzt"
   >
     <div
-      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1nmjuun-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
     >
       <div
-        class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-2edihr-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
       >
         <div
           class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -49,7 +49,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
         </div>
       </div>
       <div
-        class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -346,10 +346,10 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
     class="MuiBox-root css-1eydqzt"
   >
     <div
-      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1nmjuun-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
     >
       <div
-        class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-2edihr-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
       >
         <div
           class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -389,7 +389,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
         </div>
       </div>
       <div
-        class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -686,10 +686,10 @@ exports[`InfoPanel> renders with no registrations 1`] = `
     class="MuiBox-root css-1eydqzt"
   >
     <div
-      class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1nmjuun-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
     >
       <div
-        class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-2edihr-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
       >
         <div
           class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -729,7 +729,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
         </div>
       </div>
       <div
-        class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
+        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"

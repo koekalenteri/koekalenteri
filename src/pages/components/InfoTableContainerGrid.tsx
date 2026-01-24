@@ -1,11 +1,11 @@
 import type { PropsWithChildren } from 'react'
 
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 const InfoTableContainerGrid = ({ children }: PropsWithChildren) => (
-  <Grid2 container size="auto" mr={1}>
+  <Grid container size="auto" mr={1}>
     {children}
-  </Grid2>
+  </Grid>
 )
 
 export default InfoTableContainerGrid

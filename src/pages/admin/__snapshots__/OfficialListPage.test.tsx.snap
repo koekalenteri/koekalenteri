@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`OfficialListPage renders 1`] = `
 <div>
@@ -364,7 +364,7 @@ exports[`OfficialListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0; flex-basis: 84px;"
+              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -374,7 +374,7 @@ exports[`OfficialListPage renders 1`] = `
                 <div
                   aria-rowindex="2"
                   aria-selected="false"
-                  class="MuiDataGrid-row MuiDataGrid-row--firstVisible"
+                  class="MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible"
                   data-id="333"
                   data-rowindex="0"
                   role="row"
@@ -432,128 +432,6 @@ exports[`OfficialListPage renders 1`] = `
                     role="presentation"
                   />
                 </div>
-                <div
-                  aria-rowindex="3"
-                  aria-selected="false"
-                  class="MuiDataGrid-row"
-                  data-id="444"
-                  data-rowindex="1"
-                  role="row"
-                  style="max-height: 28px; min-height: 28px; --height: 28px;"
-                >
-                  <div
-                    class="MuiDataGrid-cellOffsetLeft"
-                    role="presentation"
-                    style="width: 0px;"
-                  />
-                  <div
-                    aria-colindex="1"
-                    aria-colspan="1"
-                    aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                    data-colindex="0"
-                    data-field="name"
-                    role="gridcell"
-                    style="--width: 0px;"
-                    tabindex="-1"
-                    title="Toimitsija 2"
-                  >
-                    Toimitsija 2
-                  </div>
-                  <div
-                    aria-colindex="2"
-                    aria-colspan="1"
-                    aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                    data-colindex="1"
-                    data-field="phone"
-                    role="gridcell"
-                    style="--width: 150px;"
-                    tabindex="-1"
-                    title="123456782"
-                  >
-                    123456782
-                  </div>
-                  <div
-                    aria-colindex="3"
-                    aria-colspan="1"
-                    aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                    data-colindex="2"
-                    data-field="email"
-                    role="gridcell"
-                    style="--width: 0px;"
-                    tabindex="-1"
-                    title="toimari2@sposti.not"
-                  >
-                    toimari2@sposti.not
-                  </div>
-                  <div
-                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
-                    role="presentation"
-                  />
-                </div>
-                <div
-                  aria-rowindex="4"
-                  aria-selected="false"
-                  class="MuiDataGrid-row MuiDataGrid-row--lastVisible"
-                  data-id="555"
-                  data-rowindex="2"
-                  role="row"
-                  style="max-height: 28px; min-height: 28px; --height: 28px;"
-                >
-                  <div
-                    class="MuiDataGrid-cellOffsetLeft"
-                    role="presentation"
-                    style="width: 0px;"
-                  />
-                  <div
-                    aria-colindex="1"
-                    aria-colspan="1"
-                    aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                    data-colindex="0"
-                    data-field="name"
-                    role="gridcell"
-                    style="--width: 0px;"
-                    tabindex="-1"
-                    title="Toimitsija 3"
-                  >
-                    Toimitsija 3
-                  </div>
-                  <div
-                    aria-colindex="2"
-                    aria-colspan="1"
-                    aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                    data-colindex="1"
-                    data-field="phone"
-                    role="gridcell"
-                    style="--width: 150px;"
-                    tabindex="-1"
-                    title="123456783"
-                  >
-                    123456783
-                  </div>
-                  <div
-                    aria-colindex="3"
-                    aria-colspan="1"
-                    aria-rowspan="1"
-                    class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                    data-colindex="2"
-                    data-field="email"
-                    role="gridcell"
-                    style="--width: 0px;"
-                    tabindex="-1"
-                    title="toimari3@sposti.not"
-                  >
-                    toimari3@sposti.not
-                  </div>
-                  <div
-                    class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
-                    role="presentation"
-                  />
-                </div>
               </div>
             </div>
             <div
@@ -594,51 +472,12 @@ exports[`OfficialListPage renders 1`] = `
                 class="MuiTablePagination-spacer css-1wtxofq-MuiTablePagination-spacer"
               />
               <p
-                class="MuiTablePagination-selectLabel css-s09cke-MuiTablePagination-selectLabel"
-                id=":r5:"
-              >
-                Rows per page:
-              </p>
-              <div
-                class="MuiInputBase-root MuiInputBase-colorPrimary MuiTablePagination-select MuiSelect-root MuiTablePagination-input css-oegngy-MuiInputBase-root-MuiTablePagination-select"
-              >
-                <div
-                  aria-expanded="false"
-                  aria-haspopup="listbox"
-                  aria-labelledby=":r5: :r4:"
-                  class="MuiSelect-select MuiTablePagination-select MuiSelect-standard MuiInputBase-input css-18zjd9i-MuiNativeSelect-root-MuiSelect-select-MuiInputBase-input"
-                  id=":r4:"
-                  role="combobox"
-                  tabindex="0"
-                >
-                  100
-                </div>
-                <input
-                  aria-hidden="true"
-                  aria-invalid="false"
-                  class="MuiSelect-nativeInput css-j0riat-MuiSelect-nativeInput"
-                  tabindex="-1"
-                  value="100"
-                />
-                <svg
-                  aria-hidden="true"
-                  class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiSelect-icon MuiTablePagination-selectIcon MuiSelect-iconStandard css-ug7h84-MuiSvgIcon-root-MuiNativeSelect-root-MuiSelect-icon"
-                  data-testid="ArrowDropDownIcon"
-                  focusable="false"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    d="M7 10l5 5 5-5z"
-                  />
-                </svg>
-              </div>
-              <p
                 class="MuiTablePagination-displayedRows css-11cfq65-MuiTablePagination-displayedRows"
               >
-                1–3 of 3
+                1–1 of 3
               </p>
               <div
-                class="MuiTablePagination-actions"
+                class="MuiTablePaginationActions-root MuiTablePagination-actions css-sjsoon-MuiTablePaginationActions-root"
               >
                 <button
                   aria-label="Go to previous page"
@@ -662,9 +501,8 @@ exports[`OfficialListPage renders 1`] = `
                 </button>
                 <button
                   aria-label="Go to next page"
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorInherit MuiIconButton-sizeMedium css-h7cjts-MuiButtonBase-root-MuiIconButton-root"
-                  disabled=""
-                  tabindex="-1"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorInherit MuiIconButton-sizeMedium css-h7cjts-MuiButtonBase-root-MuiIconButton-root"
+                  tabindex="0"
                   title="Go to next page"
                   type="button"
                 >

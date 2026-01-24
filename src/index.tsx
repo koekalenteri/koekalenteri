@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ThemeProvider } from '@mui/material'
 import CssBaseline from '@mui/material/CssBaseline'
-import StyledEngineProvider from '@mui/material/StyledEngineProvider'
+import { StyledEngineProvider } from '@mui/material/styles'
 import { RecoilEnv, RecoilRoot } from 'recoil'
 
 import './i18n'

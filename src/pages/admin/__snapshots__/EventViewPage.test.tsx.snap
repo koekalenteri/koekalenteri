@@ -1,12 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`EventViewPage renders properly for event with classes 1`] = `
 <div>
   <div
-    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-fz7xk2-MuiGrid2-root"
+    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-dgjj9d-MuiGrid-root"
   >
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row css-6m3xq3-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row css-izk9z5-MuiGrid-root"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
@@ -24,16 +24,16 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       </span>
     </div>
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
     >
       <div
         class="MuiBox-root css-2edxro"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1nmjuun-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
         >
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-2edihr-MuiGrid2-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
           >
             <div
               class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -73,7 +73,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             </div>
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -994,13 +994,13 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               />
             </div>
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1541,7 +1541,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -1553,7 +1553,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2091,7 +2091,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -2103,7 +2103,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2641,7 +2641,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -2653,7 +2653,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -3191,7 +3191,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -3203,7 +3203,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -3740,7 +3740,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="MuiDataGrid-overlay css-ok32b7-MuiDataGrid-overlay"
@@ -3752,7 +3752,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -4335,7 +4335,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="MuiDataGrid-overlay css-ok32b7-MuiDataGrid-overlay"
@@ -4347,7 +4347,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -4384,10 +4384,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
 exports[`EventViewPage renders properly for event without classes 1`] = `
 <div>
   <div
-    class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-fz7xk2-MuiGrid2-root"
+    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-dgjj9d-MuiGrid-root"
   >
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row css-6m3xq3-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row css-izk9z5-MuiGrid-root"
     >
       <h5
         class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
@@ -4405,16 +4405,16 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       </span>
     </div>
     <div
-      class="MuiGrid2-root MuiGrid2-direction-xs-row css-1fzlhpv-MuiGrid2-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
     >
       <div
         class="MuiBox-root css-2edxro"
       >
         <div
-          class="MuiGrid2-root MuiGrid2-container MuiGrid2-direction-xs-row css-1nmjuun-MuiGrid2-root"
+          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
         >
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-grow css-2edihr-MuiGrid2-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
           >
             <div
               class="MuiTabs-root css-10nfe33-MuiTabs-root"
@@ -4454,7 +4454,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             </div>
           </div>
           <div
-            class="MuiGrid2-root MuiGrid2-direction-xs-row MuiGrid2-grid-xs-auto css-1djy14n-MuiGrid2-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5365,13 +5365,13 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             >
               <div
                 class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                style="width: 0px;"
+                style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
               />
             </div>
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-shrink: 0;"
+              style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -5912,7 +5912,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -5924,7 +5924,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -6462,7 +6462,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -6474,7 +6474,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -7012,7 +7012,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -7024,7 +7024,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -7562,7 +7562,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               >
                 <div
                   class="MuiDataGrid-overlayWrapperInner css-1mbsuzk-MuiDataGrid-overlayWrapperInner"
-                  style="width: 0px;"
+                  style="height: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); width: 0px;"
                 >
                   <div
                     class="no-rows MuiBox-root css-1jpcp03"
@@ -7574,7 +7574,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0;"
+                style="width: auto; flex-basis: var(--DataGrid-overlayHeight, calc(var(--height) * 2)); flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -8109,7 +8109,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0; flex-basis: 140px;"
+                style="width: auto; flex-basis: 140px; flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -10215,7 +10215,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
               <div
                 class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                 role="presentation"
-                style="width: auto; flex-shrink: 0; flex-basis: 28px;"
+                style="width: auto; flex-basis: 28px; flex-shrink: 0;"
               >
                 <div
                   class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"

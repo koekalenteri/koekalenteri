@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import Box from '@mui/material/Box'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { isPast, subDays } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { calculateCost } from '../lib/cost'
+import { redirectTo } from '../lib/navigation'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 
@@ -115,7 +116,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             setRegistration(saved)
           }
           if (registration.invitationAttachment && event.state === 'invited') {
-            window.location.replace(Path.invitationAttachment(registration))
+            redirectTo(Path.invitationAttachment(registration))
           } else {
             navigate(Path.registration(registration))
           }
@@ -208,21 +209,21 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           alignItems: 'flex-start',
         }}
       >
-        <Grid2
+        <Grid
           container
           direction="row"
           justifyContent="end"
           width="100%"
           sx={{ borderBottom: '2px solid', borderColor: 'background.hover' }}
         >
-          <Grid2 sx={{ pl: 1 }} flexGrow={1}>
+          <Grid sx={{ pl: 1 }} flexGrow={1}>
             <LinkButton sx={{ mb: 1, pl: 0 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
             <Typography variant="h5">{t('entryList')}</Typography>
-          </Grid2>
-          <Grid2>
+          </Grid>
+          <Grid>
             <InfoBox event={event} registration={registration} />
-          </Grid2>
-        </Grid2>
+          </Grid>
+        </Grid>
         <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} hideCostInfo />
         <RegistrationList
           disabled={allDisabled}

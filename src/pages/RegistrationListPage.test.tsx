@@ -16,6 +16,12 @@ import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-u
 
 import { RegistrationListPage } from './RegistrationListPage'
 
+jest.mock('../lib/navigation', () => ({
+  redirectTo: jest.fn(),
+}))
+
+import { redirectTo } from '../lib/navigation'
+
 // Mock the API modules
 jest.mock('../api/user')
 jest.mock('../api/event')
@@ -370,19 +376,6 @@ describe('RegistrationListPage', () => {
   })
 
   it('redirects to invitation attachment', async () => {
-    // Save the original location to restore later
-    const originalLocation = window.location
-
-    // @ts-expect-error: override readonly
-    delete window.location
-
-    // @ts-expect-error: override readonly
-    window.location = {
-      ...originalLocation,
-      replace: jest.fn(),
-    } as unknown as Location
-    const replaceSpy = window.location.replace as jest.Mock
-
     renderWithRouter('/r/testInvited/invitation-attachment-registration/invitation')
 
     expect(screen.queryByText('loading...')).toBeInTheDocument()
@@ -391,10 +384,7 @@ describe('RegistrationListPage', () => {
 
     await flushPromises()
 
-    expect(replaceSpy).toHaveBeenCalledWith('/file/attachment-file/kutsu-NOU-10.02.2021.pdf')
-
-    // @ts-expect-error: override readonly
-    window.location = originalLocation
+    expect(redirectTo).toHaveBeenCalledWith('/file/attachment-file/kutsu-NOU-10.02.2021.pdf')
   })
 
   it('disables cancel button when event start is close', async () => {

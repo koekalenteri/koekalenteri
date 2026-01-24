@@ -9,7 +9,7 @@ import { screen, within } from '@testing-library/react'
 
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-import { createMatchMedia, renderWithUserEvents } from '../../test-utils/utils'
+import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
 
 import { EventFilter } from './EventFilter'
 
@@ -50,7 +50,11 @@ const organizers: Organizer[] = [
 const eventTypes = ['NOU', 'NOME-B', 'NOME-A', 'NOWT', 'NKM']
 const eventClasses: RegistrationClass[] = ['ALO', 'AVO', 'VOI']
 
-const renderComponent = (filter: FilterProps, onChange?: (filter: FilterProps) => void) => {
+const renderComponent = (
+  filter: FilterProps,
+  onChange?: (filter: FilterProps) => void,
+  fakeTimers: boolean = false
+) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -63,7 +67,9 @@ const renderComponent = (filter: FilterProps, onChange?: (filter: FilterProps) =
           onChange={onChange}
         ></EventFilter>
       </LocalizationProvider>
-    </ThemeProvider>
+    </ThemeProvider>,
+    undefined,
+    fakeTimers ? { advanceTimers: jest.advanceTimersByTime } : undefined
   )
 }
 
@@ -134,10 +140,12 @@ describe('EventFilter', () => {
   })
 
   it('should fire onChange for date picker and switches', async () => {
+    jest.useFakeTimers()
     const changeHandler = jest.fn()
     const { user } = renderComponent(
       { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
-      changeHandler
+      changeHandler,
+      true
     )
 
     const dateInputs = screen.getAllByLabelText('Choose date', { exact: false })
@@ -146,6 +154,13 @@ describe('EventFilter', () => {
     const day25 = within(dialog).getByRole('gridcell', { name: '25' })
     await user.click(day25)
 
+    // DateRange uses a debounced onChange (100ms) via `useDebouncedCallback()`.
+    jest.advanceTimersByTime(150)
+
+    await flushPromises()
+
     expect(changeHandler).toHaveBeenCalledTimes(1)
+
+    jest.useRealTimers()
   })
 })

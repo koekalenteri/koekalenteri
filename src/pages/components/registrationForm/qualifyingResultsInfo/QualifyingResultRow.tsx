@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
@@ -110,8 +110,8 @@ export default function QualifyingResultRow({
   }, [onRemove, result])
 
   return (
-    <Grid2 container spacing={1} alignItems="center" width="100%">
-      <Grid2 size={{ xs: 6, sm: 3.5, md: 2 }}>
+    <Grid container spacing={1} alignItems="center" width="100%">
+      <Grid size={{ xs: 6, sm: 3.5, md: 2 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
@@ -127,8 +127,8 @@ export default function QualifyingResultRow({
           }}
           value={formValues.type}
         />
-      </Grid2>
-      <Grid2 size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
+      </Grid>
+      <Grid size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
@@ -148,8 +148,8 @@ export default function QualifyingResultRow({
           }}
           value={formValues.result}
         />
-      </Grid2>
-      <Grid2 size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
+      </Grid>
+      <Grid size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
         <FormControl fullWidth>
           <DatePicker
             disabled={result.official || disabled}
@@ -164,8 +164,8 @@ export default function QualifyingResultRow({
             value={formValues.date || null}
           />
         </FormControl>
-      </Grid2>
-      <Grid2 size={{ xs: 6, sm: 3.5, md: 2 }}>
+      </Grid>
+      <Grid size={{ xs: 6, sm: 3.5, md: 2 }}>
         <TextField
           disabled={result.official || disabled}
           error={!formValues.location}
@@ -174,8 +174,8 @@ export default function QualifyingResultRow({
           onChange={(e) => updateField('location', e.target.value)}
           value={formValues.location}
         />
-      </Grid2>
-      <Grid2 size={{ xs: 12, sm: 4, md: 3, lg: 2 }}>
+      </Grid>
+      <Grid size={{ xs: 12, sm: 4, md: 3, lg: 2 }}>
         <TextField
           disabled={result.official || disabled}
           error={!formValues.judge}
@@ -184,8 +184,8 @@ export default function QualifyingResultRow({
           onChange={(e) => updateField('judge', e.target.value)}
           value={formValues.judge}
         />
-      </Grid2>
-      <Grid2 flex={1}>
+      </Grid>
+      <Grid flex={1}>
         <Stack direction="row" gap={1} justifyContent="end" alignItems="center">
           <Button
             sx={{ display: result.official ? 'none' : undefined }}
@@ -198,7 +198,7 @@ export default function QualifyingResultRow({
           </Button>
           <RankingPoints points={result.rankingPoints} />
         </Stack>
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   )
 }

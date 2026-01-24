@@ -1,17 +1,14 @@
 // Do this as the first thing so that any code reading it knows the right env.
 process.env.BABEL_ENV = 'test'
 process.env.NODE_ENV = 'test'
-process.env.PUBLIC_URL = ''
-process.env.REACT_APP_API_BASE_URL = ''
-process.env.REACT_APP_WS_API_URL = ''
+process.env.NODE_OPTIONS = '--experimental-vm-modules --no-warnings'
 
 // Ensure environment variables are read.
 require('../config/env')
 
 const jest = require('jest')
 const argv = process.argv.slice(2)
-
-argv.push('--selectProjects=frontend')
+argv.push('--selectProjects=backend')
 
 // Allow filtered runs to succeed when no tests match.
 if (argv.indexOf('--passWithNoTests') === -1) {

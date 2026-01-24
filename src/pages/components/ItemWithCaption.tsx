@@ -1,15 +1,15 @@
-import type { Grid2Props } from '@mui/material'
+import type { GridProps } from '@mui/material'
 import type { PropsWithChildren } from 'react'
 
-import { Grid2 } from '@mui/material'
+import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
 interface Props {
   label: string
 }
 
-export const ItemWithCaption = ({ label, children, ...gridProps }: PropsWithChildren<Props> & Grid2Props) => (
-  <Grid2
+export const ItemWithCaption = ({ label, children, ...gridProps }: PropsWithChildren<Props> & GridProps) => (
+  <Grid
     size={{
       xs: 12,
       md: 6,
@@ -31,5 +31,5 @@ export const ItemWithCaption = ({ label, children, ...gridProps }: PropsWithChil
     <Typography variant="body2" sx={{ ml: 0.5 }} component="div">
       {children}
     </Typography>
-  </Grid2>
+  </Grid>
 )

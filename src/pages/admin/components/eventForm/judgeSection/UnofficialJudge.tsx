@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 
 import { countries } from '../../../../../lib/data'
@@ -26,8 +26,8 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
   const title = selectedEventType?.official && index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
 
   return (
-    <Grid2 key={'unofficial-' + index} container spacing={1} alignItems="center" width="100%">
-      <Grid2 sx={{ width: 300 }}>
+    <Grid key={'unofficial-' + index} container spacing={1} alignItems="center" width="100%">
+      <Grid sx={{ width: 300 }}>
         <TextField
           fullWidth
           label={title}
@@ -41,9 +41,9 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
             })
           }}
         />
-      </Grid2>
+      </Grid>
       <JudgeClasses disabled={disabled} event={event} index={index} judge={judge} onChange={onChange} />
-      <Grid2 sx={{ width: 200 }}>
+      <Grid sx={{ width: 200 }}>
         <AutocompleteSingle
           options={countries}
           getOptionLabel={(option) => t(option, { ns: 'country' })}
@@ -71,8 +71,8 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
             })
           }}
         />
-      </Grid2>
-      <Grid2>
+      </Grid>
+      <Grid>
         <Button
           startIcon={<DeleteOutline />}
           disabled={disabled}
@@ -85,7 +85,7 @@ export const UnofficialJudge = ({ event, judge, index, selectedEventType, disabl
         >
           Poista tuomari
         </Button>
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   )
 }

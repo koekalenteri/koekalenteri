@@ -1,4 +1,4 @@
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 
 import InfoTableHeaderText from '../InfoTableHeaderText'
 
@@ -7,11 +7,11 @@ interface Props {
 }
 
 const CostInfoTableCaption = ({ text }: Props) => (
-  <Grid2 container mr={1} mt={1}>
-    <Grid2 size={{ xs: 12 }}>
+  <Grid container mr={1} mt={1}>
+    <Grid size={{ xs: 12 }}>
       <InfoTableHeaderText>{text}</InfoTableHeaderText>
-    </Grid2>
-  </Grid2>
+    </Grid>
+  </Grid>
 )
 
 export default CostInfoTableCaption

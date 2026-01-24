@@ -5,7 +5,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
-import Grid2 from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import { useRecoilState } from 'recoil'
 
@@ -35,16 +35,16 @@ export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithCh
       }}
       component="article"
     >
-      <Grid2 container spacing={0} alignItems="start" role="heading" aria-level={2}>
-        <Grid2>
+      <Grid container spacing={0} alignItems="start" role="heading" aria-level={2}>
+        <Grid>
           <IconButton aria-label="expand row" size="small" color="primary" onClick={handleClick}>
             {open ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
           </IconButton>
-        </Grid2>
-        <Grid2 container onClick={handleClick} spacing={0} columnSpacing={1} size="grow">
+        </Grid>
+        <Grid container onClick={handleClick} spacing={0} columnSpacing={1} size="grow">
           {header}
-        </Grid2>
-      </Grid2>
+        </Grid>
+      </Grid>
       <Collapse
         in={open}
         sx={{

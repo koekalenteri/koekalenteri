@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`UnlockArrange renders 1`] = `
 <div>
@@ -16,6 +16,7 @@ exports[`UnlockArrange renders 1`] = `
         >
           <input
             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+            role="switch"
             type="checkbox"
           />
           <span
@@ -61,6 +62,7 @@ exports[`UnlockArrange renders checked 1`] = `
           <input
             checked=""
             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
+            role="switch"
             type="checkbox"
           />
           <span
