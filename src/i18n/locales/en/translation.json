@@ -470,6 +470,7 @@
   "search": {
     "placeholder": "Search..."
   },
+  "all": "All",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -489,6 +490,8 @@
   "user": {
     "admin": "Koekalenteri administrator",
     "adminRoles": "The Koekalenteri administrator has admin rights to all organizations",
+    "judge": "Judge",
+    "officer": "Officer",
     "createDialog": {
       "cta": "Save",
       "done": "User added",
@@ -511,6 +514,7 @@
       "secretary": "Secretary"
     }
   },
+  "organization": "Organization",
   "users": "Users",
   "invitation": {
     "openingFailed": "Failed to open the event invitation",

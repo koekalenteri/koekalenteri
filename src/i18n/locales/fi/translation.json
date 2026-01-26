@@ -479,6 +479,7 @@
   "search": {
     "placeholder": "Hae..."
   },
+  "all": "Kaikki",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -498,6 +499,8 @@
   "user": {
     "admin": "Koekalenterin pääkäyttäjä",
     "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",
+    "judge": "Tuomari",
+    "officer": "Koetoimitsija",
     "createDialog": {
       "cta": "Tallenna",
       "done": "Käyttäjä lisätty",
@@ -520,6 +523,7 @@
       "secretary": "Koesihteeri"
     }
   },
+  "organization": "Yhdistys",
   "users": "Käyttäjät",
   "invitation": {
     "openingFailed": "Koeutsun avaaminen epäonnistui",

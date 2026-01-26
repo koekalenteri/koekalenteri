@@ -150,7 +150,7 @@ exports[`OrganizerListPage renders 1`] = `
             >
               <div
                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1a86huh-MuiAutocomplete-root"
-                data-testid="Yhdistys"
+                data-testid="organization"
               >
                 <div
                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -161,7 +161,7 @@ exports[`OrganizerListPage renders 1`] = `
                     for=":r9:"
                     id=":r9:-label"
                   >
-                    Yhdistys
+                    organization
                   </label>
                   <div
                     class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-6xsl3o-MuiInputBase-root-MuiOutlinedInput-root"
@@ -178,7 +178,7 @@ exports[`OrganizerListPage renders 1`] = `
                       role="combobox"
                       spellcheck="false"
                       type="text"
-                      value="Kaikki"
+                      value="all"
                     />
                     <div
                       class="MuiAutocomplete-endAdornment css-1uhhrmm-MuiAutocomplete-endAdornment"
@@ -212,7 +212,7 @@ exports[`OrganizerListPage renders 1`] = `
                         class="css-ex8a5f-MuiNotchedOutlined-root"
                       >
                         <span>
-                          Yhdistys
+                          organization
                         </span>
                       </legend>
                     </fieldset>
