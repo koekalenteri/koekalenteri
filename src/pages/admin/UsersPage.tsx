@@ -82,13 +82,22 @@ const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   if (judge) roleStrings.push(`Tuomari - ${judge.join(', ')}`)
   if (officer) roleStrings.push(`Koetoimitsija - ${officer.join(', ')}`)
 
+  // Avoid rendering an empty/broken tooltip when there is nothing to show.
+  const hasAnyRoles = roleStrings.length > 0
+
+  const iconRow = (
+    <Stack direction="row" alignItems="center">
+      <RoleIcon admin={admin} orgRoleCount={orgRoleCount} />
+      {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
+      {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
+    </Stack>
+  )
+
+  if (!hasAnyRoles) return iconRow
+
   return (
     <RolesTooltip placement="right" title={<RolesTooltipContent roles={roleStrings.join('\n')} />}>
-      <Stack direction="row" alignItems="center">
-        <RoleIcon admin orgRoleCount={orgRoleCount} />
-        {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
-        {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
-      </Stack>
+      {iconRow}
     </RolesTooltip>
   )
 }
