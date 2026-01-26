@@ -1,6 +1,7 @@
 import type { Registration } from '../../../../types'
 
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
@@ -18,6 +19,45 @@ const createMockRegistration = (overrides: Partial<Registration> = {}): Registra
 })
 
 describe('RegistrationIcons component', () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+    jest.restoreAllMocks()
+  })
+
+  it('does not render an empty tooltip when there are no tooltip rows/icons', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+    const mockReg = createMockRegistration({
+      owner: { ...registrationWithStaticDates.owner!, membership: false },
+      handler: { ...registrationWithStaticDates.handler!, membership: false },
+      paidAt: undefined,
+      refundAt: undefined,
+      refundStatus: undefined,
+      optionalCosts: [],
+      confirmed: false,
+      invitationRead: false,
+      notes: '',
+      internalNotes: '',
+      qualifyingResults: [],
+    })
+
+    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(false)
+
+    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+
+    // Tooltip target is the whole icon row (Stack renders to a div)
+    await user.hover(screen.getByTestId('StarBorderOutlinedIcon').closest('div')!)
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+  })
+
   it('should render icons with correct opacity based on registration properties', () => {
     // Mock a registration with all properties set
     const mockReg = createMockRegistration({
@@ -44,13 +84,10 @@ describe('RegistrationIcons component', () => {
     })
 
     // Spy on the hasPriority function to return true
-    const hasPrioritySpy = jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(true)
+    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(true)
 
     // Render the component
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
-
-    // Restore the original implementation
-    hasPrioritySpy.mockRestore()
 
     // The component should be rendered
     expect(screen.getByTestId('StarOutlinedIcon')).toBeInTheDocument()
@@ -70,13 +107,10 @@ describe('RegistrationIcons component', () => {
     })
 
     // Spy on the hasPriority function to return false
-    const hasPrioritySpy = jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(false)
+    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(false)
 
     // Render the component
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
-
-    // Restore the original implementation
-    hasPrioritySpy.mockRestore()
 
     // The component should be rendered
     expect(screen.getByTestId('StarBorderOutlinedIcon')).toBeInTheDocument()
@@ -220,15 +254,11 @@ describe('RegistrationIcons component', () => {
     })
 
     // Spy on the hasPriority function to return 0.5
-    const hasPrioritySpy = jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(0.5)
-    const priorityDescriptionKeySpy = jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
+    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(0.5)
+    jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
 
     // Render the component
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
-
-    // Restore the original implementations
-    hasPrioritySpy.mockRestore()
-    priorityDescriptionKeySpy.mockRestore()
 
     // The component should be rendered
     expect(screen.getByTestId('StarHalfOutlinedIcon')).toBeInTheDocument()
@@ -242,15 +272,11 @@ describe('RegistrationIcons component', () => {
     })
 
     // Spy on the hasPriority function to return 0.5
-    const hasPrioritySpy = jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(0.5)
-    const priorityDescriptionKeySpy = jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
+    jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(0.5)
+    jest.spyOn(registrationUtils, 'priorityDescriptionKey').mockReturnValue('member')
 
     // Render the component
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
-
-    // Restore the original implementations
-    hasPrioritySpy.mockRestore()
-    priorityDescriptionKeySpy.mockRestore()
 
     // The component should be rendered
     expect(screen.getByTestId('StarHalfOutlinedIcon')).toBeInTheDocument()
