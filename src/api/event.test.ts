@@ -28,6 +28,21 @@ test('getEvents', async () => {
   expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/')
 })
 
+test('getEvents with since', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'GET'
+      ? Promise.resolve(JSON.stringify([emptyEvent]))
+      : Promise.reject(new Error(`${req.method} !== 'GET'`))
+  )
+
+  const since = 123
+  const events = await getEvents(undefined, undefined, since)
+
+  expect(events.length).toEqual(1)
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/?since=123')
+})
+
 test('getEvent', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'GET'

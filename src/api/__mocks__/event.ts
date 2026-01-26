@@ -42,7 +42,12 @@ export const mockEvents: DogEvent[] = [
   eventWithParticipantsInvited,
 ]
 
-export async function getEvents(_signal?: AbortSignal): Promise<PublicDogEvent[]> {
+export async function getEvents(
+  _start?: Date,
+  _end?: Date,
+  _since?: number,
+  _signal?: AbortSignal
+): Promise<PublicDogEvent[]> {
   return new Promise((resolve) => {
     process.nextTick(() => resolve(mockEvents.map((item) => sanitizeDogEvent(item))))
   })
