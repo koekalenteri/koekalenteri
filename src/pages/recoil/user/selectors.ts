@@ -4,12 +4,15 @@ import { getUser } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
 
 import { idTokenAtom } from './atoms'
+import { userRefreshAtom } from './atoms'
 
 export const userSelector = selector({
   key: 'user',
   get: async ({ get }) => {
     try {
       const token = get(idTokenAtom)
+      // Refresh trigger (intentionally unused except for dependency tracking)
+      get(userRefreshAtom)
       if (!token) return null
 
       const user = await getUser(token)

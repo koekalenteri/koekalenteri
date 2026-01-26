@@ -1,0 +1,30 @@
+  PutUserNameFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/PutUserNameFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserLinkTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        PutUserName:
+          Type: Api
+          Properties:
+            Path: /user/name
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  PutUserNameFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutUserNameFunction]]
+      RetentionInDays: 30
+

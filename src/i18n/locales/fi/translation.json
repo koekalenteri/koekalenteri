@@ -521,6 +521,11 @@
     "roles": {
       "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
+    },
+    "editName": "Muokkaa nimeä",
+    "editNameDialog": {
+      "title": "Muokkaa nimeäsi",
+      "name": "Nimi"
     }
   },
   "organization": "Yhdistys",

@@ -4,16 +4,18 @@ import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
+import { putUserName } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
 
-import { idTokenAtom, loginPathAtom } from './atoms'
+import { idTokenAtom, loginPathAtom, userRefreshAtom } from './atoms'
 import { userSelector } from './selectors'
 
 export const useUserActions = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const setIdToken = useSetRecoilState(idTokenAtom)
+  const bumpUserRefresh = useSetRecoilState(userRefreshAtom)
   const [loginPath, setLoginPath] = useRecoilState(loginPathAtom)
 
   const login = useCallback(() => {
@@ -55,5 +57,25 @@ export const useUserActions = () => {
     [navigate]
   )
 
-  return { login, signIn, signOut }
+  const updateOwnName = useRecoilCallback(
+    ({ snapshot }) =>
+      async (name: string) => {
+        try {
+          const token = await snapshot.getPromise(idTokenAtom)
+          if (!token) return
+
+          const cleaned = String(name ?? '').trim()
+          if (!cleaned) return
+
+          await putUserName(cleaned, token)
+          bumpUserRefresh((n) => n + 1)
+          enqueueSnackbar('Nimi päivitetty', { variant: 'info' })
+        } catch (e) {
+          reportError(e)
+        }
+      },
+    [bumpUserRefresh]
+  )
+
+  return { login, signIn, signOut, updateOwnName }
 }

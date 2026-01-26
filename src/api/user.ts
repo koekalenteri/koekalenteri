@@ -26,3 +26,10 @@ export interface RoleItem {
 
 export const putRole = async (item: RoleItem, token: string | undefined, signal?: AbortSignal): Promise<User> =>
   http.post<RoleItem, User>('/admin/user/role', item, withToken({ signal }, token))
+
+export const putUserName = async (
+  name: string,
+  token: string,
+  signal?: AbortSignal
+): Promise<Pick<User, 'name' | 'email' | 'id'>> =>
+  http.post<{ name: string }, Pick<User, 'name' | 'email' | 'id'>>('/user/name', { name }, withToken({ signal }, token))

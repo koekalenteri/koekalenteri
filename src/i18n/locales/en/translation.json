@@ -512,6 +512,11 @@
     "roles": {
       "admin": "Organization administrator",
       "secretary": "Secretary"
+    },
+    "editName": "Edit name",
+    "editNameDialog": {
+      "title": "Edit your name",
+      "name": "Name"
     }
   },
   "organization": "Organization",

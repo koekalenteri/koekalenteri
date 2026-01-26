@@ -40,6 +40,14 @@ export const loginPathAtom = atom<string | undefined>({
   effects: [logEffect, sessionStorageEffect],
 })
 
+/**
+ * Used to force-refresh the userSelector after mutations (e.g. updating own name).
+ */
+export const userRefreshAtom = atom<number>({
+  key: 'userRefresh',
+  default: 0,
+})
+
 export const openedEventAtom = atomFamily<boolean, string>({
   key: 'open/eventId',
   default: false,
