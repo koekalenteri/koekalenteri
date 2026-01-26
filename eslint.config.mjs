@@ -23,7 +23,14 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ['build/**/*', 'dist/**/*', 'template/*'],
+    ignores: [
+      'build/**/*',
+      'dist/**/*',
+      // These YAML fragments are indentation-sensitive CloudFormation/SAM snippets.
+      // ESLint shouldn't try to lint them (and some editor integrations may apply
+      // formatting via ESLint fixes).
+      'template/**/*',
+    ],
   },
   ...compat.extends(
     'eslint:recommended',

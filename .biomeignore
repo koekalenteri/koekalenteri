@@ -1,0 +1,4 @@
+# CloudFormation/SAM templates are indentation-sensitive.
+# Prevent Biome from reformatting nested "Resources" fragments.
+template/**/*.yaml
+template/**/*.yml
