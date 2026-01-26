@@ -1,4 +1,6 @@
 import type { JsonDogEvent, JsonUser, Official, Organizer, UserRole } from '../../types'
+import type { UserLink } from './auth'
+import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
 
 import { diff } from 'deep-object-diff'
@@ -10,6 +12,7 @@ import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 import { sendTemplatedMail } from './email'
+import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
@@ -41,16 +44,39 @@ export const getAllUsers = async (): Promise<JsonUser[]> => {
 }
 
 export const findUserByEmail = async (email?: string): Promise<JsonUser | undefined> => {
-  if (!email) return undefined
+  if (!email) {
+    console.warn('findUserByEmail called without email')
+    return undefined
+  }
+
+  // Defensive normalization: DB emails are expected to be stored in lowercase.
+  // Callers may pass mixed-case emails (e.g. from external IdPs).
+  const normalizedEmail = email.toLocaleLowerCase().trim()
 
   const users = await dynamoDB.query<JsonUser>({
     key: 'email = :email',
-    values: { ':email': email },
+    values: { ':email': normalizedEmail },
     table: userTable,
     index: 'gsiEmail',
   })
 
-  return users?.find((user) => user.email === email)
+  const exact = users?.find((user) => user.email === normalizedEmail)
+
+  // Observability: a missing user is a meaningful condition in several flows.
+  // Log a warning to make it visible in CloudWatch while keeping it non-fatal.
+  if (!exact) {
+    // If we got items back but none match exactly, highlight possible data-normalization issues.
+    if (users?.length) {
+      console.error('findUserByEmail: queried users but none matched normalized email', {
+        normalizedEmail,
+        returnedEmails: users.map((u) => u.email),
+      })
+    } else {
+      console.warn('findUserByEmail: user not found', { normalizedEmail })
+    }
+  }
+
+  return exact
 }
 
 export const updateUser = async (user: JsonUser) => dynamoDB.write(user, userTable)
@@ -115,13 +141,39 @@ const mergeRoles = (a?: Record<string, UserRole>, b?: Record<string, UserRole>) 
   return { ...(a ?? {}), ...(b ?? {}) }
 }
 
+const mergeEmailHistory = (
+  ...all: Array<JsonUser['emailHistory'] | undefined>
+): JsonUser['emailHistory'] | undefined => {
+  const merged: EmailHistoryEntry[] = []
+  const seen = new Set<string>()
+  for (const list of all) {
+    for (const e of list ?? []) {
+      // De-dupe by (email, changedAt, source) to avoid runaway growth during merges.
+      const key = `${e.email}|${e.changedAt}|${e.source}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      merged.push(e)
+    }
+  }
+  if (!merged.length) return undefined
+  // Keep at most 10 entries, newest last.
+  return merged.slice(-10)
+}
+
 const pickCanonicalUser = (users: JsonUser[]): JsonUser => {
+  return pickCanonicalUserPreferLinked(users)
+}
+
+const pickCanonicalUserPreferLinked = (users: JsonUser[], linkedUserIds?: Set<string>): JsonUser => {
   const score = (u: JsonUser) => {
+    // Strongly prefer user records that have actually been used to log in (i.e. have a user-link).
+    // This keeps Cognito subject -> userId links stable when KL-driven email changes cause duplicates.
+    const linkedBonus = linkedUserIds?.has(u.id) ? 2000 : 0
     const rolesCount = Object.keys(u.roles ?? {}).length
     const officerCount = Array.isArray(u.officer) ? u.officer.length : 0
     const judgeCount = Array.isArray(u.judge) ? u.judge.length : 0
     const admin = u.admin ? 1000 : 0
-    return admin + rolesCount * 10 + officerCount + judgeCount
+    return linkedBonus + admin + rolesCount * 10 + officerCount + judgeCount
   }
   return [...users].sort((a, b) => {
     const ds = score(b) - score(a)
@@ -132,12 +184,13 @@ const pickCanonicalUser = (users: JsonUser[]): JsonUser => {
   })[0]
 }
 
-const preferCanonical = (a: JsonUser, b: JsonUser) => pickCanonicalUser([a, b])
+const preferCanonical = (a: JsonUser, b: JsonUser, linkedUserIds?: Set<string>) =>
+  pickCanonicalUserPreferLinked([a, b], linkedUserIds)
 
-const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string): JsonUser[] => {
+const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string, linkedUserIds?: Set<string>): JsonUser[] => {
   if (users.length <= 1) return []
 
-  const canonical = pickCanonicalUser(users)
+  const canonical = pickCanonicalUserPreferLinked(users, linkedUserIds)
   const duplicates = users.filter((u) => u.id !== canonical.id)
 
   const merged: JsonUser = {
@@ -147,21 +200,18 @@ const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string): Json
     roles: mergeRoles(...users.map((u) => u.roles)) as JsonUser['roles'],
     officer: mergeEventTypes(...users.map((u) => u.officer)) as JsonUser['officer'],
     judge: mergeEventTypes(...users.map((u) => u.judge)) as JsonUser['judge'],
+    emailHistory: mergeEmailHistory(...users.map((u) => u.emailHistory)),
     modifiedAt: nowIso,
     modifiedBy: 'system',
   }
 
   const write: JsonUser[] = [merged]
 
-  // Make duplicates non-relevant (so they won't show up in officer/secretary lists),
-  // while keeping the records for traceability.
+  // Mark duplicates deleted, while keeping the records for traceability.
   for (const dupe of duplicates) {
     write.push({
       ...dupe,
-      admin: false,
-      roles: undefined,
-      officer: undefined,
-      judge: undefined,
+      deletedAt: nowIso,
       modifiedAt: nowIso,
       modifiedBy: 'system',
     })
@@ -236,6 +286,9 @@ const buildUserUpdates = (
       itemByEmail.get(existing.email.toLocaleLowerCase())
     if (!item) continue
     const normalizedEmail = item.email.toLocaleLowerCase()
+
+    const emailHistory = appendEmailHistory(existing, existing.email, normalizedEmail, dateString, 'kl')
+
     const updated: JsonUser = {
       ...existing,
       name: reverseName(item.name),
@@ -244,6 +297,7 @@ const buildUserUpdates = (
       location: item.location ?? existing.location,
       phone: item.phone ?? existing.phone,
       [eventTypesFiled]: item.eventTypes,
+      ...(emailHistory ? { emailHistory } : {}),
     }
     const changes = Object.keys(diff(existing, updated))
     // Defensive: some equality edge cases (and/or upstream data quirks) can cause `diff` to miss
@@ -275,6 +329,12 @@ export const updateUsersFromOfficialsOrJudges = async (
 
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
 
+  // Prefer keeping user records that have actually been used to log in.
+  // This helps mitigate KL email change flows that may temporarily create duplicate user records.
+  const userLinksDb = new CustomDynamoClient(userLinkTable)
+  const userLinks = (await userLinksDb.readAll<UserLink>(userLinkTable)) ?? []
+  const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
+
   // Normalize incoming emails from KL to lowercase.
   const itemsWithEmail = items
     .filter((i) => validEmail(i.email))
@@ -293,12 +353,12 @@ export const updateUsersFromOfficialsOrJudges = async (
   for (const [kcId, group] of userGroupsByKcId) {
     if (group.length <= 1) continue
 
-    const canonical = pickCanonicalUser(group)
+    const canonical = pickCanonicalUserPreferLinked(group, linkedUserIds)
     for (const dupe of group) {
       if (dupe.id !== canonical.id) duplicateIdToCanonicalId.set(dupe.id, canonical.id)
     }
 
-    mergeWrites.push(...mergeUsersByKcId(kcId, group, dateString))
+    mergeWrites.push(...mergeUsersByKcId(kcId, group, dateString, linkedUserIds))
   }
 
   // Apply merge writes on top of the original user list so subsequent matching/upserts
@@ -351,7 +411,7 @@ export const updateUsersFromOfficialsOrJudges = async (
   for (const u of effectiveUsers) {
     if (typeof u.kcId !== 'number') continue
     const prev = existingByKcId.get(u.kcId)
-    existingByKcId.set(u.kcId, prev ? preferCanonical(prev, u) : u)
+    existingByKcId.set(u.kcId, prev ? preferCanonical(prev, u, linkedUserIds) : u)
   }
 
   const existingByEmail = new Map<string, JsonUser>()
@@ -399,6 +459,7 @@ export const __testables = {
   mergeEventTypes,
   mergeRoles,
   pickCanonicalUser,
+  pickCanonicalUserPreferLinked,
   mergeUsersByKcId,
   toEventUser,
   preferCanonical,

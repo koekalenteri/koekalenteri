@@ -24,6 +24,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 }))
 
 const logSpy = jest.spyOn(console, 'log').mockImplementation(() => null)
+const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null)
 
 const { findUserByEmail, updateUser } = await import('./user')
 const { authorize, getAndUpdateUserByEmail, getUsername } = await import('./auth')
@@ -79,6 +80,42 @@ describe('auth', () => {
         modifiedBy: 'system',
         name: 'test-user',
       })
+    })
+
+    it('should link cognito user to an existing user found by email if link is missing (KL email change mitigation)', async () => {
+      const cognitoUser = 'cognito-user'
+      const event = {
+        requestContext: {
+          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'Test@Example.com' } },
+        },
+      } as any
+
+      const existingUser = {
+        id: 'existing-id',
+        name: 'existing name',
+        email: 'test@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      } satisfies JsonUser
+
+      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
+
+      const result = await authorize(event)
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'no user link found; linking cognito user to existing user by email',
+        expect.objectContaining({ cognitoUser, userId: 'existing-id', email: 'test@example.com' })
+      )
+
+      // First: mitigation lookup by normalized email.
+      expect(findUserByEmail).toHaveBeenCalledWith('test@example.com')
+
+      // Link should be created against the existing id, not a new nanoid.
+      expect(mockWrite).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' }, 'user-link-table-not-found-in-env')
+      expect(result?.id).toBe('existing-id')
+      expect(result?.email).toBe('test@example.com')
     })
 
     it('should return the user if link is found', async () => {
@@ -204,6 +241,36 @@ describe('auth', () => {
 
       const user = await getAndUpdateUserByEmail('user@email.com', { name: 'new name' }, true)
       expect(user.name).toEqual('new name')
+    })
+
+    it('should append emailHistory when existing email changes via login', async () => {
+      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce({
+        id: 'test-id',
+        name: 'n',
+        email: 'old@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      })
+
+      await getAndUpdateUserByEmail('NEW@EXAMPLE.COM', {})
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'getAndUpdateUserByEmail: existing user email differs from claims email',
+        expect.objectContaining({
+          userId: 'test-id',
+          existingEmail: 'old@example.com',
+          claimsEmail: 'new@example.com',
+        })
+      )
+
+      expect(updateUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'new@example.com',
+          emailHistory: [{ email: 'old@example.com', changedAt: '2023-11-30T20:00:00.000Z', source: 'login' }],
+        })
+      )
     })
   })
 

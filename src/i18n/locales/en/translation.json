@@ -505,6 +505,7 @@
       "title": "Edit roles for user [{{user.name}}]"
     },
     "lastSeen": "Last login",
+    "emailHistory": "Email history",
     "roles": {
       "admin": "Organization administrator",
       "secretary": "Secretary"

@@ -53,6 +53,7 @@ export interface User extends Person, Partial<DbRecord> {
   roles?: UserRoles
   admin?: boolean
   lastSeen?: Date
+  emailHistory?: { email: string; changedAt: string; source: 'kl' | 'login' }[]
 }
 
 export interface UserWithRoles extends User {

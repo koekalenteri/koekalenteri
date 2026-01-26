@@ -8,9 +8,10 @@ import { CONFIG } from '../config'
 import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
+import { appendEmailHistory } from './emailHistory'
 import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 
-interface UserLink {
+export interface UserLink {
   cognitoUser: string
   userId: string
 }
@@ -52,9 +53,28 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
   } else {
     // no user link found for the cognitoUser
 
-    user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
-    await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
-    console.log('added user link', { cognitoUser, userId: user.id })
+    // Mitigation for email changes (e.g. user changes email in KL while staying logged in):
+    // If a user record already exists by email, link this cognito user to that record instead
+    // of creating a new user (or failing later due to mismatched identities).
+    const normalizedEmail = typeof email === 'string' ? email.toLocaleLowerCase().trim() : ''
+    const existingByEmail = await findUserByEmail(normalizedEmail)
+
+    if (existingByEmail) {
+      console.warn('no user link found; linking cognito user to existing user by email', {
+        cognitoUser,
+        userId: existingByEmail.id,
+        email: normalizedEmail,
+      })
+
+      // Update lastSeen/name on the existing user record.
+      user = await getAndUpdateUserByEmail(normalizedEmail, { name }, false, updateLastSeen)
+      await dynamoDB.write({ cognitoUser, userId: existingByEmail.id }, userLinkTable)
+      console.log('added user link', { cognitoUser, userId: existingByEmail.id })
+    } else {
+      user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
+      await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
+      console.log('added user link', { cognitoUser, userId: user.id })
+    }
   }
   return user
 }
@@ -69,6 +89,14 @@ export async function getAndUpdateUserByEmail(
   const dateString = new Date().toISOString()
   const email = rawEmail.toLocaleLowerCase().trim()
   const existing = await findUserByEmail(email)
+
+  if (existing && existing.email !== email) {
+    console.warn('getAndUpdateUserByEmail: existing user email differs from claims email', {
+      userId: existing.id,
+      existingEmail: existing.email,
+      claimsEmail: email,
+    })
+  }
   const newUser: JsonUser = {
     id: nanoid(10),
     name: '',
@@ -94,6 +122,11 @@ export async function getAndUpdateUserByEmail(
     ...newUser,
     ...existing,
     ...changes,
+    // Ensure the canonical email from claims always wins over any stored value.
+    email,
+    ...(existing?.email && existing.email !== email
+      ? { emailHistory: appendEmailHistory(existing, existing.email, email, dateString, 'login') }
+      : {}),
     ...(updateLastSeen ? { lastSeen: dateString } : {}),
   }
   if (Object.keys(diff(existing ?? {}, final)).length > 0) {

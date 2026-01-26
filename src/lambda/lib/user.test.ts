@@ -198,6 +198,24 @@ describe('lib/user', () => {
       expect(__testables.pickCanonicalUser([older, newer]).id).toBe('u4')
     })
 
+    it('pickCanonicalUserPreferLinked prefers users that have logged in (linked user ids)', () => {
+      const base: JsonUser = { ...defaults, id: 'u1', name: 'u1', email: 'u1@example.com' }
+      const higherScoreButUnlinked: JsonUser = {
+        ...defaults,
+        id: 'u2',
+        name: 'u2',
+        email: 'u2@example.com',
+        roles: { org: 'admin' },
+      }
+
+      // Even though u2 has higher “business score”, u1 should win when it is linked.
+      const linked = new Set<string>(['u1'])
+      expect(__testables.pickCanonicalUserPreferLinked([base, higherScoreButUnlinked], linked).id).toBe('u1')
+
+      // Without a link set, it should fall back to the normal scoring.
+      expect(__testables.pickCanonicalUserPreferLinked([base, higherScoreButUnlinked], undefined).id).toBe('u2')
+    })
+
     it('mergeUsersByKcId merges into canonical and clears duplicates', () => {
       const now = '2024-05-30T20:00:00.000Z'
       const a: JsonUser = { ...defaults, id: 'a', name: 'A', email: 'a@example.com', kcId: 1, officer: ['X'] }
@@ -219,10 +237,7 @@ describe('lib/user', () => {
       expect(cleared).toEqual(
         expect.objectContaining({
           id: 'a',
-          roles: undefined,
-          officer: undefined,
-          judge: undefined,
-          admin: false,
+          deletedAt: now,
           modifiedAt: now,
           modifiedBy: 'system',
         })
@@ -318,7 +333,7 @@ describe('lib/user', () => {
       const existing: JsonUser = {
         createdAt: '2024-05-30T20:00:00.000Z',
         createdBy: 'system',
-        email: 'dredd@eXaMpLe.com',
+        email: 'old@example.com',
         id: 'test-id',
         officer: ['NOME-A', 'NOU'],
         kcId: 333,
@@ -327,6 +342,7 @@ describe('lib/user', () => {
         modifiedBy: 'system',
         name: 'official dredd',
         phone: 'phone',
+        emailHistory: [],
       }
 
       mockReadAll.mockResolvedValueOnce([existing])
@@ -348,6 +364,7 @@ describe('lib/user', () => {
             createdAt: '2024-05-30T20:00:00.000Z',
             createdBy: 'system',
             email: 'dredd@example.com',
+            emailHistory: [{ email: 'old@example.com', changedAt: '2024-05-30T20:00:00.000Z', source: 'kl' }],
             id: 'test-id',
             officer: ['NOME-A'],
             kcId: 333,
@@ -362,7 +379,7 @@ describe('lib/user', () => {
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(logSpy).toHaveBeenCalledWith(
-        'updating user from item: dredd official. changed props: email, officer, phone'
+        'updating user from item: dredd official. changed props: email, officer, phone, emailHistory'
       )
     })
 
@@ -536,8 +553,8 @@ describe('lib/user', () => {
       expect(writtenCanonical?.roles).toEqual({ testOrg: 'admin' })
 
       expect(writtenOther).toBeDefined()
-      expect(writtenOther?.officer).toBeUndefined()
-      expect(writtenOther?.roles).toBeUndefined()
+      // Duplicates are kept for traceability, and marked deleted.
+      expect(writtenOther?.deletedAt).toBeDefined()
 
       // Events referencing dupe id are updated to point at canonical id.
       expect(mockEventUpdate).toHaveBeenCalledTimes(1)

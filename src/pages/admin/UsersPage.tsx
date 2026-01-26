@@ -1,5 +1,5 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
-import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
+import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -48,6 +48,14 @@ const RolesTooltip = styled(({ className, ...props }: TooltipProps) => (
 })
 
 const RolesTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
+
+const EmailHistoryTooltipContent = ({ history }: { history: NonNullable<User['emailHistory']> }) => {
+  const rows = history
+    .slice()
+    .reverse()
+    .map((h) => `${h.changedAt}  •  ${h.email}  •  ${h.source}`)
+  return <Box sx={{ whiteSpace: 'pre-line' }}>{rows.join('\n')}</Box>
+}
 
 const RoleIcon = ({ admin, orgRoleCount }: { admin?: boolean; orgRoleCount: number }) => {
   if (admin) return <StarsOutlined fontSize="small" />
@@ -140,8 +148,22 @@ export default function UsersPage() {
       display: 'flex',
       width: 90,
       sortComparator: (a, b) => {
-        const admin = a.admin - b.admin
-        return admin === 0 ? Object.keys(a.roles).length - Object.keys(b.roles).length : admin
+        // Order (greatest first):
+        // 1) admin
+        // 2) org role count
+        // 3) judge+officer
+        // 4) judge
+        // 5) officer
+        const score = (u: User) => {
+          const adminScore = u.admin ? 1000 : 0
+          const roleCountScore = Object.keys(u.roles ?? {}).length * 10
+          const hasJudge = Array.isArray(u.judge) && u.judge.length > 0
+          const hasOfficer = Array.isArray(u.officer) && u.officer.length > 0
+          const judgeOfficerScore = hasJudge && hasOfficer ? 3 : hasJudge ? 2 : hasOfficer ? 1 : 0
+          return adminScore + roleCountScore + judgeOfficerScore
+        }
+
+        return score(b) - score(a)
       },
       valueGetter: (_value, row) => ({ admin: false, roles: {}, ...row }),
       renderCell: ({ value }) => <RoleInfo {...value} />,
@@ -165,6 +187,27 @@ export default function UsersPage() {
       headerName: t('contact.email'),
       minWidth: 150,
     },
+    ...(user?.admin
+      ? ([
+          {
+            field: 'emailHistory',
+            headerName: t('user.emailHistory'),
+            flex: 1,
+            minWidth: 180,
+            sortable: false,
+            valueGetter: (_value: unknown, row: User) => row.emailHistory ?? [],
+            renderCell: (params: GridRenderCellParams<User>) => {
+              const history = (params.value ?? []) as NonNullable<User['emailHistory']>
+              if (!history.length) return ''
+              return (
+                <Tooltip placement="right" title={<EmailHistoryTooltipContent history={history} />}>
+                  <Box component="span">{history.length}</Box>
+                </Tooltip>
+              )
+            },
+          },
+        ] satisfies GridColDef<User>[])
+      : []),
     {
       field: 'district',
       flex: 1,

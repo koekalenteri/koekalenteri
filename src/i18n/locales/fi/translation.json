@@ -514,6 +514,7 @@
       "title": "Käyttäjän [{{user.name}}] roolien muokkaus"
     },
     "lastSeen": "Viimeinen kirjautuminen",
+    "emailHistory": "Sähköpostihistoria",
     "roles": {
       "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
