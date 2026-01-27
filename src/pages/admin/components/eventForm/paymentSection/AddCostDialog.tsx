@@ -56,7 +56,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
     if (finalKey === 'breed') {
       data = { breedCode: breedCodes }
     } else if (finalKey === 'custom' || finalKey === 'optionalAdditionalCosts') {
-      data = { description: { fi: descriptionFi, en: descriptionEn } }
+      data = { description: { fi: descriptionFi.trim(), en: descriptionEn.trim() } }
     }
 
     onAdd(finalKey, data)
@@ -104,6 +104,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
               onChange={(e) => setDescriptionFi(e.target.value)}
               fullWidth
               margin="normal"
+              required
             />
             <TextField
               label={t('eventType.createDialog.description.en')}
@@ -117,7 +118,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('cancel')}</Button>
-        <Button onClick={handleAdd} disabled={!key && mode !== 'optional'}>
+        <Button onClick={handleAdd} disabled={mode === 'optional' || key === 'custom' ? !descriptionFi.trim() : !key}>
           {t(mode === 'optional' ? 'costAddOptional' : 'costAdd')}
         </Button>
       </DialogActions>
