@@ -31,11 +31,7 @@ export const hasRegistrationTooltipContent = ({
   if (priority) return true
   if (reg.owner?.membership) return true
   if (reg.handler?.membership) return true
-
-  if (!!reg.paidAt && reg.refundStatus === 'PENDING') return true
-  if (!!reg.paidAt && !!reg.refundAt && reg.refundStatus !== 'PENDING') return true
-  if (!!reg.paidAt && !reg.refundAt && reg.refundStatus !== 'PENDING') return true
-
+  if (reg.paidAt) return true
   if ((reg.optionalCosts ?? []).length > 0) return true
   if (reg.confirmed) return true
   if (reg.invitationRead) return true

@@ -238,6 +238,74 @@ const toEventUser = (
   }
 }
 
+const buildItemIndexMaps = (itemsWithEmail: Official[]) => {
+  const itemByEmail = new Map<string, Official>()
+  const itemByKcId = new Map<number, Official>()
+  for (const item of itemsWithEmail) {
+    itemByEmail.set(item.email.toLocaleLowerCase(), item)
+    if (typeof item.id === 'number') itemByKcId.set(item.id, item)
+  }
+  return { itemByEmail, itemByKcId }
+}
+
+const createNewUserFromItem = (item: Official, dateString: string, eventTypesFiled: 'officer' | 'judge'): JsonUser => {
+  const modifiedBy = 'system'
+  const normalizedEmail = item.email.toLocaleLowerCase()
+  const newUser: JsonUser = {
+    id: nanoid(10),
+    createdAt: dateString,
+    createdBy: modifiedBy,
+    modifiedAt: dateString,
+    modifiedBy,
+    name: reverseName(item.name),
+    email: normalizedEmail,
+    kcId: item.id,
+    [eventTypesFiled]: item.eventTypes,
+  }
+
+  if (item.location) newUser.location = item.location
+  if (item.phone) newUser.phone = item.phone
+
+  return newUser
+}
+
+const updateExistingUserFromItem = (
+  existing: JsonUser,
+  item: Official,
+  dateString: string,
+  eventTypesFiled: 'officer' | 'judge'
+): JsonUser | null => {
+  const modifiedBy = 'system'
+  const normalizedEmail = item.email.toLocaleLowerCase()
+  const emailHistory = appendEmailHistory(existing, existing.email, normalizedEmail, dateString, 'kl')
+
+  const updated: JsonUser = {
+    ...existing,
+    name: reverseName(item.name),
+    email: normalizedEmail,
+    kcId: item.id,
+    location: item.location ?? existing.location,
+    phone: item.phone ?? existing.phone,
+    [eventTypesFiled]: item.eventTypes,
+    ...(emailHistory ? { emailHistory } : {}),
+  }
+  const changes = Object.keys(diff(existing, updated))
+  // Defensive: some equality edge cases (and/or upstream data quirks) can cause `diff` to miss
+  // an email change. Ensure we still update when KL email differs.
+  if (existing.email?.toLocaleLowerCase() !== normalizedEmail && !changes.includes('email')) {
+    changes.push('email')
+  }
+  if (changes.length > 0) {
+    console.log(`updating user from item: ${item.name}. changed props: ${changes.join(', ')}`)
+    return {
+      ...updated,
+      modifiedAt: dateString,
+      modifiedBy,
+    }
+  }
+  return null
+}
+
 const buildUserUpdates = (
   itemsWithEmail: Official[],
   newItems: Official[],
@@ -245,39 +313,17 @@ const buildUserUpdates = (
   eventTypesFiled: 'officer' | 'judge'
 ) => {
   const write: JsonUser[] = []
-  const modifiedBy = 'system'
   const dateString = new Date().toISOString()
 
-  const itemByEmail = new Map<string, Official>()
-  const itemByKcId = new Map<number, Official>()
-  for (const item of itemsWithEmail) {
-    itemByEmail.set(item.email.toLocaleLowerCase(), item)
-    if (typeof item.id === 'number') itemByKcId.set(item.id, item)
-  }
+  const { itemByEmail, itemByKcId } = buildItemIndexMaps(itemsWithEmail)
 
   for (const item of newItems) {
     if (!validEmail(item.email)) {
       console.log(`skipping item due to invalid email: ${item.name}, email: ${item.email}`)
       continue
     }
-    const normalizedEmail = item.email.toLocaleLowerCase()
     console.log(`creating user from item: ${item.name}, email: ${item.email}`)
-    const newUser: JsonUser = {
-      id: nanoid(10),
-      createdAt: dateString,
-      createdBy: modifiedBy,
-      modifiedAt: dateString,
-      modifiedBy,
-      name: reverseName(item.name),
-      email: normalizedEmail,
-      kcId: item.id,
-      [eventTypesFiled]: item.eventTypes,
-    }
-
-    if (item.location) newUser.location = item.location
-    if (item.phone) newUser.phone = item.phone
-
-    write.push(newUser)
+    write.push(createNewUserFromItem(item, dateString, eventTypesFiled))
   }
 
   for (const existing of existingUsers) {
@@ -285,63 +331,19 @@ const buildUserUpdates = (
       (typeof existing.kcId === 'number' ? itemByKcId.get(existing.kcId) : undefined) ??
       itemByEmail.get(existing.email.toLocaleLowerCase())
     if (!item) continue
-    const normalizedEmail = item.email.toLocaleLowerCase()
 
-    const emailHistory = appendEmailHistory(existing, existing.email, normalizedEmail, dateString, 'kl')
-
-    const updated: JsonUser = {
-      ...existing,
-      name: reverseName(item.name),
-      email: normalizedEmail,
-      kcId: item.id,
-      location: item.location ?? existing.location,
-      phone: item.phone ?? existing.phone,
-      [eventTypesFiled]: item.eventTypes,
-      ...(emailHistory ? { emailHistory } : {}),
-    }
-    const changes = Object.keys(diff(existing, updated))
-    // Defensive: some equality edge cases (and/or upstream data quirks) can cause `diff` to miss
-    // an email change. Ensure we still update when KL email differs.
-    if (existing.email?.toLocaleLowerCase() !== normalizedEmail && !changes.includes('email')) {
-      changes.push('email')
-    }
-    if (changes.length > 0) {
-      console.log(`updating user from item: ${item.name}. changed props: ${changes.join(', ')}`)
-      write.push({
-        ...updated,
-        modifiedAt: dateString,
-        modifiedBy,
-      })
-    }
+    const updated = updateExistingUserFromItem(existing, item, dateString, eventTypesFiled)
+    if (updated) write.push(updated)
   }
 
   return write
 }
 
-export const updateUsersFromOfficialsOrJudges = async (
-  dynamoDB: CustomDynamoClient,
-  items: Official[] | PartialJsonJudge[],
-  eventTypesFiled: 'officer' | 'judge'
-) => {
-  if (!items.length) return
+const normalizeItemsWithEmail = (items: Official[] | PartialJsonJudge[]): Official[] => {
+  return items.filter((i) => validEmail(i.email)).map((i) => ({ ...i, email: i.email.toLocaleLowerCase() }))
+}
 
-  const dateString = new Date().toISOString()
-
-  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
-
-  // Prefer keeping user records that have actually been used to log in.
-  // This helps mitigate KL email change flows that may temporarily create duplicate user records.
-  const userLinksDb = new CustomDynamoClient(userLinkTable)
-  const userLinks = (await userLinksDb.readAll<UserLink>(userLinkTable)) ?? []
-  const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
-
-  // Normalize incoming emails from KL to lowercase.
-  const itemsWithEmail = items
-    .filter((i) => validEmail(i.email))
-    .map((i) => ({ ...i, email: i.email.toLocaleLowerCase() }))
-
-  // 1) Merge existing duplicates in our DB by kcId (KL member id).
-  //    KL users can change their email; kcId should remain stable.
+const mergeDuplicateUsersByKcId = (allUsers: JsonUser[], linkedUserIds: Set<string>, dateString: string) => {
   const userGroupsByKcId = new Map<number, JsonUser[]>()
   for (const u of allUsers) {
     if (typeof u.kcId !== 'number') continue
@@ -350,6 +352,7 @@ export const updateUsersFromOfficialsOrJudges = async (
 
   const duplicateIdToCanonicalId = new Map<string, string>()
   const mergeWrites: JsonUser[] = []
+
   for (const [kcId, group] of userGroupsByKcId) {
     if (group.length <= 1) continue
 
@@ -361,31 +364,38 @@ export const updateUsersFromOfficialsOrJudges = async (
     mergeWrites.push(...mergeUsersByKcId(kcId, group, dateString, linkedUserIds))
   }
 
-  // Apply merge writes on top of the original user list so subsequent matching/upserts
-  // see the canonical user with merged roles/officer/judge etc.
+  return { duplicateIdToCanonicalId, mergeWrites }
+}
+
+const applyMergeWrites = (allUsers: JsonUser[], mergeWrites: JsonUser[]) => {
   const effectiveUsersById = new Map<string, JsonUser>()
   for (const u of allUsers) effectiveUsersById.set(u.id, u)
   for (const u of mergeWrites) effectiveUsersById.set(u.id, u)
   const effectiveUsers = [...effectiveUsersById.values()]
   const effectiveUsersWithEmail = effectiveUsers.filter((u) => validEmail(u.email))
+  return { effectiveUsers, effectiveUsersWithEmail }
+}
 
-  // If we merged users, also update any stored event references (official/secretary) to the canonical user id.
-  if (duplicateIdToCanonicalId.size) {
-    const mergedUserMap = new Map<string, JsonUser>()
-    for (const u of allUsers) mergedUserMap.set(u.id, u)
-    for (const u of mergeWrites) mergedUserMap.set(u.id, u)
+const updateEventReferences = async (
+  duplicateIdToCanonicalId: Map<string, string>,
+  allUsers: JsonUser[],
+  mergeWrites: JsonUser[],
+  dateString: string
+) => {
+  const mergedUserMap = new Map<string, JsonUser>()
+  for (const u of allUsers) mergedUserMap.set(u.id, u)
+  for (const u of mergeWrites) mergedUserMap.set(u.id, u)
 
-    const eventsDb = new CustomDynamoClient(eventTable)
-    const events = (await eventsDb.readAll<JsonDogEvent>(eventTable)) ?? []
+  const eventsDb = new CustomDynamoClient(eventTable)
+  const events = (await eventsDb.readAll<JsonDogEvent>(eventTable)) ?? []
 
-    for (const evt of events) {
-      const oldOfficialId = evt.official?.id
-      const oldSecretaryId = evt.secretary?.id
-      const newOfficialId = oldOfficialId ? duplicateIdToCanonicalId.get(String(oldOfficialId)) : undefined
-      const newSecretaryId = oldSecretaryId ? duplicateIdToCanonicalId.get(String(oldSecretaryId)) : undefined
+  for (const evt of events) {
+    const oldOfficialId = evt.official?.id
+    const oldSecretaryId = evt.secretary?.id
+    const newOfficialId = oldOfficialId ? duplicateIdToCanonicalId.get(String(oldOfficialId)) : undefined
+    const newSecretaryId = oldSecretaryId ? duplicateIdToCanonicalId.get(String(oldSecretaryId)) : undefined
 
-      if (!newOfficialId && !newSecretaryId) continue
-
+    if (newOfficialId || newSecretaryId) {
       const updatedOfficial = newOfficialId ? toEventUser(mergedUserMap.get(newOfficialId), evt.official) : evt.official
       const updatedSecretary = newSecretaryId
         ? toEventUser(mergedUserMap.get(newSecretaryId), evt.secretary)
@@ -405,8 +415,14 @@ export const updateUsersFromOfficialsOrJudges = async (
       )
     }
   }
+}
 
-  // 2) Upsert users from KL data: match by kcId first, fallback to email.
+const matchItemsToUsers = (
+  itemsWithEmail: Official[],
+  effectiveUsers: JsonUser[],
+  effectiveUsersWithEmail: JsonUser[],
+  linkedUserIds: Set<string>
+) => {
   const existingByKcId = new Map<number, JsonUser>()
   for (const u of effectiveUsers) {
     if (typeof u.kcId !== 'number') continue
@@ -432,8 +448,47 @@ export const updateUsersFromOfficialsOrJudges = async (
     }
   }
 
-  // Merge + upsert may both produce writes for the same user id.
-  // Ensure we only write one item per id, and that the upsert version wins.
+  return { matchedExisting, newItems }
+}
+
+export const updateUsersFromOfficialsOrJudges = async (
+  dynamoDB: CustomDynamoClient,
+  items: Official[] | PartialJsonJudge[],
+  eventTypesFiled: 'officer' | 'judge'
+) => {
+  if (!items.length) return
+
+  const dateString = new Date().toISOString()
+  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+
+  // Prefer keeping user records that have actually been used to log in.
+  const userLinksDb = new CustomDynamoClient(userLinkTable)
+  const userLinks = (await userLinksDb.readAll<UserLink>(userLinkTable)) ?? []
+  const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
+
+  // 1) Normalize incoming emails from KL to lowercase.
+  const itemsWithEmail = normalizeItemsWithEmail(items)
+
+  // 2) Merge existing duplicates in our DB by kcId (KL member id).
+  const { duplicateIdToCanonicalId, mergeWrites } = mergeDuplicateUsersByKcId(allUsers, linkedUserIds, dateString)
+
+  // 3) Apply merge writes to get effective user list.
+  const { effectiveUsers, effectiveUsersWithEmail } = applyMergeWrites(allUsers, mergeWrites)
+
+  // 4) Update event references if we merged users.
+  if (duplicateIdToCanonicalId.size) {
+    await updateEventReferences(duplicateIdToCanonicalId, allUsers, mergeWrites, dateString)
+  }
+
+  // 5) Upsert users from KL data: match by kcId first, fallback to email.
+  const { matchedExisting, newItems } = matchItemsToUsers(
+    itemsWithEmail,
+    effectiveUsers,
+    effectiveUsersWithEmail,
+    linkedUserIds
+  )
+
+  // 6) Merge + upsert may both produce writes for the same user id.
   const writeById = new Map<string, JsonUser>()
   for (const u of mergeWrites) writeById.set(u.id, u)
   for (const u of buildUserUpdates(itemsWithEmail, newItems, matchedExisting, eventTypesFiled)) writeById.set(u.id, u)
@@ -448,7 +503,6 @@ export const updateUsersFromOfficialsOrJudges = async (
       for (const user of write) {
         console.log(user)
       }
-
       throw e
     }
   }
