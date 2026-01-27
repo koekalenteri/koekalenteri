@@ -427,7 +427,7 @@ export default function RegistrationForm({
               {errors.map((e) => (
                 <li key={`error-${e.opts.field}`}>{t(`registration.${e.opts.field}` as any)} </li>
               ))}
-              {!registration.qualifies ? <li>{t('registration.qualifyingResults')}</li> : null}
+              {registration.qualifies ? null : <li>{t('registration.qualifyingResults')}</li>}
             </ul>
           </AccordionDetails>
         </Accordion>

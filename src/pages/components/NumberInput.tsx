@@ -14,7 +14,7 @@ interface Props extends Omit<TextFieldProps<'standard'>, 'onChange'> {
   readonly onChange?: (value: number | undefined) => void
 }
 
-const defaultFormatter = (value: number | undefined) => (value !== undefined ? `${value}` : '')
+const defaultFormatter = (value: number | undefined) => (value === undefined ? '' : `${value}`)
 
 export const NumberInput = ({
   formatValue = defaultFormatter,

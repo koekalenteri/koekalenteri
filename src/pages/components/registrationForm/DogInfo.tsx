@@ -188,8 +188,8 @@ export const DogInfo = ({
         setLoading(false)
         setTimeout(() => setDelayed(false), delay)
       },
-      (reason) => {
-        console.error(reason)
+      (err) => {
+        console.error(err)
         setLoading(false)
       }
     )

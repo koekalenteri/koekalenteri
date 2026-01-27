@@ -160,7 +160,14 @@ export default function UsersPage() {
           const roleCountScore = Object.keys(u.roles ?? {}).length * 10
           const hasJudge = Array.isArray(u.judge) && u.judge.length > 0
           const hasOfficer = Array.isArray(u.officer) && u.officer.length > 0
-          const judgeOfficerScore = hasJudge && hasOfficer ? 3 : hasJudge ? 2 : hasOfficer ? 1 : 0
+          let judgeOfficerScore = 0
+          if (hasJudge && hasOfficer) {
+            judgeOfficerScore = 3
+          } else if (hasJudge) {
+            judgeOfficerScore = 2
+          } else if (hasOfficer) {
+            judgeOfficerScore = 1
+          }
           return adminScore + roleCountScore + judgeOfficerScore
         }
 

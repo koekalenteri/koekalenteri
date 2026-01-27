@@ -90,7 +90,7 @@ const MembershipInfo = ({ reg, disabled, onChange, orgId }: Props) => {
       title={t('registration.membership')}
       open={open}
       error={!open}
-      helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
+      helperText={open ? undefined : t('validation.registration.choose', { field: 'dog' })}
     >
       <FormGroup>
         <FormControlLabel

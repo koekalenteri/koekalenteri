@@ -184,7 +184,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     if (!event || !registration || registration.cancelled) return
 
     if ((registration.paidAmount ?? 0) < (costResult?.amount ?? 0) && registration.messagesSent?.picked) {
-      setPaymentOpen((current) => (current === null ? true : current))
+      setPaymentOpen((current) => current ?? true)
     }
   }, [event, registration, costResult])
 

@@ -94,7 +94,7 @@ const breedStrategy: CostStrategy = {
   },
   getValue: (cost, breedCode) => (breedCode && cost.breed?.[breedCode]) ?? 0,
   setValue: (cost, value, data) => {
-    const result = { ...cost, breed: { ...(cost.breed ?? {}) } }
+    const result = { ...cost, breed: { ...cost.breed } }
     if (data && 'breedCode' in data) {
       const breedCodes = Array.isArray(data.breedCode) ? data.breedCode : [data.breedCode]
       for (const code of breedCodes) {

@@ -16,7 +16,7 @@ import '@testing-library/jest-dom'
 // initialize i18n
 import './i18n'
 
-Object.assign(global, { TextDecoder, TextEncoder })
+Object.assign(globalThis, { TextDecoder, TextEncoder })
 
 process.env.REACT_APP_IDENTITY_POOL_ID = 'test-id-pool'
 jest.mock('./lib/client/rum')

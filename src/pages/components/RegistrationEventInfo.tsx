@@ -76,11 +76,11 @@ export default function RegistrationEventInfo({ event, hideCostInfo, invitationA
             {printContactInfo(event.contactInfo?.secretary)}
           </ItemWithCaption>
         ) : null}
-        {!hideCostInfo ? (
+        {hideCostInfo ? null : (
           <ItemWithCaption label={t('paymentDetails')}>
             <CostInfo event={event} />
           </ItemWithCaption>
-        ) : null}
+        )}
         {event.priority ? (
           <ItemWithCaption label={t('event.priority')}>
             <PriorityChips priority={event.priority} />

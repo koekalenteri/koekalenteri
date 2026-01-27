@@ -74,8 +74,8 @@ export default function EmailTemplateListPage() {
           setChanges(false)
         }
       },
-      (reason) => {
-        console.error(reason)
+      (err) => {
+        console.error(err)
       }
     )
   }, [actions, resetTemplate, template])

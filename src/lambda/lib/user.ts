@@ -133,12 +133,12 @@ const mergeEventTypes = (a?: string[], b?: string[]) => {
   const set = new Set<string>()
   for (const v of a ?? []) set.add(v)
   for (const v of b ?? []) set.add(v)
-  return set.size ? [...set].sort() : undefined
+  return set.size ? [...set].sort((a, b) => a.localeCompare(b)) : undefined
 }
 
 const mergeRoles = (a?: Record<string, UserRole>, b?: Record<string, UserRole>) => {
   if (!a && !b) return undefined
-  return { ...(a ?? {}), ...(b ?? {}) }
+  return { ...a, ...b }
 }
 
 const mergeEmailHistory = (
@@ -197,9 +197,9 @@ const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string, linke
     ...canonical,
     kcId,
     admin: users.some((u) => u.admin) || canonical.admin,
-    roles: mergeRoles(...users.map((u) => u.roles)) as JsonUser['roles'],
-    officer: mergeEventTypes(...users.map((u) => u.officer)) as JsonUser['officer'],
-    judge: mergeEventTypes(...users.map((u) => u.judge)) as JsonUser['judge'],
+    roles: mergeRoles(...users.map((u) => u.roles)),
+    officer: mergeEventTypes(...users.map((u) => u.officer)),
+    judge: mergeEventTypes(...users.map((u) => u.judge)),
     emailHistory: mergeEmailHistory(...users.map((u) => u.emailHistory)),
     modifiedAt: nowIso,
     modifiedBy: 'system',

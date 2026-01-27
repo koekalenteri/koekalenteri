@@ -184,7 +184,7 @@ export function EntryInfo({
 
       // Find dates in filter that aren't in current selection
       const missingFilterDates = filterDates.filter(
-        (filterDate) => !currentDates.find((ud) => isSameDay(ud.date, filterDate))
+        (filterDate) => !currentDates.some((ud) => isSameDay(ud.date, filterDate))
       )
 
       // No missing dates, no changes needed

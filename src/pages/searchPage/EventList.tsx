@@ -8,12 +8,12 @@ interface Props {
 }
 
 export const EventList = ({ events }: Props) =>
-  !events.length ? (
-    <EmptyResult />
-  ) : (
+  events.length ? (
     <>
       {events.map((event, i) => (
         <EventListItem key={event.id} event={event} odd={i % 2 === 1} />
       ))}
     </>
+  ) : (
+    <EmptyResult />
   )

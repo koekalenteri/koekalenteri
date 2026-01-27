@@ -22,6 +22,16 @@ function dedupeUsersByEmail<
     return admin + rolesCount * 10 + officerCount + judgeCount
   }
 
+  const shouldReplaceExisting = (existing: T, candidate: T): boolean => {
+    const s1 = score(existing)
+    const s2 = score(candidate)
+    if (s2 > s1) return true
+    if (s2 < s1) return false
+    const t1 = existing.modifiedAt ? Date.parse(existing.modifiedAt) : 0
+    const t2 = candidate.modifiedAt ? Date.parse(candidate.modifiedAt) : 0
+    return t2 > t1
+  }
+
   for (const u of users) {
     // Some legacy/system users might not have email; keep them and avoid crashing.
     if (!u.email) {
@@ -31,22 +41,8 @@ function dedupeUsersByEmail<
 
     const key = u.email.toLocaleLowerCase()
     const existing = byEmail.get(key)
-    if (!existing) {
+    if (!existing || shouldReplaceExisting(existing, u)) {
       byEmail.set(key, u)
-      continue
-    }
-
-    // Prefer the most "capable" entry; if tied, prefer the most recently modified.
-    const s1 = score(existing)
-    const s2 = score(u)
-    if (s2 > s1) {
-      byEmail.set(key, u)
-      continue
-    }
-    if (s2 === s1) {
-      const t1 = existing.modifiedAt ? Date.parse(existing.modifiedAt) : 0
-      const t2 = u.modifiedAt ? Date.parse(u.modifiedAt) : 0
-      if (t2 > t1) byEmail.set(key, u)
     }
   }
 

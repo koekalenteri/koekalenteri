@@ -30,7 +30,7 @@ export function CreateEventTypeDialog({ onClose, open }: Props) {
     if (!eventType || existingTypes.includes(eventType) || !description.fi || !description.en) return
     actions.save({ eventType, description, official: false, active: true }).then(
       () => onClose(),
-      (reason) => console.error(reason)
+      (err) => console.error(err)
     )
   }, [actions, description, eventType, existingTypes, onClose])
 
