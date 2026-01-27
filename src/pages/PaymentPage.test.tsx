@@ -205,6 +205,94 @@ describe('PaymentPage', () => {
 
       expect(container).toHaveTextContent('paymentPage.somethingWentWrong')
     })
+
+    it('should show waiting message when payment is after confirmation but registration not confirmed', async () => {
+      const event = {
+        id: 'test-id',
+        paymentTime: 'confirmation' as const,
+        cost: 50,
+      }
+      const registration = {
+        ...testRegistration,
+        confirmed: false,
+        totalAmount: 50,
+      }
+
+      const routes: RouteObject[] = [
+        {
+          path: '/test-path',
+          element: (
+            <PaymentPageWithData
+              id="test-id"
+              registrationId="test-reg-id"
+              event={event as any}
+              registration={registration as any}
+              response={undefined}
+            />
+          ),
+        },
+      ]
+
+      const { container } = render(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <RecoilRoot>
+              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+            </RecoilRoot>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+
+      await flushPromises()
+
+      expect(container).toHaveTextContent('paymentStatus.waitingForConfirmation')
+      expect(container).toHaveTextContent('registration.paymentToBePaid')
+      // Should not show payment method selector
+      expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+    })
+
+    it('should allow payment when payment is after confirmation and registration is confirmed', async () => {
+      const event = {
+        id: 'test-id',
+        paymentTime: 'confirmation' as const,
+        cost: 50,
+      }
+      const registration = {
+        ...testRegistration,
+        confirmed: true,
+        totalAmount: 50,
+      }
+
+      const routes: RouteObject[] = [
+        {
+          path: '/test-path',
+          element: (
+            <PaymentPageWithData
+              id="test-id"
+              registrationId="test-reg-id"
+              event={event as any}
+              registration={registration as any}
+              response={mockResponse as CreatePaymentResponse}
+            />
+          ),
+        },
+      ]
+
+      const { container } = render(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <RecoilRoot>
+              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+            </RecoilRoot>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+
+      await flushPromises()
+
+      expect(container).toHaveTextContent('paymentPage.choosePaymentMethod')
+      expect(container).not.toHaveTextContent('paymentStatus.waitingForConfirmation')
+    })
   })
 
   it('should reset registration form on mount', async () => {

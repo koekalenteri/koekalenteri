@@ -407,4 +407,42 @@ describe('paymentCreateLambda', () => {
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
     expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
   })
+
+  it('returns 403 if payment is after confirmation but registration is not confirmed', async () => {
+    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
+    mockRead.mockReset()
+    mockRead.mockResolvedValueOnce(createMockRegistration({ confirmed: false }))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(403)
+    expect(JSON.parse(result.body)).toEqual('Payment not allowed - registration must be confirmed first')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  it('allows payment if payment is after confirmation and registration is confirmed', async () => {
+    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(createMockRegistration({ confirmed: true }))
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockCreatePayment).toHaveBeenCalled()
+  })
+
+  it('allows payment if payment is at registration time regardless of confirmation state', async () => {
+    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'registration' }))
+    mockRead.mockReset()
+    mockRead
+      .mockResolvedValueOnce(createMockRegistration({ confirmed: false }))
+      .mockResolvedValueOnce(createMockOrganizer())
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(mockCreatePayment).toHaveBeenCalled()
+  })
 })

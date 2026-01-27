@@ -30,8 +30,8 @@ export const loader = async ({ params }: { params: Params<string> }) => {
 
         return result ?? null
       } catch (err) {
-        // eat 404
-        if (err instanceof APIError && err.status === 404) return null
+        // eat 403 & 404
+        if (err instanceof APIError && (err.status === 403 || err.status === 404)) return null
 
         throw err
       }
@@ -69,6 +69,22 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
   if (registration.paymentStatus === 'SUCCESS') {
     return <Navigate to={Path.registration(registration)} replace />
+  }
+
+  // If payment is after confirmation but registration is not confirmed yet, show message
+  if (event.paymentTime === 'confirmation' && !registration.confirmed) {
+    return (
+      <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
+        <Grid sx={{ pl: 1 }} flexGrow={1}>
+          <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
+          <Typography variant="h5">{t('paymentStatus.waitingForConfirmation')}</Typography>
+        </Grid>
+        <Divider sx={{ my: 1 }} />
+        <RegistrationDetails event={event} registration={registration} />
+        <Divider sx={{ my: 1 }} />
+        <PaymentDetails event={event} registration={registration} includePayable />
+      </Paper>
+    )
   }
 
   if (!response?.groups) {

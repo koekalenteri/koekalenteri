@@ -75,8 +75,8 @@ export const InfoBox = ({ event, registration }: Props) => {
           <ListItemText
             primary={
               registration.totalAmount
-                ? `${t(getPaymentStatus(registration))} (${registration.totalAmount}€)`
-                : t(getPaymentStatus(registration))
+                ? `${t(getPaymentStatus(registration, event))} (${registration.totalAmount}€)`
+                : t(getPaymentStatus(registration, event))
             }
             slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
             sx={{ pr: needsPayment ? 12 : 0 }}

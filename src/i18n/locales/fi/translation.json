@@ -273,7 +273,8 @@
   "paymentStatus": {
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
-    "success": "Olen maksanut"
+    "success": "Olen maksanut",
+    "waitingForConfirmation": "Maksetaan paikan vahvistuttua"
   },
   "paymentTime": "Maksuajankohta",
   "paymentTimeOptions": {

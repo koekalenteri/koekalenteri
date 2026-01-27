@@ -38,9 +38,16 @@ const hasName = (provider?: string): provider is keyof typeof PROVIDER_NAMES => 
 export const getProviderName = (provider?: string) =>
   hasName(provider) ? PROVIDER_NAMES[provider] : capitalize(provider ?? '')
 
-export const getPaymentStatus = (registration: Pick<Registration, 'paymentStatus'>) => {
+export const getPaymentStatus = (
+  registration: Pick<Registration, 'paymentStatus' | 'confirmed'>,
+  event?: { paymentTime?: 'registration' | 'confirmation' }
+) => {
   if (registration.paymentStatus === 'SUCCESS') return 'paymentStatus.success'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
+  // If payment is after confirmation and registration is not yet confirmed, show different message
+  if (event?.paymentTime === 'confirmation' && !registration.confirmed) {
+    return 'paymentStatus.waitingForConfirmation'
+  }
   return 'paymentStatus.missing'
 }
 
