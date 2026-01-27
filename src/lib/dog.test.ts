@@ -1,6 +1,6 @@
 import { subMinutes } from 'date-fns'
 
-import { createDogUpdateFromFormValues, shouldAllowRefresh } from './dog'
+import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from './dog'
 
 describe('dog utility functions', () => {
   describe('shouldAllowRefresh', () => {
@@ -21,6 +21,28 @@ describe('dog utility functions', () => {
 
     it('should return false if dog has regNo but no refreshDate', () => {
       expect(shouldAllowRefresh({ regNo: 'TEST-123' })).toBe(false)
+    })
+  })
+
+  describe('isValidDob', () => {
+    it('should return false for undefined dob', () => {
+      expect(isValidDob(undefined)).toBe(false)
+    })
+
+    it('should return false for KL empty date (year 0001)', () => {
+      const emptyKlDate = new Date('0001-01-01T00:00:00')
+      expect(isValidDob(emptyKlDate)).toBe(false)
+    })
+
+    it('should return true for valid dates', () => {
+      expect(isValidDob(new Date('2020-01-01'))).toBe(true)
+      expect(isValidDob(new Date('2010-05-15'))).toBe(true)
+      expect(isValidDob(new Date('2024-12-31'))).toBe(true)
+    })
+
+    it('should return true for very old but valid dates (year > 1)', () => {
+      expect(isValidDob(new Date('1990-01-01'))).toBe(true)
+      expect(isValidDob(new Date('0002-01-01'))).toBe(true)
     })
   })
 

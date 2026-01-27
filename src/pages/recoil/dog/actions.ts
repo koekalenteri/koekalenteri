@@ -89,7 +89,7 @@ function applyCache(
 
   if (dog) {
     // when we have some official info
-    // Cached user edits for titles, rfid, sire, and dam override official KL information
+    // Cached user edits for titles, rfid, dob, sire, and dam override official KL information
     const overrides: DeepPartial<Dog> = {}
 
     if (cache?.dog?.titles) {
@@ -97,6 +97,9 @@ function applyCache(
     }
     if (cache?.dog?.rfid) {
       overrides.rfid = cache.dog.rfid
+    }
+    if (cache?.dog?.dob) {
+      overrides.dob = cache.dog.dob
     }
 
     const damName = cache?.dog?.dam?.name || oldInfo?.dam?.name

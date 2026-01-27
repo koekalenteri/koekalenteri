@@ -553,14 +553,15 @@ describe('useDogActions', () => {
       expect(capturedCache).toEqual(cacheUpdate)
     })
 
-    it('applies special handling for titles and rfid', async () => {
+    it('applies special handling for titles, rfid, and dob', async () => {
       mockGetDog.mockResolvedValueOnce(testDog)
 
-      // Create cache with titles and rfid
-      const cacheWithTitlesRfid: DeepPartial<DogCachedInfo> = {
+      // Create cache with titles, rfid, and dob
+      const cacheWithTitlesRfidDob: DeepPartial<DogCachedInfo> = {
         dog: {
           titles: 'Champion',
           rfid: '123456789',
+          dob: new Date('2020-05-15'),
         },
       }
 
@@ -569,7 +570,7 @@ describe('useDogActions', () => {
           <RecoilRoot
             initializeState={(snap) => {
               snap.set(dogCacheAtom, {
-                [testRegNo]: cacheWithTitlesRfid as any,
+                [testRegNo]: cacheWithTitlesRfidDob as any,
               })
             }}
           >
@@ -583,9 +584,45 @@ describe('useDogActions', () => {
         response = await result.current.fetch()
       })
 
-      // Verify that titles and rfid from cache are applied
+      // Verify that titles, rfid, and dob from cache are applied
       expect(response?.dog?.titles).toEqual('Champion')
       expect(response?.dog?.rfid).toEqual('123456789')
+      expect(response?.dog?.dob).toEqual(new Date('2020-05-15'))
+    })
+
+    it('allows user to override missing dob from KL', async () => {
+      // Create a dog from KL with empty dob (0001-01-01)
+      const dogWithEmptyDob: Dog = {
+        ...testDog,
+        dob: new Date('0001-01-01T00:00:00'),
+      }
+
+      mockGetDog.mockResolvedValueOnce(dogWithEmptyDob)
+
+      const { result } = renderHook(() => useDogActions(testRegNo), {
+        wrapper: RecoilRoot,
+      })
+
+      // Fetch the dog from KL
+      await act(async () => {
+        await result.current.fetch()
+      })
+
+      // User sets the dob
+      const userProvidedDob = new Date('2020-03-15')
+      const cacheWithDob: DeepPartial<DogCachedInfo> = {
+        dog: {
+          dob: userProvidedDob,
+        },
+      }
+
+      // Update cache with user-provided dob
+      const response = await act(async () => {
+        return result.current.updateCache(cacheWithDob)
+      })
+
+      // Verify that user-provided dob overrides the KL empty value
+      expect(response?.dog?.dob).toEqual(userProvidedDob)
     })
 
     it('handles case when dog is undefined in applyCache', async () => {

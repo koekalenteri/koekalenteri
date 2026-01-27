@@ -28,6 +28,7 @@ interface DogDetailsProps {
   updateField: (field: keyof DogFormValues, value: any) => void
   disabledByMode: boolean
   rfidDisabled: boolean
+  dobDisabled: boolean
   sireDamDisabled: boolean
   disabled?: boolean
   mode: DogMode
@@ -41,6 +42,7 @@ export const DogDetails = ({
   updateField,
   disabledByMode,
   rfidDisabled,
+  dobDisabled,
   sireDamDisabled,
   disabled,
   mode,
@@ -81,10 +83,10 @@ export const DogDetails = ({
         />
       </Grid>
       <Grid size={{ xs: 6, sm: 3, lg: 3 }}>
-        <FormControl className={disabledByMode && reg?.dog?.dob ? 'fact' : ''} fullWidth>
+        <FormControl className={dobDisabled && reg?.dog?.dob ? 'fact' : ''} fullWidth>
           <DatePicker
             referenceDate={subYears(new Date(), 2)}
-            disabled={disabledByMode}
+            disabled={disabled || dobDisabled}
             format={t('dateFormatString.long')}
             label={t('dog.dob')}
             maxDate={subMonths(eventDate, minDogAgeMonths)}
@@ -93,6 +95,11 @@ export const DogDetails = ({
             openTo={'year'}
             value={formValues.dob ?? null}
             views={['year', 'month', 'day']}
+            slotProps={{
+              textField: {
+                error: !dobDisabled && !formValues.dob,
+              },
+            }}
           />
         </FormControl>
       </Grid>
