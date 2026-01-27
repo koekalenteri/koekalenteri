@@ -47,9 +47,20 @@ describe('SearchPage', () => {
   afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
+  const logNow = (label: string) => {
+    if (process.env.DEBUG_EVENT_FILTERS === '1') {
+      console.log(`[SearchPage.test] ${label}`, {
+        now: new Date().toISOString(),
+        nowMs: Date.now(),
+      })
+    }
+  }
+
   it('renders', async () => {
+    logNow('before render (renders)')
     renderPage('', locales.fi)
     await flushPromises()
+    logNow('after flushPromises (renders)')
     expect(screen.getAllByRole('article').length).toEqual(5)
   })
 
@@ -118,17 +129,40 @@ describe('SearchPage', () => {
   })
 
   it('filters by entryUpcoming', async () => {
+    logNow('before render (entryUpcoming)')
     renderPage('/?b=u', locales.fi)
     await flushPromises()
+    logNow('after flushPromises (entryUpcoming)')
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(1)
   })
 
   it('filters by entryOpen', async () => {
+    logNow('before render (entryOpen)')
     renderPage('/?b=o', locales.fi)
     await flushPromises()
+    logNow('after flushPromises (entryOpen)')
     expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
-    expect(screen.getAllByRole('article').length).toEqual(2)
+
+    // Log which events are shown
+    const articles = screen.getAllByRole('article')
+    if (articles.length !== 2) {
+      console.log('\n=== entryOpen filter test ===')
+      console.log(`Current time: ${new Date().toISOString()}`)
+      console.log(`Helsinki time: ${new Date().toLocaleString('en-US', { timeZone: 'Europe/Helsinki' })}`)
+      console.log(`Found ${articles.length} articles`)
+
+      // Try to extract event IDs from articles
+      articles.forEach((article, index) => {
+        const headings = article.querySelectorAll('h2, h3, h4, h5, h6')
+        const text = Array.from(headings)
+          .map((h) => h.textContent)
+          .join(', ')
+        console.log(`  Article ${index + 1}: ${text || article.textContent?.substring(0, 50)}`)
+      })
+    }
+
+    expect(articles.length).toEqual(2)
   })
 
   it('filters by both entryOpen and entryUpcoming', async () => {
