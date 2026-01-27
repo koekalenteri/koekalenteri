@@ -321,6 +321,88 @@ describe('useDogActions', () => {
       expect(response?.dog?.sire?.name).toEqual('Old Sire')
       expect(response?.dog?.sire?.titles).toEqual('CH')
     })
+
+    it('preserves user edits to sire and dam when KL returns different values', async () => {
+      const dogFromKL: Dog = {
+        ...testDog,
+        sire: { name: 'KL Sire Name' },
+        dam: { name: 'KL Dam Name' },
+      }
+
+      const cachedInfo: DeepPartial<DogCachedInfo> = {
+        dog: {
+          sire: { name: 'User Edited Sire' },
+          dam: { name: 'User Edited Dam' },
+        },
+      }
+
+      mockGetDog.mockResolvedValueOnce(dogFromKL)
+
+      const { result } = renderHook(() => useDogActions(testRegNo), {
+        wrapper: ({ children }) => (
+          <RecoilRoot
+            initializeState={(snap) => {
+              snap.set(dogCacheAtom, { [testRegNo]: cachedInfo as any })
+            }}
+          >
+            {children}
+          </RecoilRoot>
+        ),
+      })
+
+      let response: DeepPartial<DogCachedInfo> | undefined
+      await act(async () => {
+        response = await result.current.refresh()
+      })
+
+      // User edits should override KL data
+      expect(response?.dog?.sire?.name).toEqual('User Edited Sire')
+      expect(response?.dog?.dam?.name).toEqual('User Edited Dam')
+    })
+
+    it('does not override KL data when cache values are empty', async () => {
+      const dogFromKL: Dog = {
+        ...testDog,
+        titles: 'CH',
+        rfid: '123456789',
+        sire: { name: 'KL Sire Name' },
+        dam: { name: 'KL Dam Name' },
+      }
+
+      const cachedInfo: DeepPartial<DogCachedInfo> = {
+        dog: {
+          titles: '',
+          rfid: '',
+          sire: { name: '' },
+          dam: { name: '' },
+        },
+      }
+
+      mockGetDog.mockResolvedValueOnce(dogFromKL)
+
+      const { result } = renderHook(() => useDogActions(testRegNo), {
+        wrapper: ({ children }) => (
+          <RecoilRoot
+            initializeState={(snap) => {
+              snap.set(dogCacheAtom, { [testRegNo]: cachedInfo as any })
+            }}
+          >
+            {children}
+          </RecoilRoot>
+        ),
+      })
+
+      let response: DeepPartial<DogCachedInfo> | undefined
+      await act(async () => {
+        response = await result.current.refresh()
+      })
+
+      // Empty cache values should not override KL data
+      expect(response?.dog?.titles).toEqual('CH')
+      expect(response?.dog?.rfid).toEqual('123456789')
+      expect(response?.dog?.sire?.name).toEqual('KL Sire Name')
+      expect(response?.dog?.dam?.name).toEqual('KL Dam Name')
+    })
   })
 
   describe('updateCache', () => {
