@@ -6,6 +6,7 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
+import { enqueueSnackbar } from 'notistack'
 import { Fragment, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -13,7 +14,8 @@ import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
+import { eventRegistrationDateKey } from '../../../lib/event'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
@@ -29,6 +31,9 @@ import UnlockArrange from './classEntrySelection/UnlockArrange'
 import { useClassEntrySelectionColumns } from './classEntrySelection/useClassEntrySelectionColumns'
 import { useDnDHandlers } from './classEntrySelection/useDnDHandlers'
 import { useEntryHandlers } from './classEntrySelection/useEntryHandlers'
+import MoveToGroupDialog from './MoveToGroupDialog'
+import MoveToPositionDialog from './MoveToPositionDialog'
+import SendMessageDialog from './SendMessageDialog'
 
 interface Props {
   readonly event: DogEvent
@@ -66,6 +71,10 @@ const ClassEntrySelection = ({
   const { t } = useTranslation()
   const actions = useAdminRegistrationActions(event.id)
   const [unlockArrange, setUnlockArrange] = useState(false)
+  const [moveToGroupDialogOpen, setMoveToGroupDialogOpen] = useState(false)
+  const [moveToPositionDialogOpen, setMoveToPositionDialogOpen] = useState(false)
+  const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
+  const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
 
   // Extract entry handlers to dedicated hook
   const { handleOpen, handleCancel, handleRefund, handleSelectionModeChange, handleCellClick, handleDoubleClick } =
@@ -79,15 +88,66 @@ const ClassEntrySelection = ({
 
   const dates = useAdminEventRegistrationDates(event, eventClass)
 
-  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(
-    dates,
-    event,
-    handleOpen,
-    handleCancel,
-    handleRefund
+  const groups = useAdminEventRegistrationGroups(event, eventClass)
+
+  // Callback functions for kebab menu actions
+  const callbacks = useMemo(
+    () => ({
+      cancelRegistration: handleCancel,
+      moveToGroup: (id: string) => {
+        const reg = registrations.find((r) => r.id === id)
+        if (reg) {
+          setSelectedForAction(reg)
+          setMoveToGroupDialogOpen(true)
+        }
+      },
+      moveToParticipants: (id: string) => {
+        const reg = registrations.find((r) => r.id === id)
+        if (reg) {
+          setSelectedForAction(reg)
+          setMoveToGroupDialogOpen(true)
+        }
+      },
+      moveToPosition: (id: string) => {
+        const reg = registrations.find((r) => r.id === id)
+        if (reg) {
+          setSelectedForAction(reg)
+          setMoveToPositionDialogOpen(true)
+        }
+      },
+      moveToReserve: async (id: string) => {
+        const reg = registrations.find((r) => r.id === id)
+        if (!reg) return
+        const reserveRegs = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_RESERVE)
+        try {
+          await actions.saveGroups(event.id, [
+            {
+              cancelled: false,
+              eventId: event.id,
+              group: { key: GROUP_KEY_RESERVE, number: reserveRegs.length + 1 },
+              id,
+            },
+          ])
+          enqueueSnackbar(t('registration.movedToReserve'), { variant: 'success' })
+        } catch (error) {
+          console.error('Failed to move to reserve:', error)
+          enqueueSnackbar(t('registration.moveToReserveFailed'), { variant: 'error' })
+        }
+      },
+      openEditDialog: handleOpen,
+      refundRegistration: handleRefund,
+      sendMessage: (id: string) => {
+        const reg = registrations.find((r) => r.id === id)
+        if (reg) {
+          setSelectedForAction(reg)
+          setSendMessageDialogOpen(true)
+        }
+      },
+    }),
+    [registrations, handleOpen, handleCancel, handleRefund, actions, event.id, t]
   )
 
-  const groups = useAdminEventRegistrationGroups(event, eventClass)
+  const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(dates, event, callbacks)
 
   const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(
     () => buildRegistrationsByGroup(registrations, groups),
@@ -245,6 +305,95 @@ const ClassEntrySelection = ({
           onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
         />
       </ScrollDiv>
+
+      {selectedForAction && (
+        <>
+          <MoveToGroupDialog
+            open={moveToGroupDialogOpen}
+            onClose={() => setMoveToGroupDialogOpen(false)}
+            registration={selectedForAction}
+            event={event}
+            groups={groups}
+            onMove={async (groupKey) => {
+              const group = groups.find((g) => eventRegistrationDateKey(g) === groupKey)
+              if (!group) return
+
+              const groupRegs = registrations.filter((r) => getRegistrationGroupKey(r) === groupKey)
+
+              await actions.saveGroups(event.id, [
+                {
+                  cancelled: false,
+                  eventId: event.id,
+                  group: {
+                    date: group.date,
+                    key: groupKey,
+                    number: groupRegs.length + 1,
+                    time: group.time,
+                  },
+                  id: selectedForAction.id,
+                },
+              ])
+            }}
+          />
+
+          <MoveToPositionDialog
+            open={moveToPositionDialogOpen}
+            onClose={() => setMoveToPositionDialogOpen(false)}
+            registration={selectedForAction}
+            maxPosition={
+              getRegistrationGroupKey(selectedForAction) === GROUP_KEY_RESERVE
+                ? (groups[0] && registrationsByGroup[groups[0].key]?.length) || 100
+                : registrationsByGroup[getRegistrationGroupKey(selectedForAction)]?.length || 100
+            }
+            onMove={async (position) => {
+              const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+
+              // If moving from reserve to participants
+              if (currentGroupKey === GROUP_KEY_RESERVE) {
+                const targetGroup = groups[0] // Use first participant group
+                if (!targetGroup) return
+
+                await actions.saveGroups(event.id, [
+                  {
+                    cancelled: false,
+                    eventId: event.id,
+                    group: {
+                      date: targetGroup.date,
+                      key: targetGroup.key,
+                      number: position,
+                      time: targetGroup.time,
+                    },
+                    id: selectedForAction.id,
+                  },
+                ])
+              } else {
+                // Moving within current group (participants or cancelled)
+                const currentGroup = selectedForAction.group
+                if (!currentGroup) return
+
+                await actions.saveGroups(event.id, [
+                  {
+                    cancelled: false,
+                    eventId: event.id,
+                    group: {
+                      ...currentGroup,
+                      number: position,
+                    },
+                    id: selectedForAction.id,
+                  },
+                ])
+              }
+            }}
+          />
+
+          <SendMessageDialog
+            event={event as any}
+            open={sendMessageDialogOpen}
+            onClose={() => setSendMessageDialogOpen(false)}
+            registrations={[selectedForAction]}
+          />
+        </>
+      )}
     </DndProvider>
   )
 }

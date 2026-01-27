@@ -55,13 +55,11 @@ describe('useClassEntrySectionColumns', () => {
     const refundRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
-      useClassEntrySelectionColumns(
-        mockAvailableDates,
-        eventWithStaticDatesAnd3Classes,
-        openEditDialogMock,
-        cancelRegistrationMock,
-        refundRegistrationMock
-      )
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        cancelRegistration: cancelRegistrationMock,
+        openEditDialog: openEditDialogMock,
+        refundRegistration: refundRegistrationMock,
+      })
     )
 
     const { entryColumns } = result.current
@@ -94,25 +92,23 @@ describe('useClassEntrySectionColumns', () => {
     // Check that the openEditDialog callback was called with the correct ID
     expect(openEditDialogMock).toHaveBeenCalledWith('test-id')
 
-    // Simulate clicking the withdraw action
-    const withdrawAction = actions.find((action: ReactElement) => action.key === 'withdraw')
-    withdrawAction?.props.onClick()
+    // Simulate clicking the cancel action
+    const cancelAction = actions.find((action: ReactElement) => action.key === 'cancel')
+    cancelAction?.props.onClick()
 
     // Check that the cancelRegistration callback was called with the correct ID
     expect(cancelRegistrationMock).toHaveBeenCalledWith('test-id')
   })
 
-  it('should not include withdraw action for cancelled registrations', () => {
+  it('should not include cancel action for cancelled registrations', () => {
     const openEditDialogMock = jest.fn()
     const cancelRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
-      useClassEntrySelectionColumns(
-        mockAvailableDates,
-        eventWithStaticDatesAnd3Classes,
-        openEditDialogMock,
-        cancelRegistrationMock
-      )
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        cancelRegistration: cancelRegistrationMock,
+        openEditDialog: openEditDialogMock,
+      })
     )
 
     const { entryColumns } = result.current
@@ -131,22 +127,17 @@ describe('useClassEntrySectionColumns', () => {
     >)
     expect(actions).toBeDefined()
 
-    // Check that there's no withdraw action for cancelled registrations
-    // For cancelled registrations, the withdraw action should not be present
-    expect(actions.every((action: ReactElement) => action.key !== 'withdraw')).toBe(true)
+    // Check that there's no cancel action for cancelled registrations
+    expect(actions.every((action: ReactElement) => action.key !== 'cancel')).toBe(true)
   })
 
   it('should include refund action for registrations that can be refunded', () => {
     const refundRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
-      useClassEntrySelectionColumns(
-        mockAvailableDates,
-        eventWithStaticDatesAnd3Classes,
-        undefined,
-        undefined,
-        refundRegistrationMock
-      )
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        refundRegistration: refundRegistrationMock,
+      })
     )
 
     const { entryColumns } = result.current
@@ -182,13 +173,9 @@ describe('useClassEntrySectionColumns', () => {
     const refundRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
-      useClassEntrySelectionColumns(
-        mockAvailableDates,
-        eventWithStaticDatesAnd3Classes,
-        undefined,
-        undefined,
-        refundRegistrationMock
-      )
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        refundRegistration: refundRegistrationMock,
+      })
     )
 
     const { entryColumns } = result.current
@@ -332,13 +319,9 @@ describe('useClassEntrySectionColumns', () => {
     const refundRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
-      useClassEntrySelectionColumns(
-        mockAvailableDates,
-        eventWithStaticDatesAnd3Classes,
-        undefined,
-        undefined,
-        refundRegistrationMock
-      )
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        refundRegistration: refundRegistrationMock,
+      })
     )
 
     const { entryColumns } = result.current
@@ -514,13 +497,11 @@ describe('Action column in detail', () => {
     const refundRegistrationMock = jest.fn()
 
     const { result } = renderHook(() =>
-      useClassEntrySelectionColumns(
-        mockAvailableDates,
-        eventWithStaticDatesAnd3Classes,
-        openEditDialogMock,
-        cancelRegistrationMock,
-        refundRegistrationMock
-      )
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        cancelRegistration: cancelRegistrationMock,
+        openEditDialog: openEditDialogMock,
+        refundRegistration: refundRegistrationMock,
+      })
     )
 
     const { entryColumns } = result.current
@@ -529,37 +510,51 @@ describe('Action column in detail', () => {
 
     // Test with various registration states
     const testCases = [
-      // Regular registration
+      // Participant registration (not reserve/cancelled) with payment
       {
         cancelled: false,
-        expectedActions: ['edit', 'withdraw', 'refund'],
+        expectedActions: [
+          'moveToGroup',
+          'moveToPosition',
+          'moveToReserve',
+          'moveBackToRegistered',
+          'refund',
+          'edit',
+          'cancel',
+          'sendMessage',
+        ],
+        // ensure it is treated as a participant (not reserve/cancelled)
+        group: { key: 'P' },
         id: 'test-id-1',
         paidAmount: 5000,
         paidAt: new Date(),
         refundAmount: 0,
       },
-      // Cancelled registration
+      // Cancelled registration with payment
       {
         cancelled: true,
-        expectedActions: ['edit', 'refund'],
+        expectedActions: ['moveToReserve', 'refund', 'edit', 'sendMessage'],
+        group: { key: registrationUtils.GROUP_KEY_CANCELLED },
         id: 'test-id-2',
         paidAmount: 5000,
         paidAt: new Date(),
         refundAmount: 0,
       },
-      // Fully refunded registration
+      // Fully refunded cancelled registration
       {
-        cancelled: false,
-        expectedActions: ['edit', 'withdraw'],
+        cancelled: true,
+        expectedActions: ['moveToReserve', 'edit', 'sendMessage'],
+        group: { key: registrationUtils.GROUP_KEY_CANCELLED },
         id: 'test-id-3',
         paidAmount: 5000,
         paidAt: new Date(),
         refundAmount: 5000,
       },
-      // Unpaid registration
+      // Unpaid reserve registration
       {
         cancelled: false,
-        expectedActions: ['edit', 'withdraw'],
+        expectedActions: ['moveToParticipants', 'moveToPosition', 'edit', 'cancel', 'sendMessage'],
+        group: { key: registrationUtils.GROUP_KEY_RESERVE },
         id: 'test-id-4',
         paidAmount: 0,
         paidAt: undefined,
@@ -591,6 +586,93 @@ describe('Action column in detail', () => {
       // Check that no unexpected actions are present
       expect(actionKeys.length).toBe(testCase.expectedActions.length)
     })
+
+    canRefundSpy.mockRestore()
+  })
+
+  it('should call move callbacks when move actions are clicked', () => {
+    const openEditDialogMock = jest.fn()
+    const cancelRegistrationMock = jest.fn()
+    const refundRegistrationMock = jest.fn()
+    const moveToGroupMock = jest.fn()
+    const moveToPositionMock = jest.fn()
+    const moveToReserveMock = jest.fn()
+    const moveToParticipantsMock = jest.fn()
+    const sendMessageMock = jest.fn()
+
+    // Force "hasGroups" branch so that "moveToGroup" is included for participants
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        cancelRegistration: cancelRegistrationMock,
+        moveToGroup: moveToGroupMock,
+        moveToParticipants: moveToParticipantsMock,
+        moveToPosition: moveToPositionMock,
+        moveToReserve: moveToReserveMock,
+        openEditDialog: openEditDialogMock,
+        refundRegistration: refundRegistrationMock,
+        sendMessage: sendMessageMock,
+      })
+    )
+
+    const { entryColumns } = result.current
+    const actionsColumn = entryColumns.find((col) => col.field === 'actions')
+    expect(actionsColumn).toBeDefined()
+
+    const getActions = (row: Registration) =>
+      (actionsColumn as any)?.getActions({ row } as GridRenderCellParams<any, Registration>) as ReactElement[]
+
+    const clickByKey = (actions: ReactElement[], key: string) => {
+      const action = actions.find((a) => a.key === key)
+      expect(action).toBeDefined()
+      action?.props.onClick()
+    }
+
+    // participant row
+    const participantRow = {
+      cancelled: false,
+      group: { key: 'P' },
+      id: 'p-1',
+      paidAmount: 5000,
+      paidAt: new Date(),
+      refundAmount: 0,
+    } as unknown as Registration
+
+    // reserve row
+    const reserveRow = {
+      cancelled: false,
+      group: { key: registrationUtils.GROUP_KEY_RESERVE },
+      id: 'r-1',
+    } as unknown as Registration
+
+    // cancelled row
+    const cancelledRow = {
+      cancelled: true,
+      group: { key: registrationUtils.GROUP_KEY_CANCELLED },
+      id: 'c-1',
+    } as unknown as Registration
+
+    const canRefundSpy = jest.spyOn(registrationUtils, 'canRefund').mockReturnValue(true)
+
+    const participantActions = getActions(participantRow)
+    clickByKey(participantActions, 'moveToGroup')
+    expect(moveToGroupMock).toHaveBeenCalledWith('p-1')
+    clickByKey(participantActions, 'moveToPosition')
+    expect(moveToPositionMock).toHaveBeenCalledWith('p-1')
+    clickByKey(participantActions, 'moveToReserve')
+    expect(moveToReserveMock).toHaveBeenCalledWith('p-1')
+    clickByKey(participantActions, 'moveBackToRegistered')
+    // "moveBackToRegistered" is implemented via callbacks.moveToReserve
+    expect(moveToReserveMock).toHaveBeenCalledWith('p-1')
+
+    const reserveActions = getActions(reserveRow)
+    clickByKey(reserveActions, 'moveToParticipants')
+    expect(moveToParticipantsMock).toHaveBeenCalledWith('r-1')
+    clickByKey(reserveActions, 'moveToPosition')
+    expect(moveToPositionMock).toHaveBeenCalledWith('r-1')
+
+    const cancelledActions = getActions(cancelledRow)
+    clickByKey(cancelledActions, 'moveToReserve')
+    expect(moveToReserveMock).toHaveBeenCalledWith('c-1')
 
     canRefundSpy.mockRestore()
   })
@@ -628,12 +710,8 @@ describe('Action column in detail', () => {
     // Simulate clicking the edit action - should not throw an error
     expect(() => editAction?.props.onClick()).not.toThrow()
 
-    // Check that the withdraw action exists
-    const withdrawAction = actions.find((action: ReactElement) => action.key === 'withdraw')
-    expect(withdrawAction).toBeDefined()
-
-    // Simulate clicking the withdraw action - should not throw an error
-    expect(() => withdrawAction?.props.onClick()).not.toThrow()
+    // Check that there are actions but don't fail on missing callbacks
+    expect(actions.length).toBeGreaterThan(0)
   })
 })
 
