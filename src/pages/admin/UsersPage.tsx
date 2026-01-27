@@ -50,10 +50,11 @@ const RolesTooltip = styled(({ className, ...props }: TooltipProps) => (
 const RolesTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
 
 const EmailHistoryTooltipContent = ({ history }: { history: NonNullable<User['emailHistory']> }) => {
+  const { t } = useTranslation()
   const rows = history
     .slice()
     .reverse()
-    .map((h) => `${h.changedAt}  •  ${h.email}  •  ${h.source}`)
+    .map((h) => `${t('dateFormat.long', { date: h.changedAt })}  •  ${h.email}  •  ${h.source}`)
   return <Box sx={{ whiteSpace: 'pre-line' }}>{rows.join('\n')}</Box>
 }
 
