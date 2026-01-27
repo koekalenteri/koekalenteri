@@ -31,7 +31,15 @@ export default function LoggedInUserMenu({ userName }: Props) {
     setEditOpen(true)
   }, [userName])
 
-  const closeEdit = useCallback(() => setEditOpen(false), [])
+  const closeEdit = useCallback(() => {
+    setEditOpen(false)
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    const nameToSave = String(nameDraft ?? '').trim()
+    setEditOpen(false)
+    await actions.updateOwnName(nameToSave)
+  }, [nameDraft, actions])
 
   const saveDisabled = useMemo(() => {
     const cleaned = String(nameDraft ?? '').trim()
@@ -61,34 +69,28 @@ export default function LoggedInUserMenu({ userName }: Props) {
         <MenuItem onClick={async () => actions.signOut()}>{t('logout')}</MenuItem>
       </Menu>
 
-      <Dialog open={editOpen} onClose={closeEdit} fullWidth maxWidth="xs">
-        <DialogTitle>{t('user.editNameDialog.title')}</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            fullWidth
-            margin="dense"
-            label={t('user.editNameDialog.name')}
-            value={nameDraft}
-            onChange={(e) => setNameDraft(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeEdit} variant="outlined">
-            {t('cancel')}
-          </Button>
-          <Button
-            onClick={async () => {
-              await actions.updateOwnName(String(nameDraft ?? '').trim())
-              closeEdit()
-            }}
-            variant="contained"
-            disabled={saveDisabled}
-          >
-            {t('save')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {editOpen && (
+        <Dialog open onClose={closeEdit} fullWidth maxWidth="xs">
+          <DialogTitle>{t('user.editNameDialog.title')}</DialogTitle>
+          <DialogContent>
+            <TextField
+              fullWidth
+              margin="dense"
+              label={t('user.editNameDialog.name')}
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeEdit} variant="outlined">
+              {t('cancel')}
+            </Button>
+            <Button onClick={handleSave} variant="contained" disabled={saveDisabled}>
+              {t('save')}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   )
 }
