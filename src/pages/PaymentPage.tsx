@@ -15,6 +15,7 @@ import { createPayment } from '../api/payment'
 import { Path } from '../routeConfig'
 
 import { ErrorInfo } from './components/ErrorInfo'
+import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { ProviderButton } from './paymentPage/ProviderButton'
@@ -76,10 +77,13 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-      <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
-      <Typography variant="caption">
-        <span dangerouslySetInnerHTML={{ __html: response.terms }} />
-      </Typography>
+      <Grid sx={{ pl: 1 }} flexGrow={1}>
+        <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
+        <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
+        <Typography variant="caption">
+          <span dangerouslySetInnerHTML={{ __html: response.terms }} />
+        </Typography>
+      </Grid>
 
       {response.groups.map((group) => (
         <Paper key={group.id} sx={{ p: 1, m: 1 }} elevation={0}>
