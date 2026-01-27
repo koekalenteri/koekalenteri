@@ -19,8 +19,12 @@ const spawnNode = (script, extraEnv = {}) =>
   })
 
 const childEnv = { CI: 'true' }
+const backendEnv = {
+  ...childEnv,
+  NODE_OPTIONS: '--experimental-vm-modules --no-warnings',
+}
 const children = [
-  spawnNode(require.resolve('./test-backend.js'), childEnv),
+  spawnNode(require.resolve('./test-backend.js'), backendEnv),
   spawnNode(require.resolve('./test-frontend.js'), childEnv),
 ]
 
