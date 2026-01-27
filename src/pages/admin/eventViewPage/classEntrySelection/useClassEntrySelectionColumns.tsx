@@ -6,21 +6,39 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
+import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import EventBusyOutlined from '@mui/icons-material/EventBusyOutlined'
+import LowPriorityOutlined from '@mui/icons-material/LowPriorityOutlined'
+import SwapHorizOutlined from '@mui/icons-material/SwapHorizOutlined'
 import CircularProgress from '@mui/material/CircularProgress'
 import { GridActionsCellItem } from '@mui/x-data-grid'
 
-import { canRefund, isPredefinedReason } from '../../../../lib/registration'
+import {
+  canRefund,
+  getRegistrationGroupKey,
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  isPredefinedReason,
+} from '../../../../lib/registration'
 
 import GroupColors from './GroupColors'
 import RegistrationIcons from './RegistrationIcons'
 
+interface RegistrationActionCallbacks {
+  openEditDialog?: (id: string) => void
+  cancelRegistration?: (id: string) => void
+  refundRegistration?: (id: string) => void
+  moveToGroup?: (id: string) => void
+  moveToPosition?: (id: string) => void
+  moveToReserve?: (id: string) => void
+  moveToParticipants?: (id: string) => void
+  sendMessage?: (id: string) => void
+}
+
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
   event: PublicDogEvent,
-  openEditDialog?: (id: string) => void,
-  cancelRegistration?: (id: string) => void,
-  refundRegistration?: (id: string) => void
+  callbacks?: RegistrationActionCallbacks
 ) {
   const { t } = useTranslation()
 
@@ -106,35 +124,142 @@ export function useClassEntrySelectionColumns(
         headerName: '',
         width: 30,
         minWidth: 30,
-        getActions: (p) =>
-          [
-            <GridActionsCellItem
-              key="edit"
-              icon={<EditOutlined fontSize="small" />}
-              label={t('edit')}
-              onClick={() => openEditDialog?.(p.row.id)}
-              showInMenu
-            />,
-            p.row.cancelled ? null : (
+        getActions: (p) => {
+          const groupKey = getRegistrationGroupKey(p.row)
+          const isParticipant = groupKey !== GROUP_KEY_RESERVE && groupKey !== GROUP_KEY_CANCELLED
+          const isReserve = groupKey === GROUP_KEY_RESERVE
+          const isCancelled = groupKey === GROUP_KEY_CANCELLED
+          const hasGroups = available.length > 1
+
+          const actions: ReactElement[] = []
+
+          // Movement actions for participants
+          if (isParticipant) {
+            if (hasGroups) {
+              actions.push(
+                <GridActionsCellItem
+                  key="moveToGroup"
+                  icon={<SwapHorizOutlined fontSize="small" />}
+                  label={t('registration.actions.moveToGroup')}
+                  onClick={() => callbacks?.moveToGroup?.(p.row.id)}
+                  showInMenu
+                />
+              )
+            }
+            actions.push(
               <GridActionsCellItem
-                key="withdraw"
-                icon={<EventBusyOutlined fontSize="small" />}
-                label={t('withdraw')}
-                onClick={() => cancelRegistration?.(p.row.id)}
+                key="moveToPosition"
+                icon={<LowPriorityOutlined fontSize="small" />}
+                label={t('registration.actions.moveToPosition')}
+                onClick={() => callbacks?.moveToPosition?.(p.row.id)}
                 showInMenu
               />
-            ),
-            canRefund(p.row) ? (
+            )
+            actions.push(
+              <GridActionsCellItem
+                key="moveToReserve"
+                icon={<LowPriorityOutlined fontSize="small" />}
+                label={t('registration.actions.moveToReserve')}
+                onClick={() => callbacks?.moveToReserve?.(p.row.id)}
+                showInMenu
+              />
+            )
+            actions.push(
+              <GridActionsCellItem
+                key="moveBackToRegistered"
+                icon={<LowPriorityOutlined fontSize="small" />}
+                label={t('registration.actions.moveBackToRegistered')}
+                onClick={() => callbacks?.moveToReserve?.(p.row.id)}
+                showInMenu
+              />
+            )
+          }
+
+          // Movement actions for reserve
+          if (isReserve) {
+            // "Siirrä osallistujiin" - moves to end of participants
+            actions.push(
+              <GridActionsCellItem
+                key="moveToParticipants"
+                icon={<SwapHorizOutlined fontSize="small" />}
+                label={t('registration.actions.moveToParticipants')}
+                onClick={() => callbacks?.moveToParticipants?.(p.row.id)}
+                showInMenu
+              />
+            )
+            // "Siirrä tietylle starttipaikalle" - moves from reserve to participants at specific position
+            actions.push(
+              <GridActionsCellItem
+                key="moveToPosition"
+                icon={<LowPriorityOutlined fontSize="small" />}
+                label={t('registration.actions.moveToPosition')}
+                onClick={() => callbacks?.moveToPosition?.(p.row.id)}
+                showInMenu
+              />
+            )
+          }
+
+          // Movement actions for cancelled
+          if (isCancelled) {
+            actions.push(
+              <GridActionsCellItem
+                key="moveToReserve"
+                icon={<LowPriorityOutlined fontSize="small" />}
+                label={t('registration.actions.moveToReserve')}
+                onClick={() => callbacks?.moveToReserve?.(p.row.id)}
+                showInMenu
+              />
+            )
+          }
+
+          // Refund action (available for all states if payment can be refunded)
+          if (canRefund(p.row) && (p.row.refundAmount ?? 0) < (p.row.paidAmount ?? 0)) {
+            actions.push(
               <GridActionsCellItem
                 key="refund"
                 icon={<EventBusyOutlined fontSize="small" />}
-                label={t('refund')}
-                onClick={() => refundRegistration?.(p.row.id)}
+                label={t('registration.actions.refundPayment')}
+                onClick={() => callbacks?.refundRegistration?.(p.row.id)}
                 showInMenu
-                disabled={(p.row.refundAmount ?? 0) === (p.row.paidAmount ?? 0)}
               />
-            ) : null,
-          ].filter((a): a is ReactElement => a !== null),
+            )
+          }
+
+          // Common actions
+          actions.push(
+            <GridActionsCellItem
+              key="edit"
+              icon={<EditOutlined fontSize="small" />}
+              label={t('registration.actions.edit')}
+              onClick={() => callbacks?.openEditDialog?.(p.row.id)}
+              showInMenu
+            />
+          )
+
+          if (!isCancelled) {
+            actions.push(
+              <GridActionsCellItem
+                key="cancel"
+                icon={<EventBusyOutlined fontSize="small" />}
+                label={t('registration.actions.cancel')}
+                onClick={() => callbacks?.cancelRegistration?.(p.row.id)}
+                showInMenu
+              />
+            )
+          }
+
+          actions.push(
+            <GridActionsCellItem
+              key="sendMessage"
+              icon={<EmailOutlined fontSize="small" />}
+              label={t('registration.actions.sendMessage')}
+              onClick={() => callbacks?.sendMessage?.(p.row.id)}
+              showInMenu
+            />
+          )
+
+          return actions
+        },
       },
     ]
 
@@ -160,5 +285,5 @@ export function useClassEntrySelectionColumns(
     })
 
     return { cancelledColumns, entryColumns, participantColumns }
-  }, [available, cancelRegistration, event, openEditDialog, refundRegistration, t])
+  }, [available, callbacks, event, t])
 }
