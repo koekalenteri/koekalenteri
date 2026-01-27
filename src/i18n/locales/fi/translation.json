@@ -306,7 +306,14 @@
     "actions": {
       "cancel": "Peru ilmoittautuminen",
       "edit": "Muokkaa ilmoittautumista",
-      "pay": "Maksa ilmoittautuminen"
+      "pay": "Maksa ilmoittautuminen",
+      "moveToGroup": "Siirrä toiseen ryhmään",
+      "moveToPosition": "Siirrä tietylle starttipaikalle",
+      "moveToReserve": "Siirrä varasijalle",
+      "moveToParticipants": "Siirrä osallistujiin",
+      "moveBackToRegistered": "Siirrä koira takaisin Ilmoittautuneet-listalle",
+      "refundPayment": "Palauta maksu",
+      "sendMessage": "Lähetä viesti"
     },
     "agreeToTerms": "Ehdot ja tietosuojaseloste",
     "breeder": "Kasvattajan tiedot",
@@ -472,7 +479,23 @@
       "ap": "aamupäivä",
       "ip": "iltapäivä",
       "kp": "ei ryhmiä"
-    }
+    },
+    "moveToGroupDialog": {
+      "title": "Siirrä koira ryhmään",
+      "selectGroup": "Valitse ryhmä",
+      "currentGroup": "(nykyinen ryhmä)",
+      "moveToGroup": "Siirrä ryhmään",
+      "notRegisteredForDay": "Koira ei ole ilmoittautunut tälle päivälle",
+      "moved": "Koira siirretty"
+    },
+    "moveToPositionDialog": {
+      "title": "Siirrä koira tietylle starttipaikalle",
+      "selectPosition": "Valitse starttinumero",
+      "moveToPosition": "Siirrä starttipaikalle",
+      "moved": "Koira siirretty starttipaikalle {{position}}"
+    },
+    "movedToReserve": "Koira siirretty varasijalle",
+    "moveToReserveFailed": "Virhe siirrossa"
   },
   "registrations": "Ilmoittautumiset",
   "roles": "Roolit",
