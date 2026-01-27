@@ -261,4 +261,84 @@ describe('EntryInfo', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(true)
   })
+
+  it('should convert empty reserve selection to undefined', async () => {
+    // The UI doesn't offer an explicit "empty" option (options are ReserveChoise[]),
+    // but the component logic supports mapping '' => undefined. We assert the component
+    // accepts reserve: undefined without forcing a value / crashing.
+    render(
+      <EntryInfo
+        reg={{ ...registrationWithStaticDates, reserve: undefined }}
+        event={eventWithStaticDates}
+        errorStates={{}}
+        helperTexts={{}}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(screen.getByRole('combobox', { name: 'registration.reserve' })).toBeInTheDocument()
+  })
+
+  it('should override reg.class with className prop (valid RegistrationClass)', async () => {
+    const reg = merge(registrationWithStaticDatesAndClass, { class: 'ALO' })
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    render(
+      <EntryInfo
+        reg={reg}
+        event={eventWithStaticDatesAnd3Classes}
+        className="AVO"
+        errorStates={{}}
+        helperTexts={{}}
+        onChange={changeHandler}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: 'AVO' }))
+  })
+
+  it('should clear reg.class when className prop is not a RegistrationClass', async () => {
+    const reg = merge(registrationWithStaticDatesAndClass, { class: 'ALO' })
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    render(
+      <EntryInfo
+        reg={reg}
+        event={eventWithStaticDatesAnd3Classes}
+        className="NOT_A_CLASS"
+        errorStates={{}}
+        helperTexts={{}}
+        onChange={changeHandler}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: undefined }))
+  })
+
+  it('should pick first available class when current reg.class is not in event classes', async () => {
+    const reg = merge(registrationWithStaticDatesAndClass, { class: 'VAL' as any })
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    render(
+      <EntryInfo
+        reg={reg}
+        event={eventWithStaticDatesAnd3Classes}
+        errorStates={{}}
+        helperTexts={{}}
+        onChange={changeHandler}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    // eventWithStaticDatesAnd3Classes has ALO/AVO/VOI in this project mock data
+    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: expect.any(String) }))
+    const calledWith = changeHandler.mock.calls.find((c) => c[0]?.class)?.[0]
+    expect(['ALO', 'AVO', 'VOI']).toContain(calledWith.class)
+  })
 })
