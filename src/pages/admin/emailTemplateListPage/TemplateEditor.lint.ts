@@ -52,7 +52,7 @@ export const getLintSource =
     for (const m of doc.matchAll(mustacheRe)) {
       const inner = m[1]
       const innerStart = m.index + (m[0].startsWith('{{{') ? 3 : 2)
-      const stripped = inner.replace(/"(?:\\.|[^"]*)"|'(?:\\.|[^']*)'/g, (s) => ' '.repeat(s.length))
+      const stripped = inner.replaceAll(/"(?:\\.|[^"]*)"|'(?:\\.|[^']*)'/g, (s) => ' '.repeat(s.length))
 
       for (const idm of stripped.matchAll(identPathRe)) {
         const full = idm[0]

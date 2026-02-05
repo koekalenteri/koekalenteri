@@ -16,7 +16,7 @@ import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
 import { RULE_DATES } from './types'
 
-export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]> = RULE_DATES) {
+export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]> = RULE_DATES): RuleDate {
   if (typeof date === 'string') {
     date = new Date(date)
   }
@@ -26,7 +26,7 @@ export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]>
       return available[i - 1]
     }
   }
-  return available[available.length - 1]
+  return available.at(-1)!
 }
 
 const validateDogForSM = (dog: Partial<Dog>) =>
