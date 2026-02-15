@@ -4,6 +4,7 @@ process.env.NODE_ENV = 'test'
 process.env.PUBLIC_URL = ''
 process.env.REACT_APP_API_BASE_URL = ''
 process.env.REACT_APP_WS_API_URL = ''
+process.env.DOTENV_CONFIG_QUIET = 'true'
 
 // Ensure environment variables are read.
 require('../config/env')

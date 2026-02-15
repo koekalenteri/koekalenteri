@@ -1628,10 +1628,8 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          aria-disabled="true"
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
-                          tabindex="-1"
                         >
                           <input
                             checked=""
@@ -1662,10 +1660,8 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          aria-disabled="true"
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
-                          tabindex="-1"
                         >
                           <input
                             checked=""
@@ -2478,9 +2474,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        aria-disabled="true"
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                        tabindex="-1"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2511,9 +2505,7 @@ exports[`RegistrationEditPage should render 1`] = `
                       class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                     >
                       <span
-                        aria-disabled="true"
-                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                        tabindex="-1"
+                        class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                       >
                         <input
                           class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2557,9 +2549,7 @@ exports[`RegistrationEditPage should render 1`] = `
             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
           >
             <span
-              aria-disabled="true"
-              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-              tabindex="-1"
+              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
             >
               <input
                 checked=""

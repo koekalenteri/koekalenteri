@@ -51,7 +51,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
           </p>
           <div
             class="MuiDataGrid-root MuiDataGrid-root--densityStandard MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
-            style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 550px; --DataGrid-columnsTotalWidth: 550px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 56px; --DataGrid-headersTotalHeight: 56px; --DataGrid-topContainerHeight: 56px; --DataGrid-bottomContainerHeight: 0px; --height: 40px;"
+            style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 600px; --DataGrid-columnsTotalWidth: 600px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 56px; --DataGrid-headersTotalHeight: 56px; --DataGrid-topContainerHeight: 56px; --DataGrid-bottomContainerHeight: 0px; --height: 40px;"
           >
             <div
               aria-colcount="7"
@@ -69,7 +69,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
               <div
                 class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                 role="presentation"
-                style="overflow-x: hidden;"
+                style=""
               >
                 <div
                   class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
@@ -110,9 +110,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                               class="MuiDataGrid-columnHeaderTitleContainerContent"
                             >
                               <span
-                                aria-disabled="true"
-                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                                tabindex="-1"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                               >
                                 <input
                                   aria-label="Unselect all rows"
@@ -238,7 +236,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                         class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                         data-field="provider"
                         role="columnheader"
-                        style="height: 56px; width: 0px;"
+                        style="height: 56px; width: 50px;"
                         tabindex="-1"
                       >
                         <div
@@ -616,7 +614,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                 <div
                   class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                   role="presentation"
-                  style="width: auto; flex-basis: 80px; flex-shrink: 0;"
+                  style="width: 600px; flex-basis: 80px; flex-shrink: 0;"
                 >
                   <div
                     class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -696,7 +694,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                         data-colindex="2"
                         data-field="provider"
                         role="gridcell"
-                        style="--width: 0px;"
+                        style="--width: 50px;"
                         tabindex="-1"
                         title="Nordea"
                       >
@@ -785,9 +783,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                         tabindex="-1"
                       >
                         <span
-                          aria-disabled="true"
-                          class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                          tabindex="-1"
+                          class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                         >
                           <input
                             aria-label="Select row"
@@ -834,7 +830,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                         data-colindex="2"
                         data-field="provider"
                         role="gridcell"
-                        style="--width: 0px;"
+                        style="--width: 50px;"
                         tabindex="-1"
                         title="Nordea"
                       >
@@ -912,6 +908,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
               >
                 <div
                   class="MuiDataGrid-scrollbarContent"
+                  style="width: 600px;"
                 />
               </div>
               <div
@@ -921,6 +918,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
               >
                 <div
                   class="MuiDataGrid-scrollbarContent"
+                  style="height: 0px;"
                 />
               </div>
             </div>

@@ -22,6 +22,7 @@ const childEnv = { CI: 'true' }
 const backendEnv = {
   ...childEnv,
   NODE_OPTIONS: '--experimental-vm-modules --no-warnings',
+  DOTENV_CONFIG_QUIET: 'true',
 }
 const children = [
   spawnNode(require.resolve('./test-backend.js'), backendEnv),

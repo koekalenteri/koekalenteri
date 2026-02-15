@@ -43,7 +43,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
             </div>
             <span
               class="MuiTabs-indicator css-1qltlow-MuiTabs-indicator"
-              style="left: 0px; width: 0px;"
+              style="left: 0px; width: 100px;"
             />
           </div>
         </div>
@@ -383,7 +383,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
             </div>
             <span
               class="MuiTabs-indicator css-1qltlow-MuiTabs-indicator"
-              style="left: 0px; width: 0px;"
+              style="left: 0px; width: 100px;"
             />
           </div>
         </div>
@@ -723,7 +723,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
             </div>
             <span
               class="MuiTabs-indicator css-1qltlow-MuiTabs-indicator"
-              style="left: 0px; width: 0px;"
+              style="left: 0px; width: 100px;"
             />
           </div>
         </div>

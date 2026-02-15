@@ -339,10 +339,10 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
   <div
     class="MuiPopper-root MuiAutocomplete-popper MuiAutocomplete-popperDisablePortal css-qthytj-MuiPopper-root-MuiAutocomplete-popper"
     data-popper-escaped=""
-    data-popper-placement="bottom"
+    data-popper-placement="top"
     data-popper-reference-hidden=""
     role="presentation"
-    style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; right: auto; bottom: auto; transform: translate(0px, 0px);"
+    style="position: absolute; top: auto; left: 0px; width: 0px; margin: 0px; right: auto; bottom: 0px; transform: translate(0px, 0px);"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
@@ -350,6 +350,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
     >
       <ul
         aria-labelledby="-label"
+        aria-multiselectable="true"
         class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
         id="-listbox"
         role="listbox"
@@ -561,10 +562,10 @@ exports[`EventClasses should render with classes and values, open 1`] = `
   <div
     class="MuiPopper-root MuiAutocomplete-popper MuiAutocomplete-popperDisablePortal css-qthytj-MuiPopper-root-MuiAutocomplete-popper"
     data-popper-escaped=""
-    data-popper-placement="bottom"
+    data-popper-placement="top"
     data-popper-reference-hidden=""
     role="presentation"
-    style="position: absolute; top: 0px; left: 0px; width: 0px; margin: 0px; right: auto; bottom: auto; transform: translate(0px, 0px);"
+    style="position: absolute; top: auto; left: 0px; width: 0px; margin: 0px; right: auto; bottom: 0px; transform: translate(0px, 0px);"
   >
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 MuiAutocomplete-paper css-1cv3st9-MuiPaper-root-MuiAutocomplete-paper"
@@ -572,6 +573,7 @@ exports[`EventClasses should render with classes and values, open 1`] = `
     >
       <ul
         aria-labelledby="-label"
+        aria-multiselectable="true"
         class="MuiAutocomplete-listbox css-19166iz-MuiAutocomplete-listbox"
         id="-listbox"
         role="listbox"

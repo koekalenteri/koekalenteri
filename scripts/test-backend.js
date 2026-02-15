@@ -2,6 +2,7 @@
 process.env.BABEL_ENV = 'test'
 process.env.NODE_ENV = 'test'
 process.env.NODE_OPTIONS = '--experimental-vm-modules --no-warnings'
+process.env.DOTENV_CONFIG_QUIET = 'true'
 
 // Ensure environment variables are read.
 require('../config/env')

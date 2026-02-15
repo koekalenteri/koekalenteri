@@ -22,3 +22,36 @@ process.env.REACT_APP_IDENTITY_POOL_ID = 'test-id-pool'
 jest.mock('./lib/client/rum')
 
 expect.extend(toHaveNoViolations)
+
+// --- MUI anchor element layout mocking ---
+// MUI Popover/Menu validates that `anchorEl` is part of document layout by
+// reading `getBoundingClientRect()` (and related layout hints). In JSDOM the
+// default `getBoundingClientRect()` often returns zeros, which triggers:
+// "MUI: The `anchorEl` prop provided to the component is invalid".
+//
+// We provide a non-zero rect for all elements to keep tests quiet and focused.
+// Some test environments mark `HTMLElement.prototype.getBoundingClientRect` as
+// non-writable, so assign to the concrete impl prototype instead.
+Object.defineProperty(Element.prototype, 'getBoundingClientRect', {
+  configurable: true,
+  value: function getBoundingClientRect() {
+    return {
+      x: 0,
+      y: 0,
+      top: 0,
+      left: 0,
+      bottom: 40,
+      right: 100,
+      width: 100,
+      height: 40,
+      toJSON: () => '',
+    } as unknown as DOMRect
+  },
+})
+
+Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+  configurable: true,
+  get() {
+    return this
+  },
+})
