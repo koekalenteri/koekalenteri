@@ -127,9 +127,11 @@ export default function PaymentSection({
   const handleAdd = useCallback(
     (key: DogEventCostKey, data?: any) => {
       const cost: DogEventCost =
-        typeof event.cost !== 'object' ? { normal: event.cost ?? 0 } : { ...(event.cost ?? {}) }
+        typeof event.cost === 'object' && event.cost ? Object.assign({}, event.cost) : { normal: event.cost ?? 0 }
       const costMember: DogEventCost =
-        typeof event.costMember !== 'object' ? { normal: event.costMember ?? 0 } : { ...(event.costMember ?? {}) }
+        typeof event.costMember === 'object' && event.costMember
+          ? Object.assign({}, event.costMember)
+          : { normal: event.costMember ?? 0 }
 
       if (key === 'optionalAdditionalCosts') {
         const newOptionalCost = {
@@ -151,11 +153,11 @@ export default function PaymentSection({
   const handleRemove = useCallback(
     (key: DogEventCostKey, breedCode?: BreedCode) => {
       const cost: DogEventCost =
-        typeof event.cost !== 'object' ? { normal: event.cost ?? 0 } : structuredClone(event.cost ?? {})
+        typeof event.cost === 'object' && event.cost ? structuredClone(event.cost) : { normal: event.cost ?? 0 }
       const costMember: DogEventCost =
-        typeof event.costMember !== 'object'
-          ? { normal: event.costMember ?? 0 }
-          : structuredClone(event.costMember ?? {})
+        typeof event.costMember === 'object' && event.costMember
+          ? structuredClone(event.costMember)
+          : { normal: event.costMember ?? 0 }
 
       if (key === 'breed' && breedCode) {
         if (cost.breed) delete cost.breed[breedCode]
@@ -204,9 +206,11 @@ export default function PaymentSection({
   const handleSaveDescription = useCallback(
     (key: DogEventCostKey, descriptions: { fi: string; en?: string }) => {
       const cost: DogEventCost =
-        typeof event.cost !== 'object' ? { normal: event.cost ?? 0 } : { ...(event.cost ?? {}) }
+        typeof event.cost === 'object' && event.cost ? Object.assign({}, event.cost) : { normal: event.cost ?? 0 }
       const costMember: DogEventCost =
-        typeof event.costMember !== 'object' ? { normal: event.costMember ?? 0 } : { ...(event.costMember ?? {}) }
+        typeof event.costMember === 'object' && event.costMember
+          ? Object.assign({}, event.costMember)
+          : { normal: event.costMember ?? 0 }
 
       if (key === 'custom' && cost.custom) {
         cost.custom = { ...cost.custom, description: descriptions }

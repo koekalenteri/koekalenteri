@@ -37,7 +37,7 @@ export const determineChangesFromDrop = (
 
     // moved as last, set number to last + 1
     if (item.position === 'after' && pos > 0 && newGroup.number === 0) {
-      newGroup.number = (regs[regs.length - 1]?.group?.number ?? 0) + 1
+      newGroup.number = (regs.at(-1)?.group?.number ?? 0) + 1
     }
 
     // apply 0.5 modifier based on position. backend will fix the numbers.

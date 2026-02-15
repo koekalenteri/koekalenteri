@@ -73,8 +73,8 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
   const pushScopeFromPath = (startBase: any, parts: string[], alias?: string, indexAlias?: string) => {
     const iterTarget = parts.length ? getChild(startBase, parts) : startBase
     const itemType = elemOf(iterTarget)
-    const base = itemType !== undefined ? itemType : {}
-    scopes.push({ base, alias, indexAlias })
+
+    scopes.push({ base: itemType, alias, indexAlias })
   }
 
   let m: RegExpExecArray | null
