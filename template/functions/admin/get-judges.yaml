@@ -37,7 +37,7 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetJudgesFunctionLogGroup:
     Type: AWS::Logs::LogGroup

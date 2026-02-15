@@ -22,7 +22,7 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetEmailTemplatesFunctionLogGroup:
     Type: AWS::Logs::LogGroup

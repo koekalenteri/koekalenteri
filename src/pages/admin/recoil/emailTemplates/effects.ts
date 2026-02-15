@@ -5,7 +5,7 @@ import i18next from 'i18next'
 
 import { getEmailTemplates } from '../../../../api/email'
 import { exhaustiveStringTuple } from '../../../../lib/typeGuards'
-import { idTokenAtom } from '../../../recoil'
+import { accessTokenAtom } from '../../../recoil'
 
 const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'access',
@@ -23,7 +23,7 @@ const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
 export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
   if (trigger === 'get') {
     setSelf(
-      getPromise(idTokenAtom).then((token) =>
+      getPromise(accessTokenAtom).then((token) =>
         getEmailTemplates(token).then((emailTemplates) => {
           if (emailTemplates.length < templateIds.length) {
             for (const id of templateIds) {

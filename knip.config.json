@@ -1,9 +1,13 @@
 {
   "workspaces": {
     ".": {
-      "ignore": ["aws/split.js", "scripts/knip-config.mjs", "scripts/marshall.cjs"],
+      "ignore": [
+        "aws/split.js",
+        "scripts/knip-config.mjs",
+        "scripts/marshall.cjs"
+      ],
       "ignoreBinaries": ["sam", "scripts/prebuild-backend.sh"],
-      "ignoreDependencies": ["@aws-amplify/core", "@codemirror/lang-html"],
+      "ignoreDependencies": ["aws-amplify", "@codemirror/lang-html"],
       "entry": [
         "src/lambda/BackfillEventStatsFunction/handler.ts",
         "src/lambda/CopyEventFunction/handler.ts",
@@ -51,6 +55,7 @@
         "src/lambda/SetAdminFunction/handler.ts",
         "src/lambda/SetRoleFunction/handler.ts",
         "src/index.tsx",
+        "scripts/local-dynamodb/init.mjs",
         "scripts/build-template.mjs",
         "scripts/layer-modules.mjs"
       ]

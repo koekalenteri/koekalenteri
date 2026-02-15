@@ -1,20 +1,20 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
 
 import { putUserName } from '../../../api/user'
+import { getAuth0Client } from '../../../auth/auth0Client'
 import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
 
-import { idTokenAtom, loginPathAtom, userRefreshAtom } from './atoms'
+import { accessTokenAtom, loginPathAtom, userRefreshAtom } from './atoms'
 import { userSelector } from './selectors'
 
 export const useUserActions = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const setIdToken = useSetRecoilState(idTokenAtom)
+  const setIdToken = useSetRecoilState(accessTokenAtom)
   const bumpUserRefresh = useSetRecoilState(userRefreshAtom)
   const [loginPath, setLoginPath] = useRecoilState(loginPathAtom)
 
@@ -43,13 +43,14 @@ export const useUserActions = () => {
       async (notice: boolean = true) => {
         try {
           navigate(Path.home, { replace: true })
-          reset(idTokenAtom)
+          reset(accessTokenAtom)
           // reset(adminEventsAtom)
           sessionStorage.clear()
           if (notice) {
             enqueueSnackbar('Heippa!', { variant: 'info' })
           }
-          return awsSignOut()
+          const client = await getAuth0Client()
+          client.logout({ logoutParams: { returnTo: window.location.origin } })
         } catch (e) {
           reportError(e)
         }
@@ -61,7 +62,7 @@ export const useUserActions = () => {
     ({ snapshot }) =>
       async (name: string) => {
         try {
-          const token = await snapshot.getPromise(idTokenAtom)
+          const token = await snapshot.getPromise(accessTokenAtom)
           if (!token) return
 
           const cleaned = String(name ?? '').trim()

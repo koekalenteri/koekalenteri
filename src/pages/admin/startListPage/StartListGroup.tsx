@@ -1,7 +1,8 @@
 import type { Registration, RegistrationTime } from '../../../types'
 
 import { useTranslation } from 'react-i18next'
-import { TableCell, TableRow } from '@aws-amplify/ui-react'
+import TableCell from '@mui/material/TableCell'
+import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
 import HeaderRow from './startListGroup/HeaderRow'

@@ -2,13 +2,13 @@ import i18next from 'i18next'
 import { useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil'
 
 import { getOfficials } from '../../../../api/official'
-import { idTokenAtom } from '../../../recoil'
+import { accessTokenAtom } from '../../../recoil'
 import { adminUsersAtom } from '../user'
 
 import { adminOfficialsAtom } from './atoms'
 
 export const useAdminOfficialsActions = () => {
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
   const setOfficials = useSetRecoilState(adminOfficialsAtom)
   const resetUsers = useResetRecoilState(adminUsersAtom)
 

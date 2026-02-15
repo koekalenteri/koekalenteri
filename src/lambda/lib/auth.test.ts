@@ -48,7 +48,7 @@ describe('auth', () => {
       expect(logSpy).toHaveBeenCalledWith('no authorizer in requestContext', requestContext)
     })
 
-    it('should return null if missing cognitoUser', async () => {
+    it('should return null if missing sub', async () => {
       const event = { requestContext: { authorizer: { claims: { sub: null } } } } as any
       const result = await authorize(event)
 
@@ -57,18 +57,18 @@ describe('auth', () => {
     })
 
     it('should create link if not found', async () => {
-      const cognitoUser = 'cognito-user'
+      const subject = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+          authorizer: { claims: { sub: subject, name: 'test-user', email: 'test@example.com' } },
         },
       } as any
-      const link = { cognitoUser, userId: 'test-id' }
+      const link = { cognitoUser: subject, userId: 'test-id' }
 
       const result = await authorize(event)
 
       expect(logSpy).toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
+      expect(mockRead).toHaveBeenCalledWith({ cognitoUser: subject })
       expect(mockWrite).toHaveBeenCalledWith(link, 'user-link-table-not-found-in-env')
       expect(logSpy).toHaveBeenCalledWith('added user link', link)
       expect(result).toEqual({
@@ -82,11 +82,11 @@ describe('auth', () => {
       })
     })
 
-    it('should link cognito user to an existing user found by email if link is missing (KL email change mitigation)', async () => {
-      const cognitoUser = 'cognito-user'
+    it('should link subject to an existing user found by email if link is missing (KL email change mitigation)', async () => {
+      const subject = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'Test@Example.com' } },
+          authorizer: { claims: { sub: subject, name: 'test-user', email: 'Test@Example.com' } },
         },
       } as any
 
@@ -105,27 +105,30 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(warnSpy).toHaveBeenCalledWith(
-        'no user link found; linking cognito user to existing user by email',
-        expect.objectContaining({ cognitoUser, userId: 'existing-id', email: 'test@example.com' })
+        'no user link found; linking subject to existing user by email',
+        expect.objectContaining({ subject, userId: 'existing-id', email: 'test@example.com' })
       )
 
       // First: mitigation lookup by normalized email.
       expect(findUserByEmail).toHaveBeenCalledWith('test@example.com')
 
       // Link should be created against the existing id, not a new nanoid.
-      expect(mockWrite).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' }, 'user-link-table-not-found-in-env')
+      expect(mockWrite).toHaveBeenCalledWith(
+        { cognitoUser: subject, userId: 'existing-id' },
+        'user-link-table-not-found-in-env'
+      )
       expect(result?.id).toBe('existing-id')
       expect(result?.email).toBe('test@example.com')
     })
 
     it('should return the user if link is found', async () => {
-      const cognitoUser = 'cognito-user'
+      const subject = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+          authorizer: { claims: { sub: subject, name: 'test-user', email: 'test@example.com' } },
         },
       } as any
-      const link = { cognitoUser, userId: 'test-id' }
+      const link = { cognitoUser: subject, userId: 'test-id' }
       const existingUser = {
         id: 'test-id',
         name: 'test-user',
@@ -142,10 +145,26 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(logSpy).toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
+      expect(mockRead).toHaveBeenCalledWith({ cognitoUser: subject })
       expect(mockWrite).not.toHaveBeenCalled()
       expect(logSpy).not.toHaveBeenCalledWith('added user link', link)
       expect(result).toEqual(existingUser)
+    })
+
+    it('should accept HTTP API JWT authorizer shape (requestContext.authorizer.jwt.claims)', async () => {
+      const event = {
+        requestContext: {
+          authorizer: {
+            jwt: {
+              claims: { iss: 'https://example.auth0.com/', sub: 'user-1', name: 'n', email: 'e@example.com' },
+            },
+          },
+        },
+      } as any
+
+      await authorize(event)
+
+      expect(mockRead).toHaveBeenCalledWith({ cognitoUser: 'https://example.auth0.com/|user-1' })
     })
   })
 
@@ -282,13 +301,13 @@ describe('auth', () => {
     })
 
     it('should return the user name if user is found', async () => {
-      const cognitoUser = 'cognito-user'
+      const subject = 'cognito-user'
       const event = {
         requestContext: {
-          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+          authorizer: { claims: { sub: subject, name: 'test-user', email: 'test@example.com' } },
         },
       } as any
-      const link = { cognitoUser, userId: 'test-id' }
+      const link = { cognitoUser: subject, userId: 'test-id' }
       const existingUser = {
         id: 'test-id',
         name: 'test-user',

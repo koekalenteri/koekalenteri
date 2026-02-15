@@ -23,6 +23,23 @@
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt "KoekalenteriUserPool.Arn"
+          # Auth0 / generic OIDC JWT authorizer.
+          #
+          # NOTE:
+          # - This template defines the authorizer; API Gateway must be deployed with
+          #   these values matching your Auth0 tenant + API Identifier.
+          # - For Auth0, `Issuer` must include the trailing slash.
+          #
+          # Audience should match the access token `aud` that the SPA requests
+          # (REACT_APP_AUTH0_AUDIENCE), e.g. https://dev.koekalenteri.snj.fi
+          JwtAuthorizer:
+            JwtConfiguration:
+              issuer: !Ref AuthJwtIssuer
+              audience:
+                - !Ref AuthJwtAudience
+            Identity:
+              Header: Authorization
+              ValidationExpression: ^Bearer [-0-9a-zA-Z\._]*$
       BinaryMediaTypes:
         - "multipart/form-data"
         - "application/pdf"

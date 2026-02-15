@@ -1,25 +1,17 @@
 import type { Language } from '../../../types'
 
-import { fetchAuthSession } from 'aws-amplify/auth'
 import { atom, atomFamily } from 'recoil'
 
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../effects'
 
 import { i18nextEffect } from './effects'
 
-const getIdToken = async (): Promise<string | undefined> => {
-  try {
-    const session = await fetchAuthSession()
-    return session.tokens?.idToken?.toString()
-  } catch (e) {
-    console.error('getIdToken', e)
-    return
-  }
-}
-
-export const idTokenAtom = atom<string | undefined>({
-  key: 'idToken',
-  default: getIdToken(),
+export const accessTokenAtom = atom<string | undefined>({
+  key: 'accessToken',
+  // The actual token is populated by:
+  // - `localStorageEffect` (persisted token), and/or
+  // - Auth0 bridge in [`AuthProvider`](src/auth/AuthProvider.tsx:26)
+  default: undefined,
   effects: [logEffect, localStorageEffect],
 })
 

@@ -10,15 +10,21 @@ import { deserializeFilter, serializeFilter } from './filters'
 
 const eventSort = (a: PublicDogEvent, b: PublicDogEvent) => a.startDate.valueOf() - b.startDate.valueOf()
 
+// React 18 StrictMode can cause atoms/selectors to be evaluated twice on initial mount in development.
+// This module-level promise deduplicates the initial events fetch so we don't hit the API twice.
+let eventsInFlight: Promise<PublicDogEvent[]> | null = null
+
 export const remoteEventsEffect: AtomEffect<PublicDogEvent[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {
-    setSelf(
-      getEvents().then((events) => {
+    if (!eventsInFlight) {
+      eventsInFlight = getEvents().then((events) => {
+        eventsInFlight = null
         events.sort(eventSort)
-
         return events
       })
-    )
+    }
+
+    setSelf(eventsInFlight)
   }
 }
 
