@@ -1,7 +1,5 @@
 import { screen } from '@testing-library/react'
-
 import { renderWithUserEvents } from '../../../../test-utils/utils'
-
 import NoRowsOverlay from './NoRowsOverlay'
 
 describe('NoRowsOverlay', () => {
@@ -21,11 +19,11 @@ describe('NoRowsOverlay', () => {
     const overlay = screen.getByText('Raahaa osallistujat tähän!')
     expect(overlay).toHaveClass('no-rows')
     expect(overlay).toHaveStyle({
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      justifyContent: 'center',
       alignItems: 'center',
+      display: 'flex',
+      height: '100%',
+      justifyContent: 'center',
+      width: '100%',
     })
   })
 })

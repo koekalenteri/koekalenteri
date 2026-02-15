@@ -1,8 +1,7 @@
-import type { StreamingBlobTypes } from '@smithy/types'
 import type { Readable } from 'node:stream'
-
+import type { StreamingBlobTypes } from '@smithy/types'
 import { downloadFile } from '../lib/file'
-import { allowOrigin, getParam, lambda, LambdaError } from '../lib/lambda'
+import { allowOrigin, getParam, LambdaError, lambda } from '../lib/lambda'
 
 const streamToBase64 = async (stream: StreamingBlobTypes): Promise<string> => {
   // In Node.js environment, StreamingBlobTypes is a Readable stream
@@ -29,14 +28,14 @@ const getAttachmentLambda = lambda('getAttachment', async (event) => {
   const dispositionWithParams = `${disposition}; ${params}`
 
   return {
-    statusCode: 200,
     body: base64Body,
-    isBase64Encoded: true,
     headers: {
       'Access-Control-Allow-Origin': allowOrigin(event),
-      'Content-Type': 'application/pdf',
       'Content-Disposition': `${dispositionWithParams}`,
+      'Content-Type': 'application/pdf',
     },
+    isBase64Encoded: true,
+    statusCode: 200,
   }
 })
 

@@ -1,7 +1,5 @@
 import type { JsonConfirmedEvent } from '../../types'
-
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'

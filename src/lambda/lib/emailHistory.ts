@@ -15,7 +15,7 @@ export const appendEmailHistory = (
   if (!prev || !next || prev === next) return existing?.emailHistory
 
   const prior = existing?.emailHistory ?? []
-  const entry: EmailHistoryEntry = { email: prev, changedAt: nowIso, source }
+  const entry: EmailHistoryEntry = { changedAt: nowIso, email: prev, source }
 
   // Keep at most 10 entries, newest last.
   return [...prior, entry].slice(-10)

@@ -1,7 +1,4 @@
 import type { Organizer } from '../../../types'
-
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -11,8 +8,9 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil'
 
 interface Props {
@@ -33,8 +31,8 @@ export function CreateUserDialog({ onClose, open }: Props) {
     if (!org || !role) return
     actions
       .addUser({
-        id: '',
         email,
+        id: '',
         name,
         roles: { [org.id]: role },
       })

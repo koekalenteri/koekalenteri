@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
@@ -11,8 +11,8 @@ const mockUploadFile = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
   getParam: mockGetParam,
+  lambda: mockLambda,
   response: mockResponse,
 }))
 
@@ -25,8 +25,8 @@ jest.unstable_mockModule('../lib/event', () => ({
 }))
 
 jest.unstable_mockModule('../lib/file', () => ({
-  parsePostFile: mockParsePostFile,
   deleteFile: mockDeleteFile,
+  parsePostFile: mockParsePostFile,
   uploadFile: mockUploadFile,
 }))
 
@@ -40,12 +40,12 @@ const { default: putInvitationAttachmentLambda } = await import('./handler')
 
 describe('putInvitationAttachmentLambda', () => {
   const event = {
-    pathParameters: {
-      eventId: 'event123',
-    },
     body: 'file-content-base64',
     headers: {
       'Content-Type': 'multipart/form-data; boundary=boundary',
+    },
+    pathParameters: {
+      eventId: 'event123',
     },
   } as any
 
@@ -68,18 +68,18 @@ describe('putInvitationAttachmentLambda', () => {
 
     mockGetEvent.mockResolvedValue({
       id: 'event123',
+      invitationAttachment: 'old-attachment-key',
       name: 'Test Event',
       organizer: {
         id: 'org789',
         name: 'Test Organizer',
       },
-      invitationAttachment: 'old-attachment-key',
     })
 
     mockParsePostFile.mockResolvedValue({
+      contentType: 'application/pdf',
       data: Buffer.from('test-file-content'),
       filename: 'test.pdf',
-      contentType: 'application/pdf',
     })
 
     mockDeleteFile.mockResolvedValue({})
@@ -143,9 +143,9 @@ describe('putInvitationAttachmentLambda', () => {
 
   it('returns 400 if no file data', async () => {
     mockParsePostFile.mockResolvedValueOnce({
+      contentType: 'application/pdf',
       data: null,
       filename: 'test.pdf',
-      contentType: 'application/pdf',
     })
 
     await putInvitationAttachmentLambda(event)
@@ -245,9 +245,9 @@ describe('putInvitationAttachmentLambda', () => {
 
   it('allows admin to upload attachment regardless of organizer', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: true,
       id: 'user123',
       name: 'Test User',
-      admin: true,
       roles: {},
     })
 

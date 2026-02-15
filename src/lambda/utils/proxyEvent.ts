@@ -1,8 +1,6 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonDbRecord } from '../../types'
-
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { parseJSONWithFallback } from '../lib/json'
 

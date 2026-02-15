@@ -1,6 +1,5 @@
 import { jsonEmptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithStaticDatesAnd3Classes } from '../../__mockData__/events'
-
 import { paymentDescription } from './payment'
 
 describe('payment', () => {

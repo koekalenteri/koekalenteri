@@ -14,7 +14,7 @@ exports[`PlacesInput should render with positive number 1`] = `
         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r1:"
         pattern="[0-9]{1,3}"
-        style="text-align: right; padding: 4px;"
+        style="padding: 4px; text-align: right;"
         type="text"
         value="123"
       />
@@ -52,7 +52,7 @@ exports[`PlacesInput should render with zero 1`] = `
         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r0:"
         pattern="[0-9]{1,3}"
-        style="text-align: right; padding: 4px;"
+        style="padding: 4px; text-align: right;"
         type="text"
         value="0"
       />
@@ -90,7 +90,7 @@ exports[`PlacesInput should rerender with new value 1`] = `
         class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
         id=":r2:"
         pattern="[0-9]{1,3}"
-        style="text-align: right; padding: 4px;"
+        style="padding: 4px; text-align: right;"
         type="text"
         value="22"
       />

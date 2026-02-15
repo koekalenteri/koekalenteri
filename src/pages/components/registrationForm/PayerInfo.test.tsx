@@ -1,18 +1,15 @@
 import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
-
-import { Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { locales } from '../../../i18n'
 import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { PayerInfo } from './PayerInfo'
 
 jest.mock('../../../api/dog')
@@ -61,12 +58,12 @@ describe('PayerInfo', () => {
     await user.clear(emailInput)
     await user.clear(phoneInput)
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ payer: { name: '', email: '', phone: '' } })
+    expect(onChange).toHaveBeenLastCalledWith({ payer: { email: '', name: '', phone: '' } })
     expect(onChange).toHaveBeenCalledTimes(1)
 
     await user.type(input, 'test handler')
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ payer: { name: 'test handler', email: '', phone: '' } })
+    expect(onChange).toHaveBeenLastCalledWith({ payer: { email: '', name: 'test handler', phone: '' } })
     expect(onChange).toHaveBeenCalledTimes(2)
 
     await user.type(emailInput, '\r\ntest@exmaple.com\r\n ')

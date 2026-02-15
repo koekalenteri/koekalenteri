@@ -1,7 +1,5 @@
 import type { AtomEffect } from 'recoil'
-
 import { parseJSON } from '../../../lib/utils'
-
 import { runCleaners } from './storageCleaners'
 
 runCleaners()

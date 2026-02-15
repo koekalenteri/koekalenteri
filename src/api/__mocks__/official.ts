@@ -1,24 +1,24 @@
 const mockOfficials = [
   {
-    name: 'Toimitsija 1',
+    email: 'toimari1@sposti.not',
     id: 333,
     location: 'Helsinki',
+    name: 'Toimitsija 1',
     phone: '123456781',
-    email: 'toimari1@sposti.not',
   },
   {
-    name: 'Toimitsija 2',
+    email: 'toimari2@sposti.not',
     id: 444,
     location: 'Tampere',
+    name: 'Toimitsija 2',
     phone: '123456782',
-    email: 'toimari2@sposti.not',
   },
   {
-    name: 'Toimitsija 3',
+    email: 'toimari3@sposti.not',
     id: 555,
     location: 'Turku',
+    name: 'Toimitsija 3',
     phone: '123456783',
-    email: 'toimari3@sposti.not',
   },
 ]
 

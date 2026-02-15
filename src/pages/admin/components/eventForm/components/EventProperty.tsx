@@ -3,15 +3,13 @@ import type { AutocompleteInputChangeReason, AutocompleteRenderInputParams } fro
 import type { ReactNode, SyntheticEvent } from 'react'
 import type { DogEvent } from '../../../../../types'
 import type { FieldRequirements, PartialEvent } from '../types'
-
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import HelpOutlined from '@mui/icons-material/HelpOutlined'
 import Autocomplete from '@mui/material/Autocomplete'
 import IconButton from '@mui/material/IconButton'
 import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
-
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../../../../hooks/useDebouncedCallback'
 import { validateEventField } from '../validation'
 
@@ -63,7 +61,7 @@ const getInputInitValue = <P extends Property, freeSolo extends boolean>(
 
 const EventProperty = <P extends Property, freeSolo extends boolean>(props: EventPropertyProps<P, freeSolo>) => {
   const { t } = useTranslation()
-  const { id, event, fields, helpClick, endAdornment, onChange, validateInput, mapValue, ...acProps } = props
+  const { id, event, fields, helpClick, endAdornment, onChange, validateInput, mapValue, options, ...acProps } = props
   const value = event[id]
   const fixedValue = value ?? null
   const [inputValue, setInputValue] = useState(getInputInitValue(fixedValue, props))
@@ -73,17 +71,17 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
 
   const handleChange = useCallback(
     (
-      e: SyntheticEvent<Element, globalThis.Event>,
+      _e: SyntheticEvent<Element, globalThis.Event>,
       value: PartialEvent[P] | AutocompleteFreeSoloValueMapping<freeSolo> | null
     ) => {
-      if (!acProps.options.length) {
+      if (!options.length) {
         return
       }
       const valueOrUndef = value ?? undefined
       const mappedValueOrUndef = valueOrUndef && mapValue ? mapValue(valueOrUndef) : valueOrUndef
       onChange?.({ [id]: mappedValueOrUndef })
     },
-    [acProps.options.length, id, mapValue, onChange]
+    [id, mapValue, onChange, options.length]
   )
 
   const debouncedonChange = useDebouncedCallback((value) => {
@@ -94,7 +92,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
   })
 
   const handleInputChange = useCallback(
-    (e: SyntheticEvent<Element, globalThis.Event>, value: string, reason: AutocompleteInputChangeReason) => {
+    (_e: SyntheticEvent<Element, globalThis.Event>, value: string, reason: AutocompleteInputChangeReason) => {
       if (reason === 'reset' && value === '') return
       const validated = validateInput?.(value) ?? value
       if (inputValue !== validated) {
@@ -138,6 +136,7 @@ const EventProperty = <P extends Property, freeSolo extends boolean>(props: Even
     <Autocomplete
       id={id}
       {...acProps}
+      options={options}
       value={fixedValue}
       inputValue={inputValue}
       renderInput={renderInput}

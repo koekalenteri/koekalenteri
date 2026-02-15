@@ -1,7 +1,5 @@
 import type { JsonDogEvent, JsonUser } from '../../types'
-
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.useFakeTimers()
@@ -40,40 +38,43 @@ const updateRegistrationsMock = updateRegistrations as jest.Mock<typeof updateRe
 const { default: putEventLambda } = await import('./handler')
 
 const mockSecretary: JsonUser = {
-  id: '',
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
   roles: {
     'org-id': 'secretary',
   },
 }
 
 const mockAdmin: JsonUser = {
-  id: '',
   admin: true,
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
 }
 
 const mockEvent: JsonDogEvent = {
-  id: 'existing',
-  createdAt: '2024-12-12T21:42:42.000Z',
   classes: [],
   cost: 0,
   costMember: 0,
+  createdAt: '2024-12-12T21:42:42.000Z',
+  createdBy: 'system',
   description: '',
   endDate: '',
   eventType: '',
+  id: 'existing',
   judges: [],
   location: '',
+  modifiedAt: '',
+  modifiedBy: '',
   name: '',
   official: {},
   organizer: {
@@ -84,9 +85,6 @@ const mockEvent: JsonDogEvent = {
   secretary: {},
   startDate: '',
   state: 'draft',
-  createdBy: 'system',
-  modifiedAt: '',
-  modifiedBy: '',
 }
 
 describe('putEventLambda', () => {
@@ -106,7 +104,7 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'no-access', name: 'some org' } })
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', eventType: 'TEST' }))
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
 
     expect(res.statusCode).toEqual(403)
   })
@@ -135,7 +133,7 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'invited' })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', deletedAt: new Date().toISOString() })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ deletedAt: new Date().toISOString(), id: 'existing' })
     )
 
     expect(res.statusCode).toEqual(403)
@@ -146,7 +144,7 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({ ...mockEvent, state: 'draft' })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', deletedAt: new Date().toISOString() })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ deletedAt: new Date().toISOString(), id: 'existing' })
     )
 
     expect(res.statusCode).toEqual(200)
@@ -156,7 +154,7 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockAdmin)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'no-access', name: 'some org' } })
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', eventType: 'TEST' }))
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
 
     expect(res.statusCode).toEqual(200)
   })
@@ -183,7 +181,7 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', eventType: 'TEST' }))
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
 
     expect(getEventMock).toHaveBeenCalledWith('existing')
     expect(updateRegistrationsMock).not.toHaveBeenCalled()
@@ -200,7 +198,7 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, entries: 10 })
 
-    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', entries: 11 }))
+    const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ entries: 11, id: 'existing' }))
 
     expect(updateRegistrationsMock).toHaveBeenCalledWith('existing')
     expect(saveEventMock).toHaveBeenCalledWith({
@@ -216,23 +214,23 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      entryStartDate: '2025-03-01T00:00:00Z',
       entryEndDate: '2025-03-25T00:00:00Z',
+      entryStartDate: '2025-03-01T00:00:00Z',
       state: 'confirmed',
     })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', entryEndDate: '2025-04-01T00:00:00Z' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-04-01T00:00:00Z', id: 'existing' })
     )
 
     expect(saveEventMock).toHaveBeenCalledWith({
       ...mockEvent,
-      state: 'confirmed',
       entryEndDate: '2025-04-01T00:00:00Z',
       entryOrigEndDate: '2025-03-25T00:00:00Z',
       entryStartDate: '2025-03-01T00:00:00Z',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      state: 'confirmed',
     })
     expect(res.statusCode).toEqual(200)
   })
@@ -242,15 +240,15 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({ ...mockEvent, entryEndDate: '2025-02-02T00:00:00Z', state: 'confirmed' })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', entryEndDate: '2025-01-01T00:00:00Z' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-01-01T00:00:00Z', id: 'existing' })
     )
 
     expect(saveEventMock).toHaveBeenCalledWith({
       ...mockEvent,
-      state: 'confirmed',
       entryEndDate: '2025-01-01T00:00:00Z',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      state: 'confirmed',
     })
     expect(res.statusCode).toEqual(200)
   })
@@ -259,22 +257,22 @@ describe('putEventLambda', () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({
       ...mockEvent,
-      entryOrigEndDate: '2024-06-01T00:00:00Z',
       entryEndDate: '2025-01-01T00:00:00Z',
+      entryOrigEndDate: '2024-06-01T00:00:00Z',
       state: 'confirmed',
     })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', entryEndDate: '2025-02-02T00:00:00Z' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-02-02T00:00:00Z', id: 'existing' })
     )
 
     expect(saveEventMock).toHaveBeenCalledWith({
       ...mockEvent,
-      state: 'confirmed',
       entryEndDate: '2025-02-02T00:00:00Z',
       entryOrigEndDate: '2024-06-01T00:00:00Z',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      state: 'confirmed',
     })
     expect(res.statusCode).toEqual(200)
   })
@@ -283,23 +281,23 @@ describe('putEventLambda', () => {
     const qualificationStartDate = '2024-02-02T00:00:00Z'
     const entryEndDate = '2025-01-01T00:00:00Z'
     authorizeMock.mockResolvedValueOnce(mockSecretary)
-    getEventMock.mockResolvedValueOnce({ ...mockEvent, eventType: 'NOME-B SM', entryEndDate })
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, entryEndDate, eventType: 'NOME-B SM' })
     findQualificationStartDateMock.mockResolvedValueOnce(qualificationStartDate)
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', description: 'testing' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ description: 'testing', id: 'existing' })
     )
 
     expect(findQualificationStartDateMock).toHaveBeenCalledWith('NOME-B SM', entryEndDate)
     expect(updateRegistrationsMock).not.toHaveBeenCalled()
     expect(saveEventMock).toHaveBeenCalledWith({
       ...mockEvent,
-      eventType: 'NOME-B SM',
-      entryEndDate,
-      qualificationStartDate,
       description: 'testing',
+      entryEndDate,
+      eventType: 'NOME-B SM',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      qualificationStartDate,
     })
     expect(res.statusCode).toEqual(200)
   })

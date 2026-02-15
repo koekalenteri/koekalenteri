@@ -1,15 +1,12 @@
 import type { BreedCode, DeepPartial, DogGender, Registration } from '../../../../types'
 import type { DogMode } from './DogSearch'
-
-import { useTranslation } from 'react-i18next'
 import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { subMonths, subYears } from 'date-fns'
-
+import { useTranslation } from 'react-i18next'
 import AutocompleteSingle from '../../AutocompleteSingle'
-
 import { TitlesAndName } from './TitlesAndName'
 
 interface DogFormValues {
@@ -55,7 +52,7 @@ export const DogDetails = ({
 
   return (
     <>
-      <Grid size={{ xs: 12, sm: 5, md: 6, lg: 3 }}>
+      <Grid size={{ lg: 3, md: 6, sm: 5, xs: 12 }}>
         <TextField
           className={rfidDisabled && reg?.dog?.rfid ? 'fact' : ''}
           disabled={disabled || rfidDisabled}
@@ -66,7 +63,7 @@ export const DogDetails = ({
           onChange={(e) => updateField('rfid', e.target.value)}
         />
       </Grid>
-      <Grid container spacing={1} size={{ xs: 12, lg: 6 }}>
+      <Grid container spacing={1} size={{ lg: 6, xs: 12 }}>
         <TitlesAndName
           className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
           disabledTitles={disabled || (disabledByMode && mode !== 'update')}
@@ -82,7 +79,7 @@ export const DogDetails = ({
           titlesLabel={t('dog.titles')}
         />
       </Grid>
-      <Grid size={{ xs: 6, sm: 3, lg: 3 }}>
+      <Grid size={{ lg: 3, sm: 3, xs: 6 }}>
         <FormControl className={dobDisabled && reg?.dog?.dob ? 'fact' : ''} fullWidth>
           <DatePicker
             referenceDate={subYears(new Date(), 2)}
@@ -103,7 +100,7 @@ export const DogDetails = ({
           />
         </FormControl>
       </Grid>
-      <Grid size={{ xs: 6, sm: 3, lg: 3 }}>
+      <Grid size={{ lg: 3, sm: 3, xs: 6 }}>
         <AutocompleteSingle<DogGender | '', true>
           className={disabledByMode && reg?.dog?.gender ? 'fact' : ''}
           disableClearable
@@ -117,7 +114,7 @@ export const DogDetails = ({
           value={formValues.gender}
         />
       </Grid>
-      <Grid size={{ xs: 12, sm: 6 }}>
+      <Grid size={{ sm: 6, xs: 12 }}>
         <AutocompleteSingle<BreedCode | '', true>
           className={disabledByMode && reg?.dog?.breedCode ? 'fact' : ''}
           disableClearable
@@ -131,7 +128,7 @@ export const DogDetails = ({
           value={formValues.breedCode}
         />
       </Grid>
-      <Grid size={{ xs: 12, lg: 6 }}>
+      <Grid size={{ lg: 6, xs: 12 }}>
         <TextField
           disabled={sireDamDisabled}
           fullWidth
@@ -142,7 +139,7 @@ export const DogDetails = ({
           value={formValues.sire}
         />
       </Grid>
-      <Grid size={{ xs: 12, lg: 6 }}>
+      <Grid size={{ lg: 6, xs: 12 }}>
         <TextField
           disabled={sireDamDisabled}
           fullWidth

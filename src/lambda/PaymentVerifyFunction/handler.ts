@@ -1,6 +1,5 @@
 import type { JsonTransaction, VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
@@ -55,10 +54,10 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
       }
     }
 
-    return response<VerifyPaymentResponse>(200, { status, paymentStatus, eventId, registrationId }, event)
+    return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status }, event)
   } catch (e) {
     console.error(e)
-    return response<VerifyPaymentResponse>(200, { status: 'error', paymentStatus, eventId, registrationId }, event)
+    return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status: 'error' }, event)
   }
 })
 

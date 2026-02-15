@@ -1,7 +1,4 @@
 import type { Theme } from '@mui/material'
-
-import { useTranslation } from 'react-i18next'
-import { NavLink } from 'react-router'
 import Accessibility from '@mui/icons-material/Accessibility'
 import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined'
 import Event from '@mui/icons-material/Event'
@@ -14,18 +11,18 @@ import Support from '@mui/icons-material/Support'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
+import { useTranslation } from 'react-i18next'
+import { NavLink } from 'react-router'
 import { useRecoilValue } from 'recoil'
-
 import { runMigrations } from '../../api/migrate'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { idTokenAtom, isAdminSelector } from '../recoil'
 import { useUserActions } from '../recoil/user/actions'
-
+import { AsyncButton } from './AsyncButton'
 import DrawerItem from './sideMenu/DrawerItem'
 import DrawerList from './sideMenu/DrawerList'
 import MiniDrawer from './sideMenu/MiniDrawer'
-import { AsyncButton } from './AsyncButton'
 
 interface Props {
   readonly open?: boolean

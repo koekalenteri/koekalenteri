@@ -10,10 +10,10 @@ export const linkHandler: Handler = (state, node: Link) => {
   }
 
   const link: Element = {
-    type: 'element',
-    tagName: 'a',
-    properties: props,
     children: state.all(node),
+    properties: props,
+    tagName: 'a',
+    type: 'element',
   }
 
   return link

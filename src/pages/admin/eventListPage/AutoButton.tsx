@@ -1,5 +1,4 @@
 import type { ButtonProps, Theme } from '@mui/material'
-
 import { useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
@@ -20,7 +19,7 @@ export default function AutoButton(props: Props) {
         <IconButton color="primary" {...rest}>
           {startIcon ?? endIcon}
         </IconButton>
-        <Typography variant="caption" noWrap sx={{ textAlign: 'center', width: 56, overflow: 'hidden' }}>
+        <Typography variant="caption" noWrap sx={{ overflow: 'hidden', textAlign: 'center', width: 56 }}>
           {text}
         </Typography>
       </Stack>

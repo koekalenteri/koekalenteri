@@ -1,11 +1,9 @@
 import type { GridRenderCellParams } from '@mui/x-data-grid'
 import type { ChangeEvent } from 'react'
 import type { Judge } from '../../../../types'
-
-import { useCallback } from 'react'
 import Switch from '@mui/material/Switch'
+import { useCallback } from 'react'
 import { useRecoilValue } from 'recoil'
-
 import { isAdminSelector } from '../../../recoil'
 import { useAdminJudgesActions } from '../../recoil'
 

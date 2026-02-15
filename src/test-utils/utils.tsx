@@ -3,12 +3,11 @@ import type { Options } from '@testing-library/user-event/dist/types/options'
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { RouteObject, RouterInit } from 'react-router'
 import type { RecoilValue } from 'recoil'
-
-import { act, useEffect } from 'react'
-import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router'
 import { render } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import mediaQuery from 'css-mediaquery'
+import { act, useEffect } from 'react'
+import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router'
 import { useRecoilValue } from 'recoil'
 
 /**
@@ -52,14 +51,14 @@ export const flushPromises = async (timers: boolean = true) => {
 export const createMatchMedia =
   (width: number) =>
   (query: string): MediaQueryList => ({
+    addEventListener: jest.fn(),
+    addListener: jest.fn(), // deprecated
+    dispatchEvent: jest.fn(),
     matches: mediaQuery.match(query, { width }),
     media: query,
     onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
     removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    removeListener: jest.fn(), // deprecated
   })
 
 export function RecoilObserver<T>({

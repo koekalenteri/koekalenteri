@@ -1,6 +1,5 @@
 import type { DropTargetMonitor, XYCoord } from 'react-dnd'
 import type { DragItem } from '../types'
-
 import { determinePosition } from './position'
 
 describe('position utility', () => {
@@ -9,22 +8,22 @@ describe('position utility', () => {
     const mockRef = {
       current: {
         getBoundingClientRect: () => ({
-          top: 100,
           bottom: 140,
+          height: 40,
           left: 0,
           right: 100,
+          top: 100,
           width: 100,
-          height: 40,
         }),
       },
     } as React.RefObject<HTMLDivElement>
 
     // Create a mock item
     const mockItem = {
-      id: 'test-id',
-      groups: ['group1'],
-      index: 2,
       groupKey: 'group1',
+      groups: ['group1'],
+      id: 'test-id',
+      index: 2,
     } as DragItem
 
     // Create a mock monitor

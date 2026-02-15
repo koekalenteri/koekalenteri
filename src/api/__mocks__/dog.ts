@@ -1,5 +1,4 @@
 import type { Dog } from '../../types'
-
 import {
   registrationDogAged10MonthsAndNoResults,
   registrationDogAged20MonthsAndNoResults,
@@ -7,14 +6,14 @@ import {
 } from '../../__mockData__/dogs'
 
 const defaultDog = (regNo: string): Dog => ({
-  regNo,
-  name: 'Test Dog',
-  rfid: 'rfid',
+  breedCode: '121',
   dob: new Date('20220101T00:00:00'),
   gender: 'M',
-  breedCode: '121',
-  titles: '',
+  name: 'Test Dog',
+  regNo,
   results: [],
+  rfid: 'rfid',
+  titles: '',
 })
 
 const mockDogs: Dog[] = [

@@ -1,5 +1,4 @@
 import fetchMock from 'jest-fetch-mock'
-
 import mockResponse from './__mocks__/paymentCreate.response.json'
 import { createPayment } from './payment'
 

@@ -1,8 +1,8 @@
 import * as storageLib from '../../../lib/client/storage'
 import * as envLib from '../../../lib/env'
 import * as versionLib from '../../../lib/version'
-
 import { cleanPre112, runCleaners } from './storageCleaners'
+
 describe('storageCleaners', () => {
   afterEach(() => {
     jest.resetAllMocks()

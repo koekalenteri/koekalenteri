@@ -1,6 +1,5 @@
 import type { JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
 import { i18n } from '../../i18n/lambda'
 import { getCostSegmentName } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
@@ -44,11 +43,11 @@ const handleSuccessfulPayment = async (
     { eventId, id: registrationId },
     {
       set: {
+        confirmed: registration.confirmed ?? false,
         paidAmount: registration.paidAmount,
         paidAt: registration.paidAt,
         paymentStatus: registration.paymentStatus,
         state: registration.state,
-        confirmed: registration.confirmed ?? false,
       },
     },
     registrationTable
@@ -77,12 +76,12 @@ const handleSuccessfulPayment = async (
     await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
       ...templateData,
       ...transaction,
-      createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-      registrationCostName,
-      registrationCost,
-      optionalCosts,
       amount: formatMoney(paidAmount),
+      createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+      optionalCosts,
       previouslyPaid: previouslyPaid ? formatMoney(previouslyPaid) : undefined,
+      registrationCost,
+      registrationCostName,
       totalPaid: formatMoney(previouslyPaid + paidAmount),
     })
 

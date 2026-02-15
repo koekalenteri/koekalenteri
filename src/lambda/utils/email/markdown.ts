@@ -1,13 +1,11 @@
 import type { Template } from '@aws-sdk/client-ses'
 import type { Plugin } from 'unified'
-
 import remarkBreaks from 'remark-breaks'
 import remarkGfm from 'remark-gfm'
 import remarkHtml from 'remark-html'
 import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
-
 import { linkHandler } from './mdast2hast/link'
 import { tableHandler } from './mdast2hast/table'
 import { linkAsText } from './mdast2text/link'
@@ -19,10 +17,10 @@ export async function markdownToTemplate(templateName: string, source: string): 
   const html = await markdownToHtml(source)
 
   return {
-    TemplateName: templateName,
-    SubjectPart: subject,
-    TextPart: String(text),
     HtmlPart: String(html),
+    SubjectPart: subject,
+    TemplateName: templateName,
+    TextPart: String(text),
   }
 }
 
@@ -54,7 +52,7 @@ export async function markdownToHtml(source: string): Promise<string> {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkBreaks)
-    .use(remarkHtml, { handlers: { table: tableHandler, link: linkHandler } })
+    .use(remarkHtml, { handlers: { link: linkHandler, table: tableHandler } })
     .process(source)
 
   return String(html)

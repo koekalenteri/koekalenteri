@@ -1,6 +1,5 @@
 import type { GridRenderCellParams } from '@mui/x-data-grid'
 import type { EventType } from '../../../../types'
-
 import CheckBoxOutlineBlankOutlined from '@mui/icons-material/CheckBoxOutlineBlankOutlined'
 import CheckBoxOutlined from '@mui/icons-material/CheckBoxOutlined'
 

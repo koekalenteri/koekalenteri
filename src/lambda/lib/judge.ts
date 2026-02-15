@@ -1,12 +1,9 @@
 import type { JsonJudge, Judge, RequireAllKeys } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-
 import { diff } from 'deep-object-diff'
-
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
-
 import { capitalize } from './string'
 
 const { judgeTable } = CONFIG
@@ -23,8 +20,8 @@ export const fetchJudgesForEventTypes = async (
 
   for (const eventType of eventTypes) {
     const { status, json, error } = await klapi.lueKoemuodonYlituomarit({
-      Koemuoto: eventType,
       Kieli: KLKieli.Suomi,
+      Koemuoto: eventType,
     })
 
     if (status !== 200 || !json || error) {
@@ -42,14 +39,14 @@ export const fetchJudgesForEventTypes = async (
       const name = capitalize(item.nimi)
       const location = capitalize(item.paikkakunta)
       judges.push({
-        id: item.jäsennumero,
-        name,
-        location,
         district: item.kennelpiiri,
         email: item.sähköposti.toLocaleLowerCase(),
-        phone: item.puhelin,
         eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
+        id: item.jäsennumero,
+        location,
+        name,
         official: true,
+        phone: item.puhelin,
       })
     }
   }
@@ -83,9 +80,9 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
     console.log(`new judge: ${judge.name} (${judge.id})`)
     const added: JsonJudge = {
       active: true,
-      languages: [],
       createdAt: now,
       createdBy: 'system',
+      languages: [],
       modifiedAt: now,
       modifiedBy: 'system',
       ...judge,

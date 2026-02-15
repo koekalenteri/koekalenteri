@@ -1,16 +1,14 @@
-import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen, within } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import theme from '../../../../../assets/Theme'
 import { locales } from '../../../../../i18n'
 import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
-
 import { AddCostDialog } from './AddCostDialog'
 
 const renderAddCostDialog = (props: any) => {
@@ -46,12 +44,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -67,12 +65,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -88,12 +86,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -113,12 +111,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -138,12 +136,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -159,7 +157,7 @@ describe('AddCostDialog', () => {
       await flushPromises()
 
       expect(onAdd).toHaveBeenCalledWith('optionalAdditionalCosts', {
-        description: { fi: 'Testi kuvaus', en: 'Test description' },
+        description: { en: 'Test description', fi: 'Testi kuvaus' },
       })
       expect(onClose).toHaveBeenCalled()
     })
@@ -169,12 +167,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -190,7 +188,7 @@ describe('AddCostDialog', () => {
       await flushPromises()
 
       expect(onAdd).toHaveBeenCalledWith('optionalAdditionalCosts', {
-        description: { fi: 'Testi kuvaus', en: 'Test description' },
+        description: { en: 'Test description', fi: 'Testi kuvaus' },
       })
     })
 
@@ -199,12 +197,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -218,12 +216,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -237,12 +235,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -262,12 +260,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user, rerender } = renderAddCostDialog({
-        open: true,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -320,12 +318,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['earlyBird', 'custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -340,12 +338,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['earlyBird'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -359,12 +357,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['earlyBird', 'custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -378,12 +376,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['earlyBird', 'custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -405,12 +403,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['breed', 'custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -431,12 +429,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -450,12 +448,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -473,12 +471,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['custom'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -495,7 +493,7 @@ describe('AddCostDialog', () => {
       await flushPromises()
 
       expect(onAdd).toHaveBeenCalledWith('custom', {
-        description: { fi: 'Erikoismaksu', en: 'Special fee' },
+        description: { en: 'Special fee', fi: 'Erikoismaksu' },
       })
       expect(onClose).toHaveBeenCalled()
     })
@@ -505,12 +503,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['breed'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -537,12 +535,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['breed'],
         existingBreedCodes: ['001'],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -561,12 +559,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       const { user } = renderAddCostDialog({
-        open: true,
-        mode: 'other',
         availableKeys: ['earlyBird'],
         existingBreedCodes: [],
-        onClose,
+        mode: 'other',
         onAdd,
+        onClose,
+        open: true,
       })
 
       await flushPromises()
@@ -586,12 +584,12 @@ describe('AddCostDialog', () => {
       const onAdd = jest.fn()
 
       renderAddCostDialog({
-        open: false,
-        mode: 'optional',
         availableKeys: [],
         existingBreedCodes: [],
-        onClose,
+        mode: 'optional',
         onAdd,
+        onClose,
+        open: false,
       })
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

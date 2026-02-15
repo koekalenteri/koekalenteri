@@ -1,9 +1,7 @@
 import type { DogCache } from '../../../recoil/dog'
-
-import { act } from 'react'
 import { renderHook } from '@testing-library/react'
+import { act } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { filterInvalid, useDogCache } from './useDogCache'
 
 jest.spyOn(Storage.prototype, 'setItem')
@@ -59,10 +57,10 @@ describe('useDogCache', () => {
 describe('filterInvalid', () => {
   it('should return cache object with invalid entries removed', () => {
     const invalidCache: DogCache = {
+      ' FI123456/12': {},
       asdf: {},
       'FI123456/12': {},
       'FI123456/12 ': {},
-      ' FI123456/12': {},
     }
     expect(filterInvalid(invalidCache)).toEqual({ 'FI123456/12': {} })
   })

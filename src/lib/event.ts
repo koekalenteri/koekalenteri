@@ -9,12 +9,9 @@ import type {
   SanitizedPublicConfirmedDogEvent,
   SanitizedPublicDogEvent,
 } from '../types'
-
 import { tz } from '@date-fns/tz'
 import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, sub } from 'date-fns'
-
 import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
-
 import { unique } from './utils'
 
 export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
@@ -47,8 +44,8 @@ export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Da
 export const getEventDays = ({ startDate, endDate }: Pick<DogEvent, 'startDate' | 'endDate'>) =>
   eachDayOfInterval(
     {
-      start: startDate,
       end: endDate,
+      start: startDate,
     },
     { in: tz(TIME_ZONE) }
   )
@@ -58,14 +55,14 @@ export const getUniqueEventClasses = ({ classes }: Pick<DogEvent, 'classes'>) =>
 
 export const getEventClassesByDays = (event: Pick<DogEvent, 'startDate' | 'endDate' | 'classes'>) =>
   getEventDays(event).map((day) => ({
-    day,
     classes: event.classes?.filter((c) => isSameDay(c.date ?? event.startDate, day)) ?? [],
+    day,
   }))
 
 // IMPORTANT: Use event timezone (Europe/Helsinki) when generating date keys.
 // Using `Date.toISOString().slice(0, 10)` would key by *UTC day*, which can differ
 // from the event day for users in other timezones and would make DnD/group matching fail.
-export const eventRegistrationDateKey = (rd: RegistrationDate) => zonedDateString(rd.date) + '-' + rd.time
+export const eventRegistrationDateKey = (rd: RegistrationDate) => `${zonedDateString(rd.date)}-${rd.time}`
 
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent
@@ -95,7 +92,8 @@ const groupDates = (dates: RegistrationDate[]): Record<number, RegistrationTime[
       if (!cur.time) return acc
 
       const dateValue = cur.date.valueOf()
-      const group = acc[dateValue] || (acc[dateValue] = [])
+      if (!acc[dateValue]) acc[dateValue] = []
+      const group = acc[dateValue]
       group.push(cur.time)
       return acc
     },
@@ -157,7 +155,7 @@ export const applyNewGroupsToDogEventDates = (
   defaultGroups: RegistrationTime[],
   newDates: RegistrationDate[]
 ): Pick<DogEvent, 'classes' | 'dates'> => {
-  const dateValues = getEventDays({ startDate, endDate }).map((date) => date.valueOf())
+  const dateValues = getEventDays({ endDate, startDate }).map((date) => date.valueOf())
   const oldByDate = groupDates(dates ?? [])
   const newByDate = groupDates(newDates)
   const finalDates: RegistrationDate[] = []
@@ -168,14 +166,14 @@ export const applyNewGroupsToDogEventDates = (
     const date = new Date(dateValue)
     const oldTimes = oldByDate[dateValue]
 
-    resolveTimes(newTimes, oldTimes).forEach((time) => finalDates.push({ date, time }))
+    resolveTimes(newTimes, oldTimes).map((time) => finalDates.push({ date, time }))
   }
   // for dates that do not have any times selected, use defaults or 'kp' if last removed value vas something else than 'kp'
   for (const dateValue of dateValues) {
     if (!newByDate[dateValue]?.length) {
       const date = new Date(dateValue)
       if (oldByDate[dateValue]?.filter((t) => t !== 'kp').length) finalDates.push({ date, time: 'kp' })
-      else defaultGroups.forEach((time) => finalDates.push({ date, time }))
+      else defaultGroups.map((time) => finalDates.push({ date, time }))
     }
   }
 
@@ -194,7 +192,7 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   const days = differenceInDays(copy.endDate, copy.startDate)
 
   copy.id = ''
-  copy.name = 'Kopio - ' + (copy.name ?? '')
+  copy.name = `Kopio - ${copy.name ?? ''}`
   copy.state = 'draft'
   copy.entries = copy.members = 0
 
@@ -219,6 +217,7 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
       const originalDate = new Date(dateStr)
       const newDate = addDays(originalDate, dayDiff)
       const newDateStr = formatDate(newDate, 'yyyy-MM-dd')
+      // biome-ignore lint/style/noNonNullAssertion: its set couple of lines above
       copy.placesPerDay![newDateStr] = places
     })
   }

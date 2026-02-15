@@ -1,7 +1,4 @@
 import type { PublicDogEvent, Registration } from '../../types'
-
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 import { Button } from '@aws-amplify/ui-react'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
@@ -11,7 +8,8 @@ import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
-
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
@@ -48,15 +46,15 @@ export const InfoBox = ({ event, registration }: Props) => {
   const needsPayment = Boolean(registration.shouldPay)
 
   return (
-    <Paper sx={{ bgcolor: 'background.selected', p: 1, m: 1 }}>
+    <Paper sx={{ bgcolor: 'background.selected', m: 1, p: 1 }}>
       <List disablePadding>
         <ListItem disablePadding>
-          <ListItemIcon sx={{ minWidth: 32, color: priorityIconColor(event, registration) }}>
+          <ListItemIcon sx={{ color: priorityIconColor(event, registration), minWidth: 32 }}>
             <PersonOutline fontSize="small" />
           </ListItemIcon>
           <ListItemText
             primary={t(priorityStatus(event, registration))}
-            slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
+            slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
           />
         </ListItem>
         <ListItem
@@ -69,7 +67,7 @@ export const InfoBox = ({ event, registration }: Props) => {
             ) : null
           }
         >
-          <ListItemIcon sx={{ minWidth: 32, color: paymentIconColor(registration) }}>
+          <ListItemIcon sx={{ color: paymentIconColor(registration), minWidth: 32 }}>
             <EuroOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText
@@ -78,17 +76,17 @@ export const InfoBox = ({ event, registration }: Props) => {
                 ? `${t(getPaymentStatus(registration, event))} (${registration.totalAmount}€)`
                 : t(getPaymentStatus(registration, event))
             }
-            slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
+            slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
             sx={{ pr: needsPayment ? 12 : 0 }}
           />
         </ListItem>
         <ListItem disablePadding>
-          <ListItemIcon sx={{ minWidth: 32, color: 'primary.main' }}>
+          <ListItemIcon sx={{ color: 'primary.main', minWidth: 32 }}>
             <CheckOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText
             primary={t(registrationStatus(registration))}
-            slotProps={{ primary: { variant: 'subtitle1', fontWeight: 'bold' } }}
+            slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
           />
         </ListItem>
       </List>

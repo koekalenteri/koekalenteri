@@ -5,11 +5,11 @@ const NoRowsOverlay = () => {
     <Box
       className="no-rows"
       sx={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center',
+        display: 'flex',
+        height: '100%',
+        justifyContent: 'center',
+        width: '100%',
       }}
     >
       Raahaa osallistujat tähän!

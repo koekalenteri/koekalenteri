@@ -1,5 +1,4 @@
 import type { GetParametersCommandOutput } from '@aws-sdk/client-ssm'
-
 import { jest } from '@jest/globals'
 
 // Mock AWS SDK with proper typing
@@ -7,10 +6,10 @@ const mockSend = jest.fn().mockImplementation(() => Promise.resolve({} as GetPar
 
 jest.mock('@aws-sdk/client-ssm', () => ({
   __esModule: true,
+  GetParametersCommand: jest.fn().mockImplementation((params) => params),
   SSMClient: jest.fn().mockImplementation(() => ({
     send: mockSend,
   })),
-  GetParametersCommand: jest.fn().mockImplementation((params) => params),
 }))
 
 // Mock CONFIG
@@ -263,9 +262,9 @@ describe('secrets', () => {
 
       // Verify the result
       expect(result).toEqual({
-        KL_API_URL: 'https://api.example.com',
-        KL_API_UID: 'test-uid',
         KL_API_PWD: 'test-pwd',
+        KL_API_UID: 'test-uid',
+        KL_API_URL: 'https://api.example.com',
       })
     })
 

@@ -1,11 +1,9 @@
 import { render, screen } from '@testing-library/react'
-
 import {
   eventWithEntryClosed,
   eventWithEntryOpen,
   eventWithEntryOpenButNoEntries,
 } from '../../../../__mockData__/events'
-
 import { EventPlaces } from './EventPlaces'
 
 describe('EventInfo', () => {

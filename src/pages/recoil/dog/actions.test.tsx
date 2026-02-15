@@ -1,13 +1,10 @@
 import type { DeepPartial, Dog } from '../../../types'
 import type { DogCachedInfo } from './atoms'
-
 import { act, renderHook } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-
 import { getDog } from '../../../api/dog'
 import { emptyDog } from '../../../lib/data'
 import { RecoilObserver } from '../../../test-utils/utils'
-
 import { useDogActions } from './actions'
 import { dogAtom, dogCacheAtom } from './atoms'
 
@@ -27,8 +24,8 @@ const mockGetDog = getDog as jest.MockedFunction<typeof getDog>
 describe('useDogActions', () => {
   const testRegNo = 'TEST123/45'
   const testDog: Dog = {
-    regNo: testRegNo,
     name: 'Test Dog',
+    regNo: testRegNo,
     results: [],
   }
 
@@ -154,8 +151,8 @@ describe('useDogActions', () => {
 
       const cachedInfo: DeepPartial<DogCachedInfo> = {
         dog: {
-          titles: 'Champion',
           rfid: '123456789',
+          titles: 'Champion',
         },
         rfid: true,
       }
@@ -184,8 +181,8 @@ describe('useDogActions', () => {
     it('returns cached dog when manually input (no refreshDate)', async () => {
       // Create a manually input cached dog (no refreshDate)
       const cachedDog: DeepPartial<Dog> = {
-        regNo: testRegNo,
         name: 'Manually Input Dog',
+        regNo: testRegNo,
         results: [],
       }
 
@@ -325,14 +322,14 @@ describe('useDogActions', () => {
     it('preserves user edits to sire and dam when KL returns different values', async () => {
       const dogFromKL: Dog = {
         ...testDog,
-        sire: { name: 'KL Sire Name' },
         dam: { name: 'KL Dam Name' },
+        sire: { name: 'KL Sire Name' },
       }
 
       const cachedInfo: DeepPartial<DogCachedInfo> = {
         dog: {
-          sire: { name: 'User Edited Sire' },
           dam: { name: 'User Edited Dam' },
+          sire: { name: 'User Edited Sire' },
         },
       }
 
@@ -363,18 +360,18 @@ describe('useDogActions', () => {
     it('does not override KL data when cache values are empty', async () => {
       const dogFromKL: Dog = {
         ...testDog,
-        titles: 'CH',
+        dam: { name: 'KL Dam Name' },
         rfid: '123456789',
         sire: { name: 'KL Sire Name' },
-        dam: { name: 'KL Dam Name' },
+        titles: 'CH',
       }
 
       const cachedInfo: DeepPartial<DogCachedInfo> = {
         dog: {
-          titles: '',
+          dam: { name: '' },
           rfid: '',
           sire: { name: '' },
-          dam: { name: '' },
+          titles: '',
         },
       }
 
@@ -505,8 +502,8 @@ describe('useDogActions', () => {
     it('handles diff/hasChanges logic correctly', async () => {
       // Set up initial dog in Recoil state
       const initialDog: Dog = {
-        regNo: testRegNo,
         name: 'Initial Dog',
+        regNo: testRegNo,
         results: [],
       }
 
@@ -559,9 +556,9 @@ describe('useDogActions', () => {
       // Create cache with titles, rfid, and dob
       const cacheWithTitlesRfidDob: DeepPartial<DogCachedInfo> = {
         dog: {
-          titles: 'Champion',
-          rfid: '123456789',
           dob: new Date('2020-05-15'),
+          rfid: '123456789',
+          titles: 'Champion',
         },
       }
 

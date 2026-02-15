@@ -1,13 +1,10 @@
 import type { ReactNode } from 'react'
-
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
-
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-
 import { TimeLeft } from './TimeLeft'
 
 function Wrapper({ children }: { readonly children: ReactNode }) {

@@ -7,14 +7,11 @@ import type {
   RegistrationGroupInfo,
 } from '../../../../types'
 import type { DragItem } from './types'
-
-import { useTranslation } from 'react-i18next'
 import { useSnackbar } from 'notistack'
-
+import { useTranslation } from 'react-i18next'
 import { rum } from '../../../../lib/client/rum'
 import { eventRegistrationDateKey } from '../../../../lib/event'
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
-
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
 import { determineChangesFromDrop } from './dnd'
 
 interface UseDnDHandlersArgs {
@@ -55,10 +52,10 @@ export const useDnDHandlers = ({
     if (requiresConfirm) {
       const extra = state === 'invited' ? ' sekä koekutsu' : ''
       const { confirmed } = await confirm({
-        title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
-        description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
-        confirmationText: 'Lisää osallistujiin',
         cancellationText: t('cancel'),
+        confirmationText: 'Lisää osallistujiin',
+        description: `Kun koirakko on lisätty, koirakolle lähtee vahvistusviesti koepaikasta${extra}. Oletko varma että haluat lisätä koiran ${reg.dog.name} osallistujiin?`,
+        title: `Olet lisäämässä koiraa ${reg.dog.name} osallistujiin`,
       })
       if (!confirmed) return
     }
@@ -98,12 +95,12 @@ export const useDnDHandlers = ({
     }
 
     rum()?.recordEvent('dnd-group-rejected', {
-      eventId: reg.eventId,
-      registrationId: reg.id,
-      targetGroup: group.key,
-      sourceGroup: reg.group?.key,
-      regGroups: reg.dates.map((rd: RegistrationDate) => eventRegistrationDateKey(rd)).join(', '),
       dropGroups: item.groups.join(', '),
+      eventId: reg.eventId,
+      regGroups: reg.dates.map((rd: RegistrationDate) => eventRegistrationDateKey(rd)).join(', '),
+      registrationId: reg.id,
+      sourceGroup: reg.group?.key,
+      targetGroup: group.key,
     })
     enqueueSnackbar({ message: `Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, variant: 'error' })
   }

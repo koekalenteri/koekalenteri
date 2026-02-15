@@ -1,7 +1,5 @@
 import type { DogEvent, PublicDogEvent } from '../../types'
-
 import { parseISO } from 'date-fns'
-
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import {
   eventWithEntryClosed,
@@ -22,19 +20,19 @@ export const mockEvents: DogEvent[] = [
   eventWithStaticDatesAnd3Classes,
   {
     ...emptyEvent,
+    // NOTE: Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent). Use a stable instant.
+    classes: [{ class: 'AVO', date: parseISO('2021-02-12T12:00:00Z') }],
+    endDate: parseISO('2021-02-13T12:00:00Z'),
+    entryEndDate: parseISO('2021-02-12T12:00:00Z'),
+    entryStartDate: parseISO('2021-02-01T12:00:00Z'),
+    eventType: 'NOME-B',
     id: 'test2',
+    judges: [{ id: 223, name: 'Tuomari 2' }],
     organizer: {
       id: '2',
       name: 'Järjestäjä 2',
     },
-    eventType: 'NOME-B',
-    // NOTE: Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent). Use a stable instant.
-    classes: [{ class: 'AVO', date: parseISO('2021-02-12T12:00:00Z') }],
     startDate: parseISO('2021-02-12T12:00:00Z'),
-    endDate: parseISO('2021-02-13T12:00:00Z'),
-    entryStartDate: parseISO('2021-02-01T12:00:00Z'),
-    entryEndDate: parseISO('2021-02-12T12:00:00Z'),
-    judges: [{ id: 223, name: 'Tuomari 2' }],
   },
   eventWithEntryOpen,
   eventWithEntryNotYetOpen,
@@ -70,7 +68,7 @@ export async function putEvent(event: DogEvent, _token?: string, _signal?: Abort
   return new Promise((resolve, reject) => {
     let existing: DogEvent | undefined = event
     if (!event.id) {
-      event.id = 'test' + (mockEvents.length + 1)
+      event.id = `test${mockEvents.length + 1}`
       mockEvents.push(event)
     } else {
       existing = mockEvents.find((e) => e.id === event.id)

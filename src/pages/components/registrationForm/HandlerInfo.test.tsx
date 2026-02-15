@@ -1,18 +1,15 @@
 import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
-
-import { Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { locales } from '../../../i18n'
 import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { HandlerInfo } from './HandlerInfo'
 
 jest.mock('../../../api/dog')
@@ -64,19 +61,19 @@ describe('HadnlerInfo', () => {
     await user.clear(phoneInput)
     await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { membership: false, name: '', email: '', location: '', phone: '' },
+      handler: { email: '', location: '', membership: false, name: '', phone: '' },
     })
 
     await user.type(input, 'test handler')
     await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { membership: false, name: 'test handler', email: '', location: '', phone: '' },
+      handler: { email: '', location: '', membership: false, name: 'test handler', phone: '' },
     })
 
     await user.type(locationInput, 'test city')
     await flushPromises()
     expect(onChange).toHaveBeenLastCalledWith({
-      handler: { location: 'test city', membership: false, name: 'test handler', email: '', phone: '' },
+      handler: { email: '', location: 'test city', membership: false, name: 'test handler', phone: '' },
     })
 
     await user.type(emailInput, ' test@exmaple.com \n')

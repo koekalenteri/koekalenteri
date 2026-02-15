@@ -1,7 +1,6 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
-
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
+import { useTranslation } from 'react-i18next'
 
 interface EventHeaderProps {
   event: PublicConfirmedEvent

@@ -1,6 +1,4 @@
 import type { ReactNode } from 'react'
-
-import { useState } from 'react'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'
@@ -8,6 +6,7 @@ import Collapse from '@mui/material/Collapse'
 import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
+import { useState } from 'react'
 
 interface Props {
   readonly border?: boolean
@@ -45,25 +44,25 @@ export default function CollapsibleSection({
   return (
     <Box
       sx={{
-        display: 'flex',
         alignItems: 'flex-start',
-        pr: { xs: 0.5, sm: 1 },
-        borderTop: border ? '2px solid' : 'none',
         borderColor: 'background.selected',
+        borderTop: border ? '2px solid' : 'none',
+        display: 'flex',
+        pr: { sm: 1, xs: 0.5 },
       }}
     >
       <IconButton size="small" color={'primary'} onClick={toggle} disabled={controlled && !onOpenChange}>
         {isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
-      <Box sx={{ pt: '5px', width: 'calc(100% - 34px)', overflowX: 'auto' }}>
-        <Box sx={{ userSelect: 'none', mb: '2px' }} onClick={toggle}>
+      <Box sx={{ overflowX: 'auto', pt: '5px', width: 'calc(100% - 34px)' }}>
+        <Box sx={{ mb: '2px', userSelect: 'none' }} onClick={toggle}>
           <Typography>{title}</Typography>
           <FormHelperText error={error} sx={{ color: 'success.main', display: helperText ? 'block' : 'none' }}>
             {helperText}
           </FormHelperText>
         </Box>
         <Collapse in={isOpen} timeout="auto">
-          <Box sx={{ p: { xs: 0.5, sm: 1 }, borderTop: '1px dashed #bdbdbd' }}>{children}</Box>
+          <Box sx={{ borderTop: '1px dashed #bdbdbd', p: { sm: 1, xs: 0.5 } }}>{children}</Box>
         </Collapse>
       </Box>
     </Box>

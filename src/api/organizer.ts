@@ -1,5 +1,4 @@
 import type { Organizer } from '../types'
-
 import http, { withToken } from './http'
 
 const PATH = '/admin/organizer/'

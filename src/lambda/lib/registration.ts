@@ -1,13 +1,10 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
-
 import { diff } from 'deep-object-diff'
-
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { audit, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
@@ -125,7 +122,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       console.error(e)
     }
   }
-  return { ok, failed }
+  return { failed, ok }
 }
 
 export const isParticipantGroup = (group?: string): boolean =>
@@ -160,7 +157,7 @@ export const groupRegistrationsByClassAndGroup = (
     for (const reg of classRegs) {
       if (!isParticipantGroup(reg.group?.key)) continue
 
-      const groupKey = reg.group!.key
+      const groupKey = reg.group?.key ?? GROUP_KEY_RESERVE
       result[classKey][groupKey] = result[classKey][groupKey] || []
       result[classKey][groupKey].push(reg)
     }
@@ -199,8 +196,8 @@ export const findExistingRegistrationToEventForDog = async (
 ): Promise<JsonRegistration | undefined> => {
   const existingRegistrations = await dynamoDB.query<JsonRegistration>({
     key: 'eventId = :eventId',
-    values: { ':eventId': eventId },
     table: registrationTable,
+    values: { ':eventId': eventId },
   })
   const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
 
@@ -233,5 +230,5 @@ export const getRegistrationChanges = (existing: JsonRegistration, data: JsonReg
     }
   }
 
-  return modified.length ? 'Muutti: ' + modified.join(', ') : ''
+  return modified.length ? `Muutti: ${modified.join(', ')}` : ''
 }

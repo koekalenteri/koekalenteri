@@ -1,6 +1,5 @@
 import type { Locale } from 'date-fns'
 import type { Language } from '../types'
-
 import { tz } from '@date-fns/tz'
 import {
   endOfDay,
@@ -53,7 +52,7 @@ export const getDateFormatter =
 
 export function formatDateSpan(
   start: Date | string,
-  lng: string | undefined,
+  _lng: string | undefined,
   { end, noYear, parentheses }: { end: Date | string; noYear?: boolean; parentheses?: boolean },
   timeZone = TIME_ZONE
 ): string {
@@ -77,12 +76,12 @@ export function formatDateSpan(
     return format(start, `${prefix}d.M.${y}${suffix}`, opts)
   }
   if (isSameMonth(start, end, opts)) {
-    return format(start, `${prefix}d.`, opts) + '–' + format(end, `d.M.${y}${suffix}`, opts)
+    return `${format(start, `${prefix}d.`, opts)}–${format(end, `d.M.${y}${suffix}`, opts)}`
   }
   if (isSameYear(start, end)) {
-    return format(start, `${prefix}d.M.`, opts) + '–' + format(end, `d.M.${y}${suffix}`, opts)
+    return `${format(start, `${prefix}d.M.`, opts)}–${format(end, `d.M.${y}${suffix}`, opts)}`
   }
-  return format(start, `${prefix}d.M.${y}`, opts) + '–' + format(end, `d.M.${y}${suffix}`, opts)
+  return `${format(start, `${prefix}d.M.${y}`, opts)}–${format(end, `d.M.${y}${suffix}`, opts)}`
 }
 
 export function formatDistance(date?: Date, lng?: string): string {

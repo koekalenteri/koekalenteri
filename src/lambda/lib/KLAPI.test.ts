@@ -1,15 +1,12 @@
 import type { KLAPIConfig } from '../types/KLAPI'
-
 import { jest } from '@jest/globals'
-
 import { KLKieli } from '../types/KLAPI'
-
 import KLAPI from './KLAPI'
 
 const mockConfig: KLAPIConfig = {
-  KL_API_URL: 'https://api.koiraklubi.fi',
-  KL_API_UID: 'testuser',
   KL_API_PWD: 'testpassword',
+  KL_API_UID: 'testuser',
+  KL_API_URL: 'https://api.koiraklubi.fi',
 }
 
 const mockLoadConfig = jest.fn(async () => mockConfig)
@@ -38,14 +35,14 @@ describe('KLAPI', () => {
 
   describe('lueKoiranPerustiedot', () => {
     it('should return dog data on successful fetch', async () => {
-      const mockDog = { rekisterinumero: 'FI12345/21', nimi: 'Testikoira', rotu: 'Testirotu', kuollut: false }
+      const mockDog = { kuollut: false, nimi: 'Testikoira', rekisterinumero: 'FI12345/21', rotu: 'Testirotu' }
       ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
-        ok: true,
         json: async () => mockDog,
+        ok: true,
         status: 200,
       })
 
-      const result = await klapi.lueKoiranPerustiedot({ Rekisterinumero: 'FI12345/21', Kieli: KLKieli.Suomi })
+      const result = await klapi.lueKoiranPerustiedot({ Kieli: KLKieli.Suomi, Rekisterinumero: 'FI12345/21' })
 
       expect(result.json).toEqual(mockDog)
       expect(result.status).toBe(200)
@@ -54,26 +51,26 @@ describe('KLAPI', () => {
     it('should return 404 if rekisterinumero is missing from response', async () => {
       const mockDog = { nimi: 'Testikoira', rotu: 'Testirotu' }
       ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
-        ok: true,
         json: async () => mockDog,
+        ok: true,
         status: 200,
       })
 
-      const result = await klapi.lueKoiranPerustiedot({ Rekisterinumero: 'FI12345/21', Kieli: KLKieli.Suomi })
+      const result = await klapi.lueKoiranPerustiedot({ Kieli: KLKieli.Suomi, Rekisterinumero: 'FI12345/21' })
 
       expect(result.status).toBe(404)
       expect(result.error).toBe('not found')
     })
 
     it('should return 404 if dog is deceased', async () => {
-      const mockDog = { rekisterinumero: 'FI12345/21', nimi: 'Testikoira', rotu: 'Testirotu', kuollut: true }
+      const mockDog = { kuollut: true, nimi: 'Testikoira', rekisterinumero: 'FI12345/21', rotu: 'Testirotu' }
       ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
-        ok: true,
         json: async () => mockDog,
+        ok: true,
         status: 200,
       })
 
-      const result = await klapi.lueKoiranPerustiedot({ Rekisterinumero: 'FI12345/21', Kieli: KLKieli.Suomi })
+      const result = await klapi.lueKoiranPerustiedot({ Kieli: KLKieli.Suomi, Rekisterinumero: 'FI12345/21' })
 
       expect(result.status).toBe(404)
       expect(result.error).toBe('diseased')
@@ -86,17 +83,17 @@ describe('KLAPI', () => {
 
     it('should filter out undefined params', async () => {
       ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
-        ok: true,
         json: async () => ({ rekisterinumero: 'FI12345/21' }),
+        ok: true,
         status: 200,
       })
       await klapi.lueKoiranPerustiedot({
-        Rekisterinumero: 'FI12345/21',
         Kieli: KLKieli.Suomi,
+        Rekisterinumero: 'FI12345/21',
         Tunnistusmerkintä: undefined,
       })
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.koiraklubi.fi/Koira/Lue/Perustiedot?Rekisterinumero=FI12345%2F21&Kieli=1',
+        'https://api.koiraklubi.fi/Koira/Lue/Perustiedot?Kieli=1&Rekisterinumero=FI12345%2F21',
         expect.any(Object)
       )
     })
@@ -104,15 +101,15 @@ describe('KLAPI', () => {
 
   describe('lueKoiranKoetulokset', () => {
     it('should return 404 if no regNo is provided', async () => {
-      const result = await klapi.lueKoiranKoetulokset({ Rekisterinumero: '', Kieli: KLKieli.Suomi })
+      const result = await klapi.lueKoiranKoetulokset({ Kieli: KLKieli.Suomi, Rekisterinumero: '' })
       expect(result.status).toBe(404)
     })
 
     it('should call get with correct params', async () => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({ ok: true, json: async () => [], status: 200 })
-      await klapi.lueKoiranKoetulokset({ Rekisterinumero: 'FI12345/21', Kieli: KLKieli.Suomi })
+      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({ json: async () => [], ok: true, status: 200 })
+      await klapi.lueKoiranKoetulokset({ Kieli: KLKieli.Suomi, Rekisterinumero: 'FI12345/21' })
       expect(fetch).toHaveBeenCalledWith(
-        'https://api.koiraklubi.fi/Koira/Lue/Koetulokset?Rekisterinumero=FI12345%2F21&Kieli=1',
+        'https://api.koiraklubi.fi/Koira/Lue/Koetulokset?Kieli=1&Rekisterinumero=FI12345%2F21',
         expect.any(Object)
       )
     })
@@ -121,76 +118,76 @@ describe('KLAPI', () => {
   describe('generic GET methods', () => {
     const testCases = [
       {
+        expectedParams: 'Kieli=1',
         method: 'lueKoemuodot' as const,
+        params: { Kieli: KLKieli.Suomi },
         path: 'Koemuoto/Lue/Koemuodot',
-        params: { Kieli: KLKieli.Suomi },
-        expectedParams: 'Kieli=1',
       },
       {
+        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
         method: 'lueKoetulokset' as const,
+        params: { Kieli: KLKieli.Suomi, Koemuoto: 'NOME-B' },
         path: 'Koemuoto/Lue/Tulokset',
-        params: { Koemuoto: 'NOME-B', Kieli: KLKieli.Suomi },
-        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
       },
       {
+        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
         method: 'lueKoemuodonTarkenteet' as const,
+        params: { Kieli: KLKieli.Suomi, Koemuoto: 'NOME-B' },
         path: 'Koemuoto/Lue/Tarkenteet',
-        params: { Koemuoto: 'NOME-B', Kieli: KLKieli.Suomi },
-        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
       },
       {
+        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
         method: 'lueKoemuodonYlituomarit' as const,
+        params: { Kieli: KLKieli.Suomi, Koemuoto: 'NOME-B' },
         path: 'Koemuoto/Lue/Ylituomarit',
-        params: { Koemuoto: 'NOME-B', Kieli: KLKieli.Suomi },
-        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
       },
       {
+        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
         method: 'lueKoemuodonKoetoimitsijat' as const,
+        params: { Kieli: KLKieli.Suomi, Koemuoto: 'NOME-B' },
         path: 'Koemuoto/Lue/Koetoimitsijat',
-        params: { Koemuoto: 'NOME-B', Kieli: KLKieli.Suomi },
-        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
       },
       {
+        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
         method: 'lueKoetapahtumat' as const,
+        params: { Kieli: KLKieli.Suomi, Koemuoto: 'NOME-B' },
         path: 'Koe/Lue/Koetapahtumat',
-        params: { Koemuoto: 'NOME-B', Kieli: KLKieli.Suomi },
-        expectedParams: 'Koemuoto=NOME-B&Kieli=1',
       },
-      { method: 'lueKennelpiirit' as const, path: 'Yleista/Lue/Kennelpiirit', params: {}, expectedParams: '' },
+      { expectedParams: '', method: 'lueKennelpiirit' as const, params: {}, path: 'Yleista/Lue/Kennelpiirit' },
       {
-        method: 'luePaikkakunnat' as const,
-        path: 'Yleista/Lue/Paikkakunnat',
-        params: { KennelpiirinNumero: 1 },
         expectedParams: 'KennelpiirinNumero=1',
+        method: 'luePaikkakunnat' as const,
+        params: { KennelpiirinNumero: 1 },
+        path: 'Yleista/Lue/Paikkakunnat',
       },
       {
+        expectedParams: 'Kieli=1',
         method: 'lueYhdistykset' as const,
+        params: { Kieli: KLKieli.Suomi },
         path: 'Yleista/Lue/Yhdistykset',
-        params: { Kieli: KLKieli.Suomi },
-        expectedParams: 'Kieli=1',
       },
       {
-        method: 'lueParametrit' as const,
-        path: 'Yleista/Lue/Parametrit',
-        params: { Nimi: 'test', Kieli: KLKieli.Suomi },
         expectedParams: 'Nimi=test&Kieli=1',
+        method: 'lueParametrit' as const,
+        params: { Kieli: KLKieli.Suomi, Nimi: 'test' },
+        path: 'Yleista/Lue/Parametrit',
       },
       {
+        expectedParams: 'Kieli=1',
         method: 'lueRoturyhmät' as const,
-        path: 'Yleista/Lue/Roturyhmat',
         params: { Kieli: KLKieli.Suomi },
-        expectedParams: 'Kieli=1',
+        path: 'Yleista/Lue/Roturyhmat',
       },
       {
-        method: 'lueRodut' as const,
-        path: 'Yleista/Lue/Rodut',
-        params: { Kieli: KLKieli.Suomi },
         expectedParams: 'Kieli=1',
+        method: 'lueRodut' as const,
+        params: { Kieli: KLKieli.Suomi },
+        path: 'Yleista/Lue/Rodut',
       },
     ]
 
     it.each(testCases)('should call get with correct path for $method', async ({ method, path, params }) => {
-      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({ ok: true, json: async () => [], status: 200 })
+      ;(fetch as jest.Mock<any>).mockResolvedValueOnce({ json: async () => [], ok: true, status: 200 })
       // @ts-expect-error dynamic method call
       await klapi[method](params)
       expect(fetch).toHaveBeenCalledWith(expect.stringContaining(path), expect.any(Object))
@@ -219,11 +216,11 @@ describe('KLAPI', () => {
 
     it('should handle json parsing error', async () => {
       ;(fetch as jest.Mock<any>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
         json: async () => {
           throw new Error('Invalid JSON')
         },
+        ok: true,
+        status: 200,
       })
       const result = await klapi.lueKennelpiirit()
       expect(result.status).toBe(200)

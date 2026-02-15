@@ -1,7 +1,5 @@
 import { render, screen } from '@testing-library/react'
-
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
-
 import { TitlesAndName } from './TitlesAndName'
 
 describe('TitlesAndName', () => {

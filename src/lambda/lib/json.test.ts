@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals'
-
 import { parseJSONWithFallback } from './json'
 
 describe('parseJSONWithFallback', () => {

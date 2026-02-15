@@ -1,10 +1,8 @@
 import type { SvgIconProps } from '@mui/material'
 import type { hasPriority } from '../../../lib/registration'
-
 import StarBorderOutlined from '@mui/icons-material/StarBorderOutlined'
 import StarHalfOutlined from '@mui/icons-material/StarHalfOutlined'
 import StarOutlined from '@mui/icons-material/StarOutlined'
-
 import { DIM_OPACITY } from './constants'
 
 interface PriorityIconProps extends SvgIconProps {

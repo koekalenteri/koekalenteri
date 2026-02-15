@@ -2,9 +2,6 @@ import type { ValidationError } from '../../../../i18n/validation'
 import type { BreedCode } from '../../../../types'
 import type { DogEventCost, DogEventCostKey } from '../../../../types/Cost'
 import type { PartialEvent, SectionProps } from './types'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import AddIcon from '@mui/icons-material/Add'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -20,11 +17,11 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DOG_EVENT_COST_KEYS, setCostValue } from '../../../../lib/cost'
 import { keysOf } from '../../../../lib/typeGuards'
 import CollapsibleSection from '../../../components/CollapsibleSection'
-
 import { AddCostDialog } from './paymentSection/AddCostDialog'
 import { CostRow } from './paymentSection/CostRow'
 import { EditCostDescriptionDialog } from './paymentSection/EditCostDescriptionDialog'
@@ -32,10 +29,10 @@ import { OptionalCostRow } from './paymentSection/OptionalCostRow'
 
 // Define the order for cost types
 const COST_TYPE_ORDER: Record<string, number> = {
-  normal: 1,
-  earlyBird: 2,
   breed: 4,
   custom: 5,
+  earlyBird: 2,
+  normal: 1,
   // optionalAdditionalCosts are handled separately
 }
 
@@ -134,7 +131,7 @@ export default function PaymentSection({
       if (key === 'optionalAdditionalCosts') {
         const newOptionalCost = {
           cost: 0,
-          description: data.description ?? { fi: 'Uusi vapaaehtoinen maksu', en: 'New optional cost' },
+          description: data.description ?? { en: 'New optional cost', fi: 'Uusi vapaaehtoinen maksu' },
         }
         const newCost = { ...cost }
         newCost.optionalAdditionalCosts = [...(newCost.optionalAdditionalCosts ?? []), newOptionalCost]

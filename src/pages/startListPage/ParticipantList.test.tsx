@@ -1,8 +1,6 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
-
 import { render, screen } from '@testing-library/react'
-
 import { ParticipantList } from './ParticipantList'
 
 // Mock the child components
@@ -50,15 +48,6 @@ jest.mock('./RegistrationDetails', () => ({
 
 describe('ParticipantList', () => {
   const mockEvent: PublicConfirmedEvent = {
-    id: 'event-1',
-    eventType: 'Test Event Type',
-    location: 'Test Location',
-    name: 'Test Name',
-    startDate: new Date('2023-01-01'),
-    endDate: new Date('2023-01-02'),
-    entryStartDate: new Date('2022-12-01'),
-    entryEndDate: new Date('2022-12-31'),
-    state: 'confirmed',
     classes: [
       {
         class: 'AVO',
@@ -76,12 +65,21 @@ describe('ParticipantList', () => {
     ],
     cost: 0,
     costMember: 0,
+    createdAt: new Date(),
     description: '',
+    endDate: new Date('2023-01-02'),
+    entryEndDate: new Date('2022-12-31'),
+    entryStartDate: new Date('2022-12-01'),
+    eventType: 'Test Event Type',
+    id: 'event-1',
     judges: [],
+    location: 'Test Location',
+    modifiedAt: new Date(),
+    name: 'Test Name',
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
+    startDate: new Date('2023-01-01'),
+    state: 'confirmed',
   }
 
   const createMockRegistration = (
@@ -92,34 +90,34 @@ describe('ParticipantList', () => {
     time: 'ap' | 'ip' | 'kp',
     cancelled = false
   ): PublicRegistration => ({
-    class: classValue,
+    breeder: 'Test Breeder',
     cancelled,
+    class: classValue,
     dog: {
-      name: dogName,
-      titles: 'CH',
-      regNo: `REG${groupNumber}`,
       breedCode: '111',
-      gender: 'M',
-      dob: new Date('2020-01-01'),
-      sire: {
-        name: 'Sire Dog',
-        titles: 'CH',
-      },
       dam: {
         name: 'Dam Dog',
         titles: 'CH',
       },
+      dob: new Date('2020-01-01'),
+      gender: 'M',
+      name: dogName,
+      regNo: `REG${groupNumber}`,
       results: [],
+      sire: {
+        name: 'Sire Dog',
+        titles: 'CH',
+      },
+      titles: 'CH',
     },
     group: {
-      number: groupNumber,
-      key: `group-${groupNumber}`,
       date,
+      key: `group-${groupNumber}`,
+      number: groupNumber,
       time,
     },
-    owner: 'Test Owner',
     handler: 'Test Handler',
-    breeder: 'Test Breeder',
+    owner: 'Test Owner',
     ownerHandles: false,
   })
 

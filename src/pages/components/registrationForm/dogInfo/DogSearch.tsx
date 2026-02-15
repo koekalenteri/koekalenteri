@@ -1,6 +1,4 @@
 import type { SyntheticEvent } from 'react'
-
-import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -8,6 +6,7 @@ import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import TextField from '@mui/material/TextField'
 import { Box } from '@mui/system'
+import { useTranslation } from 'react-i18next'
 
 export type DogMode = 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
 
@@ -44,7 +43,7 @@ export const DogSearch = ({
 
   return (
     <FormControl fullWidth>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ alignItems: 'center', display: 'flex' }}>
         <Autocomplete
           id="txtReknro"
           disabled={disabled || !disabledByMode}
@@ -64,7 +63,7 @@ export const DogSearch = ({
         >
           {t(`registration.cta.${mode}`)}
         </Button>
-        <CircularProgress size={28} sx={{ ml: 1, display: loading ? undefined : 'none' }} />
+        <CircularProgress size={28} sx={{ display: loading ? undefined : 'none', ml: 1 }} />
       </Box>
       <FormHelperText error={['notfound', 'error'].includes(mode)}>
         {t(`registration.cta.helper.${mode}`, { date: refreshDate })}

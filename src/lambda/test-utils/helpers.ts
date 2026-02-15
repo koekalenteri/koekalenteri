@@ -10,31 +10,29 @@ interface Options {
   rawBody?: string
 }
 
-const DEFAULT_OPTIONS = { method: 'GET' as const, headers: {}, query: {}, path: '/' }
+const DEFAULT_OPTIONS = { headers: {}, method: 'GET' as const, path: '/', query: {} }
 
 export function constructAPIGwEvent<T = unknown>(message: T, options: Options = DEFAULT_OPTIONS): APIGatewayProxyEvent {
   const opts = { ...DEFAULT_OPTIONS, ...options }
   return {
-    httpMethod: opts.method,
-    path: opts.path,
-    queryStringParameters: opts.query,
-    headers: opts.headers,
     body: opts.rawBody ?? JSON.stringify(message),
+    headers: opts.headers,
+    httpMethod: opts.method,
+    isBase64Encoded: false,
     multiValueHeaders: {},
     multiValueQueryStringParameters: {},
-    isBase64Encoded: false,
+    path: opts.path,
     pathParameters: opts.pathParameters || {},
-    stageVariables: {},
+    queryStringParameters: opts.query,
     requestContext: {
       accountId: '',
       apiId: '',
       authorizer: {
-        name: '',
         claims: {
           'cognito:username': options.username,
         },
+        name: '',
       },
-      protocol: 'http',
       httpMethod: opts.method,
       identity: {
         accessKey: '',
@@ -48,18 +46,20 @@ export function constructAPIGwEvent<T = unknown>(message: T, options: Options = 
         cognitoIdentityId: '',
         cognitoIdentityPoolId: '',
         principalOrgId: '',
+        sourceIp: '',
         user: '',
         userAgent: '',
         userArn: '',
-        sourceIp: '',
       },
       path: opts.path,
-      stage: '',
+      protocol: 'http',
       requestId: '',
       requestTimeEpoch: 0,
       resourceId: '',
       resourcePath: opts.path,
+      stage: '',
     },
     resource: '',
+    stageVariables: {},
   }
 }

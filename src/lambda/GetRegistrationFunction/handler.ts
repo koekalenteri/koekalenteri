@@ -1,5 +1,5 @@
 import { getEvent } from '../lib/event'
-import { getParam, lambda, LambdaError, response } from '../lib/lambda'
+import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'
 import { getRegistration, isParticipantGroup } from '../lib/registration'
 

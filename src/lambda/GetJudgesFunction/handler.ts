@@ -1,5 +1,4 @@
 import type { EventType, JsonJudge } from '../../types'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { fetchJudgesForEventTypes, updateJudges } from '../lib/judge'

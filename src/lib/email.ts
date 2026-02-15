@@ -1,5 +1,4 @@
 import { toASCII } from 'punycode'
-
 import { VALID_TLDS } from './domains/topLevelDomains'
 
 const USEREXP = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+){0,4}$/i

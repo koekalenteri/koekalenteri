@@ -1,5 +1,4 @@
 import type { BreedCode, DeepPartial, Dog, DogGender } from '../types'
-
 import { differenceInMinutes } from 'date-fns'
 
 /**
@@ -49,13 +48,13 @@ export function createDogUpdateFromFormValues(values: {
   const { rfid, name, titles, dob, gender, breedCode, sire, dam } = values
 
   return {
-    rfid,
-    name,
-    titles,
+    breedCode: breedCode || undefined,
+    dam: { name: dam },
     dob,
     gender: gender || undefined,
-    breedCode: breedCode || undefined,
+    name,
+    rfid,
     sire: { name: sire },
-    dam: { name: dam },
+    titles,
   }
 }

@@ -1,9 +1,6 @@
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { SyntheticEvent } from 'react'
 import type { EmailTemplate, EmailTemplateId } from '../../types'
-
-import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import Box from '@mui/material/Box'
@@ -12,17 +9,17 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-
 import { hasChanges } from '../../lib/utils'
 import StyledDataGrid from '../components/StyledDataGrid'
-
 import FullPageFlex from './components/FullPageFlex'
 import { TemplateEditor } from './emailTemplateListPage/TemplateEditor'
 import {
   adminEditableTemplateByIdAtom,
-  adminEmailTemplatesAtom,
   adminEmailTemplateSelector,
+  adminEmailTemplatesAtom,
   useAdminEmailTemplatesActions,
 } from './recoil'
 
@@ -55,7 +52,7 @@ export default function EmailTemplateListPage() {
     const value = typeof selection[0] === 'string' ? selection[0] : undefined
     setSelectedTemplateId(value as EmailTemplateId)
   }
-  const handleTabChange = (event: SyntheticEvent, value: number) => setSelectedTab(value)
+  const handleTabChange = (_event: SyntheticEvent, value: number) => setSelectedTab(value)
   const handleChange = useCallback(
     (newState: EmailTemplate) => {
       setTemplate(newState)
@@ -98,11 +95,11 @@ export default function EmailTemplateListPage() {
         <Paper
           sx={{
             display: 'flex',
-            p: 1,
             flex: 1,
             flexFlow: 'column',
             minHeight: 0,
             overflow: 'hidden',
+            p: 1,
           }}
         >
           {template ? (
@@ -130,7 +127,7 @@ export default function EmailTemplateListPage() {
                   spacing={1}
                   direction="row"
                   justifyContent="flex-end"
-                  sx={{ py: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
+                  sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', py: 1 }}
                 >
                   <Button
                     color="primary"

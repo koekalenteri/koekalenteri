@@ -1,9 +1,7 @@
 import type { TFunction } from 'i18next'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './types'
-
 import { format } from 'date-fns'
-
 import { formatDateSpan, zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../i18n/dates'
 import { isRegistrationClass } from '../../../lib/registration'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../../../lib/utils'
@@ -94,11 +92,11 @@ export function serializeFilter(eventFilter: FilterProps): string {
   if (eventFilter.end) {
     params.append('e', writeDate(eventFilter.end))
   }
-  eventFilter.eventClass.forEach((v) => params.append('c', v))
-  eventFilter.eventType.forEach((v) => params.append('t', v))
-  eventFilter.judge.forEach((v) => params.append('j', v.toString()))
-  eventFilter.organizer.forEach((v) => params.append('o', v.toString()))
-  bits.forEach((v) => params.append('b', v))
+  eventFilter.eventClass.map((v) => params.append('c', v))
+  eventFilter.eventType.map((v) => params.append('t', v))
+  eventFilter.judge.map((v) => params.append('j', v.toString()))
+  eventFilter.organizer.map((v) => params.append('o', v.toString()))
+  bits.map((v) => params.append('b', v))
 
   return params.toString()
 }
@@ -136,16 +134,16 @@ export function filterStrings(filter: FilterProps, t: TFunction): string[] {
     filters.push(`${t('daterangeEnd')}: ${format(filter.end, 'dd.MM.yyyy')}`)
   }
   if (filter.eventType?.length) {
-    filters.push(t('eventTypes') + ': ' + filter.eventType.join(', '))
+    filters.push(`${t('eventTypes')}: ${filter.eventType.join(', ')}`)
   }
   if (filter.eventClass?.length) {
-    filters.push(t('event.classes') + ': ' + filter.eventClass.join(', '))
+    filters.push(`${t('event.classes')}: ${filter.eventClass.join(', ')}`)
   }
   if (filter.organizer?.length) {
-    filters.push('Järjestäjät: ' + filter.organizer.length)
+    filters.push(`Järjestäjät: ${filter.organizer.length}`)
   }
   if (filter.judge?.length) {
-    filters.push('Tuomarit: ' + filter.judge.length)
+    filters.push(`Tuomarit: ${filter.judge.length}`)
   }
   if (filter.withOpenEntry) {
     filters.push(t('entryOpen'))

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
@@ -40,9 +40,9 @@ const { default: setRoleLambda } = await import('./handler')
 describe('setRoleLambda', () => {
   const event = {
     body: JSON.stringify({
-      userId: 'user456',
       orgId: 'org789',
       role: 'secretary',
+      userId: 'user456',
     }),
     headers: {},
   } as any
@@ -55,9 +55,9 @@ describe('setRoleLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Test Admin',
-      admin: true,
       roles: {
         org789: 'admin',
       },
@@ -66,22 +66,22 @@ describe('setRoleLambda', () => {
     mockGetOrigin.mockReturnValue('https://example.com')
 
     mockParseJSONWithFallback.mockReturnValue({
-      userId: 'user456',
       orgId: 'org789',
       role: 'secretary',
+      userId: 'user456',
     })
 
     mockRead.mockResolvedValue({
+      email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
-      email: 'test@example.com',
       roles: {},
     })
 
     mockSetUserRole.mockResolvedValue({
+      email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
-      email: 'test@example.com',
       roles: {
         org789: 'secretary',
       },
@@ -100,8 +100,8 @@ describe('setRoleLambda', () => {
 
   it('returns 400 if orgId is missing', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      userId: 'user456',
       role: 'secretary',
+      userId: 'user456',
     })
 
     await setRoleLambda(event)
@@ -114,9 +114,9 @@ describe('setRoleLambda', () => {
 
   it('returns 403 if trying to set own role', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      userId: 'user123', // Same as authorized user
       orgId: 'org789',
       role: 'secretary',
+      userId: 'user123', // Same as authorized user
     })
 
     await setRoleLambda(event)
@@ -129,9 +129,9 @@ describe('setRoleLambda', () => {
 
   it('returns 403 if not an admin or organizer admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Test User',
-      admin: false,
       roles: {
         org789: 'secretary', // Not admin role
       },
@@ -169,9 +169,9 @@ describe('setRoleLambda', () => {
     // Verify user role was set
     expect(mockSetUserRole).toHaveBeenCalledWith(
       {
+        email: 'test@example.com',
         id: 'user456',
         name: 'Test User',
-        email: 'test@example.com',
         roles: {},
       },
       'org789',
@@ -184,9 +184,9 @@ describe('setRoleLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        email: 'test@example.com',
         id: 'user456',
         name: 'Test User',
-        email: 'test@example.com',
         roles: {
           org789: 'secretary',
         },
@@ -197,9 +197,9 @@ describe('setRoleLambda', () => {
 
   it('sets user role successfully as organizer admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Test Organizer Admin',
-      admin: false,
       roles: {
         org789: 'admin', // Admin for this organizer
       },
@@ -222,24 +222,24 @@ describe('setRoleLambda', () => {
 
   it('removes user role when role is "none"', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      userId: 'user456',
       orgId: 'org789',
       role: 'none',
+      userId: 'user456',
     })
 
     mockRead.mockResolvedValueOnce({
+      email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
-      email: 'test@example.com',
       roles: {
         org789: 'secretary',
       },
     })
 
     mockSetUserRole.mockResolvedValueOnce({
+      email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
-      email: 'test@example.com',
       roles: {}, // Role removed
     })
 
@@ -258,9 +258,9 @@ describe('setRoleLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        email: 'test@example.com',
         id: 'user456',
         name: 'Test User',
-        email: 'test@example.com',
         roles: {},
       },
       event
@@ -269,9 +269,9 @@ describe('setRoleLambda', () => {
 
   it('logs warning when trying to set own roles', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      userId: 'user123', // Same as authorized user
       orgId: 'org789',
       role: 'secretary',
+      userId: 'user123', // Same as authorized user
     })
 
     await setRoleLambda(event)
@@ -282,9 +282,9 @@ describe('setRoleLambda', () => {
 
   it('logs warning when user does not have right to set role', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Test User',
-      admin: false,
       roles: {
         other_org: 'admin', // Admin for different organizer
       },

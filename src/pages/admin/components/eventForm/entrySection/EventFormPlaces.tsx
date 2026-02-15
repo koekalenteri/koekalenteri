@@ -1,8 +1,6 @@
 import type { ChangeEvent } from 'react'
 import type { DeepPartial, EventClass } from '../../../../../types'
 import type { SectionProps } from '../types'
-
-import { useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -10,7 +8,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-
+import { useCallback, useEffect, useState } from 'react'
 import { formatDate } from '../../../../../i18n/dates'
 import {
   calculateTotalFromClasses,
@@ -20,7 +18,6 @@ import {
   updatePlacesPerDayFromClasses,
 } from '../../../../../lib/places'
 import { compareEventClass } from '../components/EventClasses'
-
 import ClassPlacesTable from './eventFormPlaces/ClassPlacesTable'
 import DayPlacesTable from './eventFormPlaces/DayPlacesTable'
 
@@ -67,13 +64,13 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
       }
 
       const total = calculateTotalFromDays(newPlacesPerDay)
-      onChange?.({ placesPerDay: newPlacesPerDay, places: total })
+      onChange?.({ places: total, placesPerDay: newPlacesPerDay })
     },
-    [event.places, event.placesPerDay, onChange]
+    [event.placesPerDay, onChange]
   )
 
   const handleDetailedChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
+    (_e: ChangeEvent<HTMLInputElement>, checked: boolean) => {
       setTotalEnabled(!checked)
 
       if (hasClasses) {
@@ -96,7 +93,9 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
           })
         } else {
           // Reset class places
-          newClasses.forEach((cls) => (cls.places = 0))
+          newClasses.forEach((cls) => {
+            cls.places = 0
+          })
           onChange?.({ classes: newClasses, placesPerDay: {} })
         }
       } else if (checked && (!event.placesPerDay || Object.keys(event.placesPerDay).length === 0)) {
@@ -131,10 +130,10 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
         enqueueSnackbar(`Korjaus: Koepaikkojen määrä muutettu ${event.places} -> ${total}`, { variant: 'info' })
       }
     }
-  }, [event.id])
+  }, [event.classes, event.places, event.placesPerDay, hasClasses, onChange, totalEnabled])
 
   return (
-    <Box sx={{ p: 1, border: '1px dashed #ddd', borderRadius: 1 }}>
+    <Box sx={{ border: '1px dashed #ddd', borderRadius: 1, p: 1 }}>
       <Stack direction="column" alignItems="normal">
         <Stack direction="row" justifyContent="space-between" alignItems="start">
           <Typography variant="subtitle1">Koepaikkojen määrä</Typography>

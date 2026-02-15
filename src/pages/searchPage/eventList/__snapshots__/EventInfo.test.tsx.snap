@@ -6,24 +6,24 @@ exports[`EventInfo should render contact info 1`] = `
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-cezn5j-MuiGrid-root"
   >
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-dnutt5-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-dnutt5-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         entryTime
       </div>
       <div
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
-        dateFormat.datespan start, end
+        dateFormat.datespan end, start
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-grow css-1gjjv03-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-grow MuiGrid-grid-xs-12 css-1gjjv03-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.classPlaces
       </div>
@@ -37,7 +37,7 @@ exports[`EventInfo should render contact info 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-15bfe7d-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.name
             </span>
@@ -46,7 +46,7 @@ exports[`EventInfo should render contact info 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1oxte1b-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.dates
             </span>
@@ -55,7 +55,7 @@ exports[`EventInfo should render contact info 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.entries
             </span>
@@ -64,7 +64,7 @@ exports[`EventInfo should render contact info 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.places
             </span>
@@ -73,7 +73,7 @@ exports[`EventInfo should render contact info 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.members
             </span>
@@ -83,12 +83,12 @@ exports[`EventInfo should render contact info 1`] = `
           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
         >
           <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1nqaa3n-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-19jybh2-MuiGrid-root"
           >
             ALO
           </div>
           <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-12rrlgf-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1fgirho-MuiGrid-root"
           >
             dateFormat.wdshort date
           </div>
@@ -111,10 +111,10 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1qgu5aj-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1qgu5aj-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.judges
       </div>
@@ -129,10 +129,10 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-jvfgr9-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-jvfgr9-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.official
       </div>
@@ -143,10 +143,10 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1c9v03l-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1c9v03l-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.secretary
       </div>
@@ -157,10 +157,10 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-16z262j-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-16z262j-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         paymentDetails
       </div>
@@ -177,10 +177,10 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-xcfqi0-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-xcfqi0-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.priority
       </div>
@@ -188,7 +188,7 @@ exports[`EventInfo should render contact info 1`] = `
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-vbe25y-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-kypwnb-MuiChip-root"
         >
           <span
             class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
@@ -199,10 +199,10 @@ exports[`EventInfo should render contact info 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1s57vna-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1s57vna-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.description
       </div>
@@ -222,24 +222,24 @@ exports[`EventInfo should render event information 1`] = `
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-cezn5j-MuiGrid-root"
   >
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-dnutt5-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-dnutt5-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         entryTime
       </div>
       <div
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
-        dateFormat.datespan start, end
+        dateFormat.datespan end, start
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-grow css-1gjjv03-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-grow MuiGrid-grid-xs-12 css-1gjjv03-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.classPlaces
       </div>
@@ -253,7 +253,7 @@ exports[`EventInfo should render event information 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-15bfe7d-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.name
             </span>
@@ -262,7 +262,7 @@ exports[`EventInfo should render event information 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1oxte1b-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.dates
             </span>
@@ -271,7 +271,7 @@ exports[`EventInfo should render event information 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.entries
             </span>
@@ -280,7 +280,7 @@ exports[`EventInfo should render event information 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.places
             </span>
@@ -289,7 +289,7 @@ exports[`EventInfo should render event information 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
             >
               event.classPlacesHeader.members
             </span>
@@ -299,12 +299,12 @@ exports[`EventInfo should render event information 1`] = `
           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
         >
           <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1nqaa3n-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-19jybh2-MuiGrid-root"
           >
             ALO
           </div>
           <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-12rrlgf-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1fgirho-MuiGrid-root"
           >
             dateFormat.wdshort date
           </div>
@@ -327,10 +327,10 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1qgu5aj-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1qgu5aj-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.judges
       </div>
@@ -345,10 +345,10 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-jvfgr9-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-jvfgr9-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.official
       </div>
@@ -359,10 +359,10 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1c9v03l-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1c9v03l-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.secretary
       </div>
@@ -373,10 +373,10 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-16z262j-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-16z262j-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         paymentDetails
       </div>
@@ -393,10 +393,10 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-xcfqi0-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-xcfqi0-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.priority
       </div>
@@ -404,7 +404,7 @@ exports[`EventInfo should render event information 1`] = `
         class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
       >
         <div
-          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-vbe25y-MuiChip-root"
+          class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-kypwnb-MuiChip-root"
         >
           <span
             class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
@@ -415,10 +415,10 @@ exports[`EventInfo should render event information 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1s57vna-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1s57vna-MuiGrid-root"
     >
       <div
-        class="MuiTypography-root MuiTypography-caption css-uapi8s-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption css-131uqdv-MuiTypography-root"
       >
         event.description
       </div>

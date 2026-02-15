@@ -1,8 +1,7 @@
 import type { Registration } from '../../../../types'
-
-import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
+import { useTranslation } from 'react-i18next'
 
 interface RegistrationRowProps {
   reg: Registration
@@ -22,8 +21,8 @@ const RegistrationRow = ({ reg, reserve, nameLen }: RegistrationRowProps) => {
       <TableCell>
         {reg.dog.breedCode && reg.dog.gender
           ? t(`${reg.dog.breedCode}.${reg.dog.gender}`, {
-              ns: 'breedAbbr',
               defaultValue: reg.dog.breedCode,
+              ns: 'breedAbbr',
             })
           : ''}
       </TableCell>

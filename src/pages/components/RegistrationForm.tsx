@@ -8,9 +8,6 @@ import type {
   Registration,
   TestResult,
 } from '../../types'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -30,13 +27,15 @@ import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { diff } from 'deep-object-diff'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { calculateCost } from '../../lib/cost'
 import { isDevEnv } from '../../lib/env'
 import { formatMoney } from '../../lib/money'
 import { hasChanges, merge } from '../../lib/utils'
 import { getRequirements } from '../../rules'
-
+import { AsyncButton } from './AsyncButton'
+import { PaymentDetails } from './PaymentDetails'
 import { AdditionalInfo } from './registrationForm/AdditionalInfo'
 import { BreederInfo } from './registrationForm/BreederInfo'
 import { DogInfo } from './registrationForm/DogInfo'
@@ -48,8 +47,6 @@ import { PayerInfo } from './registrationForm/PayerInfo'
 import PaymentInfo from './registrationForm/PaymentInfo'
 import QualifyingResultsInfo from './registrationForm/QualifyingResultsInfo'
 import { filterRelevantResults, validateRegistration } from './registrationForm/validation'
-import { AsyncButton } from './AsyncButton'
-import { PaymentDetails } from './PaymentDetails'
 
 interface Props {
   readonly admin?: boolean
@@ -126,7 +123,7 @@ export default function RegistrationForm({
         const filtered = filterRelevantResults(event, cls, dogResults as TestResult[], results as ManualTestResult[])
         props.qualifyingResults = filtered.relevant
         props.qualifies = filtered.qualifies
-        setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
+        setRankingPeriod({ max: filtered.maxResultDate, min: filtered.minResultDate })
       }
 
       // Create new state by merging or replacing
@@ -155,14 +152,14 @@ export default function RegistrationForm({
             [id]: value,
           }
         : {
-            entry: false,
-            dog: false,
             breeder: false,
-            owner: false,
+            dog: false,
+            entry: false,
             handler: registration.ownerHandles,
+            info: false,
+            owner: false,
             payer: registration.ownerPays,
             qr: false,
-            info: false,
             [id]: value,
           }
       setOpen(newState)
@@ -186,13 +183,13 @@ export default function RegistrationForm({
 
   useEffect(() => {
     setOpen({
-      entry: true,
-      dog: large,
       breeder: large,
-      owner: large,
+      dog: large,
+      entry: true,
       handler: large,
-      qr: large,
       info: large,
+      owner: large,
+      qr: large,
     })
   }, [large])
 
@@ -205,7 +202,7 @@ export default function RegistrationForm({
       registration?.dog?.results ?? [],
       registration?.results
     )
-    setRankingPeriod({ min: filtered.minResultDate, max: filtered.maxResultDate })
+    setRankingPeriod({ max: filtered.maxResultDate, min: filtered.minResultDate })
     const newState = { ...registration, qualifies: filtered.qualifies, qualifyingResults: filtered.relevant }
 
     if (hasChanges(savedRegistration ?? registration, newState)) {
@@ -230,25 +227,25 @@ export default function RegistrationForm({
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
-        overflow: 'auto',
         maxHeight: '100%',
         maxWidth: '100%',
+        overflow: 'auto',
       }}
     >
       <Box
         sx={{
-          pb: 0.5,
-          overflow: 'auto',
-          borderRadius: 1,
-          bgcolor: 'background.form',
-          '& .MuiInputBase-root': {
-            bgcolor: 'background.default',
-          },
           '& .fact input.Mui-disabled': {
             color: 'success.main',
             WebkitTextFillColor: (theme) => theme.palette.success.main,
           },
+          '& .MuiInputBase-root': {
+            bgcolor: 'background.default',
+          },
+          bgcolor: 'background.form',
+          borderRadius: 1,
           minWidth: 350,
+          overflow: 'auto',
+          pb: 0.5,
         }}
       >
         <EntryInfo
@@ -355,7 +352,7 @@ export default function RegistrationForm({
           disabled={disabled || disabledForUserAfterPaid}
           onChange={handleChange}
         />
-        <Box sx={{ p: 1, pl: 4, borderTop: '1px solid #bdbdbd' }}>
+        <Box sx={{ borderTop: '1px solid #bdbdbd', p: 1, pl: 4 }}>
           <FormControl error={errorStates.agreeToTerms} disabled={!!registration.id}>
             <FormControlLabel
               disabled={disabled || disabledForUserAfterPaid}

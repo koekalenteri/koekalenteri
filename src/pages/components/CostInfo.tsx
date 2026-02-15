@@ -1,15 +1,12 @@
 import type { BreedCode, DogEvent } from '../../types'
 import type { DogEventCost, DogEventCostSegment } from '../../types/Cost'
-
+import Typography from '@mui/material/Typography'
 import { Fragment } from 'react/jsx-runtime'
 import { useTranslation } from 'react-i18next'
-import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
-
 import { getCostSegmentName, getCostValue, getEarlyBirdDates, mergeMemberCost } from '../../lib/cost'
 import { keysOf } from '../../lib/typeGuards'
 import { languageAtom } from '../recoil'
-
 import CostInfoTableCaption from './costInfo/CostStrategiesHeader'
 import InfoTableContainerGrid from './InfoTableContainerGrid'
 import InfoTableNumberGrid from './InfoTableNumberGrid'
@@ -110,10 +107,10 @@ export default function CostInfo({ event }: Props) {
       <InfoTableContainerGrid>
         {costSegments.map((segment, index) => (
           <Fragment key={segment.name}>
-            <InfoTableTextGrid key={segment.name + index + '-name'} size={{ xs: 7 }}>
+            <InfoTableTextGrid key={`${segment.name}${index}-name`} size={{ xs: 7 }}>
               {segment.name}
             </InfoTableTextGrid>
-            <InfoTableNumberGrid key={segment.name + index + '-text'} size={{ xs: 5 }}>
+            <InfoTableNumberGrid key={`${segment.name}${index}-text`} size={{ xs: 5 }}>
               {segment.text}
             </InfoTableNumberGrid>
           </Fragment>
@@ -125,10 +122,10 @@ export default function CostInfo({ event }: Props) {
           <InfoTableContainerGrid key="optional-costs">
             {optionalCosts.map((c, index) => (
               <Fragment key={c.name}>
-                <InfoTableTextGrid key={c.name + index + '-name'} size={{ xs: 7 }}>
+                <InfoTableTextGrid key={`${c.name}${index}-name`} size={{ xs: 7 }}>
                   {c.name}
                 </InfoTableTextGrid>
-                <InfoTableNumberGrid key={c.name + index + '-text'} size={{ xs: 5 }}>
+                <InfoTableNumberGrid key={`${c.name}${index}-text`} size={{ xs: 5 }}>
                   {c.text}
                 </InfoTableNumberGrid>
               </Fragment>
@@ -136,7 +133,7 @@ export default function CostInfo({ event }: Props) {
           </InfoTableContainerGrid>
         </>
       ) : null}
-      <Typography variant="caption" component="div" sx={{ width: '100%', px: 1.5, mt: 1 }} textAlign="right">
+      <Typography variant="caption" component="div" sx={{ mt: 1, px: 1.5, width: '100%' }} textAlign="right">
         {t(`paymentTimeOptions.${paymentTime}`)}
       </Typography>
     </>

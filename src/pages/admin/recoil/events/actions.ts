@@ -1,16 +1,13 @@
 import type { DogEvent } from '../../../../types'
-
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
 import { copyDogEvent, sanitizeDogEvent } from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
 import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
-
 import { adminEventIdAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventSelector } from './selectors'
 

@@ -1,8 +1,6 @@
 import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
-
 import { API_BASE_URL } from '../routeConfig'
-
 import { getDog } from './dog'
 
 fetchMock.enableMocks()
@@ -26,7 +24,7 @@ describe('getDog', () => {
     const dog = await getDog('testReg')
     expect(dog.regNo).toEqual('testReg')
     expect(fetchMock.mock.calls.length).toEqual(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/dog/testReg')
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/testReg`)
   })
 
   it('should fetch dog with refresh', async () => {
@@ -34,21 +32,21 @@ describe('getDog', () => {
     const dog = await getDog('testReg2', true)
     expect(dog.regNo).toEqual('testReg')
     expect(fetchMock.mock.calls.length).toEqual(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/dog/testReg2?refresh')
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/testReg2?refresh`)
   })
 
   it('should encode regNo', async () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
     await getDog('test/Reg')
     expect(fetchMock.mock.calls.length).toEqual(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/dog/test~Reg')
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/test~Reg`)
   })
 
   it('should encode regNo with multiple slashes', async () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
     await getDog('test/Reg/2')
     expect(fetchMock.mock.calls.length).toEqual(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/dog/test~Reg~2')
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/test~Reg~2`)
   })
 
   it('should pass signal to fetch', async () => {

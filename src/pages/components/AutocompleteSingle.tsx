@@ -1,9 +1,8 @@
 import type { AutocompleteChangeDetails, AutocompleteChangeReason, AutocompleteProps } from '@mui/material'
 import type { SyntheticEvent } from 'react'
-
-import { useCallback, useMemo } from 'react'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
+import { useCallback, useMemo } from 'react'
 
 type OmitProps = 'fullWidth' | 'freeSolo' | 'multiple' | 'renderInput' | 'onChange'
 

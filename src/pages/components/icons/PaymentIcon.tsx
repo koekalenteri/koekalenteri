@@ -1,9 +1,7 @@
 import type { SvgIconProps } from '@mui/material'
 import type { Registration } from '../../../types'
-
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PauseCircleOutline from '@mui/icons-material/PauseCircleOutline'
-
 import { DIM_OPACITY } from './constants'
 
 interface PaymentIconProps extends SvgIconProps {

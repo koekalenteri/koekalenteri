@@ -1,33 +1,31 @@
 import type { APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonUser } from '../../types'
 import type { authorizeWithMemberOf } from '../lib/auth'
-
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // Mocks
 const mockReadAll: any = jest.fn()
 const mockQuery: any = jest.fn()
 const mockDynamoDB = {
-  write: jest.fn(),
+  delete: jest.fn(),
   query: mockQuery,
-  update: jest.fn(),
   read: jest.fn(),
   readAll: mockReadAll,
-  delete: jest.fn(),
+  update: jest.fn(),
+  write: jest.fn(),
 } as any
 
 const mockAuthorizeWithMemberOf = jest.fn<typeof authorizeWithMemberOf>()
 
 const mockUser: JsonUser = {
-  id: '',
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
 }
 const mockAdminUser: JsonUser = {
   ...mockUser,
@@ -50,13 +48,13 @@ describe('getOrganizerEventStatsLambda', () => {
   })
 
   const baseStats = [
-    { organizerId: 'org1', date: '2024-01-01', value: 1 },
-    { organizerId: 'org2', date: '2024-02-01', value: 2 },
-    { organizerId: 'org3', date: '2024-03-01', value: 3 },
+    { date: '2024-01-01', organizerId: 'org1', value: 1 },
+    { date: '2024-02-01', organizerId: 'org2', value: 2 },
+    { date: '2024-03-01', organizerId: 'org3', value: 3 },
   ]
 
   it('returns all stats for admin user', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ user: mockAdminUser, memberOf: ['org1', 'org2'] })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockAdminUser })
 
     // Mock readAll to return items with PK property
     const statsWithPK = baseStats.map((stat) => ({
@@ -80,7 +78,7 @@ describe('getOrganizerEventStatsLambda', () => {
   })
 
   it('filters stats by memberOf for non-admin user', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ user: mockUser, memberOf: ['org2'] })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org2'], user: mockUser })
     // For non-admin users, the code uses query instead of readAll
     mockQuery.mockResolvedValueOnce([baseStats[1]])
 
@@ -88,17 +86,17 @@ describe('getOrganizerEventStatsLambda', () => {
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
     expect(mockQuery).toHaveBeenCalledWith({
-      key: '#pk = :pk',
-      values: { ':pk': 'ORG#org2' },
-      names: { '#pk': 'PK' },
       filterExpression: undefined,
+      key: '#pk = :pk',
+      names: { '#pk': 'PK' },
+      values: { ':pk': 'ORG#org2' },
     })
     expect(JSON.parse(result.body)).toEqual([baseStats[1]])
     expect(result.statusCode).toBe(200)
   })
 
   it('applies "from" and "to" date filters', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ user: mockAdminUser, memberOf: ['org1', 'org2', 'org3'] })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2', 'org3'], user: mockAdminUser })
 
     // Create stats with PK property
     const statsWithPK = baseStats.map((stat) => ({
@@ -122,8 +120,8 @@ describe('getOrganizerEventStatsLambda', () => {
       undefined,
       'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
       {
-        ':orgPrefix': 'ORG#',
         ':from': '2024-02-01',
+        ':orgPrefix': 'ORG#',
         ':to': '2024-02-28',
       },
       { '#pk': 'PK' }
@@ -135,7 +133,7 @@ describe('getOrganizerEventStatsLambda', () => {
   })
 
   it('returns early if authorizeWithMemberOf returns a response (unauthorized)', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ res: { statusCode: 401, body: 'Unauthorized' } })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ res: { body: 'Unauthorized', statusCode: 401 } })
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
@@ -145,7 +143,7 @@ describe('getOrganizerEventStatsLambda', () => {
   })
 
   it('returns empty array if no stats found', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValue({ user: mockAdminUser, memberOf: ['org1', 'org2'] })
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1', 'org2'], user: mockAdminUser })
     mockReadAll.mockResolvedValueOnce(undefined)
 
     const event = constructAPIGwEvent({}, {})

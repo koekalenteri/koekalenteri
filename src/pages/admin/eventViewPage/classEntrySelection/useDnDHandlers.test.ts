@@ -1,11 +1,8 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
 import type { DragItem } from './types'
-
 import { renderHook } from '@testing-library/react'
-
 import { rum } from '../../../../lib/client/rum'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
-
 import { determineChangesFromDrop } from './dnd'
 import { useDnDHandlers } from './useDnDHandlers'
 
@@ -35,29 +32,29 @@ jest.mock('./dnd', () => ({
 describe('useDnDHandlers', () => {
   // Common test data
   const mockRegistration: Registration = {
-    id: 'reg1',
-    eventId: 'event1',
-    dog: { name: 'TestDog', regNo: 'TEST123' },
-    dates: [{ date: new Date(), time: 'ap' }],
-    group: { key: 'group1', number: 1 },
     createdAt: new Date(),
+    dates: [{ date: new Date(), time: 'ap' }],
+    dog: { name: 'TestDog', regNo: 'TEST123' },
+    eventId: 'event1',
+    group: { key: 'group1', number: 1 },
+    id: 'reg1',
     modifiedAt: new Date(),
   } as unknown as Registration
 
   const mockRegistrations: Registration[] = [mockRegistration]
 
   const mockGroup: RegistrationGroup = {
+    date: new Date(),
     key: 'group2',
     number: 2,
-    date: new Date(),
     time: 'ap',
   }
 
   const mockDragItem: DragItem = {
-    id: 'reg1',
-    index: 0,
     groupKey: 'group1',
     groups: ['group1', 'group2'],
+    id: 'reg1',
+    index: 0,
   }
 
   const mockConfirm = jest.fn().mockResolvedValue({ confirmed: true })
@@ -66,13 +63,13 @@ describe('useDnDHandlers', () => {
   const mockOnCancelOpen = jest.fn()
 
   const defaultProps = {
-    registrations: mockRegistrations,
-    state: 'confirmed' as const,
     canArrangeReserve: true,
     confirm: mockConfirm,
-    setSelectedRegistrationId: mockSetSelectedRegistrationId,
-    saveGroups: mockSaveGroups,
     onCancelOpen: mockOnCancelOpen,
+    registrations: mockRegistrations,
+    saveGroups: mockSaveGroups,
+    setSelectedRegistrationId: mockSetSelectedRegistrationId,
+    state: 'confirmed' as const,
   }
 
   beforeEach(() => {
@@ -97,8 +94,8 @@ describe('useDnDHandlers', () => {
 
       const props = {
         ...defaultProps,
-        state: 'picked' as const,
         confirm: mockConfirmWithStructure,
+        state: 'picked' as const,
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -112,8 +109,8 @@ describe('useDnDHandlers', () => {
 
       expect(mockConfirmWithStructure).toHaveBeenCalled()
       expect(mockConfirmWithStructure.mock.calls[0][0]).toMatchObject({
-        title: expect.stringContaining('TestDog'),
         description: expect.stringContaining('TestDog'),
+        title: expect.stringContaining('TestDog'),
       })
     })
 
@@ -121,8 +118,8 @@ describe('useDnDHandlers', () => {
       const mockCancelledConfirm = jest.fn().mockResolvedValue({ confirmed: false })
       const props = {
         ...defaultProps,
-        state: 'picked' as const,
         confirm: mockCancelledConfirm,
+        state: 'picked' as const,
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -145,8 +142,8 @@ describe('useDnDHandlers', () => {
 
       const props = {
         ...defaultProps,
-        state: 'invited' as const,
         confirm: mockConfirmWithStructure,
+        state: 'invited' as const,
       }
 
       const { result } = renderHook(() => useDnDHandlers(props))
@@ -180,7 +177,7 @@ describe('useDnDHandlers', () => {
 
     it('should call saveGroups when changes are returned', async () => {
       const mockChanges: RegistrationGroupInfo[] = [
-        { id: 'reg1', eventId: 'event1', group: { key: 'group2', number: 1 } },
+        { eventId: 'event1', group: { key: 'group2', number: 1 }, id: 'reg1' },
       ]
       ;(determineChangesFromDrop as jest.Mock).mockReturnValue(mockChanges)
 
@@ -193,7 +190,7 @@ describe('useDnDHandlers', () => {
 
     it('should call onCancelOpen when a single cancelled change is returned', async () => {
       const mockChanges: RegistrationGroupInfo[] = [
-        { id: 'reg1', eventId: 'event1', group: { key: GROUP_KEY_CANCELLED, number: 1 }, cancelled: true },
+        { cancelled: true, eventId: 'event1', group: { key: GROUP_KEY_CANCELLED, number: 1 }, id: 'reg1' },
       ]
       ;(determineChangesFromDrop as jest.Mock).mockReturnValue(mockChanges)
 
@@ -264,8 +261,8 @@ describe('useDnDHandlers', () => {
       const reserveGroup = { key: GROUP_KEY_RESERVE, number: 1 }
       const sameGroupDragItem = {
         ...mockDragItem,
-        id: reserveRegistration.id,
         groupKey: GROUP_KEY_RESERVE,
+        id: reserveRegistration.id,
       }
 
       result.current.handleReject(reserveGroup)(sameGroupDragItem)
@@ -310,8 +307,8 @@ describe('useDnDHandlers', () => {
         expect.objectContaining({
           eventId: 'event1',
           registrationId: 'reg1',
-          targetGroup: 'group2',
           sourceGroup: 'group1',
+          targetGroup: 'group2',
         })
       )
 

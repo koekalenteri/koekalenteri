@@ -2,13 +2,11 @@ import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { RegistrationClass, RegistrationDate } from '../../../../../../types'
 import type { SectionProps } from '../../types'
-
-import { useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
+import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import { applyNewGroupsToDogEventClass } from '../../../../../../lib/event'
 import AutocompleteMulti from '../../../../../components/AutocompleteMulti'
 import { adminEventTypeGroupsSelector } from '../../../../recoil'
@@ -38,12 +36,12 @@ export const ClassGroups = ({ disabled, event, eventClass, onChange }: Readonly<
 
   const getGroupLabel = useCallback(
     (o: RegistrationDate) =>
-      t('dateFormat.weekday', { date: o.date }) + (o.time ? ' ' + t(`registration.timeLong.${o.time}`) : ''),
+      t('dateFormat.weekday', { date: o.date }) + (o.time ? ` ${t(`registration.timeLong.${o.time}`)}` : ''),
     [t]
   )
 
   const handleChange = useCallback(
-    (e: SyntheticEvent<Element, Event>, value: RegistrationDate[], _reason: AutocompleteChangeReason) => {
+    (_e: SyntheticEvent<Element, Event>, value: RegistrationDate[], _reason: AutocompleteChangeReason) => {
       onChange?.(applyNewGroupsToDogEventClass(event, eventClass, defaultGroups, value))
     },
     [defaultGroups, event, eventClass, onChange]

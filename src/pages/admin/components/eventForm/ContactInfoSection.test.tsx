@@ -1,7 +1,5 @@
 import type { ContactInfo, User } from '../../../../types'
-
 import { render } from '@testing-library/react'
-
 import ContactInfoSection from './ContactInfoSection'
 
 describe('ContactInfoSection', () => {
@@ -10,33 +8,33 @@ describe('ContactInfoSection', () => {
   for (let i = 0; i < 64; i++) {
     variants.push({
       official: {
-        name: (i & 0b000001) !== 0 ? 'Test Official' : '',
         email: (i & 0b000010) !== 0 ? 'official@example.com' : '',
+        name: (i & 0b000001) !== 0 ? 'Test Official' : '',
         phone: (i & 0b000100) !== 0 ? '+3584012345' : '',
       },
       secretary: {
-        name: (i & 0b001000) !== 0 ? 'Test Secretary' : '',
         email: (i & 0b010000) !== 0 ? 'secretary@example.com' : '',
+        name: (i & 0b001000) !== 0 ? 'Test Secretary' : '',
         phone: (i & 0b100000) !== 0 ? '+3584054321' : '',
       },
     })
   }
 
   const official: User = {
-    id: '0',
-    name: 'Test Official',
     email: 'official@example.com',
-    phone: '+3584012345',
+    id: '0',
     location: "official's place",
+    name: 'Test Official',
     officer: ['Type-A', 'Type-B', 'Type-C'],
+    phone: '+3584012345',
   }
 
   const secretary: User = {
-    id: '0',
-    name: 'Test Secretary',
     email: 'secretary@example.com',
-    phone: '+3584054321',
+    id: '0',
     location: "secretary's place",
+    name: 'Test Secretary',
+    phone: '+3584054321',
   }
 
   it.each(variants)('renders with %j', (contactInfo: ContactInfo) => {

@@ -1,19 +1,16 @@
 import type { ReactNode } from 'react'
-
-import { Suspense } from 'react'
-import { MemoryRouter, useParams } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { MemoryRouter, useParams } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { flushPromises } from '../test-utils/utils'
-
 import RegistrationEditPage from './RegistrationEditPage'
 
 jest.mock('../api/user')
@@ -26,9 +23,9 @@ jest.mock('../api/registration')
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
+  Link: jest.fn().mockImplementation(() => <>link</>),
   useNavigate: jest.fn(),
   useParams: jest.fn(),
-  Link: jest.fn().mockImplementation(() => <>link</>),
 }))
 const mockUseParams = useParams as jest.Mock
 

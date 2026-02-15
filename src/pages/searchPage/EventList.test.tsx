@@ -1,15 +1,12 @@
 import type { DogEvent } from '../../types'
-
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { render, screen } from '@testing-library/react'
 import { parseISO } from 'date-fns'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import { eventWithEntryOpen } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
-
 import { EventList } from './EventList'
 
 jest.mock('../../api/judge')
@@ -26,12 +23,12 @@ describe('EventList', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('should render', async function () {
+  it('should render', async () => {
     const event: DogEvent = {
       ...emptyEvent,
       // Avoid `parseISO('YYYY-MM-DD')` in tests (timezone-dependent).
-      startDate: parseISO('2021-02-10T12:00:00Z'),
       endDate: parseISO('2021-02-11T12:00:00Z'),
+      startDate: parseISO('2021-02-10T12:00:00Z'),
     }
     const { container } = render(
       <ThemeProvider theme={theme}>
@@ -43,7 +40,7 @@ describe('EventList', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('should render registration link', async function () {
+  it('should render registration link', async () => {
     render(
       <ThemeProvider theme={theme}>
         <MemoryRouter>

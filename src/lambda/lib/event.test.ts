@@ -1,7 +1,5 @@
 import type { JsonConfirmedEvent, JsonDogEvent, JsonRegistration, JsonUser } from '../../types'
-
 import { jest } from '@jest/globals'
-
 import { PRIORITY_MEMBER } from '../../lib/priority'
 
 const mockQuery = jest.fn<any>()
@@ -42,12 +40,12 @@ const mockGroupKeyReserve = 'reserve'
 
 jest.unstable_mockModule('../../lib/registration', () => ({
   __esModule: true,
-  sortRegistrationsByDateClassTimeAndNumber: mockSortRegistrationsByDateClassTimeAndNumber,
-  getRegistrationNumberingGroupKey: mockGetRegistrationNumberingGroupKey,
-  getRegistrationGroupKey: mockGetRegistrationGroupKey,
   GROUP_KEY_CANCELLED: mockGroupKeyCancelled,
   GROUP_KEY_RESERVE: mockGroupKeyReserve,
+  getRegistrationGroupKey: mockGetRegistrationGroupKey,
+  getRegistrationNumberingGroupKey: mockGetRegistrationNumberingGroupKey,
   hasPriority: mockHasPriority,
+  sortRegistrationsByDateClassTimeAndNumber: mockSortRegistrationsByDateClassTimeAndNumber,
 }))
 
 const {
@@ -72,7 +70,7 @@ describe('lib/event', () => {
       expect(formatGroupAuditInfo({ key: 'cancelled', number: 5 })).toEqual('Peruneet #5')
       expect(formatGroupAuditInfo({ key: 'reserve', number: 1 })).toEqual('Ilmoittautuneet #1')
       expect(
-        formatGroupAuditInfo({ key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', number: 20, time: 'ip' })
+        formatGroupAuditInfo({ date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' })
       ).toEqual('la 3.8. ip #20')
     })
   })
@@ -82,12 +80,12 @@ describe('lib/event', () => {
       await findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
 
       expect(mockQuery).toHaveBeenCalledWith({
-        key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
-        values: { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
-        table: 'event-table-not-found-in-env',
-        index: 'gsiEventTypeEntryEndDate',
         forward: false,
+        index: 'gsiEventTypeEntryEndDate',
+        key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
         limit: 1,
+        table: 'event-table-not-found-in-env',
+        values: { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
       })
     })
     it.each([undefined, [], [{}], [1, 2]])('should return undefined when query returns %p', (result) => {
@@ -144,12 +142,12 @@ describe('lib/event', () => {
 
     it('updates all classes and event state if all invited', async () => {
       const event = {
-        id: 'e1',
-        state: 'pending',
         classes: [
           { class: 'ALO', state: 'invited' },
           { class: 'AVO', state: 'pending' },
         ],
+        id: 'e1',
+        state: 'pending',
       } as unknown as JsonConfirmedEvent
 
       await markParticipants(event, 'invited', 'AVO')
@@ -169,12 +167,12 @@ describe('lib/event', () => {
 
     it('updates only one class if eventClass is given', async () => {
       const event = {
-        id: 'e2',
-        state: 'pending',
         classes: [
           { class: 'ALO', state: 'pending' },
           { class: 'VOI', state: 'pending' },
         ],
+        id: 'e2',
+        state: 'pending',
       } as unknown as JsonConfirmedEvent
       await markParticipants(event, 'invited', 'ALO')
       expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
@@ -183,13 +181,13 @@ describe('lib/event', () => {
 
     it('does not update event state if not all classes have the same state', async () => {
       const event = {
-        id: 'e3',
-        state: 'confirmed',
         classes: [
           { class: 'ALO', state: 'pending' },
           { class: 'AVO', state: 'pending' },
           { class: 'VOI', state: 'pending' },
         ],
+        id: 'e3',
+        state: 'confirmed',
       } as unknown as JsonConfirmedEvent
 
       await markParticipants(event, 'invited', 'ALO')
@@ -205,12 +203,12 @@ describe('lib/event', () => {
 
     it('handles state progression correctly', async () => {
       const event = {
-        id: 'e4',
-        state: 'confirmed',
         classes: [
           { class: 'ALO', state: 'picked' },
           { class: 'AVO', state: 'picked' },
         ],
+        id: 'e4',
+        state: 'confirmed',
       } as unknown as JsonConfirmedEvent
 
       // Update ALO class to 'invited'
@@ -236,12 +234,12 @@ describe('lib/event', () => {
 
     it('does not downgrade state when lower state is provided', async () => {
       const event = {
-        id: 'e5',
-        state: 'started',
         classes: [
           { class: 'ALO', state: 'started' },
           { class: 'AVO', state: 'invited' },
         ],
+        id: 'e5',
+        state: 'started',
       } as unknown as JsonConfirmedEvent
 
       // Try to downgrade ALO from 'started' to 'invited'
@@ -278,11 +276,11 @@ describe('lib/event', () => {
     })
 
     it('updates event entries and members', async () => {
-      const event = { id: 'e3', classes: [{ class: 'A' }], state: 'ready' }
+      const event = { classes: [{ class: 'A' }], id: 'e3', state: 'ready' }
       mockRead.mockResolvedValueOnce(event)
       const regs = [
-        { class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
-        { class: 'AVO', state: 'ready', cancelled: false, paidAmount: 0 },
+        { cancelled: false, class: 'ALO', paidAmount: 1, state: 'ready' },
+        { cancelled: false, class: 'AVO', paidAmount: 0, state: 'ready' },
       ]
       mockQuery.mockResolvedValueOnce(regs)
 
@@ -297,13 +295,13 @@ describe('lib/event', () => {
     it('avoids noop updates when no changes are detected', async () => {
       // Set up an event with existing entries and members
       const event = {
-        id: 'e4',
-        entries: 2,
-        members: 1,
         classes: [
           { class: 'ALO', entries: 1, members: 0 },
           { class: 'AVO', entries: 1, members: 1 },
         ],
+        entries: 2,
+        id: 'e4',
+        members: 1,
         priority: [PRIORITY_MEMBER],
         state: 'confirmed',
       }
@@ -311,13 +309,13 @@ describe('lib/event', () => {
 
       // Set up registrations that would result in the same counts
       const regs = [
-        { class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
-        { class: 'AVO', state: 'ready', cancelled: false, paidAmount: 0, handler: { membership: true } },
+        { cancelled: false, class: 'ALO', paidAmount: 1, state: 'ready' },
+        { cancelled: false, class: 'AVO', handler: { membership: true }, paidAmount: 0, state: 'ready' },
       ]
       mockQuery.mockResolvedValueOnce(regs)
 
       // Mock hasPriority to return true only for the AVO registration with membership
-      mockHasPriority.mockImplementation((event: any, reg: any) => {
+      mockHasPriority.mockImplementation((_event: any, reg: any) => {
         return reg.class === 'AVO' && reg.handler?.membership === true
       })
 
@@ -330,32 +328,32 @@ describe('lib/event', () => {
 
     it('uses provided updatedRegistrations parameter when available', async () => {
       const event = {
-        id: 'e5',
         classes: [
           { class: 'ALO', entries: 0, members: 0 },
           { class: 'AVO', entries: 0, members: 0 },
         ],
+        id: 'e5',
         state: 'ready',
       }
       mockRead.mockResolvedValueOnce(event)
 
       // These registrations should be used directly without querying the database
       const updatedRegs = [
-        { eventId: 'e5', id: 'r1', class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
-        { eventId: 'e5', id: 'r2', class: 'ALO', state: 'ready', cancelled: false, paidAmount: 1 },
+        { cancelled: false, class: 'ALO', eventId: 'e5', id: 'r1', paidAmount: 1, state: 'ready' },
+        { cancelled: false, class: 'ALO', eventId: 'e5', id: 'r2', paidAmount: 1, state: 'ready' },
         {
-          eventId: 'e5',
-          id: 'r3',
-          class: 'AVO',
-          state: 'ready',
           cancelled: false,
-          paidAmount: 1,
+          class: 'AVO',
+          eventId: 'e5',
           handler: { membership: true },
+          id: 'r3',
+          paidAmount: 1,
+          state: 'ready',
         },
       ] as unknown as JsonRegistration[]
 
       // Mock hasPriority to return true only for the AVO registration with membership
-      mockHasPriority.mockImplementation((event: any, reg: any) => {
+      mockHasPriority.mockImplementation((_event: any, reg: any) => {
         return reg.class === 'AVO' && reg.handler?.membership === true
       })
 
@@ -381,9 +379,9 @@ describe('lib/event', () => {
         { id: 'e5' },
         {
           set: {
+            classes: result.classes,
             entries: 3,
             members: 1,
-            classes: result.classes,
           },
         },
         expect.anything()
@@ -395,13 +393,13 @@ describe('lib/event', () => {
 
     it('handles empty updatedRegistrations array', async () => {
       const event = {
-        id: 'e6',
-        entries: 5,
-        members: 2,
         classes: [
           { class: 'ALO', entries: 3, members: 1 },
           { class: 'AVO', entries: 2, members: 1 },
         ],
+        entries: 5,
+        id: 'e6',
+        members: 2,
         state: 'ready',
       }
       mockRead.mockResolvedValueOnce(event)
@@ -431,9 +429,9 @@ describe('lib/event', () => {
         { id: 'e6' },
         {
           set: {
+            classes: result.classes,
             entries: 0,
             members: 0,
-            classes: result.classes,
           },
         },
         expect.anything()
@@ -456,7 +454,7 @@ describe('lib/event', () => {
     })
 
     it('calls update and audit for cancelled group with reason', async () => {
-      const group = { eventId: 'e4', id: 'r1', group: { key: 'cancelled', number: 1 } }
+      const group = { eventId: 'e4', group: { key: 'cancelled', number: 1 }, id: 'r1' }
       await saveGroup(group, { key: 'reserve', number: 1 }, { name: 'user' } as JsonUser, 'test', 'cancelled by user')
 
       // Verify update was called with correct parameters
@@ -464,9 +462,9 @@ describe('lib/event', () => {
         { eventId: 'e4', id: 'r1' },
         {
           set: {
-            group: { key: 'cancelled', number: 1 },
             cancelled: true,
             cancelReason: 'cancelled by user',
+            group: { key: 'cancelled', number: 1 },
           },
         },
         expect.anything()
@@ -479,8 +477,8 @@ describe('lib/event', () => {
     it('calls update without cancelReason for non-cancelled group', async () => {
       const group = {
         eventId: 'e5',
+        group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' as const },
         id: 'r2',
-        group: { key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', time: 'ip' as const, number: 3 },
       }
       const previousGroup = { key: 'reserve', number: 1 }
       const user = { name: 'admin' } as JsonUser
@@ -492,8 +490,8 @@ describe('lib/event', () => {
         { eventId: 'e5', id: 'r2' },
         {
           set: {
-            group: { key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', time: 'ip', number: 3 },
             cancelled: false,
+            group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' },
           },
         },
         expect.anything()
@@ -502,13 +500,13 @@ describe('lib/event', () => {
       // Verify audit was called with proper message
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        user: 'admin',
         message: expect.stringContaining('Ryhmä: Ilmoittautuneet #1 -> la 3.8. ip #3 manual assignment'),
+        user: 'admin',
       })
     })
 
     it('handles case with no previous group', async () => {
-      const group = { eventId: 'e6', id: 'r3', group: { key: 'reserve', number: 2 } }
+      const group = { eventId: 'e6', group: { key: 'reserve', number: 2 }, id: 'r3' }
       const user = { name: 'secretary' } as JsonUser
 
       await saveGroup(group, undefined, user, 'new registration')
@@ -518,8 +516,8 @@ describe('lib/event', () => {
         { eventId: 'e6', id: 'r3' },
         {
           set: {
-            group: { key: 'reserve', number: 2 },
             cancelled: false,
+            group: { key: 'reserve', number: 2 },
           },
         },
         expect.anything()
@@ -528,14 +526,14 @@ describe('lib/event', () => {
       // Verify audit was called without the previous group info
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        user: 'secretary',
         message: expect.stringContaining('Ryhmä: Ilmoittautuneet #2 new registration'),
+        user: 'secretary',
       })
     })
 
     it('handles cancelled group without cancelReason', async () => {
-      const group = { eventId: 'e7', id: 'r4', group: { key: 'cancelled', number: 5 } }
-      const previousGroup = { key: '2024-08-02-ip', date: '2024-08-02T21:00:00.000Z', time: 'ip' as const, number: 10 }
+      const group = { eventId: 'e7', group: { key: 'cancelled', number: 5 }, id: 'r4' }
+      const previousGroup = { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 10, time: 'ip' as const }
       const user = { name: 'organizer' } as JsonUser
 
       await saveGroup(group, previousGroup, user)
@@ -545,8 +543,8 @@ describe('lib/event', () => {
         { eventId: 'e7', id: 'r4' },
         {
           set: {
-            group: { key: 'cancelled', number: 5 },
             cancelled: true,
+            group: { key: 'cancelled', number: 5 },
           },
         },
         expect.anything()
@@ -555,8 +553,8 @@ describe('lib/event', () => {
       // Verify audit was called
       expect(mockAudit).toHaveBeenCalledWith({
         auditKey: 'audit-key',
-        user: 'organizer',
         message: expect.stringContaining('Ryhmä: la 3.8. ip #10 -> Peruneet #5'),
+        user: 'organizer',
       })
     })
   })
@@ -644,8 +642,8 @@ describe('lib/event', () => {
         {
           class: 'ALO',
           eventId: 'event1',
-          id: 'reg1',
           group: { key: 'old-key', number: 1 },
+          id: 'reg1',
         },
       ] as JsonRegistration[]
 
@@ -664,9 +662,9 @@ describe('lib/event', () => {
         {
           class: 'ALO',
           group: {
+            date: '2024-08-02T21:00:00.000Z',
             key: 'A',
             number: 3,
-            date: '2024-08-02T21:00:00.000Z',
             time: 'ip',
           },
         },
@@ -760,9 +758,9 @@ describe('lib/event', () => {
         .mockReturnValueOnce('2024-08-02-ip')
 
       const regs = [
-        { class: 'ALO', date: '2024-08-02', time: 'ap', group: { key: 'old', number: 5 } },
-        { class: 'ALO', date: '2024-08-02', time: 'ap', group: { key: 'old', number: 3 } },
-        { class: 'ALO', date: '2024-08-02', time: 'ip', group: { key: 'old', number: 7 } },
+        { class: 'ALO', date: '2024-08-02', group: { key: 'old', number: 5 }, time: 'ap' },
+        { class: 'ALO', date: '2024-08-02', group: { key: 'old', number: 3 }, time: 'ap' },
+        { class: 'ALO', date: '2024-08-02', group: { key: 'old', number: 7 }, time: 'ip' },
       ] as unknown as JsonRegistration[]
 
       const result = await fixRegistrationGroups(regs, user, false)
@@ -789,8 +787,8 @@ describe('lib/event', () => {
       mockGetRegistrationGroupKey.mockReturnValueOnce(mockGroupKeyCancelled).mockReturnValueOnce(mockGroupKeyReserve)
 
       const regs = [
-        { class: 'ALO', cancelled: true, group: { key: 'old', number: 3 } },
-        { class: 'ALO', state: 'pending', group: { key: 'old', number: 2 } },
+        { cancelled: true, class: 'ALO', group: { key: 'old', number: 3 } },
+        { class: 'ALO', group: { key: 'old', number: 2 }, state: 'pending' },
       ] as unknown as JsonRegistration[]
 
       const result = await fixRegistrationGroups(regs, user, true)

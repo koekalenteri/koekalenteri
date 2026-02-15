@@ -1,9 +1,6 @@
 import type { AwsRum } from 'aws-rum-web'
-
 import * as awsRum from 'aws-rum-web'
-
 import * as amplifyEnv from '../../amplify-env'
-
 import { rum } from './rum'
 
 jest.mock('aws-rum-web')

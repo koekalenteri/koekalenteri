@@ -1,12 +1,11 @@
 import type { YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
-
 import { jest } from '@jest/globals'
 
 const mockResponse = jest.fn()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
+  lambda: jest.fn((_name, fn) => fn),
   response: mockResponse,
-  lambda: jest.fn((name, fn) => fn),
 }))
 
 // Mock the stats functions
@@ -15,9 +14,9 @@ const mockGetAvailableYears = jest.fn<() => Promise<number[]>>()
 const mockGetDogHandlerBuckets = jest.fn<() => Promise<{ bucket: string; count: number }[]>>()
 
 jest.unstable_mockModule('../lib/stats', () => ({
-  getYearlyTotalStats: mockGetYearlyTotalStats,
   getAvailableYears: mockGetAvailableYears,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
+  getYearlyTotalStats: mockGetYearlyTotalStats,
 }))
 
 describe('GetYearlyStatsFunction', () => {
@@ -30,15 +29,15 @@ describe('GetYearlyStatsFunction', () => {
     handler = module.default
 
     // Default mock responses
-    mockResponse.mockImplementation((status, body) => ({ status, body }))
+    mockResponse.mockImplementation((status, body) => ({ body, status }))
   })
 
   it('returns stats for a specific year when year parameter is provided', async () => {
     // Mock data
     const year = 2024
     const totals: YearlyTotalStat[] = [
-      { year, type: 'dog' as YearlyStatTypes, count: 150 },
-      { year, type: 'handler' as YearlyStatTypes, count: 100 },
+      { count: 150, type: 'dog' as YearlyStatTypes, year },
+      { count: 100, type: 'handler' as YearlyStatTypes, year },
     ]
     const dogHandlerBuckets = [
       { bucket: '1', count: 50 },
@@ -58,15 +57,15 @@ describe('GetYearlyStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).toHaveBeenCalledWith(year)
 
     // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(200, { year, totals, dogHandlerBuckets }, event)
-    expect(result.body).toEqual({ year, totals, dogHandlerBuckets })
+    expect(mockResponse).toHaveBeenCalledWith(200, { dogHandlerBuckets, totals, year }, event)
+    expect(result.body).toEqual({ dogHandlerBuckets, totals, year })
   })
 
   it('returns stats for all available years when no year parameter is provided', async () => {
     // Mock data
     const years = [2023, 2024]
-    const totals2023: YearlyTotalStat[] = [{ year: 2023, type: 'dog' as YearlyStatTypes, count: 100 }]
-    const totals2024: YearlyTotalStat[] = [{ year: 2024, type: 'dog' as YearlyStatTypes, count: 150 }]
+    const totals2023: YearlyTotalStat[] = [{ count: 100, type: 'dog' as YearlyStatTypes, year: 2023 }]
+    const totals2024: YearlyTotalStat[] = [{ count: 150, type: 'dog' as YearlyStatTypes, year: 2024 }]
     const buckets2023 = [{ bucket: '1', count: 40 }]
     const buckets2024 = [{ bucket: '1', count: 50 }]
 
@@ -92,11 +91,11 @@ describe('GetYearlyStatsFunction', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        years,
         stats: [
-          { year: 2023, totals: totals2023, dogHandlerBuckets: buckets2023 },
-          { year: 2024, totals: totals2024, dogHandlerBuckets: buckets2024 },
+          { dogHandlerBuckets: buckets2023, totals: totals2023, year: 2023 },
+          { dogHandlerBuckets: buckets2024, totals: totals2024, year: 2024 },
         ],
+        years,
       },
       event
     )
@@ -105,8 +104,8 @@ describe('GetYearlyStatsFunction', () => {
   it('handles invalid year parameter gracefully', async () => {
     // Mock data for the fallback to all years
     const years = [2023, 2024]
-    const totals2023: YearlyTotalStat[] = [{ year: 2023, type: 'dog' as YearlyStatTypes, count: 100 }]
-    const totals2024: YearlyTotalStat[] = [{ year: 2024, type: 'dog' as YearlyStatTypes, count: 150 }]
+    const totals2023: YearlyTotalStat[] = [{ count: 100, type: 'dog' as YearlyStatTypes, year: 2023 }]
+    const totals2024: YearlyTotalStat[] = [{ count: 150, type: 'dog' as YearlyStatTypes, year: 2024 }]
     const buckets2023 = [{ bucket: '1', count: 40 }]
     const buckets2024 = [{ bucket: '1', count: 50 }]
 
@@ -130,11 +129,11 @@ describe('GetYearlyStatsFunction', () => {
 
     // Verify response structure
     expect(result.body).toEqual({
-      years,
       stats: [
-        { year: 2023, totals: totals2023, dogHandlerBuckets: buckets2023 },
-        { year: 2024, totals: totals2024, dogHandlerBuckets: buckets2024 },
+        { dogHandlerBuckets: buckets2023, totals: totals2023, year: 2023 },
+        { dogHandlerBuckets: buckets2024, totals: totals2024, year: 2024 },
       ],
+      years,
     })
   })
 })

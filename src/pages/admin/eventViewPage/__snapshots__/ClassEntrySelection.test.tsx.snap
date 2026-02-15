@@ -10,10 +10,10 @@ exports[`ClassEntrySelection renders 1`] = `
      
   </h6>
   <div
-    class="MuiBox-root css-1hvfy3o"
+    class="MuiBox-root css-1ritpky"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c3kbsf-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-n0c5wg-MuiDataGrid-root"
       style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -553,21 +553,21 @@ exports[`ClassEntrySelection renders 1`] = `
     </div>
   </div>
   <div
-    style="overflow-y: auto; display: flex; flex-grow: 1; flex-direction: column; width: 100%; height: 100%;"
+    style="display: flex; flex-direction: column; flex-grow: 1; height: 100%; overflow-y: auto; width: 100%;"
   >
     <div
       class=""
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
-          class="MuiStack-root header css-1d532f0-MuiStack-root"
+          class="MuiStack-root header css-2dwcah-MuiStack-root"
         >
           <div
-            class="MuiBox-root css-55zn6h"
+            class="MuiBox-root css-1niois2"
           />
           <b>
             dateFormat.wdshort date registration.timeLong.ap
@@ -1071,7 +1071,7 @@ exports[`ClassEntrySelection renders 1`] = `
                 style="height: 40px; width: 100px;"
               >
                 <div
-                  class="no-rows MuiBox-root css-1jpcp03"
+                  class="no-rows MuiBox-root css-1k75hwm"
                 >
                   Raahaa osallistujat tähän!
                 </div>
@@ -1120,14 +1120,14 @@ exports[`ClassEntrySelection renders 1`] = `
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
-          class="MuiStack-root header css-1d532f0-MuiStack-root"
+          class="MuiStack-root header css-2dwcah-MuiStack-root"
         >
           <div
-            class="MuiBox-root css-q8fzbv"
+            class="MuiBox-root css-nawqec"
           />
           <b>
             dateFormat.wdshort date registration.timeLong.ip
@@ -1631,7 +1631,7 @@ exports[`ClassEntrySelection renders 1`] = `
                 style="height: 40px; width: 100px;"
               >
                 <div
-                  class="no-rows MuiBox-root css-1jpcp03"
+                  class="no-rows MuiBox-root css-1k75hwm"
                 >
                   Raahaa osallistujat tähän!
                 </div>
@@ -1689,7 +1689,7 @@ exports[`ClassEntrySelection renders 1`] = `
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -2244,7 +2244,7 @@ exports[`ClassEntrySelection renders 1`] = `
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 910px; --DataGrid-columnsTotalWidth: 910px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -2853,10 +2853,10 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
      
   </h6>
   <div
-    class="MuiBox-root css-1hvfy3o"
+    class="MuiBox-root css-1ritpky"
   >
     <div
-      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c3kbsf-MuiDataGrid-root"
+      class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-n0c5wg-MuiDataGrid-root"
       style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 36px;"
     >
       <div
@@ -3396,21 +3396,21 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
     </div>
   </div>
   <div
-    style="overflow-y: auto; display: flex; flex-grow: 1; flex-direction: column; width: 100%; height: 100%;"
+    style="display: flex; flex-direction: column; flex-grow: 1; height: 100%; overflow-y: auto; width: 100%;"
   >
     <div
       class=""
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
-          class="MuiStack-root header css-1d532f0-MuiStack-root"
+          class="MuiStack-root header css-2dwcah-MuiStack-root"
         >
           <div
-            class="MuiBox-root css-55zn6h"
+            class="MuiBox-root css-1niois2"
           />
           <b>
             dateFormat.wdshort date registration.timeLong.ap
@@ -3914,7 +3914,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 style="height: 40px; width: 100px;"
               >
                 <div
-                  class="no-rows MuiBox-root css-1jpcp03"
+                  class="no-rows MuiBox-root css-1k75hwm"
                 >
                   Raahaa osallistujat tähän!
                 </div>
@@ -3963,14 +3963,14 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
-          class="MuiStack-root header css-1d532f0-MuiStack-root"
+          class="MuiStack-root header css-2dwcah-MuiStack-root"
         >
           <div
-            class="MuiBox-root css-q8fzbv"
+            class="MuiBox-root css-nawqec"
           />
           <b>
             dateFormat.wdshort date registration.timeLong.ip
@@ -4474,7 +4474,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                 style="height: 40px; width: 100px;"
               >
                 <div
-                  class="no-rows MuiBox-root css-1jpcp03"
+                  class="no-rows MuiBox-root css-1k75hwm"
                 >
                   Raahaa osallistujat tähän!
                 </div>
@@ -4532,7 +4532,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -5044,7 +5044,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   data-rowindex="0"
                   draggable="true"
                   role="row"
-                  style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                  style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                 >
                   <div
                     class="MuiDataGrid-cellOffsetLeft"
@@ -5075,14 +5075,14 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     </svg>
                     <div
                       aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                      class="MuiStack-root css-156fqfh-MuiStack-root"
+                      class="MuiStack-root css-1egz6qo-MuiStack-root"
                       data-mui-internal-clone-element="true"
                     >
                       <div
-                        class="MuiBox-root css-14hq1a2"
+                        class="MuiBox-root css-o276wh"
                       />
                       <div
-                        class="MuiBox-root css-1urbi4i"
+                        class="MuiBox-root css-14r9ivc"
                       />
                     </div>
                   </div>
@@ -5135,9 +5135,9 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     role="gridcell"
                     style="--width: 150px;"
                     tabindex="-1"
-                    title="110.M ns, defaultValue"
+                    title="110.M defaultValue, ns"
                   >
-                    110.M ns, defaultValue
+                    110.M defaultValue, ns
                   </div>
                   <div
                     aria-colindex="6"
@@ -5281,7 +5281,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         />
                       </svg>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                       >
                         0
                       </div>
@@ -5372,7 +5372,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-8r06gr-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-14m3uss-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 910px; --DataGrid-columnsTotalWidth: 910px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -5934,7 +5934,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   data-rowindex="0"
                   draggable="true"
                   role="row"
-                  style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                  style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                 >
                   <div
                     class="MuiDataGrid-cellOffsetLeft"
@@ -5965,14 +5965,14 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     </svg>
                     <div
                       aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                      class="MuiStack-root css-156fqfh-MuiStack-root"
+                      class="MuiStack-root css-1egz6qo-MuiStack-root"
                       data-mui-internal-clone-element="true"
                     >
                       <div
-                        class="MuiBox-root css-14hq1a2"
+                        class="MuiBox-root css-o276wh"
                       />
                       <div
-                        class="MuiBox-root css-1urbi4i"
+                        class="MuiBox-root css-14r9ivc"
                       />
                     </div>
                   </div>
@@ -6025,9 +6025,9 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                     role="gridcell"
                     style="--width: 150px;"
                     tabindex="-1"
-                    title="110.M ns, defaultValue"
+                    title="110.M defaultValue, ns"
                   >
-                    110.M ns, defaultValue
+                    110.M defaultValue, ns
                   </div>
                   <div
                     aria-colindex="6"
@@ -6182,7 +6182,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                         />
                       </svg>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                       >
                         0
                       </div>

@@ -1,12 +1,10 @@
 import type { ChangeEvent } from 'react'
 import type { Headquarters } from '../../../../types'
 import type { SectionProps } from './types'
-
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-
+import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 
 interface Props extends Readonly<Omit<SectionProps, 'event'>> {

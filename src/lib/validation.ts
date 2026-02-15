@@ -1,7 +1,5 @@
 import type { Person } from '../types'
-
 import { matchIsValidTel } from 'mui-tel-input'
-
 import { validEmail } from './email'
 
 const RE_RegNo = /^[A-ZÖ]{1,2}[A-Z\-/ .]{0,8}[\d/-]{4,12}$/

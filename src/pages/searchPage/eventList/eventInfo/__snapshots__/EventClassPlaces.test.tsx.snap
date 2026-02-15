@@ -5,7 +5,7 @@ exports[`EventStateInfo should render with one class 1`] = `
   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
 >
   <div
-    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 css-fleitu-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 css-vcp79b-MuiGrid-root"
   />
   <div
     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"
@@ -30,12 +30,12 @@ exports[`EventStateInfo should render with two classes 1`] = `
   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
 >
   <div
-    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1nqaa3n-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-19jybh2-MuiGrid-root"
   >
     ALO
   </div>
   <div
-    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-12rrlgf-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1fgirho-MuiGrid-root"
   >
     dateFormat.wdshort date
   </div>
@@ -62,7 +62,7 @@ exports[`EventStateInfo should render without classes 1`] = `
   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
 >
   <div
-    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 css-fleitu-MuiGrid-root"
+    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 css-vcp79b-MuiGrid-root"
   />
   <div
     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1ml28lu-MuiGrid-root"

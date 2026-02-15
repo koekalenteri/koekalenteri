@@ -1,5 +1,4 @@
 import type { JsonRegistration, Registration } from '../types'
-
 import {
   registrationDogAged10MonthsAndNoResults,
   registrationDogAged20MonthsAndNoResults,
@@ -17,90 +16,90 @@ const mockRegistrationDefaults: Omit<
   Registration,
   'id' | 'createdAt' | 'modifiedAt' | 'eventId' | 'eventType' | 'dates' | 'dog'
 > = {
-  createdBy: 'anonymous',
-  modifiedBy: 'anonymous',
   agreeToTerms: true,
   breeder: {
-    name: 'Breeder Name',
     location: 'Breeder Location',
+    name: 'Breeder Name',
   },
+  cancelled: false,
+  createdBy: 'anonymous',
   handler: {
-    name: 'Handler Name',
-    location: 'Handler Location',
     email: 'handler@example.com',
+    location: 'Handler Location',
+    membership: false,
+    name: 'Handler Name',
     phone: '+3584054321',
-    membership: false,
-  },
-  owner: {
-    name: 'Owner Name',
-    location: 'Owner Location',
-    email: 'owner@example.com',
-    phone: '+3584012345',
-    membership: false,
-  },
-  payer: {
-    name: 'Payer Name',
-    email: 'payer@exmaple.com',
-    phone: '+3584055555',
   },
   language: 'fi' as const,
+  modifiedBy: 'anonymous',
   notes: 'additional notes',
+  owner: {
+    email: 'owner@example.com',
+    location: 'Owner Location',
+    membership: false,
+    name: 'Owner Name',
+    phone: '+3584012345',
+  },
+  payer: {
+    email: 'payer@exmaple.com',
+    name: 'Payer Name',
+    phone: '+3584055555',
+  },
   qualifies: true,
   qualifyingResults: [],
   reserve: 'ANY' as const,
   state: 'ready' as const,
-  cancelled: false,
 }
 
 export const registrationWithStaticDates: Registration = {
-  id: 'nou-registration',
+  agreeToTerms: true,
+  breeder: {
+    location: 'Breeder Location',
+    name: 'Breeder Name',
+  },
+  createdAt: eventWithStaticDates.entryStartDate,
+  createdBy: 'anonymous',
+  dates: [{ date: eventWithStaticDates.startDate, time: 'ap' }],
+  dog: registrationDogAged10MonthsAndNoResults,
   eventId: eventWithStaticDates.id,
   eventType: eventWithStaticDates.eventType,
-  createdAt: eventWithStaticDates.entryStartDate,
-  modifiedAt: eventWithStaticDates.entryStartDate,
-  createdBy: 'anonymous',
-  modifiedBy: 'anonymous',
-  agreeToTerms: true,
-  dates: [{ date: eventWithStaticDates.startDate, time: 'ap' }],
-  breeder: {
-    name: 'Breeder Name',
-    location: 'Breeder Location',
-  },
   handler: {
-    name: 'Handler Name',
-    location: 'Handler Location',
     email: 'handler@example.com',
+    location: 'Handler Location',
+    membership: false,
+    name: 'Handler Name',
     phone: '+3584054321',
-    membership: false,
   },
-  owner: {
-    name: 'Owner Name',
-    location: 'Owner Location',
-    email: 'owner@example.com',
-    phone: '+3584012345',
-    membership: false,
-  },
-  payer: {
-    name: 'Owner Name',
-    email: 'owner@example.com',
-    phone: '+3584012345',
-  },
+  id: 'nou-registration',
   language: 'fi',
+  modifiedAt: eventWithStaticDates.entryStartDate,
+  modifiedBy: 'anonymous',
   notes: 'additional notes',
+  owner: {
+    email: 'owner@example.com',
+    location: 'Owner Location',
+    membership: false,
+    name: 'Owner Name',
+    phone: '+3584012345',
+  },
+  paidAmount: 123,
+  paidAt: eventWithStaticDates.entryStartDate,
+  payer: {
+    email: 'owner@example.com',
+    name: 'Owner Name',
+    phone: '+3584012345',
+  },
+  paymentStatus: 'SUCCESS',
   qualifies: true,
   qualifyingResults: [],
   reserve: 'ANY',
-  dog: registrationDogAged10MonthsAndNoResults,
-  paidAt: eventWithStaticDates.entryStartDate,
-  paidAmount: 123,
-  paymentStatus: 'SUCCESS',
 }
 
 export const unpaidRegistrationWithStaticDates: Registration = {
   ...registrationWithStaticDates,
   id: 'unpaid-nou-registration',
-  paidAt: undefined,
   paidAmount: undefined,
+  paidAt: undefined,
   paymentStatus: undefined,
 }
 
@@ -114,10 +113,10 @@ const unpaidPickedRegistrationWithStaticDates: Registration = {
 const paidAndPickedRegistrationWithStaticDates: Registration = {
   ...registrationWithStaticDates,
   id: 'paid-and-picked-nou-registration',
-  paymentStatus: 'SUCCESS',
   messagesSent: {
     picked: true,
   },
+  paymentStatus: 'SUCCESS',
 }
 const invitationAttachmentRegistration: Registration = {
   ...registrationWithStaticDates,
@@ -128,23 +127,23 @@ const invitationAttachmentRegistration: Registration = {
 
 export const registrationWithStaticDatesAndClass: Registration = {
   ...registrationWithStaticDates,
-
-  id: 'nome-b-alo-registration',
-  eventId: eventWithStaticDatesAndClass.id,
-  eventType: eventWithStaticDatesAndClass.eventType,
   class: 'ALO',
   createdAt: eventWithStaticDatesAndClass.entryStartDate,
+  dog: registrationDogAged28MonthsWithNOUResult,
+  eventId: eventWithStaticDatesAndClass.id,
+  eventType: eventWithStaticDatesAndClass.eventType,
+
+  id: 'nome-b-alo-registration',
   modifiedAt: eventWithStaticDatesAndClass.entryStartDate,
   qualifies: true,
   qualifyingResults: registrationDogAged28MonthsWithNOUResult.results.map((r) => ({ ...r, official: true })),
-  dog: registrationDogAged28MonthsWithNOUResult,
 }
 
 export const unpaidRegistrationWithStaticDatesAndClass: Registration = {
   ...registrationWithStaticDates,
   id: 'unpaid-nome-b-alo-registration',
-  paidAt: undefined,
   paidAmount: undefined,
+  paidAt: undefined,
   paymentStatus: undefined,
 }
 
@@ -153,148 +152,148 @@ export const registrationWithManualResults: Registration = {
   class: 'AVO',
   results: [
     {
-      id: 'manual-result-1',
-      regNo: registrationWithStaticDatesAndClass.dog.regNo,
-      official: false,
-      type: 'NOME-B',
       class: 'ALO',
-      result: 'ALO1',
       date: registrationWithStaticDatesAndClass.createdAt,
+      id: 'manual-result-1',
       judge: 'Manual Judge',
       location: 'Somewhere',
+      official: false,
+      regNo: registrationWithStaticDatesAndClass.dog.regNo,
+      result: 'ALO1',
+      type: 'NOME-B',
     },
     {
-      id: 'manual-result-2',
-      regNo: registrationWithStaticDatesAndClass.dog.regNo,
-      official: false,
-      type: 'NOME-B',
       class: 'ALO',
-      result: 'ALO1',
       date: registrationWithStaticDatesAndClass.createdAt,
+      id: 'manual-result-2',
       judge: 'Manual Judge 2',
       location: 'Somewhere Else',
+      official: false,
+      regNo: registrationWithStaticDatesAndClass.dog.regNo,
+      result: 'ALO1',
+      type: 'NOME-B',
     },
   ],
 }
 
 export const registrationWithStaticDatesCancelled: Registration = {
   ...registrationWithStaticDates,
-
-  id: 'cancelled-registration',
   cancelled: true,
   dog: registrationDogAged20MonthsAndNoResults,
+
+  id: 'cancelled-registration',
 }
 
 const registrationToEventWithEntryClosedBase: Omit<Registration, 'id' | 'dates'> = {
   ...mockRegistrationDefaults,
+  createdAt: eventWithEntryClosed.entryStartDate,
+  dog: registrationDogAged28MonthsWithNOUResult,
   eventId: eventWithEntryClosed.id,
   eventType: eventWithEntryClosed.eventType,
-  dog: registrationDogAged28MonthsWithNOUResult,
-  createdAt: eventWithEntryClosed.entryStartDate,
   modifiedAt: eventWithEntryClosed.entryEndDate,
 }
 
 export const registrationsToEventWithEntryClosed: Registration[] = [
   {
     ...registrationToEventWithEntryClosedBase,
-    id: eventWithEntryClosed.id + '1',
     class: 'ALO',
     dates: [{ date: eventWithEntryClosed.startDate, time: 'ap' }],
+    id: `${eventWithEntryClosed.id}1`,
   },
   {
     ...registrationToEventWithEntryClosedBase,
-    id: eventWithEntryClosed.id + '2',
     class: 'ALO',
     dates: [
       { date: eventWithEntryClosed.startDate, time: 'ap' },
       { date: eventWithEntryClosed.startDate, time: 'ip' },
     ],
+    id: `${eventWithEntryClosed.id}2`,
   },
   {
     ...registrationToEventWithEntryClosedBase,
-    id: eventWithEntryClosed.id + '3',
     class: 'AVO',
     dates: [{ date: eventWithEntryClosed.startDate, time: 'ap' }],
+    id: `${eventWithEntryClosed.id}3`,
   },
   {
     ...registrationToEventWithEntryClosedBase,
-    id: eventWithEntryClosed.id + '4',
     class: 'AVO',
     dates: [{ date: eventWithEntryClosed.startDate, time: 'ip' }],
+    id: `${eventWithEntryClosed.id}4`,
   },
   {
     ...registrationToEventWithEntryClosedBase,
-    id: eventWithEntryClosed.id + '5',
-    class: 'ALO',
-    dates: [{ date: eventWithEntryClosed.startDate, time: 'ip' }],
     cancelled: true,
     cancelReason: 'koska mä voin',
+    class: 'ALO',
+    dates: [{ date: eventWithEntryClosed.startDate, time: 'ip' }],
+    id: `${eventWithEntryClosed.id}5`,
   },
 ]
 
 const registrationToEventWithParticipantsInvitedBase = {
   ...mockRegistrationDefaults,
+  createdAt: eventWithParticipantsInvited.entryStartDate,
+  dog: registrationDogAged28MonthsWithNOUResult,
   eventId: eventWithParticipantsInvited.id,
   eventType: eventWithParticipantsInvited.eventType,
-  dog: registrationDogAged28MonthsWithNOUResult,
-  createdAt: eventWithParticipantsInvited.entryStartDate,
   modifiedAt: eventWithParticipantsInvited.entryEndDate,
 }
 
 export const registrationsToEventWithParticipantsInvited: Registration[] = [
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '1',
     class: 'ALO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 1, key: 'ALO-AP' },
+    group: { date: eventWithParticipantsInvited.startDate, key: 'ALO-AP', number: 1, time: 'ap' },
+    id: `${eventWithParticipantsInvited.id}1`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '2',
     class: 'ALO',
     dates: [
       { date: eventWithParticipantsInvited.startDate, time: 'ap' },
       { date: eventWithParticipantsInvited.startDate, time: 'ip' },
     ],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 2, key: 'ALO-IP' },
+    group: { date: eventWithParticipantsInvited.startDate, key: 'ALO-IP', number: 2, time: 'ip' },
+    id: `${eventWithParticipantsInvited.id}2`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '3',
     class: 'AVO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ap', number: 3, key: 'AVO-AP' },
+    group: { date: eventWithParticipantsInvited.startDate, key: 'AVO-AP', number: 3, time: 'ap' },
+    id: `${eventWithParticipantsInvited.id}3`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '4',
     class: 'AVO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
-    group: { date: eventWithParticipantsInvited.startDate, time: 'ip', number: 4, key: 'AVO-IP' },
+    group: { date: eventWithParticipantsInvited.startDate, key: 'AVO-IP', number: 4, time: 'ip' },
+    id: `${eventWithParticipantsInvited.id}4`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '5',
-    class: 'ALO',
-    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
     cancelled: true,
     cancelReason: 'koska mä voin',
-    group: { number: 1, key: 'cancelled' },
+    class: 'ALO',
+    dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ip' }],
+    group: { key: 'cancelled', number: 1 },
+    id: `${eventWithParticipantsInvited.id}5`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '6',
     class: 'ALO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { number: 1, key: 'reserve' },
+    group: { key: 'reserve', number: 1 },
+    id: `${eventWithParticipantsInvited.id}6`,
   },
   {
     ...registrationToEventWithParticipantsInvitedBase,
-    id: eventWithParticipantsInvited.id + '7',
     class: 'ALO',
     dates: [{ date: eventWithParticipantsInvited.startDate, time: 'ap' }],
-    group: { number: 2, key: 'reserve' },
+    group: { key: 'reserve', number: 2 },
+    id: `${eventWithParticipantsInvited.id}7`,
   },
 ]
 
@@ -306,9 +305,19 @@ export const jsonRegistrationsToEventWithALOInvited: JsonRegistration[] =
   jsonRegistrationsToEventWithParticipantsInvited.map((r, i) => ({
     ...r,
     eventId: eventWithALOClassInvited.id,
+    handler: r.handler
+      ? {
+          ...r.handler,
+          email: r.handler.email.split('@').join(`${i + 1}@`),
+        }
+      : r.handler,
     id: `${eventWithALOClassInvited.id}${i + 1}`,
-    handler: { ...r.handler!, email: r.handler!.email.split('@').join(`${i + 1}@`) },
-    owner: { ...r.owner!, email: r.owner!.email.split('@').join(`${i + 1}@`) },
+    owner: r.owner
+      ? {
+          ...r.owner,
+          email: r.owner.email.split('@').join(`${i + 1}@`),
+        }
+      : r.owner,
   }))
 
 export const mockRegistrationData = [

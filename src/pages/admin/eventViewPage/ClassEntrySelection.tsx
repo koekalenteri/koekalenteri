@@ -2,24 +2,21 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { SetterOrUpdater } from 'recoil'
 import type { CustomCost, DogEvent, EventClassState, EventState, Registration, RegistrationDate } from '../../../types'
 import type { DragItem, RegistrationWithGroups } from './classEntrySelection/types'
-
+import Box from '@mui/material/Box'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+import { useConfirm } from 'material-ui-confirm'
 import { Fragment, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
 import { useTranslation } from 'react-i18next'
-import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-import Typography from '@mui/material/Typography'
-import { useConfirm } from 'material-ui-confirm'
-
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
-
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import {
@@ -73,11 +70,11 @@ const ClassEntrySelection = ({
   // Extract entry handlers to dedicated hook
   const { handleOpen, handleCancel, handleRefund, handleSelectionModeChange, handleCellClick, handleDoubleClick } =
     useEntryHandlers({
-      setOpen,
+      registrations,
       setCancelOpen,
+      setOpen,
       setRefundOpen,
       setSelectedRegistrationId,
-      registrations,
     })
 
   const dates = useAdminEventRegistrationDates(event, eventClass)
@@ -115,22 +112,22 @@ const ClassEntrySelection = ({
 
   // Extract DnD handlers to dedicated hook
   const { handleDrop, handleReject } = useDnDHandlers({
-    registrations,
-    state,
     canArrangeReserve,
     confirm,
-    setSelectedRegistrationId,
-    saveGroups: actions.saveGroups,
     onCancelOpen: handleCancel,
+    registrations,
+    saveGroups: actions.saveGroups,
+    setSelectedRegistrationId,
+    state,
   })
 
   return (
     <DndProvider backend={HTML5Backend}>
       <Typography variant="h6">
-        Osallistujat {eventClass} {state ? ' - ' + t(`event.states.${state}`) : ''}
+        Osallistujat {eventClass} {state ? ` - ${t(`event.states.${state}`)}` : ''}
       </Typography>
       {/* column headers only */}
-      <Box sx={{ height: 40, flexShrink: 0, width: '100%', overflow: 'hidden' }}>
+      <Box sx={{ flexShrink: 0, height: 40, overflow: 'hidden', width: '100%' }}>
         <StyledDataGrid
           columns={participantColumns}
           initialState={{ density: 'compact' }}
@@ -144,12 +141,12 @@ const ClassEntrySelection = ({
       </Box>
       <ScrollDiv
         style={{
-          overflowY: 'auto',
           display: 'flex',
-          flexGrow: 1,
           flexDirection: 'column',
-          width: '100%',
+          flexGrow: 1,
           height: '100%',
+          overflowY: 'auto',
+          width: '100%',
         }}
       >
         {groups.map((group) => (
@@ -170,23 +167,23 @@ const ClassEntrySelection = ({
               onCellClick={handleCellClick}
               onRowDoubleClick={handleDoubleClick}
               slots={{
-                toolbar: GroupHeader,
                 noRowsOverlay: NoRowsOverlay,
+                toolbar: GroupHeader,
               }}
               slotProps={{
+                row: {
+                  groupKey: group.key,
+                },
                 toolbar: {
                   available: groups,
                   group: group,
-                },
-                row: {
-                  groupKey: group.key,
                 },
               }}
               onDrop={handleDrop(group)}
               onReject={handleReject(group)}
             />
             {(selectedAdditionalCostsByGroup[group.key] ?? []).length > 0 ? (
-              <Stack key={group.key + 'add'} direction="row" justifyContent="flex-end" px={1}>
+              <Stack key={`${group.key}add`} direction="row" justifyContent="flex-end" px={1}>
                 <Typography variant="caption">
                   {selectedAdditionalCostsByGroup[group.key]
                     .map((sac) => `${sac.cost.description.fi} x ${sac.count}`)

@@ -3,7 +3,7 @@
 exports[`EventList should render 1`] = `
 <div>
   <article
-    class="MuiBox-root css-q5c7nu"
+    class="MuiBox-root css-3xv5eg"
   >
     <div
       aria-level="2"
@@ -58,15 +58,15 @@ exports[`EventList should render 1`] = `
           </div>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-auto css-tm6qyb-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-sm-auto MuiGrid-grid-xs-12 css-tm6qyb-MuiGrid-root"
         >
           <div
             class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
           >
-            dateFormat.datespan start, end
+            dateFormat.datespan end, start
           </div>
           <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow MuiGrid-grid-sm-auto css-b1w6g-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-auto MuiGrid-grid-xs-grow css-b1w6g-MuiGrid-root"
           >
             test
           </div>
@@ -81,7 +81,7 @@ exports[`EventList should render 1`] = `
           </div>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-grow css-7fxid0-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-sm-grow MuiGrid-grid-xs-12 css-7fxid0-MuiGrid-root"
         >
           <div
             class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
@@ -89,7 +89,7 @@ exports[`EventList should render 1`] = `
             test
           </div>
           <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow MuiGrid-grid-sm-auto css-b1w6g-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-auto MuiGrid-grid-xs-grow css-b1w6g-MuiGrid-root"
           >
             test
           </div>
@@ -124,24 +124,24 @@ exports[`EventList should render 1`] = `
             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-cezn5j-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-17nguuu-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-17nguuu-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 entryTime
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                dateFormat.datespan start, end
+                dateFormat.datespan end, start
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-grow css-1xr1z0j-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-grow MuiGrid-grid-xs-12 css-1xr1z0j-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.classPlaces
               </div>
@@ -155,7 +155,7 @@ exports[`EventList should render 1`] = `
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-15bfe7d-MuiGrid-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
                     >
                       event.classPlacesHeader.name
                     </span>
@@ -164,7 +164,7 @@ exports[`EventList should render 1`] = `
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1oxte1b-MuiGrid-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
                     >
                       event.classPlacesHeader.dates
                     </span>
@@ -173,7 +173,7 @@ exports[`EventList should render 1`] = `
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
                     >
                       event.classPlacesHeader.entries
                     </span>
@@ -182,7 +182,7 @@ exports[`EventList should render 1`] = `
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
                     >
                       event.classPlacesHeader.places
                     </span>
@@ -191,7 +191,7 @@ exports[`EventList should render 1`] = `
                     class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-jxgdt2-MuiGrid-root"
                   >
                     <span
-                      class="MuiTypography-root MuiTypography-caption css-1x6z8r2-MuiTypography-root"
+                      class="MuiTypography-root MuiTypography-caption css-va30oc-MuiTypography-root"
                     >
                       event.classPlacesHeader.members
                     </span>
@@ -201,12 +201,12 @@ exports[`EventList should render 1`] = `
                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-fcgc4g-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-1nqaa3n-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-2 css-19jybh2-MuiGrid-root"
                   >
                     ALO
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-12rrlgf-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-4 css-1fgirho-MuiGrid-root"
                   >
                     dateFormat.wdshort date
                   </div>
@@ -229,10 +229,10 @@ exports[`EventList should render 1`] = `
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-jpnxb7-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-jpnxb7-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.judges
               </div>
@@ -247,10 +247,10 @@ exports[`EventList should render 1`] = `
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-17om6ex-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-17om6ex-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.official
               </div>
@@ -261,10 +261,10 @@ exports[`EventList should render 1`] = `
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-qj6nii-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-qj6nii-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.secretary
               </div>
@@ -275,10 +275,10 @@ exports[`EventList should render 1`] = `
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-151afmk-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-151afmk-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 paymentDetails
               </div>
@@ -295,10 +295,10 @@ exports[`EventList should render 1`] = `
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-2s9pxd-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-2s9pxd-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.priority
               </div>
@@ -306,7 +306,7 @@ exports[`EventList should render 1`] = `
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-11hezm2-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1ktmok0-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
@@ -317,10 +317,10 @@ exports[`EventList should render 1`] = `
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1giotcq-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1giotcq-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.description
               </div>
@@ -341,7 +341,7 @@ exports[`EventList should render 1`] = `
 exports[`EventList should render with empty result 1`] = `
 <div>
   <div
-    class="MuiBox-root css-fzwid6"
+    class="MuiBox-root css-127jhi8"
   >
     noResults
   </div>

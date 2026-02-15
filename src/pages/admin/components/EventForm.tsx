@@ -1,9 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { DeepPartial, DogEvent, EventState } from '../../../types'
 import type { PartialEvent } from './eventForm/types'
-
-import { useCallback, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
 import { useMediaQuery } from '@mui/material'
@@ -11,8 +8,9 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue, waitForAll } from 'recoil'
-
 import { isEventOver, merge } from '../../../lib/utils'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
@@ -23,7 +21,6 @@ import {
   adminUserOrganizersSelector,
   adminUsersAtom,
 } from '../recoil'
-
 import AdditionalInfoSection from './eventForm/AdditionalInfoSection'
 import BasicInfoSection from './eventForm/BasicInfoSection'
 import ContactInfoSection from './eventForm/ContactInfoSection'
@@ -59,12 +56,12 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   const [errors, setErrors] = useState(event ? validateEvent(event) : [])
   const [open, setOpen] = useState<{ [key: string]: boolean | undefined }>({
     basic: true,
-    judges: md,
-    entry: md,
-    payment: md,
-    hq: md,
     contact: md,
+    entry: md,
+    hq: md,
     info: md,
+    judges: md,
+    payment: md,
   })
   const valid = errors.length === 0
   const allDisabled = disabled || isEventOver(event)
@@ -119,12 +116,12 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
           }
         : {
             basic: false,
-            judges: false,
-            entry: false,
-            payment: false,
-            hq: false,
             contact: false,
+            entry: false,
+            hq: false,
             info: false,
+            judges: false,
+            payment: false,
             [id]: value,
           }
       setOpen(newState)
@@ -167,9 +164,9 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
-        overflow: 'auto',
         maxHeight: '100%',
         maxWidth: '100%',
+        overflow: 'auto',
       }}
     >
       <Box sx={{ p: 1 }}>
@@ -187,10 +184,10 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
 
       <Box
         sx={{
-          pb: 0.5,
-          overflow: 'auto',
-          bgcolor: 'background.form',
           '& .MuiInputBase-root': { bgcolor: 'background.default' },
+          bgcolor: 'background.form',
+          overflow: 'auto',
+          pb: 0.5,
         }}
       >
         <BasicInfoSection
@@ -279,7 +276,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         spacing={1}
         direction="row"
         justifyContent="flex-end"
-        sx={{ p: 1, borderTop: '1px solid', borderColor: '#bdbdbd' }}
+        sx={{ borderColor: '#bdbdbd', borderTop: '1px solid', p: 1 }}
       >
         <AsyncButton
           color="primary"

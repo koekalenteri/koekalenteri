@@ -3,7 +3,11 @@ import type { ReactNode } from 'react'
 
 export const useTranslation = () => {
   return {
-    t: (str: string, opts: any = {}) => {
+    i18n: {
+      changeLanguage: () => new Promise(() => {}),
+      language: 'fi',
+    },
+    t: (str: string, opts: Record<string, unknown> = {}) => {
       switch (str) {
         // Values for translations that can not be just the key for tests
         case 'dateFormat.long':
@@ -26,19 +30,15 @@ export const useTranslation = () => {
         case 'datemask':
           return '__.__.____'
         default:
-          return `${str}${opts && Object.keys(opts).length ? ' ' + Object.keys(opts).join(', ') : ''}`
+          return `${str}${opts && Object.keys(opts).length ? ` ${Object.keys(opts).join(', ')}` : ''}`
       }
-    },
-    i18n: {
-      language: 'fi',
-      changeLanguage: () => new Promise(() => {}),
     },
   }
 }
 
 export const initReactI18next: ThirdPartyModule = {
-  type: '3rdParty',
   init() {},
+  type: '3rdParty',
 }
 
 export function Trans(props: { readonly children: ReactNode }) {

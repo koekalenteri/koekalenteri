@@ -1,7 +1,5 @@
 import type { PublicDogEvent } from '../types'
-
 import { eventRegistrationDateKey } from '../lib/event'
-
 import { useAdminEventRegistrationDates } from './useAdminEventRegistrationDates'
 
 export const useAdminEventRegistrationGroups = (

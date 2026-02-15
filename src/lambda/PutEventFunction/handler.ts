@@ -1,7 +1,5 @@
 import type { JsonConfirmedEvent, JsonUser } from '../../types'
-
 import { nanoid } from 'nanoid'
-
 import { isEventDeletable } from '../../lib/event'
 import { isEntryOpen } from '../../lib/utils'
 import { authorize } from '../lib/auth'

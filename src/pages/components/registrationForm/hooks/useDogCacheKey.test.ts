@@ -1,7 +1,6 @@
-import { act } from 'react'
 import { renderHook } from '@testing-library/react'
+import { act } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { useDogCacheKey } from './useDogCacheKey'
 
 jest.spyOn(Storage.prototype, 'setItem')

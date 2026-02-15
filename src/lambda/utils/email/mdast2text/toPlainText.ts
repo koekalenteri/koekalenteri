@@ -19,7 +19,7 @@ function one(node: NodeLike): string {
 
 function formatValue(node: Literal) {
   if (node.value.endsWith(':')) {
-    return node.value + ' '
+    return `${node.value} `
   }
   return node.value
 }

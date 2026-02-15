@@ -1,5 +1,4 @@
 import type { SnackbarKey } from 'notistack'
-
 import Close from '@mui/icons-material/Close'
 import IconButton from '@mui/material/IconButton'
 import { useSnackbar } from 'notistack'

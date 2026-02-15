@@ -3,7 +3,7 @@
 exports[`Banner should render 1`] = `
 <div>
   <header
-    class="MuiBox-root css-1ba38ec"
+    class="MuiBox-root css-y2ge7z"
   >
     <img
       alt="banner"
@@ -11,7 +11,7 @@ exports[`Banner should render 1`] = `
       loading="lazy"
       src="banner_w1504.webp"
       srcset="banner_w512.webp 512w, banner_w889.webp 900w, banner_w1504.webp 1504w"
-      style="width: 100%; height: min(25vh, 32vw); object-fit: contain; object-position: 50% 30px; opacity: 0; position: absolute; top: 0px; left: 0px; transition: opacity 0.3s ease-in; background-color: rgb(160, 166, 144);"
+      style="height: min(25vh, 32vw); object-fit: contain; object-position: 50% 30px; width: 100%; background-color: rgb(160, 166, 144); left: 0px; opacity: 0; position: absolute; top: 0px; transition: opacity 0.3s ease-in;"
     />
   </header>
 </div>

@@ -1,12 +1,9 @@
 import type { DataGridProps } from '@mui/x-data-grid'
 import type { DropTargetMonitor } from 'react-dnd'
 import type { DragItem } from './types'
-
 import { useMemo } from 'react'
 import { useDrop } from 'react-dnd'
-
 import StyledDataGrid from '../../../components/StyledDataGrid'
-
 import DraggableRow from './droppableDataGrid/DraggableRow'
 
 interface Props extends DataGridProps {
@@ -32,9 +29,9 @@ const DroppableDataGrid = (props: Props) => {
       collect: (monitor) => {
         const item = monitor.getItem()
         return {
-          isOver: monitor.isOver(),
           canDrop: getCanDrop(item),
           isDragging: item !== null,
+          isOver: monitor.isOver(),
         }
       },
       drop: (item: DragItem, _monitor: DropTargetMonitor<DragItem, void>) => {
@@ -88,30 +85,30 @@ const DroppableDataGrid = (props: Props) => {
         }}
         sx={[
           {
-            minHeight: 100,
+            '.accept & .hovered.after': {
+              borderBottom: '3px solid #F2C94C',
+            },
+            '.accept & .hovered.before': {
+              borderTop: '3px solid #F2C94C',
+            },
+            '.MuiDataGrid-cell[data-field="dog.regNo"]:hover::after': {
+              background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root' focusable='false' aria-hidden='true' viewBox='0 0 24 24' data-testid='ContentCopyOutlinedIcon'%3E%3Cpath d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'%3E%3C/path%3E%3C/svg%3E")`,
+              content: '""',
+              display: 'inline-block',
+              height: '15px',
+              left: '0px',
+              position: 'relative',
+              top: '1px',
+              width: '15px',
+            },
+            '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', color: 'error.main', opacity: 0.5 },
             '& .MuiDataGrid-virtualScroller': {
               overflow: 'hidden',
             },
             '& .MuiDataGrid-virtualScrollerContent': {
               marginBottom: '3px',
             },
-            '.reject & .MuiDataGrid-main': { bgcolor: 'error.main', opacity: 0.5, color: 'error.main' },
-            '.MuiDataGrid-cell[data-field="dog.regNo"]:hover::after': {
-              content: '""',
-              width: '15px',
-              height: '15px',
-              background: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root' focusable='false' aria-hidden='true' viewBox='0 0 24 24' data-testid='ContentCopyOutlinedIcon'%3E%3Cpath d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'%3E%3C/path%3E%3C/svg%3E")`,
-              position: 'relative',
-              top: '1px',
-              left: '0px',
-              display: 'inline-block',
-            },
-            '.accept & .hovered.before': {
-              borderTop: '3px solid #F2C94C',
-            },
-            '.accept & .hovered.after': {
-              borderBottom: '3px solid #F2C94C',
-            },
+            minHeight: 100,
           },
           ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
         ]}

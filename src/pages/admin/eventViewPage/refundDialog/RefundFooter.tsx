@@ -1,6 +1,4 @@
 import type { BoxProps } from '@mui/material'
-
-import { useCallback } from 'react'
 import { styled } from '@mui/material'
 import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
@@ -9,7 +7,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 import { GridFooterContainer } from '@mui/x-data-grid'
-
+import { useCallback } from 'react'
 import { formatMoney, formatMoneyWithoutCurrency } from '../../../../lib/money'
 import { NumberInput } from '../../../components/NumberInput'
 
@@ -69,7 +67,7 @@ export const RefundFooter = ({
                   slotProps={{
                     input: {
                       endAdornment: (
-                        <InputAdornment position="end" disableTypography sx={{ m: 0, color: 'primary.main' }}>
+                        <InputAdornment position="end" disableTypography sx={{ color: 'primary.main', m: 0 }}>
                           €
                         </InputAdornment>
                       ),
@@ -82,7 +80,7 @@ export const RefundFooter = ({
                   value={handlingCost}
                   variant="standard"
                   error={handlingCost < 0}
-                  sx={{ width: 60, fontSize: 14, '.MuiInputBase-root': { fontSize: 14 } }}
+                  sx={{ '.MuiInputBase-root': { fontSize: 14 }, fontSize: 14, width: 60 }}
                 />
               </ValueCell>
             </TableRow>

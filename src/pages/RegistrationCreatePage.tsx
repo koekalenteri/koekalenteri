@@ -1,20 +1,17 @@
 import type { Registration } from '../types'
-
+import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
-import { enqueueSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-
 import { APIError } from '../api/http'
-import { hasChanges, isEntryOpen, printContactInfo } from '../lib/utils'
+import { hasChanges, isEntryOpen, isObject, printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
-
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { useRegistrationActions } from './recoil/registration/actions'
 import { confirmedEventSelector, newRegistrationAtom, spaAtom } from './recoil'
+import { useRegistrationActions } from './recoil/registration/actions'
 
 export function Component() {
   const { t } = useTranslation()
@@ -63,20 +60,20 @@ export function Component() {
       if (error instanceof APIError && error.status === 409) {
         enqueueSnackbar(
           t('registration.notifications.alreadyRegistered', {
-            reg: registration,
-            context: error.body?.cancelled && 'cancel',
             contact: printContactInfo(event.contactInfo?.secretary),
+            context: isObject(error.body) && error.body.cancelled && 'cancel',
+            reg: registration,
           }),
           {
-            variant: 'info',
             persist: true,
+            variant: 'info',
           }
         )
         return
       }
       console.error(error)
     }
-  }, [actions, event, navigate, registration, resetRegistration, t])
+  }, [actions, event, navigate, registration, t])
 
   const handleCancel = useCallback(() => {
     resetRegistration()
@@ -104,10 +101,10 @@ export function Component() {
         ...registration,
         eventId: event.id,
         eventType: event.eventType,
+        optionalCosts: undefined,
         qualifies: undefined,
         qualifyingResults: [],
         selectedCost: undefined,
-        optionalCosts: undefined,
       })
     }
   }, [event.eventType, event.id, registration, setRegistration])

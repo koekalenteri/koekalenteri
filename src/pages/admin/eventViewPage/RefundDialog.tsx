@@ -1,9 +1,6 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
 import type { ChangeEventHandler } from 'react'
 import type { RefundPaymentResponse, Registration, Transaction } from '../../../types'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -12,35 +9,36 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
 import { useSnackbar } from 'notistack'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import { formatMoney } from '../../../lib/money'
+import { isObject } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
-
 import { RefundFooter } from './refundDialog/RefundFooter'
 import { useRefundColumns } from './refundDialog/useRefundColumns'
 
 const successMessages: Record<string, string> = {
+  default:
+    'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+  ok_default: 'Maksu palautettu',
   // Format: [status]_[provider]
   'ok_email refund':
     'Maksun palautus on kesken. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
-  ok_default: 'Maksu palautettu',
+  pending_default: 'Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.',
   'pending_email refund':
     'Maksun palautus on aloitettu. Ilmoittautujalle on lähetetty sähköposti rahojen palautuksen viimeistelyä varten. Näet audit trailista, kun palautus on käsitelty loppuun.',
-  pending_default: 'Maksun palautus on aloitettu. Näet audit trailista, kun palautus on käsitelty loppuun.',
-  default:
-    'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
 }
 
 const errorMessages = {
   '404': 'Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.',
-  refund_balance: (remainingAmount: string) =>
-    `Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: ${remainingAmount}`,
   default:
     'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
+  refund_balance: (remainingAmount: string) =>
+    `Palautettava määrä ylittää palauttamattoman maksun osuuden. Palauttamatta: ${remainingAmount}`,
 }
 
 interface Props {
@@ -169,7 +167,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
         handleClose()
       }
     },
-    [successMessages, enqueueSnackbar, handleClose]
+    [enqueueSnackbar, handleClose]
   )
 
   // Helper function to extract remaining balance from error details
@@ -206,7 +204,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
 
         case 400: {
           // Check for refund balance error
-          const remainingAmount = extractRemainingBalance(error.body?.error)
+          const remainingAmount = isObject(error.body) ? extractRemainingBalance(error.body?.error) : null
           if (remainingAmount) {
             enqueueSnackbar(errorMessages.refund_balance(remainingAmount), { variant: 'error' })
             return
@@ -218,7 +216,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
       // Default error message for all other cases
       enqueueSnackbar(errorMessages.default, { variant: 'error' })
     },
-    [errorMessages, enqueueSnackbar, extractRemainingBalance]
+    [enqueueSnackbar, extractRemainingBalance]
   )
 
   const handleRefund = useCallback(async () => {
@@ -247,13 +245,12 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     showSuccessMessage,
     handleRefundError,
     enqueueSnackbar,
-    errorMessages,
   ])
 
   return (
     <Dialog open={!!open} maxWidth="md" fullWidth>
       <DialogTitle>
-        {t('registration.refundDialog.title', { regNo: registration.dog.regNo, payer: registration.payer?.name })}
+        {t('registration.refundDialog.title', { payer: registration.payer?.name, regNo: registration.dog.regNo })}
       </DialogTitle>
       <DialogContent>
         <DialogContentText sx={{ mb: 1 }}>{t('registration.refundDialog.text')}</DialogContentText>
@@ -282,10 +279,10 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
           slotProps={{
             footer: {
               canHaveHandlingCosts,
-              total,
-              selectedTotal: refundAmount,
               handlingCost: handlingCost ?? 0,
               onHandlingCostChange: handleCostChange,
+              selectedTotal: refundAmount,
+              total,
             },
           }}
         ></StyledDataGrid>
@@ -298,7 +295,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
           name="internalNotes"
           onChange={handleNotesChange}
           rows={2}
-          sx={{ width: '100%', mt: 1 }}
+          sx={{ mt: 1, width: '100%' }}
           value={internalNotes}
         />
       </DialogContent>

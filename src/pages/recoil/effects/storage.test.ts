@@ -1,7 +1,5 @@
 import type { RecoilState } from 'recoil'
-
 import * as utilsLib from '../../../lib/utils'
-
 import { getStorageEffect, parseStorageJSON } from './storage'
 
 describe('storage', () => {
@@ -30,20 +28,20 @@ describe('storage', () => {
 
   describe('getStorageEffect', () => {
     const mockStorage: jest.Mocked<Storage> = {
-      length: 0,
       clear: jest.fn(),
       getItem: jest.fn<string | null, [string]>(),
       key: jest.fn<string | null, [number]>(),
+      length: 0,
       removeItem: jest.fn<void, [string]>(),
       setItem: jest.fn<void, [string, string]>(),
     }
     const node: RecoilState<any> = {
-      __tag: ['test'],
-      __cTag: function (): void {
+      __cTag: (): void => {
         throw new Error('Function not implemented.')
       },
+      __tag: ['test'],
       key: 'test-key',
-      toJSON: function (): { key: string } {
+      toJSON: (): { key: string } => {
         throw new Error('Function not implemented.')
       },
     }
@@ -62,7 +60,7 @@ describe('storage', () => {
       mockStorage.getItem.mockReturnValueOnce(JSON.stringify(testValue))
 
       // @ts-expect-error providing only used properties
-      effect({ node, setSelf, onSet, trigger: 'get', resetSelf })
+      effect({ node, onSet, resetSelf, setSelf, trigger: 'get' })
       expect(mockStorage.getItem).toHaveBeenCalledWith(node.key)
       expect(mockStorage.getItem).toHaveBeenCalledTimes(1)
       expect(setSelf).toHaveBeenCalledWith(testValue)
@@ -72,7 +70,7 @@ describe('storage', () => {
       mockStorage.getItem.mockReturnValueOnce(null)
 
       // @ts-expect-error providing only used properties
-      effect({ node, setSelf, onSet, trigger: 'get', resetSelf })
+      effect({ node, onSet, resetSelf, setSelf, trigger: 'get' })
       expect(mockStorage.getItem).toHaveBeenCalledWith(node.key)
       expect(mockStorage.getItem).toHaveBeenCalledTimes(1)
       expect(setSelf).not.toHaveBeenCalled()
@@ -80,7 +78,7 @@ describe('storage', () => {
 
     it('should set to storage', () => {
       // @ts-expect-error providing only used properties
-      effect({ node, setSelf, onSet, trigger: 'set', resetSelf })
+      effect({ node, onSet, resetSelf, setSelf, trigger: 'set' })
       expect(mockStorage.getItem).not.toHaveBeenCalled()
 
       onSetCallback?.('new value', 'old value', false)
@@ -89,7 +87,7 @@ describe('storage', () => {
 
     it.each([null, undefined])('should remove from storage, when set to %p', (value) => {
       // @ts-expect-error providing only used properties
-      effect({ node, setSelf, onSet, trigger: 'set', resetSelf })
+      effect({ node, onSet, resetSelf, setSelf, trigger: 'set' })
       expect(mockStorage.getItem).not.toHaveBeenCalled()
 
       onSetCallback?.(value, 'old value', false)
@@ -98,7 +96,7 @@ describe('storage', () => {
 
     it('should remove from storage when reset', () => {
       // @ts-expect-error providing only used properties
-      effect({ node, setSelf, onSet, trigger: 'set', resetSelf })
+      effect({ node, onSet, resetSelf, setSelf, trigger: 'set' })
       expect(mockStorage.getItem).not.toHaveBeenCalled()
 
       onSetCallback?.('new value', 'old value', true)
@@ -109,7 +107,7 @@ describe('storage', () => {
       const infoSpy = jest.spyOn(console, 'info').mockImplementation(() => undefined)
       jest.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
       // @ts-expect-error providing only used properties
-      effect({ node, setSelf, onSet, trigger: 'set', resetSelf })
+      effect({ node, onSet, resetSelf, setSelf, trigger: 'set' })
       expect(mockStorage.getItem).not.toHaveBeenCalled()
 
       onSetCallback?.('new value', 'old value', false)
@@ -127,7 +125,7 @@ describe('storage', () => {
       const removeSpy = jest.spyOn(window, 'removeEventListener').mockImplementationOnce(() => undefined)
 
       // @ts-expect-error providing only used properties
-      const cleanUp = effect({ node, setSelf, onSet, trigger: 'get', resetSelf })
+      const cleanUp = effect({ node, onSet, resetSelf, setSelf, trigger: 'get' })
       expect(addSpy).toHaveBeenCalledWith('storage', expect.any(Function))
       expect(addSpy).toHaveBeenCalledTimes(1)
 
@@ -137,33 +135,33 @@ describe('storage', () => {
 
       // ignore event to another storage
       // @ts-expect-error providing only used properties
-      handler?.({ storageArea: localStorage, key: node.key, newValue: '{ "key": "value" }' })
+      handler?.({ key: node.key, newValue: '{ "key": "value" }', storageArea: localStorage })
       expect(setSelf).not.toHaveBeenCalled()
       expect(resetSelf).not.toHaveBeenCalled()
 
       // set value
       // @ts-expect-error providing only used properties
-      handler?.({ storageArea: mockStorage, key: node.key, newValue: '{ "key": "value" }' })
+      handler?.({ key: node.key, newValue: '{ "key": "value" }', storageArea: mockStorage })
       expect(setSelf).toHaveBeenCalledWith({ key: 'value' })
       expect(resetSelf).not.toHaveBeenCalled()
 
       // set null
       setSelf.mockClear()
       // @ts-expect-error providing only used properties
-      handler?.({ storageArea: mockStorage, key: node.key, newValue: null })
+      handler?.({ key: node.key, newValue: null, storageArea: mockStorage })
       expect(setSelf).not.toHaveBeenCalled()
       expect(resetSelf).toHaveBeenCalledTimes(1)
 
       // set undefined
       // @ts-expect-error providing only used properties
-      handler?.({ storageArea: mockStorage, key: node.key, newValue: undefined })
+      handler?.({ key: node.key, newValue: undefined, storageArea: mockStorage })
       expect(resetSelf).toHaveBeenCalledTimes(2)
 
       // set invalid json
       // suppress console warn once
       jest.spyOn(console, 'warn').mockImplementationOnce(() => undefined)
       // @ts-expect-error providing only used properties
-      handler?.({ storageArea: mockStorage, key: node.key, newValue: 'invalid json' })
+      handler?.({ key: node.key, newValue: 'invalid json', storageArea: mockStorage })
       expect(resetSelf).toHaveBeenCalledTimes(3)
 
       // cleanup

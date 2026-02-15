@@ -1,11 +1,8 @@
 import type { RouteObject } from 'react-router'
-
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
-
 import theme from '../assets/Theme'
 import { DataMemoryRouter } from '../test-utils/utils'
-
 import { ErrorPage } from './ErrorPage'
 
 describe('ErrorPage', () => {
@@ -17,9 +14,9 @@ describe('ErrorPage', () => {
   it('should render 404', () => {
     const routes: RouteObject[] = [
       {
-        path: '/',
         element: <>HOME PAGE</>,
         errorElement: <ErrorPage />,
+        path: '/',
       },
     ]
     const { container } = render(
@@ -33,9 +30,9 @@ describe('ErrorPage', () => {
   it('should render 500', () => {
     const routes: RouteObject[] = [
       {
-        path: '/',
         element: <ErrorThrowingComponent />,
         errorElement: <ErrorPage />,
+        path: '/',
       },
     ]
     const { container } = render(

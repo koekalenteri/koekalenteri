@@ -11,10 +11,10 @@ const TabPanel = ({ index, activeTab, children }: Props) => {
     <div
       role="tabpanel"
       style={{
-        width: '100%',
-        minHeight: 400,
         display: activeTab === index ? 'flex' : 'none',
         flexDirection: 'column',
+        minHeight: 400,
+        width: '100%',
       }}
     >
       {index === activeTab && <>{children}</>}

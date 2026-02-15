@@ -1,9 +1,7 @@
 import { render, screen } from '@testing-library/react'
-
 import { eventWithStaticDatesAndClass } from '../../__mockData__/events'
 import { registrationWithStaticDatesAndClass } from '../../__mockData__/registrations'
 import { sanitizeDogEvent } from '../../lib/event'
-
 import CancelDialog from './CancelDialog'
 
 const publicEventWithStaticDatesAndClass = sanitizeDogEvent(eventWithStaticDatesAndClass)
@@ -19,7 +17,7 @@ describe('CancelDialog', () => {
       />
     )
 
-    expect(screen.getByText(`registration.cancelDialog.lateText registration, event, contact`)).toBeInTheDocument()
+    expect(screen.getByText(`registration.cancelDialog.lateText contact, event, registration`)).toBeInTheDocument()
     expect(baseElement).toMatchSnapshot()
   })
 

@@ -1,6 +1,5 @@
+import { gzipSync } from 'node:zlib'
 import { jest } from '@jest/globals'
-import { gzipSync } from 'zlib'
-
 import { CONFIG } from '../config'
 
 // Mock the CONFIG object
@@ -177,12 +176,12 @@ describe('lambda', () => {
         const result = response(200, { message: 'Success' }, mockEvent)
 
         expect(result).toEqual({
-          statusCode: 200,
           body: JSON.stringify({ message: 'Success' }),
           headers: {
             'Access-Control-Allow-Origin': 'https://koekalenteri.snj.fi',
             'Content-Type': 'application/json',
           },
+          statusCode: 200,
         })
       })
 
@@ -190,12 +189,12 @@ describe('lambda', () => {
         const result = response(400, { error: 'Bad Request' }, mockEvent)
 
         expect(result).toEqual({
-          statusCode: 400,
           body: JSON.stringify({ error: 'Bad Request' }),
           headers: {
             'Access-Control-Allow-Origin': 'https://koekalenteri.snj.fi',
             'Content-Type': 'application/json',
           },
+          statusCode: 400,
         })
       })
 

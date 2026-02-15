@@ -1,5 +1,4 @@
 import type { JsonDogEvent } from '../../types'
-
 import { CONFIG } from '../config'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
@@ -16,10 +15,10 @@ const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> 
 
     for (let season = startSeason; season <= endSeason; season++) {
       const seasonEvents = await dynamoDB.query<JsonDogEvent>({
-        key: 'season = :season AND modifiedAt > :modifiedAfter',
-        values: { ':season': season.toString(), ':modifiedAfter': modifiedAfter },
-        table: CONFIG.eventTable,
         index: 'gsiSeasonModifiedAt',
+        key: 'season = :season AND modifiedAt > :modifiedAfter',
+        table: CONFIG.eventTable,
+        values: { ':modifiedAfter': modifiedAfter, ':season': season.toString() },
       })
       if (seasonEvents) result.push(...seasonEvents)
     }

@@ -24,7 +24,7 @@ export const determinePosition = (
   }
 
   // Calculate position based on mouse position
-  const hoverBoundingRect = ref.current!.getBoundingClientRect()
+  const hoverBoundingRect = ref.current?.getBoundingClientRect() ?? { bottom: 0, top: 0 }
   const mod = getPixelModifierByPosition(item.position)
   const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2 + mod
   const clientOffset = monitor.getClientOffset()

@@ -1,9 +1,7 @@
 import type { AtomEffect } from 'recoil'
 import type { Organizer } from '../../../../types'
-
 import i18next from 'i18next'
 import { DefaultValue } from 'recoil'
-
 import { getAdminOrganizers } from '../../../../api/organizer'
 import { idTokenAtom } from '../../../recoil'
 

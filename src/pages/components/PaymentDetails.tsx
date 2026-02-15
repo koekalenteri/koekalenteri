@@ -1,12 +1,10 @@
 import type { MinimalEventForCost, MinimalRegistrationForCost } from '../../types'
-
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import { getRegistrationPaymentDetails } from '../../lib/payment'
@@ -43,7 +41,7 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
           {member} {formatMoney(details.cost)}
         </Typography>
         {details.optionalCosts.map((c, index) => (
-          <Typography variant="body1" key={c.description.fi + index} textAlign="right">
+          <Typography variant="body1" key={`${c.description.fi}${index}`} textAlign="right">
             {c.description[language]}
             {member}&nbsp;
             {formatMoney(c.cost)}

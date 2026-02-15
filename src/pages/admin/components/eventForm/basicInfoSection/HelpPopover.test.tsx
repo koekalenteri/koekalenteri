@@ -1,7 +1,5 @@
 import { screen } from '@testing-library/react'
-
 import { renderWithUserEvents } from '../../../../../test-utils/utils'
-
 import HelpPopover from './HelpPopover'
 
 describe('HelpPopover', () => {

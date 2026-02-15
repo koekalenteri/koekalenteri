@@ -1,12 +1,9 @@
 import type { Registration, RegistrationClass } from '../../../types'
-
 import { render, screen } from '@testing-library/react'
 import { useRecoilState, useResetRecoilState } from 'recoil'
-
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { emptyBreeder, emptyDog, emptyPerson } from '../../../lib/data'
 import { adminNewRegistrationAtom } from '../recoil'
-
 import RegistrationCreateDialog from './RegistrationCreateDialog'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
@@ -27,24 +24,24 @@ describe('RegistrationCreateDialog', () => {
   const mockResetRegistration = jest.fn()
 
   const defaultRegistration: Registration = {
-    id: '',
-    createdAt: new Date(),
-    createdBy: 'anonymous',
-    modifiedAt: new Date(),
-    modifiedBy: 'anonymous',
     agreeToTerms: false,
     breeder: { ...emptyBreeder },
+    createdAt: new Date(),
+    createdBy: 'anonymous',
     dates: [],
     dog: { ...emptyDog },
     eventId: '',
     eventType: '',
     handler: { ...emptyPerson },
+    id: '',
     language: 'fi',
+    modifiedAt: new Date(),
+    modifiedBy: 'anonymous',
     notes: '',
     owner: { ...emptyPerson },
-    payer: { ...emptyPerson },
     ownerHandles: true,
     ownerPays: true,
+    payer: { ...emptyPerson },
     qualifyingResults: [],
     reserve: 'DAY',
   }
@@ -118,8 +115,8 @@ describe('RegistrationCreateDialog', () => {
     it('should pass registration state to RegistrationDialogBase', () => {
       const customRegistration: Registration = {
         ...defaultRegistration,
-        id: 'test-id',
         eventId: 'test-event-id',
+        id: 'test-id',
       }
 
       mockUseRecoilState.mockReturnValue([customRegistration, mockSetRegistration])
@@ -192,9 +189,9 @@ describe('RegistrationCreateDialog', () => {
       const eventClass: RegistrationClass = 'ALO'
       const registration: Registration = {
         ...defaultRegistration,
+        class: 'AVO',
         eventId: eventWithStaticDates.id,
         eventType: eventWithStaticDates.eventType,
-        class: 'AVO',
       }
 
       mockUseRecoilState.mockReturnValue([registration, mockSetRegistration])
@@ -203,9 +200,9 @@ describe('RegistrationCreateDialog', () => {
 
       expect(mockSetRegistration).toHaveBeenCalledWith({
         ...registration,
+        class: eventClass,
         eventId: eventWithStaticDates.id,
         eventType: eventWithStaticDates.eventType,
-        class: eventClass,
       })
     })
 
@@ -213,9 +210,9 @@ describe('RegistrationCreateDialog', () => {
       const eventClass: RegistrationClass = 'ALO'
       const registration: Registration = {
         ...defaultRegistration,
+        class: eventClass,
         eventId: eventWithStaticDates.id,
         eventType: eventWithStaticDates.eventType,
-        class: eventClass,
       }
 
       mockUseRecoilState.mockReturnValue([registration, mockSetRegistration])
@@ -253,9 +250,9 @@ describe('RegistrationCreateDialog', () => {
 
       expect(mockSetRegistration).toHaveBeenCalledWith({
         ...emptyRegistration,
+        class: eventClass,
         eventId: eventWithStaticDates.id,
         eventType: eventWithStaticDates.eventType,
-        class: eventClass,
       })
     })
 

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockGetTransactionsByReference = jest.fn<any>()
 
@@ -24,8 +24,8 @@ const { default: getRegistrationTransactionsLambda } = await import('./handler')
 
 describe('getRegistrationTransactionsLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { eventId: 'event123', id: 'reg456' },
   } as any
 
@@ -51,18 +51,18 @@ describe('getRegistrationTransactionsLambda', () => {
     const reference = `${eventId}:${regId}`
     const transactions = [
       {
-        transactionId: 'tx1',
-        reference,
-        status: 'ok',
         amount: 5000,
         createdAt: '2025-01-01T00:00:00.000Z',
+        reference,
+        status: 'ok',
+        transactionId: 'tx1',
       },
       {
-        transactionId: 'tx2',
-        reference,
-        status: 'refunded',
         amount: -5000,
         createdAt: '2025-01-02T00:00:00.000Z',
+        reference,
+        status: 'refunded',
+        transactionId: 'tx2',
       },
     ]
 

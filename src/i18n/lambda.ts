@@ -1,5 +1,4 @@
 import i18n from 'i18next'
-
 import { i18nInit } from './config'
 import { registerFormatters } from './formatters'
 

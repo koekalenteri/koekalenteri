@@ -1,11 +1,8 @@
 import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
-
 import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
-
 import { eventWithEntryClosing, eventWithParticipantsInvited } from '../__mockData__/events'
 import { formatDate, TIME_ZONE } from '../i18n/dates'
-
 import {
   applyNewGroupsToDogEventClass,
   applyNewGroupsToDogEventDates,
@@ -28,39 +25,50 @@ import {
 
 describe('lib/event', () => {
   describe('isStartListPublished', () => {
-    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
-      'Should return true when state is %p and startListPublished is undefined or true',
-      (state) => {
-        expect(isStartListAvailable({ state })).toEqual(true)
-        expect(isStartListAvailable({ state, startListPublished: true })).toEqual(true)
-      }
-    )
+    it.each<EventState>([
+      'invited',
+      'started',
+      'ended',
+      'completed',
+    ])('Should return true when state is %p and startListPublished is undefined or true', (state) => {
+      expect(isStartListAvailable({ state })).toEqual(true)
+      expect(isStartListAvailable({ startListPublished: true, state })).toEqual(true)
+    })
 
-    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
-      'Should return false when state is %p and startListPublished is false',
-      (state) => {
-        expect(isStartListAvailable({ state, startListPublished: false })).toEqual(false)
-      }
-    )
+    it.each<EventState>([
+      'invited',
+      'started',
+      'ended',
+      'completed',
+    ])('Should return false when state is %p and startListPublished is false', (state) => {
+      expect(isStartListAvailable({ startListPublished: false, state })).toEqual(false)
+    })
 
-    it.each<EventState>(['draft', 'tentative', 'cancelled', 'confirmed', 'picked'])(
-      'Should return false when state is %p',
-      (state) => {
-        expect(isStartListAvailable({ state })).toEqual(false)
-      }
-    )
+    it.each<EventState>([
+      'draft',
+      'tentative',
+      'cancelled',
+      'confirmed',
+      'picked',
+    ])('Should return false when state is %p', (state) => {
+      expect(isStartListAvailable({ state })).toEqual(false)
+    })
   })
 
   describe('isEventDeletable', () => {
     it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
       expect(isEventDeletable({ state })).toEqual(true)
     })
-    it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
-      'Should return false when event state is %p',
-      (state) => {
-        expect(isEventDeletable({ state })).toEqual(false)
-      }
-    )
+    it.each<EventState>([
+      'completed',
+      'confirmed',
+      'ended',
+      'invited',
+      'picked',
+      'started',
+    ])('Should return false when event state is %p', (state) => {
+      expect(isEventDeletable({ state })).toEqual(false)
+    })
     it('should return false when event is undefined', () => {
       expect(isEventDeletable()).toEqual(false)
     })
@@ -73,7 +81,7 @@ describe('lib/event', () => {
       ${new Date(2023, 1, 15)} | ${new Date(2023, 1, 16)} | ${[new TZDate(2023, 1, 15, TIME_ZONE), new TZDate(2023, 1, 16, TIME_ZONE)]}
       ${new Date(2023, 2, 10)} | ${new Date(2023, 2, 12)} | ${[new TZDate(2023, 2, 10, TIME_ZONE), new TZDate(2023, 2, 11, TIME_ZONE), new TZDate(2023, 2, 12, TIME_ZONE)]}
     `('returns $expected when event startDate=$startDate and endDate=$endDate', ({ startDate, endDate, expected }) => {
-      expect(getEventDays({ startDate, endDate })).toEqual(expected)
+      expect(getEventDays({ endDate, startDate })).toEqual(expected)
     })
   })
 
@@ -101,13 +109,13 @@ describe('lib/event', () => {
 
       it.each`
         classes                     | expected
-        ${[]}                       | ${[{ day: date, classes: [] }]}
-        ${[{ class: 'ALO' }]}       | ${[{ day: date, classes: [{ class: 'ALO' }] }]}
-        ${[{ class: 'ALO', date }]} | ${[{ day: date, classes: [{ class: 'ALO', date }] }]}
+        ${[]}                       | ${[{ classes: [], day: date }]}
+        ${[{ class: 'ALO' }]}       | ${[{ classes: [{ class: 'ALO' }], day: date }]}
+        ${[{ class: 'ALO', date }]} | ${[{ classes: [{ class: 'ALO', date }], day: date }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length for test $#',
         ({ classes, expected }: { classes: DogEvent['classes']; expected: any }) => {
-          expect(getEventClassesByDays({ startDate: date, endDate: date, classes })).toEqual(expected)
+          expect(getEventClassesByDays({ classes, endDate: date, startDate: date })).toEqual(expected)
         }
       )
     })
@@ -117,24 +125,24 @@ describe('lib/event', () => {
       const endDate = new TZDate(2023, 11, 24, TIME_ZONE)
 
       it.each`
-        classes                                                                                                  | expected
-        ${[]}                                                                                                    | ${[{ day: startDate, classes: [] }, { day: endDate, classes: [] }]}
-        ${[{ class: 'ALO' }]}                                                                                    | ${[{ day: startDate, classes: [{ class: 'ALO' }] }, { day: endDate, classes: [] }]}
-        ${[{ class: 'ALO', date: startDate }]}                                                                   | ${[{ day: startDate, classes: [{ class: 'ALO', date: startDate }] }, { day: endDate, classes: [] }]}
-        ${[{ class: 'ALO', date: startDate }, { class: 'ALO', date: endDate }]}                                  | ${[{ day: startDate, classes: [{ class: 'ALO', date: startDate }] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }] }]}
-        ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }]}                                    | ${[{ day: startDate, classes: [] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }] }]}
-        ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }, { class: 'VOI', date: startDate }]} | ${[{ day: startDate, classes: [{ class: 'VOI', date: startDate }] }, { day: endDate, classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }] }]}
+        classes                                                                 | expected
+        ${[]}                                                                   | ${[{ classes: [], day: startDate }, { classes: [], day: endDate }]}
+        ${[{ class: 'ALO' }]}                                                   | ${[{ classes: [{ class: 'ALO' }], day: startDate }, { classes: [], day: endDate }]}
+        ${[{ class: 'ALO', date: startDate }]}                                  | ${[{ classes: [{ class: 'ALO', date: startDate }], day: startDate }, { classes: [], day: endDate }]}
+        ${[{ class: 'ALO', date: startDate }, { class: 'ALO', date: endDate }]} | ${[{ classes: [{ class: 'ALO', date: startDate }], day: startDate }, { classes: [{ class: 'ALO', date: endDate }], day: endDate }]}
+        ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }]} | ${[{ classes: [], day: startDate }, { classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }], day: endDate }]}
+        ${[{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }, { class: 'VOI', date: startDate }]} | ${[{ classes: [{ class: 'VOI', date: startDate }], day: startDate }, { classes: [{ class: 'ALO', date: endDate }, { class: 'AVO', date: endDate }], day: endDate }]}
       `(
         'returns day: $expected.0.day, classes.length: $expected.0.classes.length, day: $expected.1.day, classes.length: $expected.1.classes.length for test $#',
         ({ classes, expected }: { classes: DogEvent['classes']; expected: any }) => {
-          expect(getEventClassesByDays({ startDate, endDate, classes })).toEqual(expected)
+          expect(getEventClassesByDays({ classes, endDate, startDate })).toEqual(expected)
         }
       )
     })
 
     it('should return empty empty array as classes when classes is missing', () => {
       const date = new TZDate(2025, 2, 27, TIME_ZONE)
-      expect(getEventClassesByDays({ startDate: date, endDate: date } as any)).toEqual([{ day: date, classes: [] }])
+      expect(getEventClassesByDays({ endDate: date, startDate: date } as any)).toEqual([{ classes: [], day: date }])
     })
   })
 
@@ -220,7 +228,7 @@ describe('lib/event', () => {
           })
 
           expect(
-            applyNewGroupsToDogEventDates({ dates, startDate: date, endDate: date }, defaultGroups, newDates)
+            applyNewGroupsToDogEventDates({ dates, endDate: date, startDate: date }, defaultGroups, newDates)
           ).toEqual({
             classes: [],
             dates: expected.map((time: RegistrationTime) => ({ date, time })),
@@ -228,7 +236,7 @@ describe('lib/event', () => {
 
           // date without any groups selected should receive defaultGroups
           expect(
-            applyNewGroupsToDogEventDates({ dates, startDate: date, endDate: date2 }, defaultGroups, newDates)
+            applyNewGroupsToDogEventDates({ dates, endDate: date2, startDate: date }, defaultGroups, newDates)
           ).toEqual({
             classes: [],
             dates: [
@@ -247,7 +255,7 @@ describe('lib/event', () => {
       expect(copyDogEvent(eventWithParticipantsInvited).name.startsWith('Kopio -')).toBeTruthy())
     it('should set state to draft', () => expect(copyDogEvent(eventWithParticipantsInvited).state).toEqual('draft'))
     it('should reset entries and members', () => {
-      const copy = copyDogEvent({ ...eventWithParticipantsInvited, members: 10, entries: 15 })
+      const copy = copyDogEvent({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
       expect(copy.entries).toBe(0)
       expect(copy.members).toBe(0)
     })
@@ -305,12 +313,12 @@ describe('lib/event', () => {
       const origEndDate = new Date(2023, 5, 16) // June 16, 2023
       const event = {
         ...eventWithEntryClosing,
-        startDate: origStartDate,
         endDate: origEndDate,
         placesPerDay: {
           '2023-06-15': 10, // First day
           '2023-06-16': 15, // Second day
         },
+        startDate: origStartDate,
       }
 
       const copy = copyDogEvent(event)
@@ -323,8 +331,8 @@ describe('lib/event', () => {
       // Verify placesPerDay was copied and dates were adjusted
       expect(copy.placesPerDay).toBeDefined()
       expect(Object.keys(copy.placesPerDay!).length).toBe(2)
-      expect(copy.placesPerDay![expectedFirstDate]).toBe(10)
-      expect(copy.placesPerDay![expectedSecondDate]).toBe(15)
+      expect(copy.placesPerDay?.[expectedFirstDate]).toBe(10)
+      expect(copy.placesPerDay?.[expectedSecondDate]).toBe(15)
     })
   })
 })
@@ -423,19 +431,19 @@ describe('eventRegistrationDateKey', () => {
 describe('sanitizeDogEvent', () => {
   it('should remove private fields from event', () => {
     const event = {
-      id: 'event-1',
-      name: 'Test Event',
       createdBy: 'user-1',
       deletedAt: new Date(),
       deletedBy: 'user-2',
       headquarters: { zipCode: '12345' },
-      kcId: 12345,
+      id: 'event-1',
       invitationAttachment: 'attachment.pdf',
+      kcId: 12345,
       modifiedBy: 'user-3',
-      secretary: 'secretary-info',
+      name: 'Test Event',
       official: 'official-info',
       publicField1: 'public-value-1',
       publicField2: 'public-value-2',
+      secretary: 'secretary-info',
     }
 
     const sanitized = sanitizeDogEvent(event as any)
@@ -471,11 +479,11 @@ describe('sanitizeDogEvent', () => {
       deletedAt: new Date(),
       deletedBy: 'user-2',
       headquarters: { zipCode: '12345' },
-      kcId: 12345,
       invitationAttachment: 'attachment.pdf',
+      kcId: 12345,
       modifiedBy: 'user-3',
-      secretary: 'secretary-info',
       official: 'official-info',
+      secretary: 'secretary-info',
     }
 
     const sanitized = sanitizeDogEvent(event as any)

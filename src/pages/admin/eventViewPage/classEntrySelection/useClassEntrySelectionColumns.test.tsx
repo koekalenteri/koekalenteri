@@ -1,14 +1,11 @@
 import type { GridRenderCellParams } from '@mui/x-data-grid'
-import type { ReactElement } from 'react'
 import type React from 'react'
+import type { ReactElement } from 'react'
 import type { Registration, RegistrationDate } from '../../../../types'
-
 import { renderHook } from '@testing-library/react'
-
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import * as registrationUtils from '../../../../lib/registration'
-
 import { useClassEntrySelectionColumns } from './useClassEntrySelectionColumns'
 
 const mockAvailableDates: RegistrationDate[] = [
@@ -75,10 +72,10 @@ describe('useClassEntrySectionColumns', () => {
 
     // Mock a row to test the getActions function
     const mockRow = {
-      id: 'test-id',
       cancelled: false,
-      paidAt: new Date(),
+      id: 'test-id',
       paidAmount: 5000,
+      paidAt: new Date(),
       refundAmount: 0,
     } as Registration
 
@@ -123,8 +120,8 @@ describe('useClassEntrySectionColumns', () => {
 
     // Mock a cancelled row
     const mockCancelledRow = {
-      id: 'test-cancelled-id',
       cancelled: true,
+      id: 'test-cancelled-id',
     } as Registration
 
     // Get the actions for the cancelled row
@@ -158,8 +155,8 @@ describe('useClassEntrySectionColumns', () => {
     // Mock a row that can be refunded
     const mockRefundableRow = {
       id: 'test-refundable-id',
-      paidAt: new Date(),
       paidAmount: 5000,
+      paidAt: new Date(),
       refundAmount: 0,
     } as Registration
 
@@ -200,8 +197,8 @@ describe('useClassEntrySectionColumns', () => {
     // Mock a row that has been fully refunded
     const mockFullyRefundedRow = {
       id: 'test-fully-refunded-id',
-      paidAt: new Date(),
       paidAmount: 5000,
+      paidAt: new Date(),
       refundAmount: 5000,
     } as Registration
 
@@ -381,7 +378,7 @@ describe('useClassEntrySectionColumns', () => {
 
     const breedGetter = breedColumn?.valueGetter as (value: any, row: Registration) => string
 
-    expect(breedGetter(undefined, registrationWithStaticDates)).toBe('110.M ns, defaultValue')
+    expect(breedGetter(undefined, registrationWithStaticDates)).toBe('110.M defaultValue, ns')
 
     const regWithoutBreed = {
       ...registrationWithStaticDates,
@@ -412,15 +409,15 @@ describe('useClassEntrySectionColumns', () => {
     const testCases = [
       {
         dog: { breedCode: '110' as const, gender: 'M' as const },
-        expected: '110.M ns, defaultValue',
+        expected: '110.M defaultValue, ns',
       },
       {
         dog: { breedCode: '110' as const, gender: 'F' as const },
-        expected: '110.F ns, defaultValue',
+        expected: '110.F defaultValue, ns',
       },
       {
         dog: { breedCode: '333' as const, gender: 'M' as const },
-        expected: '333.M ns, defaultValue',
+        expected: '333.M defaultValue, ns',
       },
       {
         dog: { breedCode: undefined, gender: 'M' as const },
@@ -488,14 +485,14 @@ describe('Number column rendering in detail', () => {
 
     // Test with various number values
     const testCases = [
-      { group: { number: 1 }, expected: '1' },
+      { expected: '1', group: { number: 1 } },
       // The implementation treats 0 as falsy, so it returns an empty string
-      { group: { number: 0 }, expected: '' },
-      { group: { number: -1 }, expected: '-1' },
-      { group: { number: 1.5 }, expected: 'object' }, // Should return CircularProgress
-      { group: { number: null }, expected: '' },
-      { group: { number: undefined }, expected: '' },
-      { group: {}, expected: '' },
+      { expected: '', group: { number: 0 } },
+      { expected: '-1', group: { number: -1 } },
+      { expected: 'object', group: { number: 1.5 } }, // Should return CircularProgress
+      { expected: '', group: { number: null } },
+      { expected: '', group: { number: undefined } },
+      { expected: '', group: {} },
       { expected: '' }, // No group
     ]
 
@@ -534,39 +531,39 @@ describe('Action column in detail', () => {
     const testCases = [
       // Regular registration
       {
-        id: 'test-id-1',
         cancelled: false,
-        paidAt: new Date(),
-        paidAmount: 5000,
-        refundAmount: 0,
         expectedActions: ['edit', 'withdraw', 'refund'],
+        id: 'test-id-1',
+        paidAmount: 5000,
+        paidAt: new Date(),
+        refundAmount: 0,
       },
       // Cancelled registration
       {
-        id: 'test-id-2',
         cancelled: true,
-        paidAt: new Date(),
-        paidAmount: 5000,
-        refundAmount: 0,
         expectedActions: ['edit', 'refund'],
+        id: 'test-id-2',
+        paidAmount: 5000,
+        paidAt: new Date(),
+        refundAmount: 0,
       },
       // Fully refunded registration
       {
-        id: 'test-id-3',
         cancelled: false,
-        paidAt: new Date(),
-        paidAmount: 5000,
-        refundAmount: 5000,
         expectedActions: ['edit', 'withdraw'],
+        id: 'test-id-3',
+        paidAmount: 5000,
+        paidAt: new Date(),
+        refundAmount: 5000,
       },
       // Unpaid registration
       {
-        id: 'test-id-4',
         cancelled: false,
-        paidAt: undefined,
-        paidAmount: 0,
-        refundAmount: 0,
         expectedActions: ['edit', 'withdraw'],
+        id: 'test-id-4',
+        paidAmount: 0,
+        paidAt: undefined,
+        refundAmount: 0,
       },
     ]
 
@@ -613,8 +610,8 @@ describe('Action column in detail', () => {
 
     // Mock a row
     const mockRow = {
-      id: 'test-id',
       cancelled: false,
+      id: 'test-id',
     } as Registration
 
     // Get the actions for the mock row

@@ -4,8 +4,8 @@ const mockWsDisconnect = jest.fn<any>()
 const mockBroadcastConnectionCount = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/broadcast', () => ({
-  wsDisconnect: mockWsDisconnect,
   broadcastConnectionCount: mockBroadcastConnectionCount,
+  wsDisconnect: mockWsDisconnect,
 }))
 
 const { default: wsDisconnectHandler } = await import('./handler')
@@ -36,8 +36,8 @@ describe('wsDisconnectHandler', () => {
 
     // Verify the response
     expect(result).toEqual({
-      statusCode: 200,
       body: 'Disonnected', // Note: This matches the typo in the original handler
+      statusCode: 200,
     })
   })
 

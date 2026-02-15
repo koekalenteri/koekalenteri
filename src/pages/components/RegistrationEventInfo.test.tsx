@@ -1,18 +1,15 @@
 import type { ReactNode } from 'react'
 import type { PublicConfirmedEvent } from '../../types'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { flushPromises } from '../../test-utils/utils'
-
 import RegistrationEventInfo from './RegistrationEventInfo'
 
 jest.mock('../../api/event')

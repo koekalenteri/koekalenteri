@@ -6,7 +6,6 @@ import type {
   RegistrationGroupInfo,
   Transaction,
 } from '../types'
-
 import http, { withToken } from './http'
 
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]> {

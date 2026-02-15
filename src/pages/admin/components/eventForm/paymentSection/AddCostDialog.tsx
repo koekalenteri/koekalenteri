@@ -1,8 +1,5 @@
 import type { BreedCode } from '../../../../../types'
 import type { DogEventCostKey } from '../../../../../types/Cost'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -12,7 +9,8 @@ import DialogTitle from '@mui/material/DialogTitle'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { PRIORIZED_BREED_CODES } from '../../../../../lib/priority'
 
 interface Props {
@@ -33,10 +31,10 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
   const breeds = useMemo(
     () =>
       PRIORIZED_BREED_CODES.filter((c) => !existingBreedCodes.includes(c)).map((value) => ({
-        value,
         label: t(`breed:${value}`),
+        value,
       })),
-    [t]
+    [t, existingBreedCodes.includes]
   )
 
   useEffect(() => {
@@ -56,7 +54,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
     if (finalKey === 'breed') {
       data = { breedCode: breedCodes }
     } else if (finalKey === 'custom' || finalKey === 'optionalAdditionalCosts') {
-      data = { description: { fi: descriptionFi.trim(), en: descriptionEn.trim() } }
+      data = { description: { en: descriptionEn.trim(), fi: descriptionFi.trim() } }
     }
 
     onAdd(finalKey, data)
@@ -93,7 +91,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
             getOptionLabel={(option) => option.label}
             isOptionEqualToValue={(option, value) => option.value === value.value}
             onChange={(_, value) => setBreedCodes(value.map((v) => v.value))}
-            renderInput={(params) => <TextField {...params} label={t('dog.breed')} sx={{ mt: 1, minWidth: 300 }} />}
+            renderInput={(params) => <TextField {...params} label={t('dog.breed')} sx={{ minWidth: 300, mt: 1 }} />}
           />
         )}
         {(key === 'custom' || mode === 'optional') && (

@@ -1,5 +1,4 @@
 import TableCell from '@mui/material/TableCell'
-
 import { StyledTableRow } from './StyledTableRow'
 
 interface CancelledRegistrationProps {

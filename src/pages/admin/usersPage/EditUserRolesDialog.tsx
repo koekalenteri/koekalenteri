@@ -1,8 +1,5 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
 import type { Organizer, User } from '../../../types'
-
-import { useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Autocomplete from '@mui/material/Autocomplete'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
@@ -21,8 +18,9 @@ import TableFooter from '@mui/material/TableFooter'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
+import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import { isAdminSelector } from '../../recoil'
 import { adminUserAdminOrganizersSelector, useAdminUserActions } from '../recoil/user'
 

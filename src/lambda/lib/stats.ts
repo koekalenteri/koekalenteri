@@ -1,8 +1,6 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type { EventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
-
 import crypto from 'node:crypto'
-
 import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -32,7 +30,7 @@ function buildDateRangeFilters(from?: string, to?: string) {
     expressionValues[':to'] = to
   }
 
-  return { filterExpressions, expressionValues }
+  return { expressionValues, filterExpressions }
 }
 
 /**
@@ -56,10 +54,10 @@ async function queryOrganizerStats(
 
   // Query for this organizerId with date filters
   const items = await dynamoDB.query<Required<EventStatsItem>>({
-    key: keyCondition,
-    values: expressionValues,
-    names: expressionNames,
     filterExpression,
+    key: keyCondition,
+    names: expressionNames,
+    values: expressionValues,
   })
 
   return items || []
@@ -132,9 +130,9 @@ export async function getYearlyTotalStats(year: number): Promise<YearlyTotalStat
   })
 
   return (items || []).map((item) => ({
-    year,
-    type: item.SK as YearlyStatTypes,
     count: item.count,
+    type: item.SK as YearlyStatTypes,
+    year,
   }))
 }
 
@@ -179,12 +177,12 @@ export function calculateStatDeltas(
   existingRegistration: JsonRegistration | undefined
 ) {
   return {
-    totalDelta: existingRegistration ? 0 : 1,
-    paidDelta: (registration.paidAmount ? 1 : 0) - (existingRegistration?.paidAmount ? 1 : 0),
     cancelledDelta: (registration.cancelled ? 1 : 0) - (existingRegistration?.cancelled ? 1 : 0),
-    refundedDelta: (registration.refundAmount ? 1 : 0) - (existingRegistration?.refundAmount ? 1 : 0),
     paidAmountDelta: (registration.paidAmount ?? 0) - (existingRegistration?.paidAmount ?? 0),
+    paidDelta: (registration.paidAmount ? 1 : 0) - (existingRegistration?.paidAmount ? 1 : 0),
     refundedAmountDelta: (registration.refundAmount ?? 0) - (existingRegistration?.refundAmount ?? 0),
+    refundedDelta: (registration.refundAmount ? 1 : 0) - (existingRegistration?.refundAmount ? 1 : 0),
+    totalDelta: existingRegistration ? 0 : 1,
   }
 }
 
@@ -201,18 +199,18 @@ export async function updateOrganizerEventStats(
   }
 
   await dynamoDB.update(key, {
-    set: {
-      organizerId: event.organizer.id,
-      date: event.startDate,
-      updatedAt: new Date().toISOString(),
-    },
     add: {
-      count: deltas.totalDelta,
-      paidRegistrations: deltas.paidDelta,
       cancelledRegistrations: deltas.cancelledDelta,
-      refundedRegistrations: deltas.refundedDelta,
+      count: deltas.totalDelta,
       paidAmount: deltas.paidAmountDelta,
+      paidRegistrations: deltas.paidDelta,
       refundedAmount: deltas.refundedAmountDelta,
+      refundedRegistrations: deltas.refundedDelta,
+    },
+    set: {
+      date: event.startDate,
+      organizerId: event.organizer.id,
+      updatedAt: new Date().toISOString(),
     },
   })
 }
@@ -288,7 +286,7 @@ export async function updateEntityStats(
   // Step 1: Add per-entity row if not exists (ADD count :incr, ReturnValues: "UPDATED_OLD")
   const pk = `STAT#${year}#${type}`
   const sk = entityId
-  let oldCount: number | undefined = undefined
+  let oldCount: number | undefined
 
   const updateResult = await dynamoDB.update(
     { PK: pk, SK: sk },
@@ -345,12 +343,12 @@ export async function updateYearlyParticipationStats(registration: JsonRegistrat
   const hashedRegNo = hashStatValue(registration.dog?.regNo)
 
   const identifiers: Record<YearlyStatTypes, string> = {
-    eventType: registration.eventType,
-    dog: hashedRegNo,
     breed: registration.dog.breedCode ?? 'unknown',
+    dog: hashedRegNo,
+    'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
+    eventType: registration.eventType,
     handler: hashedHandlerEmail,
     owner: hashedOwnerEmail,
-    'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
   }
 
   for (const [type, entityId] of Object.entries(identifiers)) {
