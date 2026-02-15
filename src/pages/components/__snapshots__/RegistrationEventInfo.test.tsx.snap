@@ -122,7 +122,7 @@ exports[`RegistrationEventInfo does not render empty contact info 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                123 €, event.costMember 123 €
+                123 €
                 . 
                 <span
                   class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
@@ -325,7 +325,7 @@ exports[`RegistrationEventInfo renders 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                123 €, event.costMember 123 €
+                123 €
                 . 
                 <span
                   class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
-import { getCostSegmentName, getCostValue, getEarlyBirdDates } from '../../lib/cost'
+import { getCostSegmentName, getCostValue, getEarlyBirdDates, mergeMemberCost } from '../../lib/cost'
 import { keysOf } from '../../lib/typeGuards'
 import { languageAtom } from '../recoil'
 
@@ -27,7 +27,7 @@ export default function CostInfo({ event }: Props) {
   const { cost, costMember, paymentTime = 'registration' } = event
 
   const costText = (c: number, cm?: number) =>
-    cm ? `${c}\u00A0€, ${t('event.costMember')} ${cm}\u00A0€` : `${c}\u00A0€`
+    cm && cm !== c ? `${c}\u00A0€, ${t('event.costMember')} ${cm}\u00A0€` : `${c}\u00A0€`
 
   if (typeof cost === 'number') {
     if (typeof costMember === 'object') return <>invalid cost configuration</>
@@ -44,15 +44,20 @@ export default function CostInfo({ event }: Props) {
     return <>invalid cost configuration</>
   }
 
+  const mergedCostMember = mergeMemberCost(cost, costMember)
+
   const getSegmentInfo = (
     cost: DogEventCost,
-    costMember: DogEventCost | undefined,
+    mergedMemberCost: DogEventCost | number | undefined,
     segment: DogEventCostSegment,
     breedCode?: BreedCode
   ) => {
     const value = getCostValue(cost, segment, breedCode)
     if (!value) return null
-    const memberValue = costMember && getCostValue(costMember, segment, breedCode)
+    const memberValue =
+      mergedMemberCost && typeof mergedMemberCost !== 'number'
+        ? getCostValue(mergedMemberCost, segment, breedCode)
+        : undefined
     const text = costText(value, memberValue)
 
     if (segment === 'custom' && cost.custom?.description) {
@@ -75,19 +80,26 @@ export default function CostInfo({ event }: Props) {
     .flatMap((segment) => {
       if (segment === 'breed') {
         const breeds = []
-        for (const breedCode of keysOf(cost.breed ?? {})) {
-          breeds.push(getSegmentInfo(cost, costMember, segment, breedCode))
+        // Use merged member cost to get all breed codes available to members
+        const memberBreeds =
+          mergedCostMember && typeof mergedCostMember !== 'number' ? mergedCostMember.breed : undefined
+        const allBreedCodes = new Set([...keysOf(cost.breed ?? {}), ...keysOf(memberBreeds ?? {})])
+        for (const breedCode of allBreedCodes) {
+          breeds.push(getSegmentInfo(cost, mergedCostMember, segment, breedCode))
         }
         return breeds
       }
-      return getSegmentInfo(cost, costMember, segment)
+      return getSegmentInfo(cost, mergedCostMember, segment)
     })
     .filter((c): c is { name: string; text: string } => !!c)
 
   const optionalCosts =
     cost.optionalAdditionalCosts?.map((c, index) => {
       const name = c.description[language] || c.description.fi
-      const memberCost = costMember?.optionalAdditionalCosts?.[index]?.cost
+      const memberCost =
+        mergedCostMember && typeof mergedCostMember !== 'number'
+          ? mergedCostMember.optionalAdditionalCosts?.[index]?.cost
+          : undefined
       const text = costText(c.cost, memberCost)
       return { name, text }
     }) ?? []

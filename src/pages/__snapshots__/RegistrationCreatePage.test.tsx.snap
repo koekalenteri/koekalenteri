@@ -162,7 +162,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                123 €, event.costMember 123 €
+                123 €
                 . 
                 <span
                   class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
@@ -3040,7 +3040,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                123 €, event.costMember 123 €
+                123 €
                 . 
                 <span
                   class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"

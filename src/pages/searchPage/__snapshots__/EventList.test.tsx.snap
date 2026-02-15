@@ -285,7 +285,7 @@ exports[`EventList should render 1`] = `
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                123 €, event.costMember 123 €
+                123 €
                 . 
                 <span
                   class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"

@@ -43,8 +43,8 @@ type PriorityCheckFn<T, E extends PublicDogEvent | JsonPublicDogEvent = PublicDo
   registration: RegistrationPriorityFields
 ) => T
 
-export const isMember = (registration: MinimalRegistrationForMembership): boolean =>
-  Boolean((!registration.ownerHandles && registration.handler?.membership) || registration.owner?.membership)
+export const isMember = (registration?: MinimalRegistrationForMembership): boolean =>
+  Boolean((!registration?.ownerHandles && registration?.handler?.membership) || registration?.owner?.membership)
 
 const hasMembershipPriority: PriorityCheckFn<boolean> = (event, registration) =>
   Boolean(event.priority?.includes(PRIORITY_MEMBER) && isMember(registration))

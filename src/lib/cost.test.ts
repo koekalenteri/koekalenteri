@@ -12,6 +12,7 @@ import {
   getCostSegmentName,
   getCostValue,
   getEarlyBirdEndDate,
+  hasDifferentMemberPrice,
   selectCost,
   setCostValue,
 } from './cost'
@@ -50,6 +51,131 @@ describe('selectCost', () => {
   })
   it('should select `cotsMember` when both are members', () => {
     expect(selectCost(makeEvent(100, 80), makeRegistration(true, true))).toEqual(80)
+  })
+
+  describe('merging cost structures for members', () => {
+    it('should merge member cost with base cost, preserving non-member-specific fields', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+        breed: { '110': 45 },
+      }
+      const memberCost: DogEventCost = {
+        normal: 40, // Member discount on normal price
+        // No earlyBird or breed defined for members
+      }
+      const event = makeEvent(baseCost, memberCost)
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toEqual({
+        normal: 40, // Member price
+        earlyBird: { cost: 40, days: 5 }, // Inherited from base
+        breed: { '110': 45 }, // Inherited from base
+      })
+    })
+
+    it('should merge breed prices, allowing member-specific breed overrides', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        breed: { '110': 45, '120': 48 },
+      }
+      const memberCost: DogEventCost = {
+        normal: 40,
+        breed: { '110': 35 }, // Override only breed 110 for members
+      }
+      const event = makeEvent(baseCost, memberCost)
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toEqual({
+        normal: 40,
+        breed: { '110': 35, '120': 48 }, // Member override for 110, base for 120
+      })
+    })
+
+    it('should handle optional additional costs in member pricing', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Option' } }],
+      }
+      const memberCost: DogEventCost = {
+        normal: 40,
+        optionalAdditionalCosts: [{ cost: 8, description: { fi: 'Option' } }],
+      }
+      const event = makeEvent(baseCost, memberCost)
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toEqual({
+        normal: 40,
+        optionalAdditionalCosts: [{ cost: 8, description: { fi: 'Option' } }],
+      })
+    })
+
+    it('should inherit optional additional costs when not defined for members', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Option' } }],
+      }
+      const memberCost: DogEventCost = {
+        normal: 40,
+      }
+      const event = makeEvent(baseCost, memberCost)
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toEqual({
+        normal: 40,
+        optionalAdditionalCosts: [{ cost: 10, description: { fi: 'Option' } }],
+      })
+    })
+
+    it('should handle custom costs in merging', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        custom: { cost: 30, description: { fi: 'Base custom' } },
+      }
+      const memberCost: DogEventCost = {
+        normal: 40,
+        custom: { cost: 25, description: { fi: 'Member custom' } },
+      }
+      const event = makeEvent(baseCost, memberCost)
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toEqual({
+        normal: 40,
+        custom: { cost: 25, description: { fi: 'Member custom' } },
+      })
+    })
+
+    it('should not merge when member is not a member', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+      }
+      const memberCost: DogEventCost = {
+        normal: 40,
+      }
+      const event = makeEvent(baseCost, memberCost)
+      const result = selectCost(event, makeRegistration(false, false))
+
+      expect(result).toBe(baseCost)
+    })
+
+    it('should handle legacy number costs without merging', () => {
+      const event = makeEvent(100, 80)
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toBe(80)
+    })
+
+    it('should handle member cost as number with base cost as object', () => {
+      const baseCost: DogEventCost = {
+        normal: 50,
+        earlyBird: { cost: 40, days: 5 },
+      }
+      const event = makeEvent(baseCost, 40) // Member cost as legacy number
+      const result = selectCost(event, makeRegistration(true, false))
+
+      expect(result).toBe(40)
+    })
   })
 })
 
@@ -650,6 +776,23 @@ describe('calculateCost with complex scenarios', () => {
     const resultMember = calculateCost(event, regMember)
     expect(resultMember.amount).toBe(48) // 40 + 8
   })
+
+  it('should correctly calculate cost for member with custom cost when member custom is 0', () => {
+    const event = makeEvent(
+      { normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } },
+      { normal: 40, custom: { cost: 0, description: { fi: 'Custom' } } }
+    )
+    const registration = makeRegistration(true, false, '110', 'custom')
+    const result = calculateCost(event, registration)
+
+    // Member should get base custom cost of 30 since member custom is 0
+    expect(result.amount).toBe(30)
+    expect(result.segment).toBe('custom')
+    expect(result.cost).toEqual({
+      normal: 40,
+      custom: { cost: 30, description: { fi: 'Custom' } },
+    })
+  })
 })
 
 describe('setCostValue with additional edge cases', () => {
@@ -750,5 +893,81 @@ describe('costStrategies integration', () => {
     const normalStrategy = costStrategies.find((s) => s.key === 'normal')
     expect(normalStrategy?.getValue(cost)).toBe(50)
     expect(normalStrategy?.isApplicable(cost, {} as any, {} as any)).toBe(true)
+  })
+})
+
+describe('hasDifferentMemberPrice', () => {
+  it('should return false when no member cost exists', () => {
+    const event = makeEvent({ normal: 50 }, undefined)
+    expect(hasDifferentMemberPrice(event, 'normal')).toBe(false)
+  })
+
+  it('should return false for legacy number costs that are equal', () => {
+    const event = makeEvent(50, 50)
+    expect(hasDifferentMemberPrice(event, 'legacy')).toBe(false)
+  })
+
+  it('should return true for legacy number costs that differ', () => {
+    const event = makeEvent(50, 40)
+    expect(hasDifferentMemberPrice(event, 'legacy')).toBe(true)
+  })
+
+  it('should return true when using any segment with legacy costs', () => {
+    const event = makeEvent(50, 40)
+    expect(hasDifferentMemberPrice(event, 'custom')).toBe(true)
+  })
+
+  it('should return false when member cost is same as base cost', () => {
+    const event = makeEvent({ normal: 50 }, { normal: 50 })
+    expect(hasDifferentMemberPrice(event, 'normal')).toBe(false)
+  })
+
+  it('should return true when member cost differs from base cost', () => {
+    const event = makeEvent({ normal: 50 }, { normal: 40 })
+    expect(hasDifferentMemberPrice(event, 'normal')).toBe(true)
+  })
+
+  it('should return false when member cost is 0 (not specified)', () => {
+    const event = makeEvent(
+      { normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } },
+      { normal: 40, custom: { cost: 0, description: { fi: 'Custom' } } }
+    )
+    expect(hasDifferentMemberPrice(event, 'custom')).toBe(false)
+  })
+
+  it('should return true for different breed prices', () => {
+    const event = makeEvent({ normal: 50, breed: { '110': 45 } }, { normal: 40, breed: { '110': 35 } })
+    expect(hasDifferentMemberPrice(event, 'breed', '110')).toBe(true)
+  })
+
+  it('should return false when breed has same price for members', () => {
+    const event = makeEvent({ normal: 50, breed: { '110': 45 } }, { normal: 40, breed: { '110': 45 } })
+    expect(hasDifferentMemberPrice(event, 'breed', '110')).toBe(false)
+  })
+
+  it('should return true when segment does not exist in base cost', () => {
+    const event = makeEvent({ normal: 50 }, { normal: 40, custom: { cost: 30, description: { fi: 'Custom' } } })
+    expect(hasDifferentMemberPrice(event, 'custom')).toBe(true)
+  })
+
+  it('should return false when segment does not exist in member cost', () => {
+    const event = makeEvent({ normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } }, { normal: 40 })
+    expect(hasDifferentMemberPrice(event, 'custom')).toBe(false)
+  })
+
+  it('should return true for different earlyBird prices', () => {
+    const event = makeEvent(
+      { normal: 50, earlyBird: { cost: 40, days: 5 } },
+      { normal: 40, earlyBird: { cost: 35, days: 5 } }
+    )
+    expect(hasDifferentMemberPrice(event, 'earlyBird')).toBe(true)
+  })
+
+  it('should return false when member earlyBird is 0 (uses base)', () => {
+    const event = makeEvent(
+      { normal: 50, earlyBird: { cost: 40, days: 5 } },
+      { normal: 40, earlyBird: { cost: 0, days: 5 } }
+    )
+    expect(hasDifferentMemberPrice(event, 'earlyBird')).toBe(false)
   })
 })

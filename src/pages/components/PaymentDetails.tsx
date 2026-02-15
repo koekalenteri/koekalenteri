@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useRecoilValue } from 'recoil'
 
-import { getCostSegmentName } from '../../lib/cost'
+import { getCostSegmentName, hasDifferentMemberPrice } from '../../lib/cost'
 import { formatMoney } from '../../lib/money'
 import { getRegistrationPaymentDetails } from '../../lib/payment'
 import { languageAtom } from '../recoil'
@@ -24,7 +24,12 @@ export const PaymentDetails = ({ event, registration, includePayable, includeTot
   const language = useRecoilValue(languageAtom)
   const details = getRegistrationPaymentDetails(event, registration)
   const costSegmentName = getCostSegmentName(details.strategy)
-  const member = details.isMember ? ` ${t('costForMembers')}` : ''
+
+  // Only show "for members" when the member price actually differs from base price
+  const hasDifferentPrice =
+    details.isMember && hasDifferentMemberPrice(event, details.strategy, registration.dog.breedCode)
+  const member = hasDifferentPrice ? ` ${t('costForMembers')}` : ''
+
   const costDescription = t(costSegmentName, {
     ...details.translationOptions,
     name: details.costObject?.custom?.description?.[language] ?? details.costObject?.custom?.description?.fi,
