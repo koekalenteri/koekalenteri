@@ -1,8 +1,7 @@
-import { useTranslation } from 'react-i18next'
-import { Link as SpaLink } from 'react-router'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
-
+import { useTranslation } from 'react-i18next'
+import { Link as SpaLink } from 'react-router'
 import { Path } from '../../../routeConfig'
 
 interface Props {
@@ -19,10 +18,10 @@ export const AdminLink = ({ active, activeBorder }: Props) => {
       to={Path.admin.index}
       component={SpaLink}
       sx={{
-        textDecoration: 'none',
         borderBottom: border,
         mr: 1,
         px: 1,
+        textDecoration: 'none',
       }}
     >
       <Typography

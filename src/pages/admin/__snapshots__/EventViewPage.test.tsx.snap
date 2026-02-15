@@ -13,7 +13,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       >
         NOME-B
         , 
-        dateFormat.datespan start, end
+        dateFormat.datespan end, start
         , 
         test location
       </h5>
@@ -27,7 +27,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
     >
       <div
-        class="MuiBox-root css-2edxro"
+        class="MuiBox-root css-c41839"
       >
         <div
           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
@@ -36,7 +36,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
           >
             <div
-              class="MuiTabs-root css-10nfe33-MuiTabs-root"
+              class="MuiTabs-root css-12y9vg6-MuiTabs-root"
             >
               <div
                 class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
@@ -445,7 +445,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           </button>
           <button
             aria-selected="false"
-            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-1tnwgnx-MuiButtonBase-root-MuiTab-root"
+            class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary css-4ettq7-MuiButtonBase-root-MuiTab-root"
             id="tab-AVO"
             role="tab"
             tabindex="-1"
@@ -482,7 +482,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
   </div>
   <div
     role="tabpanel"
-    style="width: 100%; min-height: 400px; display: flex; flex-direction: column;"
+    style="display: flex; flex-direction: column; min-height: 400px; width: 100%;"
   >
     <h6
       class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
@@ -493,10 +493,10 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
        - event.states.confirmed
     </h6>
     <div
-      class="MuiBox-root css-1hvfy3o"
+      class="MuiBox-root css-1ritpky"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -1036,21 +1036,21 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       </div>
     </div>
     <div
-      style="overflow-y: auto; display: flex; flex-grow: 1; flex-direction: column; width: 100%; height: 100%;"
+      style="display: flex; flex-direction: column; flex-grow: 1; height: 100%; overflow-y: auto; width: 100%;"
     >
       <div
         class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-55zn6h"
+              class="MuiBox-root css-1niois2"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ap
@@ -1554,7 +1554,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -1603,14 +1603,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-q8fzbv"
+              class="MuiBox-root css-nawqec"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ip
@@ -2114,7 +2114,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -2163,14 +2163,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-169orto"
+              class="MuiBox-root css-fmcx8g"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ap
@@ -2674,7 +2674,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -2723,14 +2723,14 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-1myeusk"
+              class="MuiBox-root css-92m8b5"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ip
@@ -3234,7 +3234,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -3292,7 +3292,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -3847,7 +3847,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 910px; --DataGrid-columnsTotalWidth: 910px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -4446,7 +4446,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
   </div>
   <div
     role="tabpanel"
-    style="width: 100%; min-height: 400px; display: none; flex-direction: column;"
+    style="display: none; flex-direction: column; min-height: 400px; width: 100%;"
   />
 </div>
 `;
@@ -4464,7 +4464,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       >
         NOU
         , 
-        dateFormat.datespan start, end
+        dateFormat.datespan end, start
         , 
         test location
       </h5>
@@ -4478,7 +4478,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
     >
       <div
-        class="MuiBox-root css-2edxro"
+        class="MuiBox-root css-c41839"
       >
         <div
           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
@@ -4487,7 +4487,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
           >
             <div
-              class="MuiTabs-root css-10nfe33-MuiTabs-root"
+              class="MuiTabs-root css-12y9vg6-MuiTabs-root"
             >
               <div
                 class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
@@ -4923,7 +4923,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
   </div>
   <div
     role="tabpanel"
-    style="width: 100%; min-height: 400px; display: flex; flex-direction: column;"
+    style="display: flex; flex-direction: column; min-height: 400px; width: 100%;"
   >
     <h6
       class="MuiTypography-root MuiTypography-h6 css-b2qg5q-MuiTypography-root"
@@ -4934,10 +4934,10 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
        - event.states.confirmed
     </h6>
     <div
-      class="MuiBox-root css-1hvfy3o"
+      class="MuiBox-root css-1ritpky"
     >
       <div
-        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
+        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
@@ -5477,21 +5477,21 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       </div>
     </div>
     <div
-      style="overflow-y: auto; display: flex; flex-grow: 1; flex-direction: column; width: 100%; height: 100%;"
+      style="display: flex; flex-direction: column; flex-grow: 1; height: 100%; overflow-y: auto; width: 100%;"
     >
       <div
         class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-55zn6h"
+              class="MuiBox-root css-1niois2"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ap
@@ -5995,7 +5995,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -6044,14 +6044,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-q8fzbv"
+              class="MuiBox-root css-nawqec"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ip
@@ -6555,7 +6555,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -6604,14 +6604,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-169orto"
+              class="MuiBox-root css-fmcx8g"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ap
@@ -7115,7 +7115,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -7164,14 +7164,14 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
-            class="MuiStack-root header css-sf7yvk-MuiStack-root"
+            class="MuiStack-root header css-tgh1vy-MuiStack-root"
           >
             <div
-              class="MuiBox-root css-1myeusk"
+              class="MuiBox-root css-92m8b5"
             />
             <b>
               dateFormat.wdshort date registration.timeLong.ip
@@ -7675,7 +7675,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                   style="height: 40px; width: 100px;"
                 >
                   <div
-                    class="no-rows MuiBox-root css-1jpcp03"
+                    class="no-rows MuiBox-root css-1k75hwm"
                   >
                     Raahaa osallistujat tähän!
                   </div>
@@ -7733,7 +7733,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 766px; --DataGrid-columnsTotalWidth: 766px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -8245,7 +8245,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-rowindex="0"
                     draggable="true"
                     role="row"
-                    style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                    style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
                     <div
                       class="MuiDataGrid-cellOffsetLeft"
@@ -8276,20 +8276,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </svg>
                       <div
                         aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                        class="MuiStack-root css-156fqfh-MuiStack-root"
+                        class="MuiStack-root css-1egz6qo-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
                         <div
-                          class="MuiBox-root css-14hq1a2"
+                          class="MuiBox-root css-o276wh"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                       </div>
                     </div>
@@ -8342,9 +8342,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       role="gridcell"
                       style="--width: 150px;"
                       tabindex="-1"
-                      title="110.M ns, defaultValue"
+                      title="110.M defaultValue, ns"
                     >
-                      110.M ns, defaultValue
+                      110.M defaultValue, ns
                     </div>
                     <div
                       aria-colindex="6"
@@ -8488,7 +8488,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           />
                         </svg>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -8548,7 +8548,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-rowindex="1"
                     draggable="true"
                     role="row"
-                    style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                    style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
                     <div
                       class="MuiDataGrid-cellOffsetLeft"
@@ -8579,20 +8579,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </svg>
                       <div
                         aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                        class="MuiStack-root css-156fqfh-MuiStack-root"
+                        class="MuiStack-root css-1egz6qo-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
                         <div
-                          class="MuiBox-root css-14hq1a2"
+                          class="MuiBox-root css-o276wh"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                       </div>
                     </div>
@@ -8645,9 +8645,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       role="gridcell"
                       style="--width: 150px;"
                       tabindex="-1"
-                      title="110.M ns, defaultValue"
+                      title="110.M defaultValue, ns"
                     >
-                      110.M ns, defaultValue
+                      110.M defaultValue, ns
                     </div>
                     <div
                       aria-colindex="6"
@@ -8791,7 +8791,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           />
                         </svg>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -8851,7 +8851,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-rowindex="2"
                     draggable="true"
                     role="row"
-                    style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                    style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
                     <div
                       class="MuiDataGrid-cellOffsetLeft"
@@ -8882,20 +8882,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </svg>
                       <div
                         aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                        class="MuiStack-root css-156fqfh-MuiStack-root"
+                        class="MuiStack-root css-1egz6qo-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
                         <div
-                          class="MuiBox-root css-14hq1a2"
+                          class="MuiBox-root css-o276wh"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                       </div>
                     </div>
@@ -8948,9 +8948,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       role="gridcell"
                       style="--width: 150px;"
                       tabindex="-1"
-                      title="110.M ns, defaultValue"
+                      title="110.M defaultValue, ns"
                     >
-                      110.M ns, defaultValue
+                      110.M defaultValue, ns
                     </div>
                     <div
                       aria-colindex="6"
@@ -9094,7 +9094,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           />
                         </svg>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -9154,7 +9154,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-rowindex="3"
                     draggable="true"
                     role="row"
-                    style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                    style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
                     <div
                       class="MuiDataGrid-cellOffsetLeft"
@@ -9185,20 +9185,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </svg>
                       <div
                         aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                        class="MuiStack-root css-156fqfh-MuiStack-root"
+                        class="MuiStack-root css-1egz6qo-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
                         <div
-                          class="MuiBox-root css-14hq1a2"
+                          class="MuiBox-root css-o276wh"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                       </div>
                     </div>
@@ -9251,9 +9251,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       role="gridcell"
                       style="--width: 150px;"
                       tabindex="-1"
-                      title="110.M ns, defaultValue"
+                      title="110.M defaultValue, ns"
                     >
-                      110.M ns, defaultValue
+                      110.M defaultValue, ns
                     </div>
                     <div
                       aria-colindex="6"
@@ -9397,7 +9397,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           />
                         </svg>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -9457,7 +9457,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-rowindex="4"
                     draggable="true"
                     role="row"
-                    style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                    style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
                     <div
                       class="MuiDataGrid-cellOffsetLeft"
@@ -9488,20 +9488,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </svg>
                       <div
                         aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                        class="MuiStack-root css-156fqfh-MuiStack-root"
+                        class="MuiStack-root css-1egz6qo-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
                         <div
-                          class="MuiBox-root css-14hq1a2"
+                          class="MuiBox-root css-o276wh"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                       </div>
                     </div>
@@ -9554,9 +9554,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       role="gridcell"
                       style="--width: 150px;"
                       tabindex="-1"
-                      title="110.M ns, defaultValue"
+                      title="110.M defaultValue, ns"
                     >
-                      110.M ns, defaultValue
+                      110.M defaultValue, ns
                     </div>
                     <div
                       aria-colindex="6"
@@ -9700,7 +9700,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           />
                         </svg>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -9791,7 +9791,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
-          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-12iuumc-MuiDataGrid-root"
+          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-bpbueo-MuiDataGrid-root"
           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 910px; --DataGrid-columnsTotalWidth: 910px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
         >
           <div
@@ -10353,7 +10353,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-rowindex="0"
                     draggable="true"
                     role="row"
-                    style="opacity: 1; display: flex; box-sizing: content-box; max-height: 28px; min-height: 28px; --height: 28px;"
+                    style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
                     <div
                       class="MuiDataGrid-cellOffsetLeft"
@@ -10384,20 +10384,20 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       </svg>
                       <div
                         aria-label="Sopivat ryhmät: dateFormat.weekday date registration.time.ap"
-                        class="MuiStack-root css-156fqfh-MuiStack-root"
+                        class="MuiStack-root css-1egz6qo-MuiStack-root"
                         data-mui-internal-clone-element="true"
                       >
                         <div
-                          class="MuiBox-root css-14hq1a2"
+                          class="MuiBox-root css-o276wh"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                         <div
-                          class="MuiBox-root css-1urbi4i"
+                          class="MuiBox-root css-14r9ivc"
                         />
                       </div>
                     </div>
@@ -10450,9 +10450,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                       role="gridcell"
                       style="--width: 150px;"
                       tabindex="-1"
-                      title="110.M ns, defaultValue"
+                      title="110.M defaultValue, ns"
                     >
-                      110.M ns, defaultValue
+                      110.M defaultValue, ns
                     </div>
                     <div
                       aria-colindex="6"
@@ -10607,7 +10607,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           />
                         </svg>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>

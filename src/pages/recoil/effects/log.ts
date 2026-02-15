@@ -1,5 +1,4 @@
 import type { AtomEffect } from 'recoil'
-
 import { isDevEnv } from '../../../lib/env'
 
 export const logEffect: AtomEffect<any> = ({ node, onSet }) => {

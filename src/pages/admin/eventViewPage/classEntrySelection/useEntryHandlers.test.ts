@@ -1,8 +1,6 @@
 import type { GridCallbackDetails, GridCellParams, GridRowSelectionModel, MuiEvent } from '@mui/x-data-grid'
 import type React from 'react'
-
 import { renderHook } from '@testing-library/react'
-
 import { useEntryHandlers } from './useEntryHandlers'
 
 // Mock dependencies
@@ -20,10 +18,10 @@ jest.mock('notistack', () => ({
 
 // Mock clipboard API
 Object.defineProperty(navigator, 'clipboard', {
+  configurable: true,
   value: {
     writeText: jest.fn(),
   },
-  configurable: true,
 })
 
 describe('useEntryHandlers', () => {
@@ -36,11 +34,11 @@ describe('useEntryHandlers', () => {
   const mockRegistrations = [{ id: 'reg1' }, { id: 'reg2' }]
 
   const defaultProps = {
-    setOpen: mockSetOpen,
+    registrations: mockRegistrations,
     setCancelOpen: mockSetCancelOpen,
+    setOpen: mockSetOpen,
     setRefundOpen: mockSetRefundOpen,
     setSelectedRegistrationId: mockSetSelectedRegistrationId,
-    registrations: mockRegistrations,
   }
 
   beforeEach(() => {
@@ -169,13 +167,13 @@ describe('useEntryHandlers', () => {
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith('TEST123')
       expect(event.defaultMuiPrevented).toBe(true)
       expect(mockEnqueueSnackbar).toHaveBeenCalledWith({
-        message: 'Rekisterinumero kopioitu',
-        variant: 'info',
-        autoHideDuration: 1000,
         anchorOrigin: {
           horizontal: 'center',
           vertical: 'bottom',
         },
+        autoHideDuration: 1000,
+        message: 'Rekisterinumero kopioitu',
+        variant: 'info',
       })
     })
 

@@ -1,9 +1,7 @@
 import type { ChangeEvent } from 'react'
-
-import { useCallback, useEffect, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-
+import { useCallback, useEffect, useState } from 'react'
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
 
 interface Props {
@@ -58,7 +56,7 @@ export function TitlesAndName({
 
   return (
     <Grid container spacing={1} size={{ xs: 12 }}>
-      <Grid size={{ xs: 12, md: 6 }}>
+      <Grid size={{ md: 6, xs: 12 }}>
         <TextField
           className={className}
           disabled={disabledTitles}
@@ -69,7 +67,7 @@ export function TitlesAndName({
           value={localTitles}
         />
       </Grid>
-      <Grid size={{ xs: 12, md: 6 }}>
+      <Grid size={{ md: 6, xs: 12 }}>
         <TextField
           className={className}
           disabled={disabledName}

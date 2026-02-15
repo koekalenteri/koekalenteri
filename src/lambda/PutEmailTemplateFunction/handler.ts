@@ -1,13 +1,11 @@
 import type { Template } from '@aws-sdk/client-ses'
 import type { JsonEmailTemplate } from '../../types'
-
 import {
   CreateTemplateCommand,
   SESClient,
   TemplateDoesNotExistException,
   UpdateTemplateCommand,
 } from '@aws-sdk/client-ses'
-
 import { CONFIG } from '../config'
 import { authorize, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -62,8 +60,8 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
 
   // Generate SES compatible template for all languages
   data.ses = {
-    fi: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-fi`, data.fi),
     en: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-en`, data.en),
+    fi: await markdownToTemplate(`${item.id}-${CONFIG.stackName}-fi`, data.fi),
   }
 
   if (data.ses) {

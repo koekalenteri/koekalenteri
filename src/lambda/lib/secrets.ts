@@ -1,9 +1,7 @@
 import type { Parameter } from '@aws-sdk/client-ssm'
 import type { KLAPIConfig } from '../types/KLAPI'
 import type { PaytrailConfig } from '../types/paytrail'
-
 import { GetParametersCommand, SSMClient } from '@aws-sdk/client-ssm'
-
 import { CONFIG } from '../config'
 
 const { stackName } = CONFIG
@@ -26,8 +24,8 @@ const isFresh = (entry: CacheEntry | undefined): entry is Required<CacheEntry> =
 
 const storeValueInCache = (name: string, value: string): void => {
   cache[name] = {
-    value,
     expiresAt: now() + TTL_MS,
+    value,
   }
 }
 
@@ -64,7 +62,7 @@ const resolveCachedParams = <T extends Record<string, string>>(
     }
   }
 
-  return { resolved: resolved as T, toFetch, pending }
+  return { pending, resolved: resolved as T, toFetch }
 }
 
 const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>): Promise<void> => {
@@ -131,7 +129,7 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   if (!cfg.PAYTRAIL_SECRET || !cfg.PAYTRAIL_MERCHANT_ID) {
     throw new Error('Missing Paytrail Config!')
   }
-  console.log('merchantId: ' + cfg.PAYTRAIL_MERCHANT_ID)
+  console.log(`merchantId: ${cfg.PAYTRAIL_MERCHANT_ID}`)
   return cfg
 }
 

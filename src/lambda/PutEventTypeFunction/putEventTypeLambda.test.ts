@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockCreateDbRecord = jest.fn<any>()
@@ -22,8 +22,8 @@ jest.unstable_mockModule('../utils/proxyEvent', () => ({
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
-    write: mockWrite,
     readAll: mockReadAll,
+    write: mockWrite,
   })),
 }))
 
@@ -42,9 +42,9 @@ const { default: putEventTypeLambda } = await import('./handler')
 describe('putEventTypeLambda', () => {
   const event = {
     body: JSON.stringify({
+      active: true,
       eventType: 'AGILITY',
       name: 'Agility',
-      active: true,
     }),
     headers: {},
   } as any
@@ -54,19 +54,19 @@ describe('putEventTypeLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Admin User',
-      admin: true,
     })
 
     mockCreateDbRecord.mockReturnValue({
-      eventType: 'AGILITY',
-      name: 'Agility',
       active: true,
       createdAt: mockTimestamp,
       createdBy: 'Admin User',
+      eventType: 'AGILITY',
       modifiedAt: mockTimestamp,
       modifiedBy: 'Admin User',
+      name: 'Agility',
     })
 
     mockWrite.mockResolvedValue(undefined)
@@ -75,9 +75,9 @@ describe('putEventTypeLambda', () => {
 
   it('returns 401 if user is not an admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Regular User',
-      admin: false,
     })
 
     await putEventTypeLambda(event)
@@ -90,13 +90,13 @@ describe('putEventTypeLambda', () => {
 
   it('creates an active event type successfully', async () => {
     const eventTypeItem = {
-      eventType: 'AGILITY',
-      name: 'Agility',
       active: true,
       createdAt: mockTimestamp,
       createdBy: 'Admin User',
+      eventType: 'AGILITY',
       modifiedAt: mockTimestamp,
       modifiedBy: 'Admin User',
+      name: 'Agility',
     }
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 
@@ -117,37 +117,37 @@ describe('putEventTypeLambda', () => {
     const inactiveEvent = {
       ...event,
       body: JSON.stringify({
+        active: false,
         eventType: 'AGILITY',
         name: 'Agility',
-        active: false,
       }),
     }
 
     const eventTypeItem = {
-      eventType: 'AGILITY',
-      name: 'Agility',
       active: false,
       createdAt: mockTimestamp,
       createdBy: 'Admin User',
+      eventType: 'AGILITY',
       modifiedAt: mockTimestamp,
       modifiedBy: 'Admin User',
+      name: 'Agility',
     }
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 
     // Setup active event types
-    const activeEventTypes = [{ eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience', active: true }]
+    const activeEventTypes = [{ active: true, eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience' }]
 
     // Setup judges that need to be removed
-    const judgesToRemove = [{ id: 'judge1', name: 'Judge One', eventTypes: ['AGILITY'] }]
+    const judgesToRemove = [{ eventTypes: ['AGILITY'], id: 'judge1', name: 'Judge One' }]
 
     // Setup officials that need to be removed
-    const officialsToRemove = [{ id: 'official1', name: 'Official One', eventTypes: ['AGILITY'] }]
+    const officialsToRemove = [{ eventTypes: ['AGILITY'], id: 'official1', name: 'Official One' }]
 
     // Setup judges that should not be removed
-    const judgesToKeep = [{ id: 'judge2', name: 'Judge Two', eventTypes: ['RALLY_OBEDIENCE'] }]
+    const judgesToKeep = [{ eventTypes: ['RALLY_OBEDIENCE'], id: 'judge2', name: 'Judge Two' }]
 
     // Setup officials that should not be removed
-    const officialsToKeep = [{ id: 'official2', name: 'Official Two', eventTypes: ['RALLY_OBEDIENCE'] }]
+    const officialsToKeep = [{ eventTypes: ['RALLY_OBEDIENCE'], id: 'official2', name: 'Official Two' }]
 
     // Mock readAll to return different values for different calls
     mockReadAll
@@ -192,25 +192,25 @@ describe('putEventTypeLambda', () => {
     const inactiveEvent = {
       ...event,
       body: JSON.stringify({
+        active: false,
         eventType: 'AGILITY',
         name: 'Agility',
-        active: false,
       }),
     }
 
     const eventTypeItem = {
-      eventType: 'AGILITY',
-      name: 'Agility',
       active: false,
       createdAt: mockTimestamp,
       createdBy: 'Admin User',
+      eventType: 'AGILITY',
       modifiedAt: mockTimestamp,
       modifiedBy: 'Admin User',
+      name: 'Agility',
     }
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 
     // Setup active event types
-    const activeEventTypes = [{ eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience', active: true }]
+    const activeEventTypes = [{ active: true, eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience' }]
 
     // Setup judges with no eventTypes property
     const judgesWithNoEventTypes = [
@@ -265,34 +265,34 @@ describe('putEventTypeLambda', () => {
     const inactiveEvent = {
       ...event,
       body: JSON.stringify({
+        active: false,
         eventType: 'AGILITY',
         name: 'Agility',
-        active: false,
       }),
     }
 
     const eventTypeItem = {
-      eventType: 'AGILITY',
-      name: 'Agility',
       active: false,
       createdAt: mockTimestamp,
       createdBy: 'Admin User',
+      eventType: 'AGILITY',
       modifiedAt: mockTimestamp,
       modifiedBy: 'Admin User',
+      name: 'Agility',
     }
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 
     // Setup active event types
-    const activeEventTypes = [{ eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience', active: true }]
+    const activeEventTypes = [{ active: true, eventType: 'RALLY_OBEDIENCE', name: 'Rally Obedience' }]
 
     // Setup judges that are already deleted
     const deletedJudges = [
-      { id: 'judge1', name: 'Judge One', eventTypes: ['AGILITY'], deletedAt: '2022-01-01T00:00:00.000Z' },
+      { deletedAt: '2022-01-01T00:00:00.000Z', eventTypes: ['AGILITY'], id: 'judge1', name: 'Judge One' },
     ]
 
     // Setup officials that are already deleted
     const deletedOfficials = [
-      { id: 'official1', name: 'Official One', eventTypes: ['AGILITY'], deletedAt: '2022-01-01T00:00:00.000Z' },
+      { deletedAt: '2022-01-01T00:00:00.000Z', eventTypes: ['AGILITY'], id: 'official1', name: 'Official One' },
     ]
 
     // Mock readAll to return different values for different calls
@@ -333,20 +333,20 @@ describe('putEventTypeLambda', () => {
     const inactiveEvent = {
       ...event,
       body: JSON.stringify({
+        active: false,
         eventType: 'AGILITY',
         name: 'Agility',
-        active: false,
       }),
     }
 
     const eventTypeItem = {
-      eventType: 'AGILITY',
-      name: 'Agility',
       active: false,
       createdAt: mockTimestamp,
       createdBy: 'Admin User',
+      eventType: 'AGILITY',
       modifiedAt: mockTimestamp,
       modifiedBy: 'Admin User',
+      name: 'Agility',
     }
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 

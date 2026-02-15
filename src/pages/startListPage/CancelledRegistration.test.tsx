@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-
 import { CancelledRegistration } from './CancelledRegistration'
 
 describe('CancelledRegistration', () => {

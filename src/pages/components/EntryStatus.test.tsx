@@ -1,14 +1,11 @@
 import type { ReactNode } from 'react'
 import type { MinimalEventForStatus } from '../../hooks/useEventStatus'
-
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
-
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
-
 import { EntryStatus } from './EntryStatus'
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
@@ -49,8 +46,8 @@ describe('EntryStatus', () => {
     ],
     [
       {
-        state: 'confirmed',
         entryOrigEndDate: new Date(),
+        state: 'confirmed',
       },
       '(event.states.extended_info)',
     ],

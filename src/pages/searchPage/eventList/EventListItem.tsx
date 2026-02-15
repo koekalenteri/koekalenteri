@@ -1,19 +1,16 @@
 import type { PublicDogEvent } from '../../../types'
-
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { zonedStartOfDay } from '../../../i18n/dates'
 import { isEntryClosed, isEntryOpen, isEntryUpcoming, isEventOver, isValidForEntry } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import { CollapsibleEvent } from '../../components/CollapsibleEvent'
 import LinkButton from '../../components/LinkButton'
-
-import { EventPlaces } from './eventTableRow/EventPlaces'
 import { EventInfo } from './EventInfo'
 import { EventStateInfo } from './EventStateInfo'
+import { EventPlaces } from './eventTableRow/EventPlaces'
 
 interface Props {
   readonly event: PublicDogEvent
@@ -24,7 +21,7 @@ const EventHeader = ({ event }: Props) => {
   const { t } = useTranslation()
 
   const infoText = useMemo(() => {
-    if (isEntryOpen(event)) return t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })
+    if (isEntryOpen(event)) return t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })
     if (isEventOver(event)) return t('event.states.confirmed_eventOver')
 
     if (event.state === 'picked') return t('event.states.picked')
@@ -38,11 +35,11 @@ const EventHeader = ({ event }: Props) => {
             variant="caption"
             color="textSecondary"
             sx={{
-              position: 'absolute',
               bottom: '20px',
-              lineHeight: '12px',
-              right: 0,
               fontSize: '10px',
+              lineHeight: '12px',
+              position: 'absolute',
+              right: 0,
               textAlign: 'right',
             }}
           >
@@ -69,7 +66,7 @@ const EventHeader = ({ event }: Props) => {
             {event.organizer.name}
           </Typography>
         </Grid>
-        <Grid display={{ xs: 'none', sm: 'block' }} offset="auto">
+        <Grid display={{ sm: 'block', xs: 'none' }} offset="auto">
           {showPlaces ? <EventPlaces event={event} /> : null}
         </Grid>
       </Grid>
@@ -77,18 +74,18 @@ const EventHeader = ({ event }: Props) => {
         container
         columnSpacing={1}
         size={{
-          xs: 12,
           sm: 'auto',
+          xs: 12,
         }}
       >
-        <Grid>{t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}</Grid>
+        <Grid>{t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}</Grid>
         <Grid
           overflow={'hidden'}
           textOverflow={'ellipsis'}
           sx={{ textWrap: 'nowrap' }}
           size={{
-            xs: 'grow',
             sm: 'auto',
+            xs: 'grow',
           }}
         >
           {event.eventType}
@@ -101,8 +98,8 @@ const EventHeader = ({ event }: Props) => {
         container
         columnSpacing={1}
         size={{
-          xs: 12,
           sm: 'grow',
+          xs: 12,
         }}
       >
         <Grid>{event.location}</Grid>
@@ -111,8 +108,8 @@ const EventHeader = ({ event }: Props) => {
           textOverflow={'ellipsis'}
           sx={{ textWrap: 'nowrap' }}
           size={{
-            xs: 'grow',
             sm: 'auto',
+            xs: 'grow',
           }}
         >
           {event.name ? event.name : ''}

@@ -1,9 +1,7 @@
 import type { AtomEffect } from 'recoil'
 import type { Judge } from '../../../../types'
-
 import i18next from 'i18next'
 import { DefaultValue } from 'recoil'
-
 import { getJudges } from '../../../../api/judge'
 import { idTokenAtom } from '../../../recoil/user'
 

@@ -1,12 +1,10 @@
 import type { SyntheticEvent } from 'react'
 import type { BreedCode, DeepPartial, DogGender, Registration } from '../../../types'
 import type { DogCachedInfo } from '../../recoil/dog'
-
+import Grid from '@mui/material/Grid'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Grid from '@mui/material/Grid'
 import { useRecoilValue } from 'recoil'
-
 import { emptyDog } from '../../../lib/data'
 import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from '../../../lib/dog'
 import { hasChanges } from '../../../lib/utils'
@@ -14,7 +12,6 @@ import { validateRegNo } from '../../../lib/validation'
 import { useDogActions } from '../../recoil/dog'
 import { cachedDogRegNumbersSelector } from '../../recoil/dog/selectors'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { DogDetails } from './dogInfo/DogDetails'
 import { DogSearch } from './dogInfo/DogSearch'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
@@ -52,9 +49,9 @@ export const DogInfo = ({
 }: Props) => {
   const { t } = useTranslation()
   const [state, setState] = useState<State>({
-    regNo: reg?.dog?.regNo ?? '',
-    mode: reg?.dog?.regNo ? 'update' : 'fetch',
     dob: !isValidDob(reg?.dog?.dob),
+    mode: reg?.dog?.regNo ? 'update' : 'fetch',
+    regNo: reg?.dog?.regNo ?? '',
   })
 
   // Group local state for all form fields with a single debounced update
@@ -69,14 +66,14 @@ export const DogInfo = ({
     dam: string
   }>(
     {
-      rfid: reg?.dog?.rfid ?? '',
-      name: reg?.dog?.name ?? '',
-      titles: reg?.dog?.titles ?? '',
+      breedCode: reg?.dog?.breedCode ?? '',
+      dam: reg?.dog?.dam?.name ?? '',
       dob: reg?.dog?.dob,
       gender: reg?.dog?.gender ?? '',
-      breedCode: reg?.dog?.breedCode ?? '',
+      name: reg?.dog?.name ?? '',
+      rfid: reg?.dog?.rfid ?? '',
       sire: reg?.dog?.sire?.name ?? '',
-      dam: reg?.dog?.dam?.name ?? '',
+      titles: reg?.dog?.titles ?? '',
     },
     (values) => {
       // Create a dog update object and send it
@@ -135,7 +132,7 @@ export const DogInfo = ({
 
   const handleDogOperation = useCallback(
     async (mode: State['mode']) => {
-      let delay = 100
+      const delay = 100
 
       if (mode === 'autofetch' || mode === 'fetch') {
         try {
@@ -148,9 +145,9 @@ export const DogInfo = ({
 
             setState((prev) => ({
               ...prev,
+              dob: !isValidDob(cache?.dog?.dob),
               mode: newMode,
               rfid: !!cache?.dog?.rfidEditable,
-              dob: !isValidDob(cache?.dog?.dob),
             }))
           }
         } catch (err) {
@@ -158,14 +155,12 @@ export const DogInfo = ({
           updateDog({ dog: emptyDog })
           setState((prev) => ({ ...prev, mode: 'error' }))
         }
-        delay = 500
       } else if (mode === 'update') {
         updateDog(await actions.refresh(reg.dog))
-        delay = 500
       } else if (mode === 'notfound') {
         setState((prev) => ({ ...prev, mode: 'manual' }))
       } else {
-        setState({ regNo: '', mode: 'fetch', dob: false })
+        setState({ dob: false, mode: 'fetch', regNo: '' })
       }
 
       return delay
@@ -194,20 +189,20 @@ export const DogInfo = ({
   }, [delayed, handleDogOperation, loading, state.mode])
 
   const handleRegNoChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: string | null) => {
+    (_event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'fetch', dob: false })
+        setState({ dob: false, mode: 'fetch', regNo: upper })
       }
     },
     [state.regNo]
   )
 
   const handleRegNoSelect = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: string | null) => {
+    (_event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'autofetch', dob: false })
+        setState({ dob: false, mode: 'autofetch', regNo: upper })
       }
     },
     [state.regNo]
@@ -234,7 +229,7 @@ export const DogInfo = ({
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1} alignItems="flex-start">
-        <Grid size={{ xs: 12, sm: 7, md: 6, lg: 3 }}>
+        <Grid size={{ lg: 3, md: 6, sm: 7, xs: 12 }}>
           <DogSearch
             regNo={state.regNo}
             disabled={disabled}

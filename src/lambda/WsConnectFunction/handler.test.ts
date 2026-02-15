@@ -4,8 +4,8 @@ const mockWsConnect = jest.fn<any>()
 const mockBroadcastConnectionCount = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/broadcast', () => ({
-  wsConnect: mockWsConnect,
   broadcastConnectionCount: mockBroadcastConnectionCount,
+  wsConnect: mockWsConnect,
 }))
 
 const { default: wsConnectHandler } = await import('./handler')
@@ -36,8 +36,8 @@ describe('wsConnectHandler', () => {
 
     // Verify the response
     expect(result).toEqual({
-      statusCode: 200,
       body: 'Connected',
+      statusCode: 200,
     })
   })
 

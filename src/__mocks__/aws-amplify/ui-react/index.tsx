@@ -1,5 +1,4 @@
 import type React from 'react'
-
 import { createContext, useContext, useMemo, useState } from 'react'
 
 const AuthenticatorContext = createContext({
@@ -9,12 +8,12 @@ const AuthenticatorContext = createContext({
   },
 })
 
-const mockUser: any = {
-  username: 'mock_user',
+const mockUser = {
   attributes: {
-    name: 'Test User',
     email: 'test@user.jest',
+    name: 'Test User',
   },
+  username: 'mock_user',
 }
 
 export const useAuthenticator = () => useContext(AuthenticatorContext)
@@ -22,7 +21,7 @@ export const useAuthenticator = () => useContext(AuthenticatorContext)
 export const Provider = ({ children }: { readonly children: React.ReactNode }) => {
   const [route, setRoute] = useState('authenticated')
   const user = useMemo(() => (route === 'authenticated' ? mockUser : undefined), [route])
-  const state = useMemo(() => ({ route, user, signOut: () => setRoute('idle') }), [route, user])
+  const state = useMemo(() => ({ route, signOut: () => setRoute('idle'), user }), [route, user])
   return <AuthenticatorContext.Provider value={state}>{children}</AuthenticatorContext.Provider>
 }
 

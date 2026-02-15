@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockParseParams = jest.fn<any>()
@@ -19,8 +19,6 @@ const mockDynamoClient = jest.fn(() => ({
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {
@@ -28,13 +26,15 @@ jest.unstable_mockModule('../lib/lambda', () => ({
       this.status = status
     }
   },
+  lambda: mockLambda,
+  response: mockResponse,
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
-  verifyParams: mockVerifyParams,
+  getProviderName: mockGetProviderName,
   parseParams: mockParseParams,
   updateTransactionStatus: mockUpdateTransactionStatus,
-  getProviderName: mockGetProviderName,
+  verifyParams: mockVerifyParams,
 }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
@@ -46,8 +46,8 @@ jest.unstable_mockModule('../lib/event', () => ({
 }))
 
 jest.unstable_mockModule('../lib/email', () => ({
-  sendTemplatedMail: mockSendTemplatedMail,
   registrationEmailTemplateData: jest.fn(() => ({})),
+  sendTemplatedMail: mockSendTemplatedMail,
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({
@@ -64,31 +64,31 @@ const { default: refundSuccessLambda } = await import('./handler')
 describe('refundSuccessLambda', () => {
   const event = {
     queryStringParameters: {
-      'checkout-transaction-id': 'transaction123',
+      'checkout-amount': '1000',
+      'checkout-provider': 'paytrail',
       'checkout-reference': 'event123:reg456',
       'checkout-status': 'ok',
-      'checkout-provider': 'paytrail',
-      'checkout-amount': '1000',
+      'checkout-transaction-id': 'transaction123',
       signature: 'valid-signature',
     },
   } as any
 
   const mockTransaction = {
-    transactionId: 'transaction123',
+    createdAt: '2023-01-01T12:00:00.000Z',
     status: 'pending',
+    transactionId: 'transaction123',
     type: 'refund',
     user: 'Test User',
-    createdAt: '2023-01-01T12:00:00.000Z',
   }
 
   const mockRegistration = {
     eventId: 'event123',
     id: 'reg456',
     language: 'fi',
+    paidAmount: 20,
     payer: {
       email: 'payer@example.com',
     },
-    paidAmount: 20,
   }
 
   const mockConfirmedEvent = {
@@ -107,10 +107,10 @@ describe('refundSuccessLambda', () => {
 
     mockParseParams.mockReturnValue({
       eventId: 'event123',
-      registrationId: 'reg456',
-      transactionId: 'transaction123',
-      status: 'ok',
       provider: 'paytrail',
+      registrationId: 'reg456',
+      status: 'ok',
+      transactionId: 'transaction123',
     })
 
     mockDynamoRead.mockResolvedValue(mockTransaction)
@@ -125,10 +125,10 @@ describe('refundSuccessLambda', () => {
   it('throws error if status is missing', async () => {
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
-      registrationId: 'reg456',
-      transactionId: 'transaction123',
       // No status
       provider: 'paytrail',
+      registrationId: 'reg456',
+      transactionId: 'transaction123',
     })
 
     await expect(refundSuccessLambda(event)).rejects.toThrow('Bad Request')
@@ -186,16 +186,16 @@ describe('refundSuccessLambda', () => {
       expect.any(String),
       ['payer@example.com'],
       expect.objectContaining({
-        transactionId: 'transaction123',
-        status: 'pending',
-        type: 'refund',
-        user: 'Test User',
-        refundAmount: 10,
-        refundStatus: 'SUCCESS',
-        paidAmount: '20,00\u00A0€',
         amount: '10,00\u00A0€',
         handlingCost: '10,00\u00A0€',
+        paidAmount: '20,00\u00A0€',
         providerName: 'Paytrail',
+        refundAmount: 10,
+        refundStatus: 'SUCCESS',
+        status: 'pending',
+        transactionId: 'transaction123',
+        type: 'refund',
+        user: 'Test User',
       })
     )
 

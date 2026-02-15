@@ -1,20 +1,17 @@
 import type { ReactNode } from 'react'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
 import { flushPromises } from '../../../test-utils/utils'
-
 import RegistrationEditDialog from './RegistrationEditDialog'
 
 jest.mock('../../../api/email')

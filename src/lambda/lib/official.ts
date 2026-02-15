@@ -1,12 +1,9 @@
 import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-
 import { diff } from 'deep-object-diff'
-
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
-
 import { capitalize } from './string'
 
 const { officialTable } = CONFIG
@@ -21,8 +18,8 @@ export const fetchOfficialsForEventTypes = async (
 
   for (const eventType of eventTypes) {
     const { status, json, error } = await klapi.lueKoemuodonKoetoimitsijat({
-      Koemuoto: eventType,
       Kieli: KLKieli.Suomi,
+      Koemuoto: eventType,
     })
 
     if (status !== 200 || !json || error) {
@@ -40,13 +37,13 @@ export const fetchOfficialsForEventTypes = async (
       const name = capitalize(item.nimi)
       const location = capitalize(item.paikkakunta)
       officials.push({
-        id: item.jäsennumero,
-        name,
-        location,
         district: item.kennelpiiri,
         email: item.sähköposti.toLocaleLowerCase(),
-        phone: item.puhelin,
         eventTypes: item.koemuodot.map((koemuoto) => koemuoto.lyhenne),
+        id: item.jäsennumero,
+        location,
+        name,
+        phone: item.puhelin,
       })
     }
   }

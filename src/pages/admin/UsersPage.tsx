@@ -1,9 +1,6 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
 import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Accessibility from '@mui/icons-material/Accessibility'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -15,19 +12,17 @@ import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import { styled } from '@mui/material/styles'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import { localeSortComparator } from '../../lib/datagrid'
 import { scoreUser } from '../../lib/userCanonical'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isOrgAdminSelector, userSelector } from '../recoil'
-
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
-import { CreateUserDialog } from './usersPage/CreateUserDialog'
-import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 import {
   adminCurrentUserSelector,
   adminFilteredUsersSelector,
@@ -37,6 +32,8 @@ import {
   adminUsersOrganizerIdAtom,
   adminUsersOrganizersSelector,
 } from './recoil'
+import { CreateUserDialog } from './usersPage/CreateUserDialog'
+import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
 
 const IconPlaceholder = () => <StarsOutlined sx={{ color: 'transparent' }} fontSize="small" />
 
@@ -144,21 +141,21 @@ export default function UsersPage() {
       sortComparator: localeSortComparator,
     },
     {
+      display: 'flex',
       field: 'roles',
       flex: 0,
       headerName: t('roles'),
-      display: 'flex',
-      width: 90,
+      renderCell: ({ value }) => <RoleInfo {...value} />,
       sortComparator: (a, b) => scoreUser(b as User) - scoreUser(a as User),
       valueGetter: (_value, row) => ({ admin: false, roles: {}, ...row }),
-      renderCell: ({ value }) => <RoleInfo {...value} />,
+      width: 90,
     },
     {
       field: 'location',
       flex: 0,
       headerName: t('contact.city'),
-      width: 120,
       sortComparator: localeSortComparator,
+      width: 120,
     },
     {
       field: 'phone',
@@ -182,11 +179,9 @@ export default function UsersPage() {
       ? ([
           {
             field: 'emailHistory',
-            headerName: t('user.emailHistory'),
             flex: 1,
+            headerName: t('user.emailHistory'),
             minWidth: 180,
-            sortingOrder: ['desc', 'asc'],
-            valueGetter: (_value: unknown, row: User) => row.emailHistory?.length ?? 0,
             renderCell: (params: GridRenderCellParams<User>) => {
               const history = params.row.emailHistory ?? []
               if (!history.length) return ''
@@ -196,6 +191,9 @@ export default function UsersPage() {
                 </Tooltip>
               )
             },
+            sortable: false,
+            sortingOrder: ['desc', 'asc'],
+            valueGetter: (_value: unknown, row: User) => row.emailHistory?.length ?? 0,
           },
         ] satisfies GridColDef<User>[])
       : []),
@@ -206,12 +204,12 @@ export default function UsersPage() {
       sortComparator: localeSortComparator,
     },
     {
+      align: 'center',
       field: 'lastSeen',
-      minWidth: 150,
       flex: 1,
       headerName: t('user.lastSeen'),
+      minWidth: 150,
       valueFormatter: (value: User['lastSeen']) => t('dateFormat.long', { date: value }),
-      align: 'center',
     },
   ]
 
@@ -257,10 +255,6 @@ export default function UsersPage() {
           slots={{ toolbar: QuickSearchToolbar }}
           slotProps={{
             toolbar: {
-              value: searchText,
-              onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
-              clearSearch: () => setSearchText(''),
-              columnSelector: true,
               children: (
                 <Stack direction="row" mx={1} flex={1}>
                   <AutocompleteSingle
@@ -281,6 +275,10 @@ export default function UsersPage() {
                   />
                 </Stack>
               ),
+              clearSearch: () => setSearchText(''),
+              columnSelector: true,
+              onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
+              value: searchText,
             },
           }}
           rowHeight={50}

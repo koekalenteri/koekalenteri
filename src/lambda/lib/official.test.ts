@@ -1,7 +1,6 @@
 import type { JsonOfficial, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
-
 import { jest } from '@jest/globals'
 
 jest.useFakeTimers()
@@ -21,7 +20,7 @@ describe('official', () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
     const mockReadOfficials = jest
       .fn<KLAPI['lueKoemuodonKoetoimitsijat']>()
-      .mockResolvedValue({ status: 200, json: [] })
+      .mockResolvedValue({ json: [], status: 200 })
     const mockKlapi = {
       lueKoemuodonKoetoimitsijat: mockReadOfficials,
     } as unknown as KLAPI
@@ -41,8 +40,8 @@ describe('official', () => {
 
     it('should abort if some call fails', async () => {
       mockReadOfficials
-        .mockResolvedValueOnce({ status: 200, json: [] })
-        .mockResolvedValueOnce({ status: 500, error: 'error' })
+        .mockResolvedValueOnce({ json: [], status: 200 })
+        .mockResolvedValueOnce({ error: 'error', status: 500 })
       const result = await fetchOfficialsForEventTypes(mockKlapi, ['NOME-A', 'NOME-B'])
 
       expect(result).toBeUndefined()
@@ -55,47 +54,47 @@ describe('official', () => {
     it('should not return duplicates', async () => {
       mockReadOfficials
         .mockResolvedValueOnce({
-          status: 200,
           json: [
             {
               jäsennumero: 1,
+              kennelpiiri: 'piiri',
+              koemuodot: [
+                { koemuoto: '', lyhenne: 'NOME-A' },
+                { koemuoto: '', lyhenne: 'NOME-B' },
+              ],
               nimi: 'toimari 1',
               paikkakunta: 'jossain ',
-              kennelpiiri: 'piiri',
               puhelin: 'puh',
               sähköposti: 'toumari1@example.com',
-              koemuodot: [
-                { lyhenne: 'NOME-A', koemuoto: '' },
-                { lyhenne: 'NOME-B', koemuoto: '' },
-              ],
             },
           ],
+          status: 200,
         })
         .mockResolvedValueOnce({
-          status: 200,
           json: [
             {
               jäsennumero: 1,
+              kennelpiiri: 'piiri',
+              koemuodot: [
+                { koemuoto: '', lyhenne: 'NOME-A' },
+                { koemuoto: '', lyhenne: 'NOME-B' },
+              ],
               nimi: 'toimitsija 1',
               paikkakunta: 'jossain ',
-              kennelpiiri: 'piiri',
               puhelin: 'puh',
               sähköposti: 'toumari1@example.com',
-              koemuodot: [
-                { lyhenne: 'NOME-A', koemuoto: '' },
-                { lyhenne: 'NOME-B', koemuoto: '' },
-              ],
             },
             {
               jäsennumero: 2,
+              kennelpiiri: 'piiri',
+              koemuodot: [{ koemuoto: '', lyhenne: 'NOME-B' }],
               nimi: 'toimitsija 2',
               paikkakunta: 'jossain ',
-              kennelpiiri: 'piiri',
               puhelin: 'puh',
               sähköposti: 'toumari2@example.com',
-              koemuodot: [{ lyhenne: 'NOME-B', koemuoto: '' }],
             },
           ],
+          status: 200,
         })
       const result = await fetchOfficialsForEventTypes(mockKlapi, ['NOME-A', 'NOME-B'])
 
@@ -133,8 +132,8 @@ describe('official', () => {
     const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
     const mockBatchWrite = jest.fn()
     const mockDB = {
-      readAll: mockReadAll,
       batchWrite: mockBatchWrite,
+      readAll: mockReadAll,
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty array', async () => {
@@ -147,11 +146,11 @@ describe('official', () => {
     it('should add new officials', async () => {
       await updateOfficials(mockDB, [
         {
+          district: 'some district',
+          email: 'test@example.com',
+          eventTypes: ['NOME-B'],
           id: 0,
           name: 'test',
-          email: 'test@example.com',
-          district: 'some district',
-          eventTypes: ['NOME-B'],
         },
       ])
 
@@ -194,12 +193,12 @@ describe('official', () => {
 
       await updateOfficials(mockDB, [
         {
-          id: existing.id,
-          name: existing.name,
-          email: existing.email,
           district: existing.district,
-          location: 'home',
+          email: existing.email,
           eventTypes: ['NOME-B', 'NOME-A'],
+          id: existing.id,
+          location: 'home',
+          name: existing.name,
         },
       ])
 
@@ -235,11 +234,11 @@ describe('official', () => {
       mockReadAll.mockResolvedValueOnce([existing])
 
       const added: Official = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'other',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateOfficials(mockDB, [added])
@@ -273,11 +272,11 @@ describe('official', () => {
       mockReadAll.mockResolvedValueOnce(undefined)
 
       const added: Official = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'other',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateOfficials(mockDB, [added])

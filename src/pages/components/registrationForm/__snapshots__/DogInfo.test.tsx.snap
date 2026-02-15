@@ -3,7 +3,7 @@
 exports[`DogInfo should render 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -23,10 +23,10 @@ exports[`DogInfo should render 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -54,13 +54,13 @@ exports[`DogInfo should render 1`] = `
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-7 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-11gdf9w-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-7 MuiGrid-grid-xs-12 css-11gdf9w-MuiGrid-root"
                 >
                   <div
                     class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                   >
                     <div
-                      class="MuiBox-root css-70qvj9"
+                      class="MuiBox-root css-fv3lde"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1l4p8mg-MuiAutocomplete-root"
@@ -138,7 +138,7 @@ exports[`DogInfo should render 1`] = `
                         registration.cta.update
                       </button>
                       <span
-                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1gn9erm-MuiCircularProgress-root"
+                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1id70sx-MuiCircularProgress-root"
                         role="progressbar"
                         style="width: 28px; height: 28px;"
                       >
@@ -165,7 +165,7 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-5 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-1vz8p2e-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-5 MuiGrid-grid-xs-12 css-1vz8p2e-MuiGrid-root"
                 >
                   <div
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -205,13 +205,13 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -250,7 +250,7 @@ exports[`DogInfo should render 1`] = `
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -292,7 +292,7 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                 >
                   <div
                     class="MuiFormControl-root MuiFormControl-fullWidth fact css-ytlejw-MuiFormControl-root"
@@ -362,7 +362,7 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1w98mmc-MuiAutocomplete-root"
@@ -437,7 +437,7 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1w98mmc-MuiAutocomplete-root"
@@ -512,7 +512,7 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                 >
                   <div
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -551,7 +551,7 @@ exports[`DogInfo should render 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                 >
                   <div
                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"

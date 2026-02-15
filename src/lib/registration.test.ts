@@ -1,15 +1,14 @@
 import type { JsonQualifyingResult, QualifyingResult, RegistrationClass } from '../types'
 import type { SortableRegistration } from './registration'
-
 import { PRIORITY_INVITED, PRIORITY_MEMBER, PRIORIZED_BREED_CODES } from './priority'
 import {
   canRefund,
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
   getNextClass,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
-  GROUP_KEY_CANCELLED,
-  GROUP_KEY_RESERVE,
   hasPriority,
   isMember,
   isPredefinedReason,
@@ -25,10 +24,10 @@ describe('lib/registration', () => {
         hasPriority(
           {},
           {
-            owner: {
+            handler: {
               membership: true,
             },
-            handler: {
+            owner: {
               membership: true,
             },
             priorityByInvitation: true,
@@ -51,13 +50,13 @@ describe('lib/registration', () => {
         ({ owner, handler, result }) => {
           expect(
             hasPriority(event, {
-              owner: {
-                membership: owner,
-              },
+              dog: {},
               handler: {
                 membership: handler,
               },
-              dog: {},
+              owner: {
+                membership: owner,
+              },
               priorityByInvitation: true,
             })
           ).toEqual(result)
@@ -88,13 +87,13 @@ describe('lib/registration', () => {
 
     describe('NOME-B SM priority', () => {
       const NOME_B_VOI1: Readonly<QualifyingResult> = {
-        result: 'VOI1',
-        official: false,
-        date: new Date('2024-06-06'),
-        location: 'Somewhere',
         class: 'VOI',
-        type: 'NOME-B',
+        date: new Date('2024-06-06'),
         judge: 'Some One',
+        location: 'Somewhere',
+        official: false,
+        result: 'VOI1',
+        type: 'NOME-B',
       }
       const NOME_B_VOI2: Readonly<QualifyingResult> = {
         ...NOME_B_VOI1,
@@ -147,13 +146,13 @@ describe('lib/registration', () => {
         ({ owner, handler, result }) => {
           expect(
             priorityDescriptionKey(event, {
-              owner: {
-                membership: owner,
-              },
+              dog: {},
               handler: {
                 membership: handler,
               },
-              dog: {},
+              owner: {
+                membership: owner,
+              },
               priorityByInvitation: true,
             })
           ).toEqual(result)
@@ -186,13 +185,13 @@ describe('lib/registration', () => {
 
     describe('NOME-B SM priority', () => {
       const NOME_B_VOI1: Readonly<QualifyingResult> = {
-        result: 'VOI1',
-        official: false,
-        date: new Date('2024-06-06'),
-        location: 'Somewhere',
         class: 'VOI',
-        type: 'NOME-B',
+        date: new Date('2024-06-06'),
         judge: 'Some One',
+        location: 'Somewhere',
+        official: false,
+        result: 'VOI1',
+        type: 'NOME-B',
       }
       const NOME_B_VOI2: Readonly<QualifyingResult> = {
         ...NOME_B_VOI1,
@@ -240,12 +239,12 @@ describe('lib/registration', () => {
   describe('sortRegistrationsByDateClassTimeAndNumber', () => {
     it('should sort registrations properly', () => {
       const regs: SortableRegistration[] = [
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 19, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 20, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 23.5, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 22, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 23, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 24, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 19, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 22, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
       regs.sort(sortRegistrationsByDateClassTimeAndNumber)
       expect(regs.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
@@ -253,12 +252,12 @@ describe('lib/registration', () => {
 
     it('should value null and undefined class the same as missing class', () => {
       const regs2: SortableRegistration[] = [
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 19, time: 'ip', key: '2024-08-02-ip' } },
-        { class: undefined, group: { date: '2024-08-02T21:00:00.000Z', number: 20, time: 'ip', key: '2024-08-02-ip' } },
-        { class: null, group: { date: '2024-08-02T21:00:00.000Z', number: 23.5, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 22, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 23, time: 'ip', key: '2024-08-02-ip' } },
-        { group: { date: '2024-08-02T21:00:00.000Z', number: 24, time: 'ip', key: '2024-08-02-ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 19, time: 'ip' } },
+        { class: undefined, group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 20, time: 'ip' } },
+        { class: null, group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23.5, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 22, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 23, time: 'ip' } },
+        { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 24, time: 'ip' } },
       ]
       regs2.sort(sortRegistrationsByDateClassTimeAndNumber)
       expect(regs2.map((r) => r.group?.number)).toEqual([19, 20, 22, 23, 23.5, 24])
@@ -278,7 +277,7 @@ describe('lib/registration', () => {
         getRegistrationNumberingGroupKey({
           class: 'AVO',
           eventType: 'NOME-B',
-          group: { key: 'test', number: 1, date: new Date() },
+          group: { date: new Date(), key: 'test', number: 1 },
         })
       ).toEqual('participants')
     })
@@ -326,19 +325,19 @@ describe('lib/registration', () => {
       expect(canRefund({ cancelled: true, group: { key: 'cancelled', number: 1 } })).toEqual(false)
     })
     it('should return false if fully refunded', () => {
-      expect(canRefund({ paidAmount: 10, refundAmount: 10, cancelled: true })).toEqual(false)
+      expect(canRefund({ cancelled: true, paidAmount: 10, refundAmount: 10 })).toEqual(false)
       expect(canRefund({ paidAmount: 10, refundAmount: 10 })).toEqual(false)
       expect(canRefund({ paidAmount: 10, refundAmount: 20 })).toEqual(false)
     })
     it('should return true if not fully refunded and in reserve or cancelled', () => {
       expect(canRefund({ paidAmount: 10 })).toEqual(true)
-      expect(canRefund({ paidAmount: 10, cancelled: true })).toEqual(true)
-      expect(canRefund({ paidAmount: 10, refundAmount: 9, cancelled: true })).toEqual(true)
-      expect(canRefund({ paidAmount: 1, group: { key: 'reserve', number: 5 } })).toEqual(true)
-      expect(canRefund({ paidAmount: 2, group: { key: 'cancelled', number: 5 } })).toEqual(true)
+      expect(canRefund({ cancelled: true, paidAmount: 10 })).toEqual(true)
+      expect(canRefund({ cancelled: true, paidAmount: 10, refundAmount: 9 })).toEqual(true)
+      expect(canRefund({ group: { key: 'reserve', number: 5 }, paidAmount: 1 })).toEqual(true)
+      expect(canRefund({ group: { key: 'cancelled', number: 5 }, paidAmount: 2 })).toEqual(true)
     })
     it('should return false for participant groups', () => {
-      expect(canRefund({ paidAmount: 1, group: { key: 'testing', number: 1 } })).toEqual(false)
+      expect(canRefund({ group: { key: 'testing', number: 1 }, paidAmount: 1 })).toEqual(false)
     })
   })
 
@@ -379,11 +378,11 @@ describe('lib/registration', () => {
     })
 
     it('should return false when handler has membership but ownerHandles is true', () => {
-      expect(isMember({ handler: { membership: true }, ownerHandles: true, owner: { membership: false } })).toBe(false)
+      expect(isMember({ handler: { membership: true }, owner: { membership: false }, ownerHandles: true })).toBe(false)
     })
 
     it('should return false when neither owner nor handler has membership', () => {
-      expect(isMember({ owner: { membership: false }, handler: { membership: false } })).toBe(false)
+      expect(isMember({ handler: { membership: false }, owner: { membership: false } })).toBe(false)
       expect(isMember({})).toBe(false)
     })
 
@@ -413,19 +412,19 @@ describe('lib/registration', () => {
 
     it('should return an object with the expected structure', () => {
       const registration = {
-        eventId: 'event1',
-        id: 'reg1',
-        dog: { breedCode: '123' },
-        dates: [{ date: '2024-08-01', time: 'ap' }],
-        reserve: 'ANY',
-        qualifyingResults: [{ date: '2024-07-01', result: 'VOI1' }],
-        group: { date: '2024-08-01', time: 'ap', number: 5, key: 'group1' },
         cancelReason: 'dog-sick',
+        dates: [{ date: '2024-08-01', time: 'ap' }],
+        dog: { breedCode: '123' },
+        eventId: 'event1',
+        group: { date: '2024-08-01', key: 'group1', number: 5, time: 'ap' },
+        id: 'reg1',
+        qualifyingResults: [{ date: '2024-07-01', result: 'VOI1' }],
+        reserve: 'ANY',
       } as any
 
       const confirmedEvent = {
-        startDate: '2024-08-01',
         endDate: '2024-08-02',
+        startDate: '2024-08-01',
       } as any // Type assertion for event
 
       const origin = 'https://example.com'
@@ -469,15 +468,15 @@ describe('lib/registration', () => {
     it('should use previous group when provided', () => {
       // Use type assertion to avoid TypeScript errors
       const registration = {
-        eventId: 'event1',
-        id: 'reg1',
-        dog: { breedCode: '123' },
         dates: [],
+        dog: { breedCode: '123' },
+        eventId: 'event1',
+        group: { date: '2024-08-01', key: 'group1', number: 5, time: 'ap' },
+        id: 'reg1',
         qualifyingResults: [],
-        group: { date: '2024-08-01', time: 'ap', number: 5, key: 'group1' },
       } as any // Type assertion
 
-      const previousGroup = { date: '2024-08-02', time: 'ip', number: 10, key: 'group2' }
+      const previousGroup = { date: '2024-08-02', key: 'group2', number: 10, time: 'ip' }
 
       const result = getRegistrationEmailTemplateData(
         registration,
@@ -495,12 +494,12 @@ describe('lib/registration', () => {
 
     it('should handle missing data gracefully', () => {
       const registration = {
-        eventId: 'event1',
-        id: 'reg1',
-        dog: {},
         dates: [],
-        qualifyingResults: [],
+        dog: {},
+        eventId: 'event1',
         group: {},
+        id: 'reg1',
+        qualifyingResults: [],
       } as any
 
       // This should not throw an error

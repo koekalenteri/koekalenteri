@@ -1,5 +1,4 @@
 import type { Dog } from '../types'
-
 import http from './http'
 
 const PATH = '/dog/'

@@ -1,16 +1,13 @@
 import type { ConfirmedEvent, PublicDogEvent } from '../../types'
-
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
-
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
 import { Path } from '../../routeConfig'
-
 import { CollapsibleEvent } from './CollapsibleEvent'
 import CostInfo from './CostInfo'
 import { EntryStatus } from './EntryStatus'
@@ -28,7 +25,7 @@ type HeaderProps = Pick<Props, 'event'>
 const Header = ({ event }: HeaderProps) => {
   const { t } = useTranslation()
 
-  const title = `${event.eventType} ${t('dateFormat.datespan', { start: event.startDate, end: event.endDate })} ${
+  const title = `${event.eventType} ${t('dateFormat.datespan', { end: event.endDate, start: event.startDate })} ${
     event.location + (event.name ? ` (${event.name})` : '')
   }`
 
@@ -45,8 +42,8 @@ const Header = ({ event }: HeaderProps) => {
         container
         columnSpacing={1}
         size={{
-          xs: 12,
           sm: 'auto',
+          xs: 12,
         }}
       >
         {title}
@@ -57,13 +54,13 @@ const Header = ({ event }: HeaderProps) => {
 
 export default function RegistrationEventInfo({ event, hideCostInfo, invitationAttachment }: Props) {
   const { t } = useTranslation()
-  const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges])
+  const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges, t])
 
   return (
     <CollapsibleEvent eventId={event.id} header={<Header event={event} />}>
       <Grid container justifyContent="space-between" alignItems="flex-start" columnSpacing={1}>
         <ItemWithCaption label={t('entryTime')}>
-          {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
+          {t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })}
           <EntryStatus event={event} />
         </ItemWithCaption>
         <ItemWithCaption label={t('event.organizer')}>{event.organizer?.name}</ItemWithCaption>
@@ -91,7 +88,7 @@ export default function RegistrationEventInfo({ event, hideCostInfo, invitationA
         ) : null}
         {invitationAttachment && event.state === 'invited' ? (
           <ItemWithCaption label={t('event.attachments')}>
-            <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
+            <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
             <Link
               href={Path.invitationAttachment({ ...event, invitationAttachment } as ConfirmedEvent)}
               rel="noopener"

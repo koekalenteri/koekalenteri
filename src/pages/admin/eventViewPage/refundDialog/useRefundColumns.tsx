@@ -1,9 +1,7 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { Transaction } from '../../../../types'
-
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
 import { formatDate } from '../../../../i18n/dates'
 import { formatMoney } from '../../../../lib/money'
 import { getProviderName } from '../../../../lib/payment'
@@ -28,9 +26,9 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
     () => [
       {
         field: 'createdAt',
-        width: 140,
-        valueFormatter: (value) => formatDate(value, 'dd.MM.yy HH:mm:ss'),
         headerName: t('registration.refundDialog.columns.statusAt'),
+        valueFormatter: (value) => formatDate(value, 'dd.MM.yy HH:mm:ss'),
+        width: 140,
       },
       {
         field: 'provider',
@@ -38,17 +36,18 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
         headerName: t('registration.refundDialog.columns.provider'),
         valueFormatter: getProviderName,
       },
-      { field: 'status', width: 60, headerName: t('registration.refundDialog.columns.status') },
-      { field: 'bankReference', width: 120, headerName: t('registration.refundDialog.columns.bankReference') },
+      { field: 'status', headerName: t('registration.refundDialog.columns.status'), width: 60 },
+      { field: 'bankReference', headerName: t('registration.refundDialog.columns.bankReference'), width: 120 },
       {
         field: 'type',
-        width: 80,
         headerName: t('registration.refundDialog.columns.type'),
         valueFormatter: (value) => (value === 'payment' ? 'Maksu' : 'Palautus'),
+        width: 80,
       },
       {
         align: 'right',
         field: 'amount',
+        headerName: t('registration.refundDialog.columns.amount'),
         valueGetter: (value, row) => {
           if (row.status !== 'ok') return ''
 
@@ -57,7 +56,6 @@ export const useRefundColumns = (): readonly GridColDef<Transaction>[] => {
           return formatMoney(value / divider)
         },
         width: 100,
-        headerName: t('registration.refundDialog.columns.amount'),
       },
     ],
     [t]

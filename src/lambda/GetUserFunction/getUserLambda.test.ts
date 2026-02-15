@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/auth', () => ({
@@ -17,8 +17,8 @@ const { default: getUserLambda } = await import('./handler')
 
 describe('getUserLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
   } as any
 
   beforeEach(() => {
@@ -36,10 +36,10 @@ describe('getUserLambda', () => {
 
   it('returns user if authorized', async () => {
     const user = {
+      admin: false,
+      email: 'test@example.com',
       id: 'user1',
       name: 'Test User',
-      email: 'test@example.com',
-      admin: false,
     }
 
     mockAuthorize.mockResolvedValueOnce(user)

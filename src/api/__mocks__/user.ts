@@ -1,10 +1,10 @@
 import type { User } from '../../types'
 
 const MOCK_ADMIN: User = {
+  admin: true,
+  email: 'test@user.jest',
   id: 'asdf1234',
   name: 'Test User',
-  email: 'test@user.jest',
-  admin: true,
 }
 
 export const getUser = async (_token: string, _signal?: AbortSignal) => MOCK_ADMIN

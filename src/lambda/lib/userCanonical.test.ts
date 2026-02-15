@@ -1,5 +1,4 @@
 import type { JsonDbRecord, JsonUser } from '../../types'
-
 import {
   compareUsersForCanonical,
   pickCanonicalUser,
@@ -16,30 +15,30 @@ const defaults: Omit<JsonDbRecord, 'id'> = {
 
 describe('lib/userCanonical', () => {
   it('compareUsersForCanonical prefers higher score, then newer modifiedAt', () => {
-    const a: JsonUser = { ...defaults, id: 'a', name: 'A', email: 'a@example.com' }
-    const b: JsonUser = { ...defaults, id: 'b', name: 'B', email: 'b@example.com', roles: { org: 'admin' } }
+    const a: JsonUser = { ...defaults, email: 'a@example.com', id: 'a', name: 'A' }
+    const b: JsonUser = { ...defaults, email: 'b@example.com', id: 'b', name: 'B', roles: { org: 'admin' } }
     expect(compareUsersForCanonical(a, b)).toBeGreaterThan(0)
 
     const older: JsonUser = {
       ...defaults,
-      id: 'o',
-      name: 'Old',
       email: 'o@example.com',
+      id: 'o',
       modifiedAt: '2020-01-01T00:00:00.000Z',
+      name: 'Old',
     }
     const newer: JsonUser = {
       ...defaults,
-      id: 'n',
-      name: 'New',
       email: 'n@example.com',
+      id: 'n',
       modifiedAt: '2021-01-01T00:00:00.000Z',
+      name: 'New',
     }
     expect(compareUsersForCanonical(older, newer)).toBeGreaterThan(0)
   })
 
   it('pickCanonicalUserPreferLinked and wrappers choose expected user', () => {
-    const base: JsonUser = { ...defaults, id: 'u1', name: 'u1', email: 'u1@example.com' }
-    const rich: JsonUser = { ...defaults, id: 'u2', name: 'u2', email: 'u2@example.com', roles: { org: 'admin' } }
+    const base: JsonUser = { ...defaults, email: 'u1@example.com', id: 'u1', name: 'u1' }
+    const rich: JsonUser = { ...defaults, email: 'u2@example.com', id: 'u2', name: 'u2', roles: { org: 'admin' } }
 
     expect(pickCanonicalUserPreferLinked([base, rich], new Set(['u1'])).id).toBe('u1')
     expect(pickCanonicalUser([base, rich]).id).toBe('u2')

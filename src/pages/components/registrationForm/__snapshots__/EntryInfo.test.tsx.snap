@@ -3,7 +3,7 @@
 exports[`EntryInfo should render with event with classes 1`] = `
 <div>
   <div
-    class="MuiBox-root css-6ruohb"
+    class="MuiBox-root css-dtxjvo"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -23,10 +23,10 @@ exports[`EntryInfo should render with event with classes 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -56,7 +56,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-1yo1it6-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-1yo1it6-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -129,7 +129,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -202,7 +202,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -324,7 +324,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -458,7 +458,7 @@ exports[`EntryInfo should render with event with classes 1`] = `
 exports[`EntryInfo should render with event without classes 1`] = `
 <div>
   <div
-    class="MuiBox-root css-6ruohb"
+    class="MuiBox-root css-dtxjvo"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -478,10 +478,10 @@ exports[`EntryInfo should render with event without classes 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -511,7 +511,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-169bonr-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-169bonr-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -584,7 +584,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -657,7 +657,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -779,7 +779,7 @@ exports[`EntryInfo should render with event without classes 1`] = `
                   </div>
                 </div>
                 <div
-                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                 >
                   <div
                     class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"

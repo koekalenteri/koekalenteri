@@ -1,9 +1,8 @@
 import type { Theme } from '@mui/material'
 import type { DataGridProps } from '@mui/x-data-grid'
-
-import { useState } from 'react'
 import { styled } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
+import { useState } from 'react'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
   const [page, setPage] = useState(0)
@@ -26,22 +25,22 @@ const DataGridWithDefaults = (props: DataGridProps) => {
 
 const StyledDataGrid = styled(DataGridWithDefaults)(({ theme }: { theme: Theme }) => {
   return {
-    '& .MuiDataGrid-row:nth-of-type(2n+1)': {
-      backgroundColor: theme.palette.background.oddRow,
-    },
     '& .MuiDataGrid-cell:focus': {
       outline: 'none',
-    },
-    '& .MuiDataGrid-row.Mui-selected': {
-      backgroundColor: theme.palette.background.selected,
     },
     '& .MuiDataGrid-row:hover': {
       backgroundColor: undefined,
     },
-    '& .MuiDataGrid-row.Mui-selected:hover': {
+    '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
       backgroundColor: theme.palette.background.hover,
     },
-    '& .MuiDataGrid-row:hover > .MuiDataGrid-cell': {
+    '& .MuiDataGrid-row:nth-of-type(2n+1)': {
+      backgroundColor: theme.palette.background.oddRow,
+    },
+    '& .MuiDataGrid-row.Mui-selected': {
+      backgroundColor: theme.palette.background.selected,
+    },
+    '& .MuiDataGrid-row.Mui-selected:hover': {
       backgroundColor: theme.palette.background.hover,
     },
   }

@@ -1,5 +1,4 @@
 import type { AuditRecord } from '../../../types'
-
 import { formatDate } from '../../../i18n/dates'
 import CollapsibleSection from '../../components/CollapsibleSection'
 import { NullComponentWithRef } from '../../components/NullComponent'

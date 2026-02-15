@@ -1,9 +1,6 @@
 import type { ConfirmedEvent } from '../types'
-
 import { addDays, parseISO } from 'date-fns'
-
 import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
-
 import { emptyEvent } from './emptyEvent'
 
 // IMPORTANT: derive "today" using the app/event timezone (Europe/Helsinki).
@@ -15,8 +12,6 @@ const today = parseDate(isoDay)
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test1',
-  eventType: 'NOU',
   classes: [],
   dates: [
     { date: parseDate('2021-02-10'), time: 'ap' },
@@ -24,160 +19,162 @@ export const eventWithStaticDates: ConfirmedEvent = {
     { date: parseDate('2021-02-11'), time: 'ap' },
     { date: parseDate('2021-02-11'), time: 'ip' },
   ],
-  startDate: parseDate('2021-02-10'),
   endDate: parseDate('2021-02-11'),
-  entryStartDate: parseDate('2021-02-01'),
   entryEndDate: zonedEndOfDay(parseDate('2021-02-07')),
+  entryStartDate: parseDate('2021-02-01'),
+  eventType: 'NOU',
+  id: 'test1',
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
+  startDate: parseDate('2021-02-10'),
 }
 
 export const eventWithStaticDatesAndClass: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test1-b',
-  eventType: 'NOME-B',
   classes: [
     { class: 'ALO', date: parseDate('2021-02-10') },
     { class: 'ALO', date: parseDate('2021-02-11') },
   ],
-  startDate: parseDate('2021-02-10'),
   endDate: parseDate('2021-02-11'),
-  entryStartDate: parseDate('2021-02-01'),
   entryEndDate: parseDate('2021-02-07'),
+  entryStartDate: parseDate('2021-02-01'),
+  eventType: 'NOME-B',
+  id: 'test1-b',
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
+  startDate: parseDate('2021-02-10'),
 }
 
 export const eventWithStaticDatesAnd3Classes: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test1-c',
-  eventType: 'NOME-B',
   classes: [
     { class: 'ALO', date: parseDate('2021-02-10') },
     { class: 'AVO', date: parseDate('2021-02-10') },
     { class: 'VOI', date: parseDate('2021-02-11') },
   ],
-  startDate: parseDate('2021-02-10'),
   endDate: parseDate('2021-02-11'),
-  entryStartDate: parseDate('2021-02-01'),
   entryEndDate: parseDate('2021-02-07'),
+  entryStartDate: parseDate('2021-02-01'),
+  eventType: 'NOME-B',
+  id: 'test1-c',
   judges: [{ id: 123, name: 'Tuomari 1' }],
   location: 'test location',
+  startDate: parseDate('2021-02-10'),
 }
 
 export const eventWithEntryOpen: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test3',
-  eventType: 'NOWT',
   classes: [{ class: 'VOI', date: addDays(today, 14), entries: 7 }],
-  startDate: addDays(today, 14),
   endDate: addDays(today, 15),
-  entryStartDate: today, // entry starts today
+  entries: 7,
   entryEndDate: addDays(today, 8), // over week from today
+  entryStartDate: today, // entry starts today
+  eventType: 'NOWT',
+  id: 'test3',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  entries: 7,
+  startDate: addDays(today, 14),
 }
 
 export const eventWithEntryOpenButNoEntries: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test3',
-  eventType: 'NOWT',
   classes: [{ class: 'VOI', date: addDays(today, 14) }],
-  startDate: addDays(today, 14),
   endDate: addDays(today, 15),
-  entryStartDate: today, // entry starts today
   entryEndDate: addDays(today, 8), // over week from today
+  entryStartDate: today, // entry starts today
+  eventType: 'NOWT',
+  id: 'test3',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
+  startDate: addDays(today, 14),
 }
 
 export const eventWithEntryNotYetOpen: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test4',
-  eventType: 'type4',
   classes: [{ class: 'AVO', date: addDays(today, 14), judge: { id: 223, name: 'Tuomari 2' } }],
-  startDate: addDays(today, 14),
   endDate: addDays(today, 15),
-  entryStartDate: addDays(today, 1), // entry not open yet
+  entries: undefined,
   entryEndDate: addDays(today, 8),
+  entryStartDate: addDays(today, 1), // entry not open yet
+  eventType: 'type4',
+  id: 'test4',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  entries: undefined,
+  startDate: addDays(today, 14),
 }
 
 export const eventWithEntryClosing: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'test5',
-  eventType: 'type5',
   classes: [{ class: 'ALO', date: addDays(today, 14) }],
-  startDate: addDays(today, 24),
   endDate: addDays(today, 25),
-  entryStartDate: addDays(today, -1),
+  entries: 10,
   entryEndDate: addDays(today, 6),
+  entryStartDate: addDays(today, -1),
+  eventType: 'type5',
+  id: 'test5',
   judges: [{ id: 223, name: 'Tuomari 2' }],
   places: 10,
-  entries: 10,
+  startDate: addDays(today, 24),
 }
 
 export const eventWithEntryClosed: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'testEntryClosed',
-  eventType: 'NOME-B',
   classes: [
-    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2 },
-    { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
+    { class: 'ALO', date: addDays(today, 7), entries: 2, places: 3 },
+    { class: 'AVO', date: addDays(today, 7), entries: 2, places: 1 },
   ],
-  places: 4,
-  entries: 4,
-  startDate: addDays(today, 7),
   endDate: addDays(today, 7),
-  entryStartDate: addDays(today, -14),
+  entries: 4,
   entryEndDate: addDays(today, -28),
+  entryStartDate: addDays(today, -14),
+  eventType: 'NOME-B',
+  id: 'testEntryClosed',
   judges: [
     { id: 123, name: 'Tuomari 1' },
     { id: 223, name: 'Tuomari 2' },
   ],
+  places: 4,
+  startDate: addDays(today, 7),
 }
 
 export const eventWithParticipantsInvited: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'testInvited',
-  eventType: 'NOME-B',
-  state: 'invited',
   classes: [
-    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2, members: 1 },
-    { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
+    { class: 'ALO', date: addDays(today, 7), entries: 2, members: 1, places: 3 },
+    { class: 'AVO', date: addDays(today, 7), entries: 2, places: 1 },
   ],
-  places: 4,
-  entries: 4,
-  startDate: addDays(today, 7),
   endDate: addDays(today, 7),
-  entryStartDate: addDays(today, -14),
+  entries: 4,
   entryEndDate: addDays(today, -28),
+  entryStartDate: addDays(today, -14),
+  eventType: 'NOME-B',
+  id: 'testInvited',
   judges: [
     { id: 123, name: 'Tuomari 1' },
     { id: 223, name: 'Tuomari 2' },
   ],
+  places: 4,
+  startDate: addDays(today, 7),
+  state: 'invited',
 }
 
 export const eventWithALOClassInvited: ConfirmedEvent = {
   ...emptyEvent,
-  id: 'testALOInvited',
-  eventType: 'NOME-B',
-  state: 'picked',
   classes: [
-    { class: 'ALO', date: addDays(today, 7), places: 3, entries: 2, state: 'invited' },
-    { class: 'AVO', date: addDays(today, 7), places: 1, entries: 2 },
+    { class: 'ALO', date: addDays(today, 7), entries: 2, places: 3, state: 'invited' },
+    { class: 'AVO', date: addDays(today, 7), entries: 2, places: 1 },
   ],
-  places: 4,
-  entries: 4,
-  startDate: addDays(today, 7),
   endDate: addDays(today, 7),
-  entryStartDate: addDays(today, -14),
+  entries: 4,
   entryEndDate: addDays(today, -28),
+  entryStartDate: addDays(today, -14),
+  eventType: 'NOME-B',
+  id: 'testALOInvited',
   judges: [
     { id: 123, name: 'Tuomari 1' },
     { id: 223, name: 'Tuomari 2' },
   ],
+  places: 4,
+  startDate: addDays(today, 7),
+  state: 'picked',
 }

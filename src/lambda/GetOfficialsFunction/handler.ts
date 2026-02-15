@@ -1,5 +1,4 @@
 import type { EventType, JsonOfficial } from '../../types'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'

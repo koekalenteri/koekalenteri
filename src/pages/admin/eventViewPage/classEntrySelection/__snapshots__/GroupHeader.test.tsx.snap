@@ -3,7 +3,7 @@
 exports[`GroupHeader renders 1`] = `
 <div>
   <div
-    class="MuiStack-root header css-1d532f0-MuiStack-root"
+    class="MuiStack-root header css-2dwcah-MuiStack-root"
   >
     <div
       data-available="[{"date":"2023-01-01T00:00:00.000Z","time":"ap"},{"date":"2023-01-01T00:00:00.000Z","time":"ip"}]"

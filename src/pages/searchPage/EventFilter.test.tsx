@@ -1,38 +1,35 @@
 import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Judge, Organizer, RegistrationClass } from '../../types'
 import type { FilterProps } from '../recoil'
-
 import { ThemeProvider } from '@mui/material'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { screen, within } from '@testing-library/react'
-
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
-
 import { EventFilter } from './EventFilter'
 
 const judges: Judge[] = [
   {
-    name: 'Tuomari 1',
-    id: 123,
-    location: 'Ranua',
     district: 'Piiri',
-    phone: 'n/a',
     email: 'n/a',
-    languages: ['fi', 'se'],
     eventTypes: ['NOU', 'NOME-B'],
+    id: 123,
+    languages: ['fi', 'se'],
+    location: 'Ranua',
+    name: 'Tuomari 1',
+    phone: 'n/a',
   },
   {
-    name: 'Tuomari 2',
-    id: 234,
-    location: 'Lohja',
     district: 'Piiri',
-    phone: 'n/a',
     email: 'n/a',
-    languages: ['fi'],
     eventTypes: ['NOU'],
+    id: 234,
+    languages: ['fi'],
+    location: 'Lohja',
+    name: 'Tuomari 2',
+    phone: 'n/a',
   },
 ]
 
@@ -79,12 +76,12 @@ describe('EventFilter', () => {
   })
   it('should render', () => {
     renderComponent({
-      start: null,
       end: null,
-      eventType: ['NOME-B'],
       eventClass: ['ALO'],
+      eventType: ['NOME-B'],
       judge: ['Tuomari 2'],
       organizer: ['2'],
+      start: null,
     })
 
     expect(screen.getByTestId('filter.eventType')).toHaveTextContent(/NOME-B/i)
@@ -110,7 +107,7 @@ describe('EventFilter', () => {
   it('should fire onChange for autocomplete fields', async () => {
     const changeHandler = jest.fn()
     const { user } = renderComponent(
-      { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
+      { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
       changeHandler
     )
 
@@ -127,7 +124,7 @@ describe('EventFilter', () => {
   it('should fire onChange for switches', async () => {
     const changeHandler = jest.fn()
     const { user } = renderComponent(
-      { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
+      { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
       changeHandler
     )
 
@@ -143,7 +140,7 @@ describe('EventFilter', () => {
     jest.useFakeTimers()
     const changeHandler = jest.fn()
     const { user } = renderComponent(
-      { start: null, end: null, eventType: [], eventClass: [], judge: [], organizer: [] },
+      { end: null, eventClass: [], eventType: [], judge: [], organizer: [], start: null },
       changeHandler,
       true
     )

@@ -1,8 +1,7 @@
 import type { Registration } from '../../types'
-
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
@@ -56,10 +55,10 @@ const { default: sendMessagesLambda } = await import('./handler')
 describe('sendMessagesLambda', () => {
   const event = {
     body: JSON.stringify({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'invitation',
       text: 'Test message',
     }),
     headers: {},
@@ -67,26 +66,26 @@ describe('sendMessagesLambda', () => {
 
   const mockRegistrations: Partial<Registration>[] = [
     {
-      id: 'reg456',
-      eventId: 'event123',
-      state: 'ready',
       class: 'ALO',
+      eventId: 'event123',
+      id: 'reg456',
+      state: 'ready',
     },
     {
-      id: 'reg789',
-      eventId: 'event123',
-      state: 'ready',
       class: 'ALO',
+      eventId: 'event123',
+      id: 'reg789',
+      state: 'ready',
     },
   ]
 
   const mockEvent = {
-    id: 'event123',
-    state: 'draft',
     classes: [
       { class: 'ALO', state: 'draft' },
       { class: 'AVO', state: 'draft' },
     ],
+    id: 'event123',
+    state: 'draft',
   }
 
   beforeEach(() => {
@@ -101,10 +100,10 @@ describe('sendMessagesLambda', () => {
     mockGetOrigin.mockReturnValue('https://example.com')
 
     mockParseJSONWithFallback.mockReturnValue({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -119,8 +118,8 @@ describe('sendMessagesLambda', () => {
     })
 
     mockSendTemplatedEmailToEventRegistrations.mockResolvedValue({
-      ok: ['recipient@example.com'],
       failed: [],
+      ok: ['recipient@example.com'],
     })
 
     mockMarkParticipants.mockImplementation((event: any) => event)
@@ -181,11 +180,11 @@ describe('sendMessagesLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        ok: ['recipient@example.com'],
-        failed: [],
         classes: mockEvent.classes,
-        state: mockEvent.state,
+        failed: [],
+        ok: ['recipient@example.com'],
         registrations: mockRegistrations,
+        state: mockEvent.state,
       },
       event
     )
@@ -193,10 +192,10 @@ describe('sendMessagesLambda', () => {
 
   it('sends picked emails and marks participants as picked', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'picked',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'picked',
       text: 'Test message',
     })
 
@@ -219,10 +218,10 @@ describe('sendMessagesLambda', () => {
 
   it('sends reserve emails and marks registrations as notified', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'reserve',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'reserve',
       text: 'Test message',
     })
 
@@ -248,10 +247,10 @@ describe('sendMessagesLambda', () => {
 
   it('sends other template emails without marking participants', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'registration',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'registration',
       text: 'Test message',
     })
 
@@ -277,8 +276,8 @@ describe('sendMessagesLambda', () => {
 
   it('handles failed email sending', async () => {
     mockSendTemplatedEmailToEventRegistrations.mockResolvedValueOnce({
-      ok: [],
       failed: ['recipient@example.com'],
+      ok: [],
     })
 
     await sendMessagesLambda(event)
@@ -287,11 +286,11 @@ describe('sendMessagesLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        ok: [],
-        failed: ['recipient@example.com'],
         classes: mockEvent.classes,
-        state: mockEvent.state,
+        failed: ['recipient@example.com'],
+        ok: [],
         registrations: mockRegistrations,
+        state: mockEvent.state,
       },
       event
     )
@@ -300,20 +299,20 @@ describe('sendMessagesLambda', () => {
   it('does not mark participants when only one registration ID is provided with invitation template', async () => {
     // Modify the parsed JSON to have only one registration ID
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456'], // Only one registration ID
+      template: 'invitation',
       text: 'Test message',
     })
 
     // Modify the query result to return only one registration
     const singleRegistration = [
       {
-        id: 'reg456',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
+        id: 'reg456',
+        state: 'ready',
       },
     ]
     mockQuery.mockResolvedValueOnce(singleRegistration)
@@ -338,20 +337,20 @@ describe('sendMessagesLambda', () => {
   it('does not mark participants when only one registration ID is provided with picked template', async () => {
     // Modify the parsed JSON to have only one registration ID
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'picked',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456'], // Only one registration ID
+      template: 'picked',
       text: 'Test message',
     })
 
     // Modify the query result to return only one registration
     const singleRegistration = [
       {
-        id: 'reg456',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
+        id: 'reg456',
+        state: 'ready',
       },
     ]
     mockQuery.mockResolvedValueOnce(singleRegistration)
@@ -377,31 +376,31 @@ describe('sendMessagesLambda', () => {
     // Include a registration that is not in 'ready' state
     const mixedRegistrations = [
       {
+        class: 'ALO',
+        eventId: 'event123',
         id: 'reg456',
-        eventId: 'event123',
         state: 'ready',
-        class: 'ALO',
       },
       {
+        class: 'ALO',
+        eventId: 'event123',
         id: 'reg789',
-        eventId: 'event123',
         state: 'ready',
-        class: 'ALO',
       },
       {
-        id: 'reg999',
-        eventId: 'event123',
-        state: 'cancelled', // Not in 'ready' state
         class: 'ALO',
+        eventId: 'event123',
+        id: 'reg999',
+        state: 'cancelled', // Not in 'ready' state
       },
     ]
 
     // Add reg999 to the requested IDs
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789', 'reg999'],
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -429,32 +428,32 @@ describe('sendMessagesLambda', () => {
     // Create registrations with different classes
     const multiClassRegistrations = [
       {
-        id: 'reg456',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group1', number: 1 },
+        id: 'reg456',
         messagesSent: { invitation: true },
+        state: 'ready',
       },
       {
-        id: 'reg789',
-        eventId: 'event123',
-        state: 'ready',
         class: 'AVO', // Different class
+        eventId: 'event123',
         group: { key: 'group2', number: 1 },
+        id: 'reg789',
         messagesSent: { invitation: true },
+        state: 'ready',
       },
     ]
 
     mockQuery.mockResolvedValueOnce(multiClassRegistrations)
 
     const testEvent = {
-      id: 'event123',
-      state: 'draft',
       classes: [
         { class: 'ALO', state: 'draft' },
         { class: 'AVO', state: 'draft' },
       ],
+      id: 'event123',
+      state: 'draft',
     }
     mockRead.mockResolvedValueOnce(testEvent)
 
@@ -479,37 +478,37 @@ describe('sendMessagesLambda', () => {
     // Create registrations with the same class
     const sameClassRegistrations: Partial<Registration>[] = [
       {
-        id: 'reg456',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group1', number: 1 },
+        id: 'reg456',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
       {
-        id: 'reg789',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group1', number: 2 },
+        id: 'reg789',
         messagesSent: { invitation: false }, // This one has not received the message
+        state: 'ready',
       },
       {
-        id: 'reg101',
-        eventId: 'event123',
-        state: 'ready',
         class: 'AVO',
+        eventId: 'event123',
         group: { key: 'group2', number: 1 },
+        id: 'reg101',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
     ]
 
     mockQuery.mockResolvedValueOnce(sameClassRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -526,37 +525,37 @@ describe('sendMessagesLambda', () => {
     // Create registrations where all have received the message
     const allReceivedRegistrations: Partial<Registration>[] = [
       {
-        id: 'reg456',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group1', number: 1 },
+        id: 'reg456',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
       {
-        id: 'reg789',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group1', number: 2 },
+        id: 'reg789',
         messagesSent: { invitation: true }, // This one has also received the message
+        state: 'ready',
       },
       {
-        id: 'reg101',
-        eventId: 'event123',
-        state: 'ready',
         class: 'AVO',
+        eventId: 'event123',
         group: { key: 'group2', number: 1 },
+        id: 'reg101',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
     ]
 
     mockQuery.mockResolvedValueOnce(allReceivedRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -571,45 +570,45 @@ describe('sendMessagesLambda', () => {
     // Create registrations with different groups
     const mixedGroupRegistrations: Partial<Registration>[] = [
       {
-        id: 'reg456',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group1', number: 1 },
+        id: 'reg456',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
       {
-        id: 'reg789',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'group2', number: 2 },
+        id: 'reg789',
         messagesSent: { invitation: false }, // This one has not received the message
+        state: 'ready',
       },
       {
-        id: 'reg101',
-        eventId: 'event123',
-        state: 'ready',
         class: 'ALO',
+        eventId: 'event123',
         group: { key: 'reserve', number: 3 }, // This one is on reserve
+        id: 'reg101',
         messagesSent: { invitation: false }, // This one has not received the message
+        state: 'ready',
       },
       {
-        id: 'reg102',
-        eventId: 'event123',
-        state: 'ready',
         class: 'AVO',
+        eventId: 'event123',
         group: { key: 'group3', number: 1 },
+        id: 'reg102',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
     ]
 
     mockQuery.mockResolvedValueOnce(mixedGroupRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -626,29 +625,29 @@ describe('sendMessagesLambda', () => {
     // Create registrations with no class
     const noClassRegistrations: Partial<Registration>[] = [
       {
-        id: 'reg456',
         eventId: 'event123',
-        state: 'ready',
         eventType: 'NOME',
         group: { key: 'group1', number: 1 },
+        id: 'reg456',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
       {
-        id: 'reg789',
         eventId: 'event123',
-        state: 'ready',
         eventType: 'NOME',
         group: { key: 'group2', number: 2 },
+        id: 'reg789',
         messagesSent: { invitation: true }, // This one has received the message
+        state: 'ready',
       },
     ]
 
     mockQuery.mockResolvedValueOnce(noClassRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456'], // Only sending to one registration
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -661,10 +660,10 @@ describe('sendMessagesLambda', () => {
   it('uses the correct state when marking participants based on template', async () => {
     // Test with invitation template
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'invitation',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'invitation',
       text: 'Test message',
     })
 
@@ -676,17 +675,17 @@ describe('sendMessagesLambda', () => {
 
     // Test with picked template
     mockParseJSONWithFallback.mockReturnValueOnce({
-      template: 'picked',
-      eventId: 'event123',
       contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
       registrationIds: ['reg456', 'reg789'],
+      template: 'picked',
       text: 'Test message',
     })
     mockQuery.mockResolvedValueOnce(mockRegistrations)
     mockRead.mockResolvedValueOnce(mockEvent)
     mockSendTemplatedEmailToEventRegistrations.mockResolvedValueOnce({
-      ok: ['recipient@example.com'],
       failed: [],
+      ok: ['recipient@example.com'],
     })
 
     await sendMessagesLambda(event)

@@ -1,18 +1,16 @@
 import { render, screen } from '@testing-library/react'
-
 import { renderWithUserEvents } from '../../../../test-utils/utils'
-
 import AdditionalInfoSection from './AdditionalInfoSection'
 
 describe('AdditionalInfoSection', () => {
   it('should render', () => {
     const testEvent = {
+      classes: [],
+      description: 'Test!',
+      endDate: new Date('2022-06-02'),
       id: 'test',
       judges: [],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [],
-      description: 'Test!',
     }
     const changeHandler = jest.fn()
     const { container } = render(<AdditionalInfoSection event={testEvent} onChange={changeHandler} open />)
@@ -21,11 +19,11 @@ describe('AdditionalInfoSection', () => {
 
   it('should fire onChange', async () => {
     const testEvent = {
+      classes: [],
+      endDate: new Date('2022-06-02'),
       id: 'test',
       judges: [],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [],
     }
     const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
 

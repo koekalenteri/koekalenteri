@@ -1,18 +1,16 @@
 import type { RecoilState } from 'recoil'
-
 import * as envLib from '../../../lib/env'
-
 import { logEffect } from './log'
 
 describe('log', () => {
   const logSpy = jest.spyOn(console, 'debug')
   const node: RecoilState<any> = {
-    __tag: ['test'],
-    __cTag: function (): void {
+    __cTag: (): void => {
       throw new Error('Function not implemented.')
     },
+    __tag: ['test'],
     key: 'test-key',
-    toJSON: function (): { key: string } {
+    toJSON: (): { key: string } => {
       throw new Error('Function not implemented.')
     },
   }

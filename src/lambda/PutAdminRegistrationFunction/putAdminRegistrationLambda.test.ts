@@ -1,5 +1,4 @@
 import type { JsonRegistration } from '../../types'
-
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
@@ -9,13 +8,13 @@ const mockSaveRegistration = jest.fn<any>()
 const mockUpdateEventStatsForRegistration = jest.fn<any>()
 
 const mockDynamoDB = {
-  write: jest.fn<any>(),
-  read: jest.fn<any>(),
-  update: jest.fn<any>(),
+  batchWrite: jest.fn<any>(),
   delete: jest.fn<any>(),
   query: jest.fn<any>(),
+  read: jest.fn<any>(),
   readAll: jest.fn<any>(),
-  batchWrite: jest.fn<any>(),
+  update: jest.fn<any>(),
+  write: jest.fn<any>(),
 }
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -41,9 +40,9 @@ const libRegistration = await import('../lib/registration')
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
+  findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getRegistration: mockGetRegistration,
   saveRegistration: mockSaveRegistration,
-  findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
 }))
 
 jest.unstable_mockModule('../lib/stats', () => ({
@@ -55,21 +54,21 @@ const { default: putAdminRegistrationLambda } = await import('./handler')
 describe('putAdminRegistrationLambda', () => {
   const event = {
     body: JSON.stringify({
+      class: 'ALO',
+      dates: [],
+      dog: {
+        breedCode: '111',
+        regNo: 'DOG123',
+      },
       eventId: 'event123',
-      id: 'reg456',
       handler: {
         email: 'handler@example.com',
       },
+      id: 'reg456',
+      language: 'fi',
       owner: {
         email: 'owner@example.com',
       },
-      language: 'fi',
-      class: 'ALO',
-      dog: {
-        regNo: 'DOG123',
-        breedCode: '111',
-      },
-      dates: [],
       qualifyingResults: [],
       reserve: 'ANY',
     }),
@@ -102,11 +101,11 @@ describe('putAdminRegistrationLambda', () => {
 
     // Mock DynamoDB responses
     mockDynamoDB.read.mockResolvedValue({
+      classes: [{ class: 'ALO', entries: 10 }],
+      endDate: '2024-01-02',
       id: 'event123',
       name: 'Test Event',
-      classes: [{ class: 'ALO', entries: 10 }],
       startDate: '2024-01-01',
-      endDate: '2024-01-02',
     })
 
     jest.spyOn(console, 'debug').mockImplementation(() => {})
@@ -131,20 +130,20 @@ describe('putAdminRegistrationLambda', () => {
     const newEvent = {
       ...event,
       body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
         eventId: 'event123',
         handler: {
           email: 'handler@example.com',
         },
+        language: 'fi',
         owner: {
           email: 'owner@example.com',
         },
-        language: 'fi',
-        class: 'ALO',
-        dog: {
-          regNo: 'DOG123',
-          breedCode: '111',
-        },
-        dates: [],
         qualifyingResults: [],
         reserve: 'ANY',
       }),
@@ -155,10 +154,10 @@ describe('putAdminRegistrationLambda', () => {
     // Verify registration was saved with new ID and state 'ready'
     expect(mockSaveRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
-        eventId: 'event123',
-        id: expect.any(String), // nanoid generated
         createdAt: expect.any(String),
         createdBy: 'Test User',
+        eventId: 'event123',
+        id: expect.any(String), // nanoid generated
         modifiedAt: expect.any(String),
         modifiedBy: 'Test User',
         state: 'ready',
@@ -177,19 +176,19 @@ describe('putAdminRegistrationLambda', () => {
     // Verify registration was saved with updated data
     expect(mockSaveRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
+        class: 'ALO',
         eventId: 'event123',
-        id: 'reg456',
-        modifiedAt: expect.any(String),
-        modifiedBy: 'Test User',
-        state: 'draft', // Preserved from existing
         handler: {
           email: 'handler@example.com',
         },
+        id: 'reg456',
+        language: 'fi',
+        modifiedAt: expect.any(String),
+        modifiedBy: 'Test User',
         owner: {
           email: 'owner@example.com',
         },
-        language: 'fi',
-        class: 'ALO',
+        state: 'draft', // Preserved from existing
       })
     )
 
@@ -200,19 +199,19 @@ describe('putAdminRegistrationLambda', () => {
     const eventWithoutEmail = {
       ...event,
       body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
         eventId: 'event123',
-        id: 'reg456',
         handler: {}, // No email
+        id: 'reg456',
+        language: 'fi',
         owner: {
           email: 'owner@example.com',
         },
-        language: 'fi',
-        class: 'ALO',
-        dog: {
-          regNo: 'DOG123',
-          breedCode: '111',
-        },
-        dates: [],
         qualifyingResults: [],
         reserve: 'ANY',
       }),
@@ -233,19 +232,19 @@ describe('putAdminRegistrationLambda', () => {
     const eventWithoutRegNo = {
       ...event,
       body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+        }, // No regNo
         eventId: 'event123',
         handler: {
           email: 'handler@example.com',
         },
+        language: 'fi',
         owner: {
           email: 'owner@example.com',
         },
-        language: 'fi',
-        class: 'ALO',
-        dog: {
-          breedCode: '111',
-        }, // No regNo
-        dates: [],
         qualifyingResults: [],
         reserve: 'ANY',
       }),
@@ -261,20 +260,20 @@ describe('putAdminRegistrationLambda', () => {
     const newEventWithExistingDog = {
       ...event,
       body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
         eventId: 'event123',
         handler: {
           email: 'handler@example.com',
         },
+        language: 'fi',
         owner: {
           email: 'owner@example.com',
         },
-        language: 'fi',
-        class: 'ALO',
-        dog: {
-          regNo: 'DOG123',
-          breedCode: '111',
-        },
-        dates: [],
         qualifyingResults: [],
         reserve: 'ANY',
         // No id - this triggers the new registration path
@@ -283,36 +282,36 @@ describe('putAdminRegistrationLambda', () => {
 
     // Mock that the dog is already registered
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
+      agreeToTerms: true,
+      breeder: { name: 'Test Breeder' },
+      class: 'ALO',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      createdBy: 'test',
+      dates: [],
+      dog: {
+        breedCode: '111',
+        regNo: 'DOG123',
+      },
       eventId: 'event123',
-      id: 'existing-reg-id',
+      eventType: 'test',
       handler: {
         email: 'existing@example.com',
         membership: false,
         name: '',
       },
+      id: 'existing-reg-id',
+      language: 'fi',
+      modifiedAt: '2024-01-01T00:00:00.000Z',
+      modifiedBy: 'test',
+      notes: '',
       owner: {
         email: 'existing@example.com',
         membership: false,
         name: '',
       },
-      language: 'fi',
-      class: 'ALO',
-      dog: {
-        regNo: 'DOG123',
-        breedCode: '111',
-      },
-      dates: [],
       qualifyingResults: [],
       reserve: 'ANY',
-      agreeToTerms: true,
-      breeder: { name: 'Test Breeder' },
-      eventType: 'test',
       state: 'ready',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      createdBy: 'test',
-      modifiedAt: '2024-01-01T00:00:00.000Z',
-      modifiedBy: 'test',
-      notes: '',
     })
 
     const result = await putAdminRegistrationLambda(newEventWithExistingDog)
@@ -325,20 +324,20 @@ describe('putAdminRegistrationLambda', () => {
     const newEventWithCancelledDog = {
       ...event,
       body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
         eventId: 'event123',
         handler: {
           email: 'handler@example.com',
         },
+        language: 'fi',
         owner: {
           email: 'owner@example.com',
         },
-        language: 'fi',
-        class: 'ALO',
-        dog: {
-          regNo: 'DOG123',
-          breedCode: '111',
-        },
-        dates: [],
         qualifyingResults: [],
         reserve: 'ANY',
       }),
@@ -346,34 +345,34 @@ describe('putAdminRegistrationLambda', () => {
 
     // Mock that the dog is already registered but cancelled
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
-      eventId: 'event123',
-      id: 'existing-reg-id',
-      handler: { email: 'existing@example.com', membership: false, name: '' },
-      owner: { email: 'existing@example.com', membership: false, name: '' },
-      language: 'fi',
-      class: 'ALO',
-      dog: { regNo: 'DOG123', breedCode: '111' },
-      dates: [],
-      qualifyingResults: [],
-      reserve: 'ANY',
       agreeToTerms: true,
       breeder: { name: 'Test Breeder' },
-      eventType: 'test',
-      state: 'ready',
+      cancelled: true, // This registration is cancelled
+      class: 'ALO',
       createdAt: '2024-01-01T00:00:00.000Z',
       createdBy: 'test',
+      dates: [],
+      dog: { breedCode: '111', regNo: 'DOG123' },
+      eventId: 'event123',
+      eventType: 'test',
+      handler: { email: 'existing@example.com', membership: false, name: '' },
+      id: 'existing-reg-id',
+      language: 'fi',
       modifiedAt: '2024-01-01T00:00:00.000Z',
       modifiedBy: 'test',
       notes: '',
-      cancelled: true, // This registration is cancelled
+      owner: { email: 'existing@example.com', membership: false, name: '' },
+      qualifyingResults: [],
+      reserve: 'ANY',
+      state: 'ready',
     })
 
     const result = await putAdminRegistrationLambda(newEventWithCancelledDog)
 
     expect(result.statusCode).toBe(409)
     expect(JSON.parse(result.body)).toEqual({
-      message: 'Conflict: Dog already registered to this event',
       cancelled: true,
+      message: 'Conflict: Dog already registered to this event',
     })
     expect(mockSaveRegistration).not.toHaveBeenCalled()
   })
@@ -382,19 +381,19 @@ describe('putAdminRegistrationLambda', () => {
     const eventWithoutOwnerEmail = {
       ...event,
       body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
         eventId: 'event123',
-        id: 'reg456',
         handler: {
           email: 'handler@example.com',
         },
-        owner: {}, // No email
+        id: 'reg456',
         language: 'fi',
-        class: 'ALO',
-        dog: {
-          regNo: 'DOG123',
-          breedCode: '111',
-        },
-        dates: [],
+        owner: {}, // No email
         qualifyingResults: [],
         reserve: 'ANY',
       }),

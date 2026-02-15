@@ -2,15 +2,12 @@ import type { JsonDogEvent, JsonUser, Official, Organizer, UserRole } from '../.
 import type { UserLink } from './auth'
 import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
-
 import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
-
 import { i18n } from '../../i18n/lambda'
 import { validEmail } from '../../lib/email'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
@@ -56,10 +53,10 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
   const normalizedEmail = email.toLocaleLowerCase().trim()
 
   const users = await dynamoDB.query<JsonUser>({
-    key: 'email = :email',
-    values: { ':email': normalizedEmail },
-    table: userTable,
     index: 'gsiEmail',
+    key: 'email = :email',
+    table: userTable,
+    values: { ':email': normalizedEmail },
   })
 
   const activeUsers = users?.filter((user) => !user.deletedAt)
@@ -106,9 +103,9 @@ export const setUserRole = async (
     { id: user.id },
     {
       set: {
-        roles,
         modifiedAt: timestamp,
         modifiedBy,
+        roles,
       },
     },
     userTable
@@ -118,15 +115,15 @@ export const setUserRole = async (
 
   if (role !== 'none') {
     await sendTemplatedMail('access', 'fi', emailFrom, [user.email], {
-      user: {
-        firstName: (user.name ?? 'Nimetön').split(' ')[0],
-        email: user.email,
-      },
+      admin: role === 'admin',
       link: `${origin}/login`,
       orgName: org?.name ?? 'Tuntematon',
       roleName: t(`user.roles.${role}`),
-      admin: role === 'admin',
       secretary: role === 'secretary',
+      user: {
+        email: user.email,
+        firstName: (user.name ?? 'Nimetön').split(' ')[0],
+      },
     })
   }
 
@@ -172,14 +169,14 @@ const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string, linke
 
   const merged: JsonUser = {
     ...canonical,
-    kcId,
     admin: users.some((u) => u.admin) || canonical.admin,
-    roles: mergeRoles(...users.map((u) => u.roles)),
-    officer: mergeEventTypes(...users.map((u) => u.officer)),
-    judge: mergeEventTypes(...users.map((u) => u.judge)),
     emailHistory: mergeEmailHistory(...users.map((u) => u.emailHistory)),
+    judge: mergeEventTypes(...users.map((u) => u.judge)),
+    kcId,
     modifiedAt: nowIso,
     modifiedBy: 'system',
+    officer: mergeEventTypes(...users.map((u) => u.officer)),
+    roles: mergeRoles(...users.map((u) => u.roles)),
   }
 
   const write: JsonUser[] = [merged]
@@ -206,12 +203,12 @@ const toEventUser = (
   if (!user) return fallback ?? {}
   // Event stores a Partial<User>; keep it small but consistent.
   return {
-    id: user.id,
-    name: user.name,
     email: user.email,
-    phone: user.phone,
-    location: user.location,
+    id: user.id,
     kcId: user.kcId,
+    location: user.location,
+    name: user.name,
+    phone: user.phone,
   }
 }
 
@@ -229,15 +226,15 @@ const createNewUserFromItem = (item: Official, dateString: string, eventTypesFil
   const modifiedBy = 'system'
   const normalizedEmail = item.email.toLocaleLowerCase()
   const newUser: JsonUser = {
-    id: nanoid(10),
     createdAt: dateString,
     createdBy: modifiedBy,
+    email: normalizedEmail,
+    id: nanoid(10),
+    kcEmail: normalizedEmail,
+    kcId: item.id,
     modifiedAt: dateString,
     modifiedBy,
     name: reverseName(item.name),
-    email: normalizedEmail,
-    kcEmail: normalizedEmail,
-    kcId: item.id,
     [eventTypesFiled]: item.eventTypes,
   }
 
@@ -264,11 +261,11 @@ const updateExistingUserFromItem = (
 
   const updated: JsonUser = {
     ...existing,
-    name: reverseName(item.name),
     email: nextEmail,
     kcEmail: normalizedEmail,
     kcId: item.id,
     location: item.location ?? existing.location,
+    name: reverseName(item.name),
     phone: item.phone ?? existing.phone,
     [eventTypesFiled]: item.eventTypes,
     ...(emailHistory ? { emailHistory } : {}),
@@ -368,8 +365,7 @@ const updateEventReferences = async (
   for (const u of allUsers) mergedUserMap.set(u.id, u)
   for (const u of mergeWrites) mergedUserMap.set(u.id, u)
 
-  const eventsDb = new CustomDynamoClient(eventTable)
-  const events = (await eventsDb.readAll<JsonDogEvent>(eventTable)) ?? []
+  const events = (await dynamoDB.readAll<JsonDogEvent>(eventTable)) ?? []
 
   const mapEventUserRefs = (evt: JsonDogEvent) => {
     const oldOfficialId = normalizeUserId(evt.official?.id)
@@ -391,14 +387,14 @@ const updateEventReferences = async (
     const mapped = mapEventUserRefs(evt)
     if (!mapped) continue
 
-    await eventsDb.update(
+    await dynamoDB.update(
       { id: evt.id },
       {
         set: {
-          official: mapped.updatedOfficial,
-          secretary: mapped.updatedSecretary,
           modifiedAt: dateString,
           modifiedBy: 'system',
+          official: mapped.updatedOfficial,
+          secretary: mapped.updatedSecretary,
         },
       },
       eventTable
@@ -466,7 +462,7 @@ const loadSyncContext = async (
   const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
 
   const itemsWithEmail = normalizeItemsWithEmail(items)
-  return { dateString, allUsers, linkedUserIds, itemsWithEmail }
+  return { allUsers, dateString, itemsWithEmail, linkedUserIds }
 }
 
 const planUserSync = (ctx: UserSyncContext, eventTypesFiled: 'officer' | 'judge'): UserSyncPlan => {
@@ -533,11 +529,11 @@ export const updateUsersFromOfficialsOrJudges = async (
 
 // Expose internal helpers for unit testing (no runtime usage elsewhere)
 export const __testables = {
+  loadSyncContext,
+  matchIncomingItems,
   mergeEventTypes,
   mergeRoles,
   mergeUsersByKcId,
-  toEventUser,
-  matchIncomingItems,
-  loadSyncContext,
   planUserSync,
+  toEventUser,
 }

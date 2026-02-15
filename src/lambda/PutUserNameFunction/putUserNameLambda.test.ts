@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
@@ -35,10 +35,10 @@ describe('putUserNameLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
-      id: 'user123',
-      email: 'test@example.com',
-      name: 'Old Name',
       admin: false,
+      email: 'test@example.com',
+      id: 'user123',
+      name: 'Old Name',
       roles: {},
     })
 
@@ -47,8 +47,8 @@ describe('putUserNameLambda', () => {
     })
 
     mockGetAndUpdateUserByEmail.mockResolvedValue({
-      id: 'user123',
       email: 'test@example.com',
+      id: 'user123',
       name: 'Test User',
     })
   })
@@ -118,8 +118,8 @@ describe('putUserNameLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        id: 'user123',
         email: 'test@example.com',
+        id: 'user123',
         name: 'Test User',
       },
       event

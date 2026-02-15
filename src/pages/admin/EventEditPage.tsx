@@ -1,8 +1,6 @@
 import { useParams } from 'react-router'
 import { useRecoilValue } from 'recoil'
-
 import { Path } from '../../routeConfig'
-
 import EventForm from './components/EventForm'
 import EventNotFound from './components/EventNotFound'
 import useEventForm from './hooks/useEventForm'
@@ -13,8 +11,8 @@ export default function EventEditPage() {
   const storedEvent = useRecoilValue(adminEventSelector(eventId))
   const { event, changes, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
-    storedEvent,
     onDoneRedirect: Path.admin.events,
+    storedEvent,
   })
 
   if (!event?.id) {

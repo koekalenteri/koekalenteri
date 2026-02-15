@@ -1,7 +1,5 @@
 import type { JsonUser } from '../../types'
-
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
@@ -23,13 +21,13 @@ const { default: putJudgeLambda, dynamoDB } = await import('./handler')
 const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {
-  id: '',
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
 }
 
 describe('putJudgeLambda', () => {
@@ -45,18 +43,18 @@ describe('putJudgeLambda', () => {
   it('should write the authorized user to database', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
     await putJudgeLambda(
-      constructAPIGwEvent({ id: 'judge', name: 'Test Judge', createdAt: '1986-10-05T22:39:02.250Z' })
+      constructAPIGwEvent({ createdAt: '1986-10-05T22:39:02.250Z', id: 'judge', name: 'Test Judge' })
     )
 
     expect(mockDynamoDB.write).toHaveBeenCalledTimes(1)
     expect(mockDynamoDB.write).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'judge',
-        name: 'Test Judge',
         createdAt: '1986-10-05T22:39:02.250Z',
         createdBy: 'Test User',
+        id: 'judge',
         modifiedAt: expect.any(String),
         modifiedBy: 'Test User',
+        name: 'Test Judge',
       })
     )
   })

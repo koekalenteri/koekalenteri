@@ -1,8 +1,6 @@
 import type { PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
-
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { createRefund } from '../../../../api/payment'
 import {
   getRegistrationTransactions,
@@ -14,7 +12,6 @@ import { reportError } from '../../../../lib/client/error'
 import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
 import { idTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
-
 import { adminBackgroundActionsRunningAtom } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
 
@@ -34,6 +31,45 @@ export const useAdminRegistrationActions = (eventId: string) => {
   }
 
   return {
+    async cancel(eventId: string, id: string, cancelReason: string, number: number) {
+      const reg = eventRegistrations.find((r) => r.id === id)
+      if (!reg) throw new Error('unexpected error occured')
+
+      await this.saveGroups(eventId, [
+        { cancelled: true, cancelReason, eventId, group: { key: GROUP_KEY_CANCELLED, number }, id },
+      ])
+    },
+
+    async putInternalNotes(
+      eventId: Registration['eventId'],
+      id: Registration['id'],
+      internalNotes: Registration['internalNotes']
+    ) {
+      if (!token) throw new Error('missing token')
+
+      const reg = eventRegistrations.find((r) => r.id === id)
+      if (!reg) throw new Error('unexpected error occured')
+
+      await putAdminRegistrationNotes({ eventId, id, internalNotes }, token)
+      updateAdminRegistration({ ...reg, internalNotes })
+    },
+
+    async refund(reg: Registration, transactionId: string, amount: number) {
+      if (!token) throw new Error('missing token')
+
+      const result = await createRefund(transactionId, amount, token)
+
+      if (result?.status === 'pending' || result?.status === 'ok') {
+        updateAdminRegistration({
+          ...reg,
+          refundAmount: (reg.refundAmount ?? 0) + amount / 100,
+          refundAt: new Date(),
+          refundStatus: result?.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+        })
+      }
+
+      return result
+    },
     async save(reg: Registration) {
       if (!token) throw new Error('missing token')
       const regWithOverrides = {
@@ -44,25 +80,6 @@ export const useAdminRegistrationActions = (eventId: string) => {
       const saved = await putAdminRegistration(regWithOverrides, token)
       updateAdminRegistration(saved)
       return saved
-    },
-
-    update(updated: Registration[]) {
-      const regs = [...eventRegistrations]
-      for (const reg of updated) {
-        const index = regs.findIndex((r) => r.id === reg.id)
-        const insert = index === -1
-        regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
-      }
-      setEventRegistrations([...regs])
-    },
-
-    async cancel(eventId: string, id: string, cancelReason: string, number: number) {
-      const reg = eventRegistrations.find((r) => r.id === id)
-      if (!reg) throw new Error('unexpected error occured')
-
-      await this.saveGroups(eventId, [
-        { eventId, id, group: { key: GROUP_KEY_CANCELLED, number }, cancelled: true, cancelReason },
-      ])
     },
 
     async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
@@ -95,51 +112,51 @@ export const useAdminRegistrationActions = (eventId: string) => {
         } = await putRegistrationGroups(eventId, groups, token)
 
         if (pickedOk.length) {
-          enqueueSnackbar('Koepaikkailmoitus lähetetty onnistuneesti\n\n' + pickedOk.join('\n'), {
+          enqueueSnackbar(`Koepaikkailmoitus lähetetty onnistuneesti\n\n${pickedOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (invitedOk.length) {
-          enqueueSnackbar('Koekutsu lähetetty onnistuneesti\n\n' + invitedOk.join('\n'), {
+          enqueueSnackbar(`Koekutsu lähetetty onnistuneesti\n\n${invitedOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (reserveOk.length) {
-          enqueueSnackbar('Varasijailmoitus lähetetty onnistuneesti\n\n' + reserveOk.join('\n'), {
+          enqueueSnackbar(`Varasijailmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (cancelledOk.length) {
-          enqueueSnackbar('Peruutusilmoitus lähetetty onnistuneesti\n\n' + reserveOk.join('\n'), {
+          enqueueSnackbar(`Peruutusilmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (pickedFailed.length) {
-          enqueueSnackbar('Koepaikkailmoituksen lähetys epäonnistui 💩\n\n' + pickedFailed.join('\n'), {
+          enqueueSnackbar(`Koepaikkailmoituksen lähetys epäonnistui 💩\n\n${pickedFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (invitedFailed.length) {
-          enqueueSnackbar('Koekutsun lähetys epäonnistui 💩\n\n' + invitedFailed.join('\n'), {
+          enqueueSnackbar(`Koekutsun lähetys epäonnistui 💩\n\n${invitedFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (pickedFailed.length) {
-          enqueueSnackbar('Varasijailmoituksen lähetys epäonnistui 💩\n\n' + reserveFailed.join('\n'), {
+          enqueueSnackbar(`Varasijailmoituksen lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         if (cancelledFailed.length) {
-          enqueueSnackbar('Peruutusilmoitukse lähetys epäonnistui 💩\n\n' + reserveFailed.join('\n'), {
+          enqueueSnackbar(`Peruutusilmoitukse lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
             variant: 'success',
-            style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
           })
         }
         // Defensive against backend returning sparse arrays / null items.
@@ -161,35 +178,14 @@ export const useAdminRegistrationActions = (eventId: string) => {
       return getRegistrationTransactions(eventId, registrationId, token)
     },
 
-    async refund(reg: Registration, transactionId: string, amount: number) {
-      if (!token) throw new Error('missing token')
-
-      const result = await createRefund(transactionId, amount, token)
-
-      if (result?.status === 'pending' || result?.status === 'ok') {
-        updateAdminRegistration({
-          ...reg,
-          refundAt: new Date(),
-          refundStatus: result?.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
-          refundAmount: (reg.refundAmount ?? 0) + amount / 100,
-        })
+    update(updated: Registration[]) {
+      const regs = [...eventRegistrations]
+      for (const reg of updated) {
+        const index = regs.findIndex((r) => r.id === reg.id)
+        const insert = index === -1
+        regs.splice(insert ? regs.length : index, insert ? 0 : 1, reg)
       }
-
-      return result
-    },
-
-    async putInternalNotes(
-      eventId: Registration['eventId'],
-      id: Registration['id'],
-      internalNotes: Registration['internalNotes']
-    ) {
-      if (!token) throw new Error('missing token')
-
-      const reg = eventRegistrations.find((r) => r.id === id)
-      if (!reg) throw new Error('unexpected error occured')
-
-      await putAdminRegistrationNotes({ eventId, id, internalNotes }, token)
-      updateAdminRegistration({ ...reg, internalNotes })
+      setEventRegistrations([...regs])
     },
   }
 }

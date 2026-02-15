@@ -3,20 +3,17 @@ import type { Priority } from '../../../../lib/priority'
 import type { EventClass, RegistrationClass } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { SectionProps } from './types'
-
-import { useCallback, useEffect, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
 import { clamp, sub } from 'date-fns'
 import { enqueueSnackbar } from 'notistack'
-
+import { useCallback, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
-
 import { EventDates } from './entrySection/EventDates'
 import EventFormPlaces from './entrySection/EventFormPlaces'
 
@@ -39,13 +36,13 @@ export default function EntrySection(props: Props) {
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
       onChange?.({
-        entryStartDate: start ? zonedStartOfDay(start) : undefined,
         entryEndDate: end ? zonedEndOfDay(end) : undefined,
+        entryStartDate: start ? zonedStartOfDay(start) : undefined,
       }),
     [onChange]
   )
   const handlePriorityChange = useCallback(
-    (e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>
+    (_e: SyntheticEvent<Element, Event>, value: readonly Priority[]) =>
       onChange?.({ priority: value.map((p) => p.value) }),
     [onChange]
   )
@@ -55,7 +52,7 @@ export default function EntrySection(props: Props) {
     if (!event.classes.some((c) => c.date < event.startDate || c.date > event.endDate)) return
 
     const newClasses: EventClass[] = []
-    const interval = { start: event.startDate, end: event.endDate }
+    const interval = { end: event.endDate, start: event.startDate }
     for (const cls of event.classes) {
       if (cls.date < interval.start || cls.date > interval.end) {
         const date = clamp(cls.date, interval)
@@ -91,8 +88,8 @@ export default function EntrySection(props: Props) {
             endDisabled={disabled}
             defaultEnd={sub(event.startDate, { weeks: 3 })}
             range={{
-              start: event.createdAt ? zonedStartOfDay(event.createdAt) : zonedStartOfDay(new Date()),
               end: zonedEndOfDay(event.startDate),
+              start: event.createdAt ? zonedStartOfDay(event.createdAt) : zonedStartOfDay(new Date()),
             }}
             required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
             onChange={handleDateChange}

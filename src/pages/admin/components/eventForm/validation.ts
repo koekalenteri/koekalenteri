@@ -2,7 +2,6 @@ import type { ValidationResult, Validators } from '../../../../i18n/validation'
 import type { DogEvent, EventState, PublicContactInfo } from '../../../../types'
 import type { DogEventCost } from '../../../../types/Cost'
 import type { EventFlag, EventFlags, FieldRequirements, PartialEvent } from './types'
-
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import { getCostValue } from '../../../../lib/cost'
 import { isDevEnv } from '../../../../lib/env'
@@ -11,49 +10,49 @@ import { keysOf } from '../../../../lib/typeGuards'
 import { unique } from '../../../../lib/utils'
 
 const STATE_INCLUSION: Record<EventState, EventState[]> = {
-  draft: ['draft'],
-  tentative: ['tentative', 'draft'],
-  confirmed: ['confirmed', 'tentative', 'draft'],
   cancelled: ['cancelled'],
+  completed: ['confirmed'],
+  confirmed: ['confirmed', 'tentative', 'draft'],
+  draft: ['draft'],
+  ended: ['confirmed'],
+  invited: ['confirmed'],
   // following are not user-selectable states
   picked: ['confirmed'],
-  invited: ['confirmed'],
   started: ['confirmed'],
-  ended: ['confirmed'],
-  completed: ['confirmed'],
+  tentative: ['tentative', 'draft'],
 }
 
 const REQUIRED_BY_STATE: Record<EventState, EventFlags> = {
+  cancelled: {},
+  completed: {},
+  confirmed: {
+    classes: (event: PartialEvent) => event.eventType === 'NOME-B' || event.eventType === 'NOWT',
+    // costMember: (event: PartialEvent) => !!event.costMember,
+    contactInfo: true,
+    cost: true,
+    entryEndDate: true,
+    entryStartDate: true,
+    headquarters: true,
+    judges: true,
+    // kcId: true,
+    official: (event: PartialEvent) => !!event.eventType && OFFICIAL_EVENT_TYPES.includes(event.eventType),
+    places: true,
+  },
   draft: {
-    startDate: true,
     endDate: true,
     eventType: true,
     organizer: true,
     secretary: true,
+    startDate: true,
   },
+  ended: {},
+  invited: {},
+  //
+  picked: {},
+  started: {},
   tentative: {
     location: true,
   },
-  confirmed: {
-    classes: (event: PartialEvent) => event.eventType === 'NOME-B' || event.eventType === 'NOWT',
-    // kcId: true,
-    official: (event: PartialEvent) => !!event.eventType && OFFICIAL_EVENT_TYPES.includes(event.eventType),
-    judges: true,
-    places: true,
-    entryStartDate: true,
-    entryEndDate: true,
-    cost: true,
-    // costMember: (event: PartialEvent) => !!event.costMember,
-    contactInfo: true,
-    headquarters: true,
-  },
-  cancelled: {},
-  //
-  picked: {},
-  invited: {},
-  started: {},
-  ended: {},
-  completed: {},
 }
 
 const contactInfoShown = (contact?: Partial<PublicContactInfo>) => !!contact?.email || !!contact?.phone
@@ -150,6 +149,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     const list = validateComplexCostMember(cost, costMember)
     return list.length ? { key: 'costMemberHigh', opts: { field: 'costMember', list } } : false
   },
+  endDate: (event, required) => (required && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false),
   headquarters: (event, _required) => {
     const headquarters = event.headquarters
     if (headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
@@ -178,7 +178,7 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
         list.push(c.class)
       }
     }
-    return list.length ? { key: 'classesJudge', opts: { field: 'judges', list, length: list.length } } : false
+    return list.length ? { key: 'classesJudge', opts: { field: 'judges', length: list.length, list } } : false
   },
 
   places: (event, required) => {
@@ -193,17 +193,16 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
         }
       }
     }
-    return list.length ? { key: 'placesClass', opts: { field: 'places', list, length: list.length } } : false
+    return list.length ? { key: 'placesClass', opts: { field: 'places', length: list.length, list } } : false
   },
   startDate: (event, required) => (required && event.startDate < zonedStartOfDay(new Date()) ? 'startDate' : false),
-  endDate: (event, required) => (required && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false),
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {
   const states = STATE_INCLUSION[event.state ?? 'draft']
   const result: FieldRequirements = {
-    state: {},
     required: {},
+    state: {},
   }
   for (const state of states) {
     const required = REQUIRED_BY_STATE[state]

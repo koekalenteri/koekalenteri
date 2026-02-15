@@ -1,5 +1,4 @@
 import Grid from '@mui/material/Grid'
-
 import InfoTableHeaderText from '../InfoTableHeaderText'
 
 interface Props {

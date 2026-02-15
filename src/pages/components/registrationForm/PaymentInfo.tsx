@@ -1,15 +1,13 @@
 import type { DeepPartial, PublicConfirmedEvent, Registration } from '../../../types'
 import type { CostResult, DogEventCostSegment } from '../../../types/Cost'
-
-import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import {
   getCostSegmentName,
   getCostValue,
@@ -55,18 +53,18 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
 
   useEffect(() => {
     if (!registration.selectedCost && cost.segment !== 'legacy') {
-      onChange?.({ selectedCost: cost.segment, optionalCosts: [] })
+      onChange?.({ optionalCosts: [], selectedCost: cost.segment })
     }
     if (cost.segment === 'legacy' && (registration.selectedCost || registration.optionalCosts)) {
-      onChange?.({ selectedCost: undefined, optionalCosts: undefined })
+      onChange?.({ optionalCosts: undefined, selectedCost: undefined })
     }
-  }, [registration, cost])
+  }, [registration, cost, onChange])
 
   useEffect(() => {
     if (registration.language !== language) {
       onChange?.({ language })
     }
-  }, [registration.language, language])
+  }, [registration.language, language, onChange])
 
   if (typeof appliedCost !== 'object' || !isMinimalRegistrationForCost(registration)) {
     return null

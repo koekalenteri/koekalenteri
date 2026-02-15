@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn()
 const mockFilterRelevantUsers = jest.fn()
 const mockGetAllUsers = jest.fn<any>()
@@ -23,7 +23,7 @@ jest.unstable_mockModule('../lib/user', () => ({
 const { default: getUsersHandler } = await import('./handler')
 
 describe('getUsersHandler', () => {
-  const event = { headers: {}, body: '' } as any
+  const event = { body: '', headers: {} } as any
   let errorSpy: jest.SpiedFunction<any>
 
   beforeAll(() => {
@@ -45,7 +45,7 @@ describe('getUsersHandler', () => {
   })
 
   it('returns 403 if user is not admin or member of any organizations', async () => {
-    const user = { id: 'user1', admin: false }
+    const user = { admin: false, id: 'user1' }
     mockAuthorize.mockResolvedValueOnce(user)
     mockUserIsMemberOf.mockReturnValueOnce([])
     await getUsersHandler(event)
@@ -54,7 +54,7 @@ describe('getUsersHandler', () => {
   })
 
   it('returns 200 and filtered users if authorized and member/admin', async () => {
-    const user = { id: 'user2', admin: false }
+    const user = { admin: false, id: 'user2' }
     const memberOf = ['org1']
     const users = [{ id: 'a' }, { id: 'b' }]
     const filtered = [{ id: 'a' }]
@@ -67,7 +67,7 @@ describe('getUsersHandler', () => {
   })
 
   it('returns 200 and filtered users if user is admin', async () => {
-    const user = { id: 'admin', admin: true }
+    const user = { admin: true, id: 'admin' }
     const memberOf: any[] = []
     const users = [{ id: 'a' }, { id: 'b' }]
     const filtered = [{ id: 'b' }]

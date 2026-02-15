@@ -1,5 +1,4 @@
 import type { JsonDogEvent } from '../../types'
-
 import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
 import { lambda, response } from '../lib/lambda'

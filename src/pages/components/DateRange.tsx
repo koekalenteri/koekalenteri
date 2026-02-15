@@ -1,11 +1,9 @@
 import type { Theme } from '@mui/material'
-
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { DatePicker } from '@mui/x-date-pickers'
 import { isSameDay, isValid } from 'date-fns'
-
+import { useTranslation } from 'react-i18next'
 import useDebouncedCallback from '../../hooks/useDebouncedCallback'
 
 export type DateValue = Date | null
@@ -88,7 +86,7 @@ export default function DateRange({
               actions: ['clear', 'cancel', 'accept'],
             },
             day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultStart) }),
-            textField: { required, error: startError, helperText: startHelperText },
+            textField: { error: startError, helperText: startHelperText, required },
             toolbar: {
               hidden: true,
             },
@@ -111,7 +109,7 @@ export default function DateRange({
               actions: ['clear', 'cancel', 'accept'],
             },
             day: ({ day, selected }) => ({ sx: dayStyle(day, selected, defaultEnd) }),
-            textField: { required, error: endError, helperText: endHelperText },
+            textField: { error: endError, helperText: endHelperText, required },
             toolbar: {
               hidden: true,
             },

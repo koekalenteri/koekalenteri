@@ -1,6 +1,5 @@
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import { render, screen } from '@testing-library/react'
-
 import StatusIcon from './StatusIcon'
 
 describe('StatusIcon', () => {

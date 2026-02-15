@@ -12,9 +12,7 @@ import type {
   MinimalRegistrationForMembership,
   PublicConfirmedEvent,
 } from '../types'
-
 import { addDays } from 'date-fns'
-
 import { isMember } from './registration'
 
 export const getEarlyBirdEndDate = (
@@ -31,11 +29,11 @@ export const getEarlyBirdDates = (
 ): { start?: Date; end?: Date } => {
   if (cost.earlyBird && event.entryStartDate && cost.earlyBird?.days > 0) {
     return {
-      start: new Date(event.entryStartDate),
       end: addDays(new Date(event.entryStartDate), cost.earlyBird.days - 1),
+      start: new Date(event.entryStartDate),
     }
   }
-  return { start: undefined, end: undefined }
+  return { end: undefined, start: undefined }
 }
 
 /** Helper object that can be "auto-fixed" to contain all the keys */
@@ -50,25 +48,25 @@ const EVENT_COST_MODEL: { [K in DogEventCostKey]: K } = {
 export const DOG_EVENT_COST_KEYS: DogEventCostKey[] = Object.values(EVENT_COST_MODEL)
 
 const normalStrategy: CostStrategy = {
-  key: 'normal',
-  isApplicable: () => true,
   getValue: (cost) => (typeof cost.normal === 'number' ? cost.normal : 0),
+  isApplicable: () => true,
+  key: 'normal',
   setValue: (cost, value) => ({ ...cost, normal: value }),
 }
 
 const customStrategy: CostStrategy = {
-  key: 'custom',
-  isApplicable: (cost) => !!cost.custom && (cost.custom.cost ?? 0) > 0,
   getValue: (cost) => cost.custom?.cost ?? 0,
+  isApplicable: (cost) => !!cost.custom && (cost.custom.cost ?? 0) > 0,
+  key: 'custom',
   setValue: (cost, value, data) => {
-    const prevDescription = cost.custom?.description ?? { fi: 'Erikoismaksu', en: 'Custom cost' }
+    const prevDescription = cost.custom?.description ?? { en: 'Custom cost', fi: 'Erikoismaksu' }
     const description = data && 'description' in data ? data.description : prevDescription
     return { ...cost, custom: { cost: value, description } }
   },
 }
 
 const earlyBirdStrategy: CostStrategy = {
-  key: 'earlyBird',
+  getValue: (cost) => cost.earlyBird?.cost ?? 0,
   isApplicable: (cost, registration, event) => {
     if (!cost.earlyBird || !event.entryStartDate) {
       return false
@@ -79,7 +77,7 @@ const earlyBirdStrategy: CostStrategy = {
     }
     return new Date(registration.createdAt) < endDate
   },
-  getValue: (cost) => cost.earlyBird?.cost ?? 0,
+  key: 'earlyBird',
   setValue: (cost, value, data) => {
     const days = data && 'days' in data ? data.days : (cost.earlyBird?.days ?? 0)
     return { ...cost, earlyBird: { cost: value, days } }
@@ -87,12 +85,12 @@ const earlyBirdStrategy: CostStrategy = {
 }
 
 const breedStrategy: CostStrategy = {
-  key: 'breed',
+  getValue: (cost, breedCode) => (breedCode && cost.breed?.[breedCode]) ?? 0,
   isApplicable: (cost, registration) => {
     const breedCode = registration.dog.breedCode
     return !!cost.breed && !!breedCode && !!cost.breed[breedCode]
   },
-  getValue: (cost, breedCode) => (breedCode && cost.breed?.[breedCode]) ?? 0,
+  key: 'breed',
   setValue: (cost, value, data) => {
     const result = { ...cost, breed: { ...cost.breed } }
     if (data && 'breedCode' in data) {
@@ -255,11 +253,11 @@ type CostSegmentName = 'costNames.normal' | 'costNames.earlyBird' | 'costNames.b
 
 export const getCostSegmentName = (segment: DogEventCostSegment | 'legacy'): CostSegmentName => {
   const names: Record<DogEventCostSegment | 'legacy', CostSegmentName> = {
-    normal: 'costNames.normal',
-    earlyBird: 'costNames.earlyBird',
     breed: 'costNames.breed',
     custom: 'costNames.custom',
+    earlyBird: 'costNames.earlyBird',
     legacy: 'costNames.normal',
+    normal: 'costNames.normal',
   }
   return names[segment]
 }
@@ -301,5 +299,5 @@ export const calculateCost = (event: MinimalEventForCost, registration: MinimalR
   const segment = strategy.key
   const amount = strategy.getValue(cost, registration.dog.breedCode) + additionalCost(registration, cost)
 
-  return { amount, segment, cost }
+  return { amount, cost, segment }
 }

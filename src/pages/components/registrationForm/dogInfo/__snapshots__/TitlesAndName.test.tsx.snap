@@ -6,7 +6,7 @@ exports[`TitlesAndName should render with disabled name 1`] = `
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
   >
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -45,7 +45,7 @@ exports[`TitlesAndName should render with disabled name 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -94,7 +94,7 @@ exports[`TitlesAndName should render with disabled name and titles 1`] = `
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
   >
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -134,7 +134,7 @@ exports[`TitlesAndName should render with disabled name and titles 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -183,7 +183,7 @@ exports[`TitlesAndName should render with disabled titles 1`] = `
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
   >
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -223,7 +223,7 @@ exports[`TitlesAndName should render with disabled titles 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -271,7 +271,7 @@ exports[`TitlesAndName should render with minimal properties 1`] = `
     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
   >
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -310,7 +310,7 @@ exports[`TitlesAndName should render with minimal properties 1`] = `
       </div>
     </div>
     <div
-      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
     >
       <div
         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"

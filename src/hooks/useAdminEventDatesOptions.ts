@@ -1,7 +1,5 @@
 import type { PublicDogEvent } from '../types'
-
 import { useRecoilValue } from 'recoil'
-
 import { getEventDays } from '../lib/event'
 import { adminEventTypeGroupsSelector } from '../pages/admin/recoil'
 

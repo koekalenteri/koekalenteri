@@ -4,14 +4,14 @@ const mockEventTypes: JsonEventType[] = [
   {
     createdAt: '',
     createdBy: '',
-    modifiedAt: '',
-    modifiedBy: '',
-    eventType: 'TEST1',
     description: {
-      fi: 'TEST1 tapahtymatyyppi',
       en: 'TEST1 event type',
+      fi: 'TEST1 tapahtymatyyppi',
       sv: 'TEST1 åå',
     },
+    eventType: 'TEST1',
+    modifiedAt: '',
+    modifiedBy: '',
   },
 ]
 

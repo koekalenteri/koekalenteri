@@ -1,28 +1,26 @@
 import type { CustomCost, MinimalEventForCost, MinimalRegistrationForCost, Registration } from '../types'
-
 import { capitalize } from '../lambda/lib/string'
-
 import { additionalCost, getApplicableStrategy, getEarlyBirdDates, selectCost } from './cost'
 import { isMember } from './registration'
 
 export const PROVIDER_NAMES: Record<string, string> = {
-  'apple-pay': 'Apple Pay',
-  'danske-business': 'Danske B2B',
-  'email refund': 'Sähköposti + tilisiirto',
-  'nordea-business': 'Nordea B2B',
-  'op-tililuotto': 'OP Tililuotto',
   aktia: 'Aktia',
   alandsbanken: 'Ålandsbanken',
   alisa: 'Alisa Yrityslasku',
   amex: 'American Express',
+  'apple-pay': 'Apple Pay',
   collectorb2b: 'Walley B2B',
   collectorb2c: 'Walley',
   creditcard: 'Visa / Mastercard',
+  'danske-business': 'Danske B2B',
+  'email refund': 'Sähköposti + tilisiirto',
   handelsbanken: 'Handkesbanken',
   jousto: 'Jousto',
   mobilepay: 'MobilePay',
   nordea: 'Nordea',
+  'nordea-business': 'Nordea B2B',
   omasp: 'OmaSP',
+  'op-tililuotto': 'OP Tililuotto',
   oplasku: 'OP Lasku',
   osuuspankki: 'OP',
   paypal: 'PayPal',
@@ -57,24 +55,24 @@ export const getRegistrationPaymentDetails = (event: MinimalEventForCost, regist
 
   if (typeof cost === 'number') {
     return {
-      strategy: 'legacy' as const,
-      isMember: isMember(registration),
       cost,
+      isMember: isMember(registration),
       optionalCosts: [] as CustomCost[],
+      strategy: 'legacy' as const,
       total: cost,
     }
   }
 
   const strategyCost = strategy.getValue(cost, registration.dog.breedCode)
   const optional = additionalCost(registration, cost)
-  const optionalCosts = cost.optionalAdditionalCosts?.filter((c, i) => registration.optionalCosts?.includes(i)) ?? []
+  const optionalCosts = cost.optionalAdditionalCosts?.filter((_c, i) => registration.optionalCosts?.includes(i)) ?? []
 
   return {
-    strategy: strategy.key,
-    isMember: isMember(registration),
     cost: strategyCost,
     costObject: cost,
+    isMember: isMember(registration),
     optionalCosts,
+    strategy: strategy.key,
     total: strategyCost + optional,
     translationOptions: {
       code: registration.dog.breedCode,

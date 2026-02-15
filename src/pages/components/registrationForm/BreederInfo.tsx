@@ -1,12 +1,9 @@
 import type { DeepPartial, Registration, RegistrationBreeder } from '../../../types'
-
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
-
+import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
@@ -27,8 +24,8 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
   // Group local state for all form fields with a single debounced update
   const [formValues, updateField] = useLocalStateGroup(
     {
-      name: reg.breeder?.name ?? '',
       location: reg.breeder?.location ?? '',
+      name: reg.breeder?.name ?? '',
     },
     (values) => {
       // Handle all field updates as a group
@@ -53,7 +50,7 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.breeder?.name}
@@ -64,7 +61,7 @@ export function BreederInfo({ reg, disabled, error, helperText, onChange, onOpen
             onChange={(e) => updateField('name', e.target.value)}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.breeder?.location}

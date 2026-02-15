@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react'
-
 import { TimeHeader } from './TimeHeader'
 
 // Mock i18next

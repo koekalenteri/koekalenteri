@@ -1,11 +1,8 @@
 import type { CustomCost, DogEvent, Registration, RegistrationGroup } from '../../../../types'
 import type { RegistrationWithGroups } from './types'
-
 import { parseISO } from 'date-fns'
-
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
-
 import {
   buildRegistrationsByGroup,
   buildSelectedAdditionalCostsByGroup,
@@ -20,19 +17,19 @@ describe('helpers', () => {
 
   describe('listKey', () => {
     const mockEventGroups: RegistrationGroup[] = [
-      { key: 'group1', number: 1, date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-      { key: 'group2', number: 2, date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockRegistration = {
-      id: 'reg1',
-      eventId: 'event1',
+      createdAt: new Date(),
       dates: [],
       dog: { regNo: 'dog1' },
+      eventId: 'event1',
       handler: { name: 'Handler 1' },
-      owner: { name: 'Owner 1' },
-      createdAt: new Date(),
+      id: 'reg1',
       modifiedAt: new Date(),
+      owner: { name: 'Owner 1' },
     } as unknown as Registration
 
     it('should return cancelled key when registration is cancelled', () => {
@@ -64,12 +61,12 @@ describe('helpers', () => {
       const time = 'ap' as const
       const derivedKey = eventRegistrationDateKey({ date, time })
 
-      const eventGroupsWithDerivedKeys: RegistrationGroup[] = [{ key: derivedKey, number: 1, date, time }]
+      const eventGroupsWithDerivedKeys: RegistrationGroup[] = [{ date, key: derivedKey, number: 1, time }]
 
       const result = listKey(
         {
           ...mockRegistration,
-          group: { key: 'legacy-backend-key', number: 1, date, time },
+          group: { date, key: 'legacy-backend-key', number: 1, time },
         } as Registration,
         eventGroupsWithDerivedKeys
       )
@@ -80,35 +77,34 @@ describe('helpers', () => {
 
   describe('buildRegistrationsByGroup', () => {
     const mockGroups: RegistrationGroup[] = [
-      { key: 'group1', number: 1, date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-      { key: 'group2', number: 2, date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockRegistrations: Registration[] = [
       {
-        id: 'reg1',
-        eventId: 'event1',
+        createdAt: new Date(),
         dates: [
           { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
           { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
         ],
         dog: { regNo: 'dog1' },
+        eventId: 'event1',
+        group: { key: 'group1', number: 1 },
         handler: { name: 'Handler 1' },
-        owner: { name: 'Owner 1' },
-        group: { number: 1, key: 'group1' },
-        createdAt: new Date(),
+        id: 'reg1',
         modifiedAt: new Date(),
+        owner: { name: 'Owner 1' },
       } as Partial<Registration> as Registration,
       {
-        id: 'reg2',
-        eventId: 'event1',
         dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
         dog: { regNo: 'dog2' },
+        eventId: 'event1',
+        group: { key: 'group2', number: 2 },
         handler: { name: 'Handler 2' },
-        owner: { name: 'Owner 2' },
-        group: { number: 2, key: 'group2' },
-        createdAt: new Date(),
+        id: 'reg2',
         modifiedAt: new Date(),
+        owner: { name: 'Owner 2' },
       } as Partial<Registration> as Registration,
     ]
 
@@ -144,18 +140,18 @@ describe('helpers', () => {
       const registrationsWithNumbers: Registration[] = [
         {
           ...mockRegistrations[0],
+          group: { key: 'group1', number: 3 },
           id: 'reg3',
-          group: { number: 3, key: 'group1' },
         } as Registration,
         {
           ...mockRegistrations[0],
+          group: { key: 'group1', number: 1 },
           id: 'reg1',
-          group: { number: 1, key: 'group1' },
         } as Registration,
         {
           ...mockRegistrations[0],
+          group: { key: 'group1', number: 2 },
           id: 'reg2',
-          group: { number: 2, key: 'group1' },
         } as Registration,
       ]
 
@@ -170,13 +166,13 @@ describe('helpers', () => {
       const registrationsWithoutNumbers: Registration[] = [
         {
           ...mockRegistrations[0],
-          id: 'reg1',
           group: undefined,
+          id: 'reg1',
         } as Registration,
         {
           ...mockRegistrations[0],
+          group: { key: 'group1', number: 1 },
           id: 'reg2',
-          group: { number: 1, key: 'group1' },
         } as Registration,
       ]
 
@@ -188,16 +184,16 @@ describe('helpers', () => {
 
     it('should populate dropGroups when group has no date', () => {
       const groupsWithNoDate: RegistrationGroup[] = [
-        { key: 'group1', number: 1, date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-        { key: 'group2', number: 2, date: undefined, time: 'ip' },
+        { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+        { date: undefined, key: 'group2', number: 2, time: 'ip' },
       ]
 
       const registrationsWithDates: Registration[] = [
         {
           ...mockRegistrations[0],
-          id: 'reg1',
           dates: [{ date: parseISO('2023-01-03T12:00:00Z'), time: 'ap' }], // Date doesn't match any group
-          group: { number: 1, key: 'group1' },
+          group: { key: 'group1', number: 1 },
+          id: 'reg1',
         } as Registration,
       ]
 
@@ -209,16 +205,16 @@ describe('helpers', () => {
 
     it('should populate dropGroups when registration date matches group date', () => {
       const groupsWithDates: RegistrationGroup[] = [
-        { key: 'group1', number: 1, date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-        { key: 'group2', number: 2, date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+        { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+        { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
       ]
 
       const registrationsWithMatchingDates: Registration[] = [
         {
           ...mockRegistrations[0],
-          id: 'reg1',
           dates: [{ date: parseISO('2023-01-02T12:00:00Z'), time: 'ap' }], // Date matches group2
-          group: { number: 1, key: 'group1' },
+          group: { key: 'group1', number: 1 },
+          id: 'reg1',
         } as Registration,
       ]
 
@@ -231,46 +227,46 @@ describe('helpers', () => {
 
   describe('buildSelectedAdditionalCostsByGroup', () => {
     const mockGroups: RegistrationGroup[] = [
-      { key: 'group1', number: 1, date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-      { key: 'group2', number: 2, date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockCosts: CustomCost[] = [
-      { description: { fi: 'Extra cost 1', en: 'Extra cost 1' }, cost: 10 },
-      { description: { fi: 'Extra cost 2', en: 'Extra cost 2' }, cost: 20 },
+      { cost: 10, description: { en: 'Extra cost 1', fi: 'Extra cost 1' } },
+      { cost: 20, description: { en: 'Extra cost 2', fi: 'Extra cost 2' } },
     ]
 
     const mockEvent = {
-      id: 'event1',
       cost: {
         normal: 50,
         optionalAdditionalCosts: mockCosts,
       },
       createdAt: new Date(),
+      id: 'event1',
       modifiedAt: new Date(),
     } as Partial<DogEvent> as DogEvent
 
     const mockRegistrationsByGroup: Record<string, RegistrationWithGroups[]> = {
       group1: [
         {
+          dropGroups: [],
+          groups: [],
           id: 'reg1',
           optionalCosts: [0, 1], // Both costs selected
-          groups: [],
-          dropGroups: [],
         } as Partial<RegistrationWithGroups> as RegistrationWithGroups,
         {
+          dropGroups: [],
+          groups: [],
           id: 'reg2',
           optionalCosts: [0], // Only first cost selected
-          groups: [],
-          dropGroups: [],
         } as Partial<RegistrationWithGroups> as RegistrationWithGroups,
       ],
       group2: [
         {
+          dropGroups: [],
+          groups: [],
           id: 'reg3',
           optionalCosts: [1], // Only second cost selected
-          groups: [],
-          dropGroups: [],
         } as Partial<RegistrationWithGroups> as RegistrationWithGroups,
       ],
     }
@@ -334,10 +330,10 @@ describe('helpers', () => {
       const registrationsByGroupWithoutCosts: Record<string, RegistrationWithGroups[]> = {
         group1: [
           {
+            dropGroups: [],
+            groups: [],
             id: 'reg1',
             optionalCosts: undefined,
-            groups: [],
-            dropGroups: [],
           } as Partial<RegistrationWithGroups> as RegistrationWithGroups,
         ],
       }
@@ -350,13 +346,13 @@ describe('helpers', () => {
 
   describe('buildSelectedAdditionalCostsTotal', () => {
     const mockGroups: RegistrationGroup[] = [
-      { key: 'group1', number: 1, date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
-      { key: 'group2', number: 2, date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
     ]
 
     const mockCosts: CustomCost[] = [
-      { description: { fi: 'Lisämaksu 1', en: 'Extra cost 1' }, cost: 10 },
-      { description: { fi: 'Lisämaksu 2', en: 'Extra cost 2' }, cost: 20 },
+      { cost: 10, description: { en: 'Extra cost 1', fi: 'Lisämaksu 1' } },
+      { cost: 20, description: { en: 'Extra cost 2', fi: 'Lisämaksu 2' } },
     ]
 
     it('should return empty string when no costs are selected', () => {

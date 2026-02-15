@@ -1,14 +1,12 @@
 import type { JsonUser } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // @ts-expect-error partial mock
 const mockKLAPI: jest.Mocked<KLAPI> = {
-  lueKoemuodot: jest.fn(async () => ({ status: 200, json: [] })),
+  lueKoemuodot: jest.fn(async () => ({ json: [], status: 200 })),
 }
 
 jest.unstable_mockModule('../lib/KLAPI', () => ({
@@ -26,9 +24,9 @@ jest.unstable_mockModule('../lib/auth', () => ({
 
 const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
   batchWrite: jest.fn(),
-  update: jest.fn(),
   // @ts-expect-error types don't quite match
   readAll: jest.fn(),
+  update: jest.fn(),
 }
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -41,13 +39,13 @@ const authorizeMock = authorize as jest.Mock<typeof authorize>
 const { default: getEventTypesLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
-  id: '',
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
 }
 const mockAdminUser: JsonUser = {
   ...mockUser,
@@ -79,29 +77,29 @@ describe('getEventTypesLambda', () => {
   it('should update eventTypes from KLAPI', async () => {
     authorizeMock.mockResolvedValueOnce(mockAdminUser)
     mockDynamoDB.readAll.mockResolvedValueOnce([
-      { eventType: 'y', description: { fi: 'old fi', en: 'old en', sv: 'old sv' } },
+      { description: { en: 'old en', fi: 'old fi', sv: 'old sv' }, eventType: 'y' },
     ])
     mockKLAPI.lueKoemuodot
       .mockResolvedValueOnce({
-        status: 200,
         json: [
-          { lyhenne: 'x', koemuoto: 'fi' },
-          { lyhenne: 'y', koemuoto: 'new fi' },
+          { koemuoto: 'fi', lyhenne: 'x' },
+          { koemuoto: 'new fi', lyhenne: 'y' },
         ],
+        status: 200,
       })
       .mockResolvedValueOnce({
-        status: 200,
         json: [
-          { lyhenne: 'x', koemuoto: 'sv' },
-          { lyhenne: 'y', koemuoto: 'old sv' },
+          { koemuoto: 'sv', lyhenne: 'x' },
+          { koemuoto: 'old sv', lyhenne: 'y' },
         ],
+        status: 200,
       })
       .mockResolvedValueOnce({
-        status: 200,
         json: [
-          { lyhenne: 'x', koemuoto: 'en' },
-          { lyhenne: 'y', koemuoto: 'new en' },
+          { koemuoto: 'en', lyhenne: 'x' },
+          { koemuoto: 'new en', lyhenne: 'y' },
         ],
+        status: 200,
       })
     const res = await getEventTypesLambda(constructAPIGwEvent({}, { query: { refresh: 'true' } }))
 
@@ -111,7 +109,7 @@ describe('getEventTypesLambda', () => {
     expect(mockKLAPI.lueKoemuodot).toHaveBeenCalledTimes(3)
 
     expect(logSpy).toHaveBeenCalledWith('new eventTypes', [
-      expect.objectContaining({ eventType: 'x', description: { fi: 'fi', en: 'en', sv: 'sv' } }),
+      expect.objectContaining({ description: { en: 'en', fi: 'fi', sv: 'sv' }, eventType: 'x' }),
     ])
     expect(logSpy).toHaveBeenCalledWith(
       'description changed for y',

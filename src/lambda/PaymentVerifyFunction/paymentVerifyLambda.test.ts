@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>().mockImplementation((statusCode: number, body: any) => ({
-  statusCode,
   body: JSON.stringify(body),
   headers: { 'Content-Type': 'application/json' },
+  statusCode,
 }))
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
@@ -60,11 +60,11 @@ const { default: paymentVerifyLambda } = await import('./handler')
 describe('paymentVerifyLambda', () => {
   const event = {
     body: JSON.stringify({
-      'checkout-transaction-id': 'tx123',
-      'checkout-reference': 'event123:reg456',
-      'checkout-provider': 'paytrail',
-      'checkout-status': 'ok',
       'checkout-amount': '5000',
+      'checkout-provider': 'paytrail',
+      'checkout-reference': 'event123:reg456',
+      'checkout-status': 'ok',
+      'checkout-transaction-id': 'tx123',
     }),
     headers: {},
   } as any
@@ -74,28 +74,28 @@ describe('paymentVerifyLambda', () => {
 
     // Default mock implementations
     mockParseJSONWithFallback.mockReturnValue({
-      'checkout-transaction-id': 'tx123',
-      'checkout-reference': 'event123:reg456',
-      'checkout-provider': 'paytrail',
-      'checkout-status': 'ok',
       'checkout-amount': '5000',
+      'checkout-provider': 'paytrail',
+      'checkout-reference': 'event123:reg456',
+      'checkout-status': 'ok',
+      'checkout-transaction-id': 'tx123',
     })
 
     mockParseParams.mockReturnValue({
       eventId: 'event123',
-      registrationId: 'reg456',
-      transactionId: 'tx123',
       provider: 'paytrail',
+      registrationId: 'reg456',
       status: 'ok',
+      transactionId: 'tx123',
     })
 
     mockVerifyParams.mockResolvedValue(undefined)
 
     mockRead.mockResolvedValue({
-      transactionId: 'tx123',
-      reference: 'event123:reg456',
       amount: 5000,
+      reference: 'event123:reg456',
       status: 'pending',
+      transactionId: 'tx123',
       user: 'user123',
     })
 
@@ -122,18 +122,18 @@ describe('paymentVerifyLambda', () => {
 
     // Verify params were parsed and verified
     expect(mockParseParams).toHaveBeenCalledWith({
-      'checkout-transaction-id': 'tx123',
-      'checkout-reference': 'event123:reg456',
-      'checkout-provider': 'paytrail',
-      'checkout-status': 'ok',
       'checkout-amount': '5000',
+      'checkout-provider': 'paytrail',
+      'checkout-reference': 'event123:reg456',
+      'checkout-status': 'ok',
+      'checkout-transaction-id': 'tx123',
     })
     expect(mockVerifyParams).toHaveBeenCalledWith({
-      'checkout-transaction-id': 'tx123',
-      'checkout-reference': 'event123:reg456',
-      'checkout-provider': 'paytrail',
-      'checkout-status': 'ok',
       'checkout-amount': '5000',
+      'checkout-provider': 'paytrail',
+      'checkout-reference': 'event123:reg456',
+      'checkout-status': 'ok',
+      'checkout-transaction-id': 'tx123',
     })
 
     // Verify transaction was retrieved
@@ -152,10 +152,10 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        status: 'ok',
-        paymentStatus: 'ok',
         eventId: 'event123',
+        paymentStatus: 'ok',
         registrationId: 'reg456',
+        status: 'ok',
       },
       event
     )
@@ -163,8 +163,8 @@ describe('paymentVerifyLambda', () => {
     // Verify the result
     expect(result).toEqual(
       expect.objectContaining({
-        statusCode: 200,
         body: expect.any(String),
+        statusCode: 200,
       })
     )
   })
@@ -172,10 +172,10 @@ describe('paymentVerifyLambda', () => {
   it('handles a failed payment correctly', async () => {
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
-      registrationId: 'reg456',
-      transactionId: 'tx123',
       provider: 'paytrail',
+      registrationId: 'reg456',
       status: 'fail',
+      transactionId: 'tx123',
     })
 
     await paymentVerifyLambda(event)
@@ -208,10 +208,10 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        status: 'error',
-        paymentStatus: 'fail',
         eventId: 'event123',
+        paymentStatus: 'fail',
         registrationId: 'reg456',
+        status: 'error',
       },
       event
     )
@@ -220,10 +220,10 @@ describe('paymentVerifyLambda', () => {
   it('does not update registration if payment status is not PENDING', async () => {
     mockParseParams.mockReturnValueOnce({
       eventId: 'event123',
-      registrationId: 'reg456',
-      transactionId: 'tx123',
       provider: 'paytrail',
+      registrationId: 'reg456',
       status: 'fail',
+      transactionId: 'tx123',
     })
 
     mockGetRegistration.mockResolvedValueOnce({
@@ -247,10 +247,10 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        status: 'error',
-        paymentStatus: 'fail',
         eventId: 'event123',
+        paymentStatus: 'fail',
         registrationId: 'reg456',
+        status: 'error',
       },
       event
     )
@@ -273,10 +273,10 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        status: 'error',
-        paymentStatus: 'ok',
         eventId: 'event123',
+        paymentStatus: 'ok',
         registrationId: 'reg456',
+        status: 'error',
       },
       event
     )
@@ -296,10 +296,10 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        status: 'error',
-        paymentStatus: 'ok',
         eventId: 'event123',
+        paymentStatus: 'ok',
         registrationId: 'reg456',
+        status: 'error',
       },
       event
     )
@@ -321,10 +321,10 @@ describe('paymentVerifyLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        status: 'error',
-        paymentStatus: 'ok',
         eventId: 'event123',
+        paymentStatus: 'ok',
         registrationId: 'reg456',
+        status: 'error',
       },
       event
     )

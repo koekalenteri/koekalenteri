@@ -1,10 +1,8 @@
 import type { PublicDogEvent, PublicJudge } from '../../../types'
-
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay } from '../../../i18n/dates'
 import { judgeName } from '../../../lib/judge'
 import { isEntryOpen, printContactInfo, unique } from '../../../lib/utils'
@@ -14,7 +12,6 @@ import { EntryStatus } from '../../components/EntryStatus'
 import { ItemWithCaption } from '../../components/ItemWithCaption'
 import { PriorityChips } from '../../components/PriorityChips'
 import { TimeLeft } from '../../components/TimeLeft'
-
 import { EventClassPlaces } from './eventInfo/EventClassPlaces'
 import { EventClassPlacesHeader } from './eventInfo/EventClassPlacesHeader'
 
@@ -52,15 +49,15 @@ export const EventInfo = ({ event }: Props) => {
   return (
     <Grid container columnSpacing={1} sx={{ py: 0.5 }}>
       <ItemWithCaption label={t('entryTime')} order={{ xs: 1 }}>
-        {t('dateFormat.datespan', { start: event.entryStartDate, end: event.entryEndDate })}
+        {t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })}
         <EntryStatus event={event} />
         {isEntryOpen(event) ? <TimeLeft date={zonedEndOfDay(event.entryEndDate!)} /> : ''}
       </ItemWithCaption>
       {classes.length ? (
         <ItemWithCaption
           label={t('event.classPlaces')}
-          order={{ xs: 2, lg: 3, xl: 10 }}
-          size={{ xs: 12, md: 6, lg: 4, xl: 'grow' }}
+          order={{ lg: 3, xl: 10, xs: 2 }}
+          size={{ lg: 4, md: 6, xl: 'grow', xs: 12 }}
         >
           <EventClassPlacesHeader event={event} />
           {classes.map((c) => (
@@ -69,24 +66,24 @@ export const EventInfo = ({ event }: Props) => {
         </ItemWithCaption>
       ) : null}
       {judges.length ? (
-        <ItemWithCaption label={t('event.judges')} order={{ xs: 3, lg: 2 }}>
+        <ItemWithCaption label={t('event.judges')} order={{ lg: 2, xs: 3 }}>
           {judges.map((j) => (
             <Box key={j}>{j}</Box>
           ))}
         </ItemWithCaption>
       ) : null}
       {official ? (
-        <ItemWithCaption label={t('event.official')} order={{ xs: 4, lg: 2 }}>
+        <ItemWithCaption label={t('event.official')} order={{ lg: 2, xs: 4 }}>
           {official}
         </ItemWithCaption>
       ) : null}
       {secretary ? (
-        <ItemWithCaption label={t('event.secretary')} order={{ xs: 5, lg: official ? undefined : 2 }}>
+        <ItemWithCaption label={t('event.secretary')} order={{ lg: official ? undefined : 2, xs: 5 }}>
           {secretary}
         </ItemWithCaption>
       ) : null}
       {event.cost ? (
-        <ItemWithCaption label={t('paymentDetails')} order={{ xs: 6, xl: 9 }}>
+        <ItemWithCaption label={t('paymentDetails')} order={{ xl: 9, xs: 6 }}>
           <CostInfo event={event} />
         </ItemWithCaption>
       ) : null}
@@ -97,7 +94,7 @@ export const EventInfo = ({ event }: Props) => {
       ) : null}
       {rankingPeriod ? (
         <ItemWithCaption label={t('registration.rankingTime')} order={{ xs: 8 }}>
-          {t('dateFormat.datespan', { start: rankingPeriod.minResultDate, end: rankingPeriod.maxResultDate })}
+          {t('dateFormat.datespan', { end: rankingPeriod.maxResultDate, start: rankingPeriod.minResultDate })}
         </ItemWithCaption>
       ) : null}
       {event.description ? (

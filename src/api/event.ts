@@ -1,9 +1,6 @@
 import type { DogEvent, PublicDogEvent } from '../types'
-
 import { addDays, nextSaturday } from 'date-fns'
-
 import { zonedStartOfDay } from '../i18n/dates'
-
 import http, { withToken } from './http'
 
 const PATH = '/event/'
@@ -58,7 +55,7 @@ export async function putInvitationAttachment(
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {
   return http.post<{ id: string; startDate: Date }, DogEvent>(
-    ADMIN_PATH + 'copy',
+    `${ADMIN_PATH}copy`,
     { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
     withToken({ signal }, token)
   )

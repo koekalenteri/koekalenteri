@@ -6,10 +6,8 @@ import type {
   Registration,
   RuleDate,
 } from './types'
-
 import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
-
 import { TIME_ZONE } from './i18n/dates'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
@@ -50,85 +48,22 @@ export function getRequirements(eventType: string, regClass: Registration['class
 }
 
 export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequirement } = {
-  NOU: {
-    age: 9,
-    breedCode: ['122', '111', '121', '312', '110', '263'],
-  },
-  'NOME-B': {
-    ALO: {
-      results: {
-        '1991-01-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
-      },
-    },
-    AVO: {
-      results: {
-        '1991-01-01': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
-        '1999-01-01': [{ type: 'NOME-B', result: 'ALO1', count: 2 }],
-        '2006-04-01': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
-        '2009-01-01': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
-        '2016-04-01': [{ type: 'NOME-B', result: 'ALO1', count: 2 }],
-        '2023-04-15': [{ type: 'NOME-B', result: 'ALO1', count: 1 }],
-      },
-    },
-    VOI: {
-      results: {
-        '1977-01-01': [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
-        '1986-01-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
-        '2006-04-01': [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
-        '2009-01-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
-        '2016-04-01': [{ type: 'NOME-B', result: 'AVO1', count: 2 }],
-        '2023-04-15': [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
-      },
-    },
-  },
-  'NOME-B SM': {
-    dog: validateDogForSM,
+  NKM: {
     results: {
-      '2023-04-15': NOME_B_CH_requirements,
-    },
-  },
-  NOWT: {
-    ALO: {
-      results: {
-        '2006-04-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
-        '2009-01-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
-        '2016-04-01': [{ type: 'NOU', result: 'NOU1', count: 1 }],
-        '2023-04-15': [{ type: 'NOU', result: 'NOU1', count: 1 }],
-      },
-    },
-    AVO: {
-      results: {
-        '2006-04-01': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
-        '2009-01-01': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
-        '2016-04-01': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
-        '2023-04-15': [{ type: 'NOWT', result: 'ALO1', count: 1 }],
-      },
-    },
-    VOI: {
-      results: {
-        '2006-04-01': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-        '2009-01-01': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-        '2016-04-01': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-        '2023-04-15': [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-      },
-    },
-  },
-  'NOWT SM': {
-    dog: validateDogForSM,
-    results: {
-      '2023-04-15': NOWT_CH_requirements,
+      '2016-04-01': [[{ count: 2, result: 'VOI1', type: 'NOME-B' }], [{ cert: true, count: 2, type: 'NOWT' }]],
+      '2023-04-15': [[{ count: 2, result: 'VOI1', type: 'NOME-B' }], [{ cert: true, count: 2, type: 'NOWT' }]],
     },
   },
   'NOME-A': {
     results: {
-      '2009-01-01': [[{ type: 'NOME-B', result: 'AVO1', count: 1 }], [{ type: 'NOWT', result: 'AVO1', count: 1 }]],
-      '2016-04-01': [[{ type: 'NOME-B', result: 'AVO1', count: 2 }], [{ type: 'NOWT', result: 'AVO1', count: 2 }]],
+      '2009-01-01': [[{ count: 1, result: 'AVO1', type: 'NOME-B' }], [{ count: 1, result: 'AVO1', type: 'NOWT' }]],
+      '2016-04-01': [[{ count: 2, result: 'AVO1', type: 'NOME-B' }], [{ count: 2, result: 'AVO1', type: 'NOWT' }]],
       '2023-04-15': [
-        [{ type: 'NOME-B', result: 'AVO1', count: 1 }],
-        [{ type: 'NOWT', result: 'AVO1', count: 1 }],
-        [{ type: 'NOME-A KV', result: 'EXC', count: 1 }],
-        [{ type: 'NOME-A KV', result: 'VG', count: 1 }],
-        [{ type: 'NOME-A KV', result: 'G', count: 1 }],
+        [{ count: 1, result: 'AVO1', type: 'NOME-B' }],
+        [{ count: 1, result: 'AVO1', type: 'NOWT' }],
+        [{ count: 1, result: 'EXC', type: 'NOME-A KV' }],
+        [{ count: 1, result: 'VG', type: 'NOME-A KV' }],
+        [{ count: 1, result: 'G', type: 'NOME-A KV' }],
       ],
     },
   },
@@ -138,10 +73,73 @@ export const REQUIREMENTS: { [key: string]: EventRequirement | EventClassRequire
       '2023-04-15': NOME_A_CH_requirements,
     },
   },
-  NKM: {
+  'NOME-B': {
+    ALO: {
+      results: {
+        '1991-01-01': [{ count: 1, result: 'NOU1', type: 'NOU' }],
+      },
+    },
+    AVO: {
+      results: {
+        '1991-01-01': [{ count: 1, result: 'ALO1', type: 'NOME-B' }],
+        '1999-01-01': [{ count: 2, result: 'ALO1', type: 'NOME-B' }],
+        '2006-04-01': [{ count: 1, result: 'ALO1', type: 'NOME-B' }],
+        '2009-01-01': [{ count: 1, result: 'ALO1', type: 'NOME-B' }],
+        '2016-04-01': [{ count: 2, result: 'ALO1', type: 'NOME-B' }],
+        '2023-04-15': [{ count: 1, result: 'ALO1', type: 'NOME-B' }],
+      },
+    },
+    VOI: {
+      results: {
+        '1977-01-01': [{ count: 1, result: 'AVO1', type: 'NOME-B' }],
+        '1986-01-01': [{ count: 2, result: 'AVO1', type: 'NOME-B' }],
+        '2006-04-01': [{ count: 1, result: 'AVO1', type: 'NOME-B' }],
+        '2009-01-01': [{ count: 2, result: 'AVO1', type: 'NOME-B' }],
+        '2016-04-01': [{ count: 2, result: 'AVO1', type: 'NOME-B' }],
+        '2023-04-15': [{ count: 1, result: 'AVO1', type: 'NOME-B' }],
+      },
+    },
+  },
+  'NOME-B SM': {
+    dog: validateDogForSM,
     results: {
-      '2016-04-01': [[{ type: 'NOME-B', result: 'VOI1', count: 2 }], [{ type: 'NOWT', cert: true, count: 2 }]],
-      '2023-04-15': [[{ type: 'NOME-B', result: 'VOI1', count: 2 }], [{ type: 'NOWT', cert: true, count: 2 }]],
+      '2023-04-15': NOME_B_CH_requirements,
+    },
+  },
+  NOU: {
+    age: 9,
+    breedCode: ['122', '111', '121', '312', '110', '263'],
+  },
+  NOWT: {
+    ALO: {
+      results: {
+        '2006-04-01': [{ count: 1, result: 'NOU1', type: 'NOU' }],
+        '2009-01-01': [{ count: 1, result: 'NOU1', type: 'NOU' }],
+        '2016-04-01': [{ count: 1, result: 'NOU1', type: 'NOU' }],
+        '2023-04-15': [{ count: 1, result: 'NOU1', type: 'NOU' }],
+      },
+    },
+    AVO: {
+      results: {
+        '2006-04-01': [{ count: 1, result: 'ALO1', type: 'NOWT' }],
+        '2009-01-01': [{ count: 1, result: 'ALO1', type: 'NOWT' }],
+        '2016-04-01': [{ count: 1, result: 'ALO1', type: 'NOWT' }],
+        '2023-04-15': [{ count: 1, result: 'ALO1', type: 'NOWT' }],
+      },
+    },
+    VOI: {
+      results: {
+        '2006-04-01': [{ count: 1, result: 'AVO1', type: 'NOWT' }],
+        '2009-01-01': [{ count: 1, result: 'AVO1', type: 'NOWT' }],
+        '2016-04-01': [{ count: 1, result: 'AVO1', type: 'NOWT' }],
+        '2023-04-15': [{ count: 1, result: 'AVO1', type: 'NOWT' }],
+      },
+    },
+  },
+  'NOWT SM': {
+    dog: validateDogForSM,
+    results: {
+      '2023-04-15': NOWT_CH_requirements,
     },
   },
 }

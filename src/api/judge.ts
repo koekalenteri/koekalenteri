@@ -1,5 +1,4 @@
 import type { Judge } from '../types'
-
 import http, { withToken } from './http'
 
 const PATH = '/admin/judge/'

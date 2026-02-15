@@ -1,12 +1,9 @@
 import type { ConfirmedEvent, DogEvent } from '../../../../types'
-
 import { isPast } from 'date-fns'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
-
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
 import { uniqueFn } from '../../../../lib/utils'
-
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
@@ -16,7 +13,6 @@ import {
 } from './atoms'
 
 export const adminEventSelector = selectorFamily<DogEvent, string | undefined>({
-  key: 'adminEventSelector',
   get:
     (eventId) =>
     ({ get }) => {
@@ -26,6 +22,7 @@ export const adminEventSelector = selectorFamily<DogEvent, string | undefined>({
       const events = get(adminEventsAtom)
       return events.find((e) => e.id === eventId) ?? get(adminNewEventAtom)
     },
+  key: 'adminEventSelector',
   set:
     (eventId) =>
     ({ get, set }, value) => {
@@ -42,21 +39,21 @@ export const adminEventSelector = selectorFamily<DogEvent, string | undefined>({
 })
 
 export const adminConfirmedEventSelector = selectorFamily<ConfirmedEvent | null, string | undefined>({
-  key: 'adminConfirmedEventSelector',
   get:
     (eventId) =>
     ({ get }) => {
       const event = get(adminEventSelector(eventId))
       return isConfirmedEvent(event) ? event : null
     },
+  key: 'adminConfirmedEventSelector',
 })
 
 export const adminCurrentEventSelector = selector({
-  key: 'adminCurrentEvent',
   get: ({ get }) => {
     const eventId = get(adminEventIdAtom)
     return eventId ? get(adminEventSelector(eventId)) : undefined
   },
+  key: 'adminCurrentEvent',
   set: ({ get, set }, newValue) => {
     if (!newValue || newValue instanceof DefaultValue) {
       return
@@ -70,7 +67,6 @@ export const adminCurrentEventSelector = selector({
 })
 
 export const adminFilteredEventsSelector = selector({
-  key: 'adminFilteredEvents',
   get: ({ get }) => {
     const events = get(adminEventsAtom)
     const filter = get(adminEventFilterTextAtom).toLocaleLowerCase(i18next.language)
@@ -88,10 +84,10 @@ export const adminFilteredEventsSelector = selector({
       )
     })
   },
+  key: 'adminFilteredEvents',
 })
 
 export const adminEventOrganizersSelector = selector({
-  key: 'adminEventOrganizers',
   get: ({ get }) => {
     const events = get(adminEventsAtom)
     return uniqueFn(
@@ -99,4 +95,5 @@ export const adminEventOrganizersSelector = selector({
       (a, b) => a.id === b.id
     ).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
+  key: 'adminEventOrganizers',
 })

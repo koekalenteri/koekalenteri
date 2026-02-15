@@ -1,11 +1,9 @@
 import i18next from 'i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { getOfficials } from '../../../../api/official'
 import { getUsers } from '../../../../api/user'
 import { idTokenAtom } from '../../../recoil'
 import { adminUsersAtom } from '../user'
-
 import { adminOfficialsAtom } from './atoms'
 
 export const useAdminOfficialsActions = () => {

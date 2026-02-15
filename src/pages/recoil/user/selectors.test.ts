@@ -1,8 +1,6 @@
 import { snapshot_UNSTABLE } from 'recoil'
-
 import * as userAPI from '../../../api/user'
 import * as error from '../../../lib/client/error'
-
 import { userSelector } from './selectors'
 
 describe('recoil/user', () => {

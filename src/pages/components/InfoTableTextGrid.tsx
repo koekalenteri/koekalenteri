@@ -3,10 +3,10 @@ import Grid from '@mui/material/Grid'
 
 const InfoTableTextGrid = styled(Grid)(({ theme }) => ({
   ...theme.typography.body2,
-  paddingLeft: 4,
-  whiteSpace: 'nowrap',
   overflow: 'hidden',
+  paddingLeft: 4,
   textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
 }))
 
 export default InfoTableTextGrid

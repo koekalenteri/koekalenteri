@@ -1,15 +1,13 @@
 import i18next from 'i18next'
 import { selector } from 'recoil'
-
 import { adminJudgeFilterAtom, adminJudgesAtom } from './atoms'
 
 export const adminActiveJudgesSelector = selector({
-  key: 'adminActiveJudges',
   get: ({ get }) => get(adminJudgesAtom).filter((item) => item.active),
+  key: 'adminActiveJudges',
 })
 
 export const adminFilteredJudgesSelector = selector({
-  key: 'adminFilteredJudges',
   get: ({ get }) => {
     const filter = get(adminJudgeFilterAtom).toLocaleLowerCase(i18next.language)
     const list = get(adminJudgesAtom)
@@ -24,4 +22,5 @@ export const adminFilteredJudgesSelector = selector({
         .includes(filter)
     )
   },
+  key: 'adminFilteredJudges',
 })

@@ -1,7 +1,5 @@
 import type { JsonRegistration } from '../../types'
-
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -29,7 +27,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
 
-  let existing
+  let existing: JsonRegistration | undefined
   const registration: JsonRegistration = parseJSONWithFallback(event.body)
   const update = !!registration.id
   if (update) {
@@ -42,8 +40,8 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
       return response(
         409,
         {
-          message: 'Conflict: Dog already registered to this event',
           cancelled: Boolean(alreadyRegistered.cancelled),
+          message: 'Conflict: Dog already registered to this event',
         },
         event
       )

@@ -1,14 +1,12 @@
 import type { PropsWithChildren, ReactNode } from 'react'
-
-import { useCallback } from 'react'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
+import { useCallback } from 'react'
 import { useRecoilState } from 'recoil'
-
 import { openedEventAtom } from '../recoil'
 
 interface Props {
@@ -25,12 +23,12 @@ export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithCh
   return (
     <Box
       sx={{
+        bgcolor: odd ? 'background.oddRow' : 'background.evenRow',
         borderBottom: '2px solid',
         borderColor: 'background.hover',
-        py: 1,
-        pr: 1,
-        bgcolor: odd ? 'background.oddRow' : 'background.evenRow',
         overflow: 'hidden',
+        pr: 1,
+        py: 1,
         width: '100%',
       }}
       component="article"

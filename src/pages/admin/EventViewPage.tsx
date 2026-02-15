@@ -1,8 +1,4 @@
 import type { EmailTemplateId, Registration } from '../../types'
-
-import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'
@@ -17,14 +13,15 @@ import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, isRegistrationClass } from '../../lib/registration'
+import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, isRegistrationClass } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
-
 import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
@@ -35,7 +32,6 @@ import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
 import SendMessageDialog from './eventViewPage/SendMessageDialog'
 import TabPanel from './eventViewPage/TabPanel'
 import Title from './eventViewPage/Title'
-import { useAdminRegistrationActions } from './recoil/registrations/actions'
 import {
   adminBackgroundActionsRunningAtom,
   adminConfirmedEventSelector,
@@ -43,6 +39,7 @@ import {
   adminEventRegistrationsSelector,
   adminRegistrationIdAtom,
 } from './recoil'
+import { useAdminRegistrationActions } from './recoil/registrations/actions'
 
 export default function EventViewPage() {
   const { t } = useTranslation()
@@ -180,9 +177,9 @@ export default function EventViewPage() {
               key={`tab-${eventClass}`}
               id={`tab-${eventClass}`}
               sx={{
+                bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
                 borderLeft: '1px solid',
                 borderLeftColor: 'divider',
-                bgcolor: missingClasses.includes(eventClass) ? '#fdeded' : undefined,
               }}
               label={eventClass}
             ></Tab>
@@ -219,9 +216,7 @@ export default function EventViewPage() {
       <Suspense
         fallback={
           <Modal open>
-            <>
-              <LoadingIndicator />
-            </>
+            <LoadingIndicator />
           </Modal>
         }
       >

@@ -1,6 +1,5 @@
 import type { updateEventStatsForRegistration } from '../lib/stats'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { jest } from '@jest/globals'
 
 // Mocks for CustomDynamoClient methods
@@ -26,9 +25,9 @@ jest.unstable_mockModule('../lib/stats', () => ({
 // Mock CONFIG to provide table names
 jest.unstable_mockModule('../config', () => ({
   CONFIG: {
+    eventStatsTable: 'event-stats-table',
     eventTable: 'event-table',
     registrationTable: 'registration-table',
-    eventStatsTable: 'event-stats-table',
   },
 }))
 
@@ -48,7 +47,7 @@ describe('BackfillEventStatsFunction', () => {
   })
 
   it('skips registrations if event is not found', async () => {
-    const registration = { id: 'reg1', eventId: 'event1', paidAmount: 10, cancelled: false, refundAmount: 0 }
+    const registration = { cancelled: false, eventId: 'event1', id: 'reg1', paidAmount: 10, refundAmount: 0 }
     mockReadAll.mockResolvedValueOnce([registration]) // registrations
     mockReadAll.mockResolvedValueOnce([]) // events (empty, so event not found)
     await handler()
@@ -57,18 +56,18 @@ describe('BackfillEventStatsFunction', () => {
 
   it('processes a single registration correctly', async () => {
     const registration = {
-      id: 'reg1',
-      eventId: 'event1',
-      paidAmount: 20,
       cancelled: false,
+      eventId: 'event1',
+      id: 'reg1',
+      paidAmount: 20,
       refundAmount: 0,
     }
     const event = {
+      endDate: '2025-01-02',
       id: 'event1',
       name: 'Test Event',
-      startDate: '2025-01-01',
-      endDate: '2025-01-02',
       organizer: { id: 'org1' },
+      startDate: '2025-01-01',
     }
     mockReadAll.mockResolvedValueOnce([registration]) // registrations
     mockReadAll.mockResolvedValueOnce([event]) // events
@@ -81,22 +80,22 @@ describe('BackfillEventStatsFunction', () => {
 
   it('processes multiple registrations correctly', async () => {
     const registrations = [
-      { id: 'reg1', eventId: 'event1', paidAmount: 10, cancelled: false, refundAmount: 0 },
-      { id: 'reg2', eventId: 'event1', paidAmount: 0, cancelled: true, refundAmount: 0 },
-      { id: 'reg3', eventId: 'event2', paidAmount: 15, cancelled: false, refundAmount: 5 },
+      { cancelled: false, eventId: 'event1', id: 'reg1', paidAmount: 10, refundAmount: 0 },
+      { cancelled: true, eventId: 'event1', id: 'reg2', paidAmount: 0, refundAmount: 0 },
+      { cancelled: false, eventId: 'event2', id: 'reg3', paidAmount: 15, refundAmount: 5 },
     ]
     const events = [
       {
-        id: 'event1',
-        startDate: '2025-01-01',
         endDate: '2025-01-02',
+        id: 'event1',
         organizer: { id: 'org1' },
+        startDate: '2025-01-01',
       },
       {
-        id: 'event2',
-        startDate: '2025-02-01',
         endDate: '2025-02-02',
+        id: 'event2',
         organizer: { id: 'org2' },
+        startDate: '2025-02-01',
       },
     ]
     mockReadAll.mockResolvedValueOnce(registrations) // registrations
@@ -112,8 +111,8 @@ describe('BackfillEventStatsFunction', () => {
 
   it('handles errors during processing', async () => {
     const registrations = [
-      { id: 'reg1', eventId: 'event1' },
-      { id: 'reg2', eventId: 'event2' },
+      { eventId: 'event1', id: 'reg1' },
+      { eventId: 'event2', id: 'reg2' },
     ]
     const events = [{ id: 'event1', organizer: { id: 'org1' } }]
     mockReadAll.mockResolvedValueOnce(registrations) // registrations

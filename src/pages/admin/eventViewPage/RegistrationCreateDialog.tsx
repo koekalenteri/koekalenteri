@@ -1,10 +1,7 @@
 import type { DogEvent, RegistrationClass } from '../../../types'
-
 import { useEffect } from 'react'
 import { useRecoilState, useResetRecoilState } from 'recoil'
-
 import { adminNewRegistrationAtom } from '../recoil'
-
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
@@ -29,9 +26,9 @@ export default function RegistrationCreateDialog({ event, eventClass, open, onCl
     ) {
       setRegistration({
         ...registration,
+        class: eventClass,
         eventId: event.id,
         eventType: event.eventType,
-        class: eventClass,
       })
     }
   }, [registration, event, setRegistration, eventClass, open])

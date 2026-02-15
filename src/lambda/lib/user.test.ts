@@ -1,7 +1,6 @@
 import type { JsonDbRecord, JsonUser, Official } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
-
 import { jest } from '@jest/globals'
 
 jest.useFakeTimers()
@@ -41,8 +40,9 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
     }
 
     readAll = (table?: string) => {
-      if (table && table.includes('event')) return mockEventReadAll(table)
-      if (table && table.includes('user-link')) return mockUserLinkReadAll(table)
+      if (table?.includes('event')) return mockEventReadAll(table)
+      if (table?.includes('user-link')) return mockUserLinkReadAll(table)
+      if (table?.includes('event')) return mockEventReadAll(table)
       return Promise.resolve([])
     }
 
@@ -77,38 +77,38 @@ const defaults: Omit<JsonDbRecord, 'id'> = {
   modifiedBy: 'system',
 }
 
-const admin: JsonUser = { ...defaults, id: 'a', name: 'admin', email: 'a@exmaple.com', admin: true }
-const judge: JsonUser = { ...defaults, id: 'b', name: 'judge', email: 'b@exmaple.com', judge: ['NOME-B'] }
-const officer: JsonUser = { ...defaults, id: 'c', name: 'officer', email: 'c@exmaple.com', officer: ['NOME-B'] }
+const admin: JsonUser = { ...defaults, admin: true, email: 'a@exmaple.com', id: 'a', name: 'admin' }
+const judge: JsonUser = { ...defaults, email: 'b@exmaple.com', id: 'b', judge: ['NOME-B'], name: 'judge' }
+const officer: JsonUser = { ...defaults, email: 'c@exmaple.com', id: 'c', name: 'officer', officer: ['NOME-B'] }
 const orgAdmin: JsonUser = {
   ...defaults,
+  email: 'd@exmaple.com',
   id: 'd',
   name: 'org admin',
-  email: 'd@exmaple.com',
   roles: { testOrg: 'admin' },
 }
 const orgSecretary: JsonUser = {
   ...defaults,
+  email: 'e@exmaple.com',
   id: 'e',
   name: 'org secretary',
-  email: 'e@exmaple.com',
   roles: { testOrg: 'secretary' },
 }
 const otherOrgAdmin: JsonUser = {
   ...defaults,
+  email: 'f@exmaple.com',
   id: 'f',
   name: 'other org admin',
-  email: 'f@exmaple.com',
   roles: { otherOrg: 'admin' },
 }
 const otherOrgSecretary: JsonUser = {
   ...defaults,
+  email: 'g@exmaple.com',
   id: 'g',
   name: 'other org secretary',
-  email: 'g@exmaple.com',
   roles: { otherOrg: 'secretary' },
 }
-const justUser: JsonUser = { ...defaults, id: 'h', name: 'common user', email: 'h@exmaple.com' }
+const justUser: JsonUser = { ...defaults, email: 'h@exmaple.com', id: 'h', name: 'common user' }
 
 const testUsers: JsonUser[] = [
   admin,
@@ -213,9 +213,9 @@ describe('lib/user', () => {
 
       expect(mockUserQuery).toHaveBeenCalledWith(
         expect.objectContaining({
+          index: 'gsiEmail',
           key: 'email = :email',
           values: { ':email': 'missing@example.com' },
-          index: 'gsiEmail',
         })
       )
       expect(warnSpy).toHaveBeenCalledWith('findUserByEmail: user not found', {
@@ -226,7 +226,7 @@ describe('lib/user', () => {
 
     it('findUserByEmail logs error when active users returned but exact normalized match missing', async () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-      mockUserQuery.mockResolvedValueOnce([{ ...defaults, id: 'u1', email: 'other@example.com', name: 'Other' }])
+      mockUserQuery.mockResolvedValueOnce([{ ...defaults, email: 'other@example.com', id: 'u1', name: 'Other' }])
 
       await expect(findUserByEmail('target@example.com')).resolves.toBeUndefined()
 
@@ -241,21 +241,21 @@ describe('lib/user', () => {
       mockUserQuery.mockResolvedValueOnce([
         {
           ...defaults,
-          id: 'deleted',
-          email: 'hit@example.com',
-          name: 'Deleted',
           deletedAt: '2024-01-01T00:00:00.000Z',
+          email: 'hit@example.com',
+          id: 'deleted',
+          name: 'Deleted',
         },
-        { ...defaults, id: 'active', email: 'hit@example.com', name: 'Active' },
+        { ...defaults, email: 'hit@example.com', id: 'active', name: 'Active' },
       ])
 
       await expect(findUserByEmail('Hit@example.com')).resolves.toEqual(
-        expect.objectContaining({ id: 'active', email: 'hit@example.com' })
+        expect.objectContaining({ email: 'hit@example.com', id: 'active' })
       )
     })
 
     it('updateUser delegates to write', async () => {
-      const user: JsonUser = { ...defaults, id: 'write-id', name: 'Writer', email: 'writer@example.com' }
+      const user: JsonUser = { ...defaults, email: 'writer@example.com', id: 'write-id', name: 'Writer' }
       mockUserWrite.mockResolvedValueOnce(user)
 
       await updateUser(user)
@@ -266,9 +266,9 @@ describe('lib/user', () => {
     it('setUserRole updates roles and sends access email when role is set', async () => {
       const user: JsonUser = {
         ...defaults,
+        email: 'role@example.com',
         id: 'role-user',
         name: 'Role User',
-        email: 'role@example.com',
         roles: {},
       }
       mockUserRead.mockResolvedValueOnce({ id: 'org1', name: 'Org One' })
@@ -279,8 +279,8 @@ describe('lib/user', () => {
         { id: 'role-user' },
         expect.objectContaining({
           set: expect.objectContaining({
-            roles: { org1: 'admin' },
             modifiedBy: 'tester',
+            roles: { org1: 'admin' },
           }),
         }),
         'user-table-not-found-in-env'
@@ -291,10 +291,10 @@ describe('lib/user', () => {
         expect.any(String),
         ['role@example.com'],
         expect.objectContaining({
-          orgName: 'Org One',
           admin: true,
-          secretary: false,
           link: 'https://app.example.com/login',
+          orgName: 'Org One',
+          secretary: false,
         })
       )
       expect(result.roles).toEqual({ org1: 'admin' })
@@ -303,9 +303,9 @@ describe('lib/user', () => {
     it('setUserRole removes role and does not send email when role is none', async () => {
       const user: JsonUser = {
         ...defaults,
+        email: 'role2@example.com',
         id: 'role-user-2',
         name: 'Role User 2',
-        email: 'role2@example.com',
         roles: { org1: 'secretary', org2: 'admin' },
       }
       mockUserRead.mockResolvedValueOnce({ id: 'org1', name: 'Org One' })
@@ -335,8 +335,8 @@ describe('lib/user', () => {
 
     it('mergeUsersByKcId merges into canonical and clears duplicates', () => {
       const now = '2024-05-30T20:00:00.000Z'
-      const a: JsonUser = { ...defaults, id: 'a', name: 'A', email: 'a@example.com', kcId: 1, officer: ['X'] }
-      const b: JsonUser = { ...defaults, id: 'b', name: 'B', email: 'b@example.com', kcId: 1, roles: { org: 'admin' } }
+      const a: JsonUser = { ...defaults, email: 'a@example.com', id: 'a', kcId: 1, name: 'A', officer: ['X'] }
+      const b: JsonUser = { ...defaults, email: 'b@example.com', id: 'b', kcId: 1, name: 'B', roles: { org: 'admin' } }
       const writes = __testables.mergeUsersByKcId(1, [a, b], now)
 
       expect(writes).toHaveLength(2)
@@ -345,16 +345,16 @@ describe('lib/user', () => {
       expect(canonical).toEqual(
         expect.objectContaining({
           kcId: 1,
-          roles: { org: 'admin' },
-          officer: ['X'],
           modifiedAt: now,
           modifiedBy: 'system',
+          officer: ['X'],
+          roles: { org: 'admin' },
         })
       )
       expect(cleared).toEqual(
         expect.objectContaining({
-          id: 'a',
           deletedAt: now,
+          id: 'a',
           modifiedAt: now,
           modifiedBy: 'system',
         })
@@ -364,27 +364,27 @@ describe('lib/user', () => {
     it('mergeUsersByKcId merges and truncates deduplicated emailHistory to latest 10', () => {
       const now = '2024-05-30T20:00:00.000Z'
       const many = Array.from({ length: 12 }).map((_, i) => ({
-        email: `e${i}@example.com`,
         changedAt: `2024-05-${String(i + 1).padStart(2, '0')}T00:00:00.000Z`,
+        email: `e${i}@example.com`,
         source: 'kl' as const,
       }))
 
       const a: JsonUser = {
         ...defaults,
-        id: 'a',
-        name: 'A',
         email: 'a@example.com',
-        kcId: 1,
         emailHistory: [many[0], many[1], many[2], many[2]],
+        id: 'a',
+        kcId: 1,
+        name: 'A',
       }
       const b: JsonUser = {
         ...defaults,
-        id: 'b',
-        name: 'B',
         email: 'b@example.com',
-        kcId: 1,
-        roles: { org: 'admin' },
         emailHistory: many,
+        id: 'b',
+        kcId: 1,
+        name: 'B',
+        roles: { org: 'admin' },
       }
 
       const writes = __testables.mergeUsersByKcId(1, [a, b], now)
@@ -396,27 +396,27 @@ describe('lib/user', () => {
     })
 
     it('mergeUsersByKcId returns empty when only one user is provided', () => {
-      const one: JsonUser = { ...defaults, id: 'only', name: 'Only User', email: 'only@example.com', kcId: 42 }
+      const one: JsonUser = { ...defaults, email: 'only@example.com', id: 'only', kcId: 42, name: 'Only User' }
       expect(__testables.mergeUsersByKcId(42, [one], '2024-05-30T20:00:00.000Z')).toEqual([])
     })
 
     it('toEventUser maps JsonUser to a compact event user shape', () => {
       const u: JsonUser = {
         ...defaults,
-        id: 'id1',
-        name: 'Name',
         email: 'e@example.com',
+        id: 'id1',
         kcId: 123,
-        phone: 'p',
         location: 'l',
+        name: 'Name',
+        phone: 'p',
       }
       expect(__testables.toEventUser(u, { id: 'fallback' })).toEqual({
-        id: 'id1',
-        name: 'Name',
         email: 'e@example.com',
-        phone: 'p',
-        location: 'l',
+        id: 'id1',
         kcId: 123,
+        location: 'l',
+        name: 'Name',
+        phone: 'p',
       })
       expect(__testables.toEventUser(undefined, { id: 'fallback', name: 'F' })).toEqual({ id: 'fallback', name: 'F' })
       expect(__testables.toEventUser(undefined, undefined)).toEqual({})
@@ -427,8 +427,8 @@ describe('lib/user', () => {
     const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
     const mockBatchWrite = jest.fn<CustomDynamoClient['batchWrite']>()
     const mockDB = {
-      readAll: mockReadAll,
       batchWrite: mockBatchWrite,
+      readAll: mockReadAll,
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty judges array', async () => {
@@ -440,20 +440,20 @@ describe('lib/user', () => {
 
     it('should add user from official', async () => {
       const added1: Official = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'surname firstname',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
       const added2: Official = {
-        id: 333,
-        name: 'dredd official',
-        email: 'dredd@example.com',
         district: 'some district',
+        email: 'dredd@example.com',
         eventTypes: ['NOME-A', 'NOU'],
-        phone: 'phone',
+        id: 333,
         location: 'location',
+        name: 'dredd official',
+        phone: 'phone',
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'officer')
@@ -466,21 +466,21 @@ describe('lib/user', () => {
       expect(written.find((u) => u.kcId === 222)).toEqual(
         expect.objectContaining({
           email: 'other@example.com',
-          kcEmail: 'other@example.com',
-          officer: ['NOME-A'],
-          name: 'firstname surname',
           id: expect.stringMatching(/^test-id-/),
+          kcEmail: 'other@example.com',
+          name: 'firstname surname',
+          officer: ['NOME-A'],
         })
       )
       expect(written.find((u) => u.kcId === 333)).toEqual(
         expect.objectContaining({
           email: 'dredd@example.com',
-          kcEmail: 'dredd@example.com',
-          officer: ['NOME-A', 'NOU'],
-          name: 'official dredd',
-          phone: 'phone',
-          location: 'location',
           id: expect.stringMatching(/^test-id-/),
+          kcEmail: 'dredd@example.com',
+          location: 'location',
+          name: 'official dredd',
+          officer: ['NOME-A', 'NOU'],
+          phone: 'phone',
         })
       )
       expect(mockBatchWrite.mock.calls[0]?.[1]).toBe('user-table-not-found-in-env')
@@ -493,25 +493,25 @@ describe('lib/user', () => {
         createdAt: '2024-05-30T20:00:00.000Z',
         createdBy: 'system',
         email: 'old@example.com',
+        emailHistory: [],
         id: 'test-id',
-        officer: ['NOME-A', 'NOU'],
         kcId: 333,
         location: 'location',
         modifiedAt: '2024-05-30T20:00:00.000Z',
         modifiedBy: 'system',
         name: 'official dredd',
+        officer: ['NOME-A', 'NOU'],
         phone: 'phone',
-        emailHistory: [],
       }
 
       mockReadAll.mockResolvedValueOnce([existing])
 
       const official: Official = {
+        district: 'other district',
+        email: 'dredd@example.com',
+        eventTypes: ['NOME-A'],
         id: 333,
         name: 'dredd official',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
         phone: 'new phone',
       }
 
@@ -523,15 +523,15 @@ describe('lib/user', () => {
             createdAt: '2024-05-30T20:00:00.000Z',
             createdBy: 'system',
             email: 'dredd@example.com',
-            kcEmail: 'dredd@example.com',
-            emailHistory: [{ email: 'old@example.com', changedAt: '2024-05-30T20:00:00.000Z', source: 'kl' }],
+            emailHistory: [{ changedAt: '2024-05-30T20:00:00.000Z', email: 'old@example.com', source: 'kl' }],
             id: 'test-id',
-            officer: ['NOME-A'],
+            kcEmail: 'dredd@example.com',
             kcId: 333,
             location: 'location',
             modifiedAt: '2024-05-30T20:00:00.000Z',
             modifiedBy: 'system',
             name: 'official dredd',
+            officer: ['NOME-A'],
             phone: 'new phone',
           },
         ],
@@ -539,7 +539,7 @@ describe('lib/user', () => {
       )
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(logSpy).toHaveBeenCalledWith(
-        'updating user from item: dredd official. changed props: email, officer, phone, emailHistory, kcEmail'
+        'updating user from item: dredd official. changed props: email, emailHistory, officer, phone, kcEmail'
       )
     })
 
@@ -548,26 +548,26 @@ describe('lib/user', () => {
         createdAt: '2024-05-30T20:00:00.000Z',
         createdBy: 'system',
         email: 'old@example.com',
+        emailHistory: [],
         id: 'test-id',
-        officer: ['NOME-A', 'NOU'],
         kcId: 333,
         location: 'location',
         modifiedAt: '2024-05-30T20:00:00.000Z',
         modifiedBy: 'system',
         name: 'official dredd',
+        officer: ['NOME-A', 'NOU'],
         phone: 'phone',
-        emailHistory: [],
       }
 
       mockReadAll.mockResolvedValueOnce([existing])
       mockUserLinkReadAll.mockResolvedValueOnce([{ cognitoUser: 'sub-1', userId: 'test-id' }])
 
       const official: Official = {
+        district: 'other district',
+        email: 'dredd@example.com',
+        eventTypes: ['NOME-A'],
         id: 333,
         name: 'dredd official',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
         phone: 'new phone',
       }
 
@@ -579,15 +579,15 @@ describe('lib/user', () => {
             createdAt: '2024-05-30T20:00:00.000Z',
             createdBy: 'system',
             email: 'old@example.com',
-            kcEmail: 'dredd@example.com',
             emailHistory: [],
             id: 'test-id',
-            officer: ['NOME-A'],
+            kcEmail: 'dredd@example.com',
             kcId: 333,
             location: 'location',
             modifiedAt: '2024-05-30T20:00:00.000Z',
             modifiedBy: 'system',
             name: 'official dredd',
+            officer: ['NOME-A'],
             phone: 'new phone',
           },
         ],
@@ -600,20 +600,20 @@ describe('lib/user', () => {
 
     it('should add user from judge', async () => {
       const added1: PartialJsonJudge = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'surname firstname',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
       const added2: PartialJsonJudge = {
-        id: 333,
-        name: 'dredd judge',
-        email: 'dredd@example.com',
         district: 'some district',
+        email: 'dredd@example.com',
         eventTypes: ['NOME-A', 'NOU'],
-        phone: 'phone',
+        id: 333,
         location: 'location',
+        name: 'dredd judge',
+        phone: 'phone',
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'judge')
@@ -626,21 +626,22 @@ describe('lib/user', () => {
       expect(written.find((u) => u.kcId === 222)).toEqual(
         expect.objectContaining({
           email: 'other@example.com',
-          kcEmail: 'other@example.com',
-          judge: ['NOME-A'],
-          name: 'firstname surname',
           id: expect.stringMatching(/^test-id-/),
+          judge: ['NOME-A'],
+          kcEmail: 'other@example.com',
+          name: 'firstname surname',
         })
       )
       expect(written.find((u) => u.kcId === 333)).toEqual(
         expect.objectContaining({
           email: 'dredd@example.com',
-          kcEmail: 'dredd@example.com',
+          id: expect.stringMatching(/^test-id-/),
+
           judge: ['NOME-A', 'NOU'],
+          kcEmail: 'dredd@example.com',
+          location: 'location',
           name: 'judge dredd',
           phone: 'phone',
-          location: 'location',
-          id: expect.stringMatching(/^test-id-/),
         })
       )
       expect(mockBatchWrite.mock.calls[0]?.[1]).toBe('user-table-not-found-in-env')
@@ -666,11 +667,11 @@ describe('lib/user', () => {
       mockReadAll.mockResolvedValueOnce([existing])
 
       const judge: PartialJsonJudge = {
+        district: 'other district',
+        email: 'dredd@example.com',
+        eventTypes: ['NOME-A'],
         id: 333,
         name: 'dredd judge',
-        email: 'dredd@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
         phone: 'new phone',
       }
 
@@ -682,9 +683,9 @@ describe('lib/user', () => {
             createdAt: '2024-05-30T20:00:00.000Z',
             createdBy: 'system',
             email: 'dredd@example.com',
-            kcEmail: 'dredd@example.com',
             id: 'test-id',
             judge: ['NOME-A'],
+            kcEmail: 'dredd@example.com',
             kcId: 333,
             location: 'location',
             modifiedAt: '2024-05-30T20:00:00.000Z',
@@ -704,18 +705,18 @@ describe('lib/user', () => {
     it('merges duplicate users by kcId (KL email changed) and updates event official/secretary references', async () => {
       const canonical: JsonUser = {
         ...defaults,
-        id: 'canon',
-        name: 'Official Person',
         email: 'old@example.com',
+        id: 'canon',
         kcId: 777,
+        name: 'Official Person',
         officer: ['NOME-A'],
       }
       const dupe: JsonUser = {
         ...defaults,
-        id: 'dupe',
-        name: 'Official Person',
         email: 'new@example.com',
+        id: 'dupe',
         kcId: 777,
+        name: 'Official Person',
         officer: ['NOU'],
         roles: { testOrg: 'admin' },
       }
@@ -724,18 +725,18 @@ describe('lib/user', () => {
 
       mockEventReadAll.mockResolvedValueOnce([
         {
-          id: 'evt-1',
-          createdAt: defaults.createdAt,
-          createdBy: defaults.createdBy,
-          modifiedAt: defaults.modifiedAt,
-          modifiedBy: defaults.modifiedBy,
           classes: [],
           cost: 0,
+          createdAt: defaults.createdAt,
+          createdBy: defaults.createdBy,
           description: '',
           endDate: '2024-06-01T00:00:00.000Z',
           eventType: 'NOME-A',
+          id: 'evt-1',
           judges: [],
           location: 'loc',
+          modifiedAt: defaults.modifiedAt,
+          modifiedBy: defaults.modifiedBy,
           name: 'evt',
           // Point at the *non-canonical* id so the sync must rewrite it.
           official: { id: 'canon', name: 'Official Person' },
@@ -748,11 +749,11 @@ describe('lib/user', () => {
       ])
 
       const fromKl: Official = {
+        district: 'district',
+        email: 'Newest@Example.com',
+        eventTypes: ['NOME-A'],
         id: 777,
         name: 'person official',
-        email: 'Newest@Example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
@@ -783,20 +784,20 @@ describe('lib/user', () => {
     it('does not match incoming item to soft-deleted user by email', async () => {
       const deletedExisting: JsonUser = {
         ...defaults,
+        deletedAt: '2024-01-01T00:00:00.000Z',
+        email: 'same@example.com',
         id: 'deleted-1',
         name: 'Deleted User',
-        email: 'same@example.com',
-        deletedAt: '2024-01-01T00:00:00.000Z',
       }
 
       mockReadAll.mockResolvedValueOnce([deletedExisting])
 
       const fromKl: Official = {
+        district: 'district',
+        email: 'same@example.com',
+        eventTypes: ['NOME-A'],
         id: 999,
         name: 'user same',
-        email: 'same@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
@@ -805,12 +806,12 @@ describe('lib/user', () => {
       expect(writeItems).toHaveLength(1)
       expect(writeItems[0]).toEqual(
         expect.objectContaining({
-          id: expect.stringMatching(/^test-id-/),
           email: 'same@example.com',
+          id: expect.stringMatching(/^test-id-/),
           kcEmail: 'same@example.com',
           kcId: 999,
-          officer: ['NOME-A'],
           name: 'same user',
+          officer: ['NOME-A'],
         })
       )
       expect(writeItems[0].id).not.toBe('deleted-1')
@@ -819,26 +820,26 @@ describe('lib/user', () => {
     it('does not write when matched user has no effective changes', async () => {
       const existing: JsonUser = {
         ...defaults,
-        id: 'same-user',
-        name: 'official dredd',
         email: 'dredd@example.com',
+        id: 'same-user',
         kcEmail: 'dredd@example.com',
         kcId: 333,
+        location: 'location',
+        name: 'official dredd',
         officer: ['NOME-A'],
         phone: 'phone',
-        location: 'location',
       }
 
       mockReadAll.mockResolvedValueOnce([existing])
 
       const official: Official = {
-        id: 333,
-        name: 'dredd official',
-        email: 'dredd@example.com',
         district: 'district',
+        email: 'dredd@example.com',
         eventTypes: ['NOME-A'],
-        phone: 'phone',
+        id: 333,
         location: 'location',
+        name: 'dredd official',
+        phone: 'phone',
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [official], 'officer')
@@ -849,10 +850,10 @@ describe('lib/user', () => {
     it('matches existing user by email when kcId is missing', async () => {
       const existing: JsonUser = {
         ...defaults,
-        id: 'by-email',
-        name: 'official dredd',
         email: 'dredd@example.com',
+        id: 'by-email',
         kcEmail: 'dredd@example.com',
+        name: 'official dredd',
         officer: ['NOME-A'],
         phone: 'old phone',
       }
@@ -860,11 +861,11 @@ describe('lib/user', () => {
       mockReadAll.mockResolvedValueOnce([existing])
 
       const official: Official = {
+        district: 'district',
+        email: 'dredd@example.com',
+        eventTypes: ['NOME-A'],
         id: 333,
         name: 'dredd official',
-        email: 'dredd@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
         phone: 'new phone',
       }
 
@@ -880,35 +881,35 @@ describe('lib/user', () => {
     it('updates event official and preserves/remaps secretary consistently', async () => {
       const canonical: JsonUser = {
         ...defaults,
-        id: 'canon',
-        name: 'Official Person',
         email: 'canon@example.com',
+        id: 'canon',
         kcId: 888,
+        name: 'Official Person',
       }
       const dupe: JsonUser = {
         ...defaults,
-        id: 'dupe',
-        name: 'Official Person',
         email: 'dupe@example.com',
+        id: 'dupe',
         kcId: 888,
+        name: 'Official Person',
         roles: { testOrg: 'admin' },
       }
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
       mockEventReadAll.mockResolvedValueOnce([
         {
-          id: 'evt-2',
-          createdAt: defaults.createdAt,
-          createdBy: defaults.createdBy,
-          modifiedAt: defaults.modifiedAt,
-          modifiedBy: defaults.modifiedBy,
           classes: [],
           cost: 0,
+          createdAt: defaults.createdAt,
+          createdBy: defaults.createdBy,
           description: '',
           endDate: '2024-06-01T00:00:00.000Z',
           eventType: 'NOME-A',
+          id: 'evt-2',
           judges: [],
           location: 'loc',
+          modifiedAt: defaults.modifiedAt,
+          modifiedBy: defaults.modifiedBy,
           name: 'evt2',
           official: { id: 'canon', name: 'Official Person' },
           organizer: { id: 'org', name: 'org' },
@@ -919,11 +920,11 @@ describe('lib/user', () => {
       ])
 
       const fromKl: Official = {
+        district: 'district',
+        email: 'latest@example.com',
+        eventTypes: ['NOME-A'],
         id: 888,
         name: 'person official',
-        email: 'latest@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
@@ -942,35 +943,35 @@ describe('lib/user', () => {
     it('updates event official and keeps secretary as-is when no secretary mapping exists', async () => {
       const canonical: JsonUser = {
         ...defaults,
-        id: 'canon',
-        name: 'Official Person',
         email: 'canon@example.com',
+        id: 'canon',
         kcId: 888,
+        name: 'Official Person',
       }
       const dupe: JsonUser = {
         ...defaults,
-        id: 'dupe',
-        name: 'Official Person',
         email: 'dupe@example.com',
+        id: 'dupe',
         kcId: 888,
+        name: 'Official Person',
         roles: { testOrg: 'admin' },
       }
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
       mockEventReadAll.mockResolvedValueOnce([
         {
-          id: 'evt-official-only',
-          createdAt: defaults.createdAt,
-          createdBy: defaults.createdBy,
-          modifiedAt: defaults.modifiedAt,
-          modifiedBy: defaults.modifiedBy,
           classes: [],
           cost: 0,
+          createdAt: defaults.createdAt,
+          createdBy: defaults.createdBy,
           description: '',
           endDate: '2024-06-01T00:00:00.000Z',
           eventType: 'NOME-A',
+          id: 'evt-official-only',
           judges: [],
           location: 'loc',
+          modifiedAt: defaults.modifiedAt,
+          modifiedBy: defaults.modifiedBy,
           name: 'evt official only',
           official: { id: 'canon', name: 'Official Person' },
           organizer: { id: 'org', name: 'org' },
@@ -981,11 +982,11 @@ describe('lib/user', () => {
       ])
 
       const fromKl: Official = {
+        district: 'district',
+        email: 'latest@example.com',
+        eventTypes: ['NOME-A'],
         id: 888,
         name: 'person official',
-        email: 'latest@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
@@ -1005,52 +1006,52 @@ describe('lib/user', () => {
     it('keeps flow stable when only secretary candidate would be remapped', async () => {
       const canonical: JsonUser = {
         ...defaults,
-        id: 'canon-sec',
-        name: 'Secretary Person',
-        email: 'canon-sec@example.com',
-        kcId: 990,
         admin: true,
+        email: 'canon-sec@example.com',
+        id: 'canon-sec',
+        kcId: 990,
+        name: 'Secretary Person',
       }
       const dupe: JsonUser = {
         ...defaults,
-        id: 'dupe-sec',
-        name: 'Secretary Person',
         email: 'dupe-sec@example.com',
+        id: 'dupe-sec',
         kcId: 990,
+        name: 'Secretary Person',
       }
 
       mockReadAll.mockResolvedValueOnce([canonical, dupe])
       mockUserLinkReadAll.mockResolvedValueOnce([{ cognitoUser: 'sub-canon-sec', userId: 'canon-sec' }])
       mockEventReadAll.mockResolvedValueOnce([
         {
-          id: 'evt-secretary-only',
-          createdAt: defaults.createdAt,
-          createdBy: defaults.createdBy,
-          modifiedAt: defaults.modifiedAt,
-          modifiedBy: defaults.modifiedBy,
           classes: [],
           cost: 0,
+          createdAt: defaults.createdAt,
+          createdBy: defaults.createdBy,
           description: '',
           endDate: '2024-06-01T00:00:00.000Z',
           eventType: 'NOME-A',
+          id: 'evt-secretary-only',
           judges: [],
           location: 'loc',
+          modifiedAt: defaults.modifiedAt,
+          modifiedBy: defaults.modifiedBy,
           name: 'evt secretary only',
           official: { id: 'official-keep', name: 'Official Keep' },
-          secretary: { id: 'dupe-sec', name: 'Secretary Person' },
           organizer: { id: 'org', name: 'org' },
           places: 0,
+          secretary: { id: 'dupe-sec', name: 'Secretary Person' },
           startDate: '2024-06-01T00:00:00.000Z',
           state: 'draft',
         },
       ])
 
       const fromKl: Official = {
+        district: 'district',
+        email: 'latest-sec@example.com',
+        eventTypes: ['NOME-A'],
         id: 990,
         name: 'person secretary',
-        email: 'latest-sec@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
@@ -1061,11 +1062,11 @@ describe('lib/user', () => {
 
     it('logs and rethrows when batch write fails', async () => {
       const added: Official = {
+        district: 'district',
+        email: 'failing@example.com',
+        eventTypes: ['NOME-A'],
         id: 111,
         name: 'surname firstname',
-        email: 'failing@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
       const err = new Error('batch write failed')
       mockBatchWrite.mockRejectedValueOnce(err)
@@ -1082,29 +1083,29 @@ describe('lib/user', () => {
     it('skips invalid new item email while still updating valid matched existing by kcId', async () => {
       const existing: JsonUser = {
         ...defaults,
-        id: 'existing-1',
-        name: 'existing user',
         email: 'existing@example.com',
+        id: 'existing-1',
         kcEmail: 'existing@example.com',
         kcId: 444,
+        name: 'existing user',
         officer: ['NOME-A'],
       }
 
       mockReadAll.mockResolvedValueOnce([existing])
 
       const invalidNew: Official = {
+        district: 'district',
+        email: 'not-an-email',
+        eventTypes: ['NOME-A'],
         id: 555,
         name: 'invalid new',
-        email: 'not-an-email',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
       const validExistingMatch: Official = {
+        district: 'district',
+        email: 'existing@example.com',
+        eventTypes: ['NOME-B'],
         id: 444,
         name: 'updated existing',
-        email: 'existing@example.com',
-        district: 'district',
-        eventTypes: ['NOME-B'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [invalidNew, validExistingMatch], 'officer')
@@ -1115,8 +1116,8 @@ describe('lib/user', () => {
         expect.objectContaining({
           id: 'existing-1',
           kcId: 444,
-          officer: ['NOME-B'],
           name: 'existing updated',
+          officer: ['NOME-B'],
         })
       )
       expect(logSpy).not.toHaveBeenCalledWith('skipping item due to invalid email: invalid new, email: not-an-email')
@@ -1127,50 +1128,50 @@ describe('lib/user', () => {
       // This can create a chain A -> B and B -> C, which should be compressed to A -> C.
       const kc1Dupe: JsonUser = {
         ...defaults,
-        id: 'A',
-        name: 'User A',
         email: 'a@example.com',
+        id: 'A',
         kcId: 1001,
+        name: 'User A',
       }
       const kc1Canonical: JsonUser = {
         ...defaults,
-        id: 'B',
-        name: 'User B canonical for kc1',
         email: 'b@example.com',
+        id: 'B',
         kcId: 1001,
+        name: 'User B canonical for kc1',
         roles: { org1: 'admin' },
       }
       const kc2DupeSameIdAsKc1Canonical: JsonUser = {
         ...defaults,
-        id: 'B',
-        name: 'User B duplicate for kc2',
         email: 'b2@example.com',
+        id: 'B',
         kcId: 2002,
+        name: 'User B duplicate for kc2',
       }
       const kc2Canonical: JsonUser = {
         ...defaults,
-        id: 'C',
-        name: 'User C canonical for kc2',
         email: 'c@example.com',
+        id: 'C',
         kcId: 2002,
+        name: 'User C canonical for kc2',
         roles: { org2: 'admin' },
       }
 
       mockReadAll.mockResolvedValueOnce([kc1Dupe, kc1Canonical, kc2DupeSameIdAsKc1Canonical, kc2Canonical])
       mockEventReadAll.mockResolvedValueOnce([
         {
-          id: 'evt-path-compress',
-          createdAt: defaults.createdAt,
-          createdBy: defaults.createdBy,
-          modifiedAt: defaults.modifiedAt,
-          modifiedBy: defaults.modifiedBy,
           classes: [],
           cost: 0,
+          createdAt: defaults.createdAt,
+          createdBy: defaults.createdBy,
           description: '',
           endDate: '2024-06-01T00:00:00.000Z',
           eventType: 'NOME-A',
+          id: 'evt-path-compress',
           judges: [],
           location: 'loc',
+          modifiedAt: defaults.modifiedAt,
+          modifiedBy: defaults.modifiedBy,
           name: 'evt-path-compress',
           official: { id: 'A', name: 'Old Official A' },
           organizer: { id: 'org', name: 'org' },
@@ -1181,11 +1182,11 @@ describe('lib/user', () => {
       ])
 
       const fromKl: Official = {
+        district: 'district',
+        email: 'b@example.com',
+        eventTypes: ['NOME-A'],
         id: 1001,
         name: 'user b canonical for kc1',
-        email: 'b@example.com',
-        district: 'district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')

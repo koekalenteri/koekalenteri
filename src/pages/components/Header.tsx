@@ -1,18 +1,16 @@
-import { Suspense, useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 import ManageAccountsOutlined from '@mui/icons-material/ManageAccountsOutlined'
 import Menu from '@mui/icons-material/Menu'
 import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import { Suspense, useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { useRecoilValue } from 'recoil'
-
 import logo from '../../assets/snj-logo.png'
 import { Path } from '../../routeConfig'
 import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
-
 import AppBarButton from './header/AppBarButton'
 import HelpMenu from './header/HelpMenu'
 import LanguageMenu from './header/LanguageMenu'
@@ -43,9 +41,9 @@ const Header = ({ toggleMenu }: Props) => {
 
   return (
     <AppBar position="fixed" elevation={0}>
-      <Toolbar variant="dense" disableGutters sx={{ width: '100%', px: 1, height: 36, minHeight: 36 }}>
+      <Toolbar variant="dense" disableGutters sx={{ height: 36, minHeight: 36, px: 1, width: '100%' }}>
         {toggleMenu ? (
-          <IconButton color="secondary" sx={{ display: { sm: 'inline-flex', md: 'none' } }} onClick={toggleMenu}>
+          <IconButton color="secondary" sx={{ display: { md: 'none', sm: 'inline-flex' } }} onClick={toggleMenu}>
             <Menu />
           </IconButton>
         ) : null}
@@ -57,7 +55,7 @@ const Header = ({ toggleMenu }: Props) => {
               width="20"
               height="28"
               alt="Suomen noutajakoirajärjestö"
-              style={{ marginTop: '-4px', marginBottom: '-4px' }}
+              style={{ marginBottom: '-4px', marginTop: '-4px' }}
             />
           }
           label="home"
@@ -80,7 +78,7 @@ const Header = ({ toggleMenu }: Props) => {
           color="#fdfdfd"
           noWrap
           component="div"
-          sx={{ ml: 1, flexGrow: 1, flexShrink: 10000 }}
+          sx={{ flexGrow: 1, flexShrink: 10000, ml: 1 }}
         ></Typography>
         <Suspense>
           <LanguageMenu />

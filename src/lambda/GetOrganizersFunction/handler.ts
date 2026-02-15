@@ -1,7 +1,5 @@
 import type { Organizer } from '../../types'
-
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'

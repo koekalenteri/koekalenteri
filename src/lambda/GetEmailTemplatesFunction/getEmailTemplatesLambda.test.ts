@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 
@@ -24,8 +24,8 @@ const { default: getEmailTemplatesLambda } = await import('./handler')
 
 describe('getEmailTemplatesLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
   } as any
 
   beforeEach(() => {
@@ -45,8 +45,8 @@ describe('getEmailTemplatesLambda', () => {
   it('returns all email templates if authorized', async () => {
     const user = { id: 'user1', name: 'Test User' }
     const templates = [
-      { id: 'template1', name: 'Template 1', subject: 'Subject 1', body: 'Body 1' },
-      { id: 'template2', name: 'Template 2', subject: 'Subject 2', body: 'Body 2' },
+      { body: 'Body 1', id: 'template1', name: 'Template 1', subject: 'Subject 1' },
+      { body: 'Body 2', id: 'template2', name: 'Template 2', subject: 'Subject 2' },
     ]
 
     mockAuthorize.mockResolvedValueOnce(user)

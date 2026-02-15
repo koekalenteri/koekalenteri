@@ -1,6 +1,4 @@
 import type { PublicDogEvent, Registration } from '../../../../../types'
-
-import { useTranslation } from 'react-i18next'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -10,11 +8,11 @@ import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
-
+import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../../../../lib/money'
 import { priorityDescriptionKey } from '../../../../../lib/registration'
-import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import { TooltipIcon } from '../../../../components/IconsTooltip'
+import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../../components/RankingPoints'
 
 export const hasRegistrationTooltipContent = ({
@@ -62,7 +60,7 @@ const RegistrationTooltipContent = ({
 }: RegistrationTooltipContentProps) => {
   const { t } = useTranslation()
 
-  if (!hasRegistrationTooltipContent({ reg, priority, manualResultCount, rankingPoints })) return null
+  if (!hasRegistrationTooltipContent({ manualResultCount, priority, rankingPoints, reg })) return null
 
   // Get priority description
   const key = priority ? priorityDescriptionKey(event, reg) : null
@@ -149,13 +147,13 @@ const RegistrationTooltipContent = ({
         key="internal-notes"
         condition={!!reg.internalNotes?.trim()}
         icon={<SpeakerNotesOutlined fontSize="small" />}
-        text={'Sisäinen kommentti: ' + reg.internalNotes}
+        text={`Sisäinen kommentti: ${reg.internalNotes}`}
       />
       <TooltipIcon
         key="ranking-points"
         condition={rankingPoints > 0}
         icon={<RankingPoints points={rankingPoints} />}
-        text={'Karsintapisteet: ' + rankingPoints}
+        text={`Karsintapisteet: ${rankingPoints}`}
       />
     </>
   )

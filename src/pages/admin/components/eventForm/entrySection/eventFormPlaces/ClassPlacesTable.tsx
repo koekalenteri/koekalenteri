@@ -1,14 +1,11 @@
 import type { DeepPartial, EventClass } from '../../../../../../types'
 import type { PartialEvent } from '../../types'
-
-import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-
+import { useTranslation } from 'react-i18next'
 import { getEventClassesByDays, getUniqueEventClasses } from '../../../../../../lib/event'
 import { calculateTotalFromClasses } from '../../../../../../lib/places'
 import { NumberInput } from '../../../../../components/NumberInput'
-
 import BasePlacesTable from './BasePlacesTable'
 import PlacesDisplay from './PlacesDisplay'
 

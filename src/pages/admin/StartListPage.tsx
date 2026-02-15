@@ -1,8 +1,4 @@
 import type { Registration, RegistrationTime } from '../../types'
-
-import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useParams } from 'react-router'
 import { TableBody } from '@aws-amplify/ui-react'
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -11,13 +7,14 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useParams } from 'react-router'
 import { useRecoilValue } from 'recoil'
-
 import { keysOf } from '../../lib/typeGuards'
 import { hasAdminAccessSelector, useUserActions } from '../recoil'
-
-import StartListGroup from './startListPage/StartListGroup'
 import { adminEventRegistrationsAtom } from './recoil'
+import StartListGroup from './startListPage/StartListGroup'
 
 type GroupedRegs = Record<string | number, Record<string, Record<RegistrationTime, Registration[]>>>
 
