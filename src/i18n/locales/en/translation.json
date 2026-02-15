@@ -297,7 +297,14 @@
     "actions": {
       "cancel": "Cancel registration",
       "edit": "Edit registration",
-      "pay": "Pay registration"
+      "pay": "Pay registration",
+      "moveToGroup": "Move to group",
+      "moveToPosition": "Move to start position",
+      "moveToReserve": "Move to reserve",
+      "moveToParticipants": "Move to participants",
+      "moveBackToRegistered": "Move dog back to registered list",
+      "refundPayment": "Refund payment",
+      "sendMessage": "Send message"
     },
     "agreeToTerms": "Terms and privacy policy",
     "breeder": "Breeder information",
@@ -463,7 +470,23 @@
       "ap": "morning",
       "ip": "afternoon",
       "kp": "no groups"
-    }
+    },
+    "moveToGroupDialog": {
+      "title": "Move dog to group",
+      "selectGroup": "Select group",
+      "currentGroup": "(current group)",
+      "moveToGroup": "Move to group",
+      "notRegisteredForDay": "Dog is not registered for this day",
+      "moved": "Dog moved"
+    },
+    "moveToPositionDialog": {
+      "title": "Move dog to specific start position",
+      "selectPosition": "Select start number",
+      "moveToPosition": "Move to start position",
+      "moved": "Dog moved to start position {{position}}"
+    },
+    "movedToReserve": "Dog moved to reserve",
+    "moveToReserveFailed": "Error moving to reserve"
   },
   "registrations": "Registrations",
   "roles": "Roles",
