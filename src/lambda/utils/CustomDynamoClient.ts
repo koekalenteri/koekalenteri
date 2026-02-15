@@ -10,7 +10,7 @@ import type {
   ScanCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-
+import { inspect } from 'node:util'
 import { DynamoDBClient, TransactionCanceledException, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
   BatchWriteCommand,
@@ -22,7 +22,6 @@ import {
   ScanCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
-import { inspect } from 'node:util'
 
 interface QueryParams {
   key: string
@@ -89,7 +88,7 @@ const processOperations = (
  */
 const logDb = (operation: string, payload: unknown) => {
   // Keep the operation token as the first argument for easy CW filtering (e.g. "DB.batchWrite")
-  console.info(operation, inspect(payload, { depth: null, colors: false, maxArrayLength: null, compact: false }))
+  console.info(operation, inspect(payload, { colors: false, compact: false, depth: null, maxArrayLength: null }))
 }
 
 export default class CustomDynamoClient {
@@ -106,7 +105,7 @@ export default class CustomDynamoClient {
       // Override endpoint when in local development
       options.endpoint = 'http://dynamodb:8000'
 
-      console.info('LOCAL DynamoDB: endpoint=' + options.endpoint + ', table: ' + this.table)
+      console.info(`LOCAL DynamoDB: endpoint=${options.endpoint}, table: ${this.table}`)
     }
 
     this.client = new DynamoDBClient(options)
@@ -157,8 +156,8 @@ export default class CustomDynamoClient {
       return
     }
     const params: GetCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
+      TableName: table ? fromSamLocalTable(table) : this.table,
     }
     logDb('DB.get', params)
     const data = await this.docClient.send(new GetCommand(params))
@@ -176,14 +175,14 @@ export default class CustomDynamoClient {
       return
     }
     const queryParams: QueryCommandInput = {
-      TableName: params.table ? fromSamLocalTable(params.table) : this.table,
+      ExpressionAttributeNames: params.names,
+      ExpressionAttributeValues: params.values,
+      FilterExpression: params.filterExpression,
       IndexName: params.index,
       KeyConditionExpression: params.key,
-      ExpressionAttributeValues: params.values,
-      ExpressionAttributeNames: params.names,
-      ScanIndexForward: params.forward,
       Limit: params.limit,
-      FilterExpression: params.filterExpression,
+      ScanIndexForward: params.forward,
+      TableName: params.table ? fromSamLocalTable(params.table) : this.table,
     }
     logDb('DB.query', queryParams)
     const data = await this.docClient.send(new QueryCommand(queryParams))
@@ -192,8 +191,8 @@ export default class CustomDynamoClient {
 
   async write<T extends object>(Item: T, table?: string): Promise<unknown> {
     const params: PutCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
       Item,
+      TableName: table ? fromSamLocalTable(table) : this.table,
     }
     logDb('DB.write', params)
     return this.docClient.send(new PutCommand(params))
@@ -269,11 +268,11 @@ export default class CustomDynamoClient {
 
     // Create params object for the update operation
     const params: UpdateCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
-      Key: key,
-      UpdateExpression: expressionParts.join(' '),
       ExpressionAttributeNames: names,
       ExpressionAttributeValues: values,
+      Key: key,
+      TableName: table ? fromSamLocalTable(table) : this.table,
+      UpdateExpression: expressionParts.join(' '),
     }
 
     // Add ReturnValues if provided
@@ -291,8 +290,8 @@ export default class CustomDynamoClient {
       return false
     }
     const params: DeleteCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
+      TableName: table ? fromSamLocalTable(table) : this.table,
     }
     logDb('DB.delete', params)
 
@@ -309,9 +308,9 @@ export default class CustomDynamoClient {
     const tableName = table ? fromSamLocalTable(table) : this.table
     const itemsWithTable: TransactWriteItem[] = items.map((item) => ({
       ConditionCheck: item.ConditionCheck && { ...item.ConditionCheck, TableName: tableName },
+      Delete: item.Delete && { ...item.Delete, TableName: tableName },
       Put: item.Put && { ...item.Put, TableName: tableName },
       Update: item.Update && { ...item.Update, TableName: tableName },
-      Delete: item.Delete && { ...item.Delete, TableName: tableName },
     }))
     logDb('DB.transaction', itemsWithTable)
 

@@ -1,8 +1,6 @@
 import type { CSSProperties } from 'react'
-
-import { useCallback, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
-
+import { useCallback, useEffect, useState } from 'react'
 import banner512 from '../../assets/banner_w512.webp'
 import banner889 from '../../assets/banner_w889.webp'
 import banner1504 from '../../assets/banner_w1504.webp'
@@ -22,20 +20,20 @@ const Banner = () => {
   }, [loading])
 
   const commonImgStyles: CSSProperties = {
-    width: '100%',
     height: BANNER_HEIGHT,
     objectFit: 'contain',
     objectPosition: '50% 30px',
+    width: '100%',
   }
 
   return (
     <Box
       component="header"
       sx={{
+        backgroundColor: '#a0a690',
+        height: BANNER_HEIGHT,
         position: 'relative',
         width: '100%',
-        height: BANNER_HEIGHT,
-        backgroundColor: '#a0a690',
       }}
     >
       {loading !== undefined && (
@@ -45,12 +43,12 @@ const Banner = () => {
           srcSet={`${banner512} 512w, ${banner889} 900w, ${banner1504} 1504w`}
           style={{
             ...commonImgStyles,
+            backgroundColor: '#a0a690',
+            left: 0,
             opacity: loading ? 0 : 1,
             position: 'absolute',
             top: 0,
-            left: 0,
             transition: 'opacity 0.3s ease-in',
-            backgroundColor: '#a0a690',
           }}
           loading="lazy"
           decoding="async"

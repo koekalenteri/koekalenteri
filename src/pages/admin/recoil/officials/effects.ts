@@ -1,9 +1,7 @@
 import type { AtomEffect } from 'recoil'
 import type { Official } from '../../../../types'
-
 import i18next from 'i18next'
 import { DefaultValue } from 'recoil'
-
 import { getOfficials } from '../../../../api/official'
 import { idTokenAtom } from '../../../recoil'
 

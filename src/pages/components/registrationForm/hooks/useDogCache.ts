@@ -1,9 +1,7 @@
 import type { DeepPartial } from '../../../../types'
 import type { DogCache, DogCachedInfo } from '../../../recoil/dog'
-
 import { useCallback, useMemo } from 'react'
 import { useRecoilState } from 'recoil'
-
 import { isEmpty } from '../../../../lib/utils'
 import { validateRegNo } from '../../../../lib/validation'
 import { dogCacheAtom } from '../../../recoil/dog'

@@ -1,9 +1,6 @@
 import type { AutocompleteChangeReason } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { DeepPartial, DogEvent, EventClass, EventState } from '../../../../../types'
-
-import { useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import CheckBox from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlank from '@mui/icons-material/CheckBoxOutlineBlank'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -12,6 +9,8 @@ import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import TextField from '@mui/material/TextField'
 import { isSameDay } from 'date-fns'
+import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   readonly id: string
@@ -109,10 +108,10 @@ export default function EventClasses(props: Props) {
                 groupBy ? (
                   <Avatar
                     sx={{
-                      fontWeight: 'bold',
                       bgcolor: isSameDay(option.date || eventStartDate, eventStartDate)
                         ? 'secondary.light'
                         : 'secondary.dark',
+                      fontWeight: 'bold',
                     }}
                   >
                     {t('dateFormat.weekday', { date: option.date })}

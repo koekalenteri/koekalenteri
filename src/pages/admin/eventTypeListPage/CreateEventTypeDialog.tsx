@@ -1,7 +1,4 @@
 import type { EventType } from '../../../types'
-
-import { useCallback, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -9,8 +6,9 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import TextField from '@mui/material/TextField'
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-
 import { adminEventTypesAtom, useAdminEventTypeActions } from '../recoil'
 
 interface Props {
@@ -24,11 +22,11 @@ export function CreateEventTypeDialog({ onClose, open }: Props) {
   const existing = useRecoilValue(adminEventTypesAtom)
   const existingTypes = useMemo(() => existing.map((et) => et.eventType), [existing])
   const [eventType, setEventType] = useState<string>('')
-  const [description, setDescription] = useState<EventType['description']>({ fi: '', en: '', sv: '' })
+  const [description, setDescription] = useState<EventType['description']>({ en: '', fi: '', sv: '' })
 
   const onSave = useCallback(() => {
     if (!eventType || existingTypes.includes(eventType) || !description.fi || !description.en) return
-    actions.save({ eventType, description, official: false, active: true }).then(
+    actions.save({ active: true, description, eventType, official: false }).then(
       () => onClose(),
       (err) => console.error(err)
     )

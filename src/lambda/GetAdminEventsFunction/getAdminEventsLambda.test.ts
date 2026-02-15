@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn()
 const mockQuery = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
@@ -24,8 +24,8 @@ const { default: getAdminEventsLambda } = await import('./handler')
 
 describe('getAdminEventsLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     queryStringParameters: null,
   } as any
 
@@ -34,7 +34,7 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('returns response from authorizeWithMemberOf if it exists', async () => {
-    const res = { statusCode: 401, body: 'Unauthorized' }
+    const res = { body: 'Unauthorized', statusCode: 401 }
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
 
     await getAdminEventsLambda(event)
@@ -44,7 +44,7 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('returns all events for admin user', async () => {
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
     const allEvents = [
       { id: 'event1', organizer: { id: 'org1' } },
@@ -52,7 +52,7 @@ describe('getAdminEventsLambda', () => {
       { id: 'event3', organizer: { id: 'org3' } },
     ]
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(allEvents)
 
     await getAdminEventsLambda(event)
@@ -62,7 +62,7 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('filters events for non-admin user based on membership', async () => {
-    const user = { id: 'user1', admin: false }
+    const user = { admin: false, id: 'user1' }
     const memberOf = ['org1', 'org3']
     const allEvents = [
       { id: 'event1', organizer: { id: 'org1' } },
@@ -74,7 +74,7 @@ describe('getAdminEventsLambda', () => {
       { id: 'event3', organizer: { id: 'org3' } },
     ]
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(allEvents)
 
     await getAdminEventsLambda(event)
@@ -84,7 +84,7 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('queries events with since parameter', async () => {
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
     const since = '1717171717171'
     const eventWithSince = {
@@ -98,7 +98,7 @@ describe('getAdminEventsLambda', () => {
     const seasonEvents1 = [{ id: 'event1', organizer: { id: 'org1' } }]
     const seasonEvents2 = [{ id: 'event2', organizer: { id: 'org2' } }]
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockQuery.mockResolvedValueOnce(seasonEvents1)
     mockQuery.mockResolvedValueOnce(seasonEvents2)
 
@@ -109,13 +109,13 @@ describe('getAdminEventsLambda', () => {
 
     // Check first query call
     expect(mockQuery).toHaveBeenCalledWith({
-      key: 'season = :season AND modifiedAt > :modifiedAfter',
-      values: {
-        ':season': startSeason.toString(),
-        ':modifiedAfter': new Date(Number(since)).toISOString(),
-      },
-      table: expect.any(String),
       index: 'gsiSeasonModifiedAt',
+      key: 'season = :season AND modifiedAt > :modifiedAfter',
+      table: expect.any(String),
+      values: {
+        ':modifiedAfter': new Date(Number(since)).toISOString(),
+        ':season': startSeason.toString(),
+      },
     })
 
     // Check that response combines all season events
@@ -123,14 +123,14 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('returns empty array if no events found', async () => {
-    const user = { id: 'user1', admin: false }
+    const user = { admin: false, id: 'user1' }
     const memberOf = ['org4'] // Member of org with no events
     const allEvents = [
       { id: 'event1', organizer: { id: 'org1' } },
       { id: 'event2', organizer: { id: 'org2' } },
     ]
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(allEvents)
 
     await getAdminEventsLambda(event)
@@ -140,10 +140,10 @@ describe('getAdminEventsLambda', () => {
   })
 
   it('handles undefined result from readAll', async () => {
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(undefined)
 
     await getAdminEventsLambda(event)

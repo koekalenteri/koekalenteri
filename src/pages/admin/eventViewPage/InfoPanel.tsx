@@ -1,7 +1,5 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
 import type { ConfirmedEvent, EmailTemplateId, Registration } from '../../../types'
-
-import { useCallback, useState } from 'react'
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUp from '@mui/icons-material/KeyboardArrowUp'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
@@ -22,8 +20,8 @@ import TableRow from '@mui/material/TableRow'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
+import { useCallback, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { putInvitationAttachment } from '../../../api/event'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { API_BASE_URL } from '../../../routeConfig'
@@ -69,14 +67,14 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   return (
     <Box
       sx={{
-        width: 400,
-        backgroundColor: 'background.selected',
         '& .MuiTableContainer-root': {
+          '& .MuiTableCell-root': { px: 1, py: 0 },
           backgroundColor: 'background.selected',
-          width: '100%',
           p: 1,
-          '& .MuiTableCell-root': { py: 0, px: 1 },
+          width: '100%',
         },
+        backgroundColor: 'background.selected',
+        width: 400,
       }}
     >
       <Grid container alignItems="center">
@@ -86,8 +84,8 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
             value={tab}
             onChange={handleTabChange}
             sx={{
+              '& .MuiTab-root': { fontWeight: 'bold', minHeight: '24px', p: '4px 16px' },
               minHeight: '24px',
-              '& .MuiTab-root': { p: '4px 16px', minHeight: '24px', fontWeight: 'bold' },
             }}
           >
             <Tab label="Tapahtuman tilanne" />
@@ -197,7 +195,7 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
                 <TableCell>
                   {attachmentKey ? (
                     <>
-                      <PictureAsPdfOutlined fontSize="small" sx={{ verticalAlign: 'middle', pr: 0.5 }} />
+                      <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
                       <Link
                         href={`${API_BASE_URL}/file/${attachmentKey}/kutsu.pdf`}
                         rel="noopener"

@@ -1,18 +1,15 @@
 import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
-
-import { Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { locales } from '../../../i18n'
 import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { OwnerInfo } from './OwnerInfo'
 
 jest.mock('../../../api/dog')
@@ -65,10 +62,10 @@ describe('OwnerInfo', () => {
 
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
-        membership: false,
-        name: '',
         email: 'owner@example.com',
         location: 'Owner Location',
+        membership: false,
+        name: '',
         phone: '+3584012345',
       },
       ownerHandles: true,
@@ -81,10 +78,10 @@ describe('OwnerInfo', () => {
 
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
-        membership: false,
-        name: 'test owner',
         email: 'owner@example.com',
         location: 'Owner Location',
+        membership: false,
+        name: 'test owner',
         phone: '+3584012345',
       },
       ownerHandles: true,
@@ -98,10 +95,10 @@ describe('OwnerInfo', () => {
 
     expect(onChange).toHaveBeenLastCalledWith({
       owner: {
+        email: 'owner@example.com',
         location: 'test city',
         membership: false,
         name: 'test owner',
-        email: 'owner@example.com',
         phone: '+3584012345',
       },
       ownerHandles: true,

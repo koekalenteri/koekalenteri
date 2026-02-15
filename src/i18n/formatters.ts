@@ -1,5 +1,4 @@
 import type { i18n } from 'i18next'
-
 import { formatDateSpan, formatDistance, getDateFormatter } from './dates'
 
 export const registerFormatters = (i18n: i18n) => {

@@ -9,22 +9,19 @@ import type {
   JsonUser,
   Registration,
 } from '../../types'
-
 import { addDays } from 'date-fns'
-
 import { formatDate, zonedStartOfDay } from '../../i18n/dates'
 import {
-  getRegistrationGroupKey,
-  getRegistrationNumberingGroupKey,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getRegistrationGroupKey,
+  getRegistrationNumberingGroupKey,
   hasPriority,
   sortRegistrationsByDateClassTimeAndNumber,
 } from '../../lib/registration'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { audit, registrationAuditKey } from './audit'
 import { broadcastEvent } from './broadcast'
 import { LambdaError } from './lambda'
@@ -51,12 +48,12 @@ export const findQualificationStartDate = async (
   entryEndDate: string
 ): Promise<string | undefined> => {
   const result = await dynamoDB.query<EventEntryEndDates>({
-    key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
-    values: { ':eventType': eventType, ':entryEndDate': entryEndDate },
-    table: CONFIG.eventTable,
-    index: 'gsiEventTypeEntryEndDate',
     forward: false,
+    index: 'gsiEventTypeEntryEndDate',
+    key: 'eventType = :eventType AND entryEndDate < :entryEndDate',
     limit: 1,
+    table: CONFIG.eventTable,
+    values: { ':entryEndDate': entryEndDate, ':eventType': eventType },
   })
 
   if (result?.length === 1 && result[0]?.entryEndDate) {
@@ -147,8 +144,8 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
     updatedRegistrations ??
     (await dynamoDB.query<JsonRegistration>({
       key: 'eventId = :id',
-      values: { ':id': eventId },
       table: registrationTable,
+      values: { ':id': eventId },
     }))
 
   // ignore cancelled or unpaid registrations
@@ -163,7 +160,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
     const entries = regsToClass?.length
     const members = regsToClass?.filter(priorityFilter).length
 
-    if (entries !== cls.entries || members != cls.members) {
+    if (entries !== cls.entries || members !== cls.members) {
       cls.entries = entries
       cls.members = members
       classesChanged = true
@@ -181,9 +178,9 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
     eventKey,
     {
       set: {
+        classes,
         entries,
         members,
-        classes,
       },
     },
     eventTable
@@ -192,7 +189,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   confirmedEvent.entries = entries
   confirmedEvent.members = members
 
-  await broadcastEvent({ eventId, classes, entries, members })
+  await broadcastEvent({ classes, entries, eventId, members })
 
   return confirmedEvent
 }
@@ -222,9 +219,9 @@ export const saveGroup = async (
       registrationKey,
       {
         set: {
-          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
           cancelled,
           cancelReason,
+          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
         },
       },
       registrationTable
@@ -234,8 +231,8 @@ export const saveGroup = async (
       registrationKey,
       {
         set: {
-          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
           cancelled,
+          group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
         },
       },
       registrationTable
@@ -244,8 +241,8 @@ export const saveGroup = async (
   const oldGroupInfo = previous ? `${formatGroupAuditInfo(previous)} -> ` : ''
   await audit({
     auditKey: registrationAuditKey(registrationKey),
-    user: user.name,
     message: `Ryhmä: ${oldGroupInfo}${formatGroupAuditInfo(group)} ${reason}`.trim(),
+    user: user.name,
   })
 }
 

@@ -1,5 +1,4 @@
 import { subMinutes } from 'date-fns'
-
 import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from './dog'
 
 describe('dog utility functions', () => {
@@ -11,12 +10,12 @@ describe('dog utility functions', () => {
 
     it('should return false if dog was refreshed less than 5 minutes ago', () => {
       const refreshDate = subMinutes(new Date(), 3)
-      expect(shouldAllowRefresh({ regNo: 'TEST-123', refreshDate })).toBe(false)
+      expect(shouldAllowRefresh({ refreshDate, regNo: 'TEST-123' })).toBe(false)
     })
 
     it('should return true if dog has regNo and refreshDate older than 5 minutes', () => {
       const refreshDate = subMinutes(new Date(), 10)
-      expect(shouldAllowRefresh({ regNo: 'TEST-123', refreshDate })).toBe(true)
+      expect(shouldAllowRefresh({ refreshDate, regNo: 'TEST-123' })).toBe(true)
     })
 
     it('should return false if dog has regNo but no refreshDate', () => {
@@ -50,54 +49,54 @@ describe('dog utility functions', () => {
     it('should create a dog update object from form values', () => {
       const dob = new Date('2020-01-01')
       const formValues = {
-        rfid: '123456789',
-        name: 'Test Dog',
-        titles: 'CH',
+        breedCode: '110' as const,
+        dam: 'Dam Name',
         dob,
         gender: 'M' as const,
-        breedCode: '110' as const,
+        name: 'Test Dog',
+        rfid: '123456789',
         sire: 'Sire Name',
-        dam: 'Dam Name',
+        titles: 'CH',
       }
 
       const result = createDogUpdateFromFormValues(formValues)
 
       expect(result).toEqual({
-        rfid: '123456789',
-        name: 'Test Dog',
-        titles: 'CH',
+        breedCode: '110',
+        dam: { name: 'Dam Name' },
         dob,
         gender: 'M',
-        breedCode: '110',
+        name: 'Test Dog',
+        rfid: '123456789',
         sire: { name: 'Sire Name' },
-        dam: { name: 'Dam Name' },
+        titles: 'CH',
       })
     })
 
     it('should handle empty gender and breedCode values', () => {
       const dob = new Date('2020-01-01')
       const formValues = {
-        rfid: '123456789',
-        name: 'Test Dog',
-        titles: 'CH',
+        breedCode: '' as const,
+        dam: 'Dam Name',
         dob,
         gender: '' as const,
-        breedCode: '' as const,
+        name: 'Test Dog',
+        rfid: '123456789',
         sire: 'Sire Name',
-        dam: 'Dam Name',
+        titles: 'CH',
       }
 
       const result = createDogUpdateFromFormValues(formValues)
 
       expect(result).toEqual({
-        rfid: '123456789',
-        name: 'Test Dog',
-        titles: 'CH',
+        breedCode: undefined,
+        dam: { name: 'Dam Name' },
         dob,
         gender: undefined,
-        breedCode: undefined,
+        name: 'Test Dog',
+        rfid: '123456789',
         sire: { name: 'Sire Name' },
-        dam: { name: 'Dam Name' },
+        titles: 'CH',
       })
     })
   })

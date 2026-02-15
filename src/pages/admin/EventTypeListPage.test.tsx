@@ -1,13 +1,11 @@
-import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import theme from '../../assets/Theme'
 import { flushPromises } from '../../test-utils/utils'
-
 import EventTypeListPage from './EventTypeListPage'
 
 jest.mock('../../api/eventType')

@@ -1,14 +1,12 @@
-import { Suspense } from 'react'
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
-
 import theme from '../../assets/Theme'
 import { flushPromises, RecoilObserver, renderWithUserEvents } from '../../test-utils/utils'
-
 import EventListPage from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 

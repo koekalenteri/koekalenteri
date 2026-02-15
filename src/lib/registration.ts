@@ -15,7 +15,6 @@ import type {
   RegistrationPerson,
   RegistrationTemplateContext,
 } from '../types'
-
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
 
@@ -162,11 +161,11 @@ export const getRegistrationEmailTemplateData = (
   t: TFunction,
   previousGroup?: JsonRegistrationGroup
 ) => {
-  const eventDate = t('dateFormat.datespan', { start: confirmedEvent.startDate, end: confirmedEvent.endDate })
+  const eventDate = t('dateFormat.datespan', { end: confirmedEvent.endDate, start: confirmedEvent.startDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
   const dogBreed = registration.dog.breedCode ? t(`${registration.dog.breedCode}`, { ns: 'breed' }) : ''
   const regDates = registration.dates
-    .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ' ' + t(`registration.time.${d.time}`) : ''))
+    .map((d) => t('dateFormat.short', { date: d.date }) + (d.time ? ` ${t(`registration.time.${d.time}`)}` : ''))
     .join(', ')
   const link = `${origin}/r/${registration.eventId}/${registration.id}`
   const paymentLink = `${origin}/p/${registration.eventId}/${registration.id}`

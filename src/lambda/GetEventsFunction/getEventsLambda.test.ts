@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 const mockSanitizeDogEvent = jest.fn<any>()
@@ -24,8 +24,8 @@ const { default: getEventsLambda } = await import('./handler')
 
 describe('getEventsLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
   } as any
 
   beforeEach(() => {
@@ -34,13 +34,13 @@ describe('getEventsLambda', () => {
 
   it('returns sanitized non-draft events', async () => {
     const allEvents = [
-      { id: 'event1', state: 'confirmed', name: 'Event 1', createdBy: 'user1' },
-      { id: 'event2', state: 'draft', name: 'Event 2', createdBy: 'user2' },
-      { id: 'event3', state: 'tentative', name: 'Event 3', createdBy: 'user3' },
+      { createdBy: 'user1', id: 'event1', name: 'Event 1', state: 'confirmed' },
+      { createdBy: 'user2', id: 'event2', name: 'Event 2', state: 'draft' },
+      { createdBy: 'user3', id: 'event3', name: 'Event 3', state: 'tentative' },
     ]
 
-    const sanitizedEvent1 = { id: 'event1', state: 'confirmed', name: 'Event 1' }
-    const sanitizedEvent3 = { id: 'event3', state: 'tentative', name: 'Event 3' }
+    const sanitizedEvent1 = { id: 'event1', name: 'Event 1', state: 'confirmed' }
+    const sanitizedEvent3 = { id: 'event3', name: 'Event 3', state: 'tentative' }
 
     mockReadAll.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((event: any) => {
@@ -80,8 +80,8 @@ describe('getEventsLambda', () => {
 
   it('filters out all draft events', async () => {
     const allEvents = [
-      { id: 'event1', state: 'draft', name: 'Event 1', createdBy: 'user1' },
-      { id: 'event2', state: 'draft', name: 'Event 2', createdBy: 'user2' },
+      { createdBy: 'user1', id: 'event1', name: 'Event 1', state: 'draft' },
+      { createdBy: 'user2', id: 'event2', name: 'Event 2', state: 'draft' },
     ]
 
     mockReadAll.mockResolvedValueOnce(allEvents)
@@ -108,11 +108,11 @@ describe('getEventsLambda', () => {
   it('filters events by start date (excludes those ending before start)', async () => {
     const allEvents = [
       // ends before the range start -> excluded
-      { id: 'event1', state: 'confirmed', startDate: '2026-01-01T00:00:00.000Z', endDate: '2026-01-01T23:59:59.000Z' },
+      { endDate: '2026-01-01T23:59:59.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
       // overlaps range start -> included
-      { id: 'event2', state: 'confirmed', startDate: '2026-01-02T00:00:00.000Z', endDate: '2026-01-05T00:00:00.000Z' },
+      { endDate: '2026-01-05T00:00:00.000Z', id: 'event2', startDate: '2026-01-02T00:00:00.000Z', state: 'confirmed' },
       // no endDate -> treat as same as startDate
-      { id: 'event3', state: 'confirmed', startDate: '2026-01-03T00:00:00.000Z' },
+      { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
     ]
 
     mockReadAll.mockResolvedValueOnce(allEvents)
@@ -133,11 +133,11 @@ describe('getEventsLambda', () => {
   it('filters events by end date (excludes those starting after end)', async () => {
     const allEvents = [
       // starts before end -> included
-      { id: 'event1', state: 'confirmed', startDate: '2026-01-01T00:00:00.000Z' },
+      { id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
       // starts exactly at end -> included (eventStart > end is false)
-      { id: 'event2', state: 'confirmed', startDate: '2026-01-02T00:00:00.000Z' },
+      { id: 'event2', startDate: '2026-01-02T00:00:00.000Z', state: 'confirmed' },
       // starts after end -> excluded
-      { id: 'event3', state: 'confirmed', startDate: '2026-01-03T00:00:00.000Z' },
+      { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
     ]
 
     mockReadAll.mockResolvedValueOnce(allEvents)
@@ -158,11 +158,11 @@ describe('getEventsLambda', () => {
   it('filters events by both start and end dates (keeps only overlapping)', async () => {
     const allEvents = [
       // ends before start -> excluded
-      { id: 'event1', state: 'confirmed', startDate: '2026-01-01T00:00:00.000Z', endDate: '2026-01-01T12:00:00.000Z' },
+      { endDate: '2026-01-01T12:00:00.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
       // overlaps -> included
-      { id: 'event2', state: 'confirmed', startDate: '2026-01-01T00:00:00.000Z', endDate: '2026-01-05T00:00:00.000Z' },
+      { endDate: '2026-01-05T00:00:00.000Z', id: 'event2', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
       // starts after end -> excluded
-      { id: 'event3', state: 'confirmed', startDate: '2026-01-10T00:00:00.000Z', endDate: '2026-01-11T00:00:00.000Z' },
+      { endDate: '2026-01-11T00:00:00.000Z', id: 'event3', startDate: '2026-01-10T00:00:00.000Z', state: 'confirmed' },
     ]
 
     mockReadAll.mockResolvedValueOnce(allEvents)
@@ -171,8 +171,8 @@ describe('getEventsLambda', () => {
     const rangeEvent = {
       ...event,
       queryStringParameters: {
-        start: String(Date.parse('2026-01-02T00:00:00.000Z')),
         end: String(Date.parse('2026-01-06T00:00:00.000Z')),
+        start: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
     } as any
 
@@ -183,8 +183,8 @@ describe('getEventsLambda', () => {
 
   it('still excludes draft events before applying date filtering', async () => {
     const allEvents = [
-      { id: 'event1', state: 'draft', startDate: '2026-01-03T00:00:00.000Z' },
-      { id: 'event2', state: 'confirmed', startDate: '2026-01-03T00:00:00.000Z' },
+      { id: 'event1', startDate: '2026-01-03T00:00:00.000Z', state: 'draft' },
+      { id: 'event2', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
     ]
 
     mockReadAll.mockResolvedValueOnce(allEvents)
@@ -193,8 +193,8 @@ describe('getEventsLambda', () => {
     const rangeEvent = {
       ...event,
       queryStringParameters: {
-        start: String(Date.parse('2026-01-03T00:00:00.000Z')),
         end: String(Date.parse('2026-01-03T00:00:00.000Z')),
+        start: String(Date.parse('2026-01-03T00:00:00.000Z')),
       },
     } as any
 
@@ -208,15 +208,15 @@ describe('getEventsLambda', () => {
     const allEvents = [
       {
         id: 'event1',
-        state: 'confirmed',
-        startDate: '2026-01-01T00:00:00.000Z',
         modifiedAt: '2026-01-01T10:00:00.000Z',
+        startDate: '2026-01-01T00:00:00.000Z',
+        state: 'confirmed',
       },
       {
         id: 'event2',
-        state: 'confirmed',
-        startDate: '2026-01-02T00:00:00.000Z',
         modifiedAt: '2026-01-02T10:00:00.000Z',
+        startDate: '2026-01-02T00:00:00.000Z',
+        state: 'confirmed',
       },
     ]
 

@@ -1,13 +1,10 @@
 import type { PartialEvent } from '../../types'
-
-import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-
+import { useTranslation } from 'react-i18next'
 import { formatDate } from '../../../../../../i18n/dates'
 import { getEventDays } from '../../../../../../lib/event'
 import { NumberInput } from '../../../../../components/NumberInput'
-
 import BasePlacesTable from './BasePlacesTable'
 
 interface DayPlacesTableProps {

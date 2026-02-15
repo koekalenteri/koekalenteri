@@ -1,23 +1,23 @@
 import type { SelectChangeEvent } from '@mui/material'
 import type { ComponentProps } from 'react'
-
-import { useCallback, useState } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { screen, within } from '@testing-library/react'
 import { axe } from 'jest-axe'
-
+import { useCallback, useState } from 'react'
 import theme from '../../assets/Theme'
 import { renderWithUserEvents } from '../../test-utils/utils'
-
 import SelectMulti from './SelectMulti'
 
 // Helper to create a controlled component for testing
 const Wrapper = (props: ComponentProps<typeof SelectMulti>) => {
   const [value, setValue] = useState<string[]>(props.value ?? [])
-  const onChange = useCallback((val: string[]) => {
-    setValue(val)
-    props.onChange?.(val)
-  }, [])
+  const onChange = useCallback(
+    (val: string[]) => {
+      setValue(val)
+      props.onChange?.(val)
+    },
+    [props.onChange]
+  )
 
   return <SelectMulti {...props} value={value} onChange={onChange} />
 }
@@ -186,6 +186,7 @@ describe('SelectMulti', () => {
 
   it('closes after selection but allows multiple selections by reopening', async () => {
     let value: string[] = []
+    // biome-ignore lint/suspicious/noAssignInExpressions: its a test
     const onChange = jest.fn().mockImplementation((val) => (value = [...val]))
     const { user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
@@ -279,6 +280,7 @@ describe('SelectMulti', () => {
   it('handles multiple selections and deselections correctly', async () => {
     // Setup with initial selection
     let value: string[] = ['Option 1']
+    // biome-ignore lint/suspicious/noAssignInExpressions: its a test
     const onChange = jest.fn().mockImplementation((val) => (value = [...val]))
     const { user, rerender } = renderWithUserEvents(
       <ThemeProvider theme={theme}>

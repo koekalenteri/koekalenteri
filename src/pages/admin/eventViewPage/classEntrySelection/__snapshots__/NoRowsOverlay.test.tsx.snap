@@ -3,7 +3,7 @@
 exports[`NoRowsOverlay renders 1`] = `
 <div>
   <div
-    class="no-rows MuiBox-root css-1jpcp03"
+    class="no-rows MuiBox-root css-1k75hwm"
   >
     Raahaa osallistujat tähän!
   </div>

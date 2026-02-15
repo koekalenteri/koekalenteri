@@ -2,7 +2,7 @@ import Paper from '@mui/material/Paper'
 
 export const TermsPage = () => {
   return (
-    <Paper sx={{ p: 1, m: 1 }}>
+    <Paper sx={{ m: 1, p: 1 }}>
       <p>
         <strong>1. Tapahtumaan ilmoittautuminen</strong>
       </p>

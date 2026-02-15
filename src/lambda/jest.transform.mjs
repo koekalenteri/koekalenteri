@@ -11,11 +11,11 @@ export default {
     const isTs = file.endsWith('.ts') || file.endsWith('.tsx')
     const loader = isTs ? 'ts' : 'js'
     const options = {
-      loader,
       format: 'esm',
+      loader,
       platform: 'node',
-      target: 'node24',
       sourcemap: 'inline',
+      target: 'node24',
       ...cfg.transformerConfig,
       sourcefile: file,
     }
@@ -24,7 +24,7 @@ export default {
       // Node 22+ uses import attributes (`with { type: "json" }`) for JSON modules.
       // Some deps still emit import assertions (`assert { type: "json" }`) or bare JSON imports.
       // Normalize to `with { type: "json" }`.
-      let patched = code
+      const patched = code
         // Convert legacy import assertions -> import attributes
         .replaceAll(/\s+assert\s*\{\s*type:\s*['"]json['"]\s*\}/g, ' with { type: "json" }')
         // Append missing attributes to bare JSON imports

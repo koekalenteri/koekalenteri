@@ -1,6 +1,5 @@
-import { closeCompletion, type Completion, type CompletionContext, startCompletion } from '@codemirror/autocomplete'
+import { type Completion, type CompletionContext, closeCompletion, startCompletion } from '@codemirror/autocomplete'
 import { EditorSelection } from '@uiw/react-codemirror'
-
 import { getChild } from './TemplateEditor.utils'
 
 const mustacheStart = (ctx: CompletionContext) => {
@@ -14,16 +13,13 @@ const mustacheStart = (ctx: CompletionContext) => {
 const createOption = (parent: any, key: string): Completion => {
   const val = parent[key]
   const isObj = val && typeof val === 'object'
-  const insert = isObj ? key + '.' : key
+  const insert = isObj ? `${key}.` : key
 
   return {
-    label: key,
-    type: isObj ? 'property' : 'variable',
-    detail: isObj ? '…' : String(val),
     apply: (view, _c, fromPos, toPos) => {
       // Replace [fromPos, toPos) and move the caret to the end of the inserted text
       view.dispatch({
-        changes: { from: fromPos, to: toPos, insert },
+        changes: { from: fromPos, insert, to: toPos },
         selection: EditorSelection.cursor(fromPos + insert.length),
         userEvent: 'input.complete',
       })
@@ -34,6 +30,9 @@ const createOption = (parent: any, key: string): Completion => {
         queueMicrotask(() => startCompletion(view))
       }
     },
+    detail: isObj ? '…' : String(val),
+    label: key,
+    type: isObj ? 'property' : 'variable',
   }
 }
 

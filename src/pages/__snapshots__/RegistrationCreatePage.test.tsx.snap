@@ -15,7 +15,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
     </a>
   </div>
   <article
-    class="MuiBox-root css-q5c7nu"
+    class="MuiBox-root css-3xv5eg"
   >
     <div
       aria-level="2"
@@ -61,9 +61,9 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </div>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-auto css-tm6qyb-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-sm-auto MuiGrid-grid-xs-12 css-tm6qyb-MuiGrid-root"
         >
-          NOU dateFormat.datespan start, end test location (test)
+          NOU dateFormat.datespan end, start test location (test)
         </div>
       </div>
     </div>
@@ -82,24 +82,24 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-s2gu2c-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 entryTime
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                dateFormat.datespan start, end
+                dateFormat.datespan end, start
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.organizer
               </div>
@@ -110,10 +110,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.judges
               </div>
@@ -124,10 +124,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.official
               </div>
@@ -138,10 +138,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.secretary
               </div>
@@ -152,10 +152,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 paymentDetails
               </div>
@@ -172,10 +172,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.priority
               </div>
@@ -183,7 +183,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-11hezm2-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1ktmok0-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
@@ -194,10 +194,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.description
               </div>
@@ -213,14 +213,14 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
     </div>
   </article>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1o4onl4-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-shnfc0-MuiPaper-root"
     style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
   >
     <div
-      class="MuiBox-root css-d9iw6n"
+      class="MuiBox-root css-1lg2rum"
     >
       <div
-        class="MuiBox-root css-i357mj"
+        class="MuiBox-root css-13bip4b"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -240,10 +240,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -273,7 +273,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-169bonr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-169bonr-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -346,7 +346,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -426,7 +426,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -571,7 +571,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -769,7 +769,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -789,10 +789,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -822,13 +822,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-7 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-11gdf9w-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-7 MuiGrid-grid-xs-12 css-11gdf9w-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                       >
                         <div
-                          class="MuiBox-root css-70qvj9"
+                          class="MuiBox-root css-fv3lde"
                         >
                           <div
                             class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1l4p8mg-MuiAutocomplete-root"
@@ -907,7 +907,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             registration.cta.fetch
                           </button>
                           <span
-                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1mr14h4-MuiCircularProgress-root"
+                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1khik6w-MuiCircularProgress-root"
                             role="progressbar"
                             style="width: 28px; height: 28px;"
                           >
@@ -934,7 +934,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-5 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-1vz8p2e-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-5 MuiGrid-grid-xs-12 css-1vz8p2e-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -974,13 +974,13 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1020,7 +1020,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           </div>
                         </div>
                         <div
-                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1062,7 +1062,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -1132,7 +1132,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -1207,7 +1207,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -1282,7 +1282,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1322,7 +1322,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1369,7 +1369,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1389,10 +1389,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1422,7 +1422,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1461,7 +1461,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1507,7 +1507,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1527,10 +1527,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1561,7 +1561,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1602,7 +1602,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1643,7 +1643,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1684,7 +1684,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1846,7 +1846,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-eo0ytz"
+              class="MuiBox-root css-62wt2d"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1866,10 +1866,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                 </svg>
               </button>
               <div
-                class="MuiBox-root css-1qbrvqz"
+                class="MuiBox-root css-d5pwdd"
               >
                 <div
-                  class="MuiBox-root css-1jw9kr7"
+                  class="MuiBox-root css-14pnx07"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1899,7 +1899,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1940,7 +1940,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1981,7 +1981,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -2022,7 +2022,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -2120,7 +2120,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-eo0ytz"
+              class="MuiBox-root css-62wt2d"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2140,10 +2140,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                 </svg>
               </button>
               <div
-                class="MuiBox-root css-1qbrvqz"
+                class="MuiBox-root css-d5pwdd"
               >
                 <div
-                  class="MuiBox-root css-1jw9kr7"
+                  class="MuiBox-root css-14pnx07"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2173,7 +2173,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -2214,7 +2214,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -2255,7 +2255,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -2343,7 +2343,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2363,10 +2363,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2401,7 +2401,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                       <span
                         class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan start, end
+                        registration.rankingTime: dateFormat.datespan end, start
                       </span>
                     </div>
                     <div
@@ -2439,7 +2439,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -2453,7 +2453,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2473,10 +2473,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2550,7 +2550,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2571,10 +2571,10 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2672,7 +2672,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
         </div>
       </div>
       <div
-        class="MuiBox-root css-2vk5rw"
+        class="MuiBox-root css-1hvp7l3"
       >
         <div
           class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
@@ -2891,7 +2891,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
     </a>
   </div>
   <article
-    class="MuiBox-root css-q5c7nu"
+    class="MuiBox-root css-3xv5eg"
   >
     <div
       aria-level="2"
@@ -2937,9 +2937,9 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </div>
         </div>
         <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-auto css-tm6qyb-MuiGrid-root"
+          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-sm-auto MuiGrid-grid-xs-12 css-tm6qyb-MuiGrid-root"
         >
-          NOME-B dateFormat.datespan start, end test location (test)
+          NOME-B dateFormat.datespan end, start test location (test)
         </div>
       </div>
     </div>
@@ -2958,24 +2958,24 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-s2gu2c-MuiGrid-root"
           >
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 entryTime
               </div>
               <div
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
-                dateFormat.datespan start, end
+                dateFormat.datespan end, start
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.organizer
               </div>
@@ -2986,10 +2986,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.judges
               </div>
@@ -3000,10 +3000,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.official
               </div>
@@ -3014,10 +3014,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.secretary
               </div>
@@ -3028,10 +3028,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 paymentDetails
               </div>
@@ -3048,10 +3048,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.priority
               </div>
@@ -3059,7 +3059,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                 class="MuiTypography-root MuiTypography-body2 css-1pzz4e2-MuiTypography-root"
               >
                 <div
-                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-11hezm2-MuiChip-root"
+                  class="MuiChip-root MuiChip-filled MuiChip-sizeSmall MuiChip-colorDefault MuiChip-filledDefault css-1ktmok0-MuiChip-root"
                 >
                   <span
                     class="MuiChip-label MuiChip-labelSmall css-eccknh-MuiChip-label"
@@ -3070,10 +3070,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
               </div>
             </div>
             <div
-              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 MuiGrid-grid-lg-4 MuiGrid-grid-xl-2 css-1hik0m1-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-4 MuiGrid-grid-md-6 MuiGrid-grid-xl-2 MuiGrid-grid-xs-12 css-1hik0m1-MuiGrid-root"
             >
               <div
-                class="MuiTypography-root MuiTypography-caption css-1ebkdj1-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption css-1fc513k-MuiTypography-root"
               >
                 event.description
               </div>
@@ -3089,14 +3089,14 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
     </div>
   </article>
   <div
-    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1o4onl4-MuiPaper-root"
+    class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-shnfc0-MuiPaper-root"
     style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
   >
     <div
-      class="MuiBox-root css-d9iw6n"
+      class="MuiBox-root css-1lg2rum"
     >
       <div
-        class="MuiBox-root css-i357mj"
+        class="MuiBox-root css-13bip4b"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3116,10 +3116,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -3149,7 +3149,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-2 css-ouj215-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-xs-12 css-ouj215-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -3222,7 +3222,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-4 css-xur2zb-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-4 MuiGrid-grid-xs-12 css-xur2zb-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -3302,7 +3302,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-169bonr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-169bonr-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -3424,7 +3424,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -3576,7 +3576,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3596,10 +3596,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -3629,13 +3629,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-7 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-11gdf9w-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-7 MuiGrid-grid-xs-12 css-11gdf9w-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                       >
                         <div
-                          class="MuiBox-root css-70qvj9"
+                          class="MuiBox-root css-fv3lde"
                         >
                           <div
                             class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1l4p8mg-MuiAutocomplete-root"
@@ -3714,7 +3714,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             registration.cta.fetch
                           </button>
                           <span
-                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1mr14h4-MuiCircularProgress-root"
+                            class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1khik6w-MuiCircularProgress-root"
                             role="progressbar"
                             style="width: 28px; height: 28px;"
                           >
@@ -3741,7 +3741,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-5 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-1vz8p2e-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-5 MuiGrid-grid-xs-12 css-1vz8p2e-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3781,13 +3781,13 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3827,7 +3827,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           </div>
                         </div>
                         <div
-                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                         >
                           <div
                             class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3869,7 +3869,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -3939,7 +3939,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -4014,7 +4014,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                     >
                       <div
                         class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -4089,7 +4089,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4129,7 +4129,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4176,7 +4176,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4196,10 +4196,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4229,7 +4229,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4268,7 +4268,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       </div>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                     >
                       <div
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4314,7 +4314,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4334,10 +4334,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4368,7 +4368,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                     >
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4409,7 +4409,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4450,7 +4450,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4491,7 +4491,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                       >
                         <div
                           class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4653,7 +4653,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-eo0ytz"
+              class="MuiBox-root css-62wt2d"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4673,10 +4673,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                 </svg>
               </button>
               <div
-                class="MuiBox-root css-1qbrvqz"
+                class="MuiBox-root css-d5pwdd"
               >
                 <div
-                  class="MuiBox-root css-1jw9kr7"
+                  class="MuiBox-root css-14pnx07"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4706,7 +4706,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4747,7 +4747,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4788,7 +4788,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4829,7 +4829,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4927,7 +4927,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-eo0ytz"
+              class="MuiBox-root css-62wt2d"
             >
               <button
                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4947,10 +4947,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                 </svg>
               </button>
               <div
-                class="MuiBox-root css-1qbrvqz"
+                class="MuiBox-root css-d5pwdd"
               >
                 <div
-                  class="MuiBox-root css-1jw9kr7"
+                  class="MuiBox-root css-14pnx07"
                 >
                   <p
                     class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4980,7 +4980,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -5021,7 +5021,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -5062,7 +5062,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             </div>
                           </div>
                           <div
-                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                           >
                             <div
                               class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -5150,7 +5150,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5170,10 +5170,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -5208,7 +5208,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                       <span
                         class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                       >
-                        registration.rankingTime: dateFormat.datespan start, end
+                        registration.rankingTime: dateFormat.datespan end, start
                       </span>
                     </div>
                     <div
@@ -5246,7 +5246,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           Karsintapisteet yht.:
                         </span>
                         <div
-                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                          class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                         >
                           0
                         </div>
@@ -5260,7 +5260,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5280,10 +5280,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -5357,7 +5357,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-eo0ytz"
+        class="MuiBox-root css-62wt2d"
       >
         <button
           class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5378,10 +5378,10 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
           </svg>
         </button>
         <div
-          class="MuiBox-root css-1qbrvqz"
+          class="MuiBox-root css-d5pwdd"
         >
           <div
-            class="MuiBox-root css-1jw9kr7"
+            class="MuiBox-root css-14pnx07"
           >
             <p
               class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -5479,7 +5479,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
         </div>
       </div>
       <div
-        class="MuiBox-root css-2vk5rw"
+        class="MuiBox-root css-1hvp7l3"
       >
         <div
           class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
@@ -5689,7 +5689,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
 exports[`RegistrationCreatePage should throw 404 for non-existent event 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19703gc"
+    class="MuiBox-root css-r8ug1n"
   >
     <h1
       class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"
@@ -5720,7 +5720,7 @@ exports[`RegistrationCreatePage should throw 404 for non-existent event 1`] = `
 exports[`RegistrationCreatePage should throw 410 when entry is not open 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19703gc"
+    class="MuiBox-root css-r8ug1n"
   >
     <h1
       class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"

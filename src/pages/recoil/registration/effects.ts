@@ -1,6 +1,5 @@
 import type { AtomEffect } from 'recoil'
 import type { Registration } from '../../../types'
-
 import { getRegistration } from '../../../api/registration'
 
 export const remoteRegistrationEffect =

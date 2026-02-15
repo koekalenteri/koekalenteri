@@ -2,7 +2,6 @@ import type { JsonJudge } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type { PartialJsonJudge } from './judge'
 import type KLAPI from './KLAPI'
-
 import { jest } from '@jest/globals'
 
 jest.useFakeTimers()
@@ -20,7 +19,7 @@ describe('judge', () => {
 
   describe('fetchJudgesForEventTypes', () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-    const mockReadJudges = jest.fn<KLAPI['lueKoemuodonYlituomarit']>().mockResolvedValue({ status: 200, json: [] })
+    const mockReadJudges = jest.fn<KLAPI['lueKoemuodonYlituomarit']>().mockResolvedValue({ json: [], status: 200 })
     const mockKlapi = {
       lueKoemuodonYlituomarit: mockReadJudges,
     } as unknown as KLAPI
@@ -40,8 +39,8 @@ describe('judge', () => {
 
     it('should abort if some call fails', async () => {
       mockReadJudges
-        .mockResolvedValueOnce({ status: 200, json: [] })
-        .mockResolvedValueOnce({ status: 500, error: 'error' })
+        .mockResolvedValueOnce({ json: [], status: 200 })
+        .mockResolvedValueOnce({ error: 'error', status: 500 })
       const result = await fetchJudgesForEventTypes(mockKlapi, ['NOME-A', 'NOME-B'])
 
       expect(result).toBeUndefined()
@@ -54,47 +53,47 @@ describe('judge', () => {
     it('should not return duplicates', async () => {
       mockReadJudges
         .mockResolvedValueOnce({
-          status: 200,
           json: [
             {
               jäsennumero: 1,
+              kennelpiiri: 'piiri',
+              koemuodot: [
+                { koemuoto: '', lyhenne: 'NOME-A' },
+                { koemuoto: '', lyhenne: 'NOME-B' },
+              ],
               nimi: 'tupmari 1',
               paikkakunta: 'jossain ',
-              kennelpiiri: 'piiri',
               puhelin: 'puh',
               sähköposti: 'toumari1@example.com',
-              koemuodot: [
-                { lyhenne: 'NOME-A', koemuoto: '' },
-                { lyhenne: 'NOME-B', koemuoto: '' },
-              ],
             },
           ],
+          status: 200,
         })
         .mockResolvedValueOnce({
-          status: 200,
           json: [
             {
               jäsennumero: 1,
+              kennelpiiri: 'piiri',
+              koemuodot: [
+                { koemuoto: '', lyhenne: 'NOME-A' },
+                { koemuoto: '', lyhenne: 'NOME-B' },
+              ],
               nimi: 'tupmari 1',
               paikkakunta: 'jossain ',
-              kennelpiiri: 'piiri',
               puhelin: 'puh',
               sähköposti: 'toumari1@example.com',
-              koemuodot: [
-                { lyhenne: 'NOME-A', koemuoto: '' },
-                { lyhenne: 'NOME-B', koemuoto: '' },
-              ],
             },
             {
               jäsennumero: 2,
+              kennelpiiri: 'piiri',
+              koemuodot: [{ koemuoto: '', lyhenne: 'NOME-B' }],
               nimi: 'tuomari 2',
               paikkakunta: 'jossain ',
-              kennelpiiri: 'piiri',
               puhelin: 'puh',
               sähköposti: 'toumari2@example.com',
-              koemuodot: [{ lyhenne: 'NOME-B', koemuoto: '' }],
             },
           ],
+          status: 200,
         })
       const result = await fetchJudgesForEventTypes(mockKlapi, ['NOME-A', 'NOME-B'])
 
@@ -197,8 +196,8 @@ describe('judge', () => {
     const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
     const mockBatchWrite = jest.fn()
     const mockDB = {
-      readAll: mockReadAll,
       batchWrite: mockBatchWrite,
+      readAll: mockReadAll,
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty array', async () => {
@@ -211,11 +210,11 @@ describe('judge', () => {
     it('should add new judges', async () => {
       await updateJudges(mockDB, [
         {
+          district: 'some district',
+          email: 'test@example.com',
+          eventTypes: ['NOME-B'],
           id: 0,
           name: 'test',
-          email: 'test@example.com',
-          district: 'some district',
-          eventTypes: ['NOME-B'],
         },
       ])
 
@@ -262,12 +261,12 @@ describe('judge', () => {
 
       await updateJudges(mockDB, [
         {
-          id: existing.id,
-          name: existing.name,
-          email: existing.email,
           district: existing.district,
-          location: 'home',
+          email: existing.email,
           eventTypes: ['NOME-B', 'NOME-A'],
+          id: existing.id,
+          location: 'home',
+          name: existing.name,
         },
       ])
 
@@ -305,11 +304,11 @@ describe('judge', () => {
       mockReadAll.mockResolvedValueOnce([existing])
 
       const added: PartialJsonJudge = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'other',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateJudges(mockDB, [added])
@@ -345,11 +344,11 @@ describe('judge', () => {
       mockReadAll.mockResolvedValueOnce(undefined)
 
       const added: PartialJsonJudge = {
+        district: 'other district',
+        email: 'other@example.com',
+        eventTypes: ['NOME-A'],
         id: 222,
         name: 'other',
-        email: 'other@example.com',
-        district: 'other district',
-        eventTypes: ['NOME-A'],
       }
 
       await updateJudges(mockDB, [added])

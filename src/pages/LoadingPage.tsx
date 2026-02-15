@@ -5,12 +5,12 @@ export function LoadingPage() {
   return (
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'column',
-        minHeight: '100vh',
         backgroundColor: 'background.default',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        minHeight: '100vh',
       }}
     >
       <CircularProgress />

@@ -1,12 +1,9 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-
+import { gzipSync } from 'node:zlib'
 import { ServiceException } from '@smithy/smithy-client'
 import { metricScope } from 'aws-embedded-metrics'
-import { gzipSync } from 'node:zlib'
-
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
-
 import { debugProxyEvent } from './log'
 import { metricsError, metricsSuccess } from './metrics'
 
@@ -60,12 +57,12 @@ export const response = <T = unknown>(
   const acceptEncoding = event.headers['Accept-Encoding'] ?? ''
 
   const result: APIGatewayProxyResult = {
-    statusCode: statusCode,
     body: JSON.stringify(body),
     headers: {
       'Access-Control-Allow-Origin': allowOrigin(event),
       'Content-Type': 'application/json',
     },
+    statusCode: statusCode,
   }
 
   if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096) {

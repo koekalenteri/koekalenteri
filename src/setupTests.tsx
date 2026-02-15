@@ -3,8 +3,8 @@
 // expect(element).toHaveTextContent(/react/i)
 // learn more: https://github.com/testing-library/jest-dom
 
-import { toHaveNoViolations } from 'jest-axe'
 import { TextDecoder, TextEncoder } from 'node:util'
+import { toHaveNoViolations } from 'jest-axe'
 
 // https://github.com/jsdom/jsdom/issues/3363
 // jest/jsdom runtime doesn't provide structuredClone in all configs.
@@ -36,15 +36,15 @@ Object.defineProperty(Element.prototype, 'getBoundingClientRect', {
   configurable: true,
   value: function getBoundingClientRect() {
     return {
+      bottom: 40,
+      height: 40,
+      left: 0,
+      right: 100,
+      toJSON: () => '',
+      top: 0,
+      width: 100,
       x: 0,
       y: 0,
-      top: 0,
-      left: 0,
-      bottom: 40,
-      right: 100,
-      width: 100,
-      height: 40,
-      toJSON: () => '',
     } as unknown as DOMRect
   },
 })

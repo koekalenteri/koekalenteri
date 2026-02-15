@@ -1,6 +1,5 @@
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
@@ -14,9 +13,9 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     query: mockQuery,
     read: mockRead,
+    readAll: mockReadAll,
     update: mockUpdate,
     write: mockWrite,
-    readAll: mockReadAll,
   })),
 }))
 
@@ -41,12 +40,12 @@ describe('lib/stats', () => {
   // Test moved from event.test.ts
   describe('updateEventStatsForRegistration', () => {
     it('calls update with correct keys and values', async () => {
-      const reg = { paidAmount: 10, cancelled: false, refundAmount: 0 } as JsonRegistration
+      const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
       const event = {
-        organizer: { id: 'org1' },
-        id: 'e5',
-        startDate: '2024-01-01',
         endDate: '2024-01-02',
+        id: 'e5',
+        organizer: { id: 'org1' },
+        startDate: '2024-01-01',
       } as JsonConfirmedEvent
 
       await updateEventStatsForRegistration(reg, undefined, event)
@@ -56,18 +55,18 @@ describe('lib/stats', () => {
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
         {
-          set: {
-            organizerId: 'org1',
-            date: '2024-01-01',
-            updatedAt: expect.any(String),
-          },
           add: {
-            count: 1,
-            paidRegistrations: 1,
             cancelledRegistrations: 0,
-            refundedRegistrations: 0,
+            count: 1,
             paidAmount: 10,
+            paidRegistrations: 1,
             refundedAmount: 0,
+            refundedRegistrations: 0,
+          },
+          set: {
+            date: '2024-01-01',
+            organizerId: 'org1',
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -85,13 +84,13 @@ describe('lib/stats', () => {
     })
 
     it('handles updates with existing registration', async () => {
-      const existingReg = { paidAmount: 5, cancelled: false, refundAmount: 0 } as JsonRegistration
-      const updatedReg = { paidAmount: 10, cancelled: true, refundAmount: 2 } as JsonRegistration
+      const existingReg = { cancelled: false, paidAmount: 5, refundAmount: 0 } as JsonRegistration
+      const updatedReg = { cancelled: true, paidAmount: 10, refundAmount: 2 } as JsonRegistration
       const event = {
-        organizer: { id: 'org1' },
-        id: 'e5',
-        startDate: '2024-01-01',
         endDate: '2024-01-02',
+        id: 'e5',
+        organizer: { id: 'org1' },
+        startDate: '2024-01-01',
       } as JsonConfirmedEvent
 
       await updateEventStatsForRegistration(updatedReg, existingReg, event)
@@ -101,18 +100,18 @@ describe('lib/stats', () => {
         1,
         { PK: 'ORG#org1', SK: '2024-01-01#e5' },
         {
-          set: {
-            organizerId: 'org1',
-            date: '2024-01-01',
-            updatedAt: expect.any(String),
-          },
           add: {
-            count: 0,
-            paidRegistrations: 0,
             cancelledRegistrations: 1,
-            refundedRegistrations: 1,
+            count: 0,
             paidAmount: 5,
+            paidRegistrations: 0,
             refundedAmount: 2,
+            refundedRegistrations: 1,
+          },
+          set: {
+            date: '2024-01-01',
+            organizerId: 'org1',
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -135,15 +134,15 @@ describe('lib/stats', () => {
       const from = '2024-01-01'
       const to = '2024-12-31'
 
-      mockQuery.mockResolvedValueOnce([{ organizerId: 'org1', eventId: 'e1', count: 10 }])
+      mockQuery.mockResolvedValueOnce([{ count: 10, eventId: 'e1', organizerId: 'org1' }])
 
       const result = await getOrganizerStats(organizerIds, from, to)
 
       expect(mockQuery).toHaveBeenCalledWith({
-        key: '#pk = :pk',
-        values: { ':pk': 'ORG#org1', ':from': from, ':to': to },
-        names: { '#pk': 'PK' },
         filterExpression: 'SK >= :from AND SK <= :to',
+        key: '#pk = :pk',
+        names: { '#pk': 'PK' },
+        values: { ':from': from, ':pk': 'ORG#org1', ':to': to },
       })
 
       expect(result).toHaveLength(1)
@@ -156,10 +155,10 @@ describe('lib/stats', () => {
 
       const mockStats = [
         {
+          count: 10,
+          organizerId: 'org1',
           PK: 'ORG#org1',
           SK: '2024-02-01#e1',
-          organizerId: 'org1',
-          count: 10,
         },
       ]
 
@@ -173,8 +172,8 @@ describe('lib/stats', () => {
         undefined,
         'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
         {
-          ':orgPrefix': 'ORG#',
           ':from': from,
+          ':orgPrefix': 'ORG#',
           ':to': to,
         },
         { '#pk': 'PK' }
@@ -189,9 +188,9 @@ describe('lib/stats', () => {
       const year = 2024
 
       mockQuery.mockResolvedValueOnce([
-        { SK: 'dog', count: 150 },
-        { SK: 'handler', count: 100 },
-        { SK: 'dog#handler', count: 200 },
+        { count: 150, SK: 'dog' },
+        { count: 100, SK: 'handler' },
+        { count: 200, SK: 'dog#handler' },
       ])
 
       const result = await getYearlyTotalStats(year)
@@ -203,9 +202,9 @@ describe('lib/stats', () => {
 
       expect(result).toHaveLength(3)
       expect(result).toEqual([
-        { year: 2024, type: 'dog', count: 150 },
-        { year: 2024, type: 'handler', count: 100 },
-        { year: 2024, type: 'dog#handler', count: 200 },
+        { count: 150, type: 'dog', year: 2024 },
+        { count: 100, type: 'handler', year: 2024 },
+        { count: 200, type: 'dog#handler', year: 2024 },
       ])
     })
 
@@ -251,11 +250,11 @@ describe('lib/stats', () => {
       const year = 2024
 
       mockQuery.mockResolvedValueOnce([
-        { SK: '1', count: 50 },
-        { SK: '2', count: 30 },
-        { SK: '3', count: 20 },
-        { SK: '5-9', count: 15 },
-        { SK: '10+', count: 5 },
+        { count: 50, SK: '1' },
+        { count: 30, SK: '2' },
+        { count: 20, SK: '3' },
+        { count: 15, SK: '5-9' },
+        { count: 5, SK: '10+' },
       ])
 
       const result = await getDogHandlerBuckets(year)
@@ -288,70 +287,70 @@ describe('lib/stats', () => {
   describe('calculateStatDeltas', () => {
     it('calculates correct deltas for new registration', () => {
       const registration = {
-        paidAmount: 50,
         cancelled: false,
+        paidAmount: 50,
         refundAmount: 0,
       } as JsonRegistration
 
       const deltas = calculateStatDeltas(registration, undefined)
 
       expect(deltas).toEqual({
-        totalDelta: 1,
-        paidDelta: 1,
         cancelledDelta: 0,
-        refundedDelta: 0,
         paidAmountDelta: 50,
+        paidDelta: 1,
         refundedAmountDelta: 0,
+        refundedDelta: 0,
+        totalDelta: 1,
       })
     })
 
     it('calculates correct deltas for updated registration', () => {
       const existingRegistration = {
-        paidAmount: 50,
         cancelled: false,
+        paidAmount: 50,
         refundAmount: 0,
       } as JsonRegistration
 
       const updatedRegistration = {
-        paidAmount: 50,
         cancelled: true,
+        paidAmount: 50,
         refundAmount: 25,
       } as JsonRegistration
 
       const deltas = calculateStatDeltas(updatedRegistration, existingRegistration)
 
       expect(deltas).toEqual({
-        totalDelta: 0,
-        paidDelta: 0,
         cancelledDelta: 1,
-        refundedDelta: 1,
         paidAmountDelta: 0,
+        paidDelta: 0,
         refundedAmountDelta: 25,
+        refundedDelta: 1,
+        totalDelta: 0,
       })
     })
 
     it('handles null values correctly', () => {
       const existingRegistration = {
-        paidAmount: null,
         cancelled: false,
+        paidAmount: null,
         refundAmount: null,
       } as unknown as JsonRegistration
 
       const updatedRegistration = {
-        paidAmount: 50,
         cancelled: false,
+        paidAmount: 50,
         refundAmount: null,
       } as unknown as JsonRegistration
 
       const deltas = calculateStatDeltas(updatedRegistration, existingRegistration)
 
       expect(deltas).toEqual({
-        totalDelta: 0,
-        paidDelta: 1,
         cancelledDelta: 0,
-        refundedDelta: 0,
         paidAmountDelta: 50,
+        paidDelta: 1,
         refundedAmountDelta: 0,
+        refundedDelta: 0,
+        totalDelta: 0,
       })
     })
   })
@@ -359,18 +358,18 @@ describe('lib/stats', () => {
   describe('updateOrganizerEventStats', () => {
     it('calls update with correct parameters', async () => {
       const event = {
-        organizer: { id: 'org123' },
         id: 'event456',
+        organizer: { id: 'org123' },
         startDate: '2024-06-15',
       } as JsonConfirmedEvent
 
       const deltas = {
-        totalDelta: 1,
-        paidDelta: 1,
         cancelledDelta: 0,
-        refundedDelta: 0,
         paidAmountDelta: 50,
+        paidDelta: 1,
         refundedAmountDelta: 0,
+        refundedDelta: 0,
+        totalDelta: 1,
       }
 
       await updateOrganizerEventStats(event, deltas)
@@ -378,18 +377,18 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenCalledWith(
         { PK: 'ORG#org123', SK: '2024-06-15#event456' },
         {
-          set: {
-            organizerId: 'org123',
-            date: '2024-06-15',
-            updatedAt: expect.any(String),
-          },
           add: {
-            count: 1,
-            paidRegistrations: 1,
             cancelledRegistrations: 0,
-            refundedRegistrations: 0,
+            count: 1,
             paidAmount: 50,
+            paidRegistrations: 1,
             refundedAmount: 0,
+            refundedRegistrations: 0,
+          },
+          set: {
+            date: '2024-06-15',
+            organizerId: 'org123',
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -612,8 +611,8 @@ describe('lib/stats', () => {
 
     it('updates stats for all entity types with hashed emails', async () => {
       const registration = {
+        dog: { breedCode: 'BC', regNo: 'DOG123' },
         eventType: 'NOME',
-        dog: { regNo: 'DOG123', breedCode: 'BC' },
         handler: { email: 'handler@example.com' },
         owner: { email: 'owner@example.com' },
       } as unknown as JsonRegistration
@@ -651,8 +650,8 @@ describe('lib/stats', () => {
 
     it('uses "unknown" for missing breed code', async () => {
       const registration = {
+        dog: { breedCode: null, regNo: 'DOG123' },
         eventType: 'NOME',
-        dog: { regNo: 'DOG123', breedCode: null },
         handler: { email: 'handler@example.com' },
         owner: { email: 'owner@example.com' },
       } as unknown as JsonRegistration

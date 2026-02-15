@@ -1,19 +1,16 @@
 import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { Organizer } from '../../types'
-
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import { localeSortComparator } from '../../lib/datagrid'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isAdminSelector } from '../recoil'
-
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
@@ -54,14 +51,14 @@ export default function OrganizerListPage() {
     },
     {
       field: 'name',
-      headerName: t('organizer.name'),
       flex: 3,
+      headerName: t('organizer.name'),
       sortComparator: localeSortComparator,
     },
     {
       field: 'paytrailMerchantId',
-      headerName: t('organizer.paytrailMerchantId'),
       flex: 3,
+      headerName: t('organizer.paytrailMerchantId'),
     },
   ]
 
@@ -121,10 +118,6 @@ export default function OrganizerListPage() {
           slots={{ toolbar: QuickSearchToolbar }}
           slotProps={{
             toolbar: {
-              value: searchText,
-              columnSelector: true,
-              onChange,
-              clearSearch,
               children: (
                 <Stack direction="row" mx={1} flex={1}>
                   <FormControlLabel
@@ -138,6 +131,10 @@ export default function OrganizerListPage() {
                   />
                 </Stack>
               ),
+              clearSearch,
+              columnSelector: true,
+              onChange,
+              value: searchText,
             },
           }}
         />

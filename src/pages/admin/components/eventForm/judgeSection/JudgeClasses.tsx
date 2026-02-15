@@ -1,10 +1,7 @@
 import type { PublicJudge } from '../../../../../types'
 import type { SectionProps } from '../types'
-
 import Grid from '@mui/material/Grid'
-
 import EventClasses from '../components/EventClasses'
-
 import { filterClassesByJudgeId, updateJudge } from './utils'
 
 interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {

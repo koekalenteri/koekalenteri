@@ -1,8 +1,6 @@
 import type { Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
 import type { DragItem } from './types'
-
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
-
 import { determineChangesFromDrop } from './dnd'
 
 describe('dnd', () => {
@@ -47,42 +45,39 @@ describe('dnd', () => {
 
       // no targetIndex
       [[1.5], GROUP_KEY_RESERVE, true, 1, undefined, 'after'],
-    ])(
-      'should return %p when moving within %p group and canArrangeReserve=%p',
-      (expecterNumbers, groupKey, canArrangeReserve, index, targetIndex, position) => {
-        const item: DragItem = {
-          groupKey,
-          id: 'reg-id',
-          index,
-          groups: [],
-          targetIndex,
-          targetGroupKey: groupKey,
-          position,
-        }
-        const group: RegistrationGroup = {
-          key: groupKey,
-          number: 0, // not important
-        }
-        const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
-          eventId: 'event-id',
-          group: { number: index + 1, key: groupKey },
-          id: 'reg-id',
-        }
-        const regs: Pick<Registration, 'group'>[] = [
-          { group: { number: 1, key: groupKey } },
-          { group: { number: 2, key: groupKey } },
-          { group: { number: 3, key: groupKey } },
-        ].filter((r) => r.group.number !== reg.group?.number)
-
-        const expected = expecterNumbers.map<RegistrationGroupInfo>((number) => ({
-          eventId: 'event-id',
-          group: { number, key: groupKey },
-          id: 'reg-id',
-        }))
-
-        expect(determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)).toEqual(expected)
+    ])('should return %p when moving within %p group and canArrangeReserve=%p', (expecterNumbers, groupKey, canArrangeReserve, index, targetIndex, position) => {
+      const item: DragItem = {
+        groupKey,
+        groups: [],
+        id: 'reg-id',
+        index,
+        position,
+        targetGroupKey: groupKey,
+        targetIndex,
       }
-    )
+      const group: RegistrationGroup = {
+        key: groupKey,
+        number: 0, // not important
+      }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: groupKey, number: index + 1 },
+        id: 'reg-id',
+      }
+      const regs: Pick<Registration, 'group'>[] = [
+        { group: { key: groupKey, number: 1 } },
+        { group: { key: groupKey, number: 2 } },
+        { group: { key: groupKey, number: 3 } },
+      ].filter((r) => r.group.number !== reg.group?.number)
+
+      const expected = expecterNumbers.map<RegistrationGroupInfo>((number) => ({
+        eventId: 'event-id',
+        group: { key: groupKey, number },
+        id: 'reg-id',
+      }))
+
+      expect(determineChangesFromDrop(item, group, reg, regs, canArrangeReserve)).toEqual(expected)
+    })
 
     it.each<[number[], string, string, number, number, 'after' | 'before']>([
       [[4], GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, 3, 0, 'before'],
@@ -91,43 +86,40 @@ describe('dnd', () => {
       [[4], GROUP_KEY_CANCELLED, 'participant group', 0, 3, 'after'],
       [[4], 'grp1', 'grp2', 1, 2, 'before'],
       [[4], 'grp a', 'group b', 0, 3, 'after'],
-    ])(
-      'should return %p when moving from group %p to %p',
-      (expecterNumbers, groupKey, targetGroupKey, index, targetIndex, position) => {
-        const item: DragItem = {
-          groupKey,
-          id: 'reg-id',
-          index,
-          groups: [],
-          targetIndex,
-          targetGroupKey,
-          position,
-        }
-        const group: RegistrationGroup = {
-          key: targetGroupKey,
-          number: 0, // not important
-        }
-        const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
-          eventId: 'event-id',
-          group: { number: index + 1, key: groupKey },
-          id: 'reg-id',
-        }
-        const regs: Pick<Registration, 'group'>[] = [
-          { group: { number: 1, key: targetGroupKey } },
-          { group: { number: 2, key: targetGroupKey } },
-          { group: { number: 3, key: targetGroupKey } },
-        ]
-
-        const expected = expecterNumbers.map<RegistrationGroupInfo>((number) => ({
-          cancelled: targetGroupKey === GROUP_KEY_CANCELLED,
-          eventId: 'event-id',
-          group: { number, key: targetGroupKey },
-          id: 'reg-id',
-        }))
-
-        expect(determineChangesFromDrop(item, group, reg, regs, false)).toEqual(expected)
-        expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual(expected)
+    ])('should return %p when moving from group %p to %p', (expecterNumbers, groupKey, targetGroupKey, index, targetIndex, position) => {
+      const item: DragItem = {
+        groupKey,
+        groups: [],
+        id: 'reg-id',
+        index,
+        position,
+        targetGroupKey,
+        targetIndex,
       }
-    )
+      const group: RegistrationGroup = {
+        key: targetGroupKey,
+        number: 0, // not important
+      }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: groupKey, number: index + 1 },
+        id: 'reg-id',
+      }
+      const regs: Pick<Registration, 'group'>[] = [
+        { group: { key: targetGroupKey, number: 1 } },
+        { group: { key: targetGroupKey, number: 2 } },
+        { group: { key: targetGroupKey, number: 3 } },
+      ]
+
+      const expected = expecterNumbers.map<RegistrationGroupInfo>((number) => ({
+        cancelled: targetGroupKey === GROUP_KEY_CANCELLED,
+        eventId: 'event-id',
+        group: { key: targetGroupKey, number },
+        id: 'reg-id',
+      }))
+
+      expect(determineChangesFromDrop(item, group, reg, regs, false)).toEqual(expected)
+      expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual(expected)
+    })
   })
 })

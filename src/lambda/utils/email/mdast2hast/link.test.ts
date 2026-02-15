@@ -1,8 +1,6 @@
 import type { Link } from 'mdast'
 import type { State } from 'mdast-util-to-hast/lib/state'
-
 import { jest } from '@jest/globals'
-
 import { linkHandler } from './link'
 
 describe('linkHandler', () => {
@@ -16,9 +14,9 @@ describe('linkHandler', () => {
     }
 
     const node: Link = {
-      url: 'url',
-      type: 'link',
       children: [],
+      type: 'link',
+      url: 'url',
     }
     expect(linkHandler(state as unknown as State, node, undefined)).toMatchSnapshot()
   })
@@ -33,10 +31,10 @@ describe('linkHandler', () => {
     }
 
     const node: Link = {
-      url: 'url',
+      children: [],
       title: 'title',
       type: 'link',
-      children: [],
+      url: 'url',
     }
 
     expect(linkHandler(state as unknown as State, node, undefined)).toMatchSnapshot()

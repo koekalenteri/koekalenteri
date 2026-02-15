@@ -1,29 +1,26 @@
 import type { ReactNode } from 'react'
 import type { Transaction } from '../../../types'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider, useSnackbar } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { APIError } from '../../../api/http'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
 import { flushPromises } from '../../../test-utils/utils'
-
 import { RefundDailog as RefundDialog } from './RefundDialog'
 
 // Mock the useAdminRegistrationActions hook
 jest.mock('../recoil/registrations/actions', () => ({
   useAdminRegistrationActions: () => ({
-    transactions: jest.fn().mockResolvedValue(mockTransactions),
-    refund: jest.fn().mockImplementation(mockRefundImplementation),
     putInternalNotes: jest.fn().mockResolvedValue({}),
+    refund: jest.fn().mockImplementation(mockRefundImplementation),
+    transactions: jest.fn().mockResolvedValue(mockTransactions),
   }),
 }))
 
@@ -35,35 +32,35 @@ jest.mock('notistack', () => ({
 // Mock transaction data
 const mockTransactions: Transaction[] = [
   {
-    transactionId: 'payment-123',
-    reference: 'ref-123',
-    type: 'payment',
-    stamp: 'stamp-123',
     amount: 5000, // 50€
-    status: 'ok',
-    provider: 'nordea',
     createdAt: new Date('2024-01-01T12:00:00Z'),
     items: [
       {
+        merchant: 'merchant-123',
+        productCode: 'registration-fee',
+        reference: 'item-ref-123',
+        stamp: 'item-stamp-123',
         unitPrice: 5000,
         units: 1,
         vatPercentage: 24,
-        productCode: 'registration-fee',
-        reference: 'item-ref-123',
-        merchant: 'merchant-123',
-        stamp: 'item-stamp-123',
       },
     ],
+    provider: 'nordea',
+    reference: 'ref-123',
+    stamp: 'stamp-123',
+    status: 'ok',
+    transactionId: 'payment-123',
+    type: 'payment',
   },
   {
-    transactionId: 'refund-123',
-    reference: 'ref-456',
-    type: 'refund',
-    stamp: 'stamp-456',
     amount: 2000, // 20€
-    status: 'ok',
-    provider: 'nordea',
     createdAt: new Date('2024-01-02T12:00:00Z'),
+    provider: 'nordea',
+    reference: 'ref-456',
+    stamp: 'stamp-456',
+    status: 'ok',
+    transactionId: 'refund-123',
+    type: 'refund',
     user: 'admin',
   },
 ]
@@ -147,8 +144,8 @@ describe('RefundDialog', () => {
 
   it('handles successful refund with email provider', async () => {
     mockRefundImplementation = jest.fn().mockResolvedValue({
-      status: 'ok',
       provider: 'email refund',
+      status: 'ok',
     })
 
     render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
@@ -166,8 +163,8 @@ describe('RefundDialog', () => {
 
   it('handles pending refund status', async () => {
     mockRefundImplementation = jest.fn().mockResolvedValue({
-      status: 'pending',
       provider: 'nordea',
+      status: 'pending',
     })
 
     render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })

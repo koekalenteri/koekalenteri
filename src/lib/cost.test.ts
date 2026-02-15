@@ -1,8 +1,6 @@
 import type { BreedCode } from '../types'
 import type { DogEventCost, DogEventCostSegment, MinimalRegistrationForCost } from '../types/Cost'
-
 import { startOfDay } from 'date-fns'
-
 import {
   additionalCost,
   calculateCost,
@@ -31,12 +29,12 @@ const makeRegistration = (
   createdAt = new Date(),
   optionalCosts?: number[]
 ): MinimalRegistrationForCost => ({
-  selectedCost,
-  optionalCosts,
   createdAt,
   dog: { breedCode: breed },
   handler: { membership: handler },
+  optionalCosts,
   owner: { membership: owner },
+  selectedCost,
 })
 
 describe('selectCost', () => {
@@ -56,9 +54,9 @@ describe('selectCost', () => {
   describe('merging cost structures for members', () => {
     it('should merge member cost with base cost, preserving non-member-specific fields', () => {
       const baseCost: DogEventCost = {
-        normal: 50,
-        earlyBird: { cost: 40, days: 5 },
         breed: { '110': 45 },
+        earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       }
       const memberCost: DogEventCost = {
         normal: 40, // Member discount on normal price
@@ -68,27 +66,27 @@ describe('selectCost', () => {
       const result = selectCost(event, makeRegistration(true, false))
 
       expect(result).toEqual({
-        normal: 40, // Member price
-        earlyBird: { cost: 40, days: 5 }, // Inherited from base
         breed: { '110': 45 }, // Inherited from base
+        earlyBird: { cost: 40, days: 5 }, // Inherited from base
+        normal: 40, // Member price
       })
     })
 
     it('should merge breed prices, allowing member-specific breed overrides', () => {
       const baseCost: DogEventCost = {
-        normal: 50,
         breed: { '110': 45, '120': 48 },
+        normal: 50,
       }
       const memberCost: DogEventCost = {
-        normal: 40,
         breed: { '110': 35 }, // Override only breed 110 for members
+        normal: 40,
       }
       const event = makeEvent(baseCost, memberCost)
       const result = selectCost(event, makeRegistration(true, false))
 
       expect(result).toEqual({
-        normal: 40,
         breed: { '110': 35, '120': 48 }, // Member override for 110, base for 120
+        normal: 40,
       })
     })
 
@@ -129,26 +127,26 @@ describe('selectCost', () => {
 
     it('should handle custom costs in merging', () => {
       const baseCost: DogEventCost = {
-        normal: 50,
         custom: { cost: 30, description: { fi: 'Base custom' } },
+        normal: 50,
       }
       const memberCost: DogEventCost = {
-        normal: 40,
         custom: { cost: 25, description: { fi: 'Member custom' } },
+        normal: 40,
       }
       const event = makeEvent(baseCost, memberCost)
       const result = selectCost(event, makeRegistration(true, false))
 
       expect(result).toEqual({
-        normal: 40,
         custom: { cost: 25, description: { fi: 'Member custom' } },
+        normal: 40,
       })
     })
 
     it('should not merge when member is not a member', () => {
       const baseCost: DogEventCost = {
-        normal: 50,
         earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       }
       const memberCost: DogEventCost = {
         normal: 40,
@@ -168,8 +166,8 @@ describe('selectCost', () => {
 
     it('should handle member cost as number with base cost as object', () => {
       const baseCost: DogEventCost = {
-        normal: 50,
         earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       }
       const event = makeEvent(baseCost, 40) // Member cost as legacy number
       const result = selectCost(event, makeRegistration(true, false))
@@ -183,8 +181,8 @@ describe('additionalCost', () => {
   it('should return value when there is additional cost and its selected', () => {
     expect(
       additionalCost(makeRegistration(false, false, '110', undefined, new Date(), [0]), {
-        optionalAdditionalCosts: [{ cost: 5, description: { fi: '' } }],
         normal: 10,
+        optionalAdditionalCosts: [{ cost: 5, description: { fi: '' } }],
       })
     ).toEqual(5)
   })
@@ -192,8 +190,8 @@ describe('additionalCost', () => {
   it('should return 0 when there is additional cost but its not selected', () => {
     expect(
       additionalCost(makeRegistration(false, false, '110', undefined), {
-        optionalAdditionalCosts: [{ cost: 5, description: { fi: '' } }],
         normal: 10,
+        optionalAdditionalCosts: [{ cost: 5, description: { fi: '' } }],
       })
     ).toEqual(0)
   })
@@ -209,12 +207,12 @@ describe('additionalCost', () => {
   it('should sum multiple selected optional costs', () => {
     expect(
       additionalCost(makeRegistration(false, false, '110', undefined, new Date(), [0, 2]), {
+        normal: 10,
         optionalAdditionalCosts: [
           { cost: 5, description: { fi: 'Option 1' } },
           { cost: 10, description: { fi: 'Option 2' } },
           { cost: 15, description: { fi: 'Option 3' } },
         ],
-        normal: 10,
       })
     ).toEqual(20) // 5 + 15
   })
@@ -222,11 +220,11 @@ describe('additionalCost', () => {
   it('should handle empty optionalCosts array', () => {
     expect(
       additionalCost(makeRegistration(false, false, '110', undefined, new Date(), []), {
+        normal: 10,
         optionalAdditionalCosts: [
           { cost: 5, description: { fi: 'Option 1' } },
           { cost: 10, description: { fi: 'Option 2' } },
         ],
-        normal: 10,
       })
     ).toEqual(0)
   })
@@ -312,11 +310,11 @@ describe('getCostValue', () => {
 
   it('should return 0 for optionalAdditionalCosts', () => {
     const cost: DogEventCost = {
+      normal: 70,
       optionalAdditionalCosts: [
         { cost: 10, description: { fi: 'Option 1' } },
         { cost: 20, description: { fi: 'Option 2' } },
       ],
-      normal: 70,
     }
     expect(getCostValue(cost, 'optionalAdditionalCosts')).toEqual(0)
   })
@@ -362,8 +360,8 @@ describe('calculateCost', () => {
     const registration = makeRegistration(false, false)
     expect(calculateCost(event, registration)).toEqual({
       amount: 10,
-      segment: 'normal',
       cost,
+      segment: 'normal',
     })
     expect(
       calculateCost(
@@ -372,8 +370,8 @@ describe('calculateCost', () => {
       )
     ).toEqual({
       amount: 8,
-      segment: 'normal',
       cost: { normal: 8 },
+      segment: 'normal',
     })
   })
 
@@ -394,7 +392,6 @@ describe('calculateCost', () => {
       )
     ).toEqual({
       amount: 15, // 10 + 5
-      segment: 'normal',
       cost: {
         normal: 10,
         optionalAdditionalCosts: [
@@ -402,6 +399,7 @@ describe('calculateCost', () => {
           { cost: 10, description: { fi: 'Option 2' } },
         ],
       },
+      segment: 'normal',
     })
   })
 
@@ -412,8 +410,8 @@ describe('calculateCost', () => {
       calculateCost(
         {
           cost: {
-            normal: 50,
             earlyBird: { cost: 40, days: 5 },
+            normal: 50,
           },
           entryStartDate: startDate,
         },
@@ -421,11 +419,11 @@ describe('calculateCost', () => {
       )
     ).toEqual({
       amount: 40,
-      segment: 'earlyBird',
       cost: {
-        normal: 50,
         earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       },
+      segment: 'earlyBird',
     })
   })
 
@@ -434,8 +432,8 @@ describe('calculateCost', () => {
       calculateCost(
         {
           cost: {
-            normal: 50,
             breed: { '110': 45 },
+            normal: 50,
           },
           entryStartDate: new Date(),
         },
@@ -443,11 +441,11 @@ describe('calculateCost', () => {
       )
     ).toEqual({
       amount: 45,
-      segment: 'breed',
       cost: {
-        normal: 50,
         breed: { '110': 45 },
+        normal: 50,
       },
+      segment: 'breed',
     })
   })
 
@@ -456,8 +454,8 @@ describe('calculateCost', () => {
       calculateCost(
         {
           cost: {
-            normal: 50,
             custom: { cost: 30, description: { fi: 'Custom' } },
+            normal: 50,
           },
           entryStartDate: new Date(),
         },
@@ -465,11 +463,11 @@ describe('calculateCost', () => {
       )
     ).toEqual({
       amount: 30,
-      segment: 'custom',
       cost: {
-        normal: 50,
         custom: { cost: 30, description: { fi: 'Custom' } },
+        normal: 50,
       },
+      segment: 'custom',
     })
   })
 
@@ -480,10 +478,10 @@ describe('calculateCost', () => {
       calculateCost(
         {
           cost: {
-            normal: 50,
-            earlyBird: { cost: 40, days: 5 },
             breed: { '110': 45 },
             custom: { cost: 30, description: { fi: 'Custom' } },
+            earlyBird: { cost: 40, days: 5 },
+            normal: 50,
             optionalAdditionalCosts: [
               { cost: 5, description: { fi: 'Option 1' } },
               { cost: 10, description: { fi: 'Option 2' } },
@@ -495,17 +493,17 @@ describe('calculateCost', () => {
       )
     ).toEqual({
       amount: 45, // 30 (custom) + 5 + 10
-      segment: 'custom',
       cost: {
-        normal: 50,
-        earlyBird: { cost: 40, days: 5 },
         breed: { '110': 45 },
         custom: { cost: 30, description: { fi: 'Custom' } },
+        earlyBird: { cost: 40, days: 5 },
+        normal: 50,
         optionalAdditionalCosts: [
           { cost: 5, description: { fi: 'Option 1' } },
           { cost: 10, description: { fi: 'Option 2' } },
         ],
       },
+      segment: 'custom',
     })
   })
 
@@ -514,8 +512,8 @@ describe('calculateCost', () => {
     const earlyDate = startDate
     const event = {
       cost: {
-        normal: 50,
         earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       },
       entryStartDate: startDate.toISOString(),
     }
@@ -526,11 +524,11 @@ describe('calculateCost', () => {
 
     expect(calculateCost(event as any, registration)).toEqual({
       amount: 40,
-      segment: 'earlyBird',
       cost: {
-        normal: 50,
         earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       },
+      segment: 'earlyBird',
     })
   })
 })
@@ -571,7 +569,7 @@ describe('setCostValue', () => {
   })
 
   it('should set breed cost for multiple breeds', () => {
-    const cost: DogEventCost = { normal: 10, breed: { '120': 15 } }
+    const cost: DogEventCost = { breed: { '120': 15 }, normal: 10 }
     const newCost = setCostValue(cost, 'breed', 20, { breedCode: ['110', '130'] })
     expect(newCost.breed).toEqual({ '110': 20, '120': 15, '130': 20 })
   })
@@ -613,14 +611,14 @@ describe('getApplicableStrategy', () => {
   })
 
   it('should return selected strategy when applicable', () => {
-    const event = makeEvent({ normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } }, undefined)
+    const event = makeEvent({ custom: { cost: 30, description: { fi: 'Custom' } }, normal: 50 }, undefined)
     const registration = makeRegistration(false, false, '110', 'custom')
     const strategy = getApplicableStrategy(event, registration)
     expect(strategy.key).toBe('custom')
   })
 
   it('should fall back to cheapest when selected strategy is not applicable', () => {
-    const event = makeEvent({ normal: 50, earlyBird: { cost: 40, days: 5 } }, undefined, startOfDay(new Date()))
+    const event = makeEvent({ earlyBird: { cost: 40, days: 5 }, normal: 50 }, undefined, startOfDay(new Date()))
     // Custom is selected but not available, so it should fall back to earlyBird (cheapest)
     const registration = makeRegistration(false, false, '110', 'custom', startOfDay(new Date()))
     const strategy = getApplicableStrategy(event, registration)
@@ -631,9 +629,9 @@ describe('getApplicableStrategy', () => {
     const startDate = startOfDay(new Date())
     const event = makeEvent(
       {
-        normal: 50,
-        earlyBird: { cost: 40, days: 5 },
         breed: { '110': 35 },
+        earlyBird: { cost: 40, days: 5 },
+        normal: 50,
       },
       undefined,
       startDate
@@ -646,8 +644,8 @@ describe('getApplicableStrategy', () => {
   it('should ignore custom strategy when not explicitly selected', () => {
     const event = makeEvent(
       {
-        normal: 50,
         custom: { cost: 30, description: { fi: 'Custom' } },
+        normal: 50,
       },
       undefined
     )
@@ -660,20 +658,20 @@ describe('getApplicableStrategy', () => {
 describe('setCostValue edge cases', () => {
   it('should preserve existing custom description when not provided', () => {
     const cost: DogEventCost = {
+      custom: { cost: 15, description: { en: 'Existing EN', fi: 'Existing' } },
       normal: 10,
-      custom: { cost: 15, description: { fi: 'Existing', en: 'Existing EN' } },
     }
     const newCost = setCostValue(cost, 'custom', 20)
     expect(newCost.custom).toEqual({
       cost: 20,
-      description: { fi: 'Existing', en: 'Existing EN' },
+      description: { en: 'Existing EN', fi: 'Existing' },
     })
   })
 
   it('should preserve existing earlyBird days when not provided', () => {
     const cost: DogEventCost = {
-      normal: 10,
       earlyBird: { cost: 8, days: 5 },
+      normal: 10,
     }
     const newCost = setCostValue(cost, 'earlyBird', 7)
     expect(newCost.earlyBird).toEqual({ cost: 7, days: 5 })
@@ -697,7 +695,7 @@ describe('invalid input handling', () => {
     })
   })
   it('should handle invalid breed code in breed-specific cost calculation', () => {
-    const event = makeEvent({ normal: 50, breed: { '110': 40 } }, undefined)
+    const event = makeEvent({ breed: { '110': 40 }, normal: 50 }, undefined)
     const registration = makeRegistration(false, false, '999') // Non-existent breed code
     const result = calculateCost(event, registration)
     expect(result.amount).toBe(50) // Should fall back to normal cost
@@ -720,7 +718,7 @@ describe('invalid input handling', () => {
       ...makeRegistration(false, false),
       createdAt: undefined,
     }
-    const event = makeEvent({ normal: 50, earlyBird: { cost: 40, days: 5 } }, undefined, new Date())
+    const event = makeEvent({ earlyBird: { cost: 40, days: 5 }, normal: 50 }, undefined, new Date())
     // @ts-expect-error testing invalid input
     const result = calculateCost(event, invalidRegistration)
     expect(result.amount).toBe(50) // Should fall back to normal cost
@@ -730,7 +728,7 @@ describe('invalid input handling', () => {
 
 describe('calculateCost with complex scenarios', () => {
   it('should handle mixed member and non-member costs', () => {
-    const event = makeEvent({ normal: 50, breed: { '110': 45 } }, { normal: 40, breed: { '110': 35 } })
+    const event = makeEvent({ breed: { '110': 45 }, normal: 50 }, { breed: { '110': 35 }, normal: 40 })
     // Non-member
     const regNonMember = makeRegistration(false, false, '110')
     const resultNonMember = calculateCost(event, regNonMember)
@@ -746,7 +744,7 @@ describe('calculateCost with complex scenarios', () => {
 
   it('should handle different cost structures for member and non-member', () => {
     const event = makeEvent(
-      { normal: 50, earlyBird: { cost: 40, days: 5 } },
+      { earlyBird: { cost: 40, days: 5 }, normal: 50 },
       { normal: 40 } // No earlyBird for members
     )
     const registration = makeRegistration(true, false, '110', undefined, startOfDay(new Date()))
@@ -779,8 +777,8 @@ describe('calculateCost with complex scenarios', () => {
 
   it('should correctly calculate cost for member with custom cost when member custom is 0', () => {
     const event = makeEvent(
-      { normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } },
-      { normal: 40, custom: { cost: 0, description: { fi: 'Custom' } } }
+      { custom: { cost: 30, description: { fi: 'Custom' } }, normal: 50 },
+      { custom: { cost: 0, description: { fi: 'Custom' } }, normal: 40 }
     )
     const registration = makeRegistration(true, false, '110', 'custom')
     const result = calculateCost(event, registration)
@@ -789,8 +787,8 @@ describe('calculateCost with complex scenarios', () => {
     expect(result.amount).toBe(30)
     expect(result.segment).toBe('custom')
     expect(result.cost).toEqual({
-      normal: 40,
       custom: { cost: 30, description: { fi: 'Custom' } },
+      normal: 40,
     })
   })
 })
@@ -808,11 +806,11 @@ describe('setCostValue with additional edge cases', () => {
   it('should handle setting custom cost with complete description', () => {
     const cost: DogEventCost = { normal: 10 }
     const newCost = setCostValue(cost, 'custom', 20, {
-      description: { fi: 'Finnish', en: 'English' },
+      description: { en: 'English', fi: 'Finnish' },
     })
     expect(newCost.custom).toEqual({
       cost: 20,
-      description: { fi: 'Finnish', en: 'English' },
+      description: { en: 'English', fi: 'Finnish' },
     })
   })
 
@@ -873,10 +871,10 @@ describe('additionalCost with complex scenarios', () => {
 describe('costStrategies integration', () => {
   it('should correctly apply all strategies in order', () => {
     const cost: DogEventCost = {
-      normal: 50,
-      earlyBird: { cost: 40, days: 5 },
       breed: { '110': 45 },
       custom: { cost: 30, description: { fi: 'Custom' } },
+      earlyBird: { cost: 40, days: 5 },
+      normal: 50,
     }
 
     // Test each strategy individually
@@ -929,44 +927,44 @@ describe('hasDifferentMemberPrice', () => {
 
   it('should return false when member cost is 0 (not specified)', () => {
     const event = makeEvent(
-      { normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } },
-      { normal: 40, custom: { cost: 0, description: { fi: 'Custom' } } }
+      { custom: { cost: 30, description: { fi: 'Custom' } }, normal: 50 },
+      { custom: { cost: 0, description: { fi: 'Custom' } }, normal: 40 }
     )
     expect(hasDifferentMemberPrice(event, 'custom')).toBe(false)
   })
 
   it('should return true for different breed prices', () => {
-    const event = makeEvent({ normal: 50, breed: { '110': 45 } }, { normal: 40, breed: { '110': 35 } })
+    const event = makeEvent({ breed: { '110': 45 }, normal: 50 }, { breed: { '110': 35 }, normal: 40 })
     expect(hasDifferentMemberPrice(event, 'breed', '110')).toBe(true)
   })
 
   it('should return false when breed has same price for members', () => {
-    const event = makeEvent({ normal: 50, breed: { '110': 45 } }, { normal: 40, breed: { '110': 45 } })
+    const event = makeEvent({ breed: { '110': 45 }, normal: 50 }, { breed: { '110': 45 }, normal: 40 })
     expect(hasDifferentMemberPrice(event, 'breed', '110')).toBe(false)
   })
 
   it('should return true when segment does not exist in base cost', () => {
-    const event = makeEvent({ normal: 50 }, { normal: 40, custom: { cost: 30, description: { fi: 'Custom' } } })
+    const event = makeEvent({ normal: 50 }, { custom: { cost: 30, description: { fi: 'Custom' } }, normal: 40 })
     expect(hasDifferentMemberPrice(event, 'custom')).toBe(true)
   })
 
   it('should return false when segment does not exist in member cost', () => {
-    const event = makeEvent({ normal: 50, custom: { cost: 30, description: { fi: 'Custom' } } }, { normal: 40 })
+    const event = makeEvent({ custom: { cost: 30, description: { fi: 'Custom' } }, normal: 50 }, { normal: 40 })
     expect(hasDifferentMemberPrice(event, 'custom')).toBe(false)
   })
 
   it('should return true for different earlyBird prices', () => {
     const event = makeEvent(
-      { normal: 50, earlyBird: { cost: 40, days: 5 } },
-      { normal: 40, earlyBird: { cost: 35, days: 5 } }
+      { earlyBird: { cost: 40, days: 5 }, normal: 50 },
+      { earlyBird: { cost: 35, days: 5 }, normal: 40 }
     )
     expect(hasDifferentMemberPrice(event, 'earlyBird')).toBe(true)
   })
 
   it('should return false when member earlyBird is 0 (uses base)', () => {
     const event = makeEvent(
-      { normal: 50, earlyBird: { cost: 40, days: 5 } },
-      { normal: 40, earlyBird: { cost: 0, days: 5 } }
+      { earlyBird: { cost: 40, days: 5 }, normal: 50 },
+      { earlyBird: { cost: 0, days: 5 }, normal: 40 }
     )
     expect(hasDifferentMemberPrice(event, 'earlyBird')).toBe(false)
   })

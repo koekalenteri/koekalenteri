@@ -1,8 +1,6 @@
 import type { ConfirmedEvent, EventState, Registration } from '../types'
-
 import { useMemo } from 'react'
-
-import { getRegistrationGroupKey, GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../lib/registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../lib/registration'
 import { eventDates, placesForClass, unique, uniqueClasses } from '../lib/utils'
 
 interface EventClassInfoNumbers {
@@ -57,12 +55,12 @@ export default function useAdminEventRegistrationInfo(
       const reserve = classRegs.filter((r) => !r.cancelled && (!r.group || r.group.key === GROUP_KEY_RESERVE)).length
       const cancelled = classRegs.filter((r) => r.cancelled).length
       result[c] = {
-        places,
-        participants: regs,
-        reserve,
         cancelled,
-        value: places ? Math.round(100 * (regs / places)) : 0,
         invalid: places > 0 && regs > places,
+        participants: regs,
+        places,
+        reserve,
+        value: places ? Math.round(100 * (regs / places)) : 0,
       }
     }
     return result
@@ -94,5 +92,5 @@ export default function useAdminEventRegistrationInfo(
     return byClass
   }, [event])
 
-  return { dates, eventClasses, missingClasses, reserveByClass, numbersByClass, selectedByClass, stateByClass }
+  return { dates, eventClasses, missingClasses, numbersByClass, reserveByClass, selectedByClass, stateByClass }
 }

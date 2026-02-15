@@ -47,10 +47,10 @@ exports[`CancelDialog should display additional info when reason is "dog-sick" 1
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            registration.cancelDialog.text registration, event
+            registration.cancelDialog.text event, registration
           </p>
           <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-2cbjo-MuiTypography-root-MuiDialogContentText-root"
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description2"
           >
             registration.cancelDialog.confirmation
@@ -214,10 +214,10 @@ exports[`CancelDialog should display additional info when reason is "handler-sic
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            registration.cancelDialog.text registration, event
+            registration.cancelDialog.text event, registration
           </p>
           <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-2cbjo-MuiTypography-root-MuiDialogContentText-root"
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description2"
           >
             registration.cancelDialog.confirmation
@@ -381,10 +381,10 @@ exports[`CancelDialog should display secretary contact info when disabled 1`] = 
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            registration.cancelDialog.lateText registration, event, contact
+            registration.cancelDialog.lateText contact, event, registration
           </p>
           <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-wqn1cp-MuiTypography-root-MuiDialogContentText-root"
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-b9lojk-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description2"
           >
             registration.cancelDialog.confirmation
@@ -546,10 +546,10 @@ exports[`CancelDialog should render for admin 1`] = `
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            registration.cancelDialog.text registration, event
+            registration.cancelDialog.text event, registration
           </p>
           <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-2cbjo-MuiTypography-root-MuiDialogContentText-root"
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description2"
           >
             registration.cancelDialog.confirmation
@@ -711,10 +711,10 @@ exports[`CancelDialog should render for admin, with reason preselected 1`] = `
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            registration.cancelDialog.text registration, event
+            registration.cancelDialog.text event, registration
           </p>
           <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-2cbjo-MuiTypography-root-MuiDialogContentText-root"
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description2"
           >
             registration.cancelDialog.confirmation
@@ -870,10 +870,10 @@ exports[`CancelDialog should render when not disabled 1`] = `
             class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-ujudvl-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description"
           >
-            registration.cancelDialog.text registration, event
+            registration.cancelDialog.text event, registration
           </p>
           <p
-            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-2cbjo-MuiTypography-root-MuiDialogContentText-root"
+            class="MuiTypography-root MuiDialogContentText-root MuiTypography-body1 MuiDialogContentText-root css-1mete47-MuiTypography-root-MuiDialogContentText-root"
             id="cancel-dialog-description2"
           >
             registration.cancelDialog.confirmation

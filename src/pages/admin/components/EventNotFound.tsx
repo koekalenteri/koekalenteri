@@ -1,14 +1,12 @@
-import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Button from '@mui/material/Button'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { Path } from '../../../routeConfig'
-
 import FullPageFlex from './FullPageFlex'
 
 interface EventNotFoundProps {
@@ -25,15 +23,15 @@ const EventNotFound = ({ eventId }: EventNotFoundProps) => {
         spacing={4}
         alignItems="center"
         justifyContent="center"
-        sx={{ height: '100%', width: '100%', p: 4 }}
+        sx={{ height: '100%', p: 4, width: '100%' }}
       >
         <Paper
           elevation={3}
           sx={{
-            p: 4,
             maxWidth: 600,
-            width: '100%',
+            p: 4,
             textAlign: 'center',
+            width: '100%',
           }}
         >
           <ErrorOutlineIcon color="error" sx={{ fontSize: 64, mb: 2 }} />
@@ -48,7 +46,7 @@ const EventNotFound = ({ eventId }: EventNotFoundProps) => {
             </Typography>
           )}
 
-          <Typography variant="body1" sx={{ mt: 2, mb: 4 }}>
+          <Typography variant="body1" sx={{ mb: 4, mt: 2 }}>
             {t('error.eventMayHaveBeenDeleted')}
           </Typography>
 

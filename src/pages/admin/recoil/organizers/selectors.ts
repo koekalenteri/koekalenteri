@@ -1,11 +1,8 @@
 import type { Organizer } from '../../../../types'
-
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
-
 import { unique } from '../../../../lib/utils'
 import { adminUsersAtom } from '../user'
-
 import {
   adminOrganizerFilterAtom,
   adminOrganizerIdAtom,
@@ -14,7 +11,6 @@ import {
 } from './atoms'
 
 export const adminFilteredOrganizersSelector = selector({
-  key: 'adminFilteredOrganizers',
   get: ({ get }) => {
     const filter = get(adminOrganizerFilterAtom).toLocaleLowerCase(i18next.language)
     const list = get(adminOrganizersAtom)
@@ -25,22 +21,23 @@ export const adminFilteredOrganizersSelector = selector({
 
     return filter ? result.filter((o) => o.name.toLocaleLowerCase(i18next.language).includes(filter)) : result
   },
+  key: 'adminFilteredOrganizers',
 })
 
 const adminOrganizerSelector = selectorFamily<Organizer | undefined, string | undefined>({
-  key: 'adminOrganizerSelector',
   get:
     (organizerId) =>
     ({ get }) => {
       const events = get(adminOrganizersAtom)
       return events.find((e) => e.id === organizerId)
     },
+  key: 'adminOrganizerSelector',
 })
 
 export const adminCurrentOrganizerSelector = selector({
-  key: 'adminCurrentOrganizerSelector',
   get: ({ get }) => {
     const organizerId = get(adminOrganizerIdAtom)
     return organizerId ? get(adminOrganizerSelector(organizerId)) : undefined
   },
+  key: 'adminCurrentOrganizerSelector',
 })

@@ -1,20 +1,17 @@
 import type { RouteObject } from 'react-router'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
-
 import { LoadingPage } from './LoadingPage'
 import { Component as RegistrationInvitation } from './RegistrationInvitation'
 
@@ -31,12 +28,12 @@ describe('RegistrationInvitation', () => {
     const path = Path.invitation(registrationWithStaticDates)
     const routes: RouteObject[] = [
       {
-        path,
         element: <RegistrationInvitation />,
+        hydrateFallbackElement: <>hydrate fallback</>,
         loader: async () => ({
           data: new Promise(() => {}),
         }),
-        hydrateFallbackElement: <>hydrate fallback</>,
+        path,
       },
     ]
 
@@ -62,19 +59,19 @@ describe('RegistrationInvitation', () => {
     const path = Path.invitation(registrationWithStaticDates)
     const routes: RouteObject[] = [
       {
-        path,
         element: <RegistrationInvitation />,
+        hydrateFallbackElement: <>hydrate fallback</>,
         loader: async () => ({
           data: Promise.resolve({
             event: eventWithStaticDates,
             registration: registrationWithStaticDates,
           }),
         }),
-        hydrateFallbackElement: <>hydrate fallback</>,
+        path,
       },
       {
-        path: 'r/:id/:registrationId',
         element: <>registration-page</>,
+        path: 'r/:id/:registrationId',
       },
     ]
 
@@ -101,16 +98,16 @@ describe('RegistrationInvitation', () => {
     const path = Path.invitation(registrationWithStaticDates)
     const routes: RouteObject[] = [
       {
-        path,
         element: <RegistrationInvitation />,
+        hydrateFallbackElement: <>hydrate fallback</>,
         loader: async () => ({
           data: Promise.resolve({
-            url: invitationUrl,
             event: eventWithStaticDates,
             registration: registrationWithStaticDates,
+            url: invitationUrl,
           }),
         }),
-        hydrateFallbackElement: <>hydrate fallback</>,
+        path,
       },
     ]
 
@@ -137,7 +134,7 @@ describe('RegistrationInvitation', () => {
     expect(screen.getByText(String(registrationWithStaticDates.dog.name), { exact: false })).toBeInTheDocument()
 
     // Check that handler information is displayed
-    expect(screen.getByText(registrationWithStaticDates.handler!.name)).toBeInTheDocument()
+    expect(screen.getByText(registrationWithStaticDates?.handler?.name ?? 'UNDEFINED!')).toBeInTheDocument()
 
     // Check that buttons are displayed
     expect(screen.getByText('invitation.open')).toBeInTheDocument()

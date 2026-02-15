@@ -3,7 +3,7 @@ import { jest } from '@jest/globals'
 const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockLambdaError = jest.fn<any>()
 
@@ -17,17 +17,17 @@ jest.unstable_mockModule('../lib/event', () => ({
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
+  LambdaError: mockLambdaError,
   lambda: mockLambda,
   response: mockResponse,
-  LambdaError: mockLambdaError,
 }))
 
 const { default: getAdminEventLambda } = await import('./handler')
 
 describe('getAdminEventLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { id: 'event123' },
   } as any
 
@@ -41,7 +41,7 @@ describe('getAdminEventLambda', () => {
   })
 
   it('returns response from authorizeWithMemberOf if it exists', async () => {
-    const res = { statusCode: 401, body: 'Unauthorized' }
+    const res = { body: 'Unauthorized', statusCode: 401 }
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
 
     await getAdminEventLambda(event)
@@ -53,7 +53,7 @@ describe('getAdminEventLambda', () => {
   })
 
   it('returns event for admin user', async () => {
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
     const eventId = 'event123'
     const eventItem = {
@@ -62,7 +62,7 @@ describe('getAdminEventLambda', () => {
       organizer: { id: 'org2' }, // Different org than user is member of
     }
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(eventItem)
 
@@ -75,7 +75,7 @@ describe('getAdminEventLambda', () => {
   })
 
   it('returns event for user who is member of the event organizer', async () => {
-    const user = { id: 'user1', admin: false }
+    const user = { admin: false, id: 'user1' }
     const memberOf = ['org1', 'org3']
     const eventId = 'event123'
     const eventItem = {
@@ -84,7 +84,7 @@ describe('getAdminEventLambda', () => {
       organizer: { id: 'org3' }, // User is member of this org
     }
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(eventItem)
 
@@ -97,7 +97,7 @@ describe('getAdminEventLambda', () => {
   })
 
   it('throws 403 error for non-admin user who is not member of the event organizer', async () => {
-    const user = { id: 'user1', admin: false }
+    const user = { admin: false, id: 'user1' }
     const memberOf = ['org1', 'org2']
     const eventId = 'event123'
     const eventItem = {
@@ -106,7 +106,7 @@ describe('getAdminEventLambda', () => {
       organizer: { id: 'org3' }, // User is not member of this org
     }
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(eventItem)
 
@@ -124,12 +124,12 @@ describe('getAdminEventLambda', () => {
   })
 
   it('passes through errors from getEvent', async () => {
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
     const eventId = 'nonexistent'
     const error = new Error('Event not found')
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockRejectedValueOnce(error)
 
@@ -142,10 +142,10 @@ describe('getAdminEventLambda', () => {
   })
 
   it('handles missing event ID parameter', async () => {
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const memberOf = ['org1']
 
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ user, memberOf })
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockGetParam.mockReturnValueOnce(undefined)
 
     await getAdminEventLambda(event)

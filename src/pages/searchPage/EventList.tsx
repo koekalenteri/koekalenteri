@@ -1,5 +1,4 @@
 import type { PublicDogEvent } from '../../types'
-
 import { EmptyResult } from './eventList/EmptyResult'
 import { EventListItem } from './eventList/EventListItem'
 
@@ -9,11 +8,7 @@ interface Props {
 
 export const EventList = ({ events }: Props) =>
   events.length ? (
-    <>
-      {events.map((event, i) => (
-        <EventListItem key={event.id} event={event} odd={i % 2 === 1} />
-      ))}
-    </>
+    events.map((event, i) => <EventListItem key={event.id} event={event} odd={i % 2 === 1} />)
   ) : (
     <EmptyResult />
   )

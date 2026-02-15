@@ -1,5 +1,4 @@
 import type { JsonRegistration } from '../../types'
-
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
@@ -20,8 +19,8 @@ const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (ev
   await updateRegistrationField(eventId, id, 'internalNotes', internalNotes)
   await audit({
     auditKey: registrationAuditKey({ eventId, id }),
-    user: user.name,
     message: 'Muutti sisäistä kommenttia',
+    user: user.name,
   })
 
   return response(200, 'ok', event)

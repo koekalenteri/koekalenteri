@@ -1,10 +1,7 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
-
-import { useTranslation } from 'react-i18next'
 import TableCell from '@mui/material/TableCell'
-
+import { useTranslation } from 'react-i18next'
 import { judgeName } from '../../lib/judge'
-
 import { StyledTableRow } from './StyledTableRow'
 
 interface ClassHeaderProps {

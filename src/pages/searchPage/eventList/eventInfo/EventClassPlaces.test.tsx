@@ -1,15 +1,12 @@
 import type { ReactNode } from 'react'
 import type { MinimalEvent } from './EventClassPlaces'
-
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
-
+import { MemoryRouter } from 'react-router'
 import theme from '../../../../assets/Theme'
 import { locales } from '../../../../i18n'
-
 import { EventClassPlaces } from './EventClassPlaces'
 
 function Wrapper({ children }: { readonly children: ReactNode }) {
@@ -24,7 +21,7 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 
 describe('EventStateInfo', () => {
   it('should render without classes', () => {
-    const event = { startDate: new Date(), classes: [], places: 3, entries: 2, members: 1 }
+    const event = { classes: [], entries: 2, members: 1, places: 3, startDate: new Date() }
     const { container } = render(<EventClassPlaces event={event} eventClass={''} />, {
       wrapper: Wrapper,
     })
@@ -37,12 +34,12 @@ describe('EventStateInfo', () => {
 
   it('should render with one class', () => {
     const event: MinimalEvent = {
-      startDate: new Date(),
       // class places, members and entries should be ignored when only one class
-      classes: [{ class: 'ALO', date: new Date(), places: 0, members: 0, entries: 0 }],
-      places: 3,
+      classes: [{ class: 'ALO', date: new Date(), entries: 0, members: 0, places: 0 }],
       entries: 2,
       members: 1,
+      places: 3,
+      startDate: new Date(),
     }
     const { container } = render(<EventClassPlaces event={event} eventClass={''} />, {
       wrapper: Wrapper,
@@ -56,15 +53,15 @@ describe('EventStateInfo', () => {
 
   it('should render with two classes', () => {
     const event: MinimalEvent = {
-      startDate: new Date(),
       // class places, members and entries should be ignored when only one class
       classes: [
-        { class: 'ALO', date: new Date(), places: 3, members: 1, entries: 2 },
-        { class: 'AVO', date: new Date(), places: 13, members: 11, entries: 12 },
+        { class: 'ALO', date: new Date(), entries: 2, members: 1, places: 3 },
+        { class: 'AVO', date: new Date(), entries: 12, members: 11, places: 13 },
       ],
-      places: 0,
       entries: 0,
       members: 0,
+      places: 0,
+      startDate: new Date(),
     }
     const { container } = render(
       <>

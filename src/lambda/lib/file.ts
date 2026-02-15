@@ -1,3 +1,4 @@
+import type { Readable } from 'node:stream'
 import type {
   DeleteObjectCommandInput,
   GetObjectCommandInput,
@@ -6,11 +7,8 @@ import type {
 } from '@aws-sdk/client-s3'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { FileInfo } from 'busboy'
-import type { Readable } from 'node:stream'
-
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import Busboy from 'busboy'
-
 import { CONFIG } from '../config'
 
 const s3 = new S3Client()
@@ -34,10 +32,10 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
     console.log('busboy initialized')
 
     const result: ParseResult = {
-      fields: {},
-      info: undefined,
       data: undefined,
       error: null,
+      fields: {},
+      info: undefined,
     }
     const buffers: Uint8Array[] = []
 
@@ -76,10 +74,10 @@ export const parsePostFile = (event: APIGatewayProxyEvent) =>
 export const uploadFile = async (key: string, buffer: PutObjectCommandInput['Body']): Promise<void> => {
   console.log(`Uploading file to S3 bucket "${fileBucket}" with key "${key}"`)
   const params: PutObjectCommandInput = {
-    Bucket: fileBucket,
-    Key: key,
     Body: buffer,
+    Bucket: fileBucket,
     ContentType: 'application/pdf',
+    Key: key,
   }
 
   try {

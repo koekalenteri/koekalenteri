@@ -1,54 +1,52 @@
 import type { EventType } from '../../../../types'
 import type { PartialEvent } from './types'
-
 import { fireEvent, render, screen, within } from '@testing-library/react'
-
 import JudgesSection from './JudgesSection'
 
 const JUDGES = [
   {
-    id: 1,
-    name: 'Test Judge 1',
+    district: 'Pohjois-Karjalan Kennelpiiri ry',
     email: 'joo@ei.com',
+    eventTypes: ['NOWT'],
+    id: 1,
+    languages: ['fi'],
+    location: 'Pohjois-Karjala',
+    name: 'Test Judge 1',
+    official: true,
     phone: '+3584011111',
-    location: 'Pohjois-Karjala',
-    district: 'Pohjois-Karjalan Kennelpiiri ry',
-    languages: ['fi'],
-    eventTypes: ['NOWT'],
-    official: true,
   },
   {
-    id: 2,
-    name: 'Test Judge 2',
+    district: 'Pohjois-Karjalan Kennelpiiri ry',
     email: 'joo2@ei.com',
-    phone: '+3584022222',
-    location: 'Pohjois-Karjala',
-    district: 'Pohjois-Karjalan Kennelpiiri ry',
-    languages: ['fi'],
     eventTypes: ['NOWT'],
+    id: 2,
+    languages: ['fi'],
+    location: 'Pohjois-Karjala',
+    name: 'Test Judge 2',
     official: true,
+    phone: '+3584022222',
   },
   {
-    id: 3,
-    name: 'Test Judge 3',
-    email: 'joo3@ei.com',
-    phone: '+3584033333',
-    location: 'Pohjois-Karjala',
     district: 'Pohjois-Karjalan Kennelpiiri ry',
-    languages: ['fi'],
+    email: 'joo3@ei.com',
     eventTypes: ['NOWT'],
+    id: 3,
+    languages: ['fi'],
+    location: 'Pohjois-Karjala',
+    name: 'Test Judge 3',
     official: true,
+    phone: '+3584033333',
   },
 ]
 
 describe('JudgeSection', () => {
   it('should render properly with one judge selected', () => {
     const testEvent: PartialEvent = {
+      classes: [],
+      endDate: new Date('2022-06-02'),
       id: 'test',
       judges: [{ id: 1, name: 'Test Judge 1' }],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [],
     }
     const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
@@ -56,14 +54,14 @@ describe('JudgeSection', () => {
 
   it('should render properly with two judges selected', () => {
     const testEvent: PartialEvent = {
+      classes: [],
+      endDate: new Date('2022-06-02'),
       id: 'test',
       judges: [
         { id: 1, name: 'Test Judge 1' },
         { id: 2, name: 'Test Judge 2' },
       ],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [],
     }
     const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
@@ -71,6 +69,8 @@ describe('JudgeSection', () => {
 
   it('should render properly with three judges selected', () => {
     const testEvent: PartialEvent = {
+      classes: [],
+      endDate: new Date('2022-06-02'),
       id: 'test',
       judges: [
         { id: 1, name: 'Test Judge 1' },
@@ -78,8 +78,6 @@ describe('JudgeSection', () => {
         { id: 3, name: 'Test Judge 3' },
       ],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [],
     }
     const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
@@ -87,11 +85,11 @@ describe('JudgeSection', () => {
 
   it('should not warn about judge 0 not beign available (KOE-357)', () => {
     const testEvent: PartialEvent = {
+      classes: [],
+      endDate: new Date('2022-06-02'),
       id: 'test',
       judges: [{ id: 0, name: '' }],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [],
     }
     const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
@@ -99,12 +97,12 @@ describe('JudgeSection', () => {
 
   it('should hide classes for NOWT event (KOE-317)', () => {
     const testEvent: PartialEvent = {
-      id: 'test',
+      classes: [{ class: 'AVO', date: new Date('2022-06-01') }],
+      endDate: new Date('2022-06-02'),
       eventType: 'NOWT',
+      id: 'test',
       judges: [{ id: 0, name: '' }],
       startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
-      classes: [{ class: 'AVO', date: new Date('2022-06-01') }],
     }
     const { container } = render(<JudgesSection event={testEvent} judges={JUDGES} />)
     expect(container).toMatchSnapshot()
@@ -112,11 +110,6 @@ describe('JudgeSection', () => {
 
   it('should fire onChange', async () => {
     const testEvent: PartialEvent = {
-      id: 'test',
-      eventType: 'NOWT',
-      judges: [{ id: 1, name: 'Test Judge 1', official: true }],
-      startDate: new Date('2022-06-01'),
-      endDate: new Date('2022-06-02'),
       classes: [
         { class: 'ALO', date: new Date('2022-06-01') },
         { class: 'AVO', date: new Date('2022-06-01') },
@@ -125,21 +118,26 @@ describe('JudgeSection', () => {
         { class: 'AVO', date: new Date('2022-06-02') },
         { class: 'VOI', date: new Date('2022-06-02') },
       ],
+      endDate: new Date('2022-06-02'),
+      eventType: 'NOWT',
+      id: 'test',
+      judges: [{ id: 1, name: 'Test Judge 1', official: true }],
+      startDate: new Date('2022-06-01'),
     }
 
     const changeHandler = jest.fn((props) => Object.assign(testEvent, props))
     const eventType: EventType = {
-      eventType: 'NOWT',
-      official: true,
+      createdAt: new Date(),
+      createdBy: '',
       description: {
-        fi: 'NOWT',
         en: 'NOWT',
+        fi: 'NOWT',
         sv: 'NOWT',
       },
-      createdAt: new Date(),
+      eventType: 'NOWT',
       modifiedAt: new Date(),
-      createdBy: '',
       modifiedBy: '',
+      official: true,
     }
 
     const { rerender } = render(

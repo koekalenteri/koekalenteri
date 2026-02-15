@@ -1,5 +1,4 @@
 import type { JsonUser } from '../../types'
-
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'

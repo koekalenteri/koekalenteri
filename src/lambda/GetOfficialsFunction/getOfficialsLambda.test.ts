@@ -1,7 +1,5 @@
 import type { JsonUser } from '../../types'
-
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.unstable_mockModule('../lib/KLAPI', () => ({
@@ -28,13 +26,13 @@ const { default: getOfficialsLambda, dynamoDB } = await import('./handler')
 const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
 
 const mockUser: JsonUser = {
-  id: '',
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
 }
 
 describe('getOfficialsLambda', () => {

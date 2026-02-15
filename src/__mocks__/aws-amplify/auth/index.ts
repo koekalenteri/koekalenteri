@@ -1,9 +1,9 @@
-const mockUser: any = {
-  username: 'mock_user',
+const mockUser = {
   attributes: {
-    name: 'Test User',
     email: 'test@user.jest',
+    name: 'Test User',
   },
+  username: 'mock_user',
 }
 
 export const signOut = () => undefined

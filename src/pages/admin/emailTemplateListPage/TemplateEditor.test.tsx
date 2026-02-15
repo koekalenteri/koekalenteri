@@ -1,24 +1,21 @@
 import type { EmailTemplate } from '../../../types'
 import type { templateSchema } from './TemplateEditor.schema'
-
 import { screen } from '@testing-library/react'
-
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { TemplateEditor } from './TemplateEditor'
 
 describe('TemplateEditor', () => {
   beforeAll(() => {
     function getBoundingClientRect(): DOMRect {
       const rec = {
-        x: 0,
-        y: 0,
         bottom: 0,
         height: 0,
         left: 0,
         right: 0,
         top: 0,
         width: 0,
+        x: 0,
+        y: 0,
       }
       return { ...rec, toJSON: () => rec }
     }
@@ -42,8 +39,8 @@ describe('TemplateEditor', () => {
   })
 
   const baseTemplate: EmailTemplate = {
-    fi: '',
     en: '',
+    fi: '',
   } as unknown as EmailTemplate
 
   function setup(opts?: {
@@ -94,18 +91,18 @@ describe('TemplateEditor', () => {
 
   it('calls onChange', async () => {
     const onChange = jest.fn()
-    const { editor, user } = setup({ value: '', onChange })
+    const { editor, user } = setup({ onChange, value: '' })
 
     expect(editor).toBeInTheDocument()
     await user.type(editor!, 'Hello World!')
     expect(onChange).toHaveBeenCalled()
-    expect(onChange).toHaveBeenCalledWith({ fi: 'Hello World!', en: '' })
+    expect(onChange).toHaveBeenCalledWith({ en: '', fi: 'Hello World!' })
     expect(onChange).toHaveBeenCalledTimes(12)
   })
 
   describe('lint integration', () => {
     it('shows a warning diagnostic for unknown property in mustache', async () => {
-      const { editor } = setup({ value: 'Hello {{event.unknownKey}}', templateId: 'receipt' })
+      const { editor } = setup({ templateId: 'receipt', value: 'Hello {{event.unknownKey}}' })
 
       editor?.focus()
       await flushPromises()
@@ -114,7 +111,7 @@ describe('TemplateEditor', () => {
     })
 
     it('does not warn for known path based on schema', async () => {
-      const { editor } = setup({ value: 'Hello {{event.name}}', templateId: 'receipt' })
+      const { editor } = setup({ templateId: 'receipt', value: 'Hello {{event.name}}' })
       editor?.focus()
       await flushPromises()
 
@@ -124,7 +121,7 @@ describe('TemplateEditor', () => {
 
   describe('autocomplete integration', () => {
     it('offers top-level keys when typing inside {{ }}', async () => {
-      const { editor, user } = setup({ value: '', templateId: 'receipt' })
+      const { editor, user } = setup({ templateId: 'receipt', value: '' })
       await user.type(editor!, '{{{{e')
       await flushPromises()
       expect(editor).toHaveTextContent('{{e}}')
@@ -134,7 +131,7 @@ describe('TemplateEditor', () => {
     })
 
     it('offers child keys after selecting a property with trailing dot', async () => {
-      const { editor, user } = setup({ value: '', templateId: 'receipt' })
+      const { editor, user } = setup({ templateId: 'receipt', value: '' })
       await user.type(editor!, '{{{{event.')
       await flushPromises()
       expect(editor).toHaveTextContent('{{event.}}')
@@ -144,8 +141,8 @@ describe('TemplateEditor', () => {
     })
 
     it('completion apply inserts and reopens for object to chain children', async () => {
-      const { editor, user } = setup({ value: '', templateId: 'receipt' })
-      editor!.focus()
+      const { editor, user } = setup({ templateId: 'receipt', value: '' })
+      editor?.focus()
       await user.type(editor!, '{{{{e')
       await flushPromises()
       expect(editor).toHaveTextContent('{{e}}')
@@ -166,8 +163,8 @@ describe('TemplateEditor', () => {
   })
 
   it('uses defaultSchema when templateId not provided', async () => {
-    const { editor, user } = setup({ value: 'Hi {{reg.owner.', templateId: undefined })
-    editor!.focus()
+    const { editor, user } = setup({ templateId: undefined, value: 'Hi {{reg.owner.' })
+    editor?.focus()
     await user.type(editor!, '{{{{reg.owner.')
     await flushPromises()
 

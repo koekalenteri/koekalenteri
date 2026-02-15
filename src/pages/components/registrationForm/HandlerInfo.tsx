@@ -1,13 +1,10 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
-
-import { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
-
+import { useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
@@ -42,9 +39,9 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
   // Group local state for all form fields with a single debounced update
   const [formValues, updateField] = useLocalStateGroup(
     {
-      name: reg.handler?.name ?? '',
-      location: reg.handler?.location ?? '',
       email: reg.handler?.email ?? '',
+      location: reg.handler?.location ?? '',
+      name: reg.handler?.name ?? '',
       phone: reg.handler?.phone ?? '',
     },
     (values) => {
@@ -72,7 +69,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
       onOpenChange={onOpenChange}
     >
       <Grid container spacing={1}>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.handler?.name}
@@ -87,7 +84,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.handler?.location}
@@ -102,7 +99,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <TextField
             disabled={disabled}
             error={!reg.handler?.email}
@@ -117,7 +114,7 @@ export function HandlerInfo({ admin, reg, disabled, error, helperText, onChange,
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
+        <Grid size={{ sm: 6, xs: 12 }}>
           <MuiTelInput
             langOfCountryName={i18n.language}
             defaultCountry="FI"

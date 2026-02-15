@@ -1,7 +1,6 @@
+import { render, screen } from '@testing-library/react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { render, screen } from '@testing-library/react'
-
 import DraggableRow from './DraggableRow'
 
 // DraggableRow uses `useGridApiContext()` to verify the row exists in grid state.
@@ -14,6 +13,7 @@ jest.mock('@mui/x-data-grid', () => {
     ...actual,
     GridRow: React.forwardRef(({ children, style, className, ...rest }: any, ref: any) => (
       // Do not spread unknown props to the DOM to avoid React warnings.
+      // biome-ignore lint/a11y/useAriaPropsSupportedByRole: its a test
       <div
         data-testid="grid-row"
         ref={ref}
@@ -45,35 +45,35 @@ describe('DraggableRow', () => {
 
   // Create base props required by GridRowProps
   const baseProps = {
-    rowId: 'test-id',
-    index: 0,
-    row: { dropGroups: ['group1'] },
-    groupKey: 'group1',
-    selected: false,
-    rowHeight: 40,
-    offsetLeft: 0,
-    columnsTotalWidth: 1000,
-    visibleColumns: [],
-    renderedColumns: [],
-    firstColumnToRender: 0,
-    lastColumnToRender: 10,
-    id: 'test-id',
-    rowIndex: 0,
     cellFocus: false,
     cellTabIndex: -1,
+    columnsTotalWidth: 1000,
     editRowsState: {},
-    isLastVisible: false,
-    position: 'center',
-    tabbableCell: null,
     firstColumnIndex: 0,
-    lastColumnIndex: 0,
-    pinnedColumns: { left: [], right: [] },
+    firstColumnToRender: 0,
     focusedColumnIndex: undefined,
-    isFirstVisible: false,
-    isNotVisible: false,
-    showBottomBorder: false,
-    scrollbarWidth: 0,
     gridHasFiller: false,
+    groupKey: 'group1',
+    id: 'test-id',
+    index: 0,
+    isFirstVisible: false,
+    isLastVisible: false,
+    isNotVisible: false,
+    lastColumnIndex: 0,
+    lastColumnToRender: 10,
+    offsetLeft: 0,
+    pinnedColumns: { left: [], right: [] },
+    position: 'center',
+    renderedColumns: [],
+    row: { dropGroups: ['group1'] },
+    rowHeight: 40,
+    rowId: 'test-id',
+    rowIndex: 0,
+    scrollbarWidth: 0,
+    selected: false,
+    showBottomBorder: false,
+    tabbableCell: null,
+    visibleColumns: [],
   }
 
   it('should render GridRow with correct props', () => {
@@ -107,11 +107,11 @@ describe('DraggableRow', () => {
   it('should pass all props to GridRow', () => {
     const testProps = {
       ...baseProps,
-      rowId: 'test-id',
+      'aria-label': 'Test Row',
+      groupKey: 'group1',
       index: 0,
       row: { dropGroups: ['group1'] },
-      groupKey: 'group1',
-      'aria-label': 'Test Row',
+      rowId: 'test-id',
     }
 
     renderWithDnd(<DraggableRow {...testProps} />)

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
@@ -14,8 +14,6 @@ const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
   LambdaError: class LambdaError extends Error {
     status: number
     error: string | undefined
@@ -25,6 +23,8 @@ jest.unstable_mockModule('../lib/lambda', () => ({
       this.error = error
     }
   },
+  lambda: mockLambda,
+  response: mockResponse,
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
@@ -61,14 +61,14 @@ const { default: paymentCancelLambda } = await import('./handler')
 
 describe('paymentCancelLambda', () => {
   const event = {
-    queryStringParameters: {
-      'checkout-transaction-id': 'tx123',
-      'checkout-reference': 'event123:reg456',
-      'checkout-provider': 'paytrail',
-      'checkout-status': 'fail',
-    },
-    headers: {},
     body: '',
+    headers: {},
+    queryStringParameters: {
+      'checkout-provider': 'paytrail',
+      'checkout-reference': 'event123:reg456',
+      'checkout-status': 'fail',
+      'checkout-transaction-id': 'tx123',
+    },
   } as any
 
   beforeEach(() => {
@@ -80,19 +80,19 @@ describe('paymentCancelLambda', () => {
     // Default mock implementations
     mockParseParams.mockReturnValue({
       eventId: 'event123',
-      registrationId: 'reg456',
-      transactionId: 'tx123',
       provider: 'paytrail',
+      registrationId: 'reg456',
       status: 'fail',
+      transactionId: 'tx123',
     })
 
     mockVerifyParams.mockResolvedValue(undefined)
 
     mockRead.mockResolvedValue({
-      transactionId: 'tx123',
-      reference: 'event123:reg456',
       amount: 5000,
+      reference: 'event123:reg456',
       status: 'pending',
+      transactionId: 'tx123',
       user: 'user123',
     })
 
@@ -129,10 +129,10 @@ describe('paymentCancelLambda', () => {
     // Verify transaction status was updated
     expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(
       {
-        transactionId: 'tx123',
-        reference: 'event123:reg456',
         amount: 5000,
+        reference: 'event123:reg456',
         status: 'pending',
+        transactionId: 'tx123',
         user: 'user123',
       },
       'fail',

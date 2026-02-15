@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
@@ -32,8 +32,8 @@ const { default: setAdminLambda } = await import('./handler')
 describe('setAdminLambda', () => {
   const event = {
     body: JSON.stringify({
-      userId: 'user456',
       admin: true,
+      userId: 'user456',
     }),
     headers: {},
   } as any
@@ -43,21 +43,21 @@ describe('setAdminLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Test Admin',
-      admin: true,
     })
 
     mockParseJSONWithFallback.mockReturnValue({
-      userId: 'user456',
       admin: true,
+      userId: 'user456',
     })
 
     mockRead.mockResolvedValue({
+      admin: false,
+      email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
-      email: 'test@example.com',
-      admin: false,
     })
 
     mockUpdate.mockResolvedValue({})
@@ -88,8 +88,8 @@ describe('setAdminLambda', () => {
 
   it('returns 403 if trying to set own admin status', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      userId: 'user123', // Same as authorized user
       admin: false,
+      userId: 'user123', // Same as authorized user
     })
 
     await setAdminLambda(event)
@@ -102,9 +102,9 @@ describe('setAdminLambda', () => {
 
   it('returns 403 if not an admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Test User',
-      admin: false,
     })
 
     await setAdminLambda(event)
@@ -149,10 +149,10 @@ describe('setAdminLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        admin: true,
+        email: 'test@example.com',
         id: 'user456',
         name: 'Test User',
-        email: 'test@example.com',
-        admin: true,
         userId: 'user456',
       },
       event
@@ -161,15 +161,15 @@ describe('setAdminLambda', () => {
 
   it('revokes admin privileges successfully', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      userId: 'user456',
       admin: false,
+      userId: 'user456',
     })
 
     mockRead.mockResolvedValueOnce({
+      admin: true,
+      email: 'test@example.com',
       id: 'user456',
       name: 'Test User',
-      email: 'test@example.com',
-      admin: true,
     })
 
     await setAdminLambda(event)
@@ -193,10 +193,10 @@ describe('setAdminLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        admin: false,
+        email: 'test@example.com',
         id: 'user456',
         name: 'Test User',
-        email: 'test@example.com',
-        admin: false,
         userId: 'user456',
       },
       event

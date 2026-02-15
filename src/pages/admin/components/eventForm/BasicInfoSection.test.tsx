@@ -1,17 +1,14 @@
 import type { Props } from './BasicInfoSection'
 import type { PartialEvent } from './types'
-
 import { TZDate } from '@date-fns/tz'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { screen } from '@testing-library/react'
 import { add, format } from 'date-fns'
-
 import { locales } from '../../../../i18n'
 import { TIME_ZONE } from '../../../../i18n/dates'
 import { defaultEntryEndDate, defaultEntryStartDate, newEventStartDate } from '../../../../lib/event'
 import { flushPromises, renderWithUserEvents } from '../../../../test-utils/utils'
-
 import BasicInfoSection from './BasicInfoSection'
 
 const renderComponent = (props: Props) => {
@@ -25,18 +22,18 @@ const renderComponent = (props: Props) => {
 
   const inputs = screen.getAllByRole<HTMLInputElement>('textbox') //'Choose date', { exact: false })
   const buttons = screen.getAllByTestId('CalendarIcon')
-  return { ...res, startInput: inputs[0], endInput: inputs[1], startCalendar: buttons[0], endCalendar: buttons[1] }
+  return { ...res, endCalendar: buttons[1], endInput: inputs[1], startCalendar: buttons[0], startInput: inputs[0] }
 }
 
 describe('BasicInfoSection', () => {
   it('should render', () => {
     const testEvent = {
+      classes: [],
+      description: 'Test!',
+      endDate: new TZDate('2022-06-02', TIME_ZONE),
       id: 'test',
       judges: [],
       startDate: new TZDate('2022-06-01', TIME_ZONE),
-      endDate: new TZDate('2022-06-02', TIME_ZONE),
-      classes: [],
-      description: 'Test!',
     }
     const changeHandler = jest.fn()
     const { container } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })

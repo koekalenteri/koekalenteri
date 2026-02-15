@@ -1,11 +1,8 @@
 import type { AtomEffect } from 'recoil'
 import type { PublicDogEvent } from '../../../types'
 import type { FilterProps } from './types'
-
 import { DefaultValue } from 'recoil'
-
 import { getEvents } from '../../../api/event'
-
 import { deserializeFilter, serializeFilter } from './filters'
 
 const eventSort = (a: PublicDogEvent, b: PublicDogEvent) => a.startDate.valueOf() - b.startDate.valueOf()
@@ -32,7 +29,7 @@ export const urlSyncEffect: AtomEffect<FilterProps> = ({ node, onSet, setSelf, t
       const sessionValue = sessionStorage.getItem(node.key)
       if (sessionValue !== null) {
         setSelf(deserializeFilter(sessionValue))
-        const newUrl = globalThis.location.origin + globalThis.location.pathname + '?' + sessionValue
+        const newUrl = `${globalThis.location.origin + globalThis.location.pathname}?${sessionValue}`
         globalThis.history.pushState({ path: newUrl }, '', newUrl)
       }
     }
@@ -44,7 +41,7 @@ export const urlSyncEffect: AtomEffect<FilterProps> = ({ node, onSet, setSelf, t
     if (oldSearch === newSearch) {
       return
     }
-    const newUrl = globalThis.location.origin + globalThis.location.pathname + '?' + newSearch
+    const newUrl = `${globalThis.location.origin + globalThis.location.pathname}?${newSearch}`
     globalThis.history.pushState({ path: newUrl }, '', newUrl)
     // Save the value in session, so it can be restored when returning from different route
     sessionStorage.setItem(node.key, newSearch)

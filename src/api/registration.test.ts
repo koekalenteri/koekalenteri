@@ -1,23 +1,18 @@
 import type { Registration } from '../types'
-
 import fetchMock from 'jest-fetch-mock'
-
 import { API_BASE_URL } from '../routeConfig'
-
 import { getRegistration, getRegistrations, getStartList, putRegistration, putRegistrationGroups } from './registration'
 
 const mockRegistration: Registration = {
-  id: 'test-registration-id',
-  createdAt: new Date(),
-  createdBy: 'test-user',
-  modifiedAt: new Date(),
-  modifiedBy: 'test-user',
   agreeToTerms: true,
   breeder: {
-    name: 'test-breeder',
     location: 'test-location',
+    name: 'test-breeder',
   },
+  cancelled: false,
   class: 'AVO',
+  createdAt: new Date(),
+  createdBy: 'test-user',
   dates: [{ date: new Date(), time: 'ap' }],
   dog: {
     regNo: 'test-reg',
@@ -26,44 +21,46 @@ const mockRegistration: Registration = {
   eventId: 'test-id',
   eventType: 'test-type',
   handler: {
-    name: 'test-handler',
-    location: 'test-location',
     email: 'test-email',
-    phone: 'test-phone',
+    location: 'test-location',
     membership: false,
+    name: 'test-handler',
+    phone: 'test-phone',
   },
+  id: 'test-registration-id',
   language: 'fi',
+  modifiedAt: new Date(),
+  modifiedBy: 'test-user',
   notes: 'test-notes',
   owner: {
-    name: 'test-owner',
-    location: 'test-location',
     email: 'test-email',
-    phone: 'test-phone',
+    location: 'test-location',
     membership: false,
+    name: 'test-owner',
+    phone: 'test-phone',
   },
   ownerHandles: false,
   payer: {
-    name: 'test-payer',
     email: 'test-email',
+    name: 'test-payer',
     phone: 'test-phone',
   },
+  paymentStatus: 'SUCCESS',
   qualifyingResults: [],
   reserve: '',
   results: [
     {
-      id: 'result-id',
-      regNo: 'test-reg',
-      date: new Date(),
-      official: false,
-      type: 'test-type',
       class: 'test-class',
-      result: 'test-result',
-      location: 'test-location',
+      date: new Date(),
+      id: 'result-id',
       judge: 'test-judge',
+      location: 'test-location',
+      official: false,
+      regNo: 'test-reg',
+      result: 'test-result',
+      type: 'test-type',
     },
   ],
-  paymentStatus: 'SUCCESS',
-  cancelled: false,
 }
 
 fetchMock.enableMocks()
@@ -81,7 +78,7 @@ test('getRegistrations', async () => {
 
   expect(result.length).toEqual(1)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/registration/test-id')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/test-id`)
 })
 
 test('getRegistration', async () => {
@@ -95,7 +92,7 @@ test('getRegistration', async () => {
 
   expect(result).toMatchObject(mockRegistration)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/registration/test-id/test-registration-id')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/test-id/test-registration-id`)
 })
 
 test('putRegistration', async () => {
@@ -107,7 +104,7 @@ test('putRegistration', async () => {
 
   const result = await putRegistration(mockRegistration)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/registration/')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/`)
   expect(result.id).not.toBeUndefined()
 })
 
@@ -120,7 +117,7 @@ test('putRegistrationGroups', async () => {
 
   const { items } = await putRegistrationGroups('test-id', [mockRegistration], 'test-token')
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/reg-groups/test-id')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/reg-groups/test-id`)
   expect(items.length).toEqual(1)
 })
 
@@ -128,6 +125,6 @@ describe('getStartList', () => {
   it('should call correct endpoint', async () => {
     await getStartList('test-id')
     expect(fetchMock.mock.calls.length).toEqual(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/startlist/test-id')
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/startlist/test-id`)
   })
 })

@@ -4,7 +4,9 @@
   border-radius: 8px;
   padding: 0.75em;
   cursor: pointer;
-  box-shadow: 0px 1px 4px -1px rgba(0, 0, 0, 0.12), 0px 1px 2px -1px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0px 1px 4px -1px rgba(0, 0, 0, 0.12),
+    0px 1px 2px -1px rgba(0, 0, 0, 0.12);
   vertical-align: middle;
   top: 0;
   width: 100px;

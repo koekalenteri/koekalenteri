@@ -1,5 +1,4 @@
 import type { JsonUser, UserRole } from '../../types'
-
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { authorize } from '../lib/auth'
@@ -24,12 +23,12 @@ const setRoleLambda = lambda('setRole', async (event) => {
   }
 
   if (user.id === item.userId) {
-    console.warn('Trying to set own roles', { user, item })
+    console.warn('Trying to set own roles', { item, user })
     return response(403, 'Forbidden', event)
   }
 
   if (!user.admin && user.roles?.[item.orgId] !== 'admin') {
-    console.warn('User does not have right to set role', { user, item })
+    console.warn('User does not have right to set role', { item, user })
     return response(403, 'Forbidden', event)
   }
 

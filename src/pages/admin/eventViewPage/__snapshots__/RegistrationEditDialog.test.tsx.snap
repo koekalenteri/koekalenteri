@@ -31,7 +31,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
       <div
         aria-labelledby="reg-dialog-title"
         aria-modal="true"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-p21u6y-MuiPaper-root-MuiDialog-paper"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-1w6s0e4-MuiPaper-root-MuiDialog-paper"
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
       >
@@ -62,14 +62,14 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
           class="MuiDialogContent-root MuiDialogContent-dividers css-1gzv55m-MuiDialogContent-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1o4onl4-MuiPaper-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-shnfc0-MuiPaper-root"
             style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
           >
             <div
-              class="MuiBox-root css-d9iw6n"
+              class="MuiBox-root css-1lg2rum"
             >
               <div
-                class="MuiBox-root css-i357mj"
+                class="MuiBox-root css-13bip4b"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -89,10 +89,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -122,7 +122,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-169bonr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-169bonr-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -197,7 +197,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -279,7 +279,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -384,7 +384,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -496,7 +496,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -516,10 +516,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -549,13 +549,13 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-7 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-11gdf9w-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-7 MuiGrid-grid-xs-12 css-11gdf9w-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                               >
                                 <div
-                                  class="MuiBox-root css-70qvj9"
+                                  class="MuiBox-root css-fv3lde"
                                 >
                                   <div
                                     class="MuiAutocomplete-root css-1l4p8mg-MuiAutocomplete-root"
@@ -612,7 +612,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     registration.cta.update
                                   </button>
                                   <span
-                                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1mr14h4-MuiCircularProgress-root"
+                                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1khik6w-MuiCircularProgress-root"
                                     role="progressbar"
                                     style="width: 28px; height: 28px;"
                                   >
@@ -639,7 +639,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-5 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-1vz8p2e-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-5 MuiGrid-grid-xs-12 css-1vz8p2e-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -679,13 +679,13 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
                             >
                               <div
                                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
                               >
                                 <div
-                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                                 >
                                   <div
                                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -725,7 +725,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                   </div>
                                 </div>
                                 <div
-                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                                 >
                                   <div
                                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -767,7 +767,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth fact css-ytlejw-MuiFormControl-root"
@@ -837,7 +837,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1w98mmc-MuiAutocomplete-root"
@@ -912,7 +912,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1w98mmc-MuiAutocomplete-root"
@@ -987,7 +987,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1027,7 +1027,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1074,7 +1074,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1094,10 +1094,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1127,7 +1127,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1167,7 +1167,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1214,7 +1214,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1234,10 +1234,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1268,7 +1268,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                             >
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1310,7 +1310,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                 </div>
                               </div>
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1352,7 +1352,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                 </div>
                               </div>
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1394,7 +1394,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                 </div>
                               </div>
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1560,7 +1560,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-eo0ytz"
+                      class="MuiBox-root css-62wt2d"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1580,10 +1580,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         </svg>
                       </button>
                       <div
-                        class="MuiBox-root css-1qbrvqz"
+                        class="MuiBox-root css-d5pwdd"
                       >
                         <div
-                          class="MuiBox-root css-1jw9kr7"
+                          class="MuiBox-root css-14pnx07"
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1613,7 +1613,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1655,7 +1655,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1697,7 +1697,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1739,7 +1739,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1839,7 +1839,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-eo0ytz"
+                      class="MuiBox-root css-62wt2d"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1859,10 +1859,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         </svg>
                       </button>
                       <div
-                        class="MuiBox-root css-1qbrvqz"
+                        class="MuiBox-root css-d5pwdd"
                       >
                         <div
-                          class="MuiBox-root css-1jw9kr7"
+                          class="MuiBox-root css-14pnx07"
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1892,7 +1892,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1934,7 +1934,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1976,7 +1976,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -2066,7 +2066,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2086,10 +2086,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2124,7 +2124,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               <span
                                 class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                               >
-                                registration.rankingTime: dateFormat.datespan start, end
+                                registration.rankingTime: dateFormat.datespan end, start
                               </span>
                             </div>
                             <div
@@ -2162,7 +2162,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                   Karsintapisteet yht.:
                                 </span>
                                 <div
-                                  class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                                  class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                                 >
                                   0
                                 </div>
@@ -2176,7 +2176,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2196,10 +2196,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2276,7 +2276,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2297,10 +2297,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2397,7 +2397,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-2vk5rw"
+                class="MuiBox-root css-1hvp7l3"
               >
                 <div
                   class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
@@ -2529,7 +2529,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             </div>
           </div>
           <div
-            class="MuiBox-root css-eo0ytz"
+            class="MuiBox-root css-62wt2d"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2549,10 +2549,10 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               </svg>
             </button>
             <div
-              class="MuiBox-root css-1qbrvqz"
+              class="MuiBox-root css-d5pwdd"
             >
               <div
-                class="MuiBox-root css-1jw9kr7"
+                class="MuiBox-root css-14pnx07"
               >
                 <p
                   class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2577,7 +2577,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-e1h6et"
                     >
                       <div
-                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
+                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
                         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
@@ -2747,7 +2747,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
       <div
         aria-labelledby="reg-dialog-title"
         aria-modal="true"
-        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-p21u6y-MuiPaper-root-MuiDialog-paper"
+        class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthLg MuiDialog-paperFullWidth css-1w6s0e4-MuiPaper-root-MuiDialog-paper"
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
       >
@@ -2778,14 +2778,14 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
           class="MuiDialogContent-root MuiDialogContent-dividers css-1gzv55m-MuiDialogContent-root"
         >
           <div
-            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-1o4onl4-MuiPaper-root"
+            class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation2 css-shnfc0-MuiPaper-root"
             style="--Paper-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);"
           >
             <div
-              class="MuiBox-root css-d9iw6n"
+              class="MuiBox-root css-1lg2rum"
             >
               <div
-                class="MuiBox-root css-i357mj"
+                class="MuiBox-root css-13bip4b"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2805,10 +2805,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -2838,7 +2838,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-169bonr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-169bonr-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -2911,7 +2911,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -2991,7 +2991,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -3113,7 +3113,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasClearIcon MuiAutocomplete-hasPopupIcon css-1jhnv8w-MuiAutocomplete-root"
@@ -3242,7 +3242,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3262,10 +3262,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -3295,13 +3295,13 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-7 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-11gdf9w-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-7 MuiGrid-grid-xs-12 css-11gdf9w-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
                               >
                                 <div
-                                  class="MuiBox-root css-70qvj9"
+                                  class="MuiBox-root css-fv3lde"
                                 >
                                   <div
                                     class="MuiAutocomplete-root MuiAutocomplete-hasClearIcon css-1l4p8mg-MuiAutocomplete-root"
@@ -3379,7 +3379,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     registration.cta.update
                                   </button>
                                   <span
-                                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1mr14h4-MuiCircularProgress-root"
+                                    class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1khik6w-MuiCircularProgress-root"
                                     role="progressbar"
                                     style="width: 28px; height: 28px;"
                                   >
@@ -3406,7 +3406,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-5 MuiGrid-grid-md-6 MuiGrid-grid-lg-3 css-1vz8p2e-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-md-6 MuiGrid-grid-sm-5 MuiGrid-grid-xs-12 css-1vz8p2e-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3446,13 +3446,13 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-4y6ggl-MuiGrid-root"
                             >
                               <div
                                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-spacing-xs-1 css-gz7kd0-MuiGrid-root"
                               >
                                 <div
-                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                                 >
                                   <div
                                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3491,7 +3491,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                   </div>
                                 </div>
                                 <div
-                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-md-6 css-204a8q-MuiGrid-root"
+                                  class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-6 MuiGrid-grid-xs-12 css-204a8q-MuiGrid-root"
                                 >
                                   <div
                                     class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root fact css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3533,7 +3533,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth fact css-ytlejw-MuiFormControl-root"
@@ -3603,7 +3603,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3 MuiGrid-grid-lg-3 css-1735lx3-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-3 MuiGrid-grid-sm-3 MuiGrid-grid-xs-6 css-1735lx3-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1w98mmc-MuiAutocomplete-root"
@@ -3678,7 +3678,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                             >
                               <div
                                 class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon fact css-1w98mmc-MuiAutocomplete-root"
@@ -3753,7 +3753,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3792,7 +3792,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-lg-6 css-gdzu2g-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-6 MuiGrid-grid-xs-12 css-gdzu2g-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3838,7 +3838,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3858,10 +3858,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -3891,7 +3891,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                           >
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3930,7 +3930,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
-                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                              class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                             >
                               <div
                                 class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -3976,7 +3976,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3996,10 +3996,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4030,7 +4030,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                             >
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4071,7 +4071,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                 </div>
                               </div>
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4112,7 +4112,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                 </div>
                               </div>
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4153,7 +4153,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                 </div>
                               </div>
                               <div
-                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                               >
                                 <div
                                   class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4315,7 +4315,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-eo0ytz"
+                      class="MuiBox-root css-62wt2d"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4335,10 +4335,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         </svg>
                       </button>
                       <div
-                        class="MuiBox-root css-1qbrvqz"
+                        class="MuiBox-root css-d5pwdd"
                       >
                         <div
-                          class="MuiBox-root css-1jw9kr7"
+                          class="MuiBox-root css-14pnx07"
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4368,7 +4368,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4409,7 +4409,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4450,7 +4450,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4491,7 +4491,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4589,7 +4589,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-eo0ytz"
+                      class="MuiBox-root css-62wt2d"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4609,10 +4609,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         </svg>
                       </button>
                       <div
-                        class="MuiBox-root css-1qbrvqz"
+                        class="MuiBox-root css-d5pwdd"
                       >
                         <div
-                          class="MuiBox-root css-1jw9kr7"
+                          class="MuiBox-root css-14pnx07"
                         >
                           <p
                             class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4642,7 +4642,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
                                 >
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4683,7 +4683,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4724,7 +4724,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     </div>
                                   </div>
                                   <div
-                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-6 css-13xb3fr-MuiGrid-root"
+                                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-sm-6 MuiGrid-grid-xs-12 css-13xb3fr-MuiGrid-root"
                                   >
                                     <div
                                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root MuiTelInput-TextField css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -4812,7 +4812,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4832,10 +4832,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -4870,7 +4870,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               <span
                                 class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                               >
-                                registration.rankingTime: dateFormat.datespan start, end
+                                registration.rankingTime: dateFormat.datespan end, start
                               </span>
                             </div>
                             <div
@@ -4908,7 +4908,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                   Karsintapisteet yht.:
                                 </span>
                                 <div
-                                  class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-vzc8ko-MuiAvatar-root"
+                                  class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-14zmfcr-MuiAvatar-root"
                                 >
                                   0
                                 </div>
@@ -4922,7 +4922,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4942,10 +4942,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -5021,7 +5021,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-eo0ytz"
+                class="MuiBox-root css-62wt2d"
               >
                 <button
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5042,10 +5042,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                   </svg>
                 </button>
                 <div
-                  class="MuiBox-root css-1qbrvqz"
+                  class="MuiBox-root css-d5pwdd"
                 >
                   <div
-                    class="MuiBox-root css-1jw9kr7"
+                    class="MuiBox-root css-14pnx07"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -5140,7 +5140,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-2vk5rw"
+                class="MuiBox-root css-1hvp7l3"
               >
                 <div
                   class="MuiFormControl-root css-1iw3t7y-MuiFormControl-root"
@@ -5271,7 +5271,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             </div>
           </div>
           <div
-            class="MuiBox-root css-eo0ytz"
+            class="MuiBox-root css-62wt2d"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5291,10 +5291,10 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               </svg>
             </button>
             <div
-              class="MuiBox-root css-1qbrvqz"
+              class="MuiBox-root css-d5pwdd"
             >
               <div
-                class="MuiBox-root css-1jw9kr7"
+                class="MuiBox-root css-14pnx07"
               >
                 <p
                   class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -5319,7 +5319,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                       class="MuiBox-root css-e1h6et"
                     >
                       <div
-                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
+                        class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
                         style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div

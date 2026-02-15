@@ -1,5 +1,4 @@
-import type { ConfirmedEvent, PublicDogEvent, Registration } from './types'
-
+import type { ConfirmedEvent, PublicDogEvent, Registration, RegistrationClass } from './types'
 import { formatDate } from './i18n/dates'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
@@ -12,7 +11,8 @@ type RegistrationIds = Pick<Registration, 'eventId' | 'id'>
 
 const isRegistration = (item: ConfirmedEvent | Registration): item is Registration => 'eventId' in item
 const getItemDateAndClass = (item: ConfirmedEvent | Registration): string => {
-  let date, cls
+  let date: Date | undefined
+  let cls: RegistrationClass | null | undefined
   if (isRegistration(item)) {
     date = item.dates[0].date
     cls = item.class
@@ -24,7 +24,27 @@ const getItemDateAndClass = (item: ConfirmedEvent | Registration): string => {
 }
 
 export const Path = {
+  admin: {
+    editEvent: (id: string = ':id') => `${ADMIN_EVENTS}/edit/${id}`,
+    emailTemplates: `${ADMIN_ROOT}/templates`,
+
+    events: `${ADMIN_EVENTS}`,
+    eventTypes: `${ADMIN_ROOT}/types`,
+    index: `${ADMIN_EVENTS}`,
+    judges: `${ADMIN_ROOT}/judge`,
+    newEvent: `${ADMIN_EVENTS}/create`,
+    officials: `${ADMIN_ROOT}/officials`,
+
+    orgs: `${ADMIN_ROOT}/organizations`,
+    root: ADMIN_ROOT,
+    startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
+    users: `${ADMIN_ROOT}/users`,
+    viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
+  },
   home: '/',
+  invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
+  invitationAttachment: (item: ConfirmedEvent | Registration) =>
+    `${API_BASE_URL}/file/${item.invitationAttachment}/kutsu-${item.eventType}-${getItemDateAndClass(item)}.pdf`,
   login: '/login',
   logout: '/logout',
   payment: (registration: RegistrationIds) => `/p/${registration.eventId}/${registration.id}`,
@@ -38,25 +58,5 @@ export const Path = {
   },
   registration: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}`,
   registrationOk: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/saved`,
-  invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
-  invitationAttachment: (item: ConfirmedEvent | Registration) =>
-    `${API_BASE_URL}/file/${item.invitationAttachment}/kutsu-${item.eventType}-${getItemDateAndClass(item)}.pdf`,
   startList: (id: string = ':id') => `/startlist/${id}`,
-  admin: {
-    root: ADMIN_ROOT,
-    index: `${ADMIN_EVENTS}`,
-
-    events: `${ADMIN_EVENTS}`,
-    newEvent: `${ADMIN_EVENTS}/create`,
-    editEvent: (id: string = ':id') => `${ADMIN_EVENTS}/edit/${id}`,
-    viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
-    startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
-
-    orgs: `${ADMIN_ROOT}/organizations`,
-    users: `${ADMIN_ROOT}/users`,
-    officials: `${ADMIN_ROOT}/officials`,
-    judges: `${ADMIN_ROOT}/judge`,
-    eventTypes: `${ADMIN_ROOT}/types`,
-    emailTemplates: `${ADMIN_ROOT}/templates`,
-  },
 }

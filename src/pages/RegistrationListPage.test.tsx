@@ -1,19 +1,16 @@
 import type { RouteObject } from 'react-router'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
 import * as registrationApi from '../api/registration'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
-
 import { RegistrationListPage } from './RegistrationListPage'
 
 jest.mock('../lib/navigation', () => ({
@@ -56,32 +53,32 @@ describe('RegistrationListPage', () => {
   ) => {
     const routes: RouteObject[] = [
       {
-        path: '/r/:id/:registrationId',
         element: <RegistrationListPage {...props} />,
+        path: '/r/:id/:registrationId',
       },
       {
-        path: '/r/:id/:registrationId/cancel',
         element: <RegistrationListPage cancel={true} />,
+        path: '/r/:id/:registrationId/cancel',
       },
       {
-        path: '/r/:id/:registrationId/confirm',
         element: <RegistrationListPage confirm={true} />,
+        path: '/r/:id/:registrationId/confirm',
       },
       {
-        path: '/r/:id/:registrationId/invitation',
         element: <RegistrationListPage invitation={true} />,
+        path: '/r/:id/:registrationId/invitation',
       },
       {
-        path: '/r/:id/:registrationId/saved',
         element: <RegistrationListPage />,
+        path: '/r/:id/:registrationId/saved',
       },
       {
-        path: '/payment/:id/:registrationId',
         element: <>Payment Page</>,
+        path: '/payment/:id/:registrationId',
       },
       {
-        path: '/invitation-attachment/:id/:registrationId',
         element: <>Invitation Attachment</>,
+        path: '/invitation-attachment/:id/:registrationId',
       },
     ]
 
@@ -218,12 +215,12 @@ describe('RegistrationListPage', () => {
   it('shows snackbar when on saved route with payment success', async () => {
     const routes: RouteObject[] = [
       {
-        path: '/r/:id/:registrationId/saved',
         element: <RegistrationListPage />,
+        path: '/r/:id/:registrationId/saved',
       },
       {
-        path: '/r/:id/:registrationId',
         element: <>Registration Page</>,
+        path: '/r/:id/:registrationId',
       },
     ]
 
@@ -336,12 +333,12 @@ describe('RegistrationListPage', () => {
   it('shows snackbar when on saved route with payment success and picked', async () => {
     const routes: RouteObject[] = [
       {
-        path: '/r/:id/:registrationId/saved',
         element: <RegistrationListPage />,
+        path: '/r/:id/:registrationId/saved',
       },
       {
-        path: '/r/:id/:registrationId',
         element: <>Registration Page</>,
+        path: '/r/:id/:registrationId',
       },
     ]
 

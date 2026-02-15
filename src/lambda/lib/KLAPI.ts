@@ -50,7 +50,10 @@ export default class KLAPI {
   }
 
   private async _getConfig(): Promise<KLAPIConfig> {
-    return this._config || (this._config = await this._loadConfig())
+    if (!this._config) {
+      this._config = await this._loadConfig()
+    }
+    return this._config
   }
 
   private async get<T extends JsonObject | JsonArray>(
@@ -62,16 +65,16 @@ export default class KLAPI {
     console.log(`KLAPI: ${path}?${sp}`)
     let json: T | undefined
     let status = 204
-    let error
+    let error: string | undefined
     try {
       const start = process.hrtime.bigint()
-      const res = await fetch(`${cfg.KL_API_URL}/${path}?` + sp, {
-        method: 'GET',
+      const res = await fetch(`${cfg.KL_API_URL}/${path}?${sp}`, {
         headers: {
           'Content-Type': 'application/json',
           'X-Kayttajatunnus': cfg.KL_API_UID,
           'X-Salasana': cfg.KL_API_PWD,
         },
+        method: 'GET',
       })
       status = res.status
       try {
@@ -79,21 +82,21 @@ export default class KLAPI {
           json = (await res.json()) as T
         } else {
           console.error('KLAPI: !res.ok', {
+            body: res.body,
             headers: res.headers,
             status: res.status,
             statusText: res.statusText,
-            body: res.body,
           })
         }
         if (json) {
           const time = Number((process.hrtime.bigint() - start) / 100000n) / 10
-          console.log(`KLAPI response (in ${time}ms):` + JSON.stringify(json))
+          console.log(`KLAPI response (in ${time}ms):${JSON.stringify(json)}`)
         } else {
           error = await res.text()
           console.error('KLAPI not ok', status, error)
         }
-      } catch (error_) {
-        console.error('KLAPI JSON expection', error_)
+      } catch (err) {
+        console.error('KLAPI JSON expection', err)
         console.log(status, JSON.stringify(res))
       }
     } catch (e: unknown) {
@@ -103,8 +106,8 @@ export default class KLAPI {
       }
     }
 
-    console.log('KPLAPI.get returning', { status, error, json })
-    return { status, error, json }
+    console.log('KPLAPI.get returning', { error, json, status })
+    return { error, json, status }
   }
 
   async lueKoiranPerustiedot(parametrit: KLKoiraParametrit, allowDead: boolean = false): KLAPIResult<KLKoira> {
@@ -114,11 +117,11 @@ export default class KLAPI {
     const result = await this.get<KLKoira>('Koira/Lue/Perustiedot', parametrit)
     if (!result.json?.rekisterinumero) {
       console.warn('KLAPI returned json without rekisterinumero, converting to 404')
-      return { status: 404, error: 'not found' }
+      return { error: 'not found', status: 404 }
     }
     if (result.json?.kuollut && !allowDead) {
       console.warn('KLAPI returned json with kuollut -date, converting to 404')
-      return { status: 404, error: 'diseased' }
+      return { error: 'diseased', status: 404 }
     }
     return result
   }

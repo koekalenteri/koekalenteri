@@ -1,8 +1,6 @@
 import type { JsonRegistration } from '../../types'
-
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
@@ -25,7 +23,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   const item = await getEvent(id)
 
   item.id = nanoid(10)
-  item.name = 'Kopio - ' + (item.name ?? '')
+  item.name = `Kopio - ${item.name ?? ''}`
   item.state = 'draft'
   item.createdAt = timestamp
   item.createdBy = user.name
@@ -49,8 +47,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const registrations = await dynamoDB.query<JsonRegistration>({
     key: 'eventId = :id',
-    values: { ':id': id },
     table: registrationTable,
+    values: { ':id': id },
   })
   for (const reg of registrations ?? []) {
     reg.eventId = item.id
@@ -60,7 +58,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     if (reg.group) {
       if (reg.group.date && reg.group.key) {
         reg.group.date = addDays(parseISO(reg.group.date), days).toISOString()
-        reg.group.key = reg.group.date.slice(0, 10) + '-' + reg.group.time
+        reg.group.key = `${reg.group.date.slice(0, 10)}-${reg.group.time}`
       }
     }
     await dynamoDB.write(reg, registrationTable)

@@ -254,7 +254,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           tabindex="-1"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-1psm8bh-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-18or0uh-MuiAvatar-root"
           >
             dateFormat.weekday date
           </div>
@@ -270,7 +270,7 @@ exports[`EventClasses should render with classes and values for 2 day event, ope
           tabindex="-1"
         >
           <div
-            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-1psm8bh-MuiAvatar-root"
+            class="MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault MuiChip-avatar MuiChip-avatarSmall MuiChip-avatarColorDefault css-18or0uh-MuiAvatar-root"
           >
             dateFormat.weekday date
           </div>

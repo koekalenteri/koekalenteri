@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuditTrail = jest.fn<any>()
 
@@ -24,8 +24,8 @@ const { default: getAuditTrailLambda } = await import('./handler')
 
 describe('getAuditTrailLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { eventId: 'event123', id: 'reg456' },
   } as any
 
@@ -49,8 +49,8 @@ describe('getAuditTrailLambda', () => {
     const eventId = 'event123'
     const regId = 'reg456'
     const auditTrailData = [
-      { auditKey: 'event123:reg456', action: 'create', timestamp: '2025-01-01T00:00:00.000Z' },
-      { auditKey: 'event123:reg456', action: 'update', timestamp: '2025-01-02T00:00:00.000Z' },
+      { action: 'create', auditKey: 'event123:reg456', timestamp: '2025-01-01T00:00:00.000Z' },
+      { action: 'update', auditKey: 'event123:reg456', timestamp: '2025-01-02T00:00:00.000Z' },
     ]
 
     mockAuthorize.mockResolvedValueOnce(user)

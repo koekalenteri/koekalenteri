@@ -1,6 +1,5 @@
 import type { EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
-
 import {
   clone,
   hasChanges,
@@ -19,12 +18,14 @@ import {
 
 describe('utils', () => {
   describe('isDateString', () => {
-    it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2016-12-31T23:59:60+00:00', '2018-06-19T04:06Z'])(
-      'should return true for valid date string: %p',
-      (dateStr) => {
-        expect(isDateString(dateStr)).toEqual(true)
-      }
-    )
+    it.each([
+      '2016-09-18T17:34:02.666Z',
+      '2021-05-10T09:05:12.000Z',
+      '2016-12-31T23:59:60+00:00',
+      '2018-06-19T04:06Z',
+    ])('should return true for valid date string: %p', (dateStr) => {
+      expect(isDateString(dateStr)).toEqual(true)
+    })
     it.each([
       null,
       undefined,
@@ -69,31 +70,29 @@ describe('utils', () => {
   describe('registrationDates', () => {
     it('should return each possible registration date for event without classes', () => {
       const event = {
-        startDate: new Date(2020, 1, 1),
-        endDate: new Date(2020, 1, 2),
         classes: [] as EventClass[],
+        endDate: new Date(2020, 1, 2),
+        startDate: new Date(2020, 1, 1),
       } as PublicDogEvent
       expect(registrationDates(event, ['ap', 'ip']).length).toEqual(4)
     })
 
     it('should return each possible registration date for event with classes', () => {
       const event = {
-        startDate: new Date(2020, 1, 1),
-        endDate: new Date(2020, 1, 3),
         classes: [
           {
             class: 'ALO',
             date: new Date(2020, 1, 2),
           },
         ],
+        endDate: new Date(2020, 1, 3),
+        startDate: new Date(2020, 1, 1),
       } as PublicDogEvent
       expect(registrationDates(event, ['ap', 'ip']).length).toEqual(2)
     })
 
     it('should return each possible registration date for event with classes, for a class', () => {
       const event = {
-        startDate: new Date(2020, 1, 1),
-        endDate: new Date(2020, 1, 3),
         classes: [
           {
             class: 'ALO',
@@ -112,6 +111,8 @@ describe('utils', () => {
             date: new Date(2020, 1, 3),
           },
         ],
+        endDate: new Date(2020, 1, 3),
+        startDate: new Date(2020, 1, 1),
       } as PublicDogEvent
       expect(registrationDates(event, ['ap', 'ip'], 'ALO').length).toEqual(6)
       expect(registrationDates(event, ['ap', 'ip'], 'VOI').length).toEqual(2)
@@ -202,13 +203,13 @@ describe('utils', () => {
     const past = new Date(1699999999999)
     it.each<EventState>(['draft', 'cancelled', 'tentative'])('should return false for event with state %s', (state) => {
       expect(
-        isEntryOpen({ startDate: future, endDate: future, entryStartDate: past, entryEndDate: future, state }, now)
+        isEntryOpen({ endDate: future, entryEndDate: future, entryStartDate: past, startDate: future, state }, now)
       ).toEqual(false)
     })
     it('should return true when entry is open', () => {
       expect(
         isEntryOpen(
-          { startDate: future, endDate: future, entryStartDate: past, entryEndDate: future, state: 'confirmed' },
+          { endDate: future, entryEndDate: future, entryStartDate: past, startDate: future, state: 'confirmed' },
           now
         )
       ).toEqual(true)
@@ -218,18 +219,18 @@ describe('utils', () => {
   describe('isEntryUpcoming', () => {
     const now = new Date(1700000000000)
     const future = new Date(1700000001000)
-    it.each<EventState>(['confirmed', 'tentative'])(
-      'should return true when entryStartDate is in the future and event state is %s',
-      (state) => {
-        expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(true)
-      }
-    )
-    it.each<EventState>(['draft', 'cancelled'])(
-      'should return false when entryStartDate is in the future, but event state is %s',
-      (state) => {
-        expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(false)
-      }
-    )
+    it.each<EventState>([
+      'confirmed',
+      'tentative',
+    ])('should return true when entryStartDate is in the future and event state is %s', (state) => {
+      expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(true)
+    })
+    it.each<EventState>([
+      'draft',
+      'cancelled',
+    ])('should return false when entryStartDate is in the future, but event state is %s', (state) => {
+      expect(isEntryUpcoming({ entryStartDate: future, state }, now)).toBe(false)
+    })
 
     it('should return false when entryStartDate is not in the future', () => {
       expect(isEntryUpcoming({ entryStartDate: now, state: 'confirmed' }, now)).toBe(false)
@@ -251,7 +252,7 @@ describe('utils', () => {
     `(
       `when startDate=$startDate.toISOString, time=${now.toISOString()}, endDate=$endDate.toISOString and state='$state', it should return $expected`,
       ({ startDate, endDate, expected, state }) => {
-        expect(isEventOngoing({ startDate, endDate, state }, now)).toBe(expected)
+        expect(isEventOngoing({ endDate, startDate, state }, now)).toBe(expected)
       }
     )
   })
@@ -300,7 +301,7 @@ describe('utils', () => {
     `(
       'should return $expected for class $cls when places is $places and $classes is $classes',
       ({ places, classes, cls, expected }) => {
-        expect(placesForClass({ places, classes }, cls)).toEqual(expected)
+        expect(placesForClass({ classes, places }, cls)).toEqual(expected)
       }
     )
   })

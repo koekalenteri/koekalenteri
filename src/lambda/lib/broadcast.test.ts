@@ -6,9 +6,9 @@ const mockRead = jest.fn<any>()
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
-    transaction: mockTransaction,
-    readAll: mockReadAll,
     read: mockRead,
+    readAll: mockReadAll,
+    transaction: mockTransaction,
   })),
 }))
 
@@ -22,8 +22,9 @@ jest.unstable_mockModule('@aws-sdk/client-apigatewaymanagementapi', () => {
   }
 })
 
-const { wsConnect, wsDisconnect, broadcastEvent, broadcastConnectionCount, CONNECTION_COUNT_ID } =
-  await import('./broadcast')
+const { wsConnect, wsDisconnect, broadcastEvent, broadcastConnectionCount, CONNECTION_COUNT_ID } = await import(
+  './broadcast'
+)
 
 describe('broadcast', () => {
   jest.spyOn(console, 'log').mockImplementation(() => undefined)
@@ -47,9 +48,9 @@ describe('broadcast', () => {
         },
         {
           Update: {
+            ExpressionAttributeValues: { ':delta': { N: '1' } },
             Key: { connectionId: { S: CONNECTION_COUNT_ID } },
             UpdateExpression: 'ADD connectionCount :delta',
-            ExpressionAttributeValues: { ':delta': { N: '1' } },
           },
         },
       ])
@@ -76,15 +77,15 @@ describe('broadcast', () => {
       expect(mockTransaction).toHaveBeenCalledWith([
         {
           Delete: {
-            Key: { connectionId: { S: connectionId } },
             ConditionExpression: 'attribute_exists(connectionId)',
+            Key: { connectionId: { S: connectionId } },
           },
         },
         {
           Update: {
+            ExpressionAttributeValues: { ':delta': { N: '-1' } },
             Key: { connectionId: { S: CONNECTION_COUNT_ID } },
             UpdateExpression: 'ADD connectionCount :delta',
-            ExpressionAttributeValues: { ':delta': { N: '-1' } },
           },
         },
       ])
@@ -248,15 +249,15 @@ describe('broadcast', () => {
       expect(mockTransaction).toHaveBeenCalledWith([
         {
           Delete: {
-            Key: { connectionId: { S: 'conn-1' } },
             ConditionExpression: 'attribute_exists(connectionId)',
+            Key: { connectionId: { S: 'conn-1' } },
           },
         },
         {
           Update: {
+            ExpressionAttributeValues: { ':delta': { N: '-1' } },
             Key: { connectionId: { S: CONNECTION_COUNT_ID } },
             UpdateExpression: 'ADD connectionCount :delta',
-            ExpressionAttributeValues: { ':delta': { N: '-1' } },
           },
         },
       ])
@@ -268,7 +269,7 @@ describe('broadcast', () => {
   describe('broadcastConnectionCount', () => {
     it('should broadcast the current connection count when count exists', async () => {
       const connections = [{ connectionId: 'conn-1' }]
-      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 5 }
+      const mockCount = { connectionCount: 5, connectionId: CONNECTION_COUNT_ID }
       mockRead.mockResolvedValueOnce(mockCount)
       mockReadAll.mockResolvedValueOnce(connections)
       mockSendToConnection.mockResolvedValueOnce(undefined)
@@ -294,7 +295,7 @@ describe('broadcast', () => {
     })
 
     it('should not broadcast if connectionCount is 0', async () => {
-      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 0 }
+      const mockCount = { connectionCount: 0, connectionId: CONNECTION_COUNT_ID }
       mockRead.mockResolvedValueOnce(mockCount)
 
       await broadcastConnectionCount()
@@ -304,7 +305,7 @@ describe('broadcast', () => {
     })
 
     it('should not broadcast if connectionCount is negative', async () => {
-      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: -1 }
+      const mockCount = { connectionCount: -1, connectionId: CONNECTION_COUNT_ID }
       mockRead.mockResolvedValueOnce(mockCount)
 
       await broadcastConnectionCount()
@@ -325,7 +326,7 @@ describe('broadcast', () => {
 
     it('should handle optional exceptConnectionId parameter', async () => {
       const connections = [{ connectionId: 'conn-1' }]
-      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 5 }
+      const mockCount = { connectionCount: 5, connectionId: CONNECTION_COUNT_ID }
       mockRead.mockResolvedValueOnce(mockCount)
       mockReadAll.mockResolvedValueOnce(connections)
       mockSendToConnection.mockResolvedValueOnce(undefined)
@@ -344,7 +345,7 @@ describe('broadcast', () => {
 
     it('should not boradcast to the excluded connection', async () => {
       const connections = [{ connectionId: 'conn-1' }, { connectionId: 'conn-except' }]
-      const mockCount = { connectionId: CONNECTION_COUNT_ID, connectionCount: 5 }
+      const mockCount = { connectionCount: 5, connectionId: CONNECTION_COUNT_ID }
       const exceptId = 'conn-except'
 
       mockRead.mockResolvedValueOnce(mockCount)

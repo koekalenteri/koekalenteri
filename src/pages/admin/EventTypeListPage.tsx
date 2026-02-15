@@ -1,18 +1,16 @@
-import { useCallback, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import CloudSync from '@mui/icons-material/CloudSync'
 import Stack from '@mui/material/Stack'
+import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isAdminSelector } from '../recoil'
-
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
-import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 import { CreateEventTypeDialog } from './eventTypeListPage/CreateEventTypeDialog'
+import { useEventTypeListPageColumns } from './eventTypeListPage/columns'
 import { adminEventTypeFilterAtom, adminFilteredEventTypesSelector, useAdminEventTypeActions } from './recoil'
 
 export default function EventTypeListPage() {
@@ -56,9 +54,9 @@ export default function EventTypeListPage() {
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
-            value: searchText,
-            onChange,
             clearSearch,
+            onChange,
+            value: searchText,
           },
         }}
         rows={eventTypes}

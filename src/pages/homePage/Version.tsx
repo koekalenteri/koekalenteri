@@ -1,7 +1,6 @@
 import Box from '@mui/material/Box'
 import { lightFormat } from 'date-fns'
 import preval from 'preval.macro'
-
 import pkg from '../../../package.json'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 
@@ -13,17 +12,17 @@ export default function Version() {
   return (
     <Box
       sx={{
-        top: HEADER_HEIGHT,
-        position: 'absolute',
-        left: 0,
-        right: 0,
         color: '#eee',
-        fontSize: 8,
         fontFamily: 'monospace',
+        fontSize: 8,
+        left: 0,
         p: 0.5,
+        position: 'absolute',
+        right: 0,
         textAlign: 'right',
-        zIndex: 2,
         textShadow: '1px 1px 1px #000',
+        top: HEADER_HEIGHT,
+        zIndex: 2,
       }}
       component="aside"
     >

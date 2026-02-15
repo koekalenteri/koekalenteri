@@ -1,21 +1,20 @@
 import type { Element } from 'hast'
 import type { State } from 'mdast-util-to-hast/lib/state'
-
 import { all, one, tableHandler, wrap } from './table'
 
 // Mock state for testing - using any for flexibility in tests
 const mockState = {
-  patch: (node: any, result: any) => result,
   handlers: {
-    text: (state: any, node: any) => ({ type: 'text', value: node.value }),
+    break: () => ({ children: [], properties: {}, tagName: 'br', type: 'element' }),
     paragraph: (state: any, node: any) => ({
-      type: 'element',
-      tagName: 'p',
-      properties: {},
       children: all(state, node),
+      properties: {},
+      tagName: 'p',
+      type: 'element',
     }),
-    break: () => ({ type: 'element', tagName: 'br', properties: {}, children: [] }),
+    text: (_state: any, node: any) => ({ type: 'text', value: node.value }),
   },
+  patch: (_node: any, result: any) => result,
 } as any as State
 
 describe('table.ts', () => {
@@ -23,26 +22,26 @@ describe('table.ts', () => {
     it('should convert a markdown table to HTML table', () => {
       // Create a simple markdown table
       const table = {
-        type: 'table',
         align: ['left', 'center', 'right'],
         children: [
           {
-            type: 'tableRow',
             children: [
-              { type: 'tableCell', children: [{ type: 'text', value: 'Header 1' }] },
-              { type: 'tableCell', children: [{ type: 'text', value: 'Header 2' }] },
-              { type: 'tableCell', children: [{ type: 'text', value: 'Header 3' }] },
+              { children: [{ type: 'text', value: 'Header 1' }], type: 'tableCell' },
+              { children: [{ type: 'text', value: 'Header 2' }], type: 'tableCell' },
+              { children: [{ type: 'text', value: 'Header 3' }], type: 'tableCell' },
             ],
+            type: 'tableRow',
           },
           {
-            type: 'tableRow',
             children: [
-              { type: 'tableCell', children: [{ type: 'text', value: 'Cell 1' }] },
-              { type: 'tableCell', children: [{ type: 'text', value: 'Cell 2' }] },
-              { type: 'tableCell', children: [{ type: 'text', value: 'Cell 3' }] },
+              { children: [{ type: 'text', value: 'Cell 1' }], type: 'tableCell' },
+              { children: [{ type: 'text', value: 'Cell 2' }], type: 'tableCell' },
+              { children: [{ type: 'text', value: 'Cell 3' }], type: 'tableCell' },
             ],
+            type: 'tableRow',
           },
         ],
+        type: 'table',
       }
 
       const result = tableHandler(mockState, table, undefined) as any
@@ -63,23 +62,23 @@ describe('table.ts', () => {
     it('should handle tables without align property', () => {
       // Create a table without align property
       const table = {
-        type: 'table',
         children: [
           {
-            type: 'tableRow',
             children: [
-              { type: 'tableCell', children: [{ type: 'text', value: 'Header 1' }] },
-              { type: 'tableCell', children: [{ type: 'text', value: 'Header 2' }] },
+              { children: [{ type: 'text', value: 'Header 1' }], type: 'tableCell' },
+              { children: [{ type: 'text', value: 'Header 2' }], type: 'tableCell' },
             ],
+            type: 'tableRow',
           },
           {
-            type: 'tableRow',
             children: [
-              { type: 'tableCell', children: [{ type: 'text', value: 'Cell 1' }] },
-              { type: 'tableCell', children: [{ type: 'text', value: 'Cell 2' }] },
+              { children: [{ type: 'text', value: 'Cell 1' }], type: 'tableCell' },
+              { children: [{ type: 'text', value: 'Cell 2' }], type: 'tableCell' },
             ],
+            type: 'tableRow',
           },
         ],
+        type: 'table',
       }
 
       const result = tableHandler(mockState, table, undefined) as any
@@ -92,16 +91,16 @@ describe('table.ts', () => {
     it('should handle empty cells', () => {
       // Create a table with empty cells
       const table = {
-        type: 'table',
         children: [
           {
-            type: 'tableRow',
             children: [
-              { type: 'tableCell', children: [{ type: 'text', value: 'Header' }] },
+              { children: [{ type: 'text', value: 'Header' }], type: 'tableCell' },
               null, // Empty cell
             ],
+            type: 'tableRow',
           },
         ],
+        type: 'table',
       }
 
       const result = tableHandler(mockState, table, undefined) as any
@@ -115,8 +114,8 @@ describe('table.ts', () => {
   describe('wrap', () => {
     it('should wrap nodes with newlines when loose is true', () => {
       const nodes: Element[] = [
-        { type: 'element', tagName: 'div', properties: {}, children: [] },
-        { type: 'element', tagName: 'span', properties: {}, children: [] },
+        { children: [], properties: {}, tagName: 'div', type: 'element' },
+        { children: [], properties: {}, tagName: 'span', type: 'element' },
       ]
 
       const result = wrap(nodes, true)
@@ -133,8 +132,8 @@ describe('table.ts', () => {
 
     it('should not add extra newlines when loose is false', () => {
       const nodes: Element[] = [
-        { type: 'element', tagName: 'div', properties: {}, children: [] },
-        { type: 'element', tagName: 'span', properties: {}, children: [] },
+        { children: [], properties: {}, tagName: 'div', type: 'element' },
+        { children: [], properties: {}, tagName: 'span', type: 'element' },
       ]
 
       const result = wrap(nodes, false)
@@ -161,11 +160,11 @@ describe('table.ts', () => {
   describe('all', () => {
     it('should process all children of a parent node', () => {
       const parent: any = {
-        type: 'paragraph',
         children: [
           { type: 'text', value: 'Hello' },
           { type: 'text', value: 'World' },
         ],
+        type: 'paragraph',
       }
 
       const result = all(mockState, parent)
@@ -185,11 +184,11 @@ describe('table.ts', () => {
 
     it('should remove leading whitespace after breaks', () => {
       const parent: any = {
-        type: 'paragraph',
         children: [
           { type: 'break' },
           { type: 'text', value: '  Hello' }, // Leading whitespace
         ],
+        type: 'paragraph',
       }
 
       const result = all(mockState, parent)
@@ -202,14 +201,14 @@ describe('table.ts', () => {
     it('should remove leading whitespace in elements after breaks', () => {
       // Using any type to avoid strict mdast type checking in tests
       const parent: any = {
-        type: 'paragraph',
         children: [
           { type: 'break' },
           {
-            type: 'paragraph',
             children: [{ type: 'text', value: '  Hello' }], // Leading whitespace
+            type: 'paragraph',
           },
         ],
+        type: 'paragraph',
       }
 
       const result = all(mockState, parent)
@@ -232,12 +231,12 @@ describe('table.ts', () => {
       } as any as State
 
       const parent: any = {
-        type: 'paragraph',
         children: [
           { type: 'text', value: 'Hello' },
           { type: 'ignore' }, // This will return null
           { type: 'text', value: 'World' },
         ],
+        type: 'paragraph',
       }
 
       const result = all(customMockState, parent)
@@ -263,12 +262,12 @@ describe('table.ts', () => {
       } as any as State
 
       const parent: any = {
-        type: 'paragraph',
         children: [
           { type: 'text', value: 'Before' },
           { type: 'multiple' }, // This will return an array
           { type: 'text', value: 'After' },
         ],
+        type: 'paragraph',
       }
 
       const result = all(customMockState, parent)
@@ -316,36 +315,36 @@ describe('table.ts', () => {
     it('should correctly process a basic table structure', () => {
       // Create a simple table with basic structure
       const table = {
-        type: 'table',
         align: ['left', 'center'],
         children: [
           {
-            type: 'tableRow',
             children: [
               {
-                type: 'tableCell',
                 children: [{ type: 'text', value: 'Header 1' }],
+                type: 'tableCell',
               },
               {
-                type: 'tableCell',
                 children: [{ type: 'text', value: 'Header 2' }],
+                type: 'tableCell',
               },
             ],
+            type: 'tableRow',
           },
           {
-            type: 'tableRow',
             children: [
               {
-                type: 'tableCell',
                 children: [{ type: 'text', value: 'Cell 1' }],
+                type: 'tableCell',
               },
               {
-                type: 'tableCell',
                 children: [{ type: 'text', value: 'Cell 2' }],
+                type: 'tableCell',
               },
             ],
+            type: 'tableRow',
           },
         ],
+        type: 'table',
       }
 
       // Execute the handler with the table

@@ -1,21 +1,18 @@
 import type { RouteObject } from 'react-router'
 import type { Language } from '../../i18n'
-
-import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
-
 import EventEditPage from './EventEditPage'
 
 jest.mock('../../api/user')
@@ -37,8 +34,8 @@ describe('EventEditPage', () => {
 
     const routes: RouteObject[] = [
       {
-        path: Path.admin.editEvent(),
         element: <EventEditPage />,
+        path: Path.admin.editEvent(),
       },
     ]
 

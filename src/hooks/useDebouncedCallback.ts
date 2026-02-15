@@ -8,6 +8,7 @@ export default function useDebouncedCallback<T extends (...args: any[]) => Retur
   const cb = useRef(callback)
   cb.current = callback
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: we need to clear the timeout when wait changes
   useEffect(
     () => () => {
       globalThis.clearTimeout(timeout.current)

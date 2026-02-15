@@ -257,13 +257,13 @@ export const emptyDog: Dog = {
   results: [],
 }
 export const emptyBreeder: RegistrationBreeder = {
-  name: '',
   location: '',
+  name: '',
 }
 export const emptyPerson: RegistrationPerson = {
-  name: '',
-  phone: '',
   email: '',
   location: '',
   membership: false,
+  name: '',
+  phone: '',
 }

@@ -1,6 +1,5 @@
 import type { JsonConfirmedEvent, JsonRefundTransaction, JsonRegistration } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
 import { i18n } from '../../i18n/lambda'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
@@ -8,7 +7,7 @@ import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent } from '../lib/event'
-import { lambda, LambdaError, response } from '../lib/lambda'
+import { LambdaError, lambda, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -83,12 +82,12 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
         ...templateData,
         ...transaction,
         ...changes,
-        createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-        refundAt: t('dateFormat.long', { date: registration.refundAt }),
-        paidAmount: formatMoney(registration.paidAmount ?? 0),
         amount: formatMoney(amount),
+        createdAt: t('dateFormat.long', { date: transaction.createdAt }),
         handlingCost: formatMoney(Math.max(0, (registration.paidAmount ?? 0) - amount)),
+        paidAmount: formatMoney(registration.paidAmount ?? 0),
         providerName,
+        refundAt: t('dateFormat.long', { date: registration.refundAt }),
       })
 
       await audit({

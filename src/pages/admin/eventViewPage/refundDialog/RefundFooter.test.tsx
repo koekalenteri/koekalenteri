@@ -1,7 +1,6 @@
 import { jest } from '@jest/globals'
 import { DataGrid } from '@mui/x-data-grid'
 import { render } from '@testing-library/react'
-
 import { RefundFooter } from './RefundFooter'
 
 describe('RefundFooter', () => {
@@ -15,8 +14,8 @@ describe('RefundFooter', () => {
             canHaveHandlingCosts: true,
             handlingCost: 500,
             onHandlingCostChange: jest.fn(),
-            total: 1000,
             selectedTotal: 1000,
+            total: 1000,
           },
         }}
       />

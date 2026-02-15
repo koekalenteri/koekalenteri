@@ -1,9 +1,7 @@
 import type { Registration, RegistrationTime } from '../../../types'
-
-import { useTranslation } from 'react-i18next'
 import { TableCell, TableRow } from '@aws-amplify/ui-react'
 import Typography from '@mui/material/Typography'
-
+import { useTranslation } from 'react-i18next'
 import HeaderRow from './startListGroup/HeaderRow'
 import RegistrationRow from './startListGroup/RegistrationRow'
 
@@ -24,7 +22,7 @@ const StartListGroup = ({ colSpan, group, heading, eventClass, time, reserve, na
     <>
       <TableRow>
         <TableCell colSpan={colSpan}>
-          <Typography variant="h6">{eventClass + (time ? ' - ' + t(`registration.timeLong.${time}`) : '')}</Typography>
+          <Typography variant="h6">{eventClass + (time ? ` - ${t(`registration.timeLong.${time}`)}` : '')}</Typography>
         </TableCell>
       </TableRow>
       <HeaderRow key={`${heading}${eventClass}header`} reserve={reserve} />

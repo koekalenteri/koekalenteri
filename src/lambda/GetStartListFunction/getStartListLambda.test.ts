@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockQuery = jest.fn<any>()
@@ -31,8 +31,8 @@ const { default: getStartListLambda } = await import('./handler')
 
 describe('getStartListLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { eventId: 'event123' },
   } as any
 
@@ -42,7 +42,7 @@ describe('getStartListLambda', () => {
 
   it('returns 404 if start list is not available', async () => {
     const eventId = 'event123'
-    const confirmedEvent = { id: eventId, state: 'draft', startListPublished: false }
+    const confirmedEvent = { id: eventId, startListPublished: false, state: 'draft' }
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
@@ -59,48 +59,48 @@ describe('getStartListLambda', () => {
 
   it('returns 200 with public registrations if start list is available', async () => {
     const eventId = 'event123'
-    const confirmedEvent = { id: eventId, state: 'invited', startListPublished: true }
+    const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
     const registrations = [
       {
-        eventId,
+        breeder: { name: 'Breeder 1' },
+        cancelled: false,
         class: 'ALO',
         dog: { name: 'Dog 1', regNo: 'REG1' },
+        eventId,
+        group: { date: '2025-01-01', key: 'ALO', number: 2 },
         handler: { name: 'Handler 1' },
         owner: { name: 'Owner 1' },
-        breeder: { name: 'Breeder 1' },
         ownerHandles: true,
-        group: { key: 'ALO', number: 2, date: '2025-01-01' },
-        cancelled: false,
       },
       {
-        eventId,
+        breeder: { name: 'Breeder 2' },
+        cancelled: false,
         class: 'ALO',
         dog: { name: 'Dog 2', regNo: 'REG2' },
+        eventId,
+        group: { date: '2025-01-01', key: 'ALO', number: 1 },
         handler: { name: 'Handler 2' },
         owner: { name: 'Owner 2' },
-        breeder: { name: 'Breeder 2' },
         ownerHandles: false,
-        group: { key: 'ALO', number: 1, date: '2025-01-01' },
-        cancelled: false,
       },
       {
-        eventId,
+        breeder: { name: 'Breeder 3' },
+        cancelled: true, // Should be filtered out
         class: 'ALO',
         dog: { name: 'Dog 3', regNo: 'REG3' },
+        eventId,
+        group: { date: '2025-01-01', key: 'ALO', number: 3 },
         handler: { name: 'Handler 3' },
         owner: { name: 'Owner 3' },
-        breeder: { name: 'Breeder 3' },
         ownerHandles: false,
-        group: { key: 'ALO', number: 3, date: '2025-01-01' },
-        cancelled: true, // Should be filtered out
       },
       {
-        eventId,
+        breeder: { name: 'Breeder 4' },
         class: 'ALO',
         dog: { name: 'Dog 4', regNo: 'REG4' },
+        eventId,
         handler: { name: 'Handler 4' },
         owner: { name: 'Owner 4' },
-        breeder: { name: 'Breeder 4' },
         ownerHandles: false,
         // No group, should be filtered out
       },
@@ -108,22 +108,22 @@ describe('getStartListLambda', () => {
 
     const expectedPublicRegs = [
       {
+        breeder: 'Breeder 2',
         class: 'ALO',
         dog: { name: 'Dog 2', regNo: 'REG2' },
+        group: { date: '2025-01-01', key: 'ALO', number: 1 },
         handler: 'Handler 2',
         owner: 'Owner 2',
-        breeder: 'Breeder 2',
         ownerHandles: false,
-        group: { key: 'ALO', number: 1, date: '2025-01-01' },
       },
       {
+        breeder: 'Breeder 1',
         class: 'ALO',
         dog: { name: 'Dog 1', regNo: 'REG1' },
+        group: { date: '2025-01-01', key: 'ALO', number: 2 },
         handler: 'Handler 1',
         owner: 'Owner 1',
-        breeder: 'Breeder 1',
         ownerHandles: true,
-        group: { key: 'ALO', number: 2, date: '2025-01-01' },
       },
     ]
 
@@ -146,26 +146,26 @@ describe('getStartListLambda', () => {
 
   it('returns 404 if no registrations match the criteria', async () => {
     const eventId = 'event123'
-    const confirmedEvent = { id: eventId, state: 'invited', startListPublished: true }
+    const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
     const registrations = [
       {
-        eventId,
+        breeder: { name: 'Breeder 3' },
+        cancelled: true, // Should be filtered out
         class: 'ALO',
         dog: { name: 'Dog 3', regNo: 'REG3' },
+        eventId,
+        group: { date: '2025-01-01', key: 'ALO', number: 3 },
         handler: { name: 'Handler 3' },
         owner: { name: 'Owner 3' },
-        breeder: { name: 'Breeder 3' },
         ownerHandles: false,
-        group: { key: 'ALO', number: 3, date: '2025-01-01' },
-        cancelled: true, // Should be filtered out
       },
       {
-        eventId,
+        breeder: { name: 'Breeder 4' },
         class: 'ALO',
         dog: { name: 'Dog 4', regNo: 'REG4' },
+        eventId,
         handler: { name: 'Handler 4' },
         owner: { name: 'Owner 4' },
-        breeder: { name: 'Breeder 4' },
         ownerHandles: false,
         // No group, should be filtered out
       },
@@ -190,7 +190,7 @@ describe('getStartListLambda', () => {
 
   it('returns 404 if query returns undefined', async () => {
     const eventId = 'event123'
-    const confirmedEvent = { id: eventId, state: 'invited', startListPublished: true }
+    const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
 
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
@@ -227,7 +227,7 @@ describe('getStartListLambda', () => {
 
   it('passes through errors from query', async () => {
     const eventId = 'event123'
-    const confirmedEvent = { id: eventId, state: 'invited', startListPublished: true }
+    const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
     const error = new Error('Database error')
 
     mockGetParam.mockReturnValueOnce(eventId)

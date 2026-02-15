@@ -1,5 +1,4 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
     "allowSyntheticDefaultImports": true,
     "declaration": false,
@@ -13,8 +12,9 @@
     "strictFunctionTypes": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
-    "useUnknownInCatchVariables": true,
     "target": "es2022",
+    "useUnknownInCatchVariables": true
   },
+  "extends": "@tsconfig/node20/tsconfig.json",
   "include": ["../i18n", "../lib", "../__mockData__", "./**/*.ts"]
 }

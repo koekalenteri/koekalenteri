@@ -1,19 +1,18 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { useRecoilState, useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
-
-import { EventFilter } from './searchPage/EventFilter'
-import { EventList } from './searchPage/EventList'
 import {
   deserializeFilter,
   eventFilterAtom,
-  filteredEventsSelector,
   filterEventClassesSelector,
   filterEventTypesSelector,
+  filteredEventsSelector,
   filterJudgesSelector,
   filterOrganizersSelector,
   spaAtom,
 } from './recoil'
+import { EventFilter } from './searchPage/EventFilter'
+import { EventList } from './searchPage/EventList'
 
 export function SearchPage() {
   const [filter, setFilter] = useRecoilState(eventFilterAtom)

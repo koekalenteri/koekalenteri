@@ -4,13 +4,13 @@ export const emptyEvent: ConfirmedEvent = {
   classes: [{ class: 'ALO', date: new Date('1990-01-01') }],
   contactInfo: {
     official: {
-      name: 'Teemu Toimitsija',
       email: 'official@example.com',
+      name: 'Teemu Toimitsija',
       phone: '040-official',
     },
     secretary: {
-      name: 'Siiri Sihteeri',
       email: 'secretary@example.com',
+      name: 'Siiri Sihteeri',
       phone: '040-secretary',
     },
   },
@@ -36,16 +36,16 @@ export const emptyEvent: ConfirmedEvent = {
     id: '1',
     name: 'Teemu Toimitsija',
   },
-  priority: ['member'],
-  secretary: {
-    id: '2',
-    name: 'Siiri Sihteeri',
-  },
   organizer: {
     id: '1',
     name: 'Suomen Noutajakoirajärjestö ry',
   },
   places: 10,
+  priority: ['member'],
+  secretary: {
+    id: '2',
+    name: 'Siiri Sihteeri',
+  },
   startDate: new Date('1990-01-01'),
   state: 'confirmed' as const,
 }

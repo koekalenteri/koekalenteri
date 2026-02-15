@@ -1,14 +1,12 @@
-import { Suspense } from 'react'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
-
 import AdminHomePage from './AdminHomePage'
 
 jest.mock('../../api/user')
@@ -21,12 +19,12 @@ describe('AdminHomePage', () => {
   it('renders the page when user is logged in', async () => {
     const routes = [
       {
-        path: Path.admin.root,
         element: <AdminHomePage />,
+        path: Path.admin.root,
       },
       {
-        path: Path.login,
         element: <>Login</>,
+        path: Path.login,
       },
     ]
     const { container } = render(
@@ -50,18 +48,18 @@ describe('AdminHomePage', () => {
   it('renders the child page content when user is logged in', async () => {
     const routes = [
       {
-        path: Path.admin.root,
-        element: <AdminHomePage />,
         children: [
           {
-            path: Path.admin.index,
             element: <>ADMIN DEFAULT PAGE CONTENT</>,
+            path: Path.admin.index,
           },
         ],
+        element: <AdminHomePage />,
+        path: Path.admin.root,
       },
       {
-        path: Path.login,
         element: <>Login</>,
+        path: Path.login,
       },
     ]
     const { container } = render(

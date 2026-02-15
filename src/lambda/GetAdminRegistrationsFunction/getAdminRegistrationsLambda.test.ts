@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockFixRegistrationGroups = jest.fn<any>()
@@ -31,8 +31,8 @@ const { default: getAdminRegistrationsLambda } = await import('./handler')
 
 describe('getAdminRegistrationsLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     pathParameters: { eventId: 'event123' },
   } as any
 
@@ -56,17 +56,17 @@ describe('getAdminRegistrationsLambda', () => {
     const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const allRegistrations = [
-      { id: 'reg1', eventId, state: 'ready', class: 'ALO' },
-      { id: 'reg2', eventId, state: 'pending', class: 'ALO' }, // Should be filtered out
-      { id: 'reg3', eventId, state: 'ready', class: 'AVO' },
+      { class: 'ALO', eventId, id: 'reg1', state: 'ready' },
+      { class: 'ALO', eventId, id: 'reg2', state: 'pending' }, // Should be filtered out
+      { class: 'AVO', eventId, id: 'reg3', state: 'ready' },
     ]
     const filteredRegistrations = [
-      { id: 'reg1', eventId, state: 'ready', class: 'ALO' },
-      { id: 'reg3', eventId, state: 'ready', class: 'AVO' },
+      { class: 'ALO', eventId, id: 'reg1', state: 'ready' },
+      { class: 'AVO', eventId, id: 'reg3', state: 'ready' },
     ]
     const registrationsWithGroups = [
-      { id: 'reg1', eventId, state: 'ready', class: 'ALO', group: { key: 'ALO', number: 1 } },
-      { id: 'reg3', eventId, state: 'ready', class: 'AVO', group: { key: 'AVO', number: 1 } },
+      { class: 'ALO', eventId, group: { key: 'ALO', number: 1 }, id: 'reg1', state: 'ready' },
+      { class: 'AVO', eventId, group: { key: 'AVO', number: 1 }, id: 'reg3', state: 'ready' },
     ]
 
     mockAuthorize.mockResolvedValueOnce(user)
@@ -134,9 +134,9 @@ describe('getAdminRegistrationsLambda', () => {
     const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const allRegistrations = [
-      { id: 'reg1', eventId, state: 'pending', class: 'ALO' },
-      { id: 'reg2', eventId, state: 'cancelled', class: 'ALO' },
-      { id: 'reg3', eventId, state: 'draft', class: 'AVO' },
+      { class: 'ALO', eventId, id: 'reg1', state: 'pending' },
+      { class: 'ALO', eventId, id: 'reg2', state: 'cancelled' },
+      { class: 'AVO', eventId, id: 'reg3', state: 'draft' },
     ]
     const filteredRegistrations: any[] = [] // All registrations are filtered out
 
@@ -181,8 +181,8 @@ describe('getAdminRegistrationsLambda', () => {
   it('passes through errors from fixRegistrationGroups', async () => {
     const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
-    const allRegistrations = [{ id: 'reg1', eventId, state: 'ready', class: 'ALO' }]
-    const filteredRegistrations = [{ id: 'reg1', eventId, state: 'ready', class: 'ALO' }]
+    const allRegistrations = [{ class: 'ALO', eventId, id: 'reg1', state: 'ready' }]
+    const filteredRegistrations = [{ class: 'ALO', eventId, id: 'reg1', state: 'ready' }]
     const error = new Error('Group fixing error')
 
     mockAuthorize.mockResolvedValueOnce(user)

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
@@ -32,9 +32,9 @@ const { default: putOrganizerLambda } = await import('./handler')
 describe('putOrganizerLambda', () => {
   const event = {
     body: JSON.stringify({
+      email: 'test@example.com',
       id: 'org123',
       name: 'Test Organizer',
-      email: 'test@example.com',
       paytrailMerchantId: 'merchant123',
     }),
     headers: {},
@@ -45,22 +45,22 @@ describe('putOrganizerLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Test User',
-      admin: true,
     })
 
     mockParseJSONWithFallback.mockReturnValue({
+      email: 'test@example.com',
       id: 'org123',
       name: 'Test Organizer',
-      email: 'test@example.com',
       paytrailMerchantId: 'merchant123',
     })
 
     mockRead.mockResolvedValue({
+      email: 'old@example.com',
       id: 'org123',
       name: 'Old Organizer Name',
-      email: 'old@example.com',
     })
 
     mockWrite.mockResolvedValue({})
@@ -68,9 +68,9 @@ describe('putOrganizerLambda', () => {
 
   it('returns 401 if not authorized as admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Test User',
-      admin: false,
     })
 
     await putOrganizerLambda(event)
@@ -82,8 +82,8 @@ describe('putOrganizerLambda', () => {
 
   it('returns 400 if organizer id is missing', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      name: 'Test Organizer',
       email: 'test@example.com',
+      name: 'Test Organizer',
     })
 
     await putOrganizerLambda(event)
@@ -105,9 +105,9 @@ describe('putOrganizerLambda', () => {
 
     // Verify organizer was written to database
     expect(mockWrite).toHaveBeenCalledWith({
+      email: 'test@example.com',
       id: 'org123',
       name: 'Test Organizer',
-      email: 'test@example.com',
       paytrailMerchantId: 'merchant123',
     })
 
@@ -115,9 +115,9 @@ describe('putOrganizerLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        email: 'test@example.com',
         id: 'org123',
         name: 'Test Organizer',
-        email: 'test@example.com',
         paytrailMerchantId: 'merchant123',
       },
       event
@@ -132,9 +132,9 @@ describe('putOrganizerLambda', () => {
 
     // Verify organizer was written to database with merged data
     expect(mockWrite).toHaveBeenCalledWith({
+      email: 'test@example.com',
       id: 'org123',
       name: 'Test Organizer',
-      email: 'test@example.com',
       paytrailMerchantId: 'merchant123',
     })
 
@@ -142,9 +142,9 @@ describe('putOrganizerLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        email: 'test@example.com',
         id: 'org123',
         name: 'Test Organizer',
-        email: 'test@example.com',
         paytrailMerchantId: 'merchant123',
       },
       event
@@ -153,11 +153,11 @@ describe('putOrganizerLambda', () => {
 
   it('preserves existing fields when updating', async () => {
     mockRead.mockResolvedValueOnce({
+      address: '123 Main St', // Additional field
+      email: 'old@example.com',
       id: 'org123',
       name: 'Old Organizer Name',
-      email: 'old@example.com',
       phone: '1234567890', // Additional field
-      address: '123 Main St', // Additional field
     })
 
     mockParseJSONWithFallback.mockReturnValueOnce({
@@ -173,22 +173,22 @@ describe('putOrganizerLambda', () => {
 
     // Verify organizer was written to database with merged data
     expect(mockWrite).toHaveBeenCalledWith({
+      address: '123 Main St', // Preserved from existing
+      email: 'old@example.com', // Preserved from existing
       id: 'org123',
       name: 'Test Organizer',
-      email: 'old@example.com', // Preserved from existing
       phone: '1234567890', // Preserved from existing
-      address: '123 Main St', // Preserved from existing
     })
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
+        address: '123 Main St',
+        email: 'old@example.com',
         id: 'org123',
         name: 'Test Organizer',
-        email: 'old@example.com',
         phone: '1234567890',
-        address: '123 Main St',
       },
       event
     )

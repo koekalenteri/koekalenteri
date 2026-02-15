@@ -1,13 +1,10 @@
 import type { DogEvent } from '../../../types'
-
-import { useNavigate } from 'react-router'
 import { act, renderHook } from '@testing-library/react'
 import { useSnackbar } from 'notistack'
+import { useNavigate } from 'react-router'
 import { RecoilRoot, useRecoilState, useResetRecoilState } from 'recoil'
-
 import { hasChanges } from '../../../lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
-
 import useEventForm from './useEventForm'
 
 // Mock dependencies
@@ -44,28 +41,28 @@ describe('useEventForm', () => {
   const mockSave = jest.fn()
 
   const mockEvent: DogEvent = {
-    id: 'test-event-id',
-    name: 'Test Event',
-    state: 'draft',
-    startDate: new Date('2023-01-01'),
-    endDate: new Date('2023-01-02'),
-    entryStartDate: new Date('2022-12-01'),
-    entryEndDate: new Date('2022-12-31'),
     classes: [],
-    judges: [],
-    eventType: 'test',
-    location: 'Test Location',
-    organizer: { id: 'org1', name: 'Test Organizer' },
-    places: 10,
     cost: 35,
     costMember: 30,
-    description: 'Test description',
     createdAt: new Date(),
     createdBy: 'test',
+    description: 'Test description',
+    endDate: new Date('2023-01-02'),
+    entryEndDate: new Date('2022-12-31'),
+    entryStartDate: new Date('2022-12-01'),
+    eventType: 'test',
+    id: 'test-event-id',
+    judges: [],
+    location: 'Test Location',
     modifiedAt: new Date(),
     modifiedBy: 'test',
+    name: 'Test Event',
     official: {},
+    organizer: { id: 'org1', name: 'Test Organizer' },
+    places: 10,
     secretary: {},
+    startDate: new Date('2023-01-01'),
+    state: 'draft',
   }
 
   const mockStoredEvent: DogEvent = {

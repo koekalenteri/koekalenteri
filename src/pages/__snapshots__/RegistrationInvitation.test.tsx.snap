@@ -19,7 +19,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
       >
         NOU
          
-        dateFormat.datespan start, end
+        dateFormat.datespan end, start
          
         test location
          (
@@ -88,7 +88,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
 exports[`RegistrationInvitation renders loading indicator while loader is pending 1`] = `
 <div>
   <div
-    class="MuiBox-root css-19703gc"
+    class="MuiBox-root css-r8ug1n"
   >
     <span
       class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1vzstpr-MuiCircularProgress-root"

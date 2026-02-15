@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockAudit = jest.fn<any>()
@@ -86,8 +86,8 @@ describe('putAdminRegistrationNotesLambda', () => {
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
-      user: 'Test User',
       message: 'Muutti sisäistä kommenttia',
+      user: 'Test User',
     })
 
     // Verify response

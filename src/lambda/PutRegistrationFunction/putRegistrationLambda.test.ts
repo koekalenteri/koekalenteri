@@ -1,8 +1,6 @@
 import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
-
 import { jest } from '@jest/globals'
 import { addMinutes } from 'date-fns'
-
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
@@ -48,9 +46,9 @@ const libRegistration = await import('../lib/registration')
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
+  findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getRegistration: mockGetRegistration,
   saveRegistration: mockSaveRegistration,
-  findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
 }))
 
 const { default: putRegistrationLabmda } = await import('./handler')
@@ -78,9 +76,9 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
         ...JSON.parse(JSON.stringify(registration)),
-        id: expect.stringMatching(/^[A-Za-z0-9_-]{10}$/),
         createdAt: expect.stringMatching(ISO8601DateTimeRE),
         createdBy: 'anonymous',
+        id: expect.stringMatching(/^[A-Za-z0-9_-]{10}$/),
         modifiedAt: expect.stringMatching(ISO8601DateTimeRE),
         modifiedBy: 'anonymous',
       })
@@ -404,9 +402,9 @@ describe('putRegistrationLabmda', () => {
 
     expect(mockSaveRegistration).toHaveBeenCalledWith({
       ...existingJson,
-      notes: 'updated notes',
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      notes: 'updated notes',
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -523,7 +521,7 @@ describe('putRegistrationLabmda', () => {
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(
-      constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true, cancelled: true })
+      constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true, confirmed: true })
     )
 
     expect(mockSaveRegistration).toHaveBeenCalledWith({
@@ -640,10 +638,10 @@ describe('putRegistrationLabmda', () => {
     const existingJson = JSON.parse(
       JSON.stringify({
         ...registrationWithStaticDates,
-        // establish trusted values that must not change from client update
-        paymentStatus: 'paid',
         paidAmount: 5000,
         paidAt: '2024-02-03T10:11:12.000Z',
+        // establish trusted values that must not change from client update
+        paymentStatus: 'paid',
       })
     )
 
@@ -654,9 +652,9 @@ describe('putRegistrationLabmda', () => {
     const maliciousUpdate = {
       ...registrationWithStaticDates,
       notes: 'legit note change',
-      paymentStatus: 'refunded',
       paidAmount: 0,
       paidAt: '2030-01-01T00:00:00.000Z',
+      paymentStatus: 'refunded',
     }
 
     const res = await putRegistrationLabmda(constructAPIGwEvent(maliciousUpdate))

@@ -1,19 +1,15 @@
 import type { Language, RegistrationTime } from '../../../../types'
-
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
-
 import { OFFICIAL_EVENT_TYPES } from '../../../../lib/event'
-
 import { adminEventTypeFilterAtom, adminEventTypeGroupsAtom, adminEventTypesAtom } from './atoms'
 
 export const adminActiveEventTypesSelector = selector({
-  key: 'adminActiveEventTypes',
   get: ({ get }) => get(adminEventTypesAtom).filter((et) => et.active),
+  key: 'adminActiveEventTypes',
 })
 
 export const adminFilteredEventTypesSelector = selector({
-  key: 'adminFilteredEventTypes',
   get: ({ get }) => {
     const filter = get(adminEventTypeFilterAtom).toLocaleLowerCase(i18next.language)
     const list = get(adminEventTypesAtom)
@@ -28,10 +24,10 @@ export const adminFilteredEventTypesSelector = selector({
         .includes(filter)
     )
   },
+  key: 'adminFilteredEventTypes',
 })
 
 export const adminEventTypeGroupsSelector = selectorFamily<RegistrationTime[], string | undefined>({
-  key: 'adminEventTypeGroupsSelector',
   get:
     (eventType) =>
     ({ get }) => {
@@ -40,4 +36,5 @@ export const adminEventTypeGroupsSelector = selectorFamily<RegistrationTime[], s
 
       return OFFICIAL_EVENT_TYPES.includes(eventType) ? (groups[eventType] ?? []) : groups.unofficialEvents
     },
+  key: 'adminEventTypeGroupsSelector',
 })

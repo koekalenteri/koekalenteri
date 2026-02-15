@@ -1,11 +1,10 @@
 import type { JsonTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { lambda, LambdaError, response } from '../lib/lambda'
+import { LambdaError, lambda, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'

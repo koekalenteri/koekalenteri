@@ -1,12 +1,11 @@
 import type { Person } from '../types'
-
 import { isFinnishRegNo, isModernFinnishRegNo, validatePerson, validateRegNo } from './validation'
 
 const testPerson: Person = {
-  name: 'Matti Meikäläinen',
   email: 'email@domain.com',
-  phone: '0401234567',
   location: 'Helsinki',
+  name: 'Matti Meikäläinen',
+  phone: '0401234567',
 }
 
 describe('validRegNo', () => {
@@ -106,12 +105,15 @@ describe('isModernFinnishRegNo', () => {
     expect(isModernFinnishRegNo(regNo)).toEqual(true)
   })
 
-  it.each(['SF00028/1899', 'SF00107/12', 'SF00291U/80', 'SF30121/94', 'FIN45793/08'])(
-    'should return false for %p',
-    (regNo) => {
-      expect(isModernFinnishRegNo(regNo)).toEqual(false)
-    }
-  )
+  it.each([
+    'SF00028/1899',
+    'SF00107/12',
+    'SF00291U/80',
+    'SF30121/94',
+    'FIN45793/08',
+  ])('should return false for %p', (regNo) => {
+    expect(isModernFinnishRegNo(regNo)).toEqual(false)
+  })
 })
 
 describe('validatePerson', () => {

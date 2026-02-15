@@ -1,11 +1,8 @@
 import type { DogEvent } from '../../types'
 import type { DogEventCost } from '../../types/Cost'
-
 import { render, screen } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-
 import { languageAtom } from '../recoil'
-
 import CostInfo from './CostInfo'
 
 // Mock the recoil state for language
@@ -81,8 +78,8 @@ describe('CostInfo', () => {
     it('should render earlyBird cost segment', () => {
       setup({
         cost: {
-          normal: 50,
           earlyBird: { cost: 45, days: 7 },
+          normal: 50,
         } as DogEventCost,
       })
 
@@ -95,8 +92,8 @@ describe('CostInfo', () => {
     it('should render breed cost segment', () => {
       setup({
         cost: {
-          normal: 50,
           breed: { '123': 40 },
+          normal: 50,
         } as DogEventCost,
       })
 
@@ -109,11 +106,11 @@ describe('CostInfo', () => {
     it('should render custom cost segment with Finnish description', () => {
       setup({
         cost: {
-          normal: 50,
           custom: {
             cost: 35,
             description: { fi: 'Erikoishinta' },
           },
+          normal: 50,
         } as DogEventCost,
       })
 
@@ -127,11 +124,11 @@ describe('CostInfo', () => {
       setup(
         {
           cost: {
-            normal: 50,
             custom: {
               cost: 35,
-              description: { fi: 'Erikoishinta', en: 'Special price' },
+              description: { en: 'Special price', fi: 'Erikoishinta' },
             },
+            normal: 50,
           } as DogEventCost,
         },
         'en'
@@ -149,7 +146,7 @@ describe('CostInfo', () => {
           normal: 50,
           optionalAdditionalCosts: [
             { cost: 10, description: { fi: 'Lisämaksu 1' } },
-            { cost: 15, description: { fi: 'Lisämaksu 2', en: 'Additional fee 2' } },
+            { cost: 15, description: { en: 'Additional fee 2', fi: 'Lisämaksu 2' } },
           ],
         } as DogEventCost,
       })

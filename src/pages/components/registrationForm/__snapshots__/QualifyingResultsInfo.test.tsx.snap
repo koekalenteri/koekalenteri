@@ -3,7 +3,7 @@
 exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -23,10 +23,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -59,14 +59,14 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                   <span
                     class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                   >
-                    registration.rankingTime: dateFormat.datespan start, end
+                    registration.rankingTime: dateFormat.datespan end, start
                   </span>
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1wwmvna-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -141,10 +141,10 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-177kgwh-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xo0eiz-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -216,7 +216,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -286,7 +286,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -326,7 +326,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-efjrd6-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-3 MuiGrid-grid-sm-4 MuiGrid-grid-xs-12 css-efjrd6-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -394,7 +394,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                         registration.cta.deleteResult
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -445,7 +445,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
                       Karsintapisteet yht.:
                     </span>
                     <div
-                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                     >
                       0
                     </div>
@@ -464,7 +464,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
 exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manual results 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -484,10 +484,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -520,14 +520,14 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   <span
                     class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                   >
-                    registration.rankingTime: dateFormat.datespan start, end
+                    registration.rankingTime: dateFormat.datespan end, start
                   </span>
                 </div>
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1wwmvna-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -602,10 +602,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-177kgwh-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xo0eiz-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -677,7 +677,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -747,7 +747,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -787,7 +787,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-efjrd6-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-3 MuiGrid-grid-sm-4 MuiGrid-grid-xs-12 css-efjrd6-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -855,7 +855,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         registration.cta.deleteResult
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -876,7 +876,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1wwmvna-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -949,10 +949,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-177kgwh-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xo0eiz-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -1022,7 +1022,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -1090,7 +1090,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1129,7 +1129,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-efjrd6-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-3 MuiGrid-grid-sm-4 MuiGrid-grid-xs-12 css-efjrd6-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1196,7 +1196,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         registration.cta.deleteResult
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -1217,7 +1217,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1wwmvna-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-1w98mmc-MuiAutocomplete-root"
@@ -1290,10 +1290,10 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
-                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-177kgwh-MuiAutocomplete-root"
+                      class="MuiAutocomplete-root MuiAutocomplete-fullWidth MuiAutocomplete-hasPopupIcon css-xo0eiz-MuiAutocomplete-root"
                       data-testid="testResult.result"
                     >
                       <div
@@ -1363,7 +1363,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-4 MuiGrid-grid-md-2.5 MuiGrid-grid-lg-2 css-3irdgb-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-2.5 MuiGrid-grid-sm-4 MuiGrid-grid-xs-6 css-3irdgb-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth css-ytlejw-MuiFormControl-root"
@@ -1431,7 +1431,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-6 MuiGrid-grid-sm-3.5 MuiGrid-grid-md-2 css-1vbj7jx-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-md-2 MuiGrid-grid-sm-3.5 MuiGrid-grid-xs-6 css-1vbj7jx-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1470,7 +1470,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                     </div>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-12 MuiGrid-grid-sm-4 MuiGrid-grid-md-3 MuiGrid-grid-lg-2 css-efjrd6-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-lg-2 MuiGrid-grid-md-3 MuiGrid-grid-sm-4 MuiGrid-grid-xs-12 css-efjrd6-MuiGrid-root"
                   >
                     <div
                       class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-cmpglg-MuiFormControl-root-MuiTextField-root"
@@ -1537,7 +1537,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                         registration.cta.deleteResult
                       </button>
                       <div
-                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                        class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                       >
                         <svg
                           aria-hidden="true"
@@ -1588,7 +1588,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
                       Karsintapisteet yht.:
                     </span>
                     <div
-                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                     >
                       0
                     </div>
@@ -1607,7 +1607,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
 exports[`QualifyingResultsInfo should render with minimal input 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -1627,10 +1627,10 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1663,7 +1663,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                   <span
                     class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
                   >
-                    registration.rankingTime: dateFormat.datespan start, end
+                    registration.rankingTime: dateFormat.datespan end, start
                   </span>
                 </div>
                 <div
@@ -1701,7 +1701,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
                       Karsintapisteet yht.:
                     </span>
                     <div
-                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1r62dyk-MuiAvatar-root"
+                      class="MuiAvatar-root MuiAvatar-rounded MuiAvatar-colorDefault css-1pixefy-MuiAvatar-root"
                     >
                       0
                     </div>

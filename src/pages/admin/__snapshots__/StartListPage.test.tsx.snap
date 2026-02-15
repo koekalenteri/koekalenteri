@@ -128,7 +128,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -256,7 +256,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -384,7 +384,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -512,7 +512,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -670,7 +670,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -818,7 +818,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
@@ -883,7 +883,7 @@ exports[`OrganizerListPage renders 1`] = `
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
             >
-              110.M ns, defaultValue
+              110.M defaultValue, ns
             </td>
             <td
               class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"

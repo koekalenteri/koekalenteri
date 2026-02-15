@@ -1,9 +1,7 @@
 import type { LoaderFunctionArgs } from 'react-router'
-
-import { redirect } from 'react-router'
 import { t } from 'i18next'
 import { enqueueSnackbar } from 'notistack'
-
+import { redirect } from 'react-router'
 import { verifyPayment } from '../api/payment'
 import { reportError } from '../lib/client/error'
 import { Path } from '../routeConfig'

@@ -1,7 +1,5 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
-
 import { nanoid } from 'nanoid'
-
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
 import { isEntryOpen } from '../../lib/utils'
 import { CONFIG } from '../config'
@@ -75,7 +73,7 @@ const sendMessages = async (
   try {
     const secretaryEmail = confirmedEvent.contactInfo?.secretary?.email ?? confirmedEvent.secretary.email
     if (context === 'cancel' && secretaryEmail) {
-      let template: EmailTemplateId | undefined = undefined
+      let template: EmailTemplateId | undefined
 
       const groupKey = existing?.group?.key ?? GROUP_KEY_RESERVE
       if (groupKey === GROUP_KEY_RESERVE) {
@@ -131,8 +129,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       return response(
         409,
         {
-          message: 'Conflict: Dog already registered to this event',
           cancelled: Boolean(alreadyRegistered.cancelled),
+          message: 'Conflict: Dog already registered to this event',
         },
         event
       )

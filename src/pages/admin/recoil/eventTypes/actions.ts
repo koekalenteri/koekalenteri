@@ -1,11 +1,8 @@
 import type { EventType, EventTypeData } from '../../../../types'
-
 import i18next from 'i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import { getEventTypes, putEventType } from '../../../../api/eventType'
 import { idTokenAtom } from '../../../recoil/user'
-
 import { adminEventTypesAtom } from './atoms'
 
 const sortEventTypes = (eventTypes: EventType[]) =>

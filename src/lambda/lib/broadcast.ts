@@ -1,8 +1,6 @@
 import type { AnyObject } from '../../lib/utils'
 import type { WebSocketConnection } from '../types/webscoket'
-
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
-
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -20,9 +18,9 @@ export const wsConnect = async (connectionId: string) => {
     },
     {
       Update: {
+        ExpressionAttributeValues: { ':delta': { N: '1' } },
         Key: { connectionId: { S: CONNECTION_COUNT_ID } },
         UpdateExpression: 'ADD connectionCount :delta',
-        ExpressionAttributeValues: { ':delta': { N: '1' } },
       },
     },
   ])
@@ -33,16 +31,16 @@ export const wsDisconnect = async (connectionId: string) => {
   await dynamoDB.transaction([
     {
       Delete: {
-        Key: { connectionId: { S: connectionId } },
         // This will make the transaction fail, when item does not exist:
         ConditionExpression: 'attribute_exists(connectionId)',
+        Key: { connectionId: { S: connectionId } },
       },
     },
     {
       Update: {
+        ExpressionAttributeValues: { ':delta': { N: '-1' } },
         Key: { connectionId: { S: CONNECTION_COUNT_ID } },
         UpdateExpression: 'ADD connectionCount :delta',
-        ExpressionAttributeValues: { ':delta': { N: '-1' } },
       },
     },
   ])

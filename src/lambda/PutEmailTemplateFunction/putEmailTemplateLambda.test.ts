@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetUsername = jest.fn<any>()
@@ -52,8 +52,8 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => {
   class TemplateDoesNotExistException extends SESServiceException {
     constructor(options: { message?: string; $metadata?: { httpStatusCode: number } } = {}) {
       super({
-        message: options.message || 'Template does not exist',
         $metadata: options.$metadata || { httpStatusCode: 404 },
+        message: options.message || 'Template does not exist',
       })
       this.name = 'TemplateDoesNotExistException'
     }
@@ -68,12 +68,12 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => {
   }))
 
   return {
+    CreateTemplateCommand: jest.fn((params: any) => ({ ...params, command: 'CreateTemplateCommand' })),
     SESClient: jest.fn(() => ({
       send: mockSend,
     })),
-    UpdateTemplateCommand: jest.fn((params: any) => ({ ...params, command: 'UpdateTemplateCommand' })),
-    CreateTemplateCommand: jest.fn((params: any) => ({ ...params, command: 'CreateTemplateCommand' })),
     TemplateDoesNotExistException,
+    UpdateTemplateCommand: jest.fn((params: any) => ({ ...params, command: 'UpdateTemplateCommand' })),
   }
 })
 
@@ -102,10 +102,10 @@ const { default: putEmailTemplateLambda } = await import('./handler')
 describe('putEmailTemplateLambda', () => {
   const event = {
     body: JSON.stringify({
+      en: '# English Template\n\nThis is a test template in English.',
+      fi: '# Finnish Template\n\nThis is a test template in Finnish.',
       id: 'test-template',
       name: 'Test Template',
-      fi: '# Finnish Template\n\nThis is a test template in Finnish.',
-      en: '# English Template\n\nThis is a test template in English.',
     }),
     headers: {},
   } as any
@@ -115,28 +115,28 @@ describe('putEmailTemplateLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Admin User',
-      admin: true,
     })
 
     mockGetUsername.mockResolvedValue('Admin User')
 
     mockParseJSONWithFallback.mockReturnValue({
+      en: '# English Template\n\nThis is a test template in English.',
+      fi: '# Finnish Template\n\nThis is a test template in Finnish.',
       id: 'test-template',
       name: 'Test Template',
-      fi: '# Finnish Template\n\nThis is a test template in Finnish.',
-      en: '# English Template\n\nThis is a test template in English.',
     })
 
     mockRead.mockResolvedValue(null) // No existing template by default
 
     mockMarkdownToTemplate.mockImplementation((templateName: string, _source: string) => {
       return Promise.resolve({
-        TemplateName: templateName,
-        SubjectPart: 'Test Subject',
-        TextPart: 'Test text content',
         HtmlPart: '<h1>Test HTML content</h1>',
+        SubjectPart: 'Test Subject',
+        TemplateName: templateName,
+        TextPart: 'Test text content',
       })
     })
 
@@ -146,9 +146,9 @@ describe('putEmailTemplateLambda', () => {
 
   it('returns 401 if user is not an admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Regular User',
-      admin: false,
     })
 
     await putEmailTemplateLambda(event)
@@ -164,20 +164,20 @@ describe('putEmailTemplateLambda', () => {
 
   it('creates a new email template successfully', async () => {
     const fiTemplate = {
-      TemplateName: 'test-template-stack-name-fi',
-      SubjectPart: 'Test Subject',
-      TextPart: 'Test text content',
       HtmlPart: '<h1>Test HTML content</h1>',
+      SubjectPart: 'Test Subject',
+      TemplateName: 'test-template-stack-name-fi',
+      TextPart: 'Test text content',
     }
 
     const enTemplate = {
-      TemplateName: 'test-template-stack-name-en',
-      SubjectPart: 'Test Subject',
-      TextPart: 'Test text content',
       HtmlPart: '<h1>Test HTML content</h1>',
+      SubjectPart: 'Test Subject',
+      TemplateName: 'test-template-stack-name-en',
+      TextPart: 'Test text content',
     }
 
-    mockMarkdownToTemplate.mockResolvedValueOnce(fiTemplate).mockResolvedValueOnce(enTemplate)
+    mockMarkdownToTemplate.mockResolvedValueOnce(enTemplate).mockResolvedValueOnce(fiTemplate)
 
     await putEmailTemplateLambda(event)
 
@@ -206,15 +206,15 @@ describe('putEmailTemplateLambda', () => {
     // Check if data was written to DynamoDB
     expect(mockWrite).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'test-template',
-        name: 'Test Template',
-        fi: '# Finnish Template\n\nThis is a test template in Finnish.',
         en: '# English Template\n\nThis is a test template in English.',
+        fi: '# Finnish Template\n\nThis is a test template in Finnish.',
+        id: 'test-template',
         modifiedAt: mockTimestamp,
         modifiedBy: 'Admin User',
+        name: 'Test Template',
         ses: {
-          fi: fiTemplate,
           en: enTemplate,
+          fi: fiTemplate,
         },
       })
     )
@@ -226,33 +226,33 @@ describe('putEmailTemplateLambda', () => {
   it('updates an existing email template successfully', async () => {
     // Mock an existing template
     const existingTemplate = {
-      id: 'test-template',
-      name: 'Old Template Name',
-      fi: '# Old Finnish Template',
-      en: '# Old English Template',
       createdAt: '2022-01-01T00:00:00.000Z',
       createdBy: 'Previous Admin',
+      en: '# Old English Template',
+      fi: '# Old Finnish Template',
+      id: 'test-template',
       modifiedAt: '2022-01-01T00:00:00.000Z',
       modifiedBy: 'Previous Admin',
+      name: 'Old Template Name',
     }
 
     mockRead.mockResolvedValueOnce(existingTemplate)
 
     const fiTemplate = {
-      TemplateName: 'test-template-stack-name-fi',
-      SubjectPart: 'Test Subject',
-      TextPart: 'Test text content',
       HtmlPart: '<h1>Test HTML content</h1>',
+      SubjectPart: 'Test Subject',
+      TemplateName: 'test-template-stack-name-fi',
+      TextPart: 'Test text content',
     }
 
     const enTemplate = {
-      TemplateName: 'test-template-stack-name-en',
-      SubjectPart: 'Test Subject',
-      TextPart: 'Test text content',
       HtmlPart: '<h1>Test HTML content</h1>',
+      SubjectPart: 'Test Subject',
+      TemplateName: 'test-template-stack-name-en',
+      TextPart: 'Test text content',
     }
 
-    mockMarkdownToTemplate.mockResolvedValueOnce(fiTemplate).mockResolvedValueOnce(enTemplate)
+    mockMarkdownToTemplate.mockResolvedValueOnce(enTemplate).mockResolvedValueOnce(fiTemplate)
 
     await putEmailTemplateLambda(event)
 
@@ -262,17 +262,17 @@ describe('putEmailTemplateLambda', () => {
     // Check if data was written to DynamoDB with merged properties
     expect(mockWrite).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'test-template',
-        name: 'Test Template', // Updated
-        fi: '# Finnish Template\n\nThis is a test template in Finnish.', // Updated
-        en: '# English Template\n\nThis is a test template in English.', // Updated
         createdAt: '2022-01-01T00:00:00.000Z', // Preserved from existing
         createdBy: 'Previous Admin', // Preserved from existing
+        en: '# English Template\n\nThis is a test template in English.', // Updated
+        fi: '# Finnish Template\n\nThis is a test template in Finnish.', // Updated
+        id: 'test-template',
         modifiedAt: mockTimestamp, // Updated
         modifiedBy: 'Admin User', // Updated
+        name: 'Test Template', // Updated
         ses: {
-          fi: fiTemplate,
           en: enTemplate,
+          fi: fiTemplate,
         },
       })
     )
@@ -287,8 +287,8 @@ describe('putEmailTemplateLambda', () => {
     mockSend
       .mockRejectedValueOnce(
         new TemplateDoesNotExistException({
-          message: 'Template does not exist',
           $metadata: { httpStatusCode: 404 },
+          message: 'Template does not exist',
         })
       )
       .mockResolvedValueOnce({}) // Second call succeeds
@@ -330,8 +330,8 @@ describe('putEmailTemplateLambda', () => {
     mockSend
       .mockRejectedValueOnce(
         new TemplateDoesNotExistException({
-          message: 'Template does not exist',
           $metadata: { httpStatusCode: 404 },
+          message: 'Template does not exist',
         })
       )
       .mockRejectedValueOnce(error)

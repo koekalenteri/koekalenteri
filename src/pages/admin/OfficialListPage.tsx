@@ -1,15 +1,12 @@
 import type { Theme } from '@mui/material'
-
-import { useTranslation } from 'react-i18next'
 import CloudSync from '@mui/icons-material/CloudSync'
 import { useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
-
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isAdminSelector } from '../recoil'
-
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import { useOfficialListPageColumns } from './officialListPage/columns'
@@ -52,9 +49,9 @@ export default function OfficialListPage() {
         slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           toolbar: {
-            value: searchText,
-            onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
             clearSearch: () => setSearchText(''),
+            onChange: (event: React.ChangeEvent<HTMLInputElement>) => setSearchText(event.target.value),
+            value: searchText,
           },
         }}
         rows={officials}

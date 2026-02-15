@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-
 import Box from '@mui/material/Box'
 
 interface Props {
@@ -11,12 +10,12 @@ const FullPageFlex = ({ children, minWidth }: Props) => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        p: 0,
-        overflow: minWidth ? undefined : 'hidden',
-        height: '100%',
-        flexDirection: 'column',
         alignItems: 'flex-start',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflow: minWidth ? undefined : 'hidden',
+        p: 0,
       }}
     >
       <Box
@@ -24,9 +23,9 @@ const FullPageFlex = ({ children, minWidth }: Props) => {
           display: 'flex',
           flexDirection: 'column',
           flexGrow: 1,
-          width: '100%',
           minHeight: 300,
           minWidth,
+          width: '100%',
         }}
       >
         {children}

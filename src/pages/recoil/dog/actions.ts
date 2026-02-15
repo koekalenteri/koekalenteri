@@ -1,15 +1,12 @@
 import type { DeepPartial, Dog } from '../../../types'
 import type { DogCachedInfo } from './atoms'
-
 import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
-
 import { getDog } from '../../../api/dog'
 import { emptyDog } from '../../../lib/data'
 import { hasChanges, merge } from '../../../lib/utils'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
-
 import { dogAtom } from './atoms'
 
 const INIT_CACHE: DeepPartial<DogCachedInfo> = { owner: { ownerHandles: true, ownerPays: true } }

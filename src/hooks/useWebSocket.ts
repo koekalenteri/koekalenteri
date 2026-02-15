@@ -1,8 +1,6 @@
 import type { PublicDogEvent } from '../types'
-
 import { useCallback, useEffect, useRef } from 'react'
 import { useRecoilCallback } from 'recoil'
-
 import { patchMerge } from '../lib/utils'
 import { eventsAtom } from '../pages/recoil'
 import { WS_API_URL } from '../routeConfig'
@@ -71,7 +69,7 @@ export const useWebSocket = () => {
         // ignore invalid messages
       }
     }
-  }, [])
+  }, [setEvents])
 
   useEffect(() => {
     if (WS_API_URL) {
@@ -84,5 +82,5 @@ export const useWebSocket = () => {
       }
       wsRef.current?.close()
     }
-  }, [])
+  }, [connect])
 }

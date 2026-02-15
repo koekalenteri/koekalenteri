@@ -1,6 +1,5 @@
-import { useTranslation } from 'react-i18next'
 import PersonOutline from '@mui/icons-material/PersonOutline'
-
+import { useTranslation } from 'react-i18next'
 import { useUserActions } from '../../../recoil'
 import AppBarButton from '../AppBarButton'
 

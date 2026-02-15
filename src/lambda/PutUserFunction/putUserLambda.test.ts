@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
@@ -50,9 +50,9 @@ describe('putUserLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Admin User',
-      admin: true,
       roles: {},
     })
 
@@ -68,8 +68,8 @@ describe('putUserLambda', () => {
     })
 
     mockGetAndUpdateUserByEmail.mockResolvedValue({
-      id: 'user456',
       email: 'test@example.com',
+      id: 'user456',
       name: 'Test User',
       roles: {},
     })
@@ -97,9 +97,9 @@ describe('putUserLambda', () => {
 
   it('returns 403 if user is not an admin and has no admin roles', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Regular User',
-      admin: false,
       roles: {
         org123: 'secretary', // Not an admin role
       },
@@ -114,9 +114,9 @@ describe('putUserLambda', () => {
 
   it('allows users with admin role for an organization', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Org Admin',
-      admin: false,
       roles: {
         org123: 'admin', // Admin for this org
       },
@@ -139,8 +139,8 @@ describe('putUserLambda', () => {
     expect(mockSetUserRole).toHaveBeenCalledTimes(2)
     expect(mockSetUserRole).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'user456',
         email: 'test@example.com',
+        id: 'user456',
         name: 'Test User',
       }),
       'org123',

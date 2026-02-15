@@ -1,14 +1,12 @@
-import { Suspense } from 'react'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
-
 import AdminHomePage from './AdminHomePage'
 
 jest.mock('../../api/user', () => ({ getUser: () => undefined }))
@@ -23,12 +21,12 @@ describe('AdminHomePage', () => {
   it('should redirect to login page if user is not logged in', async () => {
     const routes = [
       {
-        path: Path.admin.root,
         element: <AdminHomePage />,
+        path: Path.admin.root,
       },
       {
-        path: Path.login,
         element: <>Login</>,
+        path: Path.login,
       },
     ]
     const { container } = render(

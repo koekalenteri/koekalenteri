@@ -1,9 +1,8 @@
 import type { PublicConfirmedEvent, Registration } from '../../types'
-
-import { useTranslation } from 'react-i18next'
 import Box from '@mui/material/Box'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   readonly event: PublicConfirmedEvent
@@ -22,7 +21,7 @@ export const RegistrationDetails = ({ event, registration }: Props) => {
         <Typography variant="body1">
           {[
             event.eventType,
-            t('dateFormat.datespan', { start: event.startDate, end: event.endDate }),
+            t('dateFormat.datespan', { end: event.endDate, start: event.startDate }),
             event.location,
             event.name ? `(${event.name})` : '',
           ]

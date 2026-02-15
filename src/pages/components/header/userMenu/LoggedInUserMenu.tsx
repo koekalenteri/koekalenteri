@@ -1,5 +1,3 @@
-import { useCallback, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import Button from '@mui/material/Button'
@@ -10,7 +8,8 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
-
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useUserActions } from '../../../recoil/user/actions'
 import AppBarButton from '../AppBarButton'
 
@@ -46,11 +45,8 @@ export default function LoggedInUserMenu({ userName }: Props) {
     return !cleaned || cleaned === String(userName ?? '').trim()
   }, [nameDraft, userName])
 
-  const handleClick = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget),
-    [setAnchorEl]
-  )
-  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const handleClick = useCallback((event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget), [])
+  const handleClose = useCallback(() => setAnchorEl(null), [])
 
   return (
     <>
@@ -59,8 +55,8 @@ export default function LoggedInUserMenu({ userName }: Props) {
       </AppBarButton>
       <Menu
         anchorEl={anchorEl}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         open={!!anchorEl}
         onClose={handleClose}
         onClick={handleClose}

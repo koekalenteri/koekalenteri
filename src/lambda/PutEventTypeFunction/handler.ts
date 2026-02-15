@@ -1,5 +1,4 @@
 import type { EventType, JsonEventType, JsonJudge, JsonOfficial } from '../../types'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'

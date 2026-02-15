@@ -1,5 +1,4 @@
 import type { JsonUser } from '../../types'
-
 import { getOrigin } from '../lib/api-gw'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'

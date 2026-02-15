@@ -1,7 +1,5 @@
 import { render, screen } from '@testing-library/react'
-
 import * as registrationUtils from '../../../../../lib/registration'
-
 import RegistrationTooltipContent from './RegistrationTooltipContent'
 
 jest.mock('../../../../components/IconsTooltip', () => ({
@@ -20,18 +18,18 @@ describe('RegistrationTooltipContent', () => {
   } as any
 
   const mockRegistration = {
-    id: 'reg-1',
-    handler: { name: 'Test Handler', membership: true },
-    owner: { name: 'Test Owner', membership: false },
     confirmed: true,
+    handler: { membership: true, name: 'Test Handler' },
+    id: 'reg-1',
+    internalNotes: 'Internal notes',
     invitationRead: true,
     notes: 'Some notes',
-    internalNotes: 'Internal notes',
-    paidAt: new Date(),
+    owner: { membership: false, name: 'Test Owner' },
     paidAmount: 5000,
+    paidAt: new Date(),
     refundAmount: 0,
-    refundStatus: undefined,
     refundAt: undefined,
+    refundStatus: undefined,
   } as any
 
   beforeEach(() => {
@@ -119,8 +117,8 @@ describe('RegistrationTooltipContent', () => {
   it('should render refund pending tooltip when refundStatus is PENDING', () => {
     const regWithPendingRefund = {
       ...mockRegistration,
-      refundStatus: 'PENDING' as const,
       refundAmount: 2500,
+      refundStatus: 'PENDING' as const,
     }
 
     render(
@@ -142,8 +140,8 @@ describe('RegistrationTooltipContent', () => {
   it('should render refunded tooltip when refundAt is set', () => {
     const regWithRefund = {
       ...mockRegistration,
-      refundAt: new Date(),
       refundAmount: 2500,
+      refundAt: new Date(),
     }
 
     render(

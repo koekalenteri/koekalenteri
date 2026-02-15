@@ -5,18 +5,15 @@ import type {
   Registration,
   TestResult,
 } from '../../../types'
-
-import { useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import AddOutlined from '@mui/icons-material/AddOutlined'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
-
+import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
 import RankingPoints from '../RankingPoints'
-
 import QualifyingResultRow from './qualifyingResultsInfo/QualifyingResultRow'
 import { createMissingResult, getResultId } from './qualifyingResultsInfo/utils'
 
@@ -114,7 +111,7 @@ export default function QualifyingResultsInfo({
     >
       <Grid container spacing={1}>
         <Grid display={rankingPeriod?.min ? undefined : 'none'}>
-          <Typography variant="caption">{`${t('registration.rankingTime')}: ${t('dateFormat.datespan', { start: rankingPeriod?.min, end: rankingPeriod?.max })}`}</Typography>
+          <Typography variant="caption">{`${t('registration.rankingTime')}: ${t('dateFormat.datespan', { end: rankingPeriod?.max, start: rankingPeriod?.min })}`}</Typography>
         </Grid>
         {qualifying.map((result) => (
           <QualifyingResultRow

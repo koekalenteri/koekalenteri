@@ -1,28 +1,9 @@
 import { selector } from 'recoil'
-
 import { getUser } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
-
-import { idTokenAtom } from './atoms'
-import { userRefreshAtom } from './atoms'
+import { idTokenAtom, userRefreshAtom } from './atoms'
 
 export const userSelector = selector({
-  key: 'user',
-  get: async ({ get }) => {
-    try {
-      const token = get(idTokenAtom)
-      // Refresh trigger (intentionally unused except for dependency tracking)
-      get(userRefreshAtom)
-      if (!token) return null
-
-      const user = await getUser(token)
-      return user
-    } catch (e) {
-      reportError(e)
-    }
-
-    return null
-  },
   /**
    * Defines the behavior of the internal selector cache. Can be useful to control the memory footprint in apps that
    * have selectors with many changing dependencies.
@@ -39,48 +20,64 @@ export const userSelector = selector({
   cachePolicy_UNSTABLE: {
     eviction: 'most-recent',
   },
+  get: async ({ get }) => {
+    try {
+      const token = get(idTokenAtom)
+      // Refresh trigger (intentionally unused except for dependency tracking)
+      get(userRefreshAtom)
+      if (!token) return null
+
+      const user = await getUser(token)
+      return user
+    } catch (e) {
+      reportError(e)
+    }
+
+    return null
+  },
+  key: 'user',
 })
 
 export const isAdminSelector = selector({
-  key: 'isAdmin',
+  cachePolicy_UNSTABLE: {
+    eviction: 'most-recent',
+  },
   get: async ({ get }) => {
     const user = get(userSelector)
     return user?.admin === true
   },
-  cachePolicy_UNSTABLE: {
-    eviction: 'most-recent',
-  },
+  key: 'isAdmin',
 })
 
 export const isOrgAdminSelector = selector({
-  key: 'isOrgAdmin',
+  cachePolicy_UNSTABLE: {
+    eviction: 'most-recent',
+  },
   get: async ({ get }) => {
     const user = get(userSelector)
     const roles = user?.roles ?? {}
     return user?.admin === true || Object.keys(roles).some((key) => roles[key] === 'admin')
   },
-  cachePolicy_UNSTABLE: {
-    eviction: 'most-recent',
-  },
+  key: 'isOrgAdmin',
 })
 
 export const hasAdminAccessSelector = selector({
-  key: 'hasAdminAccess',
+  cachePolicy_UNSTABLE: {
+    eviction: 'most-recent',
+  },
   get: async ({ get }) => {
     const user = get(userSelector)
     return user?.admin === true || Object.keys(user?.roles ?? {}).length > 0
   },
-  cachePolicy_UNSTABLE: {
-    eviction: 'most-recent',
-  },
+  key: 'hasAdminAccess',
 })
 
 export const adminUserOrgIdsSelector = selector({
-  key: 'adminUserOrgIds',
   get: async ({ get }) => {
     const user = get(userSelector)
     const roles = user?.roles ?? {}
 
     return Object.keys(roles)
   },
+  key: 'adminUserOrgIds',
 })

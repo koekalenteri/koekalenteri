@@ -1,6 +1,5 @@
 import type { EventClass, PublicJudge } from '../../../../../types'
 import type { PartialEvent } from '../types'
-
 import { filterClassesByJudgeId, hasJudge, makeArray, updateJudge } from './utils'
 
 describe('judgeSection utils', () => {
@@ -86,8 +85,8 @@ describe('judgeSection utils', () => {
     beforeEach(() => {
       // Reset event before each test
       event = {
-        startDate,
         classes: [{ ...class1 }, { ...class2 }, { ...class3 }],
+        startDate,
       }
     })
 

@@ -1,7 +1,5 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
-
 import { render, screen } from '@testing-library/react'
-
 import { ClassHeader } from './ClassHeader'
 
 // Mock judgeName function
@@ -27,15 +25,6 @@ describe('ClassHeader', () => {
   const mockDate = new Date('2023-01-01')
 
   const mockEvent: PublicConfirmedEvent = {
-    id: 'event-1',
-    eventType: 'Test Event Type',
-    location: 'Test Location',
-    name: 'Test Name',
-    startDate: new Date('2023-01-01'),
-    endDate: new Date('2023-01-02'),
-    entryStartDate: new Date('2022-12-01'),
-    entryEndDate: new Date('2022-12-31'),
-    state: 'confirmed',
     classes: [
       {
         class: 'AVO',
@@ -58,12 +47,21 @@ describe('ClassHeader', () => {
     ],
     cost: 0,
     costMember: 0,
+    createdAt: new Date(),
     description: '',
+    endDate: new Date('2023-01-02'),
+    entryEndDate: new Date('2022-12-31'),
+    entryStartDate: new Date('2022-12-01'),
+    eventType: 'Test Event Type',
+    id: 'event-1',
     judges: [],
+    location: 'Test Location',
+    modifiedAt: new Date(),
+    name: 'Test Name',
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
-    createdAt: new Date(),
-    modifiedAt: new Date(),
+    startDate: new Date('2023-01-01'),
+    state: 'confirmed',
   }
 
   it('renders class header with single judge correctly', () => {

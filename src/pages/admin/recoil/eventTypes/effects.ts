@@ -1,9 +1,7 @@
 import type { AtomEffect } from 'recoil'
 import type { EventType } from '../../../../types'
-
 import i18next from 'i18next'
 import { DefaultValue } from 'recoil'
-
 import { getEventTypes } from '../../../../api/eventType'
 import { idTokenAtom } from '../../../recoil/user'
 
