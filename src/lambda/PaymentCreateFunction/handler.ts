@@ -33,6 +33,11 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     return response<string>(404, 'Registration not found', event)
   }
 
+  // Don't allow payment if event requires payment after confirmation but registration is not confirmed
+  if (jsonEvent.paymentTime === 'confirmation' && !registration.confirmed) {
+    return response<string>(403, 'Payment not allowed - registration must be confirmed first', event)
+  }
+
   const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
   if (!organizer?.paytrailMerchantId) {
     return response<string>(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`, event)

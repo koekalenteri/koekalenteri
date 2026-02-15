@@ -273,7 +273,8 @@
   "paymentStatus": {
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
-    "success": "Olen maksanut"
+    "success": "Olen maksanut",
+    "waitingForConfirmation": "Maksetaan paikan vahvistuttua"
   },
   "paymentTime": "Maksuajankohta",
   "paymentTimeOptions": {
@@ -479,6 +480,7 @@
   "search": {
     "placeholder": "Hae..."
   },
+  "all": "Kaikki",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -498,6 +500,8 @@
   "user": {
     "admin": "Koekalenterin pääkäyttäjä",
     "adminRoles": "Koekalenterin pääkäyttäjällä on pääkäyttäjä-oikeus kaikkiin yhdistyksiin",
+    "judge": "Tuomari",
+    "officer": "Koetoimitsija",
     "createDialog": {
       "cta": "Tallenna",
       "done": "Käyttäjä lisätty",
@@ -514,11 +518,18 @@
       "title": "Käyttäjän [{{user.name}}] roolien muokkaus"
     },
     "lastSeen": "Viimeinen kirjautuminen",
+    "emailHistory": "Sähköpostihistoria",
     "roles": {
       "admin": "Yhdistyksen pääkäyttäjä",
       "secretary": "Koesihteeri"
+    },
+    "editName": "Muokkaa nimeä",
+    "editNameDialog": {
+      "title": "Muokkaa nimeäsi",
+      "name": "Nimi"
     }
   },
+  "organization": "Yhdistys",
   "users": "Käyttäjät",
   "invitation": {
     "openingFailed": "Koeutsun avaaminen epäonnistui",

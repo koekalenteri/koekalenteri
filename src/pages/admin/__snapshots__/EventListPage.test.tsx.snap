@@ -128,7 +128,7 @@ exports[`EventListPage renders 1`] = `
       </div>
       <div
         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
-        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 200px; --DataGrid-columnsTotalWidth: 200px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 1050px; --DataGrid-columnsTotalWidth: 1050px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
           class="MuiStack-root css-k5y4k9-MuiStack-root"
@@ -353,7 +353,7 @@ exports[`EventListPage renders 1`] = `
           <div
             class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
             role="presentation"
-            style="overflow-x: hidden;"
+            style=""
           >
             <div
               class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
@@ -452,7 +452,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="eventType"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -526,7 +526,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="classes"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -600,7 +600,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="organizer"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -674,7 +674,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -748,7 +748,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="location"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -822,7 +822,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="secretary"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -896,7 +896,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="official"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -970,7 +970,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="judges"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 100px;"
                     tabindex="-1"
                   >
                     <div
@@ -1118,7 +1118,7 @@ exports[`EventListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                     data-field="state"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 50px;"
                     tabindex="-1"
                   >
                     <div
@@ -1200,7 +1200,7 @@ exports[`EventListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
+              style="width: 1050px; flex-basis: 28px; flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -1243,7 +1243,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="1"
                     data-field="eventType"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="NOME-B"
                   >
@@ -1257,7 +1257,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="2"
                     data-field="classes"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="ALO, AVO"
                   >
@@ -1271,7 +1271,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="3"
                     data-field="organizer"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="Suomen Noutajakoirajärjestö ry"
                   >
@@ -1285,7 +1285,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="4"
                     data-field="name"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="test"
                   >
@@ -1299,7 +1299,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="5"
                     data-field="location"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="test"
                   >
@@ -1313,7 +1313,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="6"
                     data-field="secretary"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="Siiri Sihteeri"
                   >
@@ -1327,7 +1327,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="7"
                     data-field="official"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="Teemu Toimitsija"
                   >
@@ -1341,7 +1341,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="8"
                     data-field="judges"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 100px;"
                     tabindex="-1"
                     title="Tuomari 1"
                   >
@@ -1369,7 +1369,7 @@ exports[`EventListPage renders 1`] = `
                     data-colindex="10"
                     data-field="state"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 50px;"
                     tabindex="-1"
                     title="event.states.confirmed_entryClosed"
                   >
@@ -1394,6 +1394,7 @@ exports[`EventListPage renders 1`] = `
           >
             <div
               class="MuiDataGrid-scrollbarContent"
+              style="width: 1050px;"
             />
           </div>
           <div
@@ -1403,6 +1404,7 @@ exports[`EventListPage renders 1`] = `
           >
             <div
               class="MuiDataGrid-scrollbarContent"
+              style="height: 1.675px;"
             />
           </div>
         </div>

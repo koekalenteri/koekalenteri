@@ -121,7 +121,7 @@ describe('getEventsLambda', () => {
     const rangeEvent = {
       ...event,
       queryStringParameters: {
-        start: '2026-01-02T00:00:00.000Z',
+        start: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
     } as any
 
@@ -146,7 +146,7 @@ describe('getEventsLambda', () => {
     const rangeEvent = {
       ...event,
       queryStringParameters: {
-        end: '2026-01-02T00:00:00.000Z',
+        end: String(Date.parse('2026-01-02T00:00:00.000Z')),
       },
     } as any
 
@@ -171,8 +171,8 @@ describe('getEventsLambda', () => {
     const rangeEvent = {
       ...event,
       queryStringParameters: {
-        start: '2026-01-02T00:00:00.000Z',
-        end: '2026-01-06T00:00:00.000Z',
+        start: String(Date.parse('2026-01-02T00:00:00.000Z')),
+        end: String(Date.parse('2026-01-06T00:00:00.000Z')),
       },
     } as any
 
@@ -193,14 +193,45 @@ describe('getEventsLambda', () => {
     const rangeEvent = {
       ...event,
       queryStringParameters: {
-        start: '2026-01-03T00:00:00.000Z',
-        end: '2026-01-03T00:00:00.000Z',
+        start: String(Date.parse('2026-01-03T00:00:00.000Z')),
+        end: String(Date.parse('2026-01-03T00:00:00.000Z')),
       },
     } as any
 
     await getEventsLambda(rangeEvent)
 
     expect(mockSanitizeDogEvent).toHaveBeenCalledTimes(1)
+    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
+  })
+
+  it('filters events by since (excludes those modified before since)', async () => {
+    const allEvents = [
+      {
+        id: 'event1',
+        state: 'confirmed',
+        startDate: '2026-01-01T00:00:00.000Z',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+      },
+      {
+        id: 'event2',
+        state: 'confirmed',
+        startDate: '2026-01-02T00:00:00.000Z',
+        modifiedAt: '2026-01-02T10:00:00.000Z',
+      },
+    ]
+
+    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockSanitizeDogEvent.mockImplementation((e: any) => e)
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        since: String(Date.parse('2026-01-02T00:00:00.000Z')),
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
     expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
   })
 })

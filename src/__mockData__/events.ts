@@ -2,12 +2,16 @@ import type { ConfirmedEvent } from '../types'
 
 import { addDays, parseISO } from 'date-fns'
 
-import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 
 import { emptyEvent } from './emptyEvent'
 
-const today = zonedStartOfDay(new Date())
-const parseDate = (iso: string) => zonedStartOfDay(parseISO(`${iso}T12:00:00`))
+// IMPORTANT: derive "today" using the app/event timezone (Europe/Helsinki).
+// Using `Date.toISOString().slice(0, 10)` would key by *UTC day* and flips at 00:00Z,
+// which makes entryOpen/entryUpcoming and snapshots change depending on the hour.
+const isoDay = zonedDateString(new Date())
+const parseDate = (iso: string) => zonedStartOfDay(parseISO(`${iso}T12:00:00Z`))
+const today = parseDate(isoDay)
 
 export const eventWithStaticDates: ConfirmedEvent = {
   ...emptyEvent,

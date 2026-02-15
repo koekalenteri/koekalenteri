@@ -34,24 +34,40 @@ exports[`PaymentPage renders properly 1`] = `
     class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-a0rqo0-MuiPaper-root"
     style="--Paper-shadow: none;"
   >
-    <h5
-      class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+    <div
+      class="MuiGrid-root MuiGrid-direction-xs-row css-1c4oc4q-MuiGrid-root"
     >
-      paymentPage.choosePaymentMethod
-    </h5>
-    <span
-      class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
-    >
-      <span>
-        Valitsemalla maksutavan hyväksyt 
+      <div
+        class="MuiBox-root css-1ufwpux"
+        role="button"
+      >
         <a
-          href="https://www.paytrail.com/kuluttaja/maksupalveluehdot"
-          target="_blank"
+          class="link"
+          data-discover="true"
+          href="/r/test1/unpaid-nome-b-alo-registration"
         >
-          maksupalveluehdot
+          goBack
         </a>
+      </div>
+      <h5
+        class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
+      >
+        paymentPage.choosePaymentMethod
+      </h5>
+      <span
+        class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+      >
+        <span>
+          Valitsemalla maksutavan hyväksyt 
+          <a
+            href="https://www.paytrail.com/kuluttaja/maksupalveluehdot"
+            target="_blank"
+          >
+            maksupalveluehdot
+          </a>
+        </span>
       </span>
-    </span>
+    </div>
     <div
       class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1jsbvj9-MuiPaper-root"
       style="--Paper-shadow: none;"

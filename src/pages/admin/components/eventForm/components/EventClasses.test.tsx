@@ -5,8 +5,9 @@ import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/u
 
 import EventClasses from './EventClasses'
 
-const date = parseISO('2023-01-17')
-const date2 = parseISO('2023-01-18')
+// Avoid `parseISO('YYYY-MM-DD')` in tests (timezone-dependent).
+const date = parseISO('2023-01-17T12:00:00Z')
+const date2 = parseISO('2023-01-18T12:00:00Z')
 
 describe('EventClasses', () => {
   beforeAll(() => jest.useFakeTimers())

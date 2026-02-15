@@ -40,7 +40,7 @@ export function CreateUserDialog({ onClose, open }: Props) {
       })
       .then(
         () => onClose(),
-        (reason) => console.error(reason)
+        (err) => console.error(err)
       )
   }, [actions, email, name, onClose, org, role])
 

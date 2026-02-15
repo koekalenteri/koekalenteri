@@ -17,6 +17,7 @@ import RankingPoints from '../../../components/RankingPoints'
 
 import PaymentIcon from './registrationIcons/PaymentIcon'
 import RegistrationTooltipContent from './registrationIcons/RegistrationTooltipContent'
+import { hasRegistrationTooltipContent } from './registrationIcons/RegistrationTooltipContent'
 import StatusIcon from './registrationIcons/StatusIcon'
 
 interface RegistrationIconsProps {
@@ -33,20 +34,19 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   )
   const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.rankingPoints ?? 0), 0), [reg])
 
+  const tooltipIcons = hasRegistrationTooltipContent({ reg, priority, manualResultCount, rankingPoints }) ? (
+    <RegistrationTooltipContent
+      key="tooltip-content"
+      event={event}
+      reg={reg}
+      priority={priority}
+      manualResultCount={manualResultCount}
+      rankingPoints={rankingPoints}
+    />
+  ) : undefined
+
   return (
-    <IconsTooltip
-      placement="right"
-      icons={
-        <RegistrationTooltipContent
-          key="tooltip-content"
-          event={event}
-          reg={reg}
-          priority={priority}
-          manualResultCount={manualResultCount}
-          rankingPoints={rankingPoints}
-        />
-      }
-    >
+    <IconsTooltip placement="right" icons={tooltipIcons}>
       <Stack direction="row" alignItems="center" mt="3px">
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
         <StatusIcon

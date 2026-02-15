@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid'
 import { useRecoilValue } from 'recoil'
 
 import { emptyDog } from '../../../lib/data'
-import { createDogUpdateFromFormValues, shouldAllowRefresh } from '../../../lib/dog'
+import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from '../../../lib/dog'
 import { hasChanges } from '../../../lib/utils'
 import { validateRegNo } from '../../../lib/validation'
 import { useDogActions } from '../../recoil/dog'
@@ -36,6 +36,7 @@ interface State {
   regNo: string
   mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
   rfid: boolean
+  dob: boolean
 }
 
 export const DogInfo = ({
@@ -55,6 +56,7 @@ export const DogInfo = ({
     regNo: reg?.dog?.regNo ?? '',
     mode: reg?.dog?.regNo ? 'update' : 'fetch',
     rfid: false,
+    dob: false,
   })
 
   // Group local state for all form fields with a single debounced update
@@ -89,6 +91,7 @@ export const DogInfo = ({
   const disabledByMode = disabled || state.mode !== 'manual'
   const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
   const rfidDisabled = disabledByMode && (!state.rfid || state.mode === 'notfound')
+  const dobDisabled = disabledByMode && (!state.dob || state.mode === 'notfound')
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
   const [delayed, setDelayed] = useState(false)
@@ -149,6 +152,7 @@ export const DogInfo = ({
               ...prev,
               mode: newMode,
               rfid: !!cache.rfid || !cache?.dog?.rfid,
+              dob: !isValidDob(cache?.dog?.dob),
             }))
           }
         } catch (err) {
@@ -163,7 +167,7 @@ export const DogInfo = ({
       } else if (mode === 'notfound') {
         setState((prev) => ({ ...prev, mode: 'manual' }))
       } else {
-        setState({ regNo: '', mode: 'fetch', rfid: false })
+        setState({ regNo: '', mode: 'fetch', rfid: false, dob: false })
       }
 
       return delay
@@ -195,7 +199,7 @@ export const DogInfo = ({
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'fetch', rfid: false })
+        setState({ regNo: upper, mode: 'fetch', rfid: false, dob: false })
       }
     },
     [state.regNo]
@@ -205,7 +209,7 @@ export const DogInfo = ({
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'autofetch', rfid: false })
+        setState({ regNo: upper, mode: 'autofetch', rfid: false, dob: false })
       }
     },
     [state.regNo]
@@ -254,6 +258,7 @@ export const DogInfo = ({
           updateField={updateField}
           disabledByMode={disabledByMode}
           rfidDisabled={rfidDisabled}
+          dobDisabled={dobDisabled}
           sireDamDisabled={sireDamDisabled}
           disabled={disabled}
           mode={state.mode}

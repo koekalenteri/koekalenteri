@@ -264,7 +264,8 @@
   "paymentStatus": {
     "missing": "Test payment is still missing",
     "pending": "Waiting for payment processing",
-    "success": "I have paid"
+    "success": "I have paid",
+    "waitingForConfirmation": "Payable after confirmation"
   },
   "paymentTime": "Payment time",
   "paymentTimeOptions": {
@@ -470,6 +471,7 @@
   "search": {
     "placeholder": "Search..."
   },
+  "all": "All",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -489,6 +491,8 @@
   "user": {
     "admin": "Koekalenteri administrator",
     "adminRoles": "The Koekalenteri administrator has admin rights to all organizations",
+    "judge": "Judge",
+    "officer": "Officer",
     "createDialog": {
       "cta": "Save",
       "done": "User added",
@@ -505,11 +509,18 @@
       "title": "Edit roles for user [{{user.name}}]"
     },
     "lastSeen": "Last login",
+    "emailHistory": "Email history",
     "roles": {
       "admin": "Organization administrator",
       "secretary": "Secretary"
+    },
+    "editName": "Edit name",
+    "editNameDialog": {
+      "title": "Edit your name",
+      "name": "Name"
     }
   },
+  "organization": "Organization",
   "users": "Users",
   "invitation": {
     "openingFailed": "Failed to open the event invitation",

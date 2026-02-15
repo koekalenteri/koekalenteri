@@ -10,9 +10,10 @@ export const mockRegistrations: { [key: string]: Registration[] } = {
   test2: [
     {
       id: 'reg1',
-      createdAt: parseISO('2021-02-01'),
+      // NOTE: Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent). Use a stable instant.
+      createdAt: parseISO('2021-02-01T12:00:00Z'),
       createdBy: 'some user',
-      modifiedAt: parseISO('2021-02-01'),
+      modifiedAt: parseISO('2021-02-01T12:00:00Z'),
       modifiedBy: 'some user',
       agreeToTerms: true,
       breeder: {

@@ -36,7 +36,7 @@ exports[`OfficialListPage renders 1`] = `
       </div>
       <div
         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
-        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 150px; --DataGrid-columnsTotalWidth: 150px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 450px; --DataGrid-columnsTotalWidth: 450px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
           class="MuiStack-root css-k5y4k9-MuiStack-root"
@@ -109,7 +109,7 @@ exports[`OfficialListPage renders 1`] = `
           <div
             class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
             role="presentation"
-            style="overflow-x: hidden;"
+            style=""
           >
             <div
               class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
@@ -134,7 +134,7 @@ exports[`OfficialListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 150px;"
                     tabindex="0"
                   >
                     <div
@@ -282,7 +282,7 @@ exports[`OfficialListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor MuiDataGrid-columnHeader--lastUnpinned MuiDataGrid-columnHeader--last"
                     data-field="email"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 150px;"
                     tabindex="-1"
                   >
                     <div
@@ -364,7 +364,7 @@ exports[`OfficialListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
+              style="width: 450px; flex-basis: 28px; flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -393,7 +393,7 @@ exports[`OfficialListPage renders 1`] = `
                     data-colindex="0"
                     data-field="name"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 150px;"
                     tabindex="-1"
                     title="Toimitsija 1"
                   >
@@ -421,7 +421,7 @@ exports[`OfficialListPage renders 1`] = `
                     data-colindex="2"
                     data-field="email"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 150px;"
                     tabindex="-1"
                     title="toimari1@sposti.not"
                   >
@@ -446,6 +446,7 @@ exports[`OfficialListPage renders 1`] = `
           >
             <div
               class="MuiDataGrid-scrollbarContent"
+              style="width: 450px;"
             />
           </div>
           <div
@@ -455,6 +456,7 @@ exports[`OfficialListPage renders 1`] = `
           >
             <div
               class="MuiDataGrid-scrollbarContent"
+              style="height: 1.675px;"
             />
           </div>
         </div>

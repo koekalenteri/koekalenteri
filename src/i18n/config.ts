@@ -17,4 +17,6 @@ export const i18nInit: InitOptions = {
   interpolation: {
     escapeValue: false,
   },
+  // suppress spam
+  showSupportNotice: false,
 }

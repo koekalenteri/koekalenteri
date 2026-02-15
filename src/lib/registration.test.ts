@@ -374,12 +374,10 @@ describe('lib/registration', () => {
       expect(isMember({ handler: { membership: true } })).toBe(true)
     })
 
-    // Corrected test based on actual implementation
     it('should return true when owner has membership regardless of ownerHandles value', () => {
       expect(isMember({ owner: { membership: true }, ownerHandles: true })).toBe(true)
     })
 
-    // Corrected test based on actual implementation
     it('should return false when handler has membership but ownerHandles is true', () => {
       expect(isMember({ handler: { membership: true }, ownerHandles: true, owner: { membership: false } })).toBe(false)
     })
@@ -387,6 +385,10 @@ describe('lib/registration', () => {
     it('should return false when neither owner nor handler has membership', () => {
       expect(isMember({ owner: { membership: false }, handler: { membership: false } })).toBe(false)
       expect(isMember({})).toBe(false)
+    })
+
+    it('should return false when registration is undefined', () => {
+      expect(isMember(undefined)).toBe(false)
     })
   })
 

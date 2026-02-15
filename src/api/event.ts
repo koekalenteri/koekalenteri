@@ -9,12 +9,21 @@ import http, { withToken } from './http'
 const PATH = '/event/'
 const ADMIN_PATH = '/admin/event/'
 
-export async function getEvents(start?: Date, end?: Date, signal?: AbortSignal): Promise<PublicDogEvent[]> {
+export async function getEvents(
+  start?: Date,
+  end?: Date,
+  since?: number,
+  signal?: AbortSignal
+): Promise<PublicDogEvent[]> {
   const params = new URLSearchParams()
+
   if (start) params.append('start', start.toISOString())
   if (end) params.append('end', end.toISOString())
+  if (since) params.append('since', since.toString())
+
   const query = params.toString()
   const url = query ? `${PATH}?${query}` : PATH
+
   return http.get<PublicDogEvent[]>(url, { signal })
 }
 

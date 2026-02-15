@@ -10,7 +10,13 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import { useRecoilValue } from 'recoil'
 
-import { getCostSegmentName, getCostValue, getEarlyBirdDates, getStragegyBySegment } from '../../../lib/cost'
+import {
+  getCostSegmentName,
+  getCostValue,
+  getEarlyBirdDates,
+  getStragegyBySegment,
+  hasDifferentMemberPrice,
+} from '../../../lib/cost'
 import { formatMoney } from '../../../lib/money'
 import { isMember } from '../../../lib/registration'
 import { isMinimalRegistrationForCost } from '../../../lib/typeGuards'
@@ -69,7 +75,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
   const open = !!registration.dog?.breedCode
   const segments: DogEventCostSegment[] = ['normal', 'earlyBird', 'breed', 'custom']
   const breedCode = registration.dog?.breedCode
-  const member = isMember(registration) ? ` ${t('costForMembers')}` : ''
+  const isUserMember = isMember(registration)
 
   return (
     <>
@@ -84,6 +90,11 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
             const value = getCostValue(appliedCost, segment, breedCode)
             if (!value) return null
             const strategy = getStragegyBySegment(segment)
+
+            // Show "for members" text only if member price differs from base price
+            const memberText =
+              isUserMember && hasDifferentMemberPrice(event, segment, breedCode) ? ` ${t('costForMembers')}` : ''
+
             return (
               <FormControlLabel
                 key={segment}
@@ -94,7 +105,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
                   code: breedCode,
                   name: appliedCost.custom?.description[language] || appliedCost.custom?.description.fi,
                   ...getEarlyBirdDates(event, appliedCost),
-                })}${member} ${formatMoney(value)}`}
+                })}${memberText} ${formatMoney(value)}`}
               />
             )
           })}

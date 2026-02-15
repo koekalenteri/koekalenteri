@@ -20,19 +20,25 @@ import { PriorityIcon } from '../components/icons/PriorityIcon'
 import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import StyledDataGrid from '../components/StyledDataGrid'
 
+type StrippedRegistration = Omit<Registration, 'grouo' | 'internalNotes'>
+
 interface Props {
   readonly disabled?: boolean
   readonly event: PublicDogEvent
-  readonly rows: Registration[]
-  readonly onUnregister: (registration: Registration) => void
+  readonly rows: StrippedRegistration[]
+  readonly onUnregister: (registration: StrippedRegistration) => void
 }
 
 interface RegistrationListItemTooltipIconsProps {
-  registration: Registration
+  registration: StrippedRegistration
   priority: boolean | 0.5
 }
 
-const RegistrationListItemTooltipIcons = ({ registration, priority }: RegistrationListItemTooltipIconsProps) => {
+const RegistrationListItemTooltipIcons = ({
+  registration,
+  priority,
+  event,
+}: RegistrationListItemTooltipIconsProps & { event: PublicDogEvent }) => {
   const { t } = useTranslation()
   return (
     <>
@@ -43,18 +49,24 @@ const RegistrationListItemTooltipIcons = ({ registration, priority }: Registrati
       />
       <TooltipIcon
         key="payment"
-        text={t(getPaymentStatus(registration))}
+        text={t(getPaymentStatus(registration, event))}
         icon={<PaymentIcon paymentStatus={registration.paymentStatus} fontSize="small" />}
       />
     </>
   )
 }
 
-const RegistrationListItemIcons = ({ event, registration }: { event: PublicDogEvent; registration: Registration }) => {
+const RegistrationListItemIcons = ({
+  event,
+  registration,
+}: {
+  event: PublicDogEvent
+  registration: StrippedRegistration
+}) => {
   const priority = hasPriority(event, registration)
   return (
     <IconsTooltip
-      icons={<RegistrationListItemTooltipIcons registration={registration} priority={priority} />}
+      icons={<RegistrationListItemTooltipIcons registration={registration} priority={priority} event={event} />}
       placement="bottom-start"
     >
       <Box height="28px" display="flex" alignItems="center">
@@ -71,11 +83,11 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
   const sm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
   const navigate = useNavigate()
 
-  const onEdit = (registration: Registration) => {
+  const onEdit = (registration: StrippedRegistration) => {
     navigate(`${Path.registration(registration)}/edit`)
   }
 
-  const allColumns: GridColDef<Registration>[] = [
+  const allColumns: GridColDef<StrippedRegistration>[] = [
     {
       field: 'dog.name',
       valueGetter: (_value, row) => row.dog.name,
@@ -107,7 +119,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
       field: 'actions',
       type: 'actions',
       width: 116,
-      getActions: (params: { row: Registration }) => {
+      getActions: (params: { row: StrippedRegistration }) => {
         if (params.row.cancelled) {
           return [
             <GridActionsCellItem
@@ -138,7 +150,12 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
             onClick={() => onUnregister(params.row)}
           />,
         ]
-        if (params.row.paymentStatus !== 'SUCCESS' && params.row.paymentStatus !== 'PENDING') {
+        if (
+          !params.row.cancelled &&
+          params.row.paymentStatus !== 'SUCCESS' &&
+          params.row.paymentStatus !== 'PENDING' &&
+          (event.paymentTime === 'registration' || params.row.confirmed)
+        ) {
           return [
             <GridActionsCellItem
               disabled={disabled}

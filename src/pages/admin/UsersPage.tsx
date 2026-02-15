@@ -1,5 +1,5 @@
 import type { TooltipProps } from '@mui/material/Tooltip'
-import type { GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
+import type { GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid'
 import type { User } from '../../types'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -49,6 +49,15 @@ const RolesTooltip = styled(({ className, ...props }: TooltipProps) => (
 
 const RolesTooltipContent = ({ roles }: { roles: string }) => <Box sx={{ whiteSpace: 'pre-line' }}>{roles}</Box>
 
+const EmailHistoryTooltipContent = ({ history }: { history: NonNullable<User['emailHistory']> }) => {
+  const { t } = useTranslation()
+  const rows = history
+    .slice()
+    .reverse()
+    .map((h) => `${t('dateFormat.long', { date: h.changedAt })}  •  ${h.email}  •  ${h.source}`)
+  return <Box sx={{ whiteSpace: 'pre-line' }}>{rows.join('\n')}</Box>
+}
+
 const RoleIcon = ({ admin, orgRoleCount }: { admin?: boolean; orgRoleCount: number }) => {
   if (admin) return <StarsOutlined fontSize="small" />
 
@@ -69,7 +78,7 @@ const RoleInfo = ({ admin, judge, officer, roles }: User) => {
   const roleStrings: string[] = []
   const orgRoleCount = roles ? Object.keys(roles).length : 0
 
-  if (admin) roleStrings.push('Koekalenterin pääkäyttäjä')
+  if (admin) roleStrings.push(t('user.admin'))
 
   if (roles) {
     Object.keys(roles).forEach((orgId) => {
@@ -79,16 +88,25 @@ const RoleInfo = ({ admin, judge, officer, roles }: User) => {
     })
   }
 
-  if (judge) roleStrings.push(`Tuomari - ${judge.join(', ')}`)
-  if (officer) roleStrings.push(`Koetoimitsija - ${officer.join(', ')}`)
+  if (judge) roleStrings.push(`${t('user.judge')} - ${judge.join(', ')}`)
+  if (officer) roleStrings.push(`${t('user.officer')} - ${officer.join(', ')}`)
+
+  // Avoid rendering an empty/broken tooltip when there is nothing to show.
+  const hasAnyRoles = roleStrings.length > 0
+
+  const iconRow = (
+    <Stack direction="row" alignItems="center">
+      <RoleIcon admin={admin} orgRoleCount={orgRoleCount} />
+      {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
+      {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
+    </Stack>
+  )
+
+  if (!hasAnyRoles) return iconRow
 
   return (
     <RolesTooltip placement="right" title={<RolesTooltipContent roles={roleStrings.join('\n')} />}>
-      <Stack direction="row" alignItems="center">
-        <RoleIcon admin orgRoleCount={orgRoleCount} />
-        {judge ? <Accessibility fontSize="small" /> : <IconPlaceholder />}
-        {officer ? <SupervisorAccount fontSize="small" /> : <IconPlaceholder />}
-      </Stack>
+      {iconRow}
     </RolesTooltip>
   )
 }
@@ -108,8 +126,8 @@ export default function UsersPage() {
     if (userOrgs.length === 1) {
       return userOrgs
     }
-    return [{ id: '', name: 'Kaikki' }, ...userOrgs]
-  }, [orgs, user?.admin, user?.roles])
+    return [{ id: '', name: t('all') }, ...userOrgs]
+  }, [orgs, user?.admin, user?.roles, t])
   const users = useRecoilValue(adminFilteredUsersSelector)
 
   const [selectedUserID, setSelectedUserID] = useRecoilState(adminUserIdAtom)
@@ -131,8 +149,29 @@ export default function UsersPage() {
       display: 'flex',
       width: 90,
       sortComparator: (a, b) => {
-        const admin = a.admin - b.admin
-        return admin === 0 ? Object.keys(a.roles).length - Object.keys(b.roles).length : admin
+        // Order (greatest first):
+        // 1) admin
+        // 2) org role count
+        // 3) judge+officer
+        // 4) judge
+        // 5) officer
+        const score = (u: User) => {
+          const adminScore = u.admin ? 1000 : 0
+          const roleCountScore = Object.keys(u.roles ?? {}).length * 10
+          const hasJudge = Array.isArray(u.judge) && u.judge.length > 0
+          const hasOfficer = Array.isArray(u.officer) && u.officer.length > 0
+          let judgeOfficerScore = 0
+          if (hasJudge && hasOfficer) {
+            judgeOfficerScore = 3
+          } else if (hasJudge) {
+            judgeOfficerScore = 2
+          } else if (hasOfficer) {
+            judgeOfficerScore = 1
+          }
+          return adminScore + roleCountScore + judgeOfficerScore
+        }
+
+        return score(b) - score(a)
       },
       valueGetter: (_value, row) => ({ admin: false, roles: {}, ...row }),
       renderCell: ({ value }) => <RoleInfo {...value} />,
@@ -156,6 +195,27 @@ export default function UsersPage() {
       headerName: t('contact.email'),
       minWidth: 150,
     },
+    ...(user?.admin
+      ? ([
+          {
+            field: 'emailHistory',
+            headerName: t('user.emailHistory'),
+            flex: 1,
+            minWidth: 180,
+            sortable: false,
+            valueGetter: (_value: unknown, row: User) => row.emailHistory ?? [],
+            renderCell: (params: GridRenderCellParams<User>) => {
+              const history = (params.value ?? []) as NonNullable<User['emailHistory']>
+              if (!history.length) return ''
+              return (
+                <Tooltip placement="right" title={<EmailHistoryTooltipContent history={history} />}>
+                  <Box component="span">{history.length}</Box>
+                </Tooltip>
+              )
+            },
+          },
+        ] satisfies GridColDef<User>[])
+      : []),
     {
       field: 'district',
       flex: 1,
@@ -224,7 +284,7 @@ export default function UsersPage() {
                     disabled={options.length < 2}
                     size="small"
                     options={options}
-                    label={'Yhdistys'}
+                    label={t('organization')}
                     getOptionLabel={(o) => o.name}
                     renderOption={(props, option) => {
                       return (

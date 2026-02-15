@@ -22,6 +22,7 @@ import {
   ScanCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
+import { inspect } from 'node:util'
 
 interface QueryParams {
   key: string
@@ -82,6 +83,15 @@ const processOperations = (
   return parts.length > 0 ? `${type} ${parts.join(', ')}` : null
 }
 
+/**
+ * Default CloudWatch/Lambda object logging is shallow and will collapse arrays/objects into `[Object]`.
+ * Force deep inspection so DynamoDB request payloads (e.g. batchWrite items) are fully visible.
+ */
+const logDb = (operation: string, payload: unknown) => {
+  // Keep the operation token as the first argument for easy CW filtering (e.g. "DB.batchWrite")
+  console.info(operation, inspect(payload, { depth: null, colors: false, maxArrayLength: null, compact: false }))
+}
+
 export default class CustomDynamoClient {
   table: string
   client: DynamoDBClient
@@ -132,7 +142,7 @@ export default class CustomDynamoClient {
       params.ExpressionAttributeNames = expressionAttributeNames
     }
 
-    console.log('DB.scan', params)
+    logDb('DB.scan', params)
     const data = await this.docClient.send(new ScanCommand(params))
 
     return data.Items as T[]
@@ -150,7 +160,7 @@ export default class CustomDynamoClient {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
     }
-    console.log('DB.get', params)
+    logDb('DB.get', params)
     const data = await this.docClient.send(new GetCommand(params))
     return data.Item as T
   }
@@ -175,7 +185,7 @@ export default class CustomDynamoClient {
       Limit: params.limit,
       FilterExpression: params.filterExpression,
     }
-    console.log('DB.query', queryParams)
+    logDb('DB.query', queryParams)
     const data = await this.docClient.send(new QueryCommand(queryParams))
     return data.Items as T[]
   }
@@ -185,7 +195,7 @@ export default class CustomDynamoClient {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Item,
     }
-    console.log('DB.write', params)
+    logDb('DB.write', params)
     return this.docClient.send(new PutCommand(params))
   }
 
@@ -204,9 +214,9 @@ export default class CustomDynamoClient {
           [tableName]: chunk,
         },
       }
-      console.log('DB.batchWrite', params)
+      logDb('DB.batchWrite', params)
       const result = await this.docClient.send(new BatchWriteCommand(params))
-      console.log(result)
+      logDb('DB.batchWrite.result', result)
     }
   }
 
@@ -271,7 +281,7 @@ export default class CustomDynamoClient {
       params.ReturnValues = returnValues
     }
 
-    console.log('DB.update', params)
+    logDb('DB.update', params)
     return this.docClient.send(new UpdateCommand(params))
   }
 
@@ -284,7 +294,7 @@ export default class CustomDynamoClient {
       TableName: table ? fromSamLocalTable(table) : this.table,
       Key: key,
     }
-    console.log('DB.delete', params)
+    logDb('DB.delete', params)
 
     try {
       await this.docClient.send(new DeleteCommand(params))
@@ -303,7 +313,7 @@ export default class CustomDynamoClient {
       Update: item.Update && { ...item.Update, TableName: tableName },
       Delete: item.Delete && { ...item.Delete, TableName: tableName },
     }))
-    console.log('DB.transaction', itemsWithTable)
+    logDb('DB.transaction', itemsWithTable)
 
     try {
       await this.docClient.send(

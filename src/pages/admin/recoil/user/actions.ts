@@ -28,14 +28,14 @@ export const useAdminUserActions = () => {
       try {
         const added = await putUser(user, token)
         replaceUser(added)
-        if (user.name !== added.name) {
+        if (user.name === added.name) {
+          enqueueSnackbar(`Käyttäjä '${added.name}' lisätty, sähköpostilla '${added.email}'`, { variant: 'info' })
+        } else {
           const orgId = Object.keys(user.roles ?? {})[0]
           const org = orgs.find((o) => o.id === orgId)
           enqueueSnackbar(`Käyttäjälle '${added.name}' ('${added.email}') lisätty oikeus yhdistykseen '${org?.name}'`, {
             variant: 'info',
           })
-        } else {
-          enqueueSnackbar(`Käyttäjä '${added.name}' lisätty, sähköpostilla '${added.email}'`, { variant: 'info' })
         }
       } catch (e) {
         reportError(e)

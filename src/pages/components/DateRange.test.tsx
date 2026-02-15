@@ -28,9 +28,10 @@ describe('DateRange', () => {
   it('should render labels', () => {
     renderComponent({
       startLabel: 'Start Label',
-      start: parseISO('2021-01-01'),
+      // Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent).
+      start: parseISO('2021-01-01T12:00:00Z'),
       endLabel: 'End Label',
-      end: parseISO('2021-02-01'),
+      end: parseISO('2021-02-01T12:00:00Z'),
     })
 
     expect(screen.getAllByText('Start Label').length).toEqual(2)
@@ -40,9 +41,10 @@ describe('DateRange', () => {
   it('should render labels when required', () => {
     renderComponent({
       startLabel: 'Start Label',
-      start: parseISO('2021-01-01'),
+      // Avoid `parseISO('YYYY-MM-DD')` (timezone-dependent).
+      start: parseISO('2021-01-01T12:00:00Z'),
       endLabel: 'End Label',
-      end: parseISO('2021-02-01'),
+      end: parseISO('2021-02-01T12:00:00Z'),
       required: true,
     })
 

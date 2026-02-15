@@ -42,6 +42,7 @@
         "src/lambda/PutRegistrationFunction/handler.ts",
         "src/lambda/PutRegistrationGroupsFunction/handler.ts",
         "src/lambda/PutUserFunction/handler.ts",
+        "src/lambda/PutUserNameFunction/handler.ts",
         "src/lambda/RefundCancelFunction/handler.ts",
         "src/lambda/RefundCreateFunction/handler.ts",
         "src/lambda/RefundSuccessFunction/handler.ts",

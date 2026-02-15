@@ -23,6 +23,38 @@ describe('payment', () => {
     ])('When status is %p should return %p', (paymentStatus, expected) => {
       expect(getPaymentStatus({ paymentStatus })).toEqual(expected)
     })
+
+    describe('with event parameter', () => {
+      it('should return waitingForConfirmation when paymentTime is confirmation and registration not confirmed', () => {
+        expect(
+          getPaymentStatus({ paymentStatus: undefined, confirmed: false }, { paymentTime: 'confirmation' })
+        ).toEqual('paymentStatus.waitingForConfirmation')
+      })
+
+      it('should return missing when paymentTime is confirmation and registration is confirmed', () => {
+        expect(
+          getPaymentStatus({ paymentStatus: undefined, confirmed: true }, { paymentTime: 'confirmation' })
+        ).toEqual('paymentStatus.missing')
+      })
+
+      it('should return missing when paymentTime is registration and registration not confirmed', () => {
+        expect(
+          getPaymentStatus({ paymentStatus: undefined, confirmed: false }, { paymentTime: 'registration' })
+        ).toEqual('paymentStatus.missing')
+      })
+
+      it('should return success when payment is successful regardless of confirmation state', () => {
+        expect(
+          getPaymentStatus({ paymentStatus: 'SUCCESS', confirmed: false }, { paymentTime: 'confirmation' })
+        ).toEqual('paymentStatus.success')
+      })
+
+      it('should return pending when payment is pending regardless of confirmation state', () => {
+        expect(
+          getPaymentStatus({ paymentStatus: 'PENDING', confirmed: false }, { paymentTime: 'confirmation' })
+        ).toEqual('paymentStatus.pending')
+      })
+    })
   })
 
   describe('getRegistrationPaymentDetails', () => {

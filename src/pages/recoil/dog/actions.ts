@@ -89,26 +89,35 @@ function applyCache(
 
   if (dog) {
     // when we have some official info
-    result.dog = merge<DeepPartial<Dog>>(
-      {
-        dam: {
-          name: cache?.dog?.dam?.name || oldInfo?.dam?.name,
-          titles: cache?.dog?.dam?.titles || oldInfo?.dam?.titles,
-        },
-        sire: {
-          name: cache?.dog?.sire?.name || oldInfo?.sire?.name,
-          titles: cache?.dog?.sire?.titles || oldInfo?.sire?.titles,
-        },
-      },
-      dog
-    )
+    // Cached user edits for titles, rfid, dob, sire, and dam override official KL information
+    const overrides: DeepPartial<Dog> = {}
 
-    // titles and rfid are the only thing that overwrites official information, when the official info is empty
-    if (!result.dog.titles && cache?.dog?.titles) {
-      result.dog.titles = cache.dog.titles
+    if (cache?.dog?.titles) {
+      overrides.titles = cache.dog.titles
     }
-    if (!result.dog.rfid && cache?.dog?.rfid) {
-      result.dog.rfid = cache.dog.rfid
+    if (cache?.dog?.rfid) {
+      overrides.rfid = cache.dog.rfid
+    }
+    if (cache?.dog?.dob) {
+      overrides.dob = cache.dog.dob
+    }
+
+    const damName = cache?.dog?.dam?.name || oldInfo?.dam?.name
+    const damTitles = cache?.dog?.dam?.titles || oldInfo?.dam?.titles
+    if (damName || damTitles) {
+      overrides.dam = { name: damName, titles: damTitles }
+    }
+
+    const sireName = cache?.dog?.sire?.name || oldInfo?.sire?.name
+    const sireTitles = cache?.dog?.sire?.titles || oldInfo?.sire?.titles
+    if (sireName || sireTitles) {
+      overrides.sire = { name: sireName, titles: sireTitles }
+    }
+
+    result.dog = merge<DeepPartial<Dog>>(dog, overrides)
+
+    // Set rfid flag when rfid is present from cache
+    if (result.dog.rfid && cache?.dog?.rfid) {
       result.rfid = true
     }
   } else {

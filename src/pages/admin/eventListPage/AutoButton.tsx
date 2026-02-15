@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 
-interface Props extends Omit<ButtonProps, 'children'> {
+interface Props extends Readonly<Omit<ButtonProps, 'children'>> {
   readonly text: string
 }
 

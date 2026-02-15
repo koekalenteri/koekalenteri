@@ -1485,10 +1485,8 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                 class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                               >
                                 <span
-                                  aria-disabled="true"
-                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                                   role="switch"
-                                  tabindex="-1"
                                 >
                                   <input
                                     checked=""
@@ -1519,10 +1517,8 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                 class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                               >
                                 <span
-                                  aria-disabled="true"
-                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                                  class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                                   role="switch"
-                                  tabindex="-1"
                                 >
                                   <input
                                     checked=""
@@ -2335,9 +2331,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                             >
                               <span
-                                aria-disabled="true"
-                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                                tabindex="-1"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                               >
                                 <input
                                   class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2368,9 +2362,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                             >
                               <span
-                                aria-disabled="true"
-                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                                tabindex="-1"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                               >
                                 <input
                                   class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2414,9 +2406,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                   >
                     <span
-                      aria-disabled="true"
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                      tabindex="-1"
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                     >
                       <input
                         checked=""
@@ -2588,7 +2578,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     >
                       <div
                         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
-                        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 320px; --DataGrid-columnsTotalWidth: 320px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
                           aria-colcount="3"
@@ -2606,7 +2596,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                           <div
                             class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                             role="presentation"
-                            style="overflow-x: hidden;"
+                            style=""
                           >
                             <div
                               class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
@@ -2615,7 +2605,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                             <div
                               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                               role="presentation"
-                              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
+                              style="width: 370px; flex-basis: 28px; flex-shrink: 0;"
                             >
                               <div
                                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -2672,7 +2662,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                                     data-colindex="2"
                                     data-field="message"
                                     role="gridcell"
-                                    style="--width: 0px;"
+                                    style="--width: 50px;"
                                     tabindex="-1"
                                     title="example audit record"
                                   >
@@ -2686,6 +2676,15 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               </div>
                             </div>
                             <div
+                              class="MuiDataGrid-filler css-xv98vr"
+                              role="presentation"
+                              style="height: 0px; --rowBorderColor: var(--DataGrid-rowBorderColor);"
+                            >
+                              <div
+                                class="css-1tdeh38"
+                              />
+                            </div>
+                            <div
                               class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
                               role="presentation"
                             />
@@ -2697,15 +2696,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                           >
                             <div
                               class="MuiDataGrid-scrollbarContent"
-                            />
-                          </div>
-                          <div
-                            aria-hidden="true"
-                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-1ir2opr"
-                            tabindex="-1"
-                          >
-                            <div
-                              class="MuiDataGrid-scrollbarContent"
+                              style="width: 370px;"
                             />
                           </div>
                         </div>
@@ -5329,7 +5320,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     >
                       <div
                         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
-                        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 320px; --DataGrid-columnsTotalWidth: 320px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                       >
                         <div
                           aria-colcount="3"
@@ -5347,7 +5338,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                           <div
                             class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
                             role="presentation"
-                            style="overflow-x: hidden;"
+                            style=""
                           >
                             <div
                               class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
@@ -5356,7 +5347,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                             <div
                               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
                               role="presentation"
-                              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
+                              style="width: 370px; flex-basis: 28px; flex-shrink: 0;"
                             >
                               <div
                                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -5413,7 +5404,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                                     data-colindex="2"
                                     data-field="message"
                                     role="gridcell"
-                                    style="--width: 0px;"
+                                    style="--width: 50px;"
                                     tabindex="-1"
                                     title="example audit record"
                                   >
@@ -5427,6 +5418,15 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               </div>
                             </div>
                             <div
+                              class="MuiDataGrid-filler css-xv98vr"
+                              role="presentation"
+                              style="height: 0px; --rowBorderColor: var(--DataGrid-rowBorderColor);"
+                            >
+                              <div
+                                class="css-1tdeh38"
+                              />
+                            </div>
+                            <div
                               class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
                               role="presentation"
                             />
@@ -5438,15 +5438,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                           >
                             <div
                               class="MuiDataGrid-scrollbarContent"
-                            />
-                          </div>
-                          <div
-                            aria-hidden="true"
-                            class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--vertical css-1ir2opr"
-                            tabindex="-1"
-                          >
-                            <div
-                              class="MuiDataGrid-scrollbarContent"
+                              style="width: 370px;"
                             />
                           </div>
                         </div>

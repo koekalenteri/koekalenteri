@@ -1,0 +1,5 @@
+# CloudFormation/SAM templates are indentation-sensitive.
+# Prevent Prettier from de-indenting nested "Resources" fragments.
+template/**/*.yaml
+template/**/*.yml
+

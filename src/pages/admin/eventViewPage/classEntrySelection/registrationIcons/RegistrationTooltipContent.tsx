@@ -17,6 +17,32 @@ import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import { TooltipIcon } from '../../../../components/IconsTooltip'
 import RankingPoints from '../../../../components/RankingPoints'
 
+export const hasRegistrationTooltipContent = ({
+  reg,
+  priority,
+  manualResultCount,
+  rankingPoints,
+}: {
+  reg: Registration
+  priority: boolean | 0.5
+  manualResultCount: number
+  rankingPoints: number
+}): boolean => {
+  if (priority) return true
+  if (reg.owner?.membership) return true
+  if (reg.handler?.membership) return true
+  if (reg.paidAt) return true
+  if ((reg.optionalCosts ?? []).length > 0) return true
+  if (reg.confirmed) return true
+  if (reg.invitationRead) return true
+  if (manualResultCount > 0) return true
+  if (reg.notes.trim()) return true
+  if (reg.internalNotes?.trim()) return true
+  if (rankingPoints > 0) return true
+
+  return false
+}
+
 // Props for the RegistrationTooltipContent component
 interface RegistrationTooltipContentProps {
   event: PublicDogEvent
@@ -35,6 +61,8 @@ const RegistrationTooltipContent = ({
   rankingPoints,
 }: RegistrationTooltipContentProps) => {
   const { t } = useTranslation()
+
+  if (!hasRegistrationTooltipContent({ reg, priority, manualResultCount, rankingPoints })) return null
 
   // Get priority description
   const key = priority ? priorityDescriptionKey(event, reg) : null

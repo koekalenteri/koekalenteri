@@ -58,7 +58,7 @@ const normalStrategy: CostStrategy = {
 
 const customStrategy: CostStrategy = {
   key: 'custom',
-  isApplicable: (cost) => !!cost.custom,
+  isApplicable: (cost) => !!cost.custom && (cost.custom.cost ?? 0) > 0,
   getValue: (cost) => cost.custom?.cost ?? 0,
   setValue: (cost, value, data) => {
     const prevDescription = cost.custom?.description ?? { fi: 'Erikoismaksu', en: 'Custom cost' }
@@ -139,8 +139,112 @@ export const getApplicableStrategy = (
   }, normalStrategy)
 }
 
-export const selectCost = (event: MinimalEventForCost, registration: MinimalRegistrationForMembership) =>
-  event.costMember && isMember(registration) ? event.costMember : event.cost
+/**
+ * Helper to override a member cost value if it's specified (non-zero).
+ * Returns the member value if non-zero, otherwise the base value.
+ */
+const overrideIfSpecified = <T extends number | { cost: number }>(
+  base: T | undefined,
+  member: T | undefined
+): T | undefined => {
+  if (member === undefined) return base
+  const memberCost = typeof member === 'number' ? member : member.cost
+  return memberCost !== 0 ? member : base
+}
+
+/**
+ * Merges member cost with base cost, using member prices where available and falling back to base prices.
+ * This ensures members have access to all pricing segments even if member-specific pricing isn't fully defined.
+ * Note: A value of 0 in member cost means "not specified", so base cost will be used.
+ * Returns undefined if memberCost is not provided.
+ */
+export const mergeMemberCost = (
+  baseCost: DogEventCost | number,
+  memberCost: DogEventCost | number | undefined
+): DogEventCost | number | undefined => {
+  if (!memberCost) return undefined
+
+  // If either is a legacy number, return member cost directly (no merging possible)
+  if (typeof baseCost === 'number' || typeof memberCost === 'number') {
+    return memberCost
+  }
+
+  // Merge cost structures: member cost takes priority, but fall back to base cost for missing fields
+  // Note: 0 means "not specified", so we use the base cost value
+  const merged: DogEventCost = { ...baseCost }
+
+  // Override with member cost values where they exist and are non-zero
+  merged.normal = overrideIfSpecified(baseCost.normal, memberCost.normal) ?? merged.normal
+  merged.earlyBird = overrideIfSpecified(baseCost.earlyBird, memberCost.earlyBird)
+  merged.custom = overrideIfSpecified(baseCost.custom, memberCost.custom)
+
+  // Merge optional additional costs - override each one if specified
+  if (baseCost.optionalAdditionalCosts || memberCost.optionalAdditionalCosts) {
+    const baseOptional = baseCost.optionalAdditionalCosts ?? []
+    const memberOptional = memberCost.optionalAdditionalCosts ?? []
+    const maxLength = Math.max(baseOptional.length, memberOptional.length)
+
+    merged.optionalAdditionalCosts = Array.from(
+      { length: maxLength },
+      (_, i) => overrideIfSpecified(baseOptional[i], memberOptional[i]) ?? baseOptional[i]
+    ).filter(Boolean)
+  }
+
+  // Merge breed objects - member breed prices override base breed prices for the same breed
+  // Only override breeds with non-zero prices
+  if (baseCost.breed || memberCost.breed) {
+    merged.breed = { ...baseCost.breed }
+    if (memberCost.breed) {
+      for (const [breedCode, price] of Object.entries(memberCost.breed)) {
+        if (price !== 0) {
+          merged.breed[breedCode as BreedCode] = price
+        }
+      }
+    }
+  }
+
+  return merged
+}
+
+export const selectCost = (event: MinimalEventForCost, registration: MinimalRegistrationForMembership) => {
+  const isMemberUser = isMember(registration)
+
+  // If no member cost or user is not a member, return base cost
+  if (!isMemberUser || !event.costMember) {
+    return event.cost
+  }
+
+  // Use the shared merge logic
+  return mergeMemberCost(event.cost, event.costMember) ?? event.cost
+}
+
+/**
+ * Checks if a member price differs from the base price for a specific segment.
+ * Returns true if the member has an explicit non-zero price that differs from the base price.
+ */
+export const hasDifferentMemberPrice = (
+  event: Pick<MinimalEventForCost, 'cost' | 'costMember'>,
+  segment: DogEventCostSegment | 'legacy',
+  breedCode?: BreedCode
+): boolean => {
+  if (!event.costMember) {
+    return false
+  }
+
+  // For legacy costs, check if they differ
+  if (segment === 'legacy' || typeof event.cost === 'number' || typeof event.costMember === 'number') {
+    if (typeof event.cost === 'number' && typeof event.costMember === 'number') {
+      return event.cost !== event.costMember
+    }
+    return false
+  }
+
+  const baseValue = getCostValue(event.cost, segment, breedCode)
+  const memberValue = getCostValue(event.costMember, segment, breedCode)
+
+  // Member price differs if it exists, is non-zero, and differs from base
+  return !!memberValue && memberValue !== baseValue
+}
 
 export const additionalCost = (registration: MinimalRegistrationForCost, cost: DogEventCost) => {
   const selected = registration.optionalCosts ?? []

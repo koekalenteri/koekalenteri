@@ -18,6 +18,20 @@ export function shouldAllowRefresh(dog?: DeepPartial<Dog>): boolean {
 }
 
 /**
+ * Determines if a dog has a valid date of birth
+ * KL returns "0001-01-01T00:00:00" for dogs with missing dob
+ * @param dob The date of birth
+ * @returns True if dob is valid, false otherwise
+ */
+export function isValidDob(dob?: Date): boolean {
+  if (!dob) {
+    return false
+  }
+  // Check if the date is the KL empty value (0001-01-01)
+  return dob.getFullYear() > 1
+}
+
+/**
  * Creates a dog update object from form values
  * @param values Form values
  * @returns Dog update object

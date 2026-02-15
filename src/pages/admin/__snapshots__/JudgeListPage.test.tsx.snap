@@ -36,7 +36,7 @@ exports[`JudgeListPage renders 1`] = `
       </div>
       <div
         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-withBorderColor css-c81pq9-MuiDataGrid-root"
-        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 470px; --DataGrid-columnsTotalWidth: 470px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+        style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 1; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 870px; --DataGrid-columnsTotalWidth: 870px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 39px; --DataGrid-headersTotalHeight: 39px; --DataGrid-topContainerHeight: 39px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
       >
         <div
           class="MuiStack-root css-k5y4k9-MuiStack-root"
@@ -109,7 +109,7 @@ exports[`JudgeListPage renders 1`] = `
           <div
             class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
             role="presentation"
-            style="overflow-x: hidden;"
+            style=""
           >
             <div
               class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
@@ -282,7 +282,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="name"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 150px;"
                     tabindex="-1"
                   >
                     <div
@@ -430,7 +430,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="location"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 50px;"
                     tabindex="-1"
                   >
                     <div
@@ -504,7 +504,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="phone"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 50px;"
                     tabindex="-1"
                   >
                     <div
@@ -578,7 +578,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="email"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 50px;"
                     tabindex="-1"
                   >
                     <div
@@ -652,7 +652,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="district"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 50px;"
                     tabindex="-1"
                   >
                     <div
@@ -726,7 +726,7 @@ exports[`JudgeListPage renders 1`] = `
                     class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="eventTypes"
                     role="columnheader"
-                    style="height: 39px; width: 0px;"
+                    style="height: 39px; width: 50px;"
                     tabindex="-1"
                   >
                     <div
@@ -882,7 +882,7 @@ exports[`JudgeListPage renders 1`] = `
             <div
               class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
               role="presentation"
-              style="width: auto; flex-basis: 28px; flex-shrink: 0;"
+              style="width: 870px; flex-basis: 28px; flex-shrink: 0;"
             >
               <div
                 class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
@@ -966,7 +966,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-colindex="2"
                     data-field="name"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 150px;"
                     tabindex="-1"
                     title="Tuomari 1"
                   >
@@ -994,7 +994,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-colindex="4"
                     data-field="location"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 50px;"
                     tabindex="-1"
                     title="Helsinki"
                   >
@@ -1008,7 +1008,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-colindex="5"
                     data-field="phone"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 50px;"
                     tabindex="-1"
                     title="123456789"
                   >
@@ -1022,7 +1022,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-colindex="6"
                     data-field="email"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 50px;"
                     tabindex="-1"
                     title="tuomari1@sposti.not"
                   >
@@ -1036,7 +1036,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-colindex="7"
                     data-field="district"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 50px;"
                     tabindex="-1"
                     title="Uusimaa"
                   >
@@ -1050,7 +1050,7 @@ exports[`JudgeListPage renders 1`] = `
                     data-colindex="8"
                     data-field="eventTypes"
                     role="gridcell"
-                    style="--width: 0px;"
+                    style="--width: 50px;"
                     tabindex="-1"
                     title=""
                   />
@@ -1117,6 +1117,7 @@ exports[`JudgeListPage renders 1`] = `
           >
             <div
               class="MuiDataGrid-scrollbarContent"
+              style="width: 869.9999999999999px;"
             />
           </div>
           <div
@@ -1126,6 +1127,7 @@ exports[`JudgeListPage renders 1`] = `
           >
             <div
               class="MuiDataGrid-scrollbarContent"
+              style="height: 1.675px;"
             />
           </div>
         </div>
@@ -1364,7 +1366,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="name"
       role="columnheader"
-      style="height: 39px; width: 0px;"
+      style="height: 39px; width: 150px;"
       tabindex="-1"
     >
       <div
@@ -1512,7 +1514,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="location"
       role="columnheader"
-      style="height: 39px; width: 0px;"
+      style="height: 39px; width: 50px;"
       tabindex="-1"
     >
       <div
@@ -1586,7 +1588,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="phone"
       role="columnheader"
-      style="height: 39px; width: 0px;"
+      style="height: 39px; width: 50px;"
       tabindex="-1"
     >
       <div
@@ -1660,7 +1662,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="email"
       role="columnheader"
-      style="height: 39px; width: 0px;"
+      style="height: 39px; width: 50px;"
       tabindex="-1"
     >
       <div
@@ -1734,7 +1736,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="district"
       role="columnheader"
-      style="height: 39px; width: 0px;"
+      style="height: 39px; width: 50px;"
       tabindex="-1"
     >
       <div
@@ -1808,7 +1810,7 @@ exports[`JudgeListPage renders 2`] = `
       class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
       data-field="eventTypes"
       role="columnheader"
-      style="height: 39px; width: 0px;"
+      style="height: 39px; width: 50px;"
       tabindex="-1"
     >
       <div
@@ -2036,7 +2038,7 @@ exports[`JudgeListPage renders 2`] = `
       data-colindex="2"
       data-field="name"
       role="gridcell"
-      style="--width: 0px;"
+      style="--width: 150px;"
       tabindex="-1"
       title="Tuomari 1"
     >
@@ -2064,7 +2066,7 @@ exports[`JudgeListPage renders 2`] = `
       data-colindex="4"
       data-field="location"
       role="gridcell"
-      style="--width: 0px;"
+      style="--width: 50px;"
       tabindex="-1"
       title="Helsinki"
     >
@@ -2078,7 +2080,7 @@ exports[`JudgeListPage renders 2`] = `
       data-colindex="5"
       data-field="phone"
       role="gridcell"
-      style="--width: 0px;"
+      style="--width: 50px;"
       tabindex="-1"
       title="123456789"
     >
@@ -2092,7 +2094,7 @@ exports[`JudgeListPage renders 2`] = `
       data-colindex="6"
       data-field="email"
       role="gridcell"
-      style="--width: 0px;"
+      style="--width: 50px;"
       tabindex="-1"
       title="tuomari1@sposti.not"
     >
@@ -2106,7 +2108,7 @@ exports[`JudgeListPage renders 2`] = `
       data-colindex="7"
       data-field="district"
       role="gridcell"
-      style="--width: 0px;"
+      style="--width: 50px;"
       tabindex="-1"
       title="Uusimaa"
     >
@@ -2120,7 +2122,7 @@ exports[`JudgeListPage renders 2`] = `
       data-colindex="8"
       data-field="eventTypes"
       role="gridcell"
-      style="--width: 0px;"
+      style="--width: 50px;"
       tabindex="-1"
       title=""
     />

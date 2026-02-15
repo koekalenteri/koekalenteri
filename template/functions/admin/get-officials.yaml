@@ -11,13 +11,17 @@
             - Sid: SSMGetParameterPolicy
               Effect: Allow
               Action:
-              - ssm:GetParameters
-              - ssm:GetParameter
+                - ssm:GetParameters
+                - ssm:GetParameter
               Resource: '*'
         - DynamoDBCrudPolicy:
             TableName: !Ref OfficialTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTypeTable
+        # Needed by updateUsersFromOfficialsOrJudges(): rewrites event.official/event.secretary references
+        # after merging duplicate users (kcId stable, KL email may change).
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventTable
         - DynamoDBCrudPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:

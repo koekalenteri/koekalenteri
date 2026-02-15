@@ -15,6 +15,7 @@ import { createPayment } from '../api/payment'
 import { Path } from '../routeConfig'
 
 import { ErrorInfo } from './components/ErrorInfo'
+import LinkButton from './components/LinkButton'
 import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { ProviderButton } from './paymentPage/ProviderButton'
@@ -29,8 +30,8 @@ export const loader = async ({ params }: { params: Params<string> }) => {
 
         return result ?? null
       } catch (err) {
-        // eat 404
-        if (err instanceof APIError && err.status === 404) return null
+        // eat 403 & 404
+        if (err instanceof APIError && (err.status === 403 || err.status === 404)) return null
 
         throw err
       }
@@ -70,16 +71,35 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
     return <Navigate to={Path.registration(registration)} replace />
   }
 
+  // If payment is after confirmation but registration is not confirmed yet, show message
+  if (event.paymentTime === 'confirmation' && !registration.confirmed) {
+    return (
+      <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
+        <Grid sx={{ pl: 1 }} flexGrow={1}>
+          <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
+          <Typography variant="h5">{t('paymentStatus.waitingForConfirmation')}</Typography>
+        </Grid>
+        <Divider sx={{ my: 1 }} />
+        <RegistrationDetails event={event} registration={registration} />
+        <Divider sx={{ my: 1 }} />
+        <PaymentDetails event={event} registration={registration} includePayable />
+      </Paper>
+    )
+  }
+
   if (!response?.groups) {
     return <>{t('paymentPage.somethingWentWrong')}</>
   }
 
   return (
     <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-      <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
-      <Typography variant="caption">
-        <span dangerouslySetInnerHTML={{ __html: response.terms }} />
-      </Typography>
+      <Grid sx={{ pl: 1 }} flexGrow={1}>
+        <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
+        <Typography variant="h5">{t('paymentPage.choosePaymentMethod')}</Typography>
+        <Typography variant="caption">
+          <span dangerouslySetInnerHTML={{ __html: response.terms }} />
+        </Typography>
+      </Grid>
 
       {response.groups.map((group) => (
         <Paper key={group.id} sx={{ p: 1, m: 1 }} elevation={0}>

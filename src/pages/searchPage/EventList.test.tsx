@@ -29,8 +29,9 @@ describe('EventList', () => {
   it('should render', async function () {
     const event: DogEvent = {
       ...emptyEvent,
-      startDate: parseISO('2021-02-10'),
-      endDate: parseISO('2021-02-11'),
+      // Avoid `parseISO('YYYY-MM-DD')` in tests (timezone-dependent).
+      startDate: parseISO('2021-02-10T12:00:00Z'),
+      endDate: parseISO('2021-02-11T12:00:00Z'),
     }
     const { container } = render(
       <ThemeProvider theme={theme}>

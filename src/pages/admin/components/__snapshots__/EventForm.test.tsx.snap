@@ -1780,9 +1780,7 @@ exports[`EventForm should render 1`] = `
                               class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-1gq9gxy-MuiFormControlLabel-root"
                             >
                               <span
-                                aria-disabled="true"
-                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall css-s9a1hv-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                                tabindex="-1"
+                                class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeSmall css-s9a1hv-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                               >
                                 <input
                                   class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
@@ -2782,9 +2780,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              tabindex="-1"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             >
                               <input
                                 checked=""
@@ -2816,9 +2812,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              tabindex="-1"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             >
                               <input
                                 checked=""
@@ -2850,9 +2844,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              tabindex="-1"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             >
                               <input
                                 checked=""
@@ -2989,9 +2981,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              tabindex="-1"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             >
                               <input
                                 checked=""
@@ -3023,9 +3013,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              tabindex="-1"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             >
                               <input
                                 checked=""
@@ -3057,9 +3045,7 @@ exports[`EventForm should render 1`] = `
                             class="MuiFormControlLabel-root Mui-disabled MuiFormControlLabel-labelPlacementEnd css-19opgx6-MuiFormControlLabel-root"
                           >
                             <span
-                              aria-disabled="true"
-                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-disabled PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
-                              tabindex="-1"
+                              class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                             >
                               <input
                                 checked=""
