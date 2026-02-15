@@ -24,7 +24,7 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetAdminEventsFunctionLogGroup:
     Type: AWS::Logs::LogGroup

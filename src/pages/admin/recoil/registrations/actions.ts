@@ -12,7 +12,7 @@ import {
 } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/error'
 import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
-import { idTokenAtom } from '../../../recoil'
+import { accessTokenAtom } from '../../../recoil'
 import { adminEventSelector } from '../events'
 
 import { adminBackgroundActionsRunningAtom } from './atoms'
@@ -22,7 +22,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const setBackgroundActionsRunning = useSetRecoilState(adminBackgroundActionsRunningAtom)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
 
   const updateAdminRegistration = (saved: Registration) => {

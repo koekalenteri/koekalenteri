@@ -92,6 +92,28 @@ const logDb = (operation: string, payload: unknown) => {
   console.info(operation, inspect(payload, { depth: null, colors: false, maxArrayLength: null, compact: false }))
 }
 
+const getAwsErrorName = (err: unknown): string => {
+  if (!err || typeof err !== 'object') return 'UnknownError'
+  return typeof (err as any).name === 'string' ? (err as any).name : 'UnknownError'
+}
+
+const getAwsErrorMessage = (err: unknown): string => {
+  if (!err || typeof err !== 'object') return String(err)
+  return typeof (err as any).message === 'string' ? (err as any).message : String(err)
+}
+
+/**
+ * Add DynamoDB table name context to errors.
+ *
+ * AWS SDK errors can be generic (e.g. "Cannot do operations on a non-existent table")
+ * so include the resolved `TableName` in the thrown message.
+ */
+const withTableContext = (operation: string, tableName: string, err: unknown): Error => {
+  const name = getAwsErrorName(err)
+  const msg = getAwsErrorMessage(err)
+  return new Error(`[${operation}] table=${tableName} :: ${name}: ${msg}`, { cause: err as any })
+}
+
 export default class CustomDynamoClient {
   table: string
   client: DynamoDBClient
@@ -119,8 +141,9 @@ export default class CustomDynamoClient {
     expressionAttributeValues?: Record<string, any>,
     expressionAttributeNames?: Record<string, string>
   ): Promise<T[] | undefined> {
+    const tableName = table ? fromSamLocalTable(table) : this.table
     const params: ScanCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: tableName,
     }
 
     // Create or extend filter expression to filter out deleted items
@@ -143,7 +166,12 @@ export default class CustomDynamoClient {
     }
 
     logDb('DB.scan', params)
-    const data = await this.docClient.send(new ScanCommand(params))
+    let data
+    try {
+      data = await this.docClient.send(new ScanCommand(params))
+    } catch (err) {
+      throw withTableContext('DB.scan', tableName, err)
+    }
 
     return data.Items as T[]
   }
@@ -156,12 +184,18 @@ export default class CustomDynamoClient {
       console.warn('CustomDynamoClient.read: no key provided, returning undefined')
       return
     }
+    const tableName = table ? fromSamLocalTable(table) : this.table
     const params: GetCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: tableName,
       Key: key,
     }
     logDb('DB.get', params)
-    const data = await this.docClient.send(new GetCommand(params))
+    let data
+    try {
+      data = await this.docClient.send(new GetCommand(params))
+    } catch (err) {
+      throw withTableContext('DB.get', tableName, err)
+    }
     return data.Item as T
   }
 
@@ -175,8 +209,9 @@ export default class CustomDynamoClient {
       console.warn('CustomDynamoClient.query: no key provided, returning undefined')
       return
     }
+    const tableName = params.table ? fromSamLocalTable(params.table) : this.table
     const queryParams: QueryCommandInput = {
-      TableName: params.table ? fromSamLocalTable(params.table) : this.table,
+      TableName: tableName,
       IndexName: params.index,
       KeyConditionExpression: params.key,
       ExpressionAttributeValues: params.values,
@@ -186,17 +221,27 @@ export default class CustomDynamoClient {
       FilterExpression: params.filterExpression,
     }
     logDb('DB.query', queryParams)
-    const data = await this.docClient.send(new QueryCommand(queryParams))
+    let data
+    try {
+      data = await this.docClient.send(new QueryCommand(queryParams))
+    } catch (err) {
+      throw withTableContext('DB.query', tableName, err)
+    }
     return data.Items as T[]
   }
 
   async write<T extends object>(Item: T, table?: string): Promise<unknown> {
+    const tableName = table ? fromSamLocalTable(table) : this.table
     const params: PutCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: tableName,
       Item,
     }
     logDb('DB.write', params)
-    return this.docClient.send(new PutCommand(params))
+    try {
+      return await this.docClient.send(new PutCommand(params))
+    } catch (err) {
+      throw withTableContext('DB.write', tableName, err)
+    }
   }
 
   async batchWrite<T extends object>(items: T[], table?: string) {
@@ -215,7 +260,12 @@ export default class CustomDynamoClient {
         },
       }
       logDb('DB.batchWrite', params)
-      const result = await this.docClient.send(new BatchWriteCommand(params))
+      let result
+      try {
+        result = await this.docClient.send(new BatchWriteCommand(params))
+      } catch (err) {
+        throw withTableContext('DB.batchWrite', tableName, err)
+      }
       logDb('DB.batchWrite.result', result)
     }
   }
@@ -268,8 +318,9 @@ export default class CustomDynamoClient {
     }
 
     // Create params object for the update operation
+    const tableName = table ? fromSamLocalTable(table) : this.table
     const params: UpdateCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: tableName,
       Key: key,
       UpdateExpression: expressionParts.join(' '),
       ExpressionAttributeNames: names,
@@ -282,7 +333,11 @@ export default class CustomDynamoClient {
     }
 
     logDb('DB.update', params)
-    return this.docClient.send(new UpdateCommand(params))
+    try {
+      return await this.docClient.send(new UpdateCommand(params))
+    } catch (err) {
+      throw withTableContext('DB.update', tableName, err)
+    }
   }
 
   async delete(key: Record<string, number | string | undefined> | null, table?: string): Promise<boolean> {
@@ -290,8 +345,9 @@ export default class CustomDynamoClient {
       console.warn('CustomDynamoClient.delete: no key provided, returning false')
       return false
     }
+    const tableName = table ? fromSamLocalTable(table) : this.table
     const params: DeleteCommandInput = {
-      TableName: table ? fromSamLocalTable(table) : this.table,
+      TableName: tableName,
       Key: key,
     }
     logDb('DB.delete', params)
@@ -300,7 +356,7 @@ export default class CustomDynamoClient {
       await this.docClient.send(new DeleteCommand(params))
       return true
     } catch (error) {
-      console.error('Error deleting item:', error)
+      console.error(withTableContext('DB.delete', tableName, error))
       return false
     }
   }
@@ -322,6 +378,8 @@ export default class CustomDynamoClient {
         })
       )
     } catch (err) {
+      // Always log an error that includes the resolved table name.
+      console.error(withTableContext('DB.transaction', tableName, err))
       if (err instanceof TransactionCanceledException || (err as any).name === 'TransactionCanceledException') {
         console.error('❌ Transaction was canceled')
 

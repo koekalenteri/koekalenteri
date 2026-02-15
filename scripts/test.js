@@ -12,11 +12,58 @@ const { spawn } = require('node:child_process')
 
 const args = process.argv.slice(2)
 
-const spawnNode = (script, extraEnv = {}) =>
-  spawn(process.execPath, [script, ...args], {
-    stdio: 'inherit',
+const supportsColor = (stream) => {
+  if (!stream || !stream.isTTY) return false
+  if (process.env.NO_COLOR) return false
+  if (process.env.FORCE_COLOR === '0') return false
+  return true
+}
+
+const ANSI = {
+  reset: '\u001b[0m',
+  fg: {
+    cyan: '\u001b[36m',
+    magenta: '\u001b[35m',
+  },
+}
+
+const colorizeStream = (stream, color, target) => {
+  if (!stream) return
+
+  // Colorize per line so parallel Jest output stays readable without prefixes.
+  let buffered = ''
+  stream.setEncoding('utf8')
+  stream.on('data', (chunk) => {
+    buffered += chunk
+    const lines = buffered.split('\n')
+    buffered = lines.pop() ?? ''
+    for (const line of lines) {
+      if (!supportsColor(target)) {
+        target.write(`${line}\n`)
+      } else {
+        target.write(`${color}${line}${ANSI.reset}\n`)
+      }
+    }
+  })
+  stream.on('end', () => {
+    if (!buffered.length) return
+    if (!supportsColor(target)) {
+      target.write(buffered)
+    } else {
+      target.write(`${color}${buffered}${ANSI.reset}`)
+    }
+  })
+}
+
+const spawnNode = (script, extraEnv = {}, color = '') => {
+  const child = spawn(process.execPath, [script, ...args], {
+    stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, ...extraEnv },
   })
+  colorizeStream(child.stdout, color, process.stdout)
+  colorizeStream(child.stderr, color, process.stderr)
+  return child
+}
 
 const childEnv = { CI: 'true' }
 const backendEnv = {
@@ -24,9 +71,10 @@ const backendEnv = {
   NODE_OPTIONS: '--experimental-vm-modules --no-warnings',
   DOTENV_CONFIG_QUIET: 'true',
 }
+// Run in parallel, but prefix output to avoid confusing interleaving.
 const children = [
-  spawnNode(require.resolve('./test-backend.js'), backendEnv),
-  spawnNode(require.resolve('./test-frontend.js'), childEnv),
+  spawnNode(require.resolve('./test-backend.js'), backendEnv, ANSI.fg.cyan),
+  spawnNode(require.resolve('./test-frontend.js'), childEnv, ANSI.fg.magenta),
 ]
 
 let exitCode = 0

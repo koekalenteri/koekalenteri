@@ -19,7 +19,7 @@ import { useRecoilValue } from 'recoil'
 import { runMigrations } from '../../api/migrate'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { idTokenAtom, isAdminSelector } from '../recoil'
+import { accessTokenAtom, isAdminSelector } from '../recoil'
 import { useUserActions } from '../recoil/user/actions'
 
 import DrawerItem from './sideMenu/DrawerItem'
@@ -38,7 +38,7 @@ export function SideMenu({ open, onClose }: Props) {
   const { t } = useTranslation()
   const actions = useUserActions()
   const isAdmin = useRecoilValue(isAdminSelector)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
 
   return (
     <MiniDrawer

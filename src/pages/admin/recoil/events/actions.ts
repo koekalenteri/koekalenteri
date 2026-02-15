@@ -9,13 +9,13 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
 import { copyDogEvent, sanitizeDogEvent } from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
-import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
+import { accessTokenAtom, eventsAtom, userSelector } from '../../../recoil'
 
 import { adminEventIdAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventSelector } from './selectors'
 
 export const useAdminEventActions = () => {
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
   const user = useRecoilValue(userSelector)
   const setAdminEventId = useSetRecoilState(adminEventIdAtom)
   const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(adminCurrentEventSelector)

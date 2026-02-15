@@ -8,12 +8,12 @@ An open-source project to implement the functionality of <http://koekalenteri.sn
 
 The following tools must be installed:
 
-* [AWS CLI](https://aws.amazon.com/cli/)
-* [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
-* [Docker](https://www.docker.com/get-started)
-* [Node.js 16+](https://nodejs.org/)
+- [AWS CLI](https://aws.amazon.com/cli/)
+- [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
+- [Docker](https://www.docker.com/get-started)
+- [Node.js 16+](https://nodejs.org/)
 
-All scripts assume that you have a well configured CLI with the necessary AWS profile set, see [AWS profile creation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html). It is recommended to name this profile as *koekalenteri* – at least all scripts and examples here assume this setup.
+All scripts assume that you have a well configured CLI with the necessary AWS profile set, see [AWS profile creation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html). It is recommended to name this profile as _koekalenteri_ – at least all scripts and examples here assume this setup.
 
 ### Configuring AWS CLI
 
@@ -41,12 +41,18 @@ setx AWS_PROFILE koekalenteri
 
 ### Setting up dependencies and services
 
-Following commands install dependencies to the project and initialize a docker network and dynamodb instance
+Following commands install dependencies to the project and start DynamoDB Local via Docker Compose and seed local tables from the CloudFormation-style YAML definitions.
 
 ```bash
 npm ci
 npm run init
 ```
+
+This will:
+
+- start DynamoDB Local (`docker compose up -d`)
+- create tables from [`template/tables/*.yaml`](template/tables:1)
+- seed data from [`_test_data_/*.json`](_test_data_:1)
 
 ### Local development
 
@@ -61,7 +67,44 @@ Changes are detected automatically. Only if you change the template.yaml, you ne
 
 Note: SAM local is very slow, because it rebuilds lambda on every access.
 
-**Please note that AWS Cognito cannot be run locally so for user authentication a working network connection to the AWS setup is required.**
+**Please note that authentication is configured against external OIDC (Auth0) and cannot be fully run locally without a working Auth0 tenant/app setup.**
+
+#### Manual Auth0 dashboard settings (required)
+
+Frontend uses Auth0 SPA PKCE flow with:
+
+- `audience` = your API Identifier (e.g. `https://dev.koekalenteri.snj.fi`)
+- `scope` = `openid profile email`
+
+To make this work, configure in Auth0:
+
+1. **API (Resource Server)**
+   - Identifier: `https://dev.koekalenteri.snj.fi` (must match `REACT_APP_AUTH0_AUDIENCE`)
+   - Signing Algorithm: `RS256`
+
+2. **Application (Single Page Application)**
+   - Application Type: SPA
+   - Allowed Callback URLs: include `http://localhost:3000`
+   - Allowed Logout URLs: include `http://localhost:3000`
+   - Allowed Web Origins: include `http://localhost:3000`
+   - Under **APIs**: authorize **User Access** for API `https://dev.koekalenteri.snj.fi`
+
+3. **Tenant setting to avoid consent prompts**
+   - Enable skipping consent for first-party apps (otherwise you may see `Consent required` during `getTokenSilently()`).
+
+AWS-side JWT authorizer wiring is configured in [`template/api.yaml`](template/api.yaml:1) and deployed via parameters (`AuthJwtIssuer`, `AuthJwtAudience`).
+
+#### SAM Local: JWT verification inside Lambda
+
+SAM Local does **not** execute API Gateway authorizers, so `requestContext.authorizer` is empty.
+For local runs we verify the `Authorization: Bearer <token>` JWT inside Lambda when `AWS_SAM_LOCAL` is set.
+
+Set these env vars for `npm start-backend-sam`:
+
+- `AUTH_JWT_ISSUER` (e.g. `https://dev-xxxx.eu.auth0.com/`)
+- `AUTH_JWT_AUDIENCE` (e.g. `https://dev.koekalenteri.snj.fi`)
+
+Implementation is in [`src/lambda/lib/jwt.ts`](src/lambda/lib/jwt.ts:1) and wired from [`src/lambda/lib/auth.ts`](src/lambda/lib/auth.ts:29).
 
 #### Start frontend only
 
@@ -85,6 +128,6 @@ Koekalenteri backend is a bunch of lambda functions running on AWS.
 
 Koekalenteri frontend is written in [TypeScript](https://www.typescriptlang.org/) and is based on the following major libraries:
 
-* [React](https://reactjs.org/) - UI framework
-* [Recoil](https://recoiljs.org/) - State management
-  * State is documented in [src/pages/recoil](src/pages/recoil/README.md) and [src/pages/admin/recoil](src/pages/admin/recoil/README.md)
+- [React](https://reactjs.org/) - UI framework
+- [Recoil](https://recoiljs.org/) - State management
+  - State is documented in [src/pages/recoil](src/pages/recoil/README.md) and [src/pages/admin/recoil](src/pages/admin/recoil/README.md)

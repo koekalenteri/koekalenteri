@@ -2,7 +2,7 @@ import type { AwsRum } from 'aws-rum-web'
 
 import * as awsRum from 'aws-rum-web'
 
-import * as amplifyEnv from '../../amplify-env'
+import * as rumEnv from '../../rum-env'
 
 import { rum } from './rum'
 
@@ -16,7 +16,7 @@ describe('rum', () => {
     })
 
     it('should return AwsRum instance', () => {
-      jest.replaceProperty(amplifyEnv, 'RUM_APPLICATION_ID', 'test')
+      jest.replaceProperty(rumEnv, 'RUM_APPLICATION_ID', 'test')
 
       const mockInstance = {}
       jest.spyOn(awsRum, 'AwsRum').mockImplementation(() => mockInstance as unknown as AwsRum)

@@ -75,6 +75,8 @@ jobs:
             --s3-bucket ${{ env.environment }} \
             --parameter-overrides \
               'ParameterKey=StageNameParam,ParameterValue=${{ env.stage }} \
+              ParameterKey=AuthJwtIssuer,ParameterValue=${{ secrets.AUTH0_ISSUER }} \
+              ParameterKey=AuthJwtAudience,ParameterValue=${{ secrets.AUTH0_AUDIENCE }} \
               ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
               ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
               ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \

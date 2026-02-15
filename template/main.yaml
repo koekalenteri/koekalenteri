@@ -17,6 +17,12 @@ Globals:
         CUSTOM_DOMAIN: !Ref CustomDomain
         STACK_NAME: !Ref AWS::StackName
         STAGE_NAME: !Ref StageNameParam
+
+        # For SAM Local JWT verification (see [`src/lambda/lib/auth.ts`](src/lambda/lib/auth.ts:45)).
+        # Keep these aligned with the API Gateway JWT authorizer parameters.
+        AUTH_JWT_ISSUER: !Ref AuthJwtIssuer
+        AUTH_JWT_AUDIENCE: !Ref AuthJwtAudience
+
         AUDIT_TABLE_NAME: !Ref AuditTable
         DOG_TABLE_NAME: !Ref DogTable
         EMAIL_TEMPLATE_TABLE_NAME: !Ref EmailTemplatesTable
@@ -52,6 +58,16 @@ Parameters:
   CognitoDomainName:
     Type: String
     Default: koekalenteri
+
+  # For JWT authorizer (Auth0 / OIDC)
+  AuthJwtIssuer:
+    Type: String
+    Description: OIDC issuer URL (Auth0 tenant URL with trailing slash), e.g. https://<tenant>.eu.auth0.com/
+    Default: https://dev-hugtn62546006370.eu.auth0.com/
+  AuthJwtAudience:
+    Type: String
+    Description: API audience / identifier, must match SPA requested audience (aud claim), e.g. https://dev.koekalenteri.snj.fi
+    Default: https://dev.koekalenteri.snj.fi
 
   # For Amplify Console frontend hosting
   Repository:

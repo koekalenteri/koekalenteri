@@ -18,7 +18,14 @@ import './i18n'
 
 Object.assign(globalThis, { TextDecoder, TextEncoder })
 
-process.env.REACT_APP_IDENTITY_POOL_ID = 'test-id-pool'
+// Minimal Auth0 config for unit tests.
+process.env.REACT_APP_AUTH0_DOMAIN = 'test.auth0.invalid'
+process.env.REACT_APP_AUTH0_CLIENT_ID = 'test-client-id'
+process.env.REACT_APP_AUTH0_AUDIENCE = 'test-audience'
+
+// Many selectors expect an API token to exist; seed it so admin pages render in tests.
+localStorage.setItem('accessToken', JSON.stringify('test-access-token'))
+
 jest.mock('./lib/client/rum')
 
 expect.extend(toHaveNoViolations)
