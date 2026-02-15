@@ -2,7 +2,7 @@ import type { EventType, EventTypeData } from '../../../../types'
 import i18next from 'i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { getEventTypes, putEventType } from '../../../../api/eventType'
-import { idTokenAtom } from '../../../recoil/user'
+import { accessTokenAtom } from '../../../recoil/user'
 import { adminEventTypesAtom } from './atoms'
 
 const sortEventTypes = (eventTypes: EventType[]) =>
@@ -10,7 +10,7 @@ const sortEventTypes = (eventTypes: EventType[]) =>
 
 export const useAdminEventTypeActions = () => {
   const [eventTypes, setEventTypes] = useRecoilState(adminEventTypesAtom)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
 
   return {
     refresh,

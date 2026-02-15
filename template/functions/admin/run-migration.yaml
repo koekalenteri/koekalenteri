@@ -28,7 +28,7 @@
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   RunMigrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup

@@ -26,7 +26,7 @@ import { putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { API_BASE_URL } from '../../../routeConfig'
-import { idTokenAtom } from '../../recoil'
+import { accessTokenAtom } from '../../recoil'
 import { adminEventSelector } from '../recoil'
 
 interface Props {
@@ -36,7 +36,7 @@ interface Props {
 }
 
 const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(true)
