@@ -16,7 +16,7 @@
     "@codemirror/view": "^6.39.13",
     "@date-fns/tz": "^1.4.1",
     "@mui/icons-material": "^7.3.7",
-    "@mui/material": "^7.3.7",
+    "@mui/material": "^7.3.8",
     "@mui/system": "^7.3.7",
     "@mui/x-data-grid": "^7.29.12",
     "@mui/x-date-pickers": "^7.29.4",
