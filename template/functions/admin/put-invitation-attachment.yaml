@@ -29,7 +29,7 @@
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutInvitationAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup

@@ -1,30 +1,21 @@
 import type { SnackbarKey } from 'notistack'
-import { Authenticator } from '@aws-amplify/ui-react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { Amplify } from 'aws-amplify'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense, useCallback, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { scan } from 'react-scan'
 import { useRecoilValue } from 'recoil'
-import { AWSConfig } from './amplify-env'
+import { AuthProvider } from './auth/AuthProvider'
 import { useWebSocket } from './hooks/useWebSocket'
 import { locales, muiLocales } from './i18n'
-import { reportError } from './lib/client/error'
 import { isDevEnv } from './lib/env'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
 import { languageAtom } from './pages/recoil'
 import routes from './routes'
-
-try {
-  Amplify.configure(AWSConfig)
-} catch (e) {
-  reportError(e)
-}
 
 const router = createBrowserRouter(routes)
 
@@ -56,14 +47,17 @@ function App() {
               allowClose: true,
               buttonOrder: ['confirm', 'cancel'],
               cancellationButtonProps: { variant: 'outlined' },
-              confirmationButtonProps: { autoFocus: true, variant: 'contained' },
+              confirmationButtonProps: {
+                autoFocus: true,
+                variant: 'contained',
+              },
             }}
           >
-            <Authenticator.Provider>
+            <AuthProvider>
               <Suspense fallback={<LoadingPage />}>
                 <RouterProvider router={router} />
               </Suspense>
-            </Authenticator.Provider>
+            </AuthProvider>
           </ConfirmProvider>
         </SnackbarProvider>
       </LocalizationProvider>

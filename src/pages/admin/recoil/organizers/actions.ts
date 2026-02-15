@@ -2,14 +2,14 @@ import type { Organizer } from '../../../../types'
 import i18next from 'i18next'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { getAdminOrganizers, putOrganizer } from '../../../../api/organizer'
-import { idTokenAtom } from '../../../recoil'
+import { accessTokenAtom } from '../../../recoil'
 import { adminOrganizersAtom } from './atoms'
 
 const nameSort = (a: Organizer, b: Organizer) => a.name.localeCompare(b.name, i18next.language)
 
 export const useAdminOrganizersActions = () => {
   const [organizers, setOrganizers] = useRecoilState(adminOrganizersAtom)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
 
   return {
     refresh,

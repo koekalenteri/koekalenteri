@@ -1,6 +1,11 @@
 export const CONFIG = {
   // TABLES
   auditTable: process.env.AUDIT_TABLE_NAME ?? 'audit-table-not-found-in-env',
+  authJwtAudience: process.env.AUTH_JWT_AUDIENCE ?? '',
+
+  // Local JWT verification (SAM Local) – API Gateway authorizers don't run locally.
+  // These should match the deployed API Gateway JWT authorizer config.
+  authJwtIssuer: process.env.AUTH_JWT_ISSUER ?? '',
   dogTable: process.env.DOG_TABLE_NAME ?? 'dog-table-not-found-in-env',
   emailFrom: process.env.EMAIL_FROM ?? 'koekalenteri@koekalenteri.snj.fi',
   emailTemplateTable: process.env.EMAIL_TEMPLATE_TABLE_NAME ?? 'email-template-table-not-found-in-env',
