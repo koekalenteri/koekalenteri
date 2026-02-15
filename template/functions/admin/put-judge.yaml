@@ -24,7 +24,7 @@
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutJudgeFunctionLogGroup:
     Type: AWS::Logs::LogGroup

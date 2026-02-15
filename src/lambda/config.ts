@@ -2,6 +2,11 @@ export const CONFIG = {
   stackName: process.env.AWS_SAM_LOCAL ? 'local' : (process.env.STACK_NAME ?? 'local'),
   stageName: process.env.STAGE_NAME ?? '',
 
+  // Local JWT verification (SAM Local) – API Gateway authorizers don't run locally.
+  // These should match the deployed API Gateway JWT authorizer config.
+  authJwtIssuer: process.env.AUTH_JWT_ISSUER ?? '',
+  authJwtAudience: process.env.AUTH_JWT_AUDIENCE ?? '',
+
   frontendURL: `https://${process.env.CUSTOM_DOMAIN ?? 'koekalenteri.snj.fi'}`,
   emailFrom: process.env.EMAIL_FROM ?? 'koekalenteri@koekalenteri.snj.fi',
   fileBucket: process.env.BUCKET ?? 'bucket-not-found-in-env',

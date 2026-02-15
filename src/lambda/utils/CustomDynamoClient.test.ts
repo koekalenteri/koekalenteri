@@ -451,7 +451,9 @@ describe('CustomDynamoClient', () => {
       const result = await client.delete({ id: '1' })
 
       expect(result).toBe(false)
-      expect(errorSpy).toHaveBeenCalledWith('Error deleting item:', error)
+      // CustomDynamoClient now logs an Error enriched with operation + table context.
+      expect(errorSpy).toHaveBeenCalledWith(expect.any(Error))
+      expect((errorSpy.mock.calls[0]?.[0] as Error).message).toContain('[DB.delete] table=test-table')
     })
 
     it('uses provided table name', async () => {

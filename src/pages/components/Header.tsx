@@ -11,7 +11,7 @@ import { useRecoilValue } from 'recoil'
 
 import logo from '../../assets/snj-logo.png'
 import { Path } from '../../routeConfig'
-import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
+import { accessTokenAtom, hasAdminAccessSelector, userSelector, useUserActions } from '../recoil'
 
 import AppBarButton from './header/AppBarButton'
 import HelpMenu from './header/HelpMenu'
@@ -27,7 +27,7 @@ const Header = ({ toggleMenu }: Props) => {
   const actions = useUserActions()
   const navigate = useNavigate()
   const user = useRecoilValue(userSelector)
-  const idToken = useRecoilValue(idTokenAtom)
+  const idToken = useRecoilValue(accessTokenAtom)
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
 
