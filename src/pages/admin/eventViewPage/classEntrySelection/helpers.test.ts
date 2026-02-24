@@ -3,6 +3,7 @@ import type { RegistrationWithGroups } from './types'
 
 import { parseISO } from 'date-fns'
 
+import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 
 import {
@@ -56,6 +57,24 @@ describe('helpers', () => {
       const result = listKey(mockRegistration, mockEventGroups)
 
       expect(result).toBe(GROUP_KEY_RESERVE)
+    })
+
+    it('should fall back to derived key from group date+time when backend key does not match', () => {
+      const date = parseISO('2023-01-01T12:00:00Z')
+      const time = 'ap' as const
+      const derivedKey = eventRegistrationDateKey({ date, time })
+
+      const eventGroupsWithDerivedKeys: RegistrationGroup[] = [{ key: derivedKey, number: 1, date, time }]
+
+      const result = listKey(
+        {
+          ...mockRegistration,
+          group: { key: 'legacy-backend-key', number: 1, date, time },
+        } as Registration,
+        eventGroupsWithDerivedKeys
+      )
+
+      expect(result).toBe(derivedKey)
     })
   })
 

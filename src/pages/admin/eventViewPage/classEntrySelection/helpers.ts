@@ -16,7 +16,19 @@ import { uniqueDate } from '../../../../lib/utils'
 export const listKey = (reg: Registration, eventGroups: RegistrationGroup[]) => {
   const key = getRegistrationGroupKey(reg)
   if (key === GROUP_KEY_CANCELLED) return GROUP_KEY_CANCELLED
+  // Primary: honor explicit group.key if it matches an existing visual group.
   if (eventGroups.some((eg) => eg.key === key)) return key
+
+  // Fallback: some backends may persist a different `group.key` format than what UI derives
+  // via `eventRegistrationDateKey()` (timezone differences, legacy data etc.).
+  // If we have date+time on the group, derive the UI key and try that.
+  const derivedKey =
+    reg.group?.date && reg.group?.time
+      ? eventRegistrationDateKey({ date: reg.group.date, time: reg.group.time })
+      : undefined
+  if (derivedKey && eventGroups.some((eg) => eg.key === derivedKey)) {
+    return derivedKey
+  }
   return GROUP_KEY_RESERVE
 }
 
