@@ -1071,7 +1071,7 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":ro:"
                             id=":ro:-label"
@@ -1079,13 +1079,12 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             dog.dob
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
-                              aria-invalid="false"
+                              aria-invalid="true"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              disabled=""
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               id=":ro:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
@@ -1097,9 +1096,8 @@ exports[`RegistrationCreatePage should render with event/eventType/id path 1`] =
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                disabled=""
-                                tabindex="-1"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                tabindex="0"
                                 type="button"
                               >
                                 <svg
@@ -3878,7 +3876,7 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-error MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
                             for=":r4m:"
                             id=":r4m:-label"
@@ -3886,13 +3884,12 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             dog.dob
                           </label>
                           <div
-                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
+                            class="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-error MuiInputBase-formControl MuiInputBase-adornedEnd css-1338ndn-MuiInputBase-root-MuiOutlinedInput-root"
                           >
                             <input
-                              aria-invalid="false"
+                              aria-invalid="true"
                               autocomplete="off"
-                              class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              disabled=""
+                              class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                               id=":r4m:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
@@ -3904,9 +3901,8 @@ exports[`RegistrationCreatePage should select the date on event/eventType/id/cla
                             >
                               <button
                                 aria-label="Choose date"
-                                class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
-                                disabled=""
-                                tabindex="-1"
+                                class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
+                                tabindex="0"
                                 type="button"
                               >
                                 <svg

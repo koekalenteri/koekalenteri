@@ -90,7 +90,10 @@ describe('DogInfo', () => {
     await user.click(button)
     await flushPromises()
 
-    expect(changeHandler).toHaveBeenLastCalledWith(expect.objectContaining({ dog: newDog }), true)
+    expect(changeHandler).toHaveBeenLastCalledWith(
+      expect.objectContaining({ dog: expect.objectContaining(newDog) }),
+      true
+    )
   })
 
   it('should automatically fetch when selecting from cached dogs', async () => {
@@ -119,7 +122,7 @@ describe('DogInfo', () => {
     await flushPromises()
 
     expect(changeHandler).toHaveBeenLastCalledWith(
-      expect.objectContaining({ dog: registrationDogAged20MonthsAndNoResults }),
+      expect.objectContaining({ dog: expect.objectContaining(registrationDogAged20MonthsAndNoResults) }),
       true
     )
   })
@@ -384,5 +387,64 @@ describe('DogInfo', () => {
     // Verify the RFID field is disabled
     const rfidField = screen.getByLabelText('dog.rfid')
     expect(rfidField).toBeDisabled()
+  })
+
+  it('should allow editing RFID on existing registration when RFID is empty string', async () => {
+    const reg = merge(registrationWithStaticDates, {
+      dog: {
+        ...registrationWithStaticDates.dog,
+        rfid: '',
+        rfidEditable: true,
+      },
+    })
+
+    const { user } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    const rfidField = screen.getByLabelText('dog.rfid')
+    expect(rfidField).toBeEnabled()
+
+    await user.type(rfidField, '123456789012345')
+    await flushPromises()
+
+    expect(rfidField).toHaveValue('123456789012345')
+  })
+
+  it('should disable RFID after update when refreshed dog has RFID', async () => {
+    const reg = merge(registrationWithStaticDates, {
+      dog: {
+        ...registrationWithStaticDates.dog,
+        rfid: '',
+        rfidEditable: true,
+      },
+    })
+
+    jest.spyOn(dogApi, 'getDog').mockResolvedValue({
+      ...registrationDogAged20MonthsAndNoResults,
+      rfid: '981000000000001',
+    })
+
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+
+    const { user, rerender } = renderWithUserEvents(
+      <DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" onChange={changeHandler} />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    const rfidField = screen.getByLabelText('dog.rfid')
+    expect(rfidField).toBeEnabled()
+
+    const updateButton = screen.getByRole('button', { name: 'registration.cta.update' })
+    await user.click(updateButton)
+    await flushPromises()
+
+    rerender(<DogInfo reg={reg} eventDate={eventDate} minDogAgeMonths={15} orgId="test" onChange={changeHandler} />)
+    await flushPromises()
+
+    expect(screen.getByLabelText('dog.rfid')).toBeDisabled()
   })
 })

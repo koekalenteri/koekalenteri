@@ -85,7 +85,7 @@ function applyCache(
   dog?: Dog,
   oldInfo?: DeepPartial<Dog>
 ): DeepPartial<DogCachedInfo> {
-  const result: DeepPartial<DogCachedInfo> = { ...cache, dog, rfid: false }
+  const result: DeepPartial<DogCachedInfo> = { ...cache, dog }
 
   if (dog) {
     // when we have some official info
@@ -115,11 +115,7 @@ function applyCache(
     }
 
     result.dog = merge<DeepPartial<Dog>>(dog, overrides)
-
-    // Set rfid flag when rfid is present from cache
-    if (result.dog.rfid && cache?.dog?.rfid) {
-      result.rfid = true
-    }
+    result.dog.rfidEditable = !dog.rfid
   } else {
     result.dog = { ...(cache?.dog ?? {}), regNo }
   }

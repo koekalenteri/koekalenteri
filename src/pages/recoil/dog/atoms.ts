@@ -23,7 +23,6 @@ export interface DogCachedInfo {
   owner: DogCachedOwnerPerson
   payer: RegistrationPerson
   results: ManualTestResult[]
-  rfid: boolean
   manual?: boolean
 }
 

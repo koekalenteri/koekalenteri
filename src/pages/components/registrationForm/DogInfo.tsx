@@ -35,7 +35,6 @@ interface Props {
 interface State {
   regNo: string
   mode: 'fetch' | 'manual' | 'update' | 'notfound' | 'autofetch' | 'error'
-  rfid: boolean
   dob: boolean
 }
 
@@ -55,8 +54,7 @@ export const DogInfo = ({
   const [state, setState] = useState<State>({
     regNo: reg?.dog?.regNo ?? '',
     mode: reg?.dog?.regNo ? 'update' : 'fetch',
-    rfid: false,
-    dob: false,
+    dob: !isValidDob(reg?.dog?.dob),
   })
 
   // Group local state for all form fields with a single debounced update
@@ -90,7 +88,7 @@ export const DogInfo = ({
   // Derived state
   const disabledByMode = disabled || state.mode !== 'manual'
   const sireDamDisabled = disabledByMode && (disabled || state.mode !== 'update')
-  const rfidDisabled = disabledByMode && (!state.rfid || state.mode === 'notfound')
+  const rfidDisabled = disabled || state.mode === 'notfound' || (state.mode !== 'manual' && !reg?.dog?.rfidEditable)
   const dobDisabled = disabledByMode && (!state.dob || state.mode === 'notfound')
   const validRegNo = validateRegNo(state.regNo)
   const [loading, setLoading] = useState(false)
@@ -151,7 +149,7 @@ export const DogInfo = ({
             setState((prev) => ({
               ...prev,
               mode: newMode,
-              rfid: !!cache.rfid || !cache?.dog?.rfid,
+              rfid: !!cache?.dog?.rfidEditable,
               dob: !isValidDob(cache?.dog?.dob),
             }))
           }
@@ -167,7 +165,7 @@ export const DogInfo = ({
       } else if (mode === 'notfound') {
         setState((prev) => ({ ...prev, mode: 'manual' }))
       } else {
-        setState({ regNo: '', mode: 'fetch', rfid: false, dob: false })
+        setState({ regNo: '', mode: 'fetch', dob: false })
       }
 
       return delay
@@ -199,7 +197,7 @@ export const DogInfo = ({
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'fetch', rfid: false, dob: false })
+        setState({ regNo: upper, mode: 'fetch', dob: false })
       }
     },
     [state.regNo]
@@ -209,7 +207,7 @@ export const DogInfo = ({
     (event: SyntheticEvent<Element, Event>, value: string | null) => {
       if (value !== null && value !== state.regNo) {
         const upper = value.toLocaleUpperCase().trim()
-        setState({ regNo: upper, mode: 'autofetch', rfid: false, dob: false })
+        setState({ regNo: upper, mode: 'autofetch', dob: false })
       }
     },
     [state.regNo]

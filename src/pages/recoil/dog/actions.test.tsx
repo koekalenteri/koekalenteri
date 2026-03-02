@@ -157,7 +157,6 @@ describe('useDogActions', () => {
           titles: 'Champion',
           rfid: '123456789',
         },
-        rfid: true,
       }
 
       const { result } = renderHook(() => useDogActions(testRegNo), {
