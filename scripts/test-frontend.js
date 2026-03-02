@@ -20,7 +20,12 @@ if (argv.indexOf('--passWithNoTests') === -1) {
 }
 
 // Watch unless on CI or explicitly running all tests
-if (!process.env.CI && argv.indexOf('--watchAll') === -1 && argv.indexOf('--watchAll=false') === -1) {
+if (
+  !process.env.CI &&
+  argv.indexOf('--watchAll') === -1 &&
+  argv.indexOf('--watchAll=false') === -1 &&
+  argv.indexOf('--watch=false') === -1
+) {
   argv.push('--watch')
 }
 

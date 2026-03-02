@@ -75,8 +75,8 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
   const pushScopeFromPath = (startBase: any, parts: string[], alias?: string, indexAlias?: string) => {
     const iterTarget = parts.length ? getChild(startBase, parts) : startBase
     const itemType = elemOf(iterTarget)
-    const base = itemType !== undefined ? itemType : {}
-    scopes.push({ alias, base, indexAlias })
+
+    scopes.push({ alias, base: itemType, indexAlias })
   }
 
   for (let m = tagRe.exec(doc); m; m = tagRe.exec(doc)) {

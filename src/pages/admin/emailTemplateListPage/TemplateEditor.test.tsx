@@ -120,6 +120,16 @@ describe('TemplateEditor', () => {
   })
 
   describe('autocomplete integration', () => {
+    it('offers top-level keys when opening mustache with empty identifier', async () => {
+      const { editor, user } = setup({ templateId: 'receipt', value: '' })
+      await user.type(editor!, '{{{{')
+      await flushPromises()
+      expect(editor).toHaveTextContent('{{}}')
+
+      const option = screen.getByRole('option', { name: 'event …' })
+      expect(option).toBeInTheDocument()
+    })
+
     it('offers top-level keys when typing inside {{ }}', async () => {
       const { editor, user } = setup({ templateId: 'receipt', value: '' })
       await user.type(editor!, '{{{{e')
