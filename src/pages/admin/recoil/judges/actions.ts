@@ -1,9 +1,10 @@
 import type { Judge } from '../../../../types'
 
 import i18next from 'i18next'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { getJudges, putJudge } from '../../../../api/judge'
+import { getUsers } from '../../../../api/user'
 import { idTokenAtom } from '../../../recoil/user'
 import { adminUsersAtom } from '../user'
 
@@ -11,7 +12,7 @@ import { adminJudgesAtom } from './atoms'
 
 export const useAdminJudgesActions = () => {
   const [judges, setJudges] = useRecoilState(adminJudgesAtom)
-  const resetUsers = useResetRecoilState(adminUsersAtom)
+  const setUsers = useSetRecoilState(adminUsersAtom)
   const token = useRecoilValue(idTokenAtom)
 
   const find = (id: number) => judges.find((item) => item.id === id)
@@ -19,9 +20,10 @@ export const useAdminJudgesActions = () => {
   const refresh = async () => {
     if (!token) throw new Error('missing token')
     const judges = await getJudges(token, true)
+    const users = await getUsers(token)
     const sortedJudges = [...judges].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
     setJudges(sortedJudges)
-    resetUsers()
+    setUsers(users)
   }
 
   const save = async (judge: Judge) => {
