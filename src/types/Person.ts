@@ -48,6 +48,7 @@ interface UserRoles {
 export interface User extends Person, Partial<DbRecord> {
   id: string
   kcId?: number
+  kcEmail?: string
   judge?: string[]
   officer?: string[]
   roles?: UserRoles

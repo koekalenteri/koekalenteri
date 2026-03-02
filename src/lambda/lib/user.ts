@@ -14,6 +14,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { sendTemplatedMail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { reverseName } from './string'
+import { pickCanonicalUserPreferLinked, preferCanonical } from './userCanonical'
+import { compressCanonicalMap, normalizeUserId } from './userRefs'
 
 const { userTable, userLinkTable, organizerTable, emailFrom, eventTable } = CONFIG
 
@@ -91,7 +93,7 @@ export const setUserRole = async (
   origin?: string
 ): Promise<JsonUser> => {
   const t = i18n.getFixedT('fi')
-  const roles = user.roles || {}
+  const roles = { ...(user.roles ?? {}) }
   if (role === 'none') {
     delete roles[orgId]
   } else {
@@ -161,33 +163,6 @@ const mergeEmailHistory = (
   // Keep at most 10 entries, newest last.
   return merged.slice(-10)
 }
-
-const pickCanonicalUser = (users: JsonUser[]): JsonUser => {
-  return pickCanonicalUserPreferLinked(users)
-}
-
-const pickCanonicalUserPreferLinked = (users: JsonUser[], linkedUserIds?: Set<string>): JsonUser => {
-  const score = (u: JsonUser) => {
-    // Strongly prefer user records that have actually been used to log in (i.e. have a user-link).
-    // This keeps Cognito subject -> userId links stable when KL-driven email changes cause duplicates.
-    const linkedBonus = linkedUserIds?.has(u.id) ? 2000 : 0
-    const rolesCount = Object.keys(u.roles ?? {}).length
-    const officerCount = Array.isArray(u.officer) ? u.officer.length : 0
-    const judgeCount = Array.isArray(u.judge) ? u.judge.length : 0
-    const admin = u.admin ? 1000 : 0
-    return linkedBonus + admin + rolesCount * 10 + officerCount + judgeCount
-  }
-  return [...users].sort((a, b) => {
-    const ds = score(b) - score(a)
-    if (ds !== 0) return ds
-    const ta = a.modifiedAt ? Date.parse(a.modifiedAt) : 0
-    const tb = b.modifiedAt ? Date.parse(b.modifiedAt) : 0
-    return tb - ta
-  })[0]
-}
-
-const preferCanonical = (a: JsonUser, b: JsonUser, linkedUserIds?: Set<string>) =>
-  pickCanonicalUserPreferLinked([a, b], linkedUserIds)
 
 const mergeUsersByKcId = (kcId: number, users: JsonUser[], nowIso: string, linkedUserIds?: Set<string>): JsonUser[] => {
   if (users.length <= 1) return []
@@ -261,6 +236,7 @@ const createNewUserFromItem = (item: Official, dateString: string, eventTypesFil
     modifiedBy,
     name: reverseName(item.name),
     email: normalizedEmail,
+    kcEmail: normalizedEmail,
     kcId: item.id,
     [eventTypesFiled]: item.eventTypes,
   }
@@ -275,16 +251,22 @@ const updateExistingUserFromItem = (
   existing: JsonUser,
   item: Official,
   dateString: string,
-  eventTypesFiled: 'officer' | 'judge'
+  eventTypesFiled: 'officer' | 'judge',
+  linkedUserIds?: Set<string>
 ): JsonUser | null => {
   const modifiedBy = 'system'
   const normalizedEmail = item.email.toLocaleLowerCase()
-  const emailHistory = appendEmailHistory(existing, existing.email, normalizedEmail, dateString, 'kl')
+  const keepExistingEmail = linkedUserIds?.has(existing.id) ?? false
+  const nextEmail = keepExistingEmail ? existing.email : normalizedEmail
+  const emailHistory = keepExistingEmail
+    ? undefined
+    : appendEmailHistory(existing, existing.email, normalizedEmail, dateString, 'kl')
 
   const updated: JsonUser = {
     ...existing,
     name: reverseName(item.name),
-    email: normalizedEmail,
+    email: nextEmail,
+    kcEmail: normalizedEmail,
     kcId: item.id,
     location: item.location ?? existing.location,
     phone: item.phone ?? existing.phone,
@@ -292,11 +274,6 @@ const updateExistingUserFromItem = (
     ...(emailHistory ? { emailHistory } : {}),
   }
   const changes = Object.keys(diff(existing, updated))
-  // Defensive: some equality edge cases (and/or upstream data quirks) can cause `diff` to miss
-  // an email change. Ensure we still update when KL email differs.
-  if (existing.email?.toLocaleLowerCase() !== normalizedEmail && !changes.includes('email')) {
-    changes.push('email')
-  }
   if (changes.length > 0) {
     console.log(`updating user from item: ${item.name}. changed props: ${changes.join(', ')}`)
     return {
@@ -312,7 +289,8 @@ const buildUserUpdates = (
   itemsWithEmail: Official[],
   newItems: Official[],
   existingUsers: JsonUser[],
-  eventTypesFiled: 'officer' | 'judge'
+  eventTypesFiled: 'officer' | 'judge',
+  linkedUserIds: Set<string>
 ) => {
   const write: JsonUser[] = []
   const dateString = new Date().toISOString()
@@ -320,10 +298,6 @@ const buildUserUpdates = (
   const { itemByEmail, itemByKcId } = buildItemIndexMaps(itemsWithEmail)
 
   for (const item of newItems) {
-    if (!validEmail(item.email)) {
-      console.log(`skipping item due to invalid email: ${item.name}, email: ${item.email}`)
-      continue
-    }
     console.log(`creating user from item: ${item.name}, email: ${item.email}`)
     write.push(createNewUserFromItem(item, dateString, eventTypesFiled))
   }
@@ -334,7 +308,7 @@ const buildUserUpdates = (
       itemByEmail.get(existing.email.toLocaleLowerCase())
     if (!item) continue
 
-    const updated = updateExistingUserFromItem(existing, item, dateString, eventTypesFiled)
+    const updated = updateExistingUserFromItem(existing, item, dateString, eventTypesFiled, linkedUserIds)
     if (updated) write.push(updated)
   }
 
@@ -366,6 +340,12 @@ const mergeDuplicateUsersByKcId = (allUsers: JsonUser[], linkedUserIds: Set<stri
     mergeWrites.push(...mergeUsersByKcId(kcId, group, dateString, linkedUserIds))
   }
 
+  // Canonical-id path compression:
+  // if A -> B and B -> C, collapse to A -> C before rewriting references.
+  // This defends against any ordering/tie edge cases where an intermediate canonical
+  // may itself be superseded within the same sync run.
+  compressCanonicalMap(duplicateIdToCanonicalId)
+
   return { duplicateIdToCanonicalId, mergeWrites }
 }
 
@@ -374,7 +354,7 @@ const applyMergeWrites = (allUsers: JsonUser[], mergeWrites: JsonUser[]) => {
   for (const u of allUsers) effectiveUsersById.set(u.id, u)
   for (const u of mergeWrites) effectiveUsersById.set(u.id, u)
   const effectiveUsers = [...effectiveUsersById.values()]
-  const effectiveUsersWithEmail = effectiveUsers.filter((u) => validEmail(u.email))
+  const effectiveUsersWithEmail = effectiveUsers.filter((u) => !u.deletedAt && validEmail(u.email))
   return { effectiveUsers, effectiveUsersWithEmail }
 }
 
@@ -391,35 +371,42 @@ const updateEventReferences = async (
   const eventsDb = new CustomDynamoClient(eventTable)
   const events = (await eventsDb.readAll<JsonDogEvent>(eventTable)) ?? []
 
+  const mapEventUserRefs = (evt: JsonDogEvent) => {
+    const oldOfficialId = normalizeUserId(evt.official?.id)
+    const oldSecretaryId = normalizeUserId(evt.secretary?.id)
+    const newOfficialId = oldOfficialId ? duplicateIdToCanonicalId.get(oldOfficialId) : undefined
+    const newSecretaryId = oldSecretaryId ? duplicateIdToCanonicalId.get(oldSecretaryId) : undefined
+
+    if (!newOfficialId && !newSecretaryId) return undefined
+
+    const updatedOfficial = newOfficialId ? toEventUser(mergedUserMap.get(newOfficialId), evt.official) : evt.official
+    const updatedSecretary = newSecretaryId
+      ? toEventUser(mergedUserMap.get(newSecretaryId), evt.secretary)
+      : evt.secretary
+
+    return { updatedOfficial, updatedSecretary }
+  }
+
   for (const evt of events) {
-    const oldOfficialId = evt.official?.id
-    const oldSecretaryId = evt.secretary?.id
-    const newOfficialId = oldOfficialId ? duplicateIdToCanonicalId.get(String(oldOfficialId)) : undefined
-    const newSecretaryId = oldSecretaryId ? duplicateIdToCanonicalId.get(String(oldSecretaryId)) : undefined
+    const mapped = mapEventUserRefs(evt)
+    if (!mapped) continue
 
-    if (newOfficialId || newSecretaryId) {
-      const updatedOfficial = newOfficialId ? toEventUser(mergedUserMap.get(newOfficialId), evt.official) : evt.official
-      const updatedSecretary = newSecretaryId
-        ? toEventUser(mergedUserMap.get(newSecretaryId), evt.secretary)
-        : evt.secretary
-
-      await eventsDb.update(
-        { id: evt.id },
-        {
-          set: {
-            official: updatedOfficial,
-            secretary: updatedSecretary,
-            modifiedAt: dateString,
-            modifiedBy: 'system',
-          },
+    await eventsDb.update(
+      { id: evt.id },
+      {
+        set: {
+          official: mapped.updatedOfficial,
+          secretary: mapped.updatedSecretary,
+          modifiedAt: dateString,
+          modifiedBy: 'system',
         },
-        eventTable
-      )
-    }
+      },
+      eventTable
+    )
   }
 }
 
-const matchItemsToUsers = (
+const matchIncomingItems = (
   itemsWithEmail: Official[],
   effectiveUsers: JsonUser[],
   effectiveUsersWithEmail: JsonUser[],
@@ -453,13 +440,23 @@ const matchItemsToUsers = (
   return { matchedExisting, newItems }
 }
 
-export const updateUsersFromOfficialsOrJudges = async (
-  dynamoDB: CustomDynamoClient,
-  items: Official[] | PartialJsonJudge[],
-  eventTypesFiled: 'officer' | 'judge'
-) => {
-  if (!items.length) return
+type UserSyncContext = {
+  dateString: string
+  allUsers: JsonUser[]
+  linkedUserIds: Set<string>
+  itemsWithEmail: Official[]
+}
 
+type UserSyncPlan = {
+  duplicateIdToCanonicalId: Map<string, string>
+  mergeWrites: JsonUser[]
+  upsertWrites: JsonUser[]
+}
+
+const loadSyncContext = async (
+  dynamoDB: CustomDynamoClient,
+  items: Official[] | PartialJsonJudge[]
+): Promise<UserSyncContext> => {
   const dateString = new Date().toISOString()
   const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
 
@@ -468,32 +465,44 @@ export const updateUsersFromOfficialsOrJudges = async (
   const userLinks = (await userLinksDb.readAll<UserLink>(userLinkTable)) ?? []
   const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
 
-  // 1) Normalize incoming emails from KL to lowercase.
   const itemsWithEmail = normalizeItemsWithEmail(items)
+  return { dateString, allUsers, linkedUserIds, itemsWithEmail }
+}
 
-  // 2) Merge existing duplicates in our DB by kcId (KL member id).
-  const { duplicateIdToCanonicalId, mergeWrites } = mergeDuplicateUsersByKcId(allUsers, linkedUserIds, dateString)
+const planUserSync = (ctx: UserSyncContext, eventTypesFiled: 'officer' | 'judge'): UserSyncPlan => {
+  const { duplicateIdToCanonicalId, mergeWrites } = mergeDuplicateUsersByKcId(
+    ctx.allUsers,
+    ctx.linkedUserIds,
+    ctx.dateString
+  )
+  const { effectiveUsers, effectiveUsersWithEmail } = applyMergeWrites(ctx.allUsers, mergeWrites)
 
-  // 3) Apply merge writes to get effective user list.
-  const { effectiveUsers, effectiveUsersWithEmail } = applyMergeWrites(allUsers, mergeWrites)
-
-  // 4) Update event references if we merged users.
-  if (duplicateIdToCanonicalId.size) {
-    await updateEventReferences(duplicateIdToCanonicalId, allUsers, mergeWrites, dateString)
-  }
-
-  // 5) Upsert users from KL data: match by kcId first, fallback to email.
-  const { matchedExisting, newItems } = matchItemsToUsers(
-    itemsWithEmail,
+  const { matchedExisting, newItems } = matchIncomingItems(
+    ctx.itemsWithEmail,
     effectiveUsers,
     effectiveUsersWithEmail,
-    linkedUserIds
+    ctx.linkedUserIds
   )
 
-  // 6) Merge + upsert may both produce writes for the same user id.
+  const upsertWrites = buildUserUpdates(
+    ctx.itemsWithEmail,
+    newItems,
+    matchedExisting,
+    eventTypesFiled,
+    ctx.linkedUserIds
+  )
+  return { duplicateIdToCanonicalId, mergeWrites, upsertWrites }
+}
+
+const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncContext, plan: UserSyncPlan) => {
+  if (plan.duplicateIdToCanonicalId.size) {
+    await updateEventReferences(plan.duplicateIdToCanonicalId, ctx.allUsers, plan.mergeWrites, ctx.dateString)
+  }
+
+  // Merge + upsert may both produce writes for the same user id.
   const writeById = new Map<string, JsonUser>()
-  for (const u of mergeWrites) writeById.set(u.id, u)
-  for (const u of buildUserUpdates(itemsWithEmail, newItems, matchedExisting, eventTypesFiled)) writeById.set(u.id, u)
+  for (const u of plan.mergeWrites) writeById.set(u.id, u)
+  for (const u of plan.upsertWrites) writeById.set(u.id, u)
   const write = [...writeById.values()]
 
   if (write.length) {
@@ -510,13 +519,25 @@ export const updateUsersFromOfficialsOrJudges = async (
   }
 }
 
+export const updateUsersFromOfficialsOrJudges = async (
+  dynamoDB: CustomDynamoClient,
+  items: Official[] | PartialJsonJudge[],
+  eventTypesFiled: 'officer' | 'judge'
+) => {
+  if (!items.length) return
+
+  const context = await loadSyncContext(dynamoDB, items)
+  const plan = planUserSync(context, eventTypesFiled)
+  await applyUserSyncPlan(dynamoDB, context, plan)
+}
+
 // Expose internal helpers for unit testing (no runtime usage elsewhere)
 export const __testables = {
   mergeEventTypes,
   mergeRoles,
-  pickCanonicalUser,
-  pickCanonicalUserPreferLinked,
   mergeUsersByKcId,
   toEventUser,
-  preferCanonical,
+  matchIncomingItems,
+  loadSyncContext,
+  planUserSync,
 }
