@@ -1,13 +1,6 @@
 import type { JsonUser } from '../../types'
 
-export const scoreUser = (u: JsonUser, linkedUserIds?: Set<string>) => {
-  const linkedBonus = linkedUserIds?.has(u.id) ? 2000 : 0
-  const rolesCount = Object.keys(u.roles ?? {}).length
-  const officerCount = Array.isArray(u.officer) ? u.officer.length : 0
-  const judgeCount = Array.isArray(u.judge) ? u.judge.length : 0
-  const admin = u.admin ? 1000 : 0
-  return linkedBonus + admin + rolesCount * 10 + officerCount + judgeCount
-}
+import { scoreUser } from '../../lib/userCanonical'
 
 export const compareUsersForCanonical = (a: JsonUser, b: JsonUser, linkedUserIds?: Set<string>) => {
   const ds = scoreUser(b, linkedUserIds) - scoreUser(a, linkedUserIds)

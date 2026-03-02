@@ -5,7 +5,6 @@ import {
   pickCanonicalUser,
   pickCanonicalUserPreferLinked,
   preferCanonical,
-  scoreUser,
 } from './userCanonical'
 
 const defaults: Omit<JsonDbRecord, 'id'> = {
@@ -16,20 +15,6 @@ const defaults: Omit<JsonDbRecord, 'id'> = {
 }
 
 describe('lib/userCanonical', () => {
-  it('scoreUser includes link/admin/roles/officer/judge weights', () => {
-    const u: JsonUser = {
-      ...defaults,
-      id: 'u1',
-      name: 'U1',
-      email: 'u1@example.com',
-      admin: true,
-      roles: { org1: 'admin', org2: 'secretary' },
-      officer: ['NOME-A', 'NOME-B'],
-      judge: ['NOME-A'],
-    }
-    expect(scoreUser(u, new Set(['u1']))).toBe(2000 + 1000 + 20 + 2 + 1)
-  })
-
   it('compareUsersForCanonical prefers higher score, then newer modifiedAt', () => {
     const a: JsonUser = { ...defaults, id: 'a', name: 'A', email: 'a@example.com' }
     const b: JsonUser = { ...defaults, id: 'b', name: 'B', email: 'b@example.com', roles: { org: 'admin' } }

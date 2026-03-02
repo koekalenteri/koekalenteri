@@ -18,6 +18,7 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { localeSortComparator } from '../../lib/datagrid'
+import { scoreUser } from '../../lib/userCanonical'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
 import { isOrgAdminSelector, userSelector } from '../recoil'
@@ -148,31 +149,7 @@ export default function UsersPage() {
       headerName: t('roles'),
       display: 'flex',
       width: 90,
-      sortComparator: (a, b) => {
-        // Order (greatest first):
-        // 1) admin
-        // 2) org role count
-        // 3) judge+officer
-        // 4) judge
-        // 5) officer
-        const score = (u: User) => {
-          const adminScore = u.admin ? 1000 : 0
-          const roleCountScore = Object.keys(u.roles ?? {}).length * 10
-          const hasJudge = Array.isArray(u.judge) && u.judge.length > 0
-          const hasOfficer = Array.isArray(u.officer) && u.officer.length > 0
-          let judgeOfficerScore = 0
-          if (hasJudge && hasOfficer) {
-            judgeOfficerScore = 3
-          } else if (hasJudge) {
-            judgeOfficerScore = 2
-          } else if (hasOfficer) {
-            judgeOfficerScore = 1
-          }
-          return adminScore + roleCountScore + judgeOfficerScore
-        }
-
-        return score(b) - score(a)
-      },
+      sortComparator: (a, b) => scoreUser(b as User) - scoreUser(a as User),
       valueGetter: (_value, row) => ({ admin: false, roles: {}, ...row }),
       renderCell: ({ value }) => <RoleInfo {...value} />,
     },
@@ -195,6 +172,12 @@ export default function UsersPage() {
       headerName: t('contact.email'),
       minWidth: 150,
     },
+    {
+      field: 'kcEmail',
+      flex: 2,
+      headerName: 'KC email',
+      minWidth: 150,
+    },
     ...(user?.admin
       ? ([
           {
@@ -202,10 +185,10 @@ export default function UsersPage() {
             headerName: t('user.emailHistory'),
             flex: 1,
             minWidth: 180,
-            sortable: false,
-            valueGetter: (_value: unknown, row: User) => row.emailHistory ?? [],
+            sortingOrder: ['desc', 'asc'],
+            valueGetter: (_value: unknown, row: User) => row.emailHistory?.length ?? 0,
             renderCell: (params: GridRenderCellParams<User>) => {
-              const history = (params.value ?? []) as NonNullable<User['emailHistory']>
+              const history = params.row.emailHistory ?? []
               if (!history.length) return ''
               return (
                 <Tooltip placement="right" title={<EmailHistoryTooltipContent history={history} />}>
