@@ -26,6 +26,40 @@ export async function authorize(event?: Partial<APIGatewayProxyEvent>, updateLas
   return user
 }
 
+async function updateExistingUser(
+  existing: JsonUser,
+  props: Omit<Partial<JsonUser>, 'id' | 'email'>,
+  updateName?: boolean,
+  updateLastSeen?: boolean
+): Promise<JsonUser> {
+  const modifiedBy = 'system'
+  const dateString = new Date().toISOString()
+
+  const changes = { ...props }
+
+  // lets not change a stored name or use a non-string value as name
+  if ('name' in changes && ((existing?.name && !updateName) || typeof changes.name !== 'string')) {
+    delete changes.name
+  }
+  // if for some reason we have a non-string name in database, replace it
+  if ('name' in existing && typeof existing.name !== 'string') {
+    existing.name = changes.name ?? ''
+  }
+
+  const final: JsonUser = {
+    ...existing,
+    ...changes,
+    ...(updateLastSeen ? { lastSeen: dateString } : {}),
+  }
+
+  if (Object.keys(diff(existing, final)).length > 0) {
+    console.log('updating user', { userId: existing.id, existing, final })
+    await updateUser({ ...final, modifiedAt: dateString, modifiedBy })
+  }
+
+  return final
+}
+
 async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
   let user: JsonUser | undefined
 
@@ -46,9 +80,11 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
   const { name, email } = event.requestContext.authorizer.claims
 
   if (link) {
+    // IMPORTANT: When the cognito user is already linked, honor the link.
+    // Do not re-resolve the user by email, as email may change in KL / IdP claims.
     user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
     if (user) {
-      user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
+      user = await updateExistingUser(user, { name }, false, updateLastSeen)
     }
   } else {
     // no user link found for the cognitoUser
@@ -67,7 +103,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
       })
 
       // Update lastSeen/name on the existing user record.
-      user = await getAndUpdateUserByEmail(normalizedEmail, { name }, false, updateLastSeen)
+      user = await updateExistingUser(existingByEmail, { name }, false, updateLastSeen)
       await dynamoDB.write({ cognitoUser, userId: existingByEmail.id }, userLinkTable)
       console.log('added user link', { cognitoUser, userId: existingByEmail.id })
     } else {
@@ -122,8 +158,9 @@ export async function getAndUpdateUserByEmail(
     ...newUser,
     ...existing,
     ...changes,
-    // Ensure the canonical email from claims always wins over any stored value.
-    email,
+    // Do NOT overwrite stored email on login. Email is a mutable external attribute (IdP/KL)
+    // and must not be treated as the stable user identity.
+    email: existing?.email ?? email,
     ...(existing?.email && existing.email !== email
       ? { emailHistory: appendEmailHistory(existing, existing.email, email, dateString, 'login') }
       : {}),

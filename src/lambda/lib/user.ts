@@ -60,16 +60,18 @@ export const findUserByEmail = async (email?: string): Promise<JsonUser | undefi
     index: 'gsiEmail',
   })
 
-  const exact = users?.find((user) => user.email === normalizedEmail)
+  const activeUsers = users?.filter((user) => !user.deletedAt)
+
+  const exact = activeUsers?.find((user) => user.email === normalizedEmail)
 
   // Observability: a missing user is a meaningful condition in several flows.
   // Log a warning to make it visible in CloudWatch while keeping it non-fatal.
   if (!exact) {
     // If we got items back but none match exactly, highlight possible data-normalization issues.
-    if (users?.length) {
+    if (activeUsers?.length) {
       console.error('findUserByEmail: queried users but none matched normalized email', {
         normalizedEmail,
-        returnedEmails: users.map((u) => u.email),
+        returnedEmails: activeUsers.map((u) => u.email),
       })
     } else {
       console.warn('findUserByEmail: user not found', { normalizedEmail })

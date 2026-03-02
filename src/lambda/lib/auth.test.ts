@@ -25,9 +25,10 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 const logSpy = jest.spyOn(console, 'log').mockImplementation(() => null)
 const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null)
+const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => null)
 
-const { findUserByEmail, updateUser } = await import('./user')
-const { authorize, getAndUpdateUserByEmail, getUsername } = await import('./auth')
+const { findUserByEmail, updateUser, userIsMemberOf } = await import('./user')
+const { authorize, authorizeWithMemberOf, getAndUpdateUserByEmail, getUsername } = await import('./auth')
 
 describe('auth', () => {
   afterEach(() => {
@@ -136,8 +137,9 @@ describe('auth', () => {
         modifiedBy: 'system',
       }
 
-      mockRead.mockResolvedValueOnce(existingUser)
+      // auth reads link first, then loads user by id
       mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(existingUser)
 
       const result = await authorize(event)
 
@@ -146,6 +148,92 @@ describe('auth', () => {
       expect(mockWrite).not.toHaveBeenCalled()
       expect(logSpy).not.toHaveBeenCalledWith('added user link', link)
       expect(result).toEqual(existingUser)
+    })
+
+    it('should not update user when no changes detected', async () => {
+      const cognitoUser = 'cognito-user'
+      const event = {
+        requestContext: {
+          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: 'test@example.com' } },
+        },
+      } as any
+      const link = { cognitoUser, userId: 'test-id' }
+      const existingUser = {
+        id: 'test-id',
+        name: 'test-user',
+        email: 'test@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      }
+
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(existingUser)
+
+      const result = await authorize(event)
+
+      expect(result).toEqual(existingUser)
+      expect(updateUser).not.toHaveBeenCalled()
+    })
+
+    it('should normalize email to empty string when claims email is not a string', async () => {
+      const cognitoUser = 'cognito-user'
+      const event = {
+        requestContext: {
+          authorizer: { claims: { sub: cognitoUser, name: 'test-user', email: null } },
+        },
+      } as any
+
+      const existingUser = {
+        id: 'existing-id',
+        name: 'existing name',
+        email: 'test@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      } satisfies JsonUser
+
+      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValue(existingUser)
+
+      const result = await authorize(event)
+
+      expect(findUserByEmail).toHaveBeenCalledWith('')
+      expect(result?.id).toBe('existing-id')
+    })
+
+    it('should replace non-string stored name when updating existing linked user', async () => {
+      const cognitoUser = 'cognito-user'
+      const event = {
+        requestContext: {
+          authorizer: { claims: { sub: cognitoUser, name: 'fixed-name', email: 'test@example.com' } },
+        },
+      } as any
+      const link = { cognitoUser, userId: 'test-id' }
+      const existingUser = {
+        id: 'test-id',
+        name: 1234,
+        email: 'test@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      } as unknown as JsonUser
+
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(existingUser)
+
+      const result = await authorize(event, true)
+
+      expect(result?.name).toBe('')
+      expect(updateUser).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'test-id',
+          name: '',
+          lastSeen: '2023-11-30T20:00:00.000Z',
+        })
+      )
     })
   })
 
@@ -265,9 +353,10 @@ describe('auth', () => {
         })
       )
 
+      // We do not overwrite stored email on login, but we do record the observed change in emailHistory.
       expect(updateUser).toHaveBeenCalledWith(
         expect.objectContaining({
-          email: 'new@example.com',
+          email: 'old@example.com',
           emailHistory: [{ email: 'old@example.com', changedAt: '2023-11-30T20:00:00.000Z', source: 'login' }],
         })
       )
@@ -305,6 +394,74 @@ describe('auth', () => {
       const result = await getUsername(event)
 
       expect(result).toEqual('test-user')
+    })
+  })
+
+  describe('authorizeWithMemberOf', () => {
+    it('should return Unauthorized when user cannot be resolved', async () => {
+      const event = { requestContext: { authorizer: { claims: null } }, headers: {} } as any
+
+      const result = await authorizeWithMemberOf(event)
+
+      expect(result).toEqual({ res: expect.objectContaining({ statusCode: 401 }) })
+    })
+
+    it('should return Forbidden when not member and not admin', async () => {
+      const event = {
+        requestContext: {
+          authorizer: { claims: { sub: 'cognito-user', name: 'test-user', email: 'test@example.com' } },
+        },
+        headers: {},
+      } as any
+
+      const link = { cognitoUser: 'cognito-user', userId: 'test-id' }
+      const existingUser = {
+        id: 'test-id',
+        name: 'test-user',
+        email: 'test@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      }
+
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(existingUser)
+      ;(userIsMemberOf as jest.MockedFunction<typeof userIsMemberOf>).mockReturnValue([])
+
+      const result = await authorizeWithMemberOf(event)
+
+      expect(result.res?.statusCode).toBe(403)
+      expect(result.user).toEqual(existingUser)
+      expect(errorSpy).toHaveBeenCalledWith('User test-id is not admin or member of any organizations.')
+    })
+
+    it('should return memberOf list when user is a member', async () => {
+      const event = {
+        requestContext: {
+          authorizer: { claims: { sub: 'cognito-user', name: 'test-user', email: 'test@example.com' } },
+        },
+        headers: {},
+      } as any
+
+      const link = { cognitoUser: 'cognito-user', userId: 'test-id' }
+      const existingUser = {
+        id: 'test-id',
+        name: 'test-user',
+        email: 'test@example.com',
+        createdAt: '2023-11-30T20:00:00.000Z',
+        createdBy: 'system',
+        modifiedAt: '2023-11-30T20:00:00.000Z',
+        modifiedBy: 'system',
+      }
+
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(existingUser)
+      ;(userIsMemberOf as jest.MockedFunction<typeof userIsMemberOf>).mockReturnValue(['org-1'])
+
+      const result = await authorizeWithMemberOf(event)
+
+      expect(result).toEqual({ user: existingUser, memberOf: ['org-1'] })
     })
   })
 })
