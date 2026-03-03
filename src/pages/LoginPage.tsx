@@ -1,57 +1,33 @@
-import { useEffect } from 'react'
-import { I18n } from '@aws-amplify/core'
-import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
-import Box from '@mui/material/Box'
-import { fetchAuthSession } from 'aws-amplify/auth'
-import { useRecoilValue } from 'recoil'
+import { useEffect, useRef } from 'react'
 
-import Header from './components/Header'
+import { useAuth } from '../auth/AuthProvider'
+
+import LoadingIndicator from './components/LoadingIndicator'
 import { useUserActions } from './recoil/user/actions'
-import { languageAtom } from './recoil'
-
-import '@aws-amplify/ui-react/styles.css'
 
 export function Component() {
-  const { route } = useAuthenticator((context) => [context.route])
+  const { isAuthenticated, isLoading, getAccessToken, login } = useAuth()
   const actions = useUserActions()
-  const language = useRecoilValue(languageAtom)
+  const loginTriggeredRef = useRef(false)
 
   useEffect(() => {
-    if (route === 'authenticated') {
-      fetchAuthSession().then((session) => {
-        const token = session.tokens?.idToken?.toString()
-        if (token) {
-          actions.signIn(token)
-        }
+    if (!isLoading && isAuthenticated) {
+      getAccessToken().then((token) => {
+        if (token) actions.signIn(token)
       })
     }
-  }, [actions, route])
+  }, [actions, getAccessToken, isAuthenticated, isLoading])
 
   useEffect(() => {
-    I18n.setLanguage(language)
-  }, [language])
+    if (isLoading || isAuthenticated) return
+    if (loginTriggeredRef.current) return
+    loginTriggeredRef.current = true
+    // Direct redirect to the Auth0 Universal Login.
+    // No local "form" UX: the secure login screen is the only experience.
+    login()
+  }, [isAuthenticated, isLoading, login])
 
-  return (
-    <>
-      <Header />
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'column',
-          minHeight: '100vh',
-          backgroundColor: 'background.default',
-        }}
-      >
-        <Authenticator
-          key={`authenticator-${language}`}
-          socialProviders={['google' /*, 'facebook'*/]}
-          loginMechanisms={['email']}
-        />
-      </Box>
-    </>
-  )
+  return <LoadingIndicator />
 }
 
 Component.displayName = 'LoginPage'

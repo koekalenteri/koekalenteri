@@ -5,13 +5,13 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 
 import { putAdmin, putRole, putUser } from '../../../../api/user'
 import { reportError } from '../../../../lib/client/error'
-import { idTokenAtom } from '../../../recoil'
+import { accessTokenAtom } from '../../../recoil'
 import { adminOrganizersAtom } from '../organizers'
 
 import { adminUsersAtom } from './atoms'
 
 export const useAdminUserActions = () => {
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
   const [users, setUsers] = useRecoilState(adminUsersAtom)
   const orgs = useRecoilValue(adminOrganizersAtom)

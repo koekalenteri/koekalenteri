@@ -1,6 +1,6 @@
-import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 
+import { getAccessToken } from '../auth/token'
 import { reportError } from '../lib/client/error'
 import { parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
@@ -38,11 +38,22 @@ function anySignal(signals: AbortSignal[]): AbortSignal {
   return controller.signal
 }
 
+const DEFAULT_HTTP_TIMEOUT_MS = 10_000
+
+function getHttpTimeoutMs(): number {
+  const raw = process.env.REACT_APP_HTTP_TIMEOUT_MS
+  if (!raw) return DEFAULT_HTTP_TIMEOUT_MS
+
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_HTTP_TIMEOUT_MS
+  return n
+}
+
 async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: boolean = true): Promise<T> {
   const url = API_BASE_URL + path
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort('timeout'), 10_000)
+  const timer = setTimeout(() => controller.abort('timeout'), getHttpTimeoutMs())
   const signal = init.signal ? anySignal([controller.signal, init.signal]) : controller.signal
 
   try {
@@ -91,17 +102,12 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
     } else if (err.status === 401) {
       const msg = err.body?.message ?? err.body ?? err.message
       if (msg == 'The incoming token has expired' && init.headers && 'Authorization' in init.headers) {
-        // token expired, try to refresh
-        const session = await fetchAuthSession({ forceRefresh: true })
-        const idToken = session.tokens?.idToken?.toString()
-        if (idToken) {
-          const key = 'idToken'
-          const newValue = JSON.stringify(idToken)
-          localStorage.setItem(key, newValue)
-          dispatchEvent(new StorageEvent('storage', { storageArea: localStorage, key, newValue }))
-          // retry with new token after a little delay
+        // token expired, try to refresh via silent auth
+        const accessToken = await getAccessToken()
+        if (accessToken) {
+          // retry with new token after a little delay (lets any state settle)
           await new Promise((resolve) => setTimeout(resolve, 50))
-          init = withToken(init, idToken)
+          init = withToken(init, accessToken)
           return http<T>(path, init, reviveDates)
         }
       }

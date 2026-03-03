@@ -5,7 +5,7 @@ import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { getJudges, putJudge } from '../../../../api/judge'
 import { getUsers } from '../../../../api/user'
-import { idTokenAtom } from '../../../recoil/user'
+import { accessTokenAtom } from '../../../recoil/user'
 import { adminUsersAtom } from '../user'
 
 import { adminJudgesAtom } from './atoms'
@@ -13,7 +13,7 @@ import { adminJudgesAtom } from './atoms'
 export const useAdminJudgesActions = () => {
   const [judges, setJudges] = useRecoilState(adminJudgesAtom)
   const setUsers = useSetRecoilState(adminUsersAtom)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
 
   const find = (id: number) => judges.find((item) => item.id === id)
 

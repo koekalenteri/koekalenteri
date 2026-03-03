@@ -13,13 +13,13 @@ exports[`OrganizerListPage renders 1`] = `
         class="MuiTable-root css-1xwxv7r-MuiTable-root"
       >
         <tbody
-          class="amplify-table__body"
+          class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
         >
           <tr
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="9"
             >
               <h5
@@ -30,10 +30,10 @@ exports[`OrganizerListPage renders 1`] = `
             </td>
           </tr>
           <tr
-            class="amplify-table__row"
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="amplify-table__td"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="8"
             >
               <h6
@@ -47,57 +47,57 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               #
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rekisterinumero
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Syntymäaika
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Siru
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rotu
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Nimi
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaajan puhelin
             </td>
@@ -106,62 +106,62 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
                   1
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0030
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123457
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 20
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
           </tr>
           <tr
-            class="amplify-table__row"
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="amplify-table__td"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="8"
             >
               <h6
@@ -175,57 +175,57 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               #
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rekisterinumero
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Syntymäaika
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Siru
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rotu
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Nimi
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaajan puhelin
             </td>
@@ -234,62 +234,62 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
                   2
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0030
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123457
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 20
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
           </tr>
           <tr
-            class="amplify-table__row"
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="amplify-table__td"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="8"
             >
               <h6
@@ -303,57 +303,57 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               #
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rekisterinumero
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Syntymäaika
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Siru
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rotu
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Nimi
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaajan puhelin
             </td>
@@ -362,62 +362,62 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
                   3
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0030
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123457
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 20
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
           </tr>
           <tr
-            class="amplify-table__row"
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="amplify-table__td"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="8"
             >
               <h6
@@ -431,57 +431,57 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               #
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rekisterinumero
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Syntymäaika
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Siru
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rotu
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Nimi
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaajan puhelin
             </td>
@@ -490,53 +490,53 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
                   4
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0030
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123457
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 20
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
@@ -547,13 +547,13 @@ exports[`OrganizerListPage renders 1`] = `
         class="MuiTable-root css-1xwxv7r-MuiTable-root"
       >
         <tbody
-          class="amplify-table__body"
+          class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
         >
           <tr
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="9"
             >
               <h5
@@ -564,10 +564,10 @@ exports[`OrganizerListPage renders 1`] = `
             </td>
           </tr>
           <tr
-            class="amplify-table__row"
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="amplify-table__td"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="10"
             >
               <h6
@@ -581,67 +581,67 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               #
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rekisterinumero
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Syntymäaika
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Siru
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rotu
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Nimi
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaajan puhelin
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Paikkakunta
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Varoitusaika
             </td>
@@ -650,70 +650,70 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0010
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123456
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 10
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Location
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               registration.reserveChoises.ANY
             </td>
           </tr>
           <tr
-            class="amplify-table__row"
+            class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="amplify-table__td"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
               colspan="10"
             >
               <h6
@@ -727,67 +727,67 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root Mui-selected css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               #
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rekisterinumero
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Syntymäaika
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Siru
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Rotu
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Nimi
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Omistaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaaja on jäsen
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Ohjaajan puhelin
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Paikkakunta
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Varoitusaika
             </td>
@@ -796,63 +796,63 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
                   1
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0030
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123457
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 20
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Location
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               registration.reserveChoises.ANY
             </td>
@@ -861,63 +861,63 @@ exports[`OrganizerListPage renders 1`] = `
             class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
           >
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
                   2
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               TESTDOG-0030
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               dateFormat.isodate date
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               1234567890123457
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               110.M ns, defaultValue
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Dog Name 20
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Owner Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Name
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-alignCenter MuiTableCell-sizeSmall css-t42a3b-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignCenter MuiTableCell-sizeSmall css-wsxt5g-MuiTableCell-root"
             />
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               +3584054321
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               Handler Location
             </td>
             <td
-              class="MuiTableCell-root MuiTableCell-sizeSmall css-1jd9smj-MuiTableCell-root"
+              class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-jiabcu-MuiTableCell-root"
             >
               registration.reserveChoises.ANY
             </td>

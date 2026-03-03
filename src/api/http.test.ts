@@ -1,7 +1,7 @@
-import * as awsAuth from 'aws-amplify/auth'
 import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
 
+import * as authToken from '../auth/token'
 import { API_BASE_URL } from '../routeConfig'
 
 import http from './http'
@@ -95,6 +95,32 @@ describe('http', () => {
       jest.useRealTimers()
     })
 
+    it('should use REACT_APP_HTTP_TIMEOUT_MS when set', async () => {
+      jest.useFakeTimers()
+
+      const originalEnv = process.env
+      process.env = { ...originalEnv, REACT_APP_HTTP_TIMEOUT_MS: '20000' }
+
+      fetchMock.mockResponseOnce(mock20SecondFetch)
+
+      const promise = http.get('/test/')
+
+      // should not time out at 10s anymore
+      jest.advanceTimersByTime(10_000)
+      await Promise.resolve()
+
+      // ...but should time out at 20s
+      jest.advanceTimersByTime(10_000)
+      await Promise.resolve()
+      expect(promise).rejects.toEqual(
+        expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
+      )
+
+      process.env = originalEnv
+      jest.runOnlyPendingTimers()
+      jest.useRealTimers()
+    })
+
     it('should refresh token with 401 / The incoming token has expired', async () => {
       fetchMock.mockResponseOnce('The incoming token has expired', {
         status: 401,
@@ -106,9 +132,7 @@ describe('http', () => {
         statusText: 'ok',
       })
 
-      jest
-        .spyOn(awsAuth, 'fetchAuthSession')
-        .mockResolvedValueOnce({ tokens: { idToken: { toString: () => 'fresh token' } } } as any)
+      jest.spyOn(authToken, 'getAccessToken').mockResolvedValueOnce('fresh token')
 
       const response = await http.get('/secure', { headers: { Authorization: 'asdf' } })
 
@@ -122,7 +146,7 @@ describe('http', () => {
       })
 
       const err = new Error('auth err')
-      jest.spyOn(awsAuth, 'fetchAuthSession').mockRejectedValueOnce(err)
+      jest.spyOn(authToken, 'getAccessToken').mockRejectedValueOnce(err)
 
       const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
 
@@ -135,7 +159,7 @@ describe('http', () => {
         statusText: 'access denied',
       })
 
-      jest.spyOn(awsAuth, 'fetchAuthSession').mockResolvedValueOnce({})
+      jest.spyOn(authToken, 'getAccessToken').mockResolvedValueOnce(undefined)
 
       const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
 
