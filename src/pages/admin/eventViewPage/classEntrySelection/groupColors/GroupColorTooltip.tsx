@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react'
 import type { RegistrationDate } from '../../../../../types'
-
+import Tooltip from '@mui/material/Tooltip'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import Tooltip from '@mui/material/Tooltip'
 
 interface Props {
   readonly children: ReactElement
@@ -17,9 +16,10 @@ const GroupColorTooltip = ({ selected, children }: Props) => {
       selected.length &&
       'Sopivat ryhmät: ' +
         selected
-          .map(
-            (s) => t('dateFormat.weekday', { date: s.date }) + (s.time ? ' ' + t(`registration.time.${s.time}`) : '')
-          )
+          .map((s) => {
+            const timeText = s.time ? t(`registration.time.${s.time}`) : ''
+            return t('dateFormat.weekday', { date: s.date }) + (timeText ? ` ${timeText}` : '')
+          })
           .join(', '),
     [selected, t]
   )

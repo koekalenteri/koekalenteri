@@ -1,12 +1,11 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type { ContactInfo, DogEvent } from '../../../../types'
-
-import { useTranslation } from 'react-i18next'
 import { styled } from '@mui/material'
 import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import FormLabel from '@mui/material/FormLabel'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   contactInfo: Partial<ContactInfo> | undefined
@@ -16,7 +15,7 @@ interface Props {
 }
 
 const CONTACT_INFO_PROPS = ['name', 'email', 'phone'] as const
-const ContactInfoCheckbox = styled(Checkbox)({ paddingTop: 0, paddingBottom: 0 })
+const ContactInfoCheckbox = styled(Checkbox)({ paddingBottom: 0, paddingTop: 0 })
 
 const ContactInfoGroup = ({ contactInfo, event, group, setContactInfo }: Props) => {
   const { t } = useTranslation()
@@ -32,7 +31,7 @@ const ContactInfoGroup = ({ contactInfo, event, group, setContactInfo }: Props) 
             label={t(`contact.${prop}`)}
             checked={Boolean(contactInfo?.[group]?.[prop])}
             disabled={!event?.[group]?.[prop]}
-            onChange={(e, checked) =>
+            onChange={(_e, checked) =>
               setContactInfo((old) => ({
                 ...old,
                 [group]: {

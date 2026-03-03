@@ -3,7 +3,7 @@
 exports[`HeadquartersSection should render collapsed 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -24,10 +24,10 @@ exports[`HeadquartersSection should render collapsed 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -231,7 +231,7 @@ exports[`HeadquartersSection should render collapsed 1`] = `
 exports[`HeadquartersSection should render open 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -252,10 +252,10 @@ exports[`HeadquartersSection should render open 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"

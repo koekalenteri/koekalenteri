@@ -1,7 +1,5 @@
 import type { Diagnostic, LintSource } from '@codemirror/lint'
-
 import { EditorSelection } from '@uiw/react-codemirror'
-
 import { elemOf, isObj, resolveForCompletion, resolveScopeBaseForPath } from './TemplateEditor.utils'
 
 const HELPERS = new Set(['if', 'unless', 'each', 'else'])
@@ -16,7 +14,7 @@ function validatePath(base: any, parts: string[], start: number): PathValidation
   for (let j = start; j < parts.length; j++) {
     const seg = parts[j]
     if (seg === 'this' || seg === '..') continue
-    if (!isObj(cur) || !(seg in cur)) return { ok: false, badIdx: j }
+    if (!isObj(cur) || !(seg in cur)) return { badIdx: j, ok: false }
     cur = (cur as any)[seg]
     const el = elemOf(cur)
     if (el !== undefined) cur = el
@@ -29,7 +27,7 @@ function computeSegmentRange(innerStart: number, idmIndex: number, parts: string
   const segOffset = before ? before.length + 1 : 0
   const segStart = innerStart + idmIndex + segOffset
   const segEnd = segStart + parts[badIdx].length
-  return { segStart, segEnd }
+  return { segEnd, segStart }
 }
 
 function getSuggestKeys(base: any, parts: string[], start: number, upToExclusive: number): string[] {
@@ -72,20 +70,20 @@ export const getLintSource =
         const suggestFrom = getSuggestKeys(base, parts, start, badIdx)
 
         diagnostics.push({
-          from: segStart,
-          to: segEnd,
-          severity: 'warning',
-          message: `Unknown "${parts[badIdx]}" here.`,
           actions: suggestFrom.slice(0, 3).map((k) => ({
-            name: `Replace with "${k}"`,
             apply(v) {
               v.dispatch({
-                changes: { from: segStart, to: segEnd, insert: k },
+                changes: { from: segStart, insert: k, to: segEnd },
                 selection: EditorSelection.cursor(segStart + k.length),
                 userEvent: 'input.replace',
               })
             },
+            name: `Replace with "${k}"`,
           })),
+          from: segStart,
+          message: `Unknown "${parts[badIdx]}" here.`,
+          severity: 'warning',
+          to: segEnd,
         })
       }
     }

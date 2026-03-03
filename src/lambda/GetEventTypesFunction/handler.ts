@@ -1,7 +1,5 @@
 import type { JsonEventType, JsonUser } from '../../types'
-
 import { diff } from 'deep-object-diff'
-
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
@@ -21,7 +19,7 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
   for (const kieli of [KLKieli.Suomi, KLKieli.Ruotsi, KLKieli.Englanti]) {
     const { status, json, error } = await klapi.lueKoemuodot({ Kieli: kieli })
     if (status !== 200 || !json) {
-      console.error('lueKoemuodot', kieli, { status, error, json })
+      console.error('lueKoemuodot', kieli, { error, json, status })
       continue
     }
     for (const item of json) {
@@ -29,10 +27,10 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
       const eventType: JsonEventType = prev ?? {
         createdAt: timestamp,
         createdBy: user.name,
+        description: { en: '', fi: '', sv: '' },
+        eventType: item.lyhenne,
         modifiedAt: timestamp,
         modifiedBy: user.name,
-        eventType: item.lyhenne,
-        description: { fi: '', en: '', sv: '' },
         official: true,
       }
       if (!prev) eventTypes.push(eventType)

@@ -1,6 +1,4 @@
 import type { PublicDogEvent, Registration } from '../../../../types'
-
-import { useMemo } from 'react'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -9,15 +7,15 @@ import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
-
+import { useMemo } from 'react'
 import { hasPriority } from '../../../../lib/registration'
-import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import { IconsTooltip } from '../../../components/IconsTooltip'
+import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../components/RankingPoints'
-
 import PaymentIcon from './registrationIcons/PaymentIcon'
-import RegistrationTooltipContent from './registrationIcons/RegistrationTooltipContent'
-import { hasRegistrationTooltipContent } from './registrationIcons/RegistrationTooltipContent'
+import RegistrationTooltipContent, {
+  hasRegistrationTooltipContent,
+} from './registrationIcons/RegistrationTooltipContent'
 import StatusIcon from './registrationIcons/StatusIcon'
 
 interface RegistrationIconsProps {
@@ -34,7 +32,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   )
   const rankingPoints = useMemo(() => reg.qualifyingResults.reduce((acc, r) => acc + (r.rankingPoints ?? 0), 0), [reg])
 
-  const tooltipIcons = hasRegistrationTooltipContent({ reg, priority, manualResultCount, rankingPoints }) ? (
+  const tooltipIcons = hasRegistrationTooltipContent({ manualResultCount, priority, rankingPoints, reg }) ? (
     <RegistrationTooltipContent
       key="tooltip-content"
       event={event}

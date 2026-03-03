@@ -1,7 +1,5 @@
 import type { RegistrationDate } from '../../../../types'
-
 import { render } from '@testing-library/react'
-
 import GroupColors, { availableGroups, GROUP_COLORS } from './GroupColors'
 
 describe('GroupColors', () => {

@@ -1,5 +1,4 @@
 import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
-
 import http, { withToken } from './http'
 
 export const createPayment = async (
@@ -22,4 +21,4 @@ export const createRefund = async (
   token: string,
   signal?: AbortSignal
 ): Promise<RefundPaymentResponse | undefined> =>
-  http.post('/refund/create', { transactionId, amount }, withToken({ signal }, token))
+  http.post('/refund/create', { amount, transactionId }, withToken({ signal }, token))

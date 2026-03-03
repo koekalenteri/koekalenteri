@@ -1,11 +1,9 @@
 import type { DogEvent } from '../../../types'
-
+import { useSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
-import { useSnackbar } from 'notistack'
 import { useRecoilState, useResetRecoilState } from 'recoil'
-
 import { hasChanges } from '../../../lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
 
@@ -73,13 +71,13 @@ export default function useEventForm(options: EventFormOptions = {}) {
     if (onDoneRedirect) {
       navigate(onDoneRedirect)
     }
-  }, [navigate, resetEvent])
+  }, [navigate, resetEvent, onDoneRedirect])
 
   return {
-    event,
     changes,
+    event,
+    handleCancel,
     handleChange,
     handleSave,
-    handleCancel,
   }
 }

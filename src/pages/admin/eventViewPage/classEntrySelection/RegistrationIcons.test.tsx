@@ -1,19 +1,16 @@
 import type { Registration } from '../../../../types'
-
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import * as registrationUtils from '../../../../lib/registration'
-
 import RegistrationIcons from './RegistrationIcons'
 
 // Helper function to create a mock registration with default values
 const createMockRegistration = (overrides: Partial<Registration> = {}): Registration => ({
   ...registrationWithStaticDates,
-  notes: '',
   internalNotes: '',
+  notes: '',
   qualifyingResults: [],
   ...overrides,
 })
@@ -32,17 +29,17 @@ describe('RegistrationIcons component', () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
 
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner!, membership: false },
-      handler: { ...registrationWithStaticDates.handler!, membership: false },
-      paidAt: undefined,
-      refundAt: undefined,
-      refundStatus: undefined,
-      optionalCosts: [],
       confirmed: false,
+      handler: { ...registrationWithStaticDates.handler!, membership: false },
+      internalNotes: '',
       invitationRead: false,
       notes: '',
-      internalNotes: '',
+      optionalCosts: [],
+      owner: { ...registrationWithStaticDates.owner!, membership: false },
+      paidAt: undefined,
       qualifyingResults: [],
+      refundAt: undefined,
+      refundStatus: undefined,
     })
 
     jest.spyOn(registrationUtils, 'hasPriority').mockReturnValue(false)
@@ -61,24 +58,24 @@ describe('RegistrationIcons component', () => {
   it('should render icons with correct opacity based on registration properties', () => {
     // Mock a registration with all properties set
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner!, membership: true },
-      handler: { ...registrationWithStaticDates.handler!, membership: true },
-      paidAt: new Date(),
       confirmed: true,
+      handler: { ...registrationWithStaticDates.handler!, membership: true },
+      internalNotes: 'Internal notes',
       invitationRead: true,
       notes: 'Some notes',
-      internalNotes: 'Internal notes',
+      owner: { ...registrationWithStaticDates.owner!, membership: true },
+      paidAt: new Date(),
       qualifyingResults: [
         {
-          id: '1',
-          regNo: '123',
-          official: false,
-          result: 'ALO1',
-          date: new Date(),
-          type: 'NOME-B',
           class: 'ALO',
-          location: 'Test Location',
+          date: new Date(),
+          id: '1',
           judge: 'Test Judge',
+          location: 'Test Location',
+          official: false,
+          regNo: '123',
+          result: 'ALO1',
+          type: 'NOME-B',
         },
       ],
     })
@@ -96,13 +93,13 @@ describe('RegistrationIcons component', () => {
   it('should render icons with correct opacity when properties are not set', () => {
     // Mock a registration with no properties set
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner!, membership: false },
-      handler: { ...registrationWithStaticDates.handler!, membership: false },
-      paidAt: undefined,
       confirmed: false,
+      handler: { ...registrationWithStaticDates.handler!, membership: false },
+      internalNotes: '',
       invitationRead: false,
       notes: '',
-      internalNotes: '',
+      owner: { ...registrationWithStaticDates.owner!, membership: false },
+      paidAt: undefined,
       qualifyingResults: [],
     })
 
@@ -119,10 +116,10 @@ describe('RegistrationIcons component', () => {
   it('should render refund icon when registration has been refunded', () => {
     // Mock a registration with refund
     const mockReg = createMockRegistration({
-      paidAt: new Date(),
-      refundAt: new Date(),
       paidAmount: 5000,
+      paidAt: new Date(),
       refundAmount: 2500,
+      refundAt: new Date(),
     })
 
     // Render the component
@@ -135,10 +132,10 @@ describe('RegistrationIcons component', () => {
   it('should render refund icon when refund is pending', () => {
     // Mock a registration with pending refund
     const mockReg = createMockRegistration({
-      paidAt: new Date(),
-      refundStatus: 'PENDING',
       paidAmount: 5000,
+      paidAt: new Date(),
       refundAmount: 2500,
+      refundStatus: 'PENDING',
     })
 
     // Render the component
@@ -153,37 +150,37 @@ describe('RegistrationIcons component', () => {
     const mockReg = createMockRegistration({
       qualifyingResults: [
         {
+          class: 'ALO',
+          date: new Date(),
           id: '1',
-          regNo: '123',
-          official: false, // manual result
-          result: 'ALO1',
-          date: new Date(),
-          type: 'NOME-B',
-          class: 'ALO',
-          location: 'Test Location',
           judge: 'Test Judge',
+          location: 'Test Location',
+          official: false, // manual result
+          regNo: '123',
+          result: 'ALO1',
+          type: 'NOME-B',
         },
         {
+          class: 'ALO',
+          date: new Date(),
           id: '2',
-          regNo: '123',
-          official: true, // official result
-          result: 'ALO1',
-          date: new Date(),
-          type: 'NOME-B',
-          class: 'ALO',
-          location: 'Test Location',
           judge: 'Test Judge',
+          location: 'Test Location',
+          official: true, // official result
+          regNo: '123',
+          result: 'ALO1',
+          type: 'NOME-B',
         },
         {
-          id: '3',
-          regNo: '123',
-          official: false, // manual result
-          result: 'ALO2',
-          date: new Date(),
-          type: 'NOME-B',
           class: 'ALO',
-          location: 'Test Location',
+          date: new Date(),
+          id: '3',
           judge: 'Test Judge',
+          location: 'Test Location',
+          official: false, // manual result
+          regNo: '123',
+          result: 'ALO2',
+          type: 'NOME-B',
         },
       ],
     })
@@ -200,40 +197,40 @@ describe('RegistrationIcons component', () => {
     const mockReg = createMockRegistration({
       qualifyingResults: [
         {
+          class: 'ALO',
+          date: new Date(),
           id: '1',
-          regNo: '123',
+          judge: 'Test Judge',
+          location: 'Test Location',
           official: true,
-          result: 'ALO1',
-          date: new Date(),
-          type: 'NOME-B',
-          class: 'ALO',
           rankingPoints: 3,
-          location: 'Test Location',
-          judge: 'Test Judge',
-        },
-        {
-          id: '2',
           regNo: '123',
-          official: true,
           result: 'ALO1',
-          date: new Date(),
           type: 'NOME-B',
-          class: 'ALO',
-          rankingPoints: 2,
-          location: 'Test Location',
-          judge: 'Test Judge',
         },
         {
-          id: '3',
-          regNo: '123',
-          official: true,
-          result: 'ALO2',
-          date: new Date(),
-          type: 'NOME-B',
           class: 'ALO',
+          date: new Date(),
+          id: '2',
+          judge: 'Test Judge',
+          location: 'Test Location',
+          official: true,
+          rankingPoints: 2,
+          regNo: '123',
+          result: 'ALO1',
+          type: 'NOME-B',
+        },
+        {
+          class: 'ALO',
+          date: new Date(),
+          id: '3',
+          judge: 'Test Judge',
           // No ranking points for this result
           location: 'Test Location',
-          judge: 'Test Judge',
+          official: true,
+          regNo: '123',
+          result: 'ALO2',
+          type: 'NOME-B',
         },
       ],
     })
@@ -249,8 +246,8 @@ describe('RegistrationIcons component', () => {
   it('should handle priority 0.5 with owner membership correctly', () => {
     // Mock a registration with priority 0.5 and owner membership
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner!, membership: true },
       handler: { ...registrationWithStaticDates.handler!, membership: false },
+      owner: { ...registrationWithStaticDates.owner!, membership: true },
     })
 
     // Spy on the hasPriority function to return 0.5
@@ -267,8 +264,8 @@ describe('RegistrationIcons component', () => {
   it('should handle priority 0.5 with handler membership correctly', () => {
     // Mock a registration with priority 0.5 and handler membership
     const mockReg = createMockRegistration({
-      owner: { ...registrationWithStaticDates.owner!, membership: false },
       handler: { ...registrationWithStaticDates.handler!, membership: true },
+      owner: { ...registrationWithStaticDates.owner!, membership: false },
     })
 
     // Spy on the hasPriority function to return 0.5
@@ -285,8 +282,8 @@ describe('RegistrationIcons component', () => {
   it('should handle paid registration without refund', () => {
     // Mock a registration that is paid but not refunded
     const mockReg = createMockRegistration({
-      paidAt: new Date(),
       paidAmount: 5000,
+      paidAt: new Date(),
       refundAmount: 0,
       refundAt: undefined,
       refundStatus: undefined,

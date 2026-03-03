@@ -1,7 +1,4 @@
 import type { EventResultRequirementsByDate, ManualTestResult, QualifyingResult, TestResult } from '../../../../types'
-
-import { useCallback } from 'react'
-import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -10,11 +7,11 @@ import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { DatePicker } from '@mui/x-date-pickers'
 import { addMonths } from 'date-fns'
-
+import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import AutocompleteSingle from '../../AutocompleteSingle'
 import RankingPoints from '../../RankingPoints'
 import { useLocalStateGroup } from '../hooks/useLocalStateGroup'
-
 import { availableResults, availableTypes, resultBorderColor } from './utils'
 
 interface Props {
@@ -42,8 +39,8 @@ const getSuffix = (
 const parseResult = (result?: string): Partial<TestResult> => {
   if (!result) return {}
 
-  if (result === 'FI KVA-B') return { result: 'FI KVA-B', class: 'VOI' }
-  if (result === 'FI KVA-WT') return { result: 'FI KVA-WT', class: 'VOI' }
+  if (result === 'FI KVA-B') return { class: 'VOI', result: 'FI KVA-B' }
+  if (result === 'FI KVA-WT') return { class: 'VOI', result: 'FI KVA-WT' }
   if (result === 'FI KVA-FT') return { result: 'FI KVA-FT' }
 
   const resCert = result.includes('RES-CERT')
@@ -54,12 +51,12 @@ const parseResult = (result?: string): Partial<TestResult> => {
   const testClass = realResult.length === 4 ? realResult.slice(0, -1) : undefined
 
   return {
-    result: realResult,
-    cert,
-    resCert,
     cacit,
-    resCacit,
+    cert,
     class: testClass,
+    resCacit,
+    resCert,
+    result: realResult,
   }
 }
 
@@ -81,11 +78,11 @@ export default function QualifyingResultRow({
   // Group local state for all form fields with a single debounced update
   const [formValues, updateField] = useLocalStateGroup(
     {
-      type: result.type,
-      result: `${result.result}${getSuffix(result)}`,
       date: result.date,
-      location: result.location || '',
       judge: result.judge || '',
+      location: result.location || '',
+      result: `${result.result}${getSuffix(result)}`,
+      type: result.type,
     },
     (values) => {
       if (isManualResult(result)) {
@@ -97,8 +94,8 @@ export default function QualifyingResultRow({
           type: values.type,
           ...resultProps,
           date: values.date,
-          location: values.location,
           judge: values.judge,
+          location: values.location,
           rankingPoints: undefined,
         })
       }
@@ -111,7 +108,7 @@ export default function QualifyingResultRow({
 
   return (
     <Grid container spacing={1} alignItems="center" width="100%">
-      <Grid size={{ xs: 6, sm: 3.5, md: 2 }}>
+      <Grid size={{ md: 2, sm: 3.5, xs: 6 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
@@ -128,7 +125,7 @@ export default function QualifyingResultRow({
           value={formValues.type}
         />
       </Grid>
-      <Grid size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
+      <Grid size={{ lg: 2, md: 2.5, sm: 4, xs: 6 }}>
         <AutocompleteSingle
           disabled={result.official || disabled}
           disableClearable
@@ -138,18 +135,18 @@ export default function QualifyingResultRow({
             updateField('result', value)
           }}
           sx={{
+            '& .Mui-disabled .MuiOutlinedInput-notchedOutline': {
+              borderColor: resultBorderColor(result.qualifying),
+            },
             '& fieldset': {
               borderColor: resultBorderColor(result.qualifying),
               borderWidth: !result.result || result.qualifying === undefined ? undefined : 2,
-            },
-            '& .Mui-disabled .MuiOutlinedInput-notchedOutline': {
-              borderColor: resultBorderColor(result.qualifying),
             },
           }}
           value={formValues.result}
         />
       </Grid>
-      <Grid size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}>
+      <Grid size={{ lg: 2, md: 2.5, sm: 4, xs: 6 }}>
         <FormControl fullWidth>
           <DatePicker
             disabled={result.official || disabled}
@@ -165,7 +162,7 @@ export default function QualifyingResultRow({
           />
         </FormControl>
       </Grid>
-      <Grid size={{ xs: 6, sm: 3.5, md: 2 }}>
+      <Grid size={{ md: 2, sm: 3.5, xs: 6 }}>
         <TextField
           disabled={result.official || disabled}
           error={!formValues.location}
@@ -175,7 +172,7 @@ export default function QualifyingResultRow({
           value={formValues.location}
         />
       </Grid>
-      <Grid size={{ xs: 12, sm: 4, md: 3, lg: 2 }}>
+      <Grid size={{ lg: 2, md: 3, sm: 4, xs: 12 }}>
         <TextField
           disabled={result.official || disabled}
           error={!formValues.judge}

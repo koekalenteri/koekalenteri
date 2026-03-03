@@ -24,22 +24,22 @@ export const HEADER_HEIGHT = '36px'
 const theme = createTheme({
   breakpoints: {
     values: {
-      xs: 0,
-      sm: 600,
-      md: 900,
       lg: 1200,
+      md: 900,
+      sm: 600,
       xl: 1900,
+      xs: 0,
     },
   },
   components: {
-    MuiDatePicker: {
-      defaultProps: {
-        desktopModeMediaQuery: '(min-width:600px)',
-      },
-    },
     MuiDataGrid: {
       defaultProps: {
         rowHeight: 40,
+      },
+    },
+    MuiDatePicker: {
+      defaultProps: {
+        desktopModeMediaQuery: '(min-width:600px)',
       },
     },
     MuiStack: {
@@ -64,33 +64,33 @@ const theme = createTheme({
     },
   },
   palette: {
-    primary: {
-      light: '#547463',
-      main: '#222',
-      dark: '#1d392a',
-      contrastText: '#fff',
-    },
-    secondary: {
-      light: '#f7ebcf',
-      main: '#fcfcfc', // '#98A59E',
-      dark: '#aca189',
-      contrastText: '#000',
+    background: {
+      caption: 'transparent',
+      default: '#fcfdfd',
+      evenRow: '#f5f5f5',
+      filter: '#fff',
+      filterHeader: '#d5e1db',
+      form: '#f2f2f2',
+      hover: '#AFC1B7',
+      oddRow: '#ffffff',
+      ok: '#c1d4c9',
+      selected: '#D5E1DB',
+      tableHead: '#d8d8d8',
     },
     error: {
       main: red.A400,
     },
-    background: {
-      caption: 'transparent',
-      default: '#fcfdfd',
-      filter: '#fff',
-      filterHeader: '#d5e1db',
-      form: '#f2f2f2',
-      oddRow: '#ffffff',
-      evenRow: '#f5f5f5',
-      tableHead: '#d8d8d8',
-      ok: '#c1d4c9',
-      hover: '#AFC1B7',
-      selected: '#D5E1DB',
+    primary: {
+      contrastText: '#fff',
+      dark: '#1d392a',
+      light: '#547463',
+      main: '#222',
+    },
+    secondary: {
+      contrastText: '#000',
+      dark: '#aca189',
+      light: '#f7ebcf',
+      main: '#fcfcfc', // '#98A59E',
     },
   },
   typography: {
@@ -99,8 +99,8 @@ const theme = createTheme({
     },
   },
   zIndex: {
-    snackbar: 2200,
     drawer: 1000,
+    snackbar: 2200,
   },
 })
 

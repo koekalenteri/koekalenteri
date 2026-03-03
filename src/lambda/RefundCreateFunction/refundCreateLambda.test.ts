@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
@@ -15,16 +15,14 @@ const mockDynamoWrite = jest.fn<any>()
 const mockDynamoUpdate = jest.fn<any>()
 const mockDynamoClient = jest.fn(() => ({
   read: mockDynamoRead,
-  write: mockDynamoWrite,
   update: mockDynamoUpdate,
+  write: mockDynamoWrite,
 }))
 const mockNanoid = jest.fn<any>()
 const mockFormatMoney = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
   LambdaError: class LambdaError extends Error {
     status: number
     constructor(status: number, message: string) {
@@ -32,6 +30,8 @@ jest.unstable_mockModule('../lib/lambda', () => ({
       this.status = status
     }
   },
+  lambda: mockLambda,
+  response: mockResponse,
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({
@@ -84,20 +84,20 @@ const { default: refundCreateLambda } = await import('./handler')
 describe('refundCreateLambda', () => {
   const event = {
     body: JSON.stringify({
-      transactionId: 'transaction123',
       amount: 1000,
+      transactionId: 'transaction123',
     }),
     headers: {},
   } as any
 
   const mockPaymentTransaction = {
-    transactionId: 'transaction123',
-    reference: 'event123:reg456',
     items: [
       {
         stamp: 'item123',
       },
     ],
+    reference: 'event123:reg456',
+    transactionId: 'transaction123',
   }
 
   const mockConfirmedEvent = {
@@ -121,9 +121,9 @@ describe('refundCreateLambda', () => {
   }
 
   const mockRefundResult = {
-    transactionId: 'refund123',
-    status: 'ok',
     provider: 'paytrail',
+    status: 'ok',
+    transactionId: 'refund123',
   }
 
   beforeEach(() => {
@@ -136,8 +136,8 @@ describe('refundCreateLambda', () => {
     })
 
     mockParseJSONWithFallback.mockReturnValue({
-      transactionId: 'transaction123',
       amount: 1000,
+      transactionId: 'transaction123',
     })
 
     mockGetApiHost.mockReturnValue('api.example.com')
@@ -178,8 +178,8 @@ describe('refundCreateLambda', () => {
 
   it('throws error if amount is invalid', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({
-      transactionId: 'transaction123',
       amount: 0,
+      transactionId: 'transaction123',
     })
 
     await expect(refundCreateLambda(event)).rejects.toThrow("Invalid amount: '0'")
@@ -259,9 +259,9 @@ describe('refundCreateLambda', () => {
       [
         {
           amount: 1000,
-          stamp: 'item123',
-          refundStamp: 'stamp123',
           refundReference: 'reg456',
+          refundStamp: 'stamp123',
+          stamp: 'item123',
         },
       ],
       undefined,
@@ -270,22 +270,22 @@ describe('refundCreateLambda', () => {
 
     // Verify transaction was written
     expect(mockDynamoWrite).toHaveBeenCalledWith({
-      transactionId: 'refund123',
-      status: 'ok',
       amount: 1000,
-      reference: 'event123:reg456',
-      provider: 'paytrail',
-      type: 'refund',
-      stamp: 'stamp123',
+      createdAt: expect.any(String),
       items: [
         {
           amount: 1000,
-          stamp: 'item123',
-          refundStamp: 'stamp123',
           refundReference: 'reg456',
+          refundStamp: 'stamp123',
+          stamp: 'item123',
         },
       ],
-      createdAt: expect.any(String),
+      provider: 'paytrail',
+      reference: 'event123:reg456',
+      stamp: 'stamp123',
+      status: 'ok',
+      transactionId: 'refund123',
+      type: 'refund',
       user: 'Test User',
     })
 
@@ -318,8 +318,8 @@ describe('refundCreateLambda', () => {
       }
       if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
         return Promise.resolve({
-          transactionId: 'transaction123',
           reference: 'event123:reg456',
+          transactionId: 'transaction123',
         })
       }
       return Promise.resolve(null)
@@ -340,15 +340,15 @@ describe('refundCreateLambda', () => {
 
     // Verify transaction was written
     expect(mockDynamoWrite).toHaveBeenCalledWith({
-      transactionId: 'refund123',
-      status: 'ok',
       amount: 1000,
-      reference: 'event123:reg456',
-      provider: 'paytrail',
-      type: 'refund',
-      stamp: 'stamp123',
-      items: undefined,
       createdAt: expect.any(String),
+      items: undefined,
+      provider: 'paytrail',
+      reference: 'event123:reg456',
+      stamp: 'stamp123',
+      status: 'ok',
+      transactionId: 'refund123',
+      type: 'refund',
       user: 'Test User',
     })
   })
@@ -369,9 +369,9 @@ describe('refundCreateLambda', () => {
     })
 
     mockRefundPayment.mockResolvedValueOnce({
-      transactionId: 'refund123',
-      status: 'pending',
       provider: 'paytrail',
+      status: 'pending',
+      transactionId: 'refund123',
     })
 
     await refundCreateLambda(event)
@@ -411,9 +411,9 @@ describe('refundCreateLambda', () => {
     })
 
     mockRefundPayment.mockResolvedValueOnce({
-      transactionId: 'refund123',
-      status: 'ok',
       provider: 'email refund',
+      status: 'ok',
+      transactionId: 'refund123',
     })
 
     await refundCreateLambda(event)
@@ -448,9 +448,9 @@ describe('refundCreateLambda', () => {
       }
       if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
         return Promise.resolve({
-          transactionId: 'transaction123',
-          reference: 'event123:reg456',
           items: [{ stamp: 'item1' }, { stamp: 'item2' }],
+          reference: 'event123:reg456',
+          transactionId: 'transaction123',
         })
       }
       return Promise.resolve(null)
@@ -463,8 +463,8 @@ describe('refundCreateLambda', () => {
   it('creates a partial refund with complex cost structure', async () => {
     const partialRefundAmount = 500
     mockParseJSONWithFallback.mockReturnValue({
-      transactionId: 'transaction123',
       amount: partialRefundAmount,
+      transactionId: 'transaction123',
     })
 
     await refundCreateLambda(event)
@@ -477,9 +477,9 @@ describe('refundCreateLambda', () => {
       [
         {
           amount: partialRefundAmount,
-          stamp: 'item123',
-          refundStamp: 'stamp123',
           refundReference: 'reg456',
+          refundStamp: 'stamp123',
+          stamp: 'item123',
         },
       ],
       undefined,

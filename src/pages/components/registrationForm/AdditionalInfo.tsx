@@ -1,12 +1,9 @@
 import type { ChangeEventHandler } from 'react'
 import type { Registration } from '../../../types'
-
+import TextField from '@mui/material/TextField'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import TextField from '@mui/material/TextField'
-
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useLocalState } from './hooks/useLocalState'
 
 interface Props {
@@ -24,6 +21,7 @@ export function AdditionalInfo({ disabled, notes, onChange, onOpenChange, open }
   const [value, setValue] = useLocalState(notes ?? '', (newValue) => onChange?.({ notes: newValue }))
 
   // Update local state when props change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: setValue is stable
   useEffect(() => {
     setValue(notes ?? '')
   }, [notes])

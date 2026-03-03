@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react'
-
-import { MemoryRouter } from 'react-router'
 import { render, screen } from '@testing-library/react'
-
+import { MemoryRouter } from 'react-router'
 import { AdminLink } from './AdminLink'
 
 const Wrapper = (props: { readonly children?: ReactNode }) => {

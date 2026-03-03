@@ -1,5 +1,4 @@
 import type { AuditRecord, JsonAuditRecord, JsonRegistration } from '../../types'
-
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -20,8 +19,8 @@ export const auditTrail = async (auditKey: string) => {
   try {
     const items = await dynamoDB.query<JsonAuditRecord>({
       key: 'auditKey = :auditKey',
-      values: { ':auditKey': auditKey },
       table: auditTable,
+      values: { ':auditKey': auditKey },
     })
     return items ?? []
   } catch (e) {

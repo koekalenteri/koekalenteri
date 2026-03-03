@@ -1,8 +1,6 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { DogEvent, EventClass } from '../../../types'
-
 import { useTranslation } from 'react-i18next'
-
 import { getEventTitle } from '../../../hooks/useEventTitle'
 import { localeSortComparator } from '../../../lib/datagrid'
 
@@ -20,24 +18,24 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       align: 'right',
       field: 'date',
       headerName: t('date'),
-      width: 120,
-      sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
-      valueGetter: (_value, row) => ({ start: row.startDate, end: row.endDate }),
-      valueFormatter: (value) => t('dateFormat.datespan', value as StartEndDate),
       hideable: false,
+      sortComparator: (a, b) => (b as StartEndDate).start.valueOf() - (a as StartEndDate).start.valueOf(),
+      valueFormatter: (value) => t('dateFormat.datespan', value as StartEndDate),
+      valueGetter: (_value, row) => ({ end: row.endDate, start: row.startDate }),
+      width: 120,
     },
     {
       field: 'eventType',
-      headerName: t('event.eventType'),
-      minWidth: 100,
       flex: 1,
+      headerName: t('event.eventType'),
       hideable: false,
+      minWidth: 100,
     },
     {
       field: 'classes',
+      flex: 1,
       headerName: t('event.classes'),
       minWidth: 100,
-      flex: 1,
       valueGetter: (_value, row) =>
         ((row.classes || []) as Array<EventClass | string>)
           .map((c) => (typeof c === 'string' ? c : c.class))
@@ -45,65 +43,65 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
     },
     {
       field: 'organizer',
+      flex: 2,
       headerName: t('event.organizer'),
       minWidth: 100,
-      valueGetter: (_value, row) => row.organizer.name,
-      flex: 2,
       sortComparator: localeSortComparator,
+      valueGetter: (_value, row) => row.organizer.name,
     },
     {
       field: 'name',
+      flex: 2,
       headerName: t('event.name'),
       minWidth: 100,
-      flex: 2,
       sortComparator: localeSortComparator,
     },
     {
       field: 'location',
+      flex: 1,
       headerName: t('event.location'),
       minWidth: 100,
-      flex: 1,
       sortComparator: localeSortComparator,
     },
     {
       field: 'secretary',
+      flex: 1,
       headerName: t('event.secretary'),
       minWidth: 100,
-      flex: 1,
-      valueGetter: (_value, row) => row.secretary?.name ?? '',
       sortComparator: localeSortComparator,
+      valueGetter: (_value, row) => row.secretary?.name ?? '',
     },
     {
       field: 'official',
+      flex: 1,
       headerName: t('event.official'),
       minWidth: 100,
-      flex: 1,
-      valueGetter: (_value, row) => row.official?.name,
       sortComparator: localeSortComparator,
+      valueGetter: (_value, row) => row.official?.name,
     },
     {
       field: 'judges',
+      flex: 1,
       headerName: t('judgeChief'),
       minWidth: 100,
-      flex: 1,
-      valueGetter: (_value, row) => row.judges?.[0]?.name,
       sortComparator: localeSortComparator,
+      valueGetter: (_value, row) => row.judges?.[0]?.name,
     },
     {
+      align: 'right',
       field: 'places',
       headerName: t('places'),
-      align: 'right',
-      width: 80,
       valueGetter: (_value, row) => `${row.entries ?? '0'} / ${row.places ?? '0'}`,
+      width: 80,
     },
     {
       field: 'state',
-      headerName: t('event.state'),
       flex: 1,
-      type: 'string',
-      valueGetter: (_value, row) => getEventTitle(row, t),
+      headerName: t('event.state'),
       hideable: false,
       sortComparator: localeSortComparator,
+      type: 'string',
+      valueGetter: (_value, row) => getEventTitle(row, t),
     },
   ]
 }

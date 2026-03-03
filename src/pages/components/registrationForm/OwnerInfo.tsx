@@ -1,16 +1,13 @@
 import type { DeepPartial, Registration, RegistrationPerson } from '../../../types'
-
-import { useCallback, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
 import Switch from '@mui/material/Switch'
 import TextField from '@mui/material/TextField'
 import { MuiTelInput } from 'mui-tel-input'
-
+import { useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import CollapsibleSection from '../CollapsibleSection'
-
 import { useDogCacheKey } from './hooks/useDogCacheKey'
 import { useLocalStateGroup } from './hooks/useLocalStateGroup'
 
@@ -51,12 +48,12 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
   // Group local state for all form fields
   const [formValues, updateField] = useLocalStateGroup(
     {
-      name: reg.owner?.name ?? '',
-      location: reg.owner?.location ?? '',
       email: reg.owner?.email ?? '',
-      phone: reg.owner?.phone ?? '',
+      location: reg.owner?.location ?? '',
+      name: reg.owner?.name ?? '',
       ownerHandles: reg.ownerHandles ?? true,
       ownerPays: reg.ownerPays ?? true,
+      phone: reg.owner?.phone ?? '',
     },
     (values) => {
       // Handle field updates as a group
@@ -70,9 +67,9 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
         phone !== reg.owner?.phone
       ) {
         handleChange({
-          name,
-          location,
           email,
+          location,
+          name,
           phone,
         })
       }
@@ -107,7 +104,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
     >
       <form>
         <Grid container spacing={1}>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ sm: 6, xs: 12 }}>
             <TextField
               disabled={disabled}
               error={!reg.owner?.name}
@@ -122,7 +119,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
               }}
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ sm: 6, xs: 12 }}>
             <TextField
               disabled={disabled}
               error={!reg.owner?.location}
@@ -137,7 +134,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
               }}
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ sm: 6, xs: 12 }}>
             <TextField
               disabled={disabled}
               error={!reg.owner?.email}
@@ -152,7 +149,7 @@ export function OwnerInfo({ admin, reg, disabled, error, helperText, onChange, o
               }}
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid size={{ sm: 6, xs: 12 }}>
             <MuiTelInput
               langOfCountryName={i18n.language}
               defaultCountry="FI"

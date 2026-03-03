@@ -1,13 +1,10 @@
 import type { EventType, Judge, PublicJudge } from '../../../../../types'
 import type { SectionProps } from '../types'
-
-import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-
+import { useTranslation } from 'react-i18next'
 import AutocompleteSingle from '../../../../components/AutocompleteSingle'
-
 import JudgeClasses from './JudgeClasses'
 import { filterClassesByJudgeId, filterJudges, updateJudge } from './utils'
 
@@ -21,7 +18,7 @@ interface Props extends Pick<SectionProps, 'event' | 'disabled' | 'onChange'> {
 export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, disabled, onChange }: Props) => {
   const { t } = useTranslation()
 
-  const title = selectedEventType?.official && index === 0 ? t('judgeChief') : t('judge') + ` ${index + 1}`
+  const title = selectedEventType?.official && index === 0 ? t('judgeChief') : `${t('judge')} ${index + 1}`
   const value = judges.find((j) => j.id === judge.id)
 
   return (
@@ -45,8 +42,8 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
               newJudges.splice(index, 0, newJudge)
             }
             onChange?.({
-              judges: newJudges,
               classes: updateJudge(event, judge?.id, newJudge, filterClassesByJudgeId(event.classes, oldJudge.id)),
+              judges: newJudges,
             })
           }}
         />
@@ -58,8 +55,8 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
           disabled={disabled || (selectedEventType?.official && index === 0)}
           onClick={() =>
             onChange?.({
-              judges: event.judges.filter((j) => j !== judge),
               classes: updateJudge(event, judge.id, undefined, []),
+              judges: event.judges.filter((j) => j !== judge),
             })
           }
         >

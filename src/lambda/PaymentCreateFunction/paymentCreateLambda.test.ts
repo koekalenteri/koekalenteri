@@ -1,7 +1,5 @@
 import type { CreatePaymentResponse, JsonConfirmedEvent, JsonRegistration, Organizer } from '../../types'
-
 import { jest } from '@jest/globals'
-
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
@@ -23,9 +21,9 @@ jest.unstable_mockModule('../lib/event', () => ({
 }))
 
 jest.unstable_mockModule('../lib/paytrail', () => ({
+  calculateHmac: jest.fn(),
   createPayment: mockCreatePayment,
   HMAC_KEY_PREFIX: 'checkout-',
-  calculateHmac: jest.fn(),
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
@@ -37,8 +35,8 @@ jest.unstable_mockModule('../lib/payment', () => ({
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     read: mockRead,
-    write: mockWrite,
     update: mockUpdate,
+    write: mockWrite,
   })),
 }))
 
@@ -47,61 +45,61 @@ const { default: paymentCreateLambda } = await import('./handler')
 // --- Test Data Factories ---
 
 const createMockConfirmedEvent = (overrides: Partial<JsonConfirmedEvent> = {}): JsonConfirmedEvent => ({
-  id: 'event123',
-  organizer: { id: 'org789', name: 'Test Organizer' },
+  classes: [],
+  contactInfo: {},
   cost: 50,
   costMember: 40,
-  name: 'Test Event',
-  location: 'Test Location',
-  startDate: '2025-01-01',
+  createdAt: '2025-01-01T00:00:00.000Z',
+  createdBy: 'test-user',
+  description: '',
   endDate: '2025-01-02',
+  entries: 0,
   entryEndDate: '2025-01-01',
   entryStartDate: '2025-01-01',
   eventType: 'Test Type',
-  classes: [],
-  contactInfo: {},
-  entries: 0,
-  state: 'confirmed',
-  createdAt: '2025-01-01T00:00:00.000Z',
-  createdBy: 'test-user',
+  id: 'event123',
   judges: [],
-  official: { name: 'official', email: 'official@example.com' },
-  secretary: { name: 'secretary', email: 'secretary@example.com' },
+  location: 'Test Location',
   modifiedAt: '2025-01-01T00:00:00.000Z',
   modifiedBy: 'test-user',
-  description: '',
+  name: 'Test Event',
+  official: { email: 'official@example.com', name: 'official' },
+  organizer: { id: 'org789', name: 'Test Organizer' },
   places: 10,
+  secretary: { email: 'secretary@example.com', name: 'secretary' },
+  startDate: '2025-01-01',
+  state: 'confirmed',
   ...overrides,
 })
 
 const createMockRegistration = (overrides: Partial<JsonRegistration> = {}): JsonRegistration => ({
-  eventId: 'event123',
-  id: 'reg456',
-  payer: {
-    name: 'Test Payer',
-    email: 'test@example.com',
-    phone: '1234567890',
-  },
-  handler: { name: 'Test Handler', email: 'handler@exmaple.com', membership: true },
-  owner: { name: 'Test Owner', email: 'owner@example.com', membership: false },
+  agreeToTerms: true,
+  breeder: { name: 'Test Breeder' },
   cancelled: false,
-  paidAmount: 0,
+  class: 'AVO',
   createdAt: '2025-01-01T00:00:00.000Z',
   createdBy: 'test-user',
+  dates: [],
+  dog: {} as any,
+  eventId: 'event123',
+  eventType: 'Test Type',
+  handler: { email: 'handler@exmaple.com', membership: true, name: 'Test Handler' },
+  id: 'reg456',
+  language: 'fi',
   modifiedAt: '2025-01-01T00:00:00.000Z',
   modifiedBy: 'test-user',
-  agreeToTerms: true,
-  class: 'AVO',
-  dog: {} as any,
-  language: 'fi',
   notes: '',
+  owner: { email: 'owner@example.com', membership: false, name: 'Test Owner' },
+  paidAmount: 0,
+  payer: {
+    email: 'test@example.com',
+    name: 'Test Payer',
+    phone: '1234567890',
+  },
   paymentStatus: 'PENDING',
   qualifyingResults: [],
-  state: 'ready',
-  breeder: { name: 'Test Breeder' },
-  dates: [],
-  eventType: 'Test Type',
   reserve: '',
+  state: 'ready',
   ...overrides,
 })
 
@@ -113,13 +111,13 @@ const createMockOrganizer = (overrides: Partial<Organizer> = {}): Organizer => (
 })
 
 const createMockPaymentResponse = (overrides: Partial<CreatePaymentResponse> = {}): CreatePaymentResponse => ({
-  transactionId: 'tx123',
+  customProviders: {},
+  groups: [],
   href: 'https://payment.example.com/tx123',
+  providers: [],
   reference: 'ref123',
   terms: 'terms',
-  groups: [],
-  providers: [],
-  customProviders: {},
+  transactionId: 'tx123',
   ...overrides,
 })
 
@@ -133,8 +131,8 @@ describe('paymentCreateLambda', () => {
     },
     {
       headers: {
-        origin: 'https://example.com',
         Host: 'api.example.com',
+        origin: 'https://example.com',
       },
     }
   )
@@ -187,11 +185,11 @@ describe('paymentCreateLambda', () => {
 
     expect(mockWrite).toHaveBeenCalledWith(
       expect.objectContaining({
-        transactionId: 'tx123',
-        status: 'new',
         amount: expectedAmount,
-        reference: 'event123:reg456',
         bankReference: 'ref123',
+        reference: 'event123:reg456',
+        status: 'new',
+        transactionId: 'tx123',
         user: 'Test User',
       })
     )
@@ -209,7 +207,7 @@ describe('paymentCreateLambda', () => {
     mockRead.mockReset()
     mockRead
       .mockResolvedValueOnce(
-        createMockRegistration({ handler: { name: 'Test Handler', email: 'handler@exmaple.com', membership: false } })
+        createMockRegistration({ handler: { email: 'handler@exmaple.com', membership: false, name: 'Test Handler' } })
       )
       .mockResolvedValueOnce(createMockOrganizer())
 
@@ -290,25 +288,25 @@ describe('paymentCreateLambda', () => {
     mockRead.mockReset()
     mockGetEvent.mockResolvedValue(
       createMockConfirmedEvent({
-        cost: { normal: 50, earlyBird: { days: 1, cost: 30 } },
-        costMember: { normal: 40, earlyBird: { days: 1, cost: 25 } },
+        cost: { earlyBird: { cost: 30, days: 1 }, normal: 50 },
+        costMember: { earlyBird: { cost: 25, days: 1 }, normal: 40 },
       })
     )
     mockRead
-      .mockResolvedValueOnce(createMockRegistration({ paidAmount: 20, createdAt: '2024-12-31T00:00:00.000Z' })) // member, earlybird
+      .mockResolvedValueOnce(createMockRegistration({ createdAt: '2024-12-31T00:00:00.000Z', paidAmount: 20 })) // member, earlybird
       .mockResolvedValueOnce(createMockOrganizer())
 
     await paymentCreateLambda(event)
 
     expect(mockCreatePayment).toHaveBeenCalledWith({
-      apiHost: expect.any(String),
-      origin: expect.any(String),
       amount: 500, // (25 EUR - 20 EUR) * 100
+      apiHost: expect.any(String),
+      customer: expect.any(Object),
+      items: expect.any(Array),
+      language: 'FI',
+      origin: expect.any(String),
       reference: expect.any(String),
       stamp: expect.any(String),
-      items: expect.any(Array),
-      customer: expect.any(Object),
-      language: 'FI',
     })
   })
 
@@ -327,8 +325,8 @@ describe('paymentCreateLambda', () => {
   it('creates a payment with custom cost', async () => {
     mockGetEvent.mockResolvedValue(
       createMockConfirmedEvent({
-        cost: { normal: 50, custom: { cost: 60, description: { fi: 'custom', en: 'custom' } } },
-        costMember: { normal: 40, custom: { cost: 60, description: { fi: 'custom', en: 'custom' } } },
+        cost: { custom: { cost: 60, description: { en: 'custom', fi: 'custom' } }, normal: 50 },
+        costMember: { custom: { cost: 60, description: { en: 'custom', fi: 'custom' } }, normal: 40 },
       })
     )
     mockRead.mockReset()
@@ -399,7 +397,7 @@ describe('paymentCreateLambda', () => {
   })
 
   it('should cancel existing new transactions for the same reference', async () => {
-    const existingTransaction = { transactionId: 'oldTx', status: 'new', reference: 'event123:reg456' }
+    const existingTransaction = { reference: 'event123:reg456', status: 'new', transactionId: 'oldTx' }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
     await paymentCreateLambda(event)

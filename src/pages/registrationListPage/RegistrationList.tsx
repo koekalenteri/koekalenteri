@@ -1,9 +1,6 @@
 import type { Theme } from '@mui/material'
 import type { GridColDef } from '@mui/x-data-grid'
 import type { BreedCode, PublicDogEvent, Registration } from '../../types'
-
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
 import CancelOutlined from '@mui/icons-material/CancelOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
@@ -11,13 +8,14 @@ import { useMediaQuery } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { Box } from '@mui/system'
 import { GridActionsCellItem } from '@mui/x-data-grid'
-
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import { getPaymentStatus } from '../../lib/payment'
 import { hasPriority } from '../../lib/registration'
 import { Path } from '../../routeConfig'
+import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import { PaymentIcon } from '../components/icons/PaymentIcon'
 import { PriorityIcon } from '../components/icons/PriorityIcon'
-import { IconsTooltip, TooltipIcon } from '../components/IconsTooltip'
 import StyledDataGrid from '../components/StyledDataGrid'
 
 type StrippedRegistration = Omit<Registration, 'grouo' | 'internalNotes'>
@@ -90,35 +88,33 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
   const allColumns: GridColDef<StrippedRegistration>[] = [
     {
       field: 'dog.name',
-      valueGetter: (_value, row) => row.dog.name,
+      flex: 1,
       headerName: t('dog.name'),
       renderCell: (params) => <strong>{params.value}</strong>,
-      flex: 1,
+      valueGetter: (_value, row) => row.dog.name,
     },
     {
-      type: sm ? 'custom' : 'string',
       field: 'dog.regNo',
-      valueGetter: (_value, row) => row.dog.regNo,
       headerName: t('dog.regNo'),
+      type: sm ? 'custom' : 'string',
+      valueGetter: (_value, row) => row.dog.regNo,
       width: 160,
     },
     {
-      type: sm ? 'custom' : 'string',
       field: 'dog.breedCode',
-      valueGetter: (_value, row) => breed(row.dog.breedCode as BreedCode),
       headerName: t('dog.breed'),
+      type: sm ? 'custom' : 'string',
+      valueGetter: (_value, row) => breed(row.dog.breedCode as BreedCode),
       width: 160,
     },
     {
       field: 'icons',
-      width: 48,
       headerName: '',
       renderCell: (params) => <RegistrationListItemIcons event={event} registration={params.row} />,
+      width: 48,
     },
     {
       field: 'actions',
-      type: 'actions',
-      width: 116,
       getActions: (params: { row: StrippedRegistration }) => {
         if (params.row.cancelled) {
           return [
@@ -128,7 +124,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
               closeMenuOnClick
               disabled
               label={t('event.states.cancelled')}
-              sx={{ color: 'warning.main !important', textTransform: 'uppercase', cursor: 'default' }}
+              sx={{ color: 'warning.main !important', cursor: 'default', textTransform: 'uppercase' }}
             />,
           ]
         }
@@ -170,15 +166,17 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
         }
         return always
       },
+      type: 'actions',
+      width: 116,
     },
   ]
 
   const columns = allColumns.filter((c) => c.type !== 'custom')
 
   return (
-    <Box sx={{ p: { xs: 0.5, md: 1 }, mb: 1, width: '100%' }}>
+    <Box sx={{ mb: 1, p: { md: 1, xs: 0.5 }, width: '100%' }}>
       <Typography variant="h5">{t('registration.registeredDogs')}</Typography>
-      <Box sx={{ height: 120, '& .cancelled': { opacity: 0.75 }, width: '100%' }}>
+      <Box sx={{ '& .cancelled': { opacity: 0.75 }, height: 120, width: '100%' }}>
         <StyledDataGrid
           hideFooter={true}
           columns={columns}
@@ -189,7 +187,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
           getRowClassName={(params) => (params.row.cancelled ? 'cancelled' : '')}
           sx={{
             '& .MuiDataGrid-cell': {
-              px: { xs: 0.5, sm: 1 },
+              px: { sm: 1, xs: 0.5 },
             },
           }}
         />

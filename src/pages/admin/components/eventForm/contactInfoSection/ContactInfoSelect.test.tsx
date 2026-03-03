@@ -1,11 +1,9 @@
 import { render, screen } from '@testing-library/react'
-
 import { renderWithUserEvents } from '../../../../../test-utils/utils'
-
 import ContactInfoSelect from './ContactInfoSelect'
 
 describe('PersonContactInfo', () => {
-  const defaults = { name: 'test name', email: 'test email', phone: 'test phone' }
+  const defaults = { email: 'test email', name: 'test name', phone: 'test phone' }
 
   it('should render', () => {
     const changeHandler = jest.fn()

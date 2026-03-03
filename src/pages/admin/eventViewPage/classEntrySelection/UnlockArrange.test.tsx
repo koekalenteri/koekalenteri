@@ -1,7 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
-
 import { renderWithUserEvents } from '../../../../test-utils/utils'
-
 import UnlockArrange from './UnlockArrange'
 
 describe('UnlockArrange', () => {

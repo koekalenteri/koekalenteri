@@ -1,5 +1,4 @@
 import { zonedEndOfDay, zonedStartOfDay } from '../../../i18n/dates'
-
 import { deserializeFilter, readDate, serializeFilter, withinDateFilters, writeDate } from './filters'
 
 describe('recoil.events.filters', () => {
@@ -22,12 +21,12 @@ describe('recoil.events.filters', () => {
     it('serializes empty filter', () => {
       expect(
         serializeFilter({
-          start: null,
           end: null,
-          eventType: [],
           eventClass: [],
+          eventType: [],
           judge: [],
           organizer: [],
+          start: null,
         })
       ).toEqual('s=')
     })
@@ -107,7 +106,7 @@ describe('recoil.events.filters', () => {
         ${startOfToday}
         ${endOfToday}
       `('and start is $start, it should return true', ({ start }) => {
-        expect(withinDateFilters({ endDate }, { start, end: null })).toEqual(true)
+        expect(withinDateFilters({ endDate }, { end: null, start })).toEqual(true)
       })
     })
 
@@ -118,7 +117,7 @@ describe('recoil.events.filters', () => {
         ${startOfToday}
         ${endOfToday}
       `('and start is $start, it should return false', ({ start }) => {
-        expect(withinDateFilters({ endDate: undefined }, { start, end: null })).toEqual(false)
+        expect(withinDateFilters({ endDate: undefined }, { end: null, start })).toEqual(false)
       })
     })
 
@@ -135,7 +134,7 @@ describe('recoil.events.filters', () => {
         ${startOfToday}
         ${endOfToday}
       `('and end is $end, it should return true', ({ end }) => {
-        expect(withinDateFilters({ startDate }, { start: null, end })).toEqual(true)
+        expect(withinDateFilters({ startDate }, { end, start: null })).toEqual(true)
       })
     })
     describe('when startDate is undefined', () => {
@@ -145,7 +144,7 @@ describe('recoil.events.filters', () => {
         ${startOfToday}
         ${endOfToday}
       `('and end is $end, it should return false', ({ end }) => {
-        expect(withinDateFilters({ startDate: undefined }, { start: null, end })).toEqual(false)
+        expect(withinDateFilters({ startDate: undefined }, { end, start: null })).toEqual(false)
       })
     })
   })

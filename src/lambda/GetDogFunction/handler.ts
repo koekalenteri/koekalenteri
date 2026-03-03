@@ -1,10 +1,8 @@
 import type { BreedCode, JsonDog, JsonTestResult } from '../../types'
-
 import { differenceInMinutes } from 'date-fns'
-
 import { CONFIG } from '../config'
 import KLAPI from '../lib/KLAPI'
-import { getParam, lambda, LambdaError, response } from '../lib/lambda'
+import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -12,18 +10,18 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const dynamoDB = new CustomDynamoClient(CONFIG.dogTable)
 
 const GENDER: Record<string, 'F' | 'M'> = {
-  narttu: 'F',
   female: 'F',
+  hane: 'M',
+  male: 'M',
+  narttu: 'F',
   tik: 'F',
   uros: 'M',
-  male: 'M',
-  hane: 'M',
 }
 
 const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<JsonTestResult[]> => {
   // Luetaan koetulokset käyttäen palautettua rekisterinumeroa.
   // Jos koiralla on useampi rekkari, niin palautettu on se mille tulokset on kirjattu.
-  const apiResult = await klapi.lueKoiranKoetulokset({ Rekisterinumero: regNo, Kieli: KLKieli.Suomi })
+  const apiResult = await klapi.lueKoiranKoetulokset({ Kieli: KLKieli.Suomi, Rekisterinumero: regNo })
 
   if (apiResult.status !== 200) {
     console.error('lueKoiranKoetulokset failed', JSON.stringify(apiResult))
@@ -41,23 +39,23 @@ const readDogResultsFromKlapi = async (klapi: KLAPI, regNo: string): Promise<Jso
     const cacit = !resCacit && /cacit/.test(notes)
 
     results.push({
-      type: result.koemuoto,
-      subType: result.tapahtumanTyyppi,
+      cacit,
+
+      cert,
       class: result.luokka,
       date: result.aika,
-      result: result.tulos,
-      judge: result.tuomari,
-      location: result.paikkakunta,
 
       ext: result.tarkenne,
+      judge: result.tuomari,
+      location: result.paikkakunta,
       notes: result.lisämerkinnät,
       points: result.pisteet,
       rank: result.sijoitus,
-
-      cert,
-      resCert,
-      cacit,
       resCacit,
+      resCert,
+      result: result.tulos,
+      subType: result.tapahtumanTyyppi,
+      type: result.koemuoto,
     })
   }
 
@@ -86,7 +84,7 @@ const readParentFromKlapi = async (klapi: KLAPI, id: number): Promise<{ name: st
     true
   )
   if (parent.status === 200 && parent.json?.rekisterinumero) {
-    return { name: parent.json.tittelit + ' ' + parent.json.nimi }
+    return { name: `${parent.json.tittelit} ${parent.json.nimi}` }
   }
   return undefined
 }
@@ -94,8 +92,8 @@ const readParentFromKlapi = async (klapi: KLAPI, id: number): Promise<{ name: st
 const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
   const klapi = new KLAPI(getKLAPIConfig)
   const { status, json, error } = await klapi.lueKoiranPerustiedot({
-    Rekisterinumero: regNo,
     Kieli: KLKieli.Suomi,
+    Rekisterinumero: regNo,
   })
 
   let dog = existing
@@ -118,10 +116,10 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
       dog.dam = await readParentFromKlapi(klapi, json.id_Emä)
     }
   } else {
-    console.error('lueKoiranPerustiedot failed', { status, json, error })
+    console.error('lueKoiranPerustiedot failed', { error, json, status })
   }
 
-  return { dog, status, error }
+  return { dog, error, status }
 }
 
 const getDogLambda = lambda('getDog', async (event) => {
@@ -132,7 +130,7 @@ const getDogLambda = lambda('getDog', async (event) => {
   const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
   const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
 
-  console.log('cached: ' + JSON.stringify(item))
+  console.log(`cached: ${JSON.stringify(item)}`)
   console.log(`itemAge: ${itemAge}, refresh: ${refresh}`)
 
   if (!item || refresh) {

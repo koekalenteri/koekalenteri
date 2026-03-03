@@ -1,15 +1,12 @@
 import type { ReactNode } from 'react'
-
-import { MemoryRouter } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render } from '@testing-library/react'
-
+import { MemoryRouter } from 'react-router'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { flushPromises } from '../test-utils/utils'
-
 import { SupportPage } from './SupportPage'
 
 jest.mock('./components/Header', () => () => <>header</>)

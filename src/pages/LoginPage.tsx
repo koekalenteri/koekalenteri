@@ -1,13 +1,12 @@
-import { useEffect } from 'react'
 import { I18n } from '@aws-amplify/core'
 import { Authenticator, useAuthenticator } from '@aws-amplify/ui-react'
 import Box from '@mui/material/Box'
 import { fetchAuthSession } from 'aws-amplify/auth'
+import { useEffect } from 'react'
 import { useRecoilValue } from 'recoil'
-
 import Header from './components/Header'
-import { useUserActions } from './recoil/user/actions'
 import { languageAtom } from './recoil'
+import { useUserActions } from './recoil/user/actions'
 
 import '@aws-amplify/ui-react/styles.css'
 
@@ -36,12 +35,12 @@ export function Component() {
       <Header />
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
           alignItems: 'center',
-          flexDirection: 'column',
-          minHeight: '100vh',
           backgroundColor: 'background.default',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          minHeight: '100vh',
         }}
       >
         <Authenticator

@@ -3,7 +3,7 @@
 exports[`AdminLink should not render border when not active 1`] = `
 <div>
   <a
-    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-10ueqj0-MuiTypography-root-MuiLink-root"
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-16lv5rb-MuiTypography-root-MuiLink-root"
     data-discover="true"
     href="/admin/event"
   >
@@ -19,7 +19,7 @@ exports[`AdminLink should not render border when not active 1`] = `
 exports[`AdminLink should render active border 1`] = `
 <div>
   <a
-    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1yjuoko-MuiTypography-root-MuiLink-root"
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-1nkmpdq-MuiTypography-root-MuiLink-root"
     data-discover="true"
     href="/admin/event"
   >
@@ -35,7 +35,7 @@ exports[`AdminLink should render active border 1`] = `
 exports[`AdminLink should render with minimal properties 1`] = `
 <div>
   <a
-    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-10ueqj0-MuiTypography-root-MuiLink-root"
+    class="MuiTypography-root MuiTypography-inherit MuiLink-root MuiLink-underlineAlways css-16lv5rb-MuiTypography-root-MuiLink-root"
     data-discover="true"
     href="/admin/event"
   >

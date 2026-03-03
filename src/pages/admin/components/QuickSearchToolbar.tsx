@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react'
-
-import { useTranslation } from 'react-i18next'
 import Clear from '@mui/icons-material/Clear'
 import Search from '@mui/icons-material/Search'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { GridToolbarColumnsButton, GridToolbarContainer } from '@mui/x-data-grid'
+import { useTranslation } from 'react-i18next'
 
 // augment the props for the toolbar slot
 declare module '@mui/x-data-grid' {
@@ -36,22 +35,21 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
           onChange={props.onChange}
           placeholder={t('search.placeholder')}
           sx={{
-            width: {
-              xs: 1,
-              sm: 'auto',
-            },
-            m: (theme) => theme.spacing(1, 0.5, 1.5),
-            '& .MuiSvgIcon-root': {
-              mr: 0.5,
-            },
             '& .MuiInput-underline:before': {
               borderBottom: 1,
               borderColor: 'divider',
             },
+            '& .MuiSvgIcon-root': {
+              mr: 0.5,
+            },
+            m: (theme) => theme.spacing(1, 0.5, 1.5),
+            width: {
+              sm: 'auto',
+              xs: 1,
+            },
           }}
           slotProps={{
             input: {
-              startAdornment: <Search fontSize="small" />,
               endAdornment: (
                 <IconButton
                   title={t('clear')}
@@ -63,6 +61,7 @@ export function QuickSearchToolbar(props: QuickSearchToolbarProps) {
                   <Clear fontSize="small" />
                 </IconButton>
               ),
+              startAdornment: <Search fontSize="small" />,
             },
           }}
         />

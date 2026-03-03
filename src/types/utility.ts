@@ -3,9 +3,9 @@ export type ReplaceOptional<T, Key extends keyof T, NewType> = Omit<T, Key> & Pa
 
 export type NotOptional<T, Keys extends keyof T = keyof T> = T & { [Key in Keys]-?: T[Key] }
 
-export type RequireAllKeys<T> = { [P in keyof T]-?: any } & T
+export type RequireAllKeys<T> = { [P in keyof T]-?: unknown } & T
 
-export type DeepPartial<T> = T extends (...arguments_: any[]) => unknown
+export type DeepPartial<T> = T extends (...arguments_: unknown[]) => unknown
   ? T | undefined
   : T extends Date
     ? T | undefined

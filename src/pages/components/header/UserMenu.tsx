@@ -1,7 +1,5 @@
 import { useRecoilValue } from 'recoil'
-
 import { userSelector } from '../../recoil'
-
 import LoggedInUserMenu from './userMenu/LoggedInUserMenu'
 import LoginButton from './userMenu/LoginButton'
 

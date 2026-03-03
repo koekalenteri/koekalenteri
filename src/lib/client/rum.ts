@@ -1,5 +1,4 @@
 import { AwsRum } from 'aws-rum-web'
-
 import pkg from '../../../package.json'
 import { RUM_APPLICATION_ID, RUM_CONFIG, RUM_REGION } from '../../amplify-env'
 

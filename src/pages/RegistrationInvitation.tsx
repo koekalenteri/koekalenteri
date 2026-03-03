@@ -1,18 +1,15 @@
 import type { Params } from 'react-router'
 import type { DogEvent, Registration } from '../types'
-
-import { Suspense } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Await, Navigate, useLoaderData } from 'react-router'
 import Paper from '@mui/material/Paper'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import i18n from 'i18next'
-
+import { Suspense } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, putRegistration } from '../api/registration'
 import { Path } from '../routeConfig'
-
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
 
@@ -50,7 +47,7 @@ export const deferredLoader = async (
   }
 
   if (registration.invitationAttachment) {
-    return { url: Path.invitationAttachment(registration), event, registration }
+    return { event, registration, url: Path.invitationAttachment(registration) }
   }
 
   return { event, registration }
@@ -79,7 +76,7 @@ export const Component = () => {
               <Paper sx={{ p: 1 }}>
                 <Typography variant="caption">{t('invitation.event')}</Typography>
                 <Typography>
-                  {event.eventType} {t('dateFormat.datespan', { start: event.startDate, end: event.endDate })}{' '}
+                  {event.eventType} {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}{' '}
                   {event.location} ({event.name})
                 </Typography>
                 <Typography variant="caption">{t('invitation.registeredDog')}</Typography>

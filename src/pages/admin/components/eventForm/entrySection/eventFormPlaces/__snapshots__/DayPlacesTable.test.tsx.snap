@@ -52,7 +52,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=false 1`] = `
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                 id=":r3:"
                 pattern="[0-9]{1,3}"
-                style="text-align: right; padding: 4px;"
+                style="padding: 4px; text-align: right;"
                 type="text"
                 value="5"
               />
@@ -99,7 +99,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=false 1`] = `
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                 id=":r4:"
                 pattern="[0-9]{1,3}"
-                style="text-align: right; padding: 4px;"
+                style="padding: 4px; text-align: right;"
                 type="text"
                 value="5"
               />
@@ -147,7 +147,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=false 1`] = `
                 disabled=""
                 id="event.places"
                 pattern="[0-9]{1,3}"
-                style="text-align: right; padding: 4px;"
+                style="padding: 4px; text-align: right;"
                 type="text"
                 value="10"
               />
@@ -228,7 +228,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=true 1`] = `
                 disabled=""
                 id=":r0:"
                 pattern="[0-9]{1,3}"
-                style="text-align: right; padding: 4px;"
+                style="padding: 4px; text-align: right;"
                 type="text"
                 value="5"
               />
@@ -276,7 +276,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=true 1`] = `
                 disabled=""
                 id=":r1:"
                 pattern="[0-9]{1,3}"
-                style="text-align: right; padding: 4px;"
+                style="padding: 4px; text-align: right;"
                 type="text"
                 value="5"
               />
@@ -323,7 +323,7 @@ exports[`DayPlacesTable should render correctly with totalEnabled=true 1`] = `
                 class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall css-1pzfmz2-MuiInputBase-input-MuiOutlinedInput-input"
                 id="event.places"
                 pattern="[0-9]{1,3}"
-                style="text-align: right; padding: 4px;"
+                style="padding: 4px; text-align: right;"
                 type="text"
                 value="10"
               />

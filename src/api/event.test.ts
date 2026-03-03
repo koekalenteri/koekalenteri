@@ -1,13 +1,10 @@
 import type { DogEvent } from '../types'
-
 import { parseISO } from 'date-fns'
 import fetchMock from 'jest-fetch-mock'
-
 import { emptyEvent } from '../__mockData__/emptyEvent'
 import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
-
 import { getEvent, getEvents, putEvent } from './event'
 
 fetchMock.enableMocks()
@@ -25,7 +22,7 @@ test('getEvents', async () => {
 
   expect(events.length).toEqual(1)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/`)
 })
 
 test('getEvents with since', async () => {
@@ -40,7 +37,7 @@ test('getEvents with since', async () => {
 
   expect(events.length).toEqual(1)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/?since=123')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?since=123`)
 })
 
 test('getEvent', async () => {
@@ -54,7 +51,7 @@ test('getEvent', async () => {
 
   expect(testEvent).toMatchObject(emptyEvent)
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/event/TestEventID')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/TestEventID`)
 })
 
 test('putEvent', async () => {
@@ -66,7 +63,7 @@ test('putEvent', async () => {
 
   const newEvent = await putEvent({ eventType: 'TestEventType' })
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(API_BASE_URL + '/admin/event/')
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
   expect(newEvent.id).not.toBeUndefined()
 })
 
@@ -78,28 +75,30 @@ test('putEvent', async () => {
 
 const event: DogEvent = {
   ...emptyEvent,
-  entryStartDate: zonedStartOfDay('2021-01-02'),
   entryEndDate: zonedEndOfDay('2021-01-13'),
+  entryStartDate: zonedStartOfDay('2021-01-02'),
 }
 
 test.each([
-  { date: '2021-01-01T23:59+02:00', open: false, closing: false, upcoming: true },
-  { date: '2021-01-02T00:00+02:00', open: true, closing: false, upcoming: false },
-  { date: '2021-01-05T00:00+02:00', open: true, closing: false, upcoming: false },
-  { date: '2021-01-06T00:00+02:00', open: true, closing: true, upcoming: false },
-  { date: '2021-01-13T00:00+02:00', open: true, closing: true, upcoming: false },
-  { date: '2021-01-13T23:59+02:00', open: true, closing: true, upcoming: false },
-  { date: '2021-01-14T00:00+02:00', open: false, closing: false, upcoming: false },
-])(
-  `When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing, isEntryUpcoming: $upcoming`,
-  ({ date, open, closing, upcoming }) => {
-    expect(isEntryOpen(event, parseISO(date))).toEqual(open)
-    expect(isEntryClosing(event, parseISO(date))).toEqual(closing)
-    expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
-  }
-)
+  { closing: false, date: '2021-01-01T23:59+02:00', open: false, upcoming: true },
+  { closing: false, date: '2021-01-02T00:00+02:00', open: true, upcoming: false },
+  { closing: false, date: '2021-01-05T00:00+02:00', open: true, upcoming: false },
+  { closing: true, date: '2021-01-06T00:00+02:00', open: true, upcoming: false },
+  { closing: true, date: '2021-01-13T00:00+02:00', open: true, upcoming: false },
+  { closing: true, date: '2021-01-13T23:59+02:00', open: true, upcoming: false },
+  { closing: false, date: '2021-01-14T00:00+02:00', open: false, upcoming: false },
+])(`When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing, isEntryUpcoming: $upcoming`, ({
+  date,
+  open,
+  closing,
+  upcoming,
+}) => {
+  expect(isEntryOpen(event, parseISO(date))).toEqual(open)
+  expect(isEntryClosing(event, parseISO(date))).toEqual(closing)
+  expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
+})
 
-test('isEntryOpen with mocked date', function () {
+test('isEntryOpen with mocked date', () => {
   jest.useFakeTimers()
 
   jest.setSystemTime(zonedEndOfDay('2021-01-01'))

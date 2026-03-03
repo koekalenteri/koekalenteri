@@ -3,16 +3,16 @@
 exports[`EventNotFound renders with error message 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1uovp08"
+    class="MuiBox-root css-15d58w2"
   >
     <div
-      class="MuiBox-root css-10784zt"
+      class="MuiBox-root css-u3luxh"
     >
       <div
-        class="MuiStack-root css-1crrawa-MuiStack-root"
+        class="MuiStack-root css-lxhjgb-MuiStack-root"
       >
         <div
-          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation3 css-1dwizkf-MuiPaper-root"
+          class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation3 css-1tmy0w5-MuiPaper-root"
           style="--Paper-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);"
         >
           <svg
@@ -32,7 +32,7 @@ exports[`EventNotFound renders with error message 1`] = `
             Tapahtumaa ei löydy
           </h1>
           <p
-            class="MuiTypography-root MuiTypography-body1 css-o2g80f-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 css-1gawtjx-MuiTypography-root"
           >
             Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia
           </p>

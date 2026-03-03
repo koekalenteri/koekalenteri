@@ -1,9 +1,7 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { Official } from '../../../types'
-
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
 import { localeSortComparator } from '../../../lib/datagrid'
 
 export const useOfficialListPageColumns = () => {
@@ -28,8 +26,8 @@ export const useOfficialListPageColumns = () => {
         field: 'location',
         flex: 0,
         headerName: t('contact.city'),
-        width: 120,
         sortComparator: localeSortComparator,
+        width: 120,
       },
       {
         field: 'phone',

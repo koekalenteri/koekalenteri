@@ -1,18 +1,15 @@
 import type { ReactNode } from 'react'
 import type { Registration } from '../../../types'
-
-import { Suspense } from 'react'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { registrationWithStaticDates } from '../../../__mockData__/registrations'
 import { locales } from '../../../i18n'
 import { clone } from '../../../lib/utils'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
-
 import { BreederInfo } from './BreederInfo'
 
 jest.mock('../../../api/dog')
@@ -60,12 +57,12 @@ describe('BreederInfo', () => {
     await user.clear(locationInput)
 
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: '', location: '' } })
+    expect(onChange).toHaveBeenLastCalledWith({ breeder: { location: '', name: '' } })
     expect(onChange).toHaveBeenCalledTimes(1)
 
     await user.type(nameInput, 'test breeder')
     await flushPromises()
-    expect(onChange).toHaveBeenLastCalledWith({ breeder: { name: 'test breeder', location: '' } })
+    expect(onChange).toHaveBeenLastCalledWith({ breeder: { location: '', name: 'test breeder' } })
     expect(onChange).toHaveBeenCalledTimes(2)
 
     await user.type(locationInput, 'test city')

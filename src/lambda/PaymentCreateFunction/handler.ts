@@ -1,8 +1,6 @@
 import type { CreatePaymentResponse, JsonConfirmedEvent, JsonTransaction, Organizer } from '../../types'
 import type { PaymentCustomer, PaymentItem } from '../types/paytrail'
-
 import { nanoid } from 'nanoid'
-
 import { calculateCost } from '../../lib/cost'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -70,14 +68,14 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const items: PaymentItem[] = [
     {
+      description: paymentDescription(jsonEvent, 'fi'),
+      merchant: organizer.paytrailMerchantId,
+      productCode: eventId,
+      reference: registrationId,
+      stamp: nanoid(),
       unitPrice: amount,
       units: 1,
       vatPercentage: 0,
-      productCode: eventId,
-      description: paymentDescription(jsonEvent, 'fi'),
-      stamp: nanoid(),
-      reference: registrationId,
-      merchant: organizer.paytrailMerchantId,
     },
   ]
 
@@ -91,14 +89,14 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
   const result = await createPayment({
-    apiHost: getApiHost(event),
-    origin: getOrigin(event),
     amount,
+    apiHost: getApiHost(event),
+    customer,
+    items,
+    language,
+    origin: getOrigin(event),
     reference,
     stamp,
-    items,
-    customer,
-    language,
   })
 
   if (!result) {
@@ -107,15 +105,15 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const user = await authorize(event)
   const transaction: JsonTransaction = {
-    transactionId: result.transactionId,
-    status: 'new',
     amount,
-    reference,
     bankReference: result.reference,
-    type: 'payment',
-    stamp,
-    items,
     createdAt: new Date().toISOString(),
+    items,
+    reference,
+    stamp,
+    status: 'new',
+    transactionId: result.transactionId,
+    type: 'payment',
     user: user?.name ?? registration.payer?.name,
   }
   await dynamoDB.write(transaction)

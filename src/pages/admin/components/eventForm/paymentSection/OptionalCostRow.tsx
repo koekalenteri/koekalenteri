@@ -1,14 +1,12 @@
 import type { DogEventCost } from '../../../../../types/Cost'
 import type { PartialEvent } from '../types'
-
-import { useTranslation } from 'react-i18next'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-
+import { useTranslation } from 'react-i18next'
 import { NumberInput } from '../../../../components/NumberInput'
 
 interface OptionalCostRowProps {
@@ -39,7 +37,7 @@ export const OptionalCostRow = ({
     <>
       <TableRow sx={{ '& td': { borderBottom: error ? 0 : undefined } }}>
         <TableCell>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ alignItems: 'center', display: 'flex' }}>
             <span>{optCost.description.fi}</span>
             <IconButton data-testid={`edit-optional-${index}`} size="small" onClick={() => onEditDescription(index)}>
               <EditIcon fontSize="small" />

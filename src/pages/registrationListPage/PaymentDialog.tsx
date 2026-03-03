@@ -1,12 +1,11 @@
 import type { PublicDogEvent, Registration } from '../../types'
-
-import { useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   readonly event: PublicDogEvent | null | undefined
@@ -33,7 +32,7 @@ export const PaymentDialog = ({ event, onConfirm, onClose, open, registration }:
       <DialogTitle id="payment-dialog-title">{t('registration.paymentDialog.title')}</DialogTitle>
       <DialogContent>
         <DialogContentText id="payment-dialog-description">
-          {t('registration.paymentDialog.text', { registration, event })}
+          {t('registration.paymentDialog.text', { event, registration })}
         </DialogContentText>
         <DialogContentText id="payment-dialog-description2" sx={{ py: 1 }}>
           {t('registration.paymentDialog.confirmation')}

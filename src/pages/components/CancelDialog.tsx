@@ -1,9 +1,6 @@
 import type { SelectChangeEvent } from '@mui/material/Select'
 import type { ChangeEvent } from 'react'
 import type { PublicDogEvent, Registration } from '../../types'
-
-import { useCallback, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
@@ -17,7 +14,8 @@ import Link from '@mui/material/Link'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-
+import { useCallback, useState } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { isPredefinedReason } from '../../lib/registration'
 
 interface Props {
@@ -68,13 +66,13 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
         <DialogContentText id="cancel-dialog-description">
           {disabled
             ? t('registration.cancelDialog.lateText', {
-                registration,
-                event,
                 contact: event.contactInfo?.secretary?.phone ?? event.contactInfo?.secretary?.email,
+                event,
+                registration,
               })
-            : t('registration.cancelDialog.text', { registration, event })}
+            : t('registration.cancelDialog.text', { event, registration })}
         </DialogContentText>
-        <DialogContentText id="cancel-dialog-description2" sx={{ py: 1, display: disabled ? 'none' : 'block' }}>
+        <DialogContentText id="cancel-dialog-description2" sx={{ display: disabled ? 'none' : 'block', py: 1 }}>
           {t('registration.cancelDialog.confirmation')}
         </DialogContentText>
         <FormControl fullWidth sx={{ my: 1 }}>

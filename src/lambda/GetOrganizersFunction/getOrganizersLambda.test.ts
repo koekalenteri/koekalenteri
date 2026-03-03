@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 const mockBatchWrite = jest.fn<any>()
@@ -13,6 +13,7 @@ const mockLueYhdistykset = jest.fn<any>()
 // Mock KLAPI class
 class MockKLAPI {
   constructor() {
+    // biome-ignore lint/correctness/noConstructorReturn: its a test
     return {
       lueYhdistykset: mockLueYhdistykset,
     }
@@ -26,8 +27,8 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
-    readAll: mockReadAll,
     batchWrite: mockBatchWrite,
+    readAll: mockReadAll,
     update: mockUpdate,
   })),
 }))
@@ -52,8 +53,8 @@ const { default: getOrganizersLambda } = await import('./handler')
 
 describe('getOrganizersLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
     queryStringParameters: null,
   } as any
 
@@ -111,7 +112,7 @@ describe('getOrganizersLambda', () => {
       queryStringParameters: { refresh: '' },
     }
 
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const organizers = [
       { id: 'org1', kcId: '123', name: 'Organizer 1' },
       { id: 'org2', kcId: '456', name: 'Organizer 2' },
@@ -119,12 +120,12 @@ describe('getOrganizersLambda', () => {
 
     mockAuthorize.mockResolvedValueOnce(user)
     mockLueYhdistykset.mockResolvedValueOnce({
-      status: 200,
       json: [
         { jäsennumero: '123', strYhdistys: 'Organizer 1' },
         { jäsennumero: '456', strYhdistys: 'Organizer 2' },
         { jäsennumero: '789', strYhdistys: 'Organizer 3' },
       ],
+      status: 200,
     })
     mockReadAll.mockResolvedValueOnce(organizers) // First call for existing organizers
     mockNanoid.mockReturnValueOnce('org3')
@@ -150,7 +151,7 @@ describe('getOrganizersLambda', () => {
       queryStringParameters: { refresh: '' },
     }
 
-    const user = { id: 'user1', admin: false }
+    const user = { admin: false, id: 'user1' }
 
     mockAuthorize.mockResolvedValueOnce(user)
 
@@ -168,13 +169,13 @@ describe('getOrganizersLambda', () => {
       queryStringParameters: { refresh: '' },
     }
 
-    const user = { id: 'admin1', admin: true }
+    const user = { admin: true, id: 'admin1' }
     const organizers = [{ id: 'org1', kcId: '123', name: 'Old Name' }]
 
     mockAuthorize.mockResolvedValueOnce(user)
     mockLueYhdistykset.mockResolvedValueOnce({
-      status: 200,
       json: [{ jäsennumero: '123', strYhdistys: 'New Name' }],
+      status: 200,
     })
     mockReadAll.mockResolvedValueOnce(organizers) // First call for existing organizers
     mockUpdate.mockResolvedValueOnce(undefined)

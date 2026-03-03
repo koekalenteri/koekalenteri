@@ -1,19 +1,16 @@
 import type { ReactNode } from 'react'
-
-import { Suspense } from 'react'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
+import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { createMatchMedia, flushPromises, renderWithUserEvents } from '../../test-utils/utils'
-
 import RegistrationForm from './RegistrationForm'
 
 jest.mock('../../api/event')
@@ -86,11 +83,11 @@ describe('RegistrationForm', () => {
     await flushPromises()
 
     expect(onChange).toHaveBeenLastCalledWith(
-      expect.objectContaining({ notes: registrationWithStaticDates.notes + ' more!' })
+      expect.objectContaining({ notes: `${registrationWithStaticDates.notes} more!` })
     )
     expect(onChange).toHaveBeenCalledTimes(1)
 
-    expect(notes).toHaveValue(registrationWithStaticDates.notes + ' more!')
+    expect(notes).toHaveValue(`${registrationWithStaticDates.notes} more!`)
   })
 
   it('should not call onSave multiple times', async () => {
@@ -128,9 +125,9 @@ describe('RegistrationForm', () => {
     }
     const registration = {
       ...registrationWithStaticDates,
-      selectedCost: 'normal' as const,
       optionalCosts: [0],
       paidAt: undefined,
+      selectedCost: 'normal' as const,
     }
     const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
 

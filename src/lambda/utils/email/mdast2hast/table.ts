@@ -1,7 +1,6 @@
 import type { Element, ElementContent } from 'hast'
 import type { Parents, Table } from 'mdast'
 import type { Handler, State } from 'mdast-util-to-hast/lib/state'
-
 import { u } from 'unist-builder'
 
 const own = {}.hasOwnProperty
@@ -22,36 +21,36 @@ export const tableHandler: Handler = (state, node: Table, _parent) => {
       const cell = row[cellIndex]
       const name = cellIndex === 0 ? 'th' : 'td'
       out.push({
-        type: 'element',
-        tagName: name,
-        properties: { align: align[cellIndex] },
         children: cell ? all(state, cell) : [],
+        properties: { align: align[cellIndex] },
+        tagName: name,
+        type: 'element',
       })
     }
 
     result[index] = {
-      type: 'element',
-      tagName: 'tr',
-      properties: {},
       children: wrap(out, true),
+      properties: {},
+      tagName: 'tr',
+      type: 'element',
     }
   }
 
   return {
-    type: 'element',
-    tagName: 'table',
-    properties: {},
     children: wrap(
       [
         {
-          type: 'element',
-          tagName: 'tbody',
-          properties: {},
           children: wrap(result.slice(1), true),
+          properties: {},
+          tagName: 'tbody',
+          type: 'element',
         },
       ],
       true
     ),
+    properties: {},
+    tagName: 'table',
+    type: 'element',
   }
 }
 
@@ -139,7 +138,7 @@ export const one: Handler = (state, node: any, parent) => {
 
   // Fail on non-nodes.
   if (!type) {
-    throw new Error('Expected node, got `' + node + '`')
+    throw new Error(`Expected node, got \`${node}\``)
   }
 
   const fn: Handler = state?.handlers?.[type as keyof State['handlers']] ?? unknown
@@ -158,5 +157,5 @@ function unknown(state: State, node: any): any {
     return state.patch(node, u('text', node.value))
   }
 
-  return { ...node, tagName: 'div', children: all(state, node) }
+  return { ...node, children: all(state, node), tagName: 'div' }
 }

@@ -1,20 +1,17 @@
 import type { PartialEvent } from '../types'
-
 import { render, screen } from '@testing-library/react'
-
 import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
-
 import EventProperty from './EventProperty'
 
 const testEvent: PartialEvent = {
-  startDate: new Date(),
-  endDate: new Date(),
+  classes: [],
   createdAt: new Date(),
+  createdBy: 'test',
+  endDate: new Date(),
+  judges: [],
   modifiedAt: new Date(),
   name: 'test',
-  createdBy: 'test',
-  classes: [],
-  judges: [],
+  startDate: new Date(),
 }
 
 describe('EventProperty', () => {

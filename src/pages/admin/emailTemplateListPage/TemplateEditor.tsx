@@ -1,13 +1,11 @@
 import type { EmailTemplate, EmailTemplateId, Language } from '../../../types'
-
-import { useMemo } from 'react'
 import { autocompletion } from '@codemirror/autocomplete'
 import { linter, lintGutter } from '@codemirror/lint'
 import { EditorView } from '@codemirror/view'
 import Paper from '@mui/material/Paper'
 import CodeMirror from '@uiw/react-codemirror'
 import { handlebarsLanguage } from '@xiechao/codemirror-lang-handlebars'
-
+import { useMemo } from 'react'
 import { getAutocomplete } from './TemplateEditor.ac'
 import { getLintSource } from './TemplateEditor.lint'
 import { defaultSchema, templateSchema } from './TemplateEditor.schema'
@@ -22,11 +20,11 @@ interface Props {
 
 const theme = EditorView.theme({
   '&': {
+    border: '1px solid #ccc',
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
     fontSize: '10px',
     height: '100%',
     width: '100%',
-    border: '1px solid #ccc',
   },
 })
 
@@ -51,8 +49,8 @@ export function TemplateEditor({ templateId, template, language, hidden, onChang
   return (
     <Paper
       sx={{
-        flex: 1,
         display: hidden ? 'none' : undefined,
+        flex: 1,
         minHeight: 0,
       }}
       elevation={0}
@@ -61,7 +59,7 @@ export function TemplateEditor({ templateId, template, language, hidden, onChang
         value={template?.[language]}
         onChange={handleChange}
         extensions={extensions}
-        basicSetup={{ lineNumbers: true, foldGutter: true }}
+        basicSetup={{ foldGutter: true, lineNumbers: true }}
         indentWithTab={false}
         style={{
           height: '100%',

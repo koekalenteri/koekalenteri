@@ -6,7 +6,7 @@ const mockParseJSONWithFallback = jest.fn<any>()
 const mockNanoid = jest.fn<any>()
 const mockWrite = jest.fn<any>()
 const mockResponse = jest.fn<any>()
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
@@ -28,8 +28,8 @@ const mockQuery = jest.fn<any>()
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
-    write: mockWrite,
     query: mockQuery,
+    write: mockWrite,
   })),
 }))
 
@@ -53,19 +53,19 @@ describe('copyEventHandler', () => {
     const user = { name: 'Test User' }
     const input = { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' }
     const originalEvent = {
-      id: 'event123',
-      name: 'Original Event',
-      state: 'published',
+      classes: [{ date: '2025-06-10T00:00:00.000Z' }],
       createdAt: '2025-06-01T00:00:00.000Z',
       createdBy: 'Someone',
-      startDate: '2025-06-10T00:00:00.000Z',
       endDate: '2025-06-12T00:00:00.000Z',
-      classes: [{ date: '2025-06-10T00:00:00.000Z' }],
-      entryStartDate: '2025-06-01T00:00:00.000Z',
       entryEndDate: '2025-06-05T00:00:00.000Z',
       entryOrigEndDate: '2025-06-05T00:00:00.000Z',
+      entryStartDate: '2025-06-01T00:00:00.000Z',
+      id: 'event123',
       modifiedAt: '2025-06-01T00:00:00.000Z',
       modifiedBy: 'Someone',
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+      state: 'published',
     }
     mockAuthorize.mockResolvedValueOnce(user)
     mockParseJSONWithFallback.mockReturnValueOnce(input)
@@ -122,19 +122,19 @@ describe('copyEventHandler', () => {
     const user = { name: 'Test User' }
     const input = { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' }
     const originalEvent = {
-      id: 'event123',
-      name: 'Original Event',
-      state: 'published',
+      classes: [{ date: '2025-06-10T00:00:00.000Z' }],
       createdAt: '2025-06-01T00:00:00.000Z',
       createdBy: 'Someone',
-      startDate: '2025-06-10T00:00:00.000Z',
       endDate: '2025-06-12T00:00:00.000Z',
-      classes: [{ date: '2025-06-10T00:00:00.000Z' }],
-      entryStartDate: '2025-06-01T00:00:00.000Z',
       entryEndDate: '2025-06-05T00:00:00.000Z',
       entryOrigEndDate: '2025-06-05T00:00:00.000Z',
+      entryStartDate: '2025-06-01T00:00:00.000Z',
+      id: 'event123',
       modifiedAt: '2025-06-01T00:00:00.000Z',
       modifiedBy: 'Someone',
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+      state: 'published',
     }
     mockAuthorize.mockResolvedValueOnce(user)
     mockParseJSONWithFallback.mockReturnValueOnce(input)

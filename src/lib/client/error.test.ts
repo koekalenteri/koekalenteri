@@ -1,5 +1,4 @@
 import type { AwsRum } from 'aws-rum-web'
-
 import { reportError } from './error'
 import * as rum from './rum'
 

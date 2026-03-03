@@ -3,7 +3,7 @@
 exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -23,10 +23,10 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -353,7 +353,7 @@ exports[`JudgeSection should hide classes for NOWT event (KOE-317) 1`] = `
 exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357) 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -373,10 +373,10 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -705,7 +705,7 @@ exports[`JudgeSection should not warn about judge 0 not beign available (KOE-357
 exports[`JudgeSection should render properly with one judge selected 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -725,10 +725,10 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1057,7 +1057,7 @@ exports[`JudgeSection should render properly with one judge selected 1`] = `
 exports[`JudgeSection should render properly with three judges selected 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -1077,10 +1077,10 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
@@ -1845,7 +1845,7 @@ exports[`JudgeSection should render properly with three judges selected 1`] = `
 exports[`JudgeSection should render properly with two judges selected 1`] = `
 <div>
   <div
-    class="MuiBox-root css-l530ik"
+    class="MuiBox-root css-1lsealy"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -1865,10 +1865,10 @@ exports[`JudgeSection should render properly with two judges selected 1`] = `
       </svg>
     </button>
     <div
-      class="MuiBox-root css-1qbrvqz"
+      class="MuiBox-root css-d5pwdd"
     >
       <div
-        class="MuiBox-root css-1jw9kr7"
+        class="MuiBox-root css-14pnx07"
       >
         <p
           class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"

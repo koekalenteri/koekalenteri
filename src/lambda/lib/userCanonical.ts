@@ -1,5 +1,4 @@
 import type { JsonUser } from '../../types'
-
 import { scoreUser } from '../../lib/userCanonical'
 
 export const compareUsersForCanonical = (a: JsonUser, b: JsonUser, linkedUserIds?: Set<string>) => {

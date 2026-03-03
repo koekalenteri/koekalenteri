@@ -1,5 +1,4 @@
 import type { PropsWithChildren } from 'react'
-
 import Grid from '@mui/material/Grid'
 
 const InfoTableContainerGrid = ({ children }: PropsWithChildren) => (

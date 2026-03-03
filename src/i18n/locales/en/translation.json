@@ -1,6 +1,7 @@
 {
   "active": "Active",
   "admin": "Administration",
+  "all": "All",
   "backToEventsList": "Back to events list",
   "cancel": "Cancel",
   "clear": "Clear",
@@ -116,6 +117,7 @@
   },
   "event": {
     "attachments": "Attachments",
+    "classes": "Classes",
     "classPlaces": "Places",
     "classPlacesHeader": {
       "dates": "date(s)",
@@ -124,7 +126,6 @@
       "name": "class",
       "places": "places"
     },
-    "classes": "Classes",
     "contactInfo": "Contact information",
     "cost": "Fee",
     "costMember": "members",
@@ -190,6 +191,7 @@
     "statusText": ""
   },
   "eventInfo": "Event information",
+  "events": "Events",
   "eventTime": "Event time",
   "eventType": {
     "create": "Add new event type",
@@ -208,7 +210,6 @@
     "eventType": "Abbreviation"
   },
   "eventTypes": "Event types",
-  "events": "Events",
   "filter": {
     "eventClass": "Event class",
     "eventType": "Event type",
@@ -219,6 +220,14 @@
   "goBackToSearch": "Back to search results",
   "goHome": "Home",
   "id": "ID",
+  "invitation": {
+    "download": "Download invitation",
+    "event": "Event",
+    "handler": "Handler",
+    "open": "Open invitation",
+    "openingFailed": "Failed to open the event invitation",
+    "registeredDog": "Registered dog"
+  },
   "judge": "Judge",
   "judgeActive": "Active",
   "judgeChief": "Chief judge",
@@ -243,6 +252,7 @@
   "noResults": "Your search returned no events. Please remove one of the search filters.",
   "official": "Official",
   "officials": "Officers",
+  "organization": "Organization",
   "organizations": "Organizations",
   "organizer": {
     "editDialog": {
@@ -256,10 +266,10 @@
   },
   "paymentDetails": "Payment details",
   "paymentPage": {
+    "choosePaymentMethod": "Choose payment method",
     "eventNotFound": "Event {{id}} not found.",
     "registrationNotFound": "Registration {{registrationId}} not found.",
-    "somethingWentWrong": "Something went wrong",
-    "choosePaymentMethod": "Choose payment method"
+    "somethingWentWrong": "Something went wrong"
   },
   "paymentStatus": {
     "missing": "Test payment is still missing",
@@ -408,6 +418,10 @@
     },
     "paymentToBePaid": "To be paid: {{amount}}",
     "paymentToBePaidAfterConfirmation": "{{amount}} payable once your place in the event is confirmed",
+    "priority": {
+      "hasPriority": "I have priority",
+      "noPriority": "I don't have priority"
+    },
     "qualifyingResults": "Qualifying results",
     "qualifyingResultsInfo": "Based on the results, dog {{qualifies}} qualify to the {{eventType}} {{class}}-class.",
     "qualifyingResultsNo": "does not",
@@ -428,6 +442,7 @@
       "text": "Select the payment to be refunded.",
       "title": "Refund, {{regNo}} / {{payer}}"
     },
+    "registeredDogs": "Registered dogs",
     "reserve": "I can accept a place from the reserve list",
     "reserveChoises": {
       "ANY": "On the day of the trial",
@@ -441,18 +456,13 @@
     "state": {
       "cancelled": "This registration is cancelled"
     },
-    "priority": {
-      "hasPriority": "I have priority",
-      "noPriority": "I don't have priority"
-    },
     "status": {
       "cancelled": "I have cancelled my registration",
+      "confirmed": "I have confirmed my participation",
       "confirmedAndInvitationRead": "I have confirmed my participation and acknowledged the invitation",
       "invitationRead": "I have acknowledged the invitation",
-      "confirmed": "I have confirmed my participation",
       "received": "Registration received"
     },
-    "registeredDogs": "Registered dogs",
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",
     "time": {
       "ap": "(am)",
@@ -471,7 +481,6 @@
   "search": {
     "placeholder": "Search..."
   },
-  "all": "All",
   "size": {
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
@@ -491,8 +500,6 @@
   "user": {
     "admin": "Koekalenteri administrator",
     "adminRoles": "The Koekalenteri administrator has admin rights to all organizations",
-    "judge": "Judge",
-    "officer": "Officer",
     "createDialog": {
       "cta": "Save",
       "done": "User added",
@@ -502,34 +509,27 @@
       "role": "Role",
       "title": "Add new user role"
     },
+    "editName": "Edit name",
+    "editNameDialog": {
+      "name": "Name",
+      "title": "Edit your name"
+    },
     "editRolesDialog": {
       "cta": "Save roles",
       "done": "Roles saved",
       "terms": "See detailed cancellation terms in the <2>rules</2>",
       "title": "Edit roles for user [{{user.name}}]"
     },
-    "lastSeen": "Last login",
     "emailHistory": "Email history",
+    "judge": "Judge",
+    "lastSeen": "Last login",
+    "officer": "Officer",
     "roles": {
       "admin": "Organization administrator",
       "secretary": "Secretary"
-    },
-    "editName": "Edit name",
-    "editNameDialog": {
-      "title": "Edit your name",
-      "name": "Name"
     }
   },
-  "organization": "Organization",
   "users": "Users",
-  "invitation": {
-    "openingFailed": "Failed to open the event invitation",
-    "event": "Event",
-    "registeredDog": "Registered dog",
-    "handler": "Handler",
-    "open": "Open invitation",
-    "download": "Download invitation"
-  },
   "validation": {
     "event": {
       "classes": "Classes are required for \"$t(event.states.{{state}})\" state event of {{type}} type.",

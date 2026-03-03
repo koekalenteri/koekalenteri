@@ -1,8 +1,6 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { EventType, Language } from '../../../types'
-
 import { useTranslation } from 'react-i18next'
-
 import ActiveCell from './cells/ActiveCell'
 import OfficialCell from './cells/OfficialCell'
 
@@ -30,8 +28,8 @@ export function useEventTypeListPageColumns(): GridColDef<EventType>[] {
     },
     {
       field: 'description',
-      headerName: t('eventType.description'),
       flex: 1,
+      headerName: t('eventType.description'),
       valueGetter: (value: EventType['description']) => value[i18n.language as Language],
     },
   ]

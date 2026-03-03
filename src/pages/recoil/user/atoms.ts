@@ -1,10 +1,7 @@
 import type { Language } from '../../../types'
-
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { atom, atomFamily } from 'recoil'
-
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../effects'
-
 import { i18nextEffect } from './effects'
 
 const getIdToken = async (): Promise<string | undefined> => {
@@ -18,38 +15,38 @@ const getIdToken = async (): Promise<string | undefined> => {
 }
 
 export const idTokenAtom = atom<string | undefined>({
-  key: 'idToken',
   default: getIdToken(),
   effects: [logEffect, localStorageEffect],
+  key: 'idToken',
 })
 
 export const languageAtom = atom<Language>({
-  key: 'language',
   default: 'fi',
   effects: [logEffect, localStorageEffect, i18nextEffect],
+  key: 'language',
 })
 
 export const spaAtom = atom<boolean>({
-  key: 'spa',
   default: false,
+  key: 'spa',
 })
 
 export const loginPathAtom = atom<string | undefined>({
-  key: 'loginPath',
   default: '/',
   effects: [logEffect, sessionStorageEffect],
+  key: 'loginPath',
 })
 
 /**
  * Used to force-refresh the userSelector after mutations (e.g. updating own name).
  */
 export const userRefreshAtom = atom<number>({
-  key: 'userRefresh',
   default: 0,
+  key: 'userRefresh',
 })
 
 export const openedEventAtom = atomFamily<boolean, string>({
-  key: 'open/eventId',
   default: false,
   effects: [sessionStorageEffect],
+  key: 'open/eventId',
 })

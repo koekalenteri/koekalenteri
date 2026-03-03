@@ -1,6 +1,5 @@
 import type { AtomEffect } from 'recoil'
 import type { Language } from '../../../types'
-
 import i18n from 'i18next'
 
 export const stringToLang = (str?: string | null): Language => (str === 'en' ? 'en' : 'fi')

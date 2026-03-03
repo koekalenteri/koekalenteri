@@ -1,5 +1,4 @@
 import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
-
 import { isRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -93,7 +92,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   }
 
   const { state, classes } = confirmedEvent
-  return response(200, { ok, failed, classes, state, registrations }, event)
+  return response(200, { classes, failed, ok, registrations, state }, event)
 })
 
 export default sendMessagesLambda

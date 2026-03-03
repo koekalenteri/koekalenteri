@@ -11,13 +11,11 @@ import type {
 } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { PartialEvent, SectionProps } from './types'
-
-import { useCallback, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
-
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
 import {
   defaultEntryEndDate,
@@ -29,7 +27,6 @@ import {
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
-
 import HelpPopover from './basicInfoSection/HelpPopover'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
@@ -114,11 +111,11 @@ export default function BasicInfoSection({
         }
       }
       onChange?.({
-        startDate: start,
-        endDate: end,
-        entryStartDate,
-        entryEndDate,
         classes: updateClassDates(event, start, end),
+        endDate: end,
+        entryEndDate,
+        entryStartDate,
+        startDate: start,
       })
     },
     [event, onChange]
@@ -137,12 +134,12 @@ export default function BasicInfoSection({
         official && (event.judges.length === 0 || !event.judges[0].official)
           ? [{ id: 0, name: '', official: true }, ...event.judges]
           : event.judges
-      onChange?.({ eventType, classes, judges })
+      onChange?.({ classes, eventType, judges })
     },
     [event.classes, event.judges, eventTypeClasses, onChange]
   )
   const handleClassesChange = useCallback(
-    (e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
+    (_e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
       onChange?.({ classes: [...values] }),
     [onChange]
   )
@@ -184,7 +181,7 @@ export default function BasicInfoSection({
               onChange={handleDateChange}
             />
           </Grid>
-          <Grid sx={{ width: 300, display: 'none' /* KOE-451 */ }}>
+          <Grid sx={{ display: 'none', /* KOE-451 */ width: 300 }}>
             <EventProperty
               id="kcId"
               disabled={disabled}
@@ -314,8 +311,8 @@ function eventClassOptions(event: PartialEvent | undefined, typeClasses: Registr
     return []
   }
   const days = eachDayOfInterval({
-    start: event.startDate,
     end: event.endDate,
+    start: event.startDate,
   })
   const result: EventClass[] = []
   for (const day of days) {

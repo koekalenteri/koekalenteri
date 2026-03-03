@@ -1,8 +1,8 @@
-import { forwardRef } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
+import { forwardRef } from 'react'
 
-const LoadingIndicator = forwardRef((props, ref) => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '50vh' }}>
+const LoadingIndicator = forwardRef((_props, ref) => (
+  <div style={{ alignItems: 'center', display: 'flex', height: '100%', justifyContent: 'center', minHeight: '50vh' }}>
     <CircularProgress ref={ref} />
   </div>
 ))

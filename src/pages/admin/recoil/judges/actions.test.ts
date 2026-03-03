@@ -1,11 +1,8 @@
 import type { Judge } from '../../../../types'
-
 import { act, renderHook } from '@testing-library/react'
 import { RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { getJudges, putJudge } from '../../../../api/judge'
 import { getUsers } from '../../../../api/user'
-
 import { useAdminJudgesActions } from './actions'
 
 jest.mock('../../../../api/judge', () => ({

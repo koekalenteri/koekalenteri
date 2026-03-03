@@ -1,5 +1,4 @@
 import { Path } from '../../routeConfig'
-
 import EventForm from './components/EventForm'
 import useEventForm from './hooks/useEventForm'
 

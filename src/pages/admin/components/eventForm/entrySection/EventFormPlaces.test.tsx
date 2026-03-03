@@ -1,10 +1,7 @@
 import type { PartialEvent } from '../types'
-
 import { render, screen } from '@testing-library/react'
-
 import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../../../__mockData__/events'
 import { flushPromises, renderWithUserEvents } from '../../../../../test-utils/utils'
-
 import EventFormPlaces from './EventFormPlaces'
 
 jest.mock('notistack', () => ({
@@ -18,10 +15,10 @@ describe('EventFormPlaces', () => {
 
   it('should render with minimal information', () => {
     const event: PartialEvent = {
-      startDate: new Date('2023-06-14T12:00:00Z'),
-      endDate: new Date('2023-06-14T12:00:00Z'),
       classes: [],
+      endDate: new Date('2023-06-14T12:00:00Z'),
       judges: [],
+      startDate: new Date('2023-06-14T12:00:00Z'),
     }
 
     const { container } = render(<EventFormPlaces event={event} />)
@@ -100,7 +97,7 @@ describe('EventFormPlaces', () => {
     it('should be disabled when classes have places but no classesPerDay', () => {
       const event: PartialEvent = {
         ...eventWithStaticDatesAndClass,
-        classes: [{ date: new Date('2021-02-10'), places: 10, class: 'ALO' }],
+        classes: [{ class: 'ALO', date: new Date('2021-02-10'), places: 10 }],
       }
       render(<EventFormPlaces event={event} />)
       const inputs: HTMLInputElement[] = screen.getAllByRole('textbox')
@@ -166,11 +163,11 @@ describe('EventFormPlaces', () => {
 
       expect(onChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
+          places: 25, // Total should be updated
           placesPerDay: expect.objectContaining({
             '2021-02-10': 15,
             '2021-02-11': 10,
           }),
-          places: 25, // Total should be updated
         })
       )
     })
@@ -209,10 +206,10 @@ describe('EventFormPlaces', () => {
       // The entry for the first day should be removed from placesPerDay
       expect(onChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
+          places: 10, // Total should be updated
           placesPerDay: {
             '2021-02-11': 10,
           },
-          places: 10, // Total should be updated
         })
       )
     })
@@ -361,11 +358,11 @@ describe('EventFormPlaces', () => {
       // The placesPerDay should be updated and total recalculated
       expect(onChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
+          places: 25, // Total should be updated
           placesPerDay: {
             '2021-02-10': 10,
             '2021-02-11': 15,
           },
-          places: 25, // Total should be updated
         })
       )
     })
@@ -400,21 +397,21 @@ describe('EventFormPlaces', () => {
       // The value should be clamped to 0 and the entry removed from placesPerDay
       expect(onChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
+          places: 10,
           placesPerDay: {
             '2021-02-11': 10,
           },
-          places: 10,
         })
       )
 
       // Reset for next test
       onChange.mockClear()
       Object.assign(event, {
+        places: 20,
         placesPerDay: {
           '2021-02-10': 10,
           '2021-02-11': 10,
         },
-        places: 20,
       })
 
       // Try to enter a value > 200
@@ -425,11 +422,11 @@ describe('EventFormPlaces', () => {
       // The value should be clamped to 200
       expect(onChange).toHaveBeenLastCalledWith(
         expect.objectContaining({
+          places: 210,
           placesPerDay: {
             '2021-02-10': 200,
             '2021-02-11': 10,
           },
-          places: 210,
         })
       )
     })

@@ -3,7 +3,7 @@
 exports[`InfoPanel> renders with event with closed entry and registrations 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1eydqzt"
+    class="MuiBox-root css-cdrod1"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
@@ -12,7 +12,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
         class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
       >
         <div
-          class="MuiTabs-root css-10nfe33-MuiTabs-root"
+          class="MuiTabs-root css-12y9vg6-MuiTabs-root"
         >
           <div
             class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
@@ -343,7 +343,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 exports[`InfoPanel> renders with event with closed entry and registrations with groups 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1eydqzt"
+    class="MuiBox-root css-cdrod1"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
@@ -352,7 +352,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
         class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
       >
         <div
-          class="MuiTabs-root css-10nfe33-MuiTabs-root"
+          class="MuiTabs-root css-12y9vg6-MuiTabs-root"
         >
           <div
             class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
@@ -683,7 +683,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 exports[`InfoPanel> renders with no registrations 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1eydqzt"
+    class="MuiBox-root css-cdrod1"
   >
     <div
       class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
@@ -692,7 +692,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
         class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
       >
         <div
-          class="MuiTabs-root css-10nfe33-MuiTabs-root"
+          class="MuiTabs-root css-12y9vg6-MuiTabs-root"
         >
           <div
             class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"

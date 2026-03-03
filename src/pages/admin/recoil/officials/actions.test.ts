@@ -1,9 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { getOfficials } from '../../../../api/official'
 import { getUsers } from '../../../../api/user'
-
 import { useAdminOfficialsActions } from './actions'
 
 jest.mock('../../../../api/official', () => ({

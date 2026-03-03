@@ -2,9 +2,6 @@ import type { Theme } from '@mui/material'
 import type { SyntheticEvent } from 'react'
 import type { Organizer, PublicJudge, RegistrationClass } from '../../types'
 import type { DateValue } from '../components/DateRange'
-
-import { useCallback, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined'
 import { useMediaQuery } from '@mui/material'
 import Accordion from '@mui/material/Accordion'
@@ -17,7 +14,8 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
-
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { HEADER_HEIGHT } from '../../assets/Theme'
 import AutocompleteMulti from '../components/AutocompleteMulti'
 import DateRange from '../components/DateRange'
@@ -46,7 +44,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [filter, onChange]
   )
   const handleDateRangeChange = useCallback(
-    (start: DateValue, end: DateValue) => setFilter({ start, end }),
+    (start: DateValue, end: DateValue) => setFilter({ end, start }),
     [setFilter]
   )
   const handleEventTypeChange = useCallback(
@@ -54,31 +52,31 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
     [setFilter]
   )
   const handleEventClassChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: readonly RegistrationClass[]) =>
+    (_event: SyntheticEvent<Element, Event>, value: readonly RegistrationClass[]) =>
       setFilter({ eventClass: [...value] }),
     [setFilter]
   )
   const handleOrganizerChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: readonly Organizer[]) =>
+    (_event: SyntheticEvent<Element, Event>, value: readonly Organizer[]) =>
       setFilter({ organizer: value.map((v) => v.id) }),
     [setFilter]
   )
   const handleJudgeChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, value: readonly PublicJudge[]) =>
+    (_event: SyntheticEvent<Element, Event>, value: readonly PublicJudge[]) =>
       setFilter({ judge: value.map((v) => v.name) }),
     [setFilter]
   )
   const handleWithEntryOpenChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, checked: boolean) =>
+    (_event: SyntheticEvent<Element, Event>, checked: boolean) =>
       setFilter({
-        withOpenEntry: checked,
         withClosingEntry: checked && filter.withClosingEntry,
         withFreePlaces: checked && filter.withFreePlaces,
+        withOpenEntry: checked,
       }),
     [filter.withClosingEntry, filter.withFreePlaces, setFilter]
   )
   const handleWithUpcomingEntryChange = useCallback(
-    (event: SyntheticEvent<Element, Event>, checked: boolean) =>
+    (_event: SyntheticEvent<Element, Event>, checked: boolean) =>
       setFilter({
         withUpcomingEntry: checked,
       }),
@@ -98,12 +96,12 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
       component="nav"
       p={0}
       sx={{
-        position: 'sticky',
-        top: `calc(${HEADER_HEIGHT} - 1px)`,
-        zIndex: 2,
         border: '1px solid #708f85',
         borderRadius: '4px',
         m: '1px',
+        position: 'sticky',
+        top: `calc(${HEADER_HEIGHT} - 1px)`,
+        zIndex: 2,
         // borderTop: '1px solid #708f85',
       }}
     >
@@ -115,11 +113,11 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
       >
         <AccordionSummary
           sx={{
-            bgcolor: 'background.filterHeader',
-            minHeight: '28px',
-            '&.Mui-expanded': { minHeight: '28px' },
             '& .MuiAccordionSummary-content': { margin: 0, overflow: 'hidden' },
             '& .MuiAccordionSummary-content.Mui-expanded': { margin: 0 },
+            '&.Mui-expanded': { minHeight: '28px' },
+            bgcolor: 'background.filterHeader',
+            minHeight: '28px',
             p: '1px',
           }}
         >
@@ -137,7 +135,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
         </AccordionSummary>
         <AccordionDetails sx={{ bgcolor: 'background.filter' }}>
           <Grid container justifyContent="start" spacing={1}>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={{ md: 6, xs: 12 }}>
               <DateRange
                 start={filter.start}
                 end={filter.end}
@@ -147,7 +145,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 onChange={handleDateRangeChange}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+            <Grid size={{ md: 4, sm: 6, xs: 12 }}>
               <SelectMulti
                 label={t('filter.eventType')}
                 onChange={handleEventTypeChange}
@@ -155,7 +153,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 value={filter.eventType}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+            <Grid size={{ md: 2, sm: 6, xs: 12 }}>
               <AutocompleteMulti
                 getOptionLabel={getString}
                 label={t('filter.eventClass')}
@@ -164,7 +162,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 value={filter.eventClass}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ sm: 6, xs: 12 }}>
               <AutocompleteMulti
                 getOptionLabel={getName}
                 isOptionEqualToValue={compareId}
@@ -174,7 +172,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 value={organizers.filter((o) => filter.organizer.includes(o.id))}
               />
             </Grid>
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid size={{ sm: 6, xs: 12 }}>
               <AutocompleteMulti
                 getOptionLabel={getJudgeName}
                 isOptionEqualToValue={compareJudge}
@@ -184,10 +182,10 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                 value={judges.filter((j) => filter.judge.includes(j.name))}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 12 }}>
+            <Grid size={{ md: 12, xs: 12 }}>
               <Grid container>
                 <Grid size="auto">
-                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={0} alignItems="start" justifyContent="start">
+                  <Stack direction={{ sm: 'row', xs: 'column' }} spacing={0} alignItems="start" justifyContent="start">
                     <FormControlLabel
                       value="withOpenEntry"
                       checked={filter.withOpenEntry}
@@ -207,7 +205,7 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
                     />
                   </Stack>
                 </Grid>
-                <Grid display={{ xs: undefined, md: 'none' }} alignSelf="end">
+                <Grid display={{ md: 'none', xs: undefined }} alignSelf="end">
                   <Button variant="contained" onClick={() => setExpanded(false)}>
                     OK
                   </Button>

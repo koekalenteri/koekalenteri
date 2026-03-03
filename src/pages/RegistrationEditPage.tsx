@@ -1,19 +1,16 @@
 import type { Registration } from '../types'
-
+import Typography from '@mui/material/Typography'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
-import Typography from '@mui/material/Typography'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-
 import { hasChanges, isEntryClosed, isEventOngoing, isEventOver } from '../lib/utils'
-
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { useRegistrationActions } from './recoil/registration/actions'
 import { LoadingPage } from './LoadingPage'
 import { confirmedEventSelector, editableRegistrationByIdsAtom, registrationByIdsAtom, spaAtom } from './recoil'
+import { useRegistrationActions } from './recoil/registration/actions'
 
 export default function RegistrationEditPage() {
   const { t } = useTranslation()

@@ -1,6 +1,5 @@
 import { getEvent } from '../api/event'
 import { getRegistration, putRegistration } from '../api/registration'
-
 import { deferredLoader } from './RegistrationInvitation'
 
 // Mock dependencies
@@ -32,11 +31,11 @@ describe('RegistrationInvitation deferredLoader', () => {
   it('marks invitation as read if not already read', async () => {
     const mockEvent = { id: 'event123', name: 'Test Event' }
     const mockRegistration = {
-      id: 'reg123',
-      eventId: 'event123',
-      invitationRead: false,
       dog: { name: 'Test Dog' },
+      eventId: 'event123',
       handler: { name: 'Test Handler' },
+      id: 'reg123',
+      invitationRead: false,
     }
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)
@@ -58,11 +57,11 @@ describe('RegistrationInvitation deferredLoader', () => {
   it('does not mark invitation as read if already read', async () => {
     const mockEvent = { id: 'event123', name: 'Test Event' }
     const mockRegistration = {
-      id: 'reg123',
-      eventId: 'event123',
-      invitationRead: true,
       dog: { name: 'Test Dog' },
+      eventId: 'event123',
       handler: { name: 'Test Handler' },
+      id: 'reg123',
+      invitationRead: true,
     }
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)
@@ -76,14 +75,14 @@ describe('RegistrationInvitation deferredLoader', () => {
   it('returns URL when invitation attachment exists', async () => {
     const mockEvent = { id: 'event123', name: 'Test Event' }
     const mockRegistration = {
-      id: 'reg123',
+      dates: [{ date: new Date('2021-01-01T12:00Z') }],
+      dog: { name: 'Test Dog' },
       eventId: 'event123',
       eventType: 'test-type',
-      invitationRead: true,
-      invitationAttachment: 'attachment-key',
-      dog: { name: 'Test Dog' },
-      dates: [{ date: new Date('2021-01-01T12:00Z') }],
       handler: { name: 'Test Handler' },
+      id: 'reg123',
+      invitationAttachment: 'attachment-key',
+      invitationRead: true,
     }
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)
@@ -92,20 +91,20 @@ describe('RegistrationInvitation deferredLoader', () => {
     const result = await deferredLoader('event123', 'reg123', undefined)
 
     expect(result).toEqual({
-      url: '/file/attachment-key/kutsu-test-type-01.01.2021.pdf',
       event: mockEvent,
       registration: mockRegistration,
+      url: '/file/attachment-key/kutsu-test-type-01.01.2021.pdf',
     })
   })
 
   it('returns only event and registration when no invitation attachment', async () => {
     const mockEvent = { id: 'event123', name: 'Test Event' }
     const mockRegistration = {
-      id: 'reg123',
-      eventId: 'event123',
-      invitationRead: true,
       dog: { name: 'Test Dog' },
+      eventId: 'event123',
       handler: { name: 'Test Handler' },
+      id: 'reg123',
+      invitationRead: true,
     }
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)
@@ -131,11 +130,11 @@ describe('RegistrationInvitation deferredLoader', () => {
   it('passes the abort signal to API calls', async () => {
     const mockEvent = { id: 'event123', name: 'Test Event' }
     const mockRegistration = {
-      id: 'reg123',
-      eventId: 'event123',
-      invitationRead: true,
       dog: { name: 'Test Dog' },
+      eventId: 'event123',
       handler: { name: 'Test Handler' },
+      id: 'reg123',
+      invitationRead: true,
     }
 
     mockGetEvent.mockResolvedValueOnce(mockEvent)

@@ -8,10 +8,8 @@ import type {
   RegistrationDate,
   RegistrationTime,
 } from '../types'
-
 import { eachDayOfInterval, subDays } from 'date-fns'
 import { diff } from 'deep-object-diff'
-
 import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 
 type EventVitals = Partial<
@@ -55,7 +53,7 @@ export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' 
   if (!event) return []
   return event.classes.length
     ? uniqueDate(event.classes.map((c) => c.date ?? event.startDate))
-    : eachDayOfInterval({ start: event.startDate, end: event.endDate })
+    : eachDayOfInterval({ end: event.endDate, start: event.startDate })
 }
 
 export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'> | null) =>

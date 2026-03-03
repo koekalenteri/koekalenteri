@@ -1,8 +1,6 @@
 import { render, screen } from '@testing-library/react'
-
 import { eventWithStaticDates } from '../../../../../../__mockData__/events'
 import { flushPromises, renderWithUserEvents } from '../../../../../../test-utils/utils'
-
 import DayPlacesTable from './DayPlacesTable'
 
 describe('DayPlacesTable', () => {

@@ -1,8 +1,6 @@
 import type { EmailTemplateId, JsonRegistration } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { jest } from '@jest/globals'
-
 import { eventWithALOClassInvited } from '../../__mockData__/events'
 import {
   jsonRegistrationsToEventWithALOInvited,
@@ -10,13 +8,13 @@ import {
 } from '../../__mockData__/registrations'
 
 const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
-  write: jest.fn(),
+  delete: jest.fn(),
   // @ts-expect-error types don't quite match
   query: jest.fn(),
-  update: jest.fn(),
   // @ts-expect-error types don't quite match
   read: jest.fn(),
-  delete: jest.fn(),
+  update: jest.fn(),
+  write: jest.fn(),
 }
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -29,8 +27,8 @@ const mockEmailTo = jest.fn()
 const mockSESSend = jest.fn<any>()
 
 jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
-  SendTemplatedEmailCommand: jest.fn(({ Destination, Template }) => [Destination.ToAddresses, Template]),
   SESClient: jest.fn(() => ({ send: mockSESSend })),
+  SendTemplatedEmailCommand: jest.fn(({ Destination, Template }) => [Destination.ToAddresses, Template]),
 }))
 
 jest.unstable_mockModule('./audit', () => ({
@@ -100,11 +98,11 @@ describe('registration', () => {
       const result = groupRegistrationsByClass(registrations)
 
       expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
-      expect(result['ALO'].length).toBe(2)
-      expect(result['AVO'].length).toBe(1)
-      expect(result['ALO']).toContainEqual(expect.objectContaining({ id: '1' }))
-      expect(result['ALO']).toContainEqual(expect.objectContaining({ id: '3' }))
-      expect(result['AVO']).toContainEqual(expect.objectContaining({ id: '2' }))
+      expect(result.ALO.length).toBe(2)
+      expect(result.AVO.length).toBe(1)
+      expect(result.ALO).toContainEqual(expect.objectContaining({ id: '1' }))
+      expect(result.ALO).toContainEqual(expect.objectContaining({ id: '3' }))
+      expect(result.AVO).toContainEqual(expect.objectContaining({ id: '2' }))
     })
 
     it('should use eventType when class is not available', () => {
@@ -117,8 +115,8 @@ describe('registration', () => {
       const result = groupRegistrationsByClass(registrations)
 
       expect(Object.keys(result)).toEqual(['NOME', 'AVO'])
-      expect(result['NOME'].length).toBe(2)
-      expect(result['AVO'].length).toBe(1)
+      expect(result.NOME.length).toBe(2)
+      expect(result.AVO.length).toBe(1)
     })
 
     it('should handle empty array', () => {
@@ -131,36 +129,36 @@ describe('registration', () => {
     it('should group registrations by class and group', () => {
       const registrationsByClass = {
         ALO: [
-          { id: '1', group: { key: 'group1' } },
-          { id: '2', group: { key: 'group2' } },
-          { id: '3', group: { key: 'group1' } },
+          { group: { key: 'group1' }, id: '1' },
+          { group: { key: 'group2' }, id: '2' },
+          { group: { key: 'group1' }, id: '3' },
         ],
-        AVO: [{ id: '4', group: { key: 'group3' } }],
+        AVO: [{ group: { key: 'group3' }, id: '4' }],
       } as unknown as Record<string, JsonRegistration[]>
 
       const result = groupRegistrationsByClassAndGroup(registrationsByClass)
 
       expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
-      expect(Object.keys(result['ALO'])).toEqual(['group1', 'group2'])
-      expect(Object.keys(result['AVO'])).toEqual(['group3'])
-      expect(result['ALO']['group1'].length).toBe(2)
-      expect(result['ALO']['group2'].length).toBe(1)
+      expect(Object.keys(result.ALO)).toEqual(['group1', 'group2'])
+      expect(Object.keys(result.AVO)).toEqual(['group3'])
+      expect(result.ALO.group1.length).toBe(2)
+      expect(result.ALO.group2.length).toBe(1)
     })
 
     it('should skip registrations that are not in participant groups', () => {
       const registrationsByClass = {
         ALO: [
-          { id: '1', group: { key: 'group1' } },
-          { id: '2', group: { key: 'reserve' } },
-          { id: '3', group: { key: 'cancelled' } },
-          { id: '4', group: undefined },
+          { group: { key: 'group1' }, id: '1' },
+          { group: { key: 'reserve' }, id: '2' },
+          { group: { key: 'cancelled' }, id: '3' },
+          { group: undefined, id: '4' },
         ],
       } as unknown as Record<string, JsonRegistration[]>
 
       const result = groupRegistrationsByClassAndGroup(registrationsByClass)
 
-      expect(Object.keys(result['ALO'])).toEqual(['group1'])
-      expect(result['ALO']['group1'].length).toBe(1)
+      expect(Object.keys(result.ALO)).toEqual(['group1'])
+      expect(result.ALO.group1.length).toBe(1)
     })
 
     it('should handle empty input', () => {
@@ -261,8 +259,8 @@ describe('registration', () => {
 
       // Check result
       expect(result).toEqual({
-        ok: ['handler1@example.com', 'owner1@example.com', 'handler2@example.com', 'owner2@example.com'],
         failed: [],
+        ok: ['handler1@example.com', 'owner1@example.com', 'handler2@example.com', 'owner2@example.com'],
       })
 
       // Check email sending
@@ -320,8 +318,8 @@ describe('registration', () => {
 
       // Check result
       expect(result).toEqual({
-        ok: ['handler1@example.com', 'owner1@example.com'],
         failed: ['handler2@example.com', 'owner2@example.com'],
+        ok: ['handler1@example.com', 'owner1@example.com'],
       })
 
       // Check audit entries for failure
@@ -361,15 +359,15 @@ describe('registration', () => {
         { eventId: 'testALOInvited', id: 'testALOInvited1' },
         {
           set: {
-            messagesSent: { registration: true, invitation: true },
+            messagesSent: { invitation: true, registration: true },
           },
         }
       )
 
       // Check that the in-memory object was updated
       expect(registrationWithExistingMessages.messagesSent).toEqual({
-        registration: true,
         invitation: true,
+        registration: true,
       })
     })
 

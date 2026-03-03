@@ -3,7 +3,7 @@
 exports[`LoadingPage should render 1`] = `
 <div>
   <div
-    class="MuiBox-root css-qiz0h"
+    class="MuiBox-root css-zzyggk"
   >
     <span
       class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1wxecgq-MuiCircularProgress-root"

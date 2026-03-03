@@ -1,7 +1,4 @@
 import type { ConfirmedEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
-
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -26,8 +23,9 @@ import Typography from '@mui/material/Typography'
 import Handlebars from 'handlebars/dist/cjs/handlebars.js'
 import { useConfirm } from 'material-ui-confirm'
 import { useSnackbar } from 'notistack'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-
 import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { AsyncButton } from '../../components/AsyncButton'
@@ -35,7 +33,6 @@ import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
-
 import ContactInfoGroup from './sendMessageDialog/ContactInfoGroup'
 
 interface Props {
@@ -81,11 +78,11 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const handleTemplateChange = (value: EmailTemplate | null) => setSelectedTemplate(value ?? undefined)
   const preview = useMemo(() => {
     if (!previewData || !compiledTemplate || !compiledSubject) {
-      return { subject: '', html: '' }
+      return { html: '', subject: '' }
     }
     return {
-      subject: compiledSubject(previewData),
       html: compiledTemplate(previewData),
+      subject: compiledSubject(previewData),
     }
   }, [compiledTemplate, compiledSubject, previewData])
 
@@ -95,7 +92,8 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     }
     try {
       const { confirmed } = await confirm({
-        title: 'Viestin lähettäminen',
+        cancellationText: t('cancel'),
+        confirmationText: 'Lähetä',
         content: (
           <div>
             Olet lähettämässä viestiä {t(`emailTemplate.${selectedTemplate.id}`)} {registrations.length}{' '}
@@ -104,8 +102,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
             Oletko varma, että haluat lähettää viestin?
           </div>
         ),
-        confirmationText: 'Lähetä',
-        cancellationText: t('cancel'),
+        title: 'Viestin lähettäminen',
       })
       if (!confirmed) return
 
@@ -117,27 +114,27 @@ export default function SendMessageDialog({ event, registrations, templateId, op
         registrations: updatedRegistrations,
       } = await sendTemplatedEmail(
         {
-          template: selectedTemplate.id,
-          eventId: event.id,
           contactInfo,
+          eventId: event.id,
           registrationIds: registrations.map<string>((r) => r.id),
+          template: selectedTemplate.id,
           text,
         },
         token
       )
       if (ok.length) {
-        enqueueSnackbar('Viesti lähetetty onnistuneesti\n\n' + ok.join('\n'), {
+        enqueueSnackbar(`Viesti lähetetty onnistuneesti\n\n${ok.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
           variant: 'success',
-          style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
         })
       }
       if (failed.length) {
-        enqueueSnackbar('Viestin lähetys epäonnistui 💩\n\n' + failed.join('\n'), {
+        enqueueSnackbar(`Viestin lähetys epäonnistui 💩\n\n${failed.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
           variant: 'success',
-          style: { whiteSpace: 'pre-line', overflowWrap: 'break-word' },
         })
       }
-      setEvent({ ...event, state, classes })
+      setEvent({ ...event, classes, state })
       actions.update(updatedRegistrations)
       onClose?.()
     } catch (error) {
@@ -177,24 +174,24 @@ export default function SendMessageDialog({ event, registrations, templateId, op
               <AccordionSummary
                 expandIcon={<ArrowForwardIosSharp sx={{ fontSize: '0.9rem' }} />}
                 sx={{
-                  px: 1,
-                  minHeight: 32,
-                  flexDirection: 'row-reverse',
-                  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-                    transform: 'rotate(90deg)',
-                  },
                   '& .MuiAccordionSummary-content': {
                     marginX: 1,
                     marginY: 0,
                   },
+                  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
+                    transform: 'rotate(90deg)',
+                  },
+                  flexDirection: 'row-reverse',
+                  minHeight: 32,
+                  px: 1,
                 }}
               >
                 Vastaanottajat: {registrations.length}
               </AccordionSummary>
-              <AccordionDetails sx={{ p: 0, maxHeight: 300, overflowY: 'auto' }}>
+              <AccordionDetails sx={{ maxHeight: 300, overflowY: 'auto', p: 0 }}>
                 <List dense sx={{ p: 0 }}>
                   {registrations.map((r) => (
-                    <ListItem key={r.id} sx={{ py: 0, borderTop: '1px dashed', borderTopColor: 'divider' }}>
+                    <ListItem key={r.id} sx={{ borderTop: '1px dashed', borderTopColor: 'divider', py: 0 }}>
                       <ListItemText primary={r.dog.name} secondary={listEmails(r)} />
                     </ListItem>
                   ))}
@@ -204,7 +201,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
 
             <Typography variant="h6">Viesti</Typography>
 
-            <Paper sx={{ width: '100%', p: 1, bgcolor: 'background.form' }}>
+            <Paper sx={{ bgcolor: 'background.form', p: 1, width: '100%' }}>
               <AutocompleteSingle
                 disabled={!!templateId}
                 getOptionLabel={(o) => (o ? t(`emailTemplate.${o.id}`) : '')}
@@ -236,8 +233,9 @@ export default function SendMessageDialog({ event, registrations, templateId, op
           </Box>
           <Box sx={{ width: '60%' }}>
             <Typography variant="h6">Esikatselu</Typography>
-            <Paper sx={{ width: '100%', p: 1 }}>
+            <Paper sx={{ p: 1, width: '100%' }}>
               Aihe:&nbsp;{preview.subject}
+              {/** biome-ignore lint/security/noDangerouslySetInnerHtml: yolo */}
               <div className="preview" dangerouslySetInnerHTML={{ __html: preview.html }} />
             </Paper>
           </Box>

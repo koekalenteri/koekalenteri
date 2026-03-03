@@ -1,5 +1,4 @@
 import type { AuditRecord, JsonAuditRecord } from '../../types'
-
 import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
@@ -27,7 +26,7 @@ describe('audit', () => {
 
   describe('audit', () => {
     it('writes to database', async () => {
-      const record: Omit<AuditRecord, 'timestamp'> = { auditKey: 'key', user: 'user', message: 'message' }
+      const record: Omit<AuditRecord, 'timestamp'> = { auditKey: 'key', message: 'message', user: 'user' }
 
       await audit(record)
 
@@ -44,7 +43,7 @@ describe('audit', () => {
 
       mockWrite.mockRejectedValueOnce(error)
 
-      await audit({ auditKey: 'key', user: 'user', message: 'msg' })
+      await audit({ auditKey: 'key', message: 'msg', user: 'user' })
 
       expect(errorSpy).toHaveBeenCalledWith(error)
       expect(errorSpy).toHaveBeenCalledTimes(1)
@@ -54,7 +53,7 @@ describe('audit', () => {
   describe('auditTrail', () => {
     it('returns items from database', async () => {
       const records: JsonAuditRecord[] = [
-        { timestamp: '2021-01-01T00:00:00Z', auditKey: 'key', user: 'user', message: 'message' },
+        { auditKey: 'key', message: 'message', timestamp: '2021-01-01T00:00:00Z', user: 'user' },
       ]
 
       mockQuery.mockResolvedValueOnce(records)

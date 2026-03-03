@@ -1,8 +1,6 @@
 import type { JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
-
 import { jest } from '@jest/globals'
-
 import { eventWithALOClassInvited, eventWithParticipantsInvited } from '../../__mockData__/events'
 import {
   jsonRegistrationsToEventWithALOInvited,
@@ -19,12 +17,12 @@ jest.unstable_mockModule('../lib/auth', () => ({
 }))
 
 const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
-  write: jest.fn(),
   // @ts-expect-error types don't quite match
   query: jest.fn(),
-  update: jest.fn(),
   // @ts-expect-error types don't quite match
   read: jest.fn(),
+  update: jest.fn(),
+  write: jest.fn(),
 }
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -33,7 +31,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 const libRegistration = await import('../lib/registration')
 
-const mockSend = jest.fn(() => ({ ok: [], failed: [] }))
+const mockSend = jest.fn(() => ({ failed: [], ok: [] }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
@@ -52,13 +50,13 @@ jest.unstable_mockModule('../lib/broadcast', () => ({
 const { default: putRegistrationGroupsLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
-  id: '',
   createdAt: '',
   createdBy: 'test',
+  email: 'test@example.com',
+  id: '',
   modifiedAt: '',
   modifiedBy: 'test',
   name: 'Test User',
-  email: 'test@example.com',
 }
 
 describe('putRegistrationGroupsLambda', () => {
@@ -87,10 +85,10 @@ describe('putRegistrationGroupsLambda', () => {
   it('shoud return 422 with groups to not belonging to event', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     const mockGroup = {
-      eventId: 'incorrect-event-id',
-      id: 'whatever',
-      group: { key: 'reserve', number: 1 },
       cancelled: false,
+      eventId: 'incorrect-event-id',
+      group: { key: 'reserve', number: 1 },
+      id: 'whatever',
     }
     authorizeMock.mockResolvedValueOnce(mockUser)
     mockConsoleError.mockImplementationOnce(() => undefined)
@@ -122,7 +120,7 @@ describe('putRegistrationGroupsLambda', () => {
 
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
-        [{ eventId: event.id, id: reg.id, group: reg.group, cancelled: false }] as JsonRegistrationGroupInfo[],
+        [{ cancelled: false, eventId: event.id, group: reg.group, id: reg.id }] as JsonRegistrationGroupInfo[],
         {
           pathParameters: { eventId: event.id },
         }
@@ -181,7 +179,7 @@ describe('putRegistrationGroupsLambda', () => {
 
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
-        [{ eventId: event.id, id: reg.id, group: reg.group, cancelled: false }] as JsonRegistrationGroupInfo[],
+        [{ cancelled: false, eventId: event.id, group: reg.group, id: reg.id }] as JsonRegistrationGroupInfo[],
         {
           pathParameters: { eventId: event.id },
         }
@@ -242,13 +240,13 @@ describe('putRegistrationGroupsLambda', () => {
     const updated = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
 
     // switch the two reserve-registrations positions
-    updated[5].group = { ...updated[5].group, number: 2, key: 'reserve' }
-    updated[6].group = { ...updated[6].group, number: 1, key: 'reserve' }
+    updated[5].group = { ...updated[5].group, key: 'reserve', number: 2 }
+    updated[6].group = { ...updated[6].group, key: 'reserve', number: 1 }
 
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [
-          { eventId: event.id, id: updated[6].id, group: updated[6].group, cancelled: false },
+          { cancelled: false, eventId: event.id, group: updated[6].group, id: updated[6].id },
         ] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
       )
@@ -278,16 +276,16 @@ describe('putRegistrationGroupsLambda', () => {
 
     const updated: JsonRegistration[] = storedItems.map((r) => ({ ...r }))
 
-    updated[5].group = { ...updated[5].group, number: 2, key: 'reserve' }
-    updated[6].group = { ...updated[6].group, number: 1, key: 'reserve' }
+    updated[5].group = { ...updated[5].group, key: 'reserve', number: 2 }
+    updated[6].group = { ...updated[6].group, key: 'reserve', number: 1 }
     updated[5].cancelled = false
     updated[6].cancelled = false
 
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [
-          { eventId: 'testInvited', id: updated[6].id, group: updated[6].group, cancelled: false },
-          { eventId: 'testInvited', id: updated[5].id, group: updated[5].group, cancelled: false },
+          { cancelled: false, eventId: 'testInvited', group: updated[6].group, id: updated[6].id },
+          { cancelled: false, eventId: 'testInvited', group: updated[5].group, id: updated[5].id },
         ] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
       )
@@ -319,16 +317,16 @@ describe('putRegistrationGroupsLambda', () => {
 
     const updated = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
-      reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
       group:
         r.class === 'ALO' && r.group?.key === 'reserve' && r.group?.number === 1
-          ? { date: eventWithParticipantsInvited.startDate.toISOString(), time: 'ap', number: 2, key: 'ALO-AP' }
+          ? { date: eventWithParticipantsInvited.startDate.toISOString(), key: 'ALO-AP', number: 2, time: 'ap' }
           : r.group,
+      reserveNotified: r.group?.key === 'reserve' ? (r.group?.number ?? 999) : undefined,
     }))
 
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
-        [{ eventId: event.id, id: updated[5].id, group: updated[5].group }] as JsonRegistrationGroupInfo[],
+        [{ eventId: event.id, group: updated[5].group, id: updated[5].id }] as JsonRegistrationGroupInfo[],
         { pathParameters: { eventId: event.id } }
       )
     )
@@ -371,7 +369,7 @@ describe('putRegistrationGroupsLambda', () => {
     const res = await putRegistrationGroupsLambda(
       constructAPIGwEvent(
         [
-          { eventId: event.id, id: reg.id, group: reg.group, cancelled: true, cancelReason: 'test' },
+          { cancelled: true, cancelReason: 'test', eventId: event.id, group: reg.group, id: reg.id },
         ] as JsonRegistrationGroupInfo[],
         {
           pathParameters: { eventId: event.id },
@@ -385,8 +383,8 @@ describe('putRegistrationGroupsLambda', () => {
       {
         set: {
           cancelled: true,
-          group: { key: 'cancelled', number: 1 },
           cancelReason: 'test',
+          group: { key: 'cancelled', number: 1 },
         },
       },
       'registration-table-not-found-in-env'

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((name, fn) => fn)
+const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
@@ -26,8 +26,8 @@ const { default: runMigrationLambda } = await import('./handler')
 
 describe('runMigrationLambda', () => {
   const event = {
-    headers: {},
     body: '',
+    headers: {},
   } as any
 
   beforeEach(() => {
@@ -35,9 +35,9 @@ describe('runMigrationLambda', () => {
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
+      admin: true,
       id: 'user123',
       name: 'Test User',
-      admin: true,
     })
 
     mockReadAll.mockResolvedValue([
@@ -53,8 +53,8 @@ describe('runMigrationLambda', () => {
       },
       {
         id: 'event3',
-        startDate: '2024-12-01',
         season: '2024', // Already has season field
+        startDate: '2024-12-01',
       },
     ])
 
@@ -63,9 +63,9 @@ describe('runMigrationLambda', () => {
 
   it('returns 401 if not authorized as admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
+      admin: false,
       id: 'user123',
       name: 'Test User',
-      admin: false,
     })
 
     await runMigrationLambda(event)
@@ -98,8 +98,8 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'event1',
-        startDate: '2025-01-01',
         season: '2025',
+        startDate: '2025-01-01',
       })
     )
 
@@ -107,8 +107,8 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'event2',
-        startDate: '2025-02-01',
         season: '2025',
+        startDate: '2025-02-01',
       })
     )
 
@@ -134,13 +134,13 @@ describe('runMigrationLambda', () => {
     mockReadAll.mockResolvedValueOnce([
       {
         id: 'event1',
-        startDate: '2025-01-01',
         season: '2025', // Already has season field
+        startDate: '2025-01-01',
       },
       {
         id: 'event2',
-        startDate: '2025-02-01',
         season: '2025', // Already has season field
+        startDate: '2025-02-01',
       },
     ])
 

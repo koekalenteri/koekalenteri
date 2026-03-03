@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next'
 import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   date?: Date
