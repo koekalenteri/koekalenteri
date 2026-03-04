@@ -14,7 +14,7 @@ export const compressCanonicalMap = (duplicateIdToCanonicalId: Map<string, strin
     return current
   }
 
-  for (const [duplicateId, canonicalId] of [...duplicateIdToCanonicalId.entries()]) {
+  for (const [duplicateId, canonicalId] of duplicateIdToCanonicalId.entries()) {
     const resolved = resolveFinalCanonicalId(canonicalId)
     if (resolved !== canonicalId) duplicateIdToCanonicalId.set(duplicateId, resolved)
   }

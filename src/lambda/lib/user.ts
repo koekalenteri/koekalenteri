@@ -90,7 +90,7 @@ export const setUserRole = async (
   origin?: string
 ): Promise<JsonUser> => {
   const t = i18n.getFixedT('fi')
-  const roles = { ...(user.roles ?? {}) }
+  const roles = { ...user.roles }
   if (role === 'none') {
     delete roles[orgId]
   } else {

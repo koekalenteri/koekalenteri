@@ -13,7 +13,7 @@ import { flushPromises, renderWithUserEvents } from '../../../../test-utils/util
 import PaymentSection from './PaymentSection'
 
 // Helper function to render the PaymentSection component with all required providers
-const renderPaymentSection = (testEvent: any, onChange: any) => {
+const renderPaymentSection = (testEvent: any, onChange: any, extraProps: Record<string, unknown> = {}) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
@@ -21,7 +21,7 @@ const renderPaymentSection = (testEvent: any, onChange: any) => {
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
-                <PaymentSection event={testEvent} onChange={onChange} open />
+                <PaymentSection event={testEvent} onChange={onChange} open {...extraProps} />
               </SnackbarProvider>
             </Suspense>
           </MemoryRouter>
@@ -515,5 +515,901 @@ describe('PaymentSection', () => {
     expect(onChange).toHaveBeenCalledWith({
       paymentTime: 'confirmation',
     })
+  })
+
+  it('does not set default payment time when already defined', async () => {
+    const testEvent = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    expect(onChange).not.toHaveBeenCalledWith({ paymentTime: 'registration' })
+  })
+
+  it('does not trigger cleanup when breed keys are already valid', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        breed: { '123': 18, '456': 16 },
+        normal: 20,
+      },
+      costMember: {
+        breed: { '123': 9, '456': 8 },
+        normal: 10,
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    expect(onChange).not.toHaveBeenCalledWith({
+      cost: {
+        breed: { '123': 18, '456': 16 },
+        normal: 20,
+      },
+      costMember: {
+        breed: { '123': 9, '456': 8 },
+        normal: 10,
+      },
+    })
+  })
+
+  it('removes breed-specific cost from both cost and member cost', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        breed: { '123': 18, '456': 16 },
+        normal: 20,
+      },
+      costMember: {
+        breed: { '123': 9, '456': 8 },
+        normal: 10,
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('cost.breed.123-delete'))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        breed: { '456': 16 },
+        normal: 20,
+      },
+      costMember: {
+        breed: { '456': 8 },
+        normal: 10,
+      },
+    })
+  })
+
+  it('removes optional additional cost rows', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt 1', fi: 'Opt 1' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt 1', fi: 'Opt 1' } }],
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const optionalRow = screen.getByText('Opt 1').closest('tr')
+    expect(optionalRow).not.toBeNull()
+    const buttons = within(optionalRow as HTMLTableRowElement).getAllByRole('button')
+    await user.click(buttons[1])
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [],
+      },
+    })
+  })
+
+  it('marks normal cost row as error from costMemberHigh validation list', async () => {
+    const testEvent = { ...eventWithStaticDates }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    renderPaymentSection(testEvent, onChange, {
+      errors: [false, { key: 'costMemberHigh', opts: { list: ['normal'] } }],
+    })
+    await flushPromises()
+
+    expect(screen.getByText('validation.event.costMemberHigh')).toBeInTheDocument()
+  })
+
+  it('uses default member cost object when member cost is undefined while adding optional cost', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        custom: { cost: 5, description: { en: 'Original', fi: 'Alkuperäinen' } },
+        earlyBird: { cost: 15, days: 7 },
+        normal: 20,
+      },
+      costMember: undefined,
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'costAddOptional' }))
+    await flushPromises()
+    const addDialog = screen.getByRole('dialog')
+    const fiInput = await within(addDialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.type(fiInput, 'Lisämaksu')
+    await user.click(within(addDialog).getByRole('button', { name: 'costAddOptional' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        custom: { cost: 5, description: { en: 'Original', fi: 'Alkuperäinen' } },
+        earlyBird: { cost: 15, days: 7 },
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 0, description: { en: '', fi: 'Lisämaksu' } }],
+      },
+      costMember: {
+        normal: 0,
+        optionalAdditionalCosts: [{ cost: 0, description: { en: '', fi: 'Lisämaksu' } }],
+      },
+    })
+  })
+
+  it('uses default member cost object when member cost is undefined while removing a key', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        earlyBird: { cost: 15, days: 7 },
+        normal: 20,
+      },
+      costMember: undefined,
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('cost.earlyBird-delete'))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: { normal: 20 },
+      costMember: { normal: 0 },
+    })
+  })
+
+  it('uses default member cost object when member cost is undefined while saving custom description', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        custom: { cost: 5, description: { en: 'Original', fi: 'Alkuperäinen' } },
+        normal: 20,
+      },
+      costMember: undefined,
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('cost.custom-edit'))
+    await flushPromises()
+    const editDialog = screen.getByRole('dialog')
+    const editFiInput = await within(editDialog).findByRole('textbox', {
+      name: 'eventType.createDialog.description.fi',
+    })
+    await user.clear(editFiInput)
+    await user.type(editFiInput, 'Päivitetty')
+    await user.click(within(editDialog).getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        custom: { cost: 5, description: { en: 'Original', fi: 'Päivitetty' } },
+        normal: 20,
+      },
+      costMember: { normal: 0 },
+    })
+  })
+
+  it('keeps existing object member costs when adding optional additional cost', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { normal: 20 },
+      costMember: { normal: 10 },
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'costAddOptional' }))
+    await flushPromises()
+
+    const dialog = screen.getByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.type(fiInput, 'Objektihaara')
+    await user.click(within(dialog).getByRole('button', { name: 'costAddOptional' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 0, description: { en: '', fi: 'Objektihaara' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 0, description: { en: '', fi: 'Objektihaara' } }],
+      },
+    })
+  })
+
+  it('updates member normal cost when member cost starts as undefined', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { normal: 20 },
+      costMember: undefined,
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const memberInputDiv = screen.getByTestId('costMember.normal')
+    const memberInput = within(memberInputDiv).getByRole('textbox')
+    await user.clear(memberInput)
+    await user.type(memberInput, '44')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      costMember: { normal: 44 },
+    })
+  })
+
+  it('updates early bird days when only event cost has earlyBird', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        earlyBird: { cost: 15, days: 7 },
+        normal: 20,
+      },
+      costMember: {
+        normal: 10,
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '11')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      cost: {
+        earlyBird: { cost: 15, days: 11 },
+        normal: 20,
+      },
+      costMember: {
+        normal: 10,
+      },
+    })
+  })
+
+  it('handles explicit breed key with undefined breed map', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        breed: undefined,
+        normal: 20,
+      },
+      costMember: {
+        normal: 10,
+      },
+    }
+
+    renderPaymentSection(testEvent, jest.fn())
+    await flushPromises()
+
+    expect(screen.getByText(/costNames.normal/)).toBeInTheDocument()
+  })
+
+  it('does not update member optional cost when member optional row is missing at index', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt A', fi: 'Opt A' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [],
+      },
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const memberOptInputDiv = screen.getByTestId('costMember.optionalAdditionalCosts.0')
+    const memberOptInput = within(memberOptInputDiv).getByRole('textbox')
+    await user.clear(memberOptInput)
+    await user.type(memberOptInput, '99')
+    await flushPromises()
+
+    expect(onChange).not.toHaveBeenCalledWith({
+      costMember: expect.objectContaining({ optionalAdditionalCosts: expect.any(Array) }),
+    })
+  })
+
+  it('handles early bird days update when cost and member cost are primitive values', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: 20,
+      costMember: 10,
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByRole('button', { name: 'costAdd' }))
+    await flushPromises()
+    const dialog = screen.getByRole('dialog')
+    const select = await within(dialog).findByRole('combobox')
+    await user.click(select)
+    await flushPromises()
+    const option = await screen.findByRole('option', { name: 'costNamesAdd.earlyBird' })
+    await user.click(option)
+    await flushPromises()
+    await user.click(within(dialog).getByRole('button', { name: 'costAdd' }))
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '5')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      cost: { earlyBird: { cost: 0, days: 5 }, normal: 20 },
+      costMember: { earlyBird: { cost: 0, days: 5 }, normal: 10 },
+    })
+  })
+
+  it('renders and changes payment select safely when onChange is not provided', async () => {
+    const testEvent = { ...eventWithStaticDates, paymentTime: 'registration' as const }
+    const { user } = renderPaymentSection(testEvent, undefined)
+    await flushPromises()
+
+    const paymentTimeLabel = screen.getByLabelText('paymentTime')
+    await user.click(paymentTimeLabel)
+    await flushPromises()
+
+    const confirmationOption = await screen.findByRole('option', { name: 'paymentTimeOptions.confirmation' })
+    await user.click(confirmationOption)
+    await flushPromises()
+
+    expect(screen.getByLabelText('paymentTime')).toBeInTheDocument()
+  })
+
+  it('handles normal cost edits safely when onChange is not provided', async () => {
+    const testEvent = { ...eventWithStaticDates, cost: { normal: 20 }, costMember: { normal: 10 } }
+    const { user } = renderPaymentSection(testEvent, undefined)
+    await flushPromises()
+
+    const costInputDiv = screen.getByTestId('cost.normal')
+    const costInput = within(costInputDiv).getByRole('textbox')
+    await user.clear(costInput)
+    await user.type(costInput, '33')
+    await flushPromises()
+
+    expect(screen.getByTestId('cost.normal')).toBeInTheDocument()
+  })
+
+  it('does not change early bird days when earlyBird values are undefined', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { earlyBird: undefined, normal: 20 },
+      costMember: { earlyBird: undefined, normal: 10 },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '6')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      cost: { earlyBird: undefined, normal: 20 },
+      costMember: { earlyBird: undefined, normal: 10 },
+    })
+  })
+
+  it('handles member optional change safely when member cost is primitive', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt B', fi: 'Opt B' } }],
+      },
+      costMember: 10,
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    const memberOptInputDiv = screen.getByTestId('costMember.optionalAdditionalCosts.0')
+    const memberOptInput = within(memberOptInputDiv).getByRole('textbox')
+    await user.clear(memberOptInput)
+    await user.type(memberOptInput, '77')
+    await flushPromises()
+
+    expect(onChange).not.toHaveBeenCalledWith({
+      costMember: expect.objectContaining({ optionalAdditionalCosts: expect.any(Array) }),
+    })
+  })
+
+  it('updates member optional additional cost when member optional row exists', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt C', fi: 'Opt C' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt C', fi: 'Opt C' } }],
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const memberOptInputDiv = screen.getByTestId('costMember.optionalAdditionalCosts.0')
+    const memberOptInput = within(memberOptInputDiv).getByRole('textbox')
+    await user.clear(memberOptInput)
+    await user.type(memberOptInput, '55')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 55, description: { en: 'Opt C', fi: 'Opt C' } }],
+      },
+    })
+  })
+
+  it('updates early bird days when only member cost has earlyBird', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+      },
+      costMember: {
+        earlyBird: { cost: 8, days: 7 },
+        normal: 10,
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    // Add early bird to event cost only so earlyBirdDays input is rendered
+    await user.click(screen.getByRole('button', { name: 'costAdd' }))
+    await flushPromises()
+    const dialog = screen.getByRole('dialog')
+    const select = await within(dialog).findByRole('combobox')
+    await user.click(select)
+    await flushPromises()
+    const option = await screen.findByRole('option', { name: 'costNamesAdd.earlyBird' })
+    await user.click(option)
+    await flushPromises()
+    await user.click(within(dialog).getByRole('button', { name: 'costAdd' }))
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '9')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: { earlyBird: { cost: 0, days: 9 }, normal: 20 },
+      costMember: { earlyBird: { cost: 0, days: 9 }, normal: 10 },
+    })
+  })
+
+  it('updates early bird days only for member side when event side earlyBird is undefined', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { earlyBird: undefined, normal: 20 },
+      costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '4')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: { earlyBird: undefined, normal: 20 },
+      costMember: { earlyBird: { cost: 8, days: 4 }, normal: 10 },
+    })
+  })
+
+  it('falls back optional additional cost value to 0 when input is cleared', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt D', fi: 'Opt D' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt D', fi: 'Opt D' } }],
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const memberOptInputDiv = screen.getByTestId('costMember.optionalAdditionalCosts.0')
+    const memberOptInput = within(memberOptInputDiv).getByRole('textbox')
+    await user.clear(memberOptInput)
+    await user.tab()
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 0, description: { en: 'Opt D', fi: 'Opt D' } }],
+      },
+    })
+  })
+
+  it('handles optional additional cost edit safely when onChange is not provided', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt E', fi: 'Opt E' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt E', fi: 'Opt E' } }],
+      },
+    }
+    const { user } = renderPaymentSection(testEvent, undefined)
+    await flushPromises()
+
+    const memberOptInputDiv = screen.getByTestId('costMember.optionalAdditionalCosts.0')
+    const memberOptInput = within(memberOptInputDiv).getByRole('textbox')
+    await user.clear(memberOptInput)
+    await user.type(memberOptInput, '44')
+    await flushPromises()
+
+    expect(screen.getByTestId('costMember.optionalAdditionalCosts.0')).toBeInTheDocument()
+  })
+
+  it('falls back normal cost value to 0 when input is cleared', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { normal: 20 },
+      costMember: { normal: 10 },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const costInputDiv = screen.getByTestId('cost.normal')
+    const costInput = within(costInputDiv).getByRole('textbox')
+    await user.clear(costInput)
+    await user.tab()
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      cost: {
+        normal: 0,
+      },
+    })
+  })
+
+  it('falls back early bird days to 0 when input is cleared', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { earlyBird: { cost: 15, days: 7 }, normal: 20 },
+      costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.tab()
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith({
+      cost: { earlyBird: { cost: 15, days: 0 }, normal: 20 },
+      costMember: { earlyBird: { cost: 8, days: 0 }, normal: 10 },
+    })
+  })
+
+  it('edits optional description safely when onChange is not provided', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt F', fi: 'Opt F' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt F', fi: 'Opt F' } }],
+      },
+    }
+    const { user } = renderPaymentSection(testEvent, undefined)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('edit-optional-0'))
+    await flushPromises()
+
+    const dialog = await screen.findByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.clear(fiInput)
+    await user.type(fiInput, 'uusi')
+    await user.click(within(dialog).getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(screen.getByTestId('edit-optional-0')).toBeInTheDocument()
+  })
+
+  it('saves custom description when member cost is primitive', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        custom: { cost: 5, description: { en: 'old', fi: 'vanha' } },
+        normal: 20,
+      },
+      costMember: 10,
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('cost.custom-edit'))
+    await flushPromises()
+
+    const dialog = await screen.findByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.clear(fiInput)
+    await user.type(fiInput, 'uusi kuvaus')
+    await user.click(within(dialog).getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        custom: { cost: 5, description: { en: 'old', fi: 'uusi kuvaus' } },
+        normal: 20,
+      },
+      costMember: { normal: 10 },
+    })
+  })
+
+  it('opens optional description editor for existing optional row safely', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt G', fi: 'Opt G' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt G', fi: 'Opt G' } }],
+      },
+    }
+    const onChange = jest.fn()
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('edit-optional-0'))
+    await flushPromises()
+
+    const dialog = await screen.findByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    expect(fiInput).toHaveValue('Opt G')
+  })
+
+  it('updates early bird days safely when onChange is not provided', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { earlyBird: { cost: 15, days: 7 }, normal: 20 },
+      costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
+    }
+    const { user } = renderPaymentSection(testEvent, undefined)
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '3')
+    await flushPromises()
+
+    expect(screen.getByTestId('earlyBirdDays')).toBeInTheDocument()
+  })
+
+  it('saves optional description when member optional row is missing', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt H', fi: 'Opt H' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [],
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('edit-optional-0'))
+    await flushPromises()
+
+    const dialog = await screen.findByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.clear(fiInput)
+    await user.type(fiInput, 'Opt H2')
+    await user.click(within(dialog).getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt H', fi: 'Opt H2' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [],
+      },
+    })
+  })
+
+  it('saves optional description safely when edited optional row no longer exists', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt J', fi: 'Opt J' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt J', fi: 'Opt J' } }],
+      },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('edit-optional-0'))
+    await flushPromises()
+
+    const dialog = await screen.findByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.clear(fiInput)
+    await user.type(fiInput, 'Opt J2')
+
+    // Simulate concurrent data change: row removed before save callback executes.
+    testEvent.cost.optionalAdditionalCosts = []
+    testEvent.costMember.optionalAdditionalCosts = []
+
+    await user.click(within(dialog).getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [],
+      },
+    })
+  })
+
+  it('saves optional description when member cost is primitive', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt K', fi: 'Opt K' } }],
+      },
+      costMember: 10,
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    await user.click(screen.getByTestId('edit-optional-0'))
+    await flushPromises()
+
+    const dialog = await screen.findByRole('dialog')
+    const fiInput = await within(dialog).findByRole('textbox', { name: 'eventType.createDialog.description.fi' })
+    await user.clear(fiInput)
+    await user.type(fiInput, 'Opt K2')
+    await user.click(within(dialog).getByRole('button', { name: 'save' }))
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt K', fi: 'Opt K2' } }],
+      },
+      costMember: {
+        optionalAdditionalCosts: [],
+      },
+    })
+  })
+
+  it('updates early bird days when event cost is zero-valued object and member has earlyBird', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: { earlyBird: { cost: 0, days: 0 }, normal: 0 },
+      costMember: { earlyBird: { cost: 8, days: 7 }, normal: 10 },
+    }
+    const onChange = jest.fn((props) => Object.assign(testEvent, props))
+    const { user } = renderPaymentSection(testEvent as any, onChange)
+    await flushPromises()
+
+    const daysInput = screen.getByTestId('earlyBirdDays')
+    const daysInputField = within(daysInput).getByRole('textbox')
+    await user.clear(daysInputField)
+    await user.type(daysInputField, '5')
+    await flushPromises()
+
+    expect(onChange).toHaveBeenLastCalledWith({
+      cost: { earlyBird: { cost: 0, days: 5 }, normal: 0 },
+      costMember: { earlyBird: { cost: 8, days: 5 }, normal: 10 },
+    })
+  })
+
+  it('handles optional row remove action safely when onChange is not provided', async () => {
+    const testEvent = {
+      ...eventWithStaticDates,
+      cost: {
+        normal: 20,
+        optionalAdditionalCosts: [{ cost: 16, description: { en: 'Opt I', fi: 'Opt I' } }],
+      },
+      costMember: {
+        normal: 10,
+        optionalAdditionalCosts: [{ cost: 12, description: { en: 'Opt I', fi: 'Opt I' } }],
+      },
+    }
+    const { user } = renderPaymentSection(testEvent, undefined)
+    await flushPromises()
+
+    const optionalRow = screen.getByText('Opt I').closest('tr')
+    const buttons = within(optionalRow as HTMLTableRowElement).getAllByRole('button')
+    await user.click(buttons[1])
+    await flushPromises()
+
+    expect(screen.getByText('Opt I')).toBeInTheDocument()
   })
 })

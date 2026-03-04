@@ -282,6 +282,28 @@ describe('validation', () => {
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2]).qualifies).toEqual(true)
         })
 
+        it('Should allow two qualifying results on the same day', () => {
+          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const ALO1_1 = {
+            class: 'ALO',
+            date: new Date('2016-05-30'),
+            judge: 'Judge 1',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
+          }
+          const ALO1_2 = {
+            class: 'ALO',
+            date: new Date('2016-05-30'),
+            judge: 'Judge 2',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1 as any, ALO1_2 as any]).qualifies).toEqual(true)
+        })
+
         it('Should reject a dog with only 1xALO1 2016..2022', () => {
           const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
           const ALO2 = {
@@ -774,7 +796,18 @@ describe('validation', () => {
           expect(filterRelevantResults(testEvent, undefined, [AVO1_1, AVO1_2]).qualifies).toEqual(true)
         })
 
-        it.todo('Should allow a dog rewarded in international field trial')
+        it('Should allow a dog rewarded in international field trial', () => {
+          const testEvent = { eventType: 'NOME-A', startDate: new Date('2023-04-15') }
+          const kvResult = {
+            date: new Date('2023-03-01'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'EXC',
+            type: 'NOME-A KV',
+          }
+
+          expect(filterRelevantResults(testEvent, undefined, [kvResult as any]).qualifies).toEqual(true)
+        })
       })
 
       describe('NKM', () => {
