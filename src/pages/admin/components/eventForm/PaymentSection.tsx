@@ -43,6 +43,17 @@ const costSort = (a: string, b: string) => {
   return orderA - orderB
 }
 
+const toCostObject = (cost: DogEventCost | number | undefined): DogEventCost =>
+  typeof cost === 'object' && cost ? { ...cost } : { normal: cost ?? 0 }
+
+const toClonedCostObject = (cost: DogEventCost | number | undefined): DogEventCost =>
+  structuredClone(toCostObject(cost))
+
+const toExistingCostObject = (cost: DogEventCost | number | undefined): DogEventCost =>
+  typeof cost === 'object' && cost ? { ...cost } : ({} as DogEventCost)
+
+const getOptionalAdditionalCosts = (cost: DogEventCost) => [...(cost.optionalAdditionalCosts ?? [])]
+
 export default function PaymentSection({
   disabled: _disabled,
   errorStates,
@@ -123,12 +134,8 @@ export default function PaymentSection({
 
   const handleAdd = useCallback(
     (key: DogEventCostKey, data?: any) => {
-      const cost: DogEventCost =
-        typeof event.cost === 'object' && event.cost ? Object.assign({}, event.cost) : { normal: event.cost ?? 0 }
-      const costMember: DogEventCost =
-        typeof event.costMember === 'object' && event.costMember
-          ? Object.assign({}, event.costMember)
-          : { normal: event.costMember ?? 0 }
+      const cost = toCostObject(event.cost)
+      const costMember = toCostObject(event.costMember)
 
       if (key === 'optionalAdditionalCosts') {
         const newOptionalCost = {
@@ -149,12 +156,8 @@ export default function PaymentSection({
 
   const handleRemove = useCallback(
     (key: DogEventCostKey, breedCode?: BreedCode) => {
-      const cost: DogEventCost =
-        typeof event.cost === 'object' && event.cost ? structuredClone(event.cost) : { normal: event.cost ?? 0 }
-      const costMember: DogEventCost =
-        typeof event.costMember === 'object' && event.costMember
-          ? structuredClone(event.costMember)
-          : { normal: event.costMember ?? 0 }
+      const cost = toClonedCostObject(event.cost)
+      const costMember = toClonedCostObject(event.costMember)
 
       if (key === 'breed' && breedCode) {
         if (cost.breed) delete cost.breed[breedCode]
@@ -170,13 +173,13 @@ export default function PaymentSection({
 
   const handleRemoveOptional = useCallback(
     (index: number) => {
-      const cost = { ...(event.cost as DogEventCost) }
-      const costMember = { ...(event.costMember as DogEventCost) }
+      const cost = toExistingCostObject(event.cost)
+      const costMember = toExistingCostObject(event.costMember)
 
-      cost.optionalAdditionalCosts = [...(cost.optionalAdditionalCosts ?? [])]
+      cost.optionalAdditionalCosts = getOptionalAdditionalCosts(cost)
       cost.optionalAdditionalCosts.splice(index, 1)
 
-      costMember.optionalAdditionalCosts = [...(costMember.optionalAdditionalCosts ?? [])]
+      costMember.optionalAdditionalCosts = getOptionalAdditionalCosts(costMember)
       costMember.optionalAdditionalCosts.splice(index, 1)
 
       onChange?.({ cost, costMember })
@@ -202,12 +205,8 @@ export default function PaymentSection({
 
   const handleSaveDescription = useCallback(
     (key: DogEventCostKey, descriptions: { fi: string; en?: string }) => {
-      const cost: DogEventCost =
-        typeof event.cost === 'object' && event.cost ? Object.assign({}, event.cost) : { normal: event.cost ?? 0 }
-      const costMember: DogEventCost =
-        typeof event.costMember === 'object' && event.costMember
-          ? Object.assign({}, event.costMember)
-          : { normal: event.costMember ?? 0 }
+      const cost = toCostObject(event.cost)
+      const costMember = toCostObject(event.costMember)
 
       if (key === 'custom' && cost.custom) {
         cost.custom = { ...cost.custom, description: descriptions }
@@ -236,17 +235,17 @@ export default function PaymentSection({
     (_key: DogEventCostKey, descriptions: { fi: string; en?: string }) => {
       if (editingOptionalIndex === null) return
 
-      const cost = { ...(event.cost as DogEventCost) }
-      const costMember = { ...(event.costMember as DogEventCost) }
+      const cost = toExistingCostObject(event.cost)
+      const costMember = toExistingCostObject(event.costMember)
 
-      cost.optionalAdditionalCosts = [...(cost.optionalAdditionalCosts ?? [])]
+      cost.optionalAdditionalCosts = getOptionalAdditionalCosts(cost)
       if (cost.optionalAdditionalCosts[editingOptionalIndex]) {
         cost.optionalAdditionalCosts[editingOptionalIndex] = {
           ...cost.optionalAdditionalCosts[editingOptionalIndex],
           description: descriptions,
         }
       }
-      costMember.optionalAdditionalCosts = [...(costMember.optionalAdditionalCosts ?? [])]
+      costMember.optionalAdditionalCosts = getOptionalAdditionalCosts(costMember)
       if (costMember.optionalAdditionalCosts[editingOptionalIndex]) {
         costMember.optionalAdditionalCosts[editingOptionalIndex] = {
           ...costMember.optionalAdditionalCosts[editingOptionalIndex],
@@ -263,7 +262,7 @@ export default function PaymentSection({
     (key: string, value: number | undefined) => {
       const [costKey, property, breedCode] = key.split('.') as ['cost' | 'costMember', DogEventCostKey, BreedCode]
       const current: DogEventCost | number = event[costKey] ?? 0
-      const cost = typeof current !== 'object' ? { normal: current } : { ...current }
+      const cost = toCostObject(current)
 
       onChange?.({ [costKey]: setCostValue(cost, property, value ?? 0, { breedCode }) })
     },
@@ -272,12 +271,8 @@ export default function PaymentSection({
 
   const handleEarlyBirdDaysChange = useCallback(
     (days: number | undefined) => {
-      const costCurrent: DogEventCost | number = event.cost ?? 0
-      const costMemberCurrent: DogEventCost | number = event.costMember ?? 0
-
-      const cost = typeof costCurrent !== 'object' ? { normal: costCurrent } : { ...costCurrent }
-      const costMember =
-        typeof costMemberCurrent !== 'object' ? { normal: costMemberCurrent } : { ...costMemberCurrent }
+      const cost = toCostObject(event.cost)
+      const costMember = toCostObject(event.costMember)
 
       if (cost.earlyBird) {
         cost.earlyBird = { ...cost.earlyBird, days: days ?? 0 }
@@ -295,8 +290,8 @@ export default function PaymentSection({
   const handleOptionalChange = useCallback(
     (costKey: 'cost' | 'costMember', index: number, value: number | undefined) => {
       const current: DogEventCost | number = event[costKey] ?? 0
-      const cost = typeof current !== 'object' ? { normal: current } : { ...current }
-      const newOptionalCosts = [...(cost.optionalAdditionalCosts ?? [])]
+      const cost = toCostObject(current)
+      const newOptionalCosts = getOptionalAdditionalCosts(cost)
       if (newOptionalCosts[index]) {
         newOptionalCosts[index] = { ...newOptionalCosts[index], cost: value ?? 0 }
         cost.optionalAdditionalCosts = newOptionalCosts
