@@ -5,6 +5,7 @@ import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Divider from '@mui/material/Divider'
@@ -216,7 +217,9 @@ export default function EventViewPage() {
       <Suspense
         fallback={
           <Modal open>
-            <LoadingIndicator />
+            <Box tabIndex={-1}>
+              <LoadingIndicator />
+            </Box>
           </Modal>
         }
       >
