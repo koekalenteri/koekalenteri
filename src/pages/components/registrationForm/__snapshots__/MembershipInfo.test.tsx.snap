@@ -3,7 +3,7 @@
 exports[`MembershipInfo should render when owner handles and is member 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -49,7 +49,7 @@ exports[`MembershipInfo should render when owner handles and is member 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
@@ -130,7 +130,7 @@ exports[`MembershipInfo should render when owner handles and is member 1`] = `
 exports[`MembershipInfo should render with minimal info 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -178,7 +178,7 @@ exports[`MembershipInfo should render with minimal info 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"

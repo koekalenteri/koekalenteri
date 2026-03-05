@@ -3,7 +3,7 @@
 exports[`OwnerInfo should render with minimal info 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -48,7 +48,7 @@ exports[`OwnerInfo should render with minimal info 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <form>
                 <div

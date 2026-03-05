@@ -3,7 +3,7 @@
 exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -48,7 +48,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -464,7 +464,7 @@ exports[`QualifyingResultsInfo should render a NOME-B ALO registraton 1`] = `
 exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manual results 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -509,7 +509,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -1607,7 +1607,7 @@ exports[`QualifyingResultsInfo should render a NOME-B AVO registraton with manua
 exports[`QualifyingResultsInfo should render with minimal input 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -1652,7 +1652,7 @@ exports[`QualifyingResultsInfo should render with minimal input 1`] = `
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
