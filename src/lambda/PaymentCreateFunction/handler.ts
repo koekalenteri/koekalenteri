@@ -17,6 +17,15 @@ import { getApiHost } from '../utils/proxyEvent'
 
 const { organizerTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
+const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
+
+const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
+  const timestamp = statusAt ?? createdAt
+  if (!timestamp) return false
+
+  const age = Date.now() - new Date(timestamp).getTime()
+  return Number.isFinite(age) && age >= STALE_PENDING_PAYMENT_AGE_MS
+}
 
 /**
  * paymentCreate is called by client to start the payment process
@@ -42,14 +51,23 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
+  let hasActiveTransaction = false
 
-  // Cancel any existing 'new' transactions for this reference
+  // Cancel existing stale payment transactions for this reference
   const existingTransactions = await getTransactionsByReference(reference)
   if (existingTransactions) {
     for (const tx of existingTransactions) {
-      if (tx.status === 'new') {
-        await updateTransactionStatus(tx, 'fail')
+      if (tx.status === 'new' || tx.status === 'pending') {
+        if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
+          await updateTransactionStatus(tx, 'fail')
+        } else {
+          hasActiveTransaction = true
+        }
       }
+    }
+
+    if (hasActiveTransaction) {
+      return response<string>(409, 'Payment already in progress', event)
     }
   }
 

@@ -6,7 +6,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { calculateCost } from '../lib/cost'
 import { redirectTo } from '../lib/navigation'
 import { isConfirmedEvent } from '../lib/typeGuards'
@@ -33,12 +33,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const event = useRecoilValue(confirmedEventSelector(params.id))
+  const eventLoadable = useRecoilValueLoadable(confirmedEventSelector(params.id))
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
   const [language, setLanguage] = useRecoilState(languageAtom)
   const spa = useRecoilValue(spaAtom)
+  const event = eventLoadable.state === 'hasValue' ? eventLoadable.contents : undefined
+  const eventNotFound = eventLoadable.state === 'hasValue' && eventLoadable.contents === null
   const { t } = useTranslation()
   const [cancelOpen, setCancelOpen] = useState(!!cancel && !registration?.cancelled)
   const [confirmOpen, setConfirmOpen] = useState(
@@ -127,14 +129,6 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   }, [registration, invitation, event, actions, setRegistration, navigate, redirecting])
 
   useEffect(() => {
-    if (event === null) {
-      throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
-    } else if (registration === null) {
-      throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
-    }
-  }, [event, registration, t])
-
-  useEffect(() => {
     if (!registration) return
     if (location.pathname.endsWith('/saved')) {
       if (registration?.messagesSent?.picked && registration.paymentStatus === 'SUCCESS') {
@@ -191,6 +185,14 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
       setLanguage(registration.language)
     }
   }, [language, registration?.language, setLanguage])
+
+  if (eventNotFound) {
+    return <>{t('error.eventNotFound')}</>
+  }
+
+  if (registration === null) {
+    return <>{t('error.registrationNotFound')}</>
+  }
 
   if (!event || !registration) {
     return <LoadingPage />

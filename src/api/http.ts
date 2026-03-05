@@ -6,6 +6,11 @@ import { API_BASE_URL } from '../routeConfig'
 
 type Body = { message?: string; cancelled?: boolean; error?: string } | string
 
+export interface HttpResponse<T> {
+  data: T
+  status: number
+}
+
 const getStatusFromBody = (body: Body | undefined, fallback: string = ''): string => {
   if (isObject(body)) return body.message ?? fallback
 
@@ -45,7 +50,12 @@ function anySignal(signals: AbortSignal[]): AbortSignal {
   return controller.signal
 }
 
-async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: boolean = true): Promise<T> {
+async function httpWithTimeout<T>(
+  path: string,
+  init: RequestInit,
+  reviveDates: boolean = true,
+  returnStatus: boolean = false
+): Promise<T | HttpResponse<T>> {
   const url = API_BASE_URL + path
 
   const controller = new AbortController()
@@ -74,7 +84,10 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
       }
       throw new APIError(response, json)
     }
-    const parsed = parseJSON(text, reviveDates)
+    const parsed = parseJSON(text, reviveDates) as T
+    if (returnStatus) {
+      return { data: parsed, status: response.status }
+    }
     return parsed
   } catch (err) {
     clearTimeout(timer)
@@ -87,9 +100,14 @@ async function httpWithTimeout<T>(path: string, init: RequestInit, reviveDates: 
   }
 }
 
-async function http<T>(path: string, init: RequestInit, reviveDates: boolean = true): Promise<T> {
+async function http<T>(
+  path: string,
+  init: RequestInit,
+  reviveDates: boolean = true,
+  returnStatus: boolean = false
+): Promise<T | HttpResponse<T>> {
   try {
-    const result = await httpWithTimeout<T>(path, init, reviveDates)
+    const result = await httpWithTimeout<T>(path, init, reviveDates, returnStatus)
 
     return result
   } catch (err) {
@@ -109,7 +127,7 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
           // retry with new token after a little delay
           await new Promise((resolve) => setTimeout(resolve, 50))
           init = withToken(init, idToken)
-          return http<T>(path, init, reviveDates)
+          return http<T>(path, init, reviveDates, returnStatus)
         }
       }
     }
@@ -121,13 +139,15 @@ async function http<T>(path: string, init: RequestInit, reviveDates: boolean = t
 
 const HTTP = {
   async delete<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'delete', ...init }, reviveDates)
+    return http<U>(path, { body: JSON.stringify(body), method: 'delete', ...init }, reviveDates) as Promise<U>
   },
   async get<T>(path: string, init?: RequestInit, reviveDates: boolean = true): Promise<T> {
-    return http<T>(path, { method: 'get', ...init }, reviveDates)
+    return http<T>(path, { method: 'get', ...init }, reviveDates) as Promise<T>
   },
-  async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'post', ...init }, reviveDates)
+  async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
+    return http<U>(path, { body: JSON.stringify(body), method: 'post', ...init }, reviveDates, true) as Promise<
+      HttpResponse<U>
+    >
   },
   async postRaw<T extends BodyInit, U>(
     path: string,
@@ -135,10 +155,10 @@ const HTTP = {
     init?: RequestInit,
     reviveDates: boolean = true
   ): Promise<U> {
-    return http<U>(path, { body, method: 'post', ...init }, reviveDates)
+    return http<U>(path, { body, method: 'post', ...init }, reviveDates) as Promise<U>
   },
   async put<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'put', ...init }, reviveDates)
+    return http<U>(path, { body: JSON.stringify(body), method: 'put', ...init }, reviveDates) as Promise<U>
   },
 }
 

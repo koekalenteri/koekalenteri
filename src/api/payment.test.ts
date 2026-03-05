@@ -19,7 +19,7 @@ describe('payment', () => {
 
       const res = await createPayment('test', 'test')
 
-      expect(res).toEqual(mockResponse)
+      expect(res).toEqual({ response: mockResponse, status: 200 })
     })
   })
 })

@@ -396,14 +396,63 @@ describe('paymentCreateLambda', () => {
     )
   })
 
-  it('should cancel existing new transactions for the same reference', async () => {
-    const existingTransaction = { reference: 'event123:reg456', status: 'new', transactionId: 'oldTx' }
+  it('should cancel existing stale new transactions for the same reference', async () => {
+    const existingTransaction = {
+      createdAt: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'new',
+      transactionId: 'oldTx',
+    }
     mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
 
     await paymentCreateLambda(event)
 
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
     expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+  })
+
+  it('should cancel existing stale pending transactions for the same reference', async () => {
+    const existingTransaction = {
+      createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'oldPendingTx',
+    }
+    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+
+    await paymentCreateLambda(event)
+
+    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+  })
+
+  it('should not cancel fresh pending transactions within safety margin', async () => {
+    const existingTransaction = {
+      createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'freshPendingTx',
+    }
+    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+
+    await paymentCreateLambda(event)
+
+    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
+  })
+
+  it('returns 409 if there is a non-stale pending transaction', async () => {
+    const existingTransaction = {
+      createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'freshPendingTx',
+    }
+    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(409)
+    expect(JSON.parse(result.body)).toEqual('Payment already in progress')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
   it('returns 403 if payment is after confirmation but registration is not confirmed', async () => {

@@ -10,11 +10,13 @@ const eventSort = (a: PublicDogEvent, b: PublicDogEvent) => a.startDate.valueOf(
 export const remoteEventsEffect: AtomEffect<PublicDogEvent[]> = ({ setSelf, trigger }) => {
   if (trigger === 'get') {
     setSelf(
-      getEvents().then((events) => {
-        events.sort(eventSort)
+      getEvents()
+        .then((events) => {
+          events.sort(eventSort)
 
-        return events
-      })
+          return events
+        })
+        .catch(() => [])
     )
   }
 }

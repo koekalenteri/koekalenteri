@@ -1,33 +1,5 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`PaymentPage renders loading indicator while loader is pending 1`] = `
-<div>
-  <div
-    class="MuiBox-root css-r8ug1n"
-  >
-    <span
-      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-1vzstpr-MuiCircularProgress-root"
-      role="progressbar"
-      style="width: 40px; height: 40px;"
-    >
-      <svg
-        class="MuiCircularProgress-svg css-54pwck-MuiCircularProgress-svg"
-        viewBox="22 22 44 44"
-      >
-        <circle
-          class="MuiCircularProgress-circle MuiCircularProgress-circleIndeterminate css-19t5dcl-MuiCircularProgress-circle"
-          cx="44"
-          cy="44"
-          fill="none"
-          r="20.2"
-          stroke-width="3.6"
-        />
-      </svg>
-    </span>
-  </div>
-</div>
-`;
-
 exports[`PaymentPage renders properly 1`] = `
 <div>
   <div
@@ -123,8 +95,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="1f76c69451f3bd6a2b7dca0c87c0182407ffe47ded28c6ab5673d928460ee6ef"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="OP"
@@ -256,8 +229,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="E74287F61B2E7F15027FC9A480A52B0D5DE64B081F32A4ECACAD2A6C3EA755B26089F8F2DB243757C0C454C1BEC3ACEE96847F4BD34412AFAD6B3595BC1AB554"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Nordea"
@@ -329,8 +303,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="AF7961D8D90428A5156B37FDEEB90DBD5C13D2D65FF6B9E15BC7511C0E0FA7A5"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Danske Bank"
@@ -437,8 +412,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="388DC5DD8CF3AA345A984CB5B2B0F6C56BA501731DD1B4616206AD5808F2E56F"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="S-pankki"
@@ -525,8 +501,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="C3862344D55958F381565D110F69727D451DCE8161BDA6215449271F9CDD5165"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="POP Pankki"
@@ -613,8 +590,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="85DE76FF0EF7C01958544104DE533C3F4F632F2F64CEB822383829C9E9AC08B0"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Oma Säästöpankki"
@@ -706,8 +684,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="80F7E8B915BBF13661A259A23F59F0117449CAB477BFA99C8F5DDF8D958D53B8"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Aktia"
@@ -794,8 +773,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="9B74023E4226F98C8110116562572DB0F1FDD0F073153AB5E0472D37024554E5"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Handelsbanken"
@@ -882,8 +862,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="2CDDBFBECCEF1116896AD65B2D283AE449B4DCBA6BE49FFAC057C74B0109A28A"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Säästöpankki"
@@ -990,8 +971,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="1AAA7011044B026573F99A908418ACE4"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Ålandsbanken"
@@ -1157,8 +1139,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="SPH1 checkout_1 c93d4b375206226ba08c5be6f6f4bad28b423ffdb9a92f1116b7534ee743f023"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Visa Electron"
@@ -1310,8 +1293,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="SPH1 checkout_1 47e1305bf4799142dfcd281048d1b4dd9f79405e7ba5d805136f0f9ad22231ec"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Visa"
@@ -1463,8 +1447,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="SPH1 checkout_1 7812b98bdc11fadfa35f0e22137e624b5a4298f1bab8d982d5d8a39f5f214099"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Mastercard"
@@ -1616,8 +1601,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="SPH1 checkout_1 ab886e550d5df42e692a72f21cecdd1fb2234b2f7eb708707e60ab9e807c973d"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="American Express"
@@ -1683,8 +1669,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="fb96e5ed5c4f2889e2fdd447117f455e0acd8dbf94ab273ee95af730a9f058e6"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Collector"
@@ -1736,8 +1723,9 @@ exports[`PaymentPage renders properly 1`] = `
               value="e40f1d3390ce59c6c73bd9d222be3c9309557bae30da9a74b1e0437b2bb2f17f"
             />
             <button
+              aria-busy="false"
               class="provider-button"
-              type="button"
+              type="submit"
             >
               <img
                 alt="Collector B2B"

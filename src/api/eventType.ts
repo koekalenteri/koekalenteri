@@ -9,5 +9,5 @@ export async function getEventTypes(token: string, refresh?: boolean, signal?: A
 }
 
 export async function putEventType(eventType: EventTypeData, token?: string, signal?: AbortSignal): Promise<EventType> {
-  return http.post<EventTypeData, EventType>(PATH, eventType, withToken({ signal }, token))
+  return (await http.post<EventTypeData, EventType>(PATH, eventType, withToken({ signal }, token))).data
 }

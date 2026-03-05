@@ -38,7 +38,7 @@ export async function getAdminEvent(id: string, token?: string, signal?: AbortSi
 }
 
 export async function putEvent(event: Partial<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
-  return http.post<Partial<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))
+  return (await http.post<Partial<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))).data
 }
 
 export async function putInvitationAttachment(
@@ -54,9 +54,11 @@ export async function putInvitationAttachment(
 }
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {
-  return http.post<{ id: string; startDate: Date }, DogEvent>(
-    `${ADMIN_PATH}copy`,
-    { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
-    withToken({ signal }, token)
-  )
+  return (
+    await http.post<{ id: string; startDate: Date }, DogEvent>(
+      `${ADMIN_PATH}copy`,
+      { id: eventId, startDate: zonedStartOfDay(nextSaturday(addDays(Date.now(), 90))) },
+      withToken({ signal }, token)
+    )
+  ).data
 }

@@ -9,5 +9,5 @@ export async function getJudges(token: string, refresh?: boolean, signal?: Abort
 }
 
 export async function putJudge(judge: Judge, token: string, signal?: AbortSignal): Promise<Judge> {
-  return http.post<Judge, Judge>(PATH, judge, withToken({ signal }, token))
+  return (await http.post<Judge, Judge>(PATH, judge, withToken({ signal }, token))).data
 }
