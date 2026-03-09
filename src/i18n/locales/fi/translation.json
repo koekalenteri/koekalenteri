@@ -278,10 +278,10 @@
   "paymentPage": {
     "alreadyPaid": "Ilmoittautuminen on jo maksettu",
     "choosePaymentMethod": "Valitse maksutapa",
-    "error403": "Maksu on mahdollista vasta vahvistuksen jälkeen",
+    "error403": "Maksu on mahdollista vasta koepaikan varmistuttua",
     "error404": "Ilmoittautumista ei löydy tai sitä ei voi enää maksaa",
-    "error409": "Maksu on jo käynnissä",
-    "error412": "Maksupalvelua ei ole määritetty tälle tapahtumalle",
+    "error409": "Maksu on jo käynnissä, voit yrittää uudelleen viiden minuutin kuluttua",
+    "error412": "Maksupalvelua ei ole määritetty tälle yhdistykselle",
     "error500": "Maksun luonti epäonnistui, yritä myöhemmin uudelleen",
     "error501MerchantInactive": "Yhdistyksen maksupalvelusopimus ei ole voimassa. Ilmoittautumista ei voitu ottaa vastaan. Ota yhteyttä kokeen koesihteeriin {{contact}}",
     "eventNotFound": "Tapahtumaa {{id}} ei löydy.",

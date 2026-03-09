@@ -578,7 +578,7 @@ exports[`OrganizerListPage renders 1`] = `
                             class="MuiDataGrid-columnHeaderTitle css-1gqmilo-MuiDataGrid-columnHeaderTitle"
                             data-mui-internal-clone-element="true"
                           >
-                            KC email
+                            contact.kcEmail
                           </div>
                         </div>
                         <div
@@ -630,7 +630,7 @@ exports[`OrganizerListPage renders 1`] = `
                   <div
                     aria-colindex="6"
                     aria-sort="none"
-                    class="MuiDataGrid-columnHeader MuiDataGrid-withBorderColor"
+                    class="MuiDataGrid-columnHeader MuiDataGrid-columnHeader--sortable MuiDataGrid-withBorderColor"
                     data-field="emailHistory"
                     role="columnheader"
                     style="height: 39px; width: 180px;"
@@ -654,6 +654,30 @@ exports[`OrganizerListPage renders 1`] = `
                           >
                             user.emailHistory
                           </div>
+                        </div>
+                        <div
+                          class="MuiDataGrid-iconButtonContainer css-ltf0zy-MuiDataGrid-iconButtonContainer"
+                        >
+                          <button
+                            aria-label="Sort"
+                            class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall MuiDataGrid-sortButton css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
+                            field="emailHistory"
+                            tabindex="-1"
+                            title="Sort"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall MuiDataGrid-sortIcon css-120dh41-MuiSvgIcon-root"
+                              data-testid="ArrowDownwardIcon"
+                              focusable="false"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     </div>
