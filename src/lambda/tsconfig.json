@@ -15,6 +15,6 @@
     "target": "es2022",
     "useUnknownInCatchVariables": true
   },
-  "extends": "@tsconfig/node20/tsconfig.json",
+  "extends": "@tsconfig/node24/tsconfig.json",
   "include": ["../i18n", "../lib", "../__mockData__", "./**/*.ts"]
 }
