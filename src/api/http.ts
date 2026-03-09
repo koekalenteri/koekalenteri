@@ -6,7 +6,7 @@ import { API_BASE_URL } from '../routeConfig'
 
 type Body = { message?: string; cancelled?: boolean; error?: string } | string
 
-export interface HttpResponse<T> {
+interface HttpResponse<T> {
   data: T
   status: number
 }

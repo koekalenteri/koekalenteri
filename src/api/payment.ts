@@ -1,7 +1,7 @@
 import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
 import http, { APIError, withToken } from './http'
 
-export interface CreatePaymentResult {
+interface CreatePaymentResult {
   response?: CreatePaymentResponse
   status: number
 }

@@ -10,6 +10,7 @@
   "contact": {
     "city": "Kotikunta",
     "email": "Sähköposti",
+    "kcEmail": "Kennelliiton sähköposti",
     "name": "Nimi",
     "phone": "Puhelin"
   },
