@@ -26,6 +26,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutJudgeHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/judge
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   PutJudgeFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

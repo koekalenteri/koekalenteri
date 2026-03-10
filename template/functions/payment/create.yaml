@@ -33,6 +33,13 @@
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
+        PutEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /payment/create
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+
   PaymentCreateFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

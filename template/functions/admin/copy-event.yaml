@@ -28,6 +28,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        CopyEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/event/copy
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   CopyEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -23,23 +23,6 @@
         Authorizers:
           CognitoAuthorizer:
             UserPoolArn: !GetAtt "KoekalenteriUserPool.Arn"
-          # Auth0 / generic OIDC JWT authorizer.
-          #
-          # NOTE:
-          # - This template defines the authorizer; API Gateway must be deployed with
-          #   these values matching your Auth0 tenant + API Identifier.
-          # - For Auth0, `Issuer` must include the trailing slash.
-          #
-          # Audience should match the access token `aud` that the SPA requests
-          # (REACT_APP_AUTH0_AUDIENCE), e.g. https://dev.koekalenteri.snj.fi
-          JwtAuthorizer:
-            JwtConfiguration:
-              issuer: !Ref AuthJwtIssuer
-              audience:
-                - !Ref AuthJwtAudience
-            Identity:
-              Header: Authorization
-              ValidationExpression: ^Bearer [-0-9a-zA-Z\._]*$
       BinaryMediaTypes:
         - "multipart/form-data"
         - "application/pdf"
@@ -66,6 +49,38 @@
             Headers:
               Access-Control-Allow-Origin: "'*'"
 
+  KoekalenteriHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageNameParam
+      AccessLogSettings:
+        DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${HttpApiAccessLogGroup}'
+        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength","integrationError":"$context.integrationErrorMessage","sourceIp":"$context.identity.sourceIp"}'
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - OPTIONS
+          - HEAD
+          - GET
+          - PUT
+          - POST
+          - DELETE
+        AllowHeaders:
+          - Content-Type
+          - X-Amz-Date
+          - Authorization
+          - X-Api-Key
+          - X-Amz-Security-Token
+      Auth:
+        Authorizers:
+          JwtAuthorizer:
+            JwtConfiguration:
+              issuer: !Ref AuthJwtIssuer
+              audience:
+                - !Ref AuthJwtAudience
+            IdentitySource: "$request.header.Authorization"
+
   ApiGatewayPushToCloudWatchRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -85,4 +100,10 @@
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub /aws/apigateway/AccessLog-${KoekalenteriApi}
+      RetentionInDays: 365
+
+  HttpApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${KoekalenteriHttpApi}
       RetentionInDays: 365

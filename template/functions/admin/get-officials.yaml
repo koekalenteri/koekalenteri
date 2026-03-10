@@ -39,6 +39,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetOfficialsHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/official
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetOfficialsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -38,6 +38,13 @@
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
+        PutRegistrationHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /registration
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+
   PutRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

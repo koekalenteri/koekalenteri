@@ -30,6 +30,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutEventTypeHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/eventType
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   PutEventTypeFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

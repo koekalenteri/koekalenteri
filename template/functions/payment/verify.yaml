@@ -33,6 +33,13 @@
             Method: POST
             RestApiId: !Ref KoekalenteriApi
 
+        PutEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /payment/verify
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+
   PaymentVerifyFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

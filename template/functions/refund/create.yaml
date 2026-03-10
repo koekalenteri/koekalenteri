@@ -39,6 +39,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /refund/create
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   RefundCreateFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -39,6 +39,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        PutEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /refund/success
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   RefundSuccessFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
