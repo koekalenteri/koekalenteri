@@ -25,14 +25,6 @@
               - ses:sendTemplatedEmail
               Resource: '*'
       Events:
-        PutEmailTemplate:
-          Type: Api
-          Properties:
-            Path: /admin/email-send
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         PutEmailTemplateHttpApi:
           Type: HttpApi

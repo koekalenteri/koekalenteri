@@ -26,12 +26,6 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        PutEvent:
-          Type: Api
-          Properties:
-            Path: /payment/verify
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
 
         PutEventHttpApi:
           Type: HttpApi

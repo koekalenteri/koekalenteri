@@ -23,14 +23,6 @@
             - ses:sendTemplatedEmail
             Resource: '*'
       Events:
-        GetUser:
-          Type: Api
-          Properties:
-            Path: /admin/user/role
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetUserHttpApi:
           Type: HttpApi

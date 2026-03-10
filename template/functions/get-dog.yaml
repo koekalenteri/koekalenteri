@@ -18,12 +18,6 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref DogTable
       Events:
-        GetDog:
-          Type: Api
-          Properties:
-            Path: /dog/{regNo}
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
 
         GetDogHttpApi:
           Type: HttpApi

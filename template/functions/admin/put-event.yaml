@@ -25,14 +25,6 @@
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:
-        PutEvent:
-          Type: Api
-          Properties:
-            Path: /admin/event
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         PutEventHttpApi:
           Type: HttpApi

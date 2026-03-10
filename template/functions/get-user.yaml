@@ -13,14 +13,6 @@
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetUser:
-          Type: Api
-          Properties:
-            Path: /user
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetUserHttpApi:
           Type: HttpApi

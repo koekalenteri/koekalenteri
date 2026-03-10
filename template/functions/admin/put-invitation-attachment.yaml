@@ -22,14 +22,6 @@
         Variables:
           BUCKET: !Ref EventAttachmentBucket
       Events:
-        Put:
-          Type: Api
-          Properties:
-            Path: /admin/file/invitation/{eventId}
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         PutHttpApi:
           Type: HttpApi

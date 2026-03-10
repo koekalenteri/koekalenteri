@@ -19,14 +19,6 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetRegistrations:
-          Type: Api
-          Properties:
-            Path: /admin/registration/{eventId}
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetRegistrationsHttpApi:
           Type: HttpApi

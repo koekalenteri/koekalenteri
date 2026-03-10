@@ -31,12 +31,6 @@
               Resource: '*'
         - !Ref WebSocketPolicy
       Events:
-        PutRegistration:
-          Type: Api
-          Properties:
-            Path: /registration
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
 
         PutRegistrationHttpApi:
           Type: HttpApi

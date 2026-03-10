@@ -19,14 +19,6 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        CopyEvent:
-          Type: Api
-          Properties:
-            Path: /admin/event/copy
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         CopyEventHttpApi:
           Type: HttpApi

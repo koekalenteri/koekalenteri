@@ -33,14 +33,6 @@
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:
-        PutRegistrationGroups:
-          Type: Api
-          Properties:
-            Path: /admin/reg-groups/{eventId}
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         PutRegistrationGroupsHttpApi:
           Type: HttpApi

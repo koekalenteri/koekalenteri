@@ -30,14 +30,6 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetJudges:
-          Type: Api
-          Properties:
-            Path: /admin/judge
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetJudgesHttpApi:
           Type: HttpApi
