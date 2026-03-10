@@ -1,10 +1,7 @@
-import { useEffect } from 'react'
-import { useUserActions } from './recoil/user/actions'
-
-import '@aws-amplify/ui-react/styles.css'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useAuth } from '../auth/AuthProvider'
 import LoadingIndicator from './components/LoadingIndicator'
+import { useUserActions } from './recoil/user/actions'
 
 export function Component() {
   const { isAuthenticated, isLoading, getAccessToken, login } = useAuth()
