@@ -33,12 +33,6 @@
               Resource: '*'
         - !Ref WebSocketPolicy
       Events:
-        PutEvent:
-          Type: Api
-          Properties:
-            Path: /payment/success
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
 
         PutEventHttpApi:
           Type: HttpApi

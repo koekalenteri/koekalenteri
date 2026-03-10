@@ -20,12 +20,6 @@
         Variables:
           BUCKET: !Ref EventAttachmentBucket
       Events:
-        Get:
-          Type: Api
-          Properties:
-            Path: /file/{key}/{name}
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
 
         GetHttpApi:
           Type: HttpApi

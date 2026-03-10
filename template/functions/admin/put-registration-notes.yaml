@@ -23,14 +23,6 @@
               - ses:sendTemplatedEmail
               Resource: '*'
       Events:
-        PutAdminRegistrationNotes:
-          Type: Api
-          Properties:
-            Path: /admin/registration/note
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         PutAdminRegistrationNotesHttpApi:
           Type: HttpApi

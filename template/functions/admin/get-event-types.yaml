@@ -24,14 +24,6 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
       Events:
-        GetEventTypes:
-          Type: Api
-          Properties:
-            Path: /admin/eventType
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetEventTypesHttpApi:
           Type: HttpApi

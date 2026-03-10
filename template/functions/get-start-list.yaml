@@ -13,12 +13,6 @@
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetRegistration:
-          Type: Api
-          Properties:
-            Path: /startlist/{eventId}
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
 
         GetRegistrationHttpApi:
           Type: HttpApi

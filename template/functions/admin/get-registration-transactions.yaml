@@ -19,14 +19,6 @@
             TableName: !Ref TransactionTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetRegistrationTransactions:
-          Type: Api
-          Properties:
-            Path: /admin/registration/transactions/{eventId}/{id}
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetRegistrationTransactionsHttpApi:
           Type: HttpApi

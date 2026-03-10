@@ -17,14 +17,6 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetAdminEvent:
-          Type: Api
-          Properties:
-            Path: /admin/event/{id}
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         GetAdminEventHttpApi:
           Type: HttpApi

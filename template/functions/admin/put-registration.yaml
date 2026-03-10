@@ -35,14 +35,6 @@
               Resource: '*'
         - !Ref WebSocketPolicy
       Events:
-        PutAdminRegistration:
-          Type: Api
-          Properties:
-            Path: /admin/registration
-            Method: POST
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: JwtAuthorizer
 
         PutAdminRegistrationHttpApi:
           Type: HttpApi

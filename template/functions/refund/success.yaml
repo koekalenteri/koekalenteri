@@ -32,12 +32,6 @@
               - ses:sendTemplatedEmail
               Resource: '*'
       Events:
-        PutEvent:
-          Type: Api
-          Properties:
-            Path: /refund/success
-            Method: GET
-            RestApiId: !Ref KoekalenteriApi
 
         PutEventHttpApi:
           Type: HttpApi
