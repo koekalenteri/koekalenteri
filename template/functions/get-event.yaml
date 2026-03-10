@@ -18,6 +18,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        GetEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /event/{id}
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   GetEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

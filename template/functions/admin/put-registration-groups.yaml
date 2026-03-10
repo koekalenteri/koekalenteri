@@ -42,6 +42,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutRegistrationGroupsHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/reg-groups/{eventId}
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   PutRegistrationGroupsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

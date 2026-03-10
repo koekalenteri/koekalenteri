@@ -24,6 +24,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetEmailTemplatesHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/email-templates
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetEmailTemplatesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

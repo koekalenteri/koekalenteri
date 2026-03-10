@@ -33,6 +33,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        PutEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /payment/cancel
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   PaymentCancelFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -44,6 +44,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutAdminRegistrationHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/registration
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   PutAdminRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -40,6 +40,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        PutEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /payment/success
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   PaymentSuccessFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -17,6 +17,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        YearlyStatsApiHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /yearly-stats
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   GetYearlyStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

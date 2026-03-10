@@ -28,6 +28,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetRegistrationsHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/registration/{eventId}
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetAdminRegistrationsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

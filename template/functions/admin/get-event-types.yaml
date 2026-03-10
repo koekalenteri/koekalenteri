@@ -33,6 +33,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetEventTypesHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/eventType
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetEventTypesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

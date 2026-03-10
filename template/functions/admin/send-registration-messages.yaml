@@ -34,6 +34,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutEmailTemplateHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/email-send
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   SendRegistrationMessagesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

@@ -39,6 +39,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetJudgesHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/judge
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetJudgesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

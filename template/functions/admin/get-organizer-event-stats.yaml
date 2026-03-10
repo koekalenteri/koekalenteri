@@ -23,6 +23,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetOrganizerEventStatsApiHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/organizer-event-stats
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetOrganizerEventStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

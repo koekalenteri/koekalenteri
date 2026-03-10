@@ -32,6 +32,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutAdminRegistrationNotesHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/registration/note
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   PutAdminRegistrationNotesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

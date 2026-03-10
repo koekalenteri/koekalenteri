@@ -26,6 +26,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        GetAdminEventHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/event/{id}
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   GetAdminEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

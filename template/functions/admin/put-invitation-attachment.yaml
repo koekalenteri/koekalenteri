@@ -31,6 +31,15 @@
             Auth:
               Authorizer: JwtAuthorizer
 
+        PutHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /admin/file/invitation/{eventId}
+            Method: POST
+            ApiId: !Ref KoekalenteriHttpApi
+            Auth:
+              Authorizer: JwtAuthorizer
+
   PutInvitationAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

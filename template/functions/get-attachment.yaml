@@ -27,6 +27,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        GetHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /file/{key}/{name}
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   GetAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

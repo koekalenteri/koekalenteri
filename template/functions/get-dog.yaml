@@ -25,6 +25,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        GetDogHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /dog/{regNo}
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   GetDogFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:

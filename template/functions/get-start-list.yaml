@@ -20,6 +20,13 @@
             Method: GET
             RestApiId: !Ref KoekalenteriApi
 
+        GetRegistrationHttpApi:
+          Type: HttpApi
+          Properties:
+            Path: /startlist/{eventId}
+            Method: GET
+            ApiId: !Ref KoekalenteriHttpApi
+
   GetStartListFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
