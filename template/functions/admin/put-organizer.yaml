@@ -24,14 +24,15 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        PutOrganizer:
-          Type: Api
+
+        PutOrganizerHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/organizer
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutOrganizerFunctionLogGroup:
     Type: AWS::Logs::LogGroup

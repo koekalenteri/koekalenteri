@@ -25,14 +25,15 @@
               - ses:sendTemplatedEmail
               Resource: '*'
       Events:
-        PutEmailTemplate:
-          Type: Api
+
+        PutEmailTemplateHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/email-send
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   SendRegistrationMessagesFunctionLogGroup:
     Type: AWS::Logs::LogGroup

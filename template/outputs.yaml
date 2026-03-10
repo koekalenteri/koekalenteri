@@ -2,9 +2,9 @@ Outputs:
   AmplifyAppId:
     Description: "Amplify App ID"
     Value: !GetAtt AmplifyApp.AppId
-  KoekalenteriFunctionApi:
-    Description: API Gateway endpoint URL for Prod stage
-    Value: !Sub "https://${KoekalenteriApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
+  KoekalenteriHttpFunctionApi:
+    Description: HTTP API Gateway endpoint URL for stage
+    Value: !Sub "https://${KoekalenteriHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
   CognitoID:
     Description: The Cognito UserPool ID
     Value: !Ref KoekalenteriUserPool

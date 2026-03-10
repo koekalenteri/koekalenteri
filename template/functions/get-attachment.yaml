@@ -20,12 +20,13 @@
         Variables:
           BUCKET: !Ref EventAttachmentBucket
       Events:
-        Get:
-          Type: Api
+
+        GetHttpApi:
+          Type: HttpApi
           Properties:
             Path: /file/{key}/{name}
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   GetAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup

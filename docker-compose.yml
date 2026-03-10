@@ -1,0 +1,53 @@
+name: koekalenteri
+
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    container_name: koekalenteri-dynamodb
+    command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-inMemory']
+    ports:
+      - '8000:8000'
+    networks:
+      - lambda-local
+
+  dynamodb-ready:
+    image: curlimages/curl:8.12.1
+    depends_on:
+      - dynamodb
+    command:
+      - /bin/sh
+      - -lc
+      - |
+        echo "Waiting for DynamoDB Local...";
+        for i in $(seq 1 80); do
+          # DynamoDB Local returns HTTP 400 on /shell/ when ready; accept any HTTP response.
+          if curl -sS -o /dev/null "http://dynamodb:8000/shell/"; then
+            echo "DynamoDB Local is ready";
+            exit 0;
+          fi
+          sleep 0.25;
+        done
+        echo "Timed out waiting for DynamoDB Local";
+        exit 1
+    networks:
+      - lambda-local
+
+  dynamodb-init:
+    image: node:20-alpine
+    working_dir: /app
+    depends_on:
+      dynamodb-ready:
+        condition: service_completed_successfully
+    environment:
+      DYNAMODB_ENDPOINT: http://dynamodb:8000
+      AWS_REGION: eu-west-1
+    volumes:
+      - ./:/app
+    command: ['node', 'scripts/local-dynamodb/init.mjs']
+    networks:
+      - lambda-local
+
+networks:
+  lambda-local:
+    name: lambda-local
+    external: true

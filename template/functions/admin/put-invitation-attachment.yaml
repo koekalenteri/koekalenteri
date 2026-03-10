@@ -22,14 +22,15 @@
         Variables:
           BUCKET: !Ref EventAttachmentBucket
       Events:
-        Put:
-          Type: Api
+
+        PutHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/file/invitation/{eventId}
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutInvitationAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup

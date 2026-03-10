@@ -26,6 +26,9 @@
       Repository: !Ref Repository
       Description: Koekalenteri
       OauthToken: !Ref OauthToken
+      EnvironmentVariables:
+        - Name: REACT_APP_API_BASE_URL
+          Value: !Sub "https://${KoekalenteriHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
       BuildSpec: |-
         version: 0.1
         frontend:
@@ -62,5 +65,4 @@
           Value: koekalenteri-amplify-console
         - Key: Branch
           Value: !Ref Branch
-
 

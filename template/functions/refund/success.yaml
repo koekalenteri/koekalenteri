@@ -32,12 +32,13 @@
               - ses:sendTemplatedEmail
               Resource: '*'
       Events:
-        PutEvent:
-          Type: Api
+
+        PutEventHttpApi:
+          Type: HttpApi
           Properties:
             Path: /refund/success
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   RefundSuccessFunctionLogGroup:
     Type: AWS::Logs::LogGroup

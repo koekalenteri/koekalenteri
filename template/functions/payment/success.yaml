@@ -33,12 +33,13 @@
               Resource: '*'
         - !Ref WebSocketPolicy
       Events:
-        PutEvent:
-          Type: Api
+
+        PutEventHttpApi:
+          Type: HttpApi
           Properties:
             Path: /payment/success
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   PaymentSuccessFunctionLogGroup:
     Type: AWS::Logs::LogGroup

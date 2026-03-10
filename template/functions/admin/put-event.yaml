@@ -25,14 +25,15 @@
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:
-        PutEvent:
-          Type: Api
+
+        PutEventHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/event
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup

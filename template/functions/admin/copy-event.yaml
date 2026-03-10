@@ -19,14 +19,15 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        CopyEvent:
-          Type: Api
+
+        CopyEventHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/event/copy
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   CopyEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup

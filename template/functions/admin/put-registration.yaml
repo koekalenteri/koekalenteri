@@ -35,14 +35,15 @@
               Resource: '*'
         - !Ref WebSocketPolicy
       Events:
-        PutAdminRegistration:
-          Type: Api
+
+        PutAdminRegistrationHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/registration
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutAdminRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup

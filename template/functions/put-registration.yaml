@@ -31,12 +31,13 @@
               Resource: '*'
         - !Ref WebSocketPolicy
       Events:
-        PutRegistration:
-          Type: Api
+
+        PutRegistrationHttpApi:
+          Type: HttpApi
           Properties:
             Path: /registration
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   PutRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup

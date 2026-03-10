@@ -14,14 +14,15 @@
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
       Events:
-        GetOrganizerEventStatsApi:
-          Type: Api
+
+        GetOrganizerEventStatsApiHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/organizer-event-stats
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetOrganizerEventStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
