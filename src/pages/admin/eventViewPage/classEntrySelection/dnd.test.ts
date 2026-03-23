@@ -121,5 +121,185 @@ describe('dnd', () => {
       expect(determineChangesFromDrop(item, group, reg, regs, false)).toEqual(expected)
       expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual(expected)
     })
+
+    it('returns empty changes when targetGroupKey is missing', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 0,
+        position: 'after',
+        targetGroupKey: undefined,
+        targetIndex: 0,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reg-id',
+      }
+
+      expect(determineChangesFromDrop(item, group, reg, [], true)).toEqual([])
+    })
+
+    it('handles move-after with no target number by using last+1 fallback', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 0,
+        position: 'after',
+        targetGroupKey: GROUP_KEY_RESERVE,
+        targetIndex: 2,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reg-id',
+      }
+      const regs: Pick<Registration, 'group'>[] = [{ group: { key: GROUP_KEY_RESERVE, number: 5 } }]
+
+      expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual([
+        { eventId: 'event-id', group: { key: GROUP_KEY_RESERVE, number: 6.5 }, id: 'reg-id' },
+      ])
+    })
+
+    it('handles missing group at target position by falling back to 0 before modifier', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 1,
+        position: 'before',
+        targetGroupKey: GROUP_KEY_RESERVE,
+        targetIndex: 1,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 2 },
+        id: 'reg-id',
+      }
+      const regs: Pick<Registration, 'group'>[] = [{} as Pick<Registration, 'group'>]
+
+      expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual([
+        { eventId: 'event-id', group: { key: GROUP_KEY_RESERVE, number: -0.5 }, id: 'reg-id' },
+      ])
+    })
+
+    it('handles missing group on last item when move-after fallback uses last+1', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 0,
+        position: 'after',
+        targetGroupKey: GROUP_KEY_RESERVE,
+        targetIndex: 2,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reg-id',
+      }
+      const regs: Pick<Registration, 'group'>[] = [{} as Pick<Registration, 'group'>]
+
+      expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual([
+        { eventId: 'event-id', group: { key: GROUP_KEY_RESERVE, number: 1.5 }, id: 'reg-id' },
+      ])
+    })
+
+    it('handles move-after fallback when regs is empty', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 0,
+        position: 'after',
+        targetGroupKey: GROUP_KEY_RESERVE,
+        targetIndex: 2,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reg-id',
+      }
+
+      expect(determineChangesFromDrop(item, group, reg, [], true)).toEqual([
+        { eventId: 'event-id', group: { key: GROUP_KEY_RESERVE, number: 1.5 }, id: 'reg-id' },
+      ])
+    })
+
+    it('handles target entry with null group', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 1,
+        position: 'before',
+        targetGroupKey: GROUP_KEY_RESERVE,
+        targetIndex: 0,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 2 },
+        id: 'reg-id',
+      }
+      const regs = [{ group: null }] as unknown as Pick<Registration, 'group'>[]
+
+      expect(determineChangesFromDrop(item, group, reg, regs, true)).toEqual([
+        { eventId: 'event-id', group: { key: GROUP_KEY_RESERVE, number: -0.5 }, id: 'reg-id' },
+      ])
+    })
+
+    it('prevents reordering in cancelled group and clears targetGroupKey', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_CANCELLED,
+        groups: [],
+        id: 'reg-id',
+        index: 1,
+        position: 'before',
+        targetGroupKey: GROUP_KEY_CANCELLED,
+        targetIndex: 0,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_CANCELLED, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_CANCELLED, number: 2 },
+        id: 'reg-id',
+      }
+
+      expect(
+        determineChangesFromDrop(item, group, reg, [{ group: { key: GROUP_KEY_CANCELLED, number: 1 } }], true)
+      ).toEqual([])
+      expect(item.targetGroupKey).toBeUndefined()
+    })
+
+    it('prevents reordering in reserve group when arranging reserve is not allowed and clears targetGroupKey', () => {
+      const item: DragItem = {
+        groupKey: GROUP_KEY_RESERVE,
+        groups: [],
+        id: 'reg-id',
+        index: 1,
+        position: 'before',
+        targetGroupKey: GROUP_KEY_RESERVE,
+        targetIndex: 0,
+      }
+      const group: RegistrationGroup = { key: GROUP_KEY_RESERVE, number: 0 }
+      const reg: Pick<Registration, 'eventId' | 'group' | 'id'> = {
+        eventId: 'event-id',
+        group: { key: GROUP_KEY_RESERVE, number: 2 },
+        id: 'reg-id',
+      }
+
+      expect(
+        determineChangesFromDrop(item, group, reg, [{ group: { key: GROUP_KEY_RESERVE, number: 1 } }], false)
+      ).toEqual([])
+      expect(item.targetGroupKey).toBeUndefined()
+    })
   })
 })
