@@ -3,9 +3,12 @@ export const fiAuthenticationDict = {
   'Change Password': 'Vaihda salasana',
   Code: 'Koodi',
   'Code *': 'Sähköpostiisi lähetetty koodi',
+  Confirm: 'Vahvista',
   'Confirm Password': 'Salasana uudelleen',
+  'Confirmation Code': 'Vahvistuskoodi',
   'Create Account': 'Rekisteröidy',
   Email: 'Sähköposti',
+  'Enter your code': 'Kirjoita vahvistuskoodisi',
   'Enter your Email': 'Kirjoita sähköpostiosoitteesi',
   'Enter your email': 'Kirjoita sähköpostiosoitteesi',
   'Enter your Password': 'Kirjoita haluamasi salasana',
@@ -27,4 +30,9 @@ export const fiAuthenticationDict = {
   'Signing in': 'Kirjaudutaan',
   Submit: 'Lähetä',
   Submitting: 'Lähetetään',
+  'We Emailed You': 'Lähetimme sinulle sähköpostia',
+  'Your code is on the way. To log in, enter the code we emailed to {{destination}}. It may take a minute to arrive.':
+    'Koodi on matkalla. Kirjaudu sisään syöttämällä koodi, jonka lähetimme osoitteeseen {{destination}}. Sen saapumisessa voi kestää hetki.',
+  'Your confirmation code is': 'Vahvistuskoodisi on',
+  'Your verification code': 'Vahvistuskoodisi',
 }

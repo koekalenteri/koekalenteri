@@ -2,7 +2,7 @@ import * as awsAuth from 'aws-amplify/auth'
 import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
 import { API_BASE_URL } from '../routeConfig'
-import http from './http'
+import http, { APIError, withToken } from './http'
 
 fetchMock.enableMocks()
 jest.mock('notistack', () => ({
@@ -151,7 +151,7 @@ describe('http', () => {
 
       const json = await http.post('/test/', {})
 
-      expect(json).toEqual('ok')
+      expect(json).toEqual({ data: 'ok', status: 200 })
       expect(fetchMock.mock.calls.length).toEqual(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
@@ -243,6 +243,55 @@ describe('http', () => {
 
       await expect(http.delete('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
       expect(mockConsoleError).toHaveBeenCalled()
+    })
+  })
+
+  describe('coverage for helpers and edge cases', () => {
+    it('should set statusText from response body message when statusText is missing', () => {
+      const response = { status: 400, statusText: '' } as Response
+
+      const err = new APIError(response, { message: 'body message' })
+
+      expect(err.statusText).toBe('body message')
+      expect(err.message).toBe('400 body message')
+    })
+
+    it('should fallback to default status text when body object has no message', () => {
+      const response = new Response('bad', { status: 500, statusText: 'fallback status' })
+
+      const err = new APIError(response, { error: 'x' })
+
+      expect(err.statusText).toBe('fallback status')
+      expect(err.message).toBe('500 fallback status')
+    })
+
+    it('should include authorization header only when token exists', () => {
+      const withAuth = withToken({ headers: { 'X-Test': '1' } }, 'token-123')
+      const withoutAuth = withToken({ headers: { 'X-Test': '1' } })
+
+      expect(withAuth.headers).toEqual({ Authorization: 'Bearer token-123', 'X-Test': '1' })
+      expect(withoutAuth.headers).toEqual({ 'X-Test': '1' })
+    })
+
+    it('should keep non-JSON error body on APIError when backend returns plain text', async () => {
+      fetchMock.mockResponseOnce('plain text error body', {
+        status: 400,
+        statusText: '',
+      })
+
+      await expect(http.get('/text-error')).rejects.toEqual(
+        expect.objectContaining({ body: 'plain text error body', status: 400, statusText: 'Bad Request' })
+      )
+      expect(mockConsoleError).toHaveBeenCalled()
+    })
+
+    it('should build APIError message from string body when statusText is missing', () => {
+      const response = { status: 500, statusText: '' } as Response
+
+      const err = new APIError(response, 'raw-body-message')
+
+      expect(err.statusText).toBe('raw-body-message')
+      expect(err.message).toBe('500 raw-body-message')
     })
   })
 })

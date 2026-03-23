@@ -8,12 +8,14 @@ export async function getEmailTemplates(token?: string, signal?: AbortSignal) {
 }
 
 export async function putEmailTemplate(template: EmailTemplate, token?: string, signal?: AbortSignal) {
-  return http.post<EmailTemplate, EmailTemplate>(PATH, template, withToken({ signal }, token))
+  return (await http.post<EmailTemplate, EmailTemplate>(PATH, template, withToken({ signal }, token))).data
 }
 
 export async function sendTemplatedEmail(message: RegistrationMessage, token?: string, signal?: AbortSignal) {
-  return http.post<
-    RegistrationMessage,
-    { ok: string[]; failed: string[]; state: EventState; classes: EventClass[]; registrations: Registration[] }
-  >('/admin/email-send', message, withToken({ signal }, token))
+  return (
+    await http.post<
+      RegistrationMessage,
+      { ok: string[]; failed: string[]; state: EventState; classes: EventClass[]; registrations: Registration[] }
+    >('/admin/email-send', message, withToken({ signal }, token))
+  ).data
 }

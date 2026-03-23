@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import logo from '../../assets/snj-logo.png'
+import { isDevEnv } from '../../lib/env'
 import { Path } from '../../routeConfig'
 import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
 import AppBarButton from './header/AppBarButton'
@@ -28,6 +29,7 @@ const Header = ({ toggleMenu }: Props) => {
   const idToken = useRecoilValue(idTokenAtom)
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
+  const headerBackgroundColor = isDevEnv() ? '#08821f' : undefined
 
   const handleHomeClick = useCallback(() => navigate(Path.home), [navigate])
   const handleAdminClick = useCallback(() => navigate(Path.admin.root), [navigate])
@@ -40,7 +42,7 @@ const Header = ({ toggleMenu }: Props) => {
   }, [actions, idToken, user])
 
   return (
-    <AppBar position="fixed" elevation={0}>
+    <AppBar position="fixed" elevation={0} sx={{ bgcolor: headerBackgroundColor }}>
       <Toolbar variant="dense" disableGutters sx={{ height: 36, minHeight: 36, px: 1, width: '100%' }}>
         {toggleMenu ? (
           <IconButton color="secondary" sx={{ display: { md: 'none', sm: 'inline-flex' } }} onClick={toggleMenu}>

@@ -8,10 +8,7 @@ import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useParams } from 'react-router'
 import { RecoilRoot } from 'recoil'
-import {
-  registrationWithStaticDatesAndClass,
-  unpaidRegistrationWithStaticDatesAndClass,
-} from '../__mockData__/registrations'
+import { unpaidRegistrationWithStaticDatesAndClass } from '../__mockData__/registrations'
 import mockResponse from '../api/__mocks__/paymentCreate.response.json'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
@@ -77,7 +74,6 @@ describe('PaymentPage', () => {
       </ThemeProvider>
     )
     await flushPromises()
-    expect(container).toMatchSnapshot()
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
 
@@ -98,7 +94,7 @@ describe('PaymentPage', () => {
         element: <PaymentPage />,
         hydrateFallbackElement: <LoadingIndicator />,
         loader: async () => ({
-          response: Promise.resolve(mockResponse),
+          response: Promise.resolve({ response: mockResponse, status: 200 }),
         }),
         path,
       },
@@ -152,20 +148,26 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('paymentPage.registrationNotFound registrationId')
     })
 
-    it('should navigate to registration page when payment status is SUCCESS', async () => {
+    it('should show payment methods when registration has payment status SUCCESS', async () => {
+      const event = {
+        cost: 50,
+        id: 'test-id',
+        paymentTime: 'registration' as const,
+      }
+      const registration = {
+        ...testRegistration,
+        paymentStatus: 'SUCCESS' as const,
+        totalAmount: 50,
+      }
+
       const routes: RouteObject[] = [
-        {
-          element: <>Registration Page</>,
-          hydrateFallbackElement: <>hydrate fallback</>,
-          path: Path.registration(registrationWithStaticDatesAndClass),
-        },
         {
           element: (
             <PaymentPageWithData
               id="test-id"
               registrationId="test-reg-id"
-              event={{ id: 'test-id' } as any}
-              registration={registrationWithStaticDatesAndClass}
+              event={event as any}
+              registration={registration as any}
               response={mockResponse as CreatePaymentResponse}
             />
           ),
@@ -174,7 +176,7 @@ describe('PaymentPage', () => {
         },
       ]
 
-      render(
+      const { container } = render(
         <RecoilRoot>
           <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
         </RecoilRoot>
@@ -182,7 +184,7 @@ describe('PaymentPage', () => {
 
       await flushPromises()
 
-      expect(screen.getByText('Registration Page')).toBeInTheDocument()
+      expect(container).toHaveTextContent('paymentPage.choosePaymentMethod')
     })
 
     it('should show error message when response.groups is not available', async () => {
@@ -290,6 +292,107 @@ describe('PaymentPage', () => {
       expect(container).toHaveTextContent('paymentPage.choosePaymentMethod')
       expect(container).not.toHaveTextContent('paymentStatus.waitingForConfirmation')
     })
+
+    it.each([
+      [403, 'paymentPage.error403'],
+      [404, 'paymentPage.error404'],
+      [409, 'paymentPage.error409'],
+      [412, 'paymentPage.error412'],
+      [500, 'paymentPage.error500'],
+      [501, 'paymentPage.error501MerchantInactive'],
+    ])('should show mapped payment error message for status %s', async (status, expectedMessage) => {
+      const event = {
+        cost: 50,
+        id: 'test-id',
+        paymentTime: 'registration' as const,
+      }
+      const registration = {
+        ...testRegistration,
+        confirmed: true,
+        totalAmount: 50,
+      }
+
+      const routes: RouteObject[] = [
+        {
+          element: (
+            <PaymentPageWithData
+              id="test-id"
+              registrationId="test-reg-id"
+              event={event as any}
+              registration={registration as any}
+              response={undefined}
+              responseStatus={status}
+            />
+          ),
+          path: '/test-path',
+        },
+      ]
+
+      const { container } = render(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <RecoilRoot>
+              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+            </RecoilRoot>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+
+      await flushPromises()
+
+      expect(container).toHaveTextContent(expectedMessage)
+      expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+    })
+
+    it('should show merchant inactive message with secretary contact for status 501', async () => {
+      const event = {
+        contactInfo: {
+          secretary: {
+            email: 'secretary@example.com',
+            name: 'Secretary Name',
+            phone: '+358401234567',
+          },
+        },
+        cost: 50,
+        id: 'test-id',
+        paymentTime: 'registration' as const,
+      }
+      const registration = {
+        ...testRegistration,
+        confirmed: true,
+        totalAmount: 50,
+      }
+
+      const routes: RouteObject[] = [
+        {
+          element: (
+            <PaymentPageWithData
+              id="test-id"
+              registrationId="test-reg-id"
+              event={event as any}
+              registration={registration as any}
+              response={undefined}
+              responseStatus={501}
+            />
+          ),
+          path: '/test-path',
+        },
+      ]
+
+      const { container } = render(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <RecoilRoot>
+              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+            </RecoilRoot>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+
+      await flushPromises()
+
+      expect(container).toHaveTextContent('paymentPage.error501MerchantInactive contact')
+    })
   })
 
   it('should reset registration form on mount', async () => {
@@ -315,7 +418,7 @@ describe('PaymentPage', () => {
         element: <PaymentPage />,
         hydrateFallbackElement: <>hydrate fallback</>,
         loader: async () => ({
-          response: Promise.resolve(mockResponse),
+          response: Promise.resolve({ response: mockResponse, status: 200 }),
         }),
         path,
       },

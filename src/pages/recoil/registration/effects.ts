@@ -7,6 +7,10 @@ export const remoteRegistrationEffect =
   ({ setSelf, trigger }) => {
     if (trigger === 'get') {
       const [eventId, registrationId] = param.split(':')
-      setSelf(getRegistration(eventId, registrationId).then((registration) => registration ?? null))
+      setSelf(
+        getRegistration(eventId, registrationId)
+          .then((registration) => registration ?? null)
+          .catch(() => null)
+      )
     }
   }

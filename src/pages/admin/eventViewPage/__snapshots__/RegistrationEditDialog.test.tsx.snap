@@ -69,7 +69,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               class="MuiBox-root css-1lg2rum"
             >
               <div
-                class="MuiBox-root css-13bip4b"
+                class="MuiBox-root css-1igggo6"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -116,7 +116,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -496,7 +496,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -543,7 +543,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
@@ -1074,7 +1074,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1121,7 +1121,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -1214,7 +1214,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1261,7 +1261,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <form>
                             <div
@@ -1560,7 +1560,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-62wt2d"
+                      class="MuiBox-root css-qxc3vx"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1607,7 +1607,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                             >
                               <div
-                                class="MuiBox-root css-e1h6et"
+                                class="MuiBox-root css-1xs22px"
                               >
                                 <div
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -1839,7 +1839,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-62wt2d"
+                      class="MuiBox-root css-qxc3vx"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -1886,7 +1886,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                               class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                             >
                               <div
-                                class="MuiBox-root css-e1h6et"
+                                class="MuiBox-root css-1xs22px"
                               >
                                 <div
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -2066,7 +2066,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2113,7 +2113,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -2176,7 +2176,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2221,7 +2221,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiFormControl-root MuiTextField-root css-1myhl20-MuiFormControl-root-MuiTextField-root"
@@ -2276,7 +2276,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2322,7 +2322,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
@@ -2529,7 +2529,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             </div>
           </div>
           <div
-            class="MuiBox-root css-62wt2d"
+            class="MuiBox-root css-qxc3vx"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2574,7 +2574,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-e1h6et"
+                      class="MuiBox-root css-1xs22px"
                     >
                       <div
                         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
@@ -2785,7 +2785,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               class="MuiBox-root css-1lg2rum"
             >
               <div
-                class="MuiBox-root css-13bip4b"
+                class="MuiBox-root css-1igggo6"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -2832,7 +2832,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -3242,7 +3242,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3289,7 +3289,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1oesxgi-MuiGrid-root"
@@ -3838,7 +3838,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -3885,7 +3885,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -3976,7 +3976,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4023,7 +4023,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <form>
                             <div
@@ -4315,7 +4315,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-62wt2d"
+                      class="MuiBox-root css-qxc3vx"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4362,7 +4362,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                             >
                               <div
-                                class="MuiBox-root css-e1h6et"
+                                class="MuiBox-root css-1xs22px"
                               >
                                 <div
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -4589,7 +4589,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-62wt2d"
+                      class="MuiBox-root css-qxc3vx"
                     >
                       <button
                         class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4636,7 +4636,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                               class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                             >
                               <div
-                                class="MuiBox-root css-e1h6et"
+                                class="MuiBox-root css-1xs22px"
                               >
                                 <div
                                   class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -4812,7 +4812,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4859,7 +4859,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -4922,7 +4922,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -4967,7 +4967,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiFormControl-root MuiTextField-root css-1myhl20-MuiFormControl-root-MuiTextField-root"
@@ -5021,7 +5021,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 </div>
               </div>
               <div
-                class="MuiBox-root css-62wt2d"
+                class="MuiBox-root css-qxc3vx"
               >
                 <button
                   class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5067,7 +5067,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                       >
                         <div
-                          class="MuiBox-root css-e1h6et"
+                          class="MuiBox-root css-1xs22px"
                         >
                           <div
                             class="MuiFormGroup-root css-1mac7pt-MuiFormGroup-root"
@@ -5271,7 +5271,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             </div>
           </div>
           <div
-            class="MuiBox-root css-62wt2d"
+            class="MuiBox-root css-qxc3vx"
           >
             <button
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
@@ -5316,7 +5316,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-e1h6et"
+                      class="MuiBox-root css-1xs22px"
                     >
                       <div
                         class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"

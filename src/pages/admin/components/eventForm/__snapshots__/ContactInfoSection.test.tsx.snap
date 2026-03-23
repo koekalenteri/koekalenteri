@@ -3,7 +3,7 @@
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -48,7 +48,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -454,7 +454,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -499,7 +499,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -906,7 +906,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -951,7 +951,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -1358,7 +1358,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -1403,7 +1403,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -1811,7 +1811,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -1856,7 +1856,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -2263,7 +2263,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -2308,7 +2308,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -2716,7 +2716,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -2761,7 +2761,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -3169,7 +3169,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -3214,7 +3214,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -3623,7 +3623,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -3668,7 +3668,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -4075,7 +4075,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -4120,7 +4120,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -4528,7 +4528,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -4573,7 +4573,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -4981,7 +4981,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -5026,7 +5026,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -5435,7 +5435,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -5480,7 +5480,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -5888,7 +5888,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -5933,7 +5933,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -6342,7 +6342,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -6387,7 +6387,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -6796,7 +6796,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -6841,7 +6841,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -7251,7 +7251,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"","phon
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -7296,7 +7296,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -7703,7 +7703,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -7748,7 +7748,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -8156,7 +8156,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -8201,7 +8201,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -8609,7 +8609,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -8654,7 +8654,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -9063,7 +9063,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -9108,7 +9108,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -9516,7 +9516,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -9561,7 +9561,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -9970,7 +9970,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -10015,7 +10015,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -10424,7 +10424,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -10469,7 +10469,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -10879,7 +10879,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -10924,7 +10924,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -11332,7 +11332,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -11377,7 +11377,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -11786,7 +11786,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -11831,7 +11831,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -12240,7 +12240,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -12285,7 +12285,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -12695,7 +12695,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -12740,7 +12740,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -13149,7 +13149,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -13194,7 +13194,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -13604,7 +13604,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -13649,7 +13649,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -14059,7 +14059,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -14104,7 +14104,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -14515,7 +14515,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"","name":"Test Of
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -14560,7 +14560,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -14967,7 +14967,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -15012,7 +15012,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -15420,7 +15420,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -15465,7 +15465,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -15873,7 +15873,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -15918,7 +15918,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -16327,7 +16327,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -16372,7 +16372,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -16780,7 +16780,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -16825,7 +16825,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -17234,7 +17234,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -17279,7 +17279,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -17688,7 +17688,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -17733,7 +17733,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -18143,7 +18143,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -18188,7 +18188,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -18596,7 +18596,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -18641,7 +18641,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -19050,7 +19050,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -19095,7 +19095,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -19504,7 +19504,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -19549,7 +19549,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -19959,7 +19959,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -20004,7 +20004,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -20413,7 +20413,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -20458,7 +20458,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -20868,7 +20868,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -20913,7 +20913,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -21323,7 +21323,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -21368,7 +21368,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -21779,7 +21779,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -21824,7 +21824,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -22232,7 +22232,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -22277,7 +22277,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -22686,7 +22686,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -22731,7 +22731,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -23140,7 +23140,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -23185,7 +23185,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -23595,7 +23595,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -23640,7 +23640,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -24049,7 +24049,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -24094,7 +24094,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -24504,7 +24504,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -24549,7 +24549,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -24959,7 +24959,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":""},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -25004,7 +25004,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -25415,7 +25415,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -25460,7 +25460,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -25869,7 +25869,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -25914,7 +25914,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -26324,7 +26324,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -26369,7 +26369,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -26779,7 +26779,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -26824,7 +26824,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -27235,7 +27235,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -27280,7 +27280,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -27690,7 +27690,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -27735,7 +27735,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -28146,7 +28146,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":""}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -28191,7 +28191,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"
@@ -28602,7 +28602,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
 exports[`ContactInfoSection renders with {"official":{"email":"official@example.com","name":"Test Official","phone":"+3584012345"},"secretary":{"email":"secretary@example.com","name":"Test Secretary","phone":"+3584054321"}} 1`] = `
 <div>
   <div
-    class="MuiBox-root css-1lsealy"
+    class="MuiBox-root css-137nj4n"
   >
     <button
       class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
@@ -28647,7 +28647,7 @@ exports[`ContactInfoSection renders with {"official":{"email":"official@example.
             class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
           >
             <div
-              class="MuiBox-root css-e1h6et"
+              class="MuiBox-root css-1xs22px"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row MuiGrid-spacing-xs-1 css-1yvsbrk-MuiGrid-root"

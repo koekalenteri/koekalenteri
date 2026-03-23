@@ -14,7 +14,7 @@ export default function Version() {
       sx={{
         color: '#eee',
         fontFamily: 'monospace',
-        fontSize: 8,
+        fontSize: 10,
         left: 0,
         p: 0.5,
         position: 'absolute',

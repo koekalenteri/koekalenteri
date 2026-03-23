@@ -10,6 +10,7 @@
   "contact": {
     "city": "City",
     "email": "Email",
+    "kcEmail": "Kennel Club Email",
     "name": "Name",
     "phone": "Phone"
   },
@@ -266,7 +267,14 @@
   },
   "paymentDetails": "Payment details",
   "paymentPage": {
+    "alreadyPaid": "Registration has already been paid",
     "choosePaymentMethod": "Choose payment method",
+    "error403": "Payment is available only after confirmation",
+    "error404": "Registration was not found or can no longer be paid",
+    "error409": "Payment is already in progress",
+    "error412": "Payment provider is not configured for this event",
+    "error500": "Payment could not be created, please try again later",
+    "error501MerchantInactive": "The association's payment service contract is not active. The registration could not be received. Please contact the trial secretary {{contact}}",
     "eventNotFound": "Event {{id}} not found.",
     "registrationNotFound": "Registration {{registrationId}} not found.",
     "somethingWentWrong": "Something went wrong"

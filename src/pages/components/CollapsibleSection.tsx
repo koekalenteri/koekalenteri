@@ -45,8 +45,8 @@ export default function CollapsibleSection({
     <Box
       sx={{
         alignItems: 'flex-start',
-        borderColor: 'background.selected',
         borderTop: border ? '2px solid' : 'none',
+        borderTopColor: 'background.selected',
         display: 'flex',
         pr: { sm: 1, xs: 0.5 },
       }}
@@ -62,7 +62,7 @@ export default function CollapsibleSection({
           </FormHelperText>
         </Box>
         <Collapse in={isOpen} timeout="auto">
-          <Box sx={{ borderTop: '1px dashed #bdbdbd', p: { sm: 1, xs: 0.5 } }}>{children}</Box>
+          <Box sx={{ p: { sm: 1, xs: 0.5 } }}>{children}</Box>
         </Collapse>
       </Box>
     </Box>

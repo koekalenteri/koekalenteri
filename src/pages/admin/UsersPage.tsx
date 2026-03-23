@@ -172,7 +172,7 @@ export default function UsersPage() {
     {
       field: 'kcEmail',
       flex: 2,
-      headerName: 'KC email',
+      headerName: t('contact.kcEmail'),
       minWidth: 150,
     },
     ...(user?.admin
@@ -191,7 +191,7 @@ export default function UsersPage() {
                 </Tooltip>
               )
             },
-            sortable: false,
+            sortable: true,
             sortingOrder: ['desc', 'asc'],
             valueGetter: (_value: unknown, row: User) => row.emailHistory?.length ?? 0,
           },

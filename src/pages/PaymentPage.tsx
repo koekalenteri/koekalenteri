@@ -6,10 +6,11 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 import { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Await, Navigate, useLoaderData, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { Await, useLoaderData, useParams } from 'react-router'
+import { useRecoilState, useRecoilValueLoadable, useResetRecoilState } from 'recoil'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
+import { printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import { ErrorInfo } from './components/ErrorInfo'
 import LinkButton from './components/LinkButton'
@@ -23,17 +24,17 @@ export const loader = async ({ params }: { params: Params<string> }) => {
   const createPaymentWrap = async () => {
     if (params.id && params.registrationId) {
       try {
-        const result = await createPayment(params.id, params.registrationId)
-
-        return result ?? null
+        return await createPayment(params.id, params.registrationId)
       } catch (err) {
         // eat 403 & 404
-        if (err instanceof APIError && (err.status === 403 || err.status === 404)) return null
+        if (err instanceof APIError && (err.status === 403 || err.status === 404)) {
+          return { response: undefined, status: err.status }
+        }
 
         throw err
       }
     }
-    return {}
+    return { response: undefined, status: 0 }
   }
   return { response: createPaymentWrap() }
 }
@@ -44,9 +45,18 @@ interface Props {
   readonly event?: PublicConfirmedEvent | null
   readonly registration?: Registration | null
   readonly response?: CreatePaymentResponse
+  readonly responseStatus?: number
 }
 
-export const PaymentPageWithData = ({ id, registrationId, event, registration, response }: Props) => {
+const paymentErrorStatusKey = {
+  403: 'paymentPage.error403',
+  404: 'paymentPage.error404',
+  409: 'paymentPage.error409',
+  412: 'paymentPage.error412',
+  500: 'paymentPage.error500',
+} as const
+
+export const PaymentPageWithData = ({ id, registrationId, event, registration, response, responseStatus }: Props) => {
   const [language, setLanguage] = useRecoilState(languageAtom)
   const { t } = useTranslation()
 
@@ -64,24 +74,38 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
     return <>{t('paymentPage.registrationNotFound', { registrationId })}</>
   }
 
-  if (registration.paymentStatus === 'SUCCESS') {
-    return <Navigate to={Path.registration(registration)} replace />
-  }
+  const renderNotice = (message: string) => (
+    <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
+      <Grid sx={{ pl: 1 }} flexGrow={1}>
+        <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
+        <Typography variant="h5">{message}</Typography>
+      </Grid>
+      <Divider sx={{ my: 1 }} />
+      <RegistrationDetails event={event} registration={registration} />
+      <Divider sx={{ my: 1 }} />
+      <PaymentDetails event={event} registration={registration} includePayable />
+    </Paper>
+  )
 
   // If payment is after confirmation but registration is not confirmed yet, show message
   if (event.paymentTime === 'confirmation' && !registration.confirmed) {
-    return (
-      <Paper sx={{ p: 1, width: '100%' }} elevation={0}>
-        <Grid sx={{ pl: 1 }} flexGrow={1}>
-          <LinkButton sx={{ mb: 1, pl: 0 }} to={Path.registration(registration)} text={t('goBack')} />
-          <Typography variant="h5">{t('paymentStatus.waitingForConfirmation')}</Typography>
-        </Grid>
-        <Divider sx={{ my: 1 }} />
-        <RegistrationDetails event={event} registration={registration} />
-        <Divider sx={{ my: 1 }} />
-        <PaymentDetails event={event} registration={registration} includePayable />
-      </Paper>
-    )
+    return renderNotice(t('paymentStatus.waitingForConfirmation'))
+  }
+
+  if (responseStatus === 204) {
+    return renderNotice(t('paymentPage.alreadyPaid'))
+  }
+
+  if (responseStatus === 501) {
+    const secretaryContact = printContactInfo(event.contactInfo?.secretary)
+    return renderNotice(t('paymentPage.error501MerchantInactive', { contact: secretaryContact }))
+  }
+
+  const errorKey = responseStatus
+    ? paymentErrorStatusKey[responseStatus as keyof typeof paymentErrorStatusKey]
+    : undefined
+  if (errorKey) {
+    return renderNotice(t(errorKey))
   }
 
   if (!response?.groups) {
@@ -106,12 +130,7 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
             {response.providers
               .filter((provider) => provider.group === group.id)
               .map((provider, index) => (
-                <Grid
-                  key={`${provider.id}${
-                    // biome-ignore lint/suspicious/noArrayIndexKey: combining with provider id
-                    index
-                  }`}
-                >
+                <Grid key={`${provider.id}${index}`}>
                   <ProviderButton provider={provider} />
                 </Grid>
               ))}
@@ -129,10 +148,14 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
 export function Component() {
   const { id, registrationId } = useParams()
-  const event = useRecoilValue(confirmedEventSelector(id))
-  const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
-  const data: { response: Promise<CreatePaymentResponse | undefined> } = useLoaderData()
+  const eventLoadable = useRecoilValueLoadable(confirmedEventSelector(id))
+  const registrationLoadable = useRecoilValueLoadable(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
+  const data: { response: Promise<{ response?: CreatePaymentResponse; status: number }> } = useLoaderData()
   const resetRegistration = useResetRecoilState(newRegistrationAtom)
+
+  const loadingEventOrRegistration = eventLoadable.state === 'loading' || registrationLoadable.state === 'loading'
+  const event = eventLoadable.state === 'hasValue' ? eventLoadable.contents : null
+  const registration = registrationLoadable.state === 'hasValue' ? registrationLoadable.contents : null
 
   useEffect(() => {
     // Reset the registration form here, to avoid flashing page.
@@ -144,17 +167,22 @@ export function Component() {
 
   return (
     <Suspense fallback={<LoadingPage />}>
-      <Await resolve={data.response} errorElement={<ErrorInfo />}>
-        {(response) => (
-          <PaymentPageWithData
-            id={id}
-            registrationId={registrationId}
-            event={event}
-            registration={registration}
-            response={response}
-          />
-        )}
-      </Await>
+      {loadingEventOrRegistration ? (
+        <LoadingPage />
+      ) : (
+        <Await resolve={data.response} errorElement={<ErrorInfo />}>
+          {(response) => (
+            <PaymentPageWithData
+              id={id}
+              registrationId={registrationId}
+              event={event}
+              registration={registration}
+              response={response?.response}
+              responseStatus={response?.status}
+            />
+          )}
+        </Await>
+      )}
     </Suspense>
   )
 }

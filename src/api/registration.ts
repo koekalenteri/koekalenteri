@@ -34,7 +34,8 @@ export async function putRegistration(
   token?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return http.post<Registration, Registration>('/registration/', registration, withToken({ signal }, token))
+  return (await http.post<Registration, Registration>('/registration/', registration, withToken({ signal }, token)))
+    .data
 }
 
 export async function putAdminRegistration(
@@ -42,7 +43,9 @@ export async function putAdminRegistration(
   token: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return http.post<Registration, Registration>('/admin/registration/', registration, withToken({ signal }, token))
+  return (
+    await http.post<Registration, Registration>('/admin/registration/', registration, withToken({ signal }, token))
+  ).data
 }
 
 type RegistrationInternalNotes = Pick<Registration, 'eventId' | 'id' | 'internalNotes'>
@@ -51,11 +54,25 @@ export async function putAdminRegistrationNotes(
   token: string,
   signal?: AbortSignal
 ): Promise<void> {
-  return http.post<RegistrationInternalNotes, void>(
-    '/admin/registration/note',
-    registration,
-    withToken({ signal }, token)
-  )
+  return (
+    await http.post<RegistrationInternalNotes, void>(
+      '/admin/registration/note',
+      registration,
+      withToken({ signal }, token)
+    )
+  ).data
+}
+
+type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
+  items: Registration[]
+  invitedOk: string[]
+  invitedFailed: string[]
+  pickedOk: string[]
+  pickedFailed: string[]
+  reserveOk: string[]
+  reserveFailed: string[]
+  cancelledOk: string[]
+  cancelledFailed: string[]
 }
 
 export async function putRegistrationGroups(
@@ -63,20 +80,14 @@ export async function putRegistrationGroups(
   groups: RegistrationGroupInfo[],
   token: string,
   signal?: AbortSignal
-): Promise<
-  Pick<ConfirmedEvent, 'classes' | 'entries'> & {
-    items: Registration[]
-    invitedOk: string[]
-    invitedFailed: string[]
-    pickedOk: string[]
-    pickedFailed: string[]
-    reserveOk: string[]
-    reserveFailed: string[]
-    cancelledOk: string[]
-    cancelledFailed: string[]
-  }
-> {
-  return http.post(`/admin/reg-groups/${eventId}`, groups, withToken({ signal }, token))
+): Promise<RegistrationGroupResponse> {
+  return (
+    await http.post<RegistrationGroupInfo[], RegistrationGroupResponse>(
+      `/admin/reg-groups/${eventId}`,
+      groups,
+      withToken({ signal }, token)
+    )
+  ).data
 }
 
 export async function getStartList(

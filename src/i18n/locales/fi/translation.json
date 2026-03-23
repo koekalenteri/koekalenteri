@@ -10,6 +10,7 @@
   "contact": {
     "city": "Kotikunta",
     "email": "Sähköposti",
+    "kcEmail": "Kennelliiton sähköposti",
     "name": "Nimi",
     "phone": "Puhelin"
   },
@@ -275,7 +276,14 @@
   },
   "paymentDetails": "Maksutiedot",
   "paymentPage": {
+    "alreadyPaid": "Ilmoittautuminen on jo maksettu",
     "choosePaymentMethod": "Valitse maksutapa",
+    "error403": "Maksu on mahdollista vasta koepaikan varmistuttua",
+    "error404": "Ilmoittautumista ei löydy tai sitä ei voi enää maksaa",
+    "error409": "Maksu on jo käynnissä, voit yrittää uudelleen viiden minuutin kuluttua",
+    "error412": "Maksupalvelua ei ole määritetty tälle yhdistykselle",
+    "error500": "Maksun luonti epäonnistui, yritä myöhemmin uudelleen",
+    "error501MerchantInactive": "Yhdistyksen maksupalvelusopimus ei ole voimassa. Ilmoittautumista ei voitu ottaa vastaan. Ota yhteyttä kokeen koesihteeriin {{contact}}",
     "eventNotFound": "Tapahtumaa {{id}} ei löydy.",
     "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy.",
     "somethingWentWrong": "Jotakin meni pieleen"
