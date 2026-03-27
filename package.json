@@ -31,7 +31,7 @@
     "date-fns": "^4.1.0",
     "deep-object-diff": "^1.1.9",
     "dnd-core": "^16.0.1",
-    "handlebars": "^4.7.7",
+    "handlebars": "^4.7.9",
     "i18next": "^25.8.13",
     "identity-obj-proxy": "^3.0.0",
     "material-ui-confirm": "^4.0.0",
