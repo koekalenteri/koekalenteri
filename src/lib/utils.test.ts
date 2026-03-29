@@ -3,6 +3,7 @@ import type { AnyObject } from './utils'
 import {
   clone,
   hasChanges,
+  isDateOnlyString,
   isDateString,
   isEmpty,
   isEntryOpen,
@@ -10,6 +11,7 @@ import {
   isEventOngoing,
   isObject,
   merge,
+  parseDateOnlyString,
   parseJSON,
   patchMerge,
   placesForClass,
@@ -46,6 +48,30 @@ describe('utils', () => {
     })
   })
 
+  describe('isDateOnlyString', () => {
+    it.each(['2021-05-10', '2016-09-18'])('should return true for valid date-only string: %p', (dateStr) => {
+      expect(isDateOnlyString(dateStr)).toEqual(true)
+    })
+
+    it.each([null, undefined, false, true, [], {}, '', '2021-05-10T00:00:00Z', '2021-13-10', '2021-05-32'])(
+      'should return false for invalid date-only values: %p',
+      (value) => {
+        expect(isDateOnlyString(value)).toEqual(false)
+      }
+    )
+  })
+
+  describe('parseDateOnlyString', () => {
+    it('should parse date-only strings as local midday to avoid timezone day shifts', () => {
+      const result = parseDateOnlyString('2021-05-10')
+
+      expect(result.getFullYear()).toEqual(2021)
+      expect(result.getMonth()).toEqual(4)
+      expect(result.getDate()).toEqual(10)
+      expect(result.getHours()).toEqual(12)
+    })
+  })
+
   describe('parseJSON', () => {
     it('should parse empty string, null and undefined to undefined', () => {
       expect(parseJSON('')).toBeUndefined()
@@ -60,6 +86,16 @@ describe('utils', () => {
         pvm: new Date('2021-05-10T09:05:12.000Z'),
       })
       expect(parseJSON('{"date":"2021-05-10T00:00:00"}').date).toBeInstanceOf(Date)
+    })
+
+    it('should revive date-only strings as local calendar dates', () => {
+      const parsed = parseJSON('{"date":"2021-05-10"}')
+
+      expect(parsed.date).toBeInstanceOf(Date)
+      expect(parsed.date.getFullYear()).toEqual(2021)
+      expect(parsed.date.getMonth()).toEqual(4)
+      expect(parsed.date.getDate()).toEqual(10)
+      expect(parsed.date.getHours()).toEqual(12)
     })
 
     it('should not revive dates when 2nd argument is false', () => {
