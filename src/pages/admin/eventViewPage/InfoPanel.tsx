@@ -52,13 +52,15 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
   }, [])
   const handleInvitationUpload = useCallback(
     async (e: ChangeEvent<HTMLInputElement>) => {
-      if (!e.target.files) {
+      const input = e.target
+
+      if (!input.files) {
         console.log('no files')
         return
       }
 
       try {
-        const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
+        const fileKey = await putInvitationAttachment(event.id, input.files[0], token)
         const update = Boolean(event.invitationAttachment)
         setAttachmentKey(fileKey)
         setEvent({ ...event, invitationAttachment: fileKey })
@@ -73,6 +75,8 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
         }
 
         enqueueSnackbar('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', { variant: 'error' })
+      } finally {
+        input.value = ''
       }
     },
     [event, setEvent, token]

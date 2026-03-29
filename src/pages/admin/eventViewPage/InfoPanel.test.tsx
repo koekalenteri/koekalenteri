@@ -8,6 +8,7 @@ import * as eventApi from '../../../api/event'
 import { APIError } from '../../../api/http'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { renderWithUserEvents } from '../../../test-utils/utils'
+import { adminEventsAtom } from '../recoil'
 import InfoPanel from './InfoPanel'
 
 // Mock the API calls
@@ -184,5 +185,41 @@ describe('InfoPanel>', () => {
         { variant: 'error' }
       )
     })
+  })
+
+  it('allows retrying koekutsu upload with the same file after a failed attempt', async () => {
+    const putInvitationAttachment = jest
+      .spyOn(eventApi, 'putInvitationAttachment')
+      .mockRejectedValueOnce(new Error('upload failed'))
+      .mockResolvedValueOnce('retry-success-key')
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithStaticDates])}>{children}</RecoilRoot>
+    )
+
+    const { container, user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper,
+    })
+
+    await user.click(screen.getByText('Tehtävälista'))
+
+    const input = container.querySelector('#koekutsu-file') as HTMLInputElement
+    const file = new File(['pdf'], 'kutsu.pdf', { type: 'application/pdf' })
+
+    await user.upload(input, file)
+
+    await waitFor(() => {
+      expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', {
+        variant: 'error',
+      })
+    })
+
+    await user.upload(input, file)
+
+    await waitFor(() => {
+      expect(putInvitationAttachment).toHaveBeenCalledTimes(2)
+    })
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu liitetty', { variant: 'success' })
   })
 })
