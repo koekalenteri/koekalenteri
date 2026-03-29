@@ -112,7 +112,7 @@ export default function RegistrationDialogBase({
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           {title} ({registration.language})
           <Typography variant="caption">
-            <a target="_blank" href={Path.registration(registration)}>
+            <a target="_blank" href={Path.registration(registration)} rel="noopener">
               {registration.id}
             </a>
           </Typography>

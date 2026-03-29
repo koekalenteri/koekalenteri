@@ -130,7 +130,12 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
             {response.providers
               .filter((provider) => provider.group === group.id)
               .map((provider, index) => (
-                <Grid key={`${provider.id}${index}`}>
+                <Grid
+                  key={`${provider.id}${
+                    // biome-ignore lint/suspicious/noArrayIndexKey: all good
+                    index
+                  }`}
+                >
                   <ProviderButton provider={provider} />
                 </Grid>
               ))}
