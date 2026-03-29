@@ -1,3 +1,4 @@
+// biome-ignore lint/style/useNodejsImportProtocol: using userland version
 import { toASCII } from 'punycode'
 import { VALID_TLDS } from './domains/topLevelDomains'
 

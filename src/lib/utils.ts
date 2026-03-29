@@ -95,7 +95,8 @@ const DATE_ONLY_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[01])$/
 const DATE_RE = /^\d{4}-(?:0[1-9]|1[0-2])-(?:[0-2][1-9]|[1-3]0|3[01])$/
 const TIME_RE = /^(?:[0-1]\d|2[0-3])(?::[0-6]\d)(?::[0-6]\d)?(?:\.\d{3})?(?:[+-][0-2]\d:[0-5]\d|Z)?$/
 
-export const isDateOnlyString = (value: unknown): value is string => typeof value === 'string' && DATE_ONLY_RE.test(value)
+export const isDateOnlyString = (value: unknown): value is string =>
+  typeof value === 'string' && DATE_ONLY_RE.test(value)
 
 export const isDateString = (value: unknown): value is string => {
   if (typeof value !== 'string') {

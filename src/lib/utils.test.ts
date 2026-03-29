@@ -53,12 +53,20 @@ describe('utils', () => {
       expect(isDateOnlyString(dateStr)).toEqual(true)
     })
 
-    it.each([null, undefined, false, true, [], {}, '', '2021-05-10T00:00:00Z', '2021-13-10', '2021-05-32'])(
-      'should return false for invalid date-only values: %p',
-      (value) => {
-        expect(isDateOnlyString(value)).toEqual(false)
-      }
-    )
+    it.each([
+      null,
+      undefined,
+      false,
+      true,
+      [],
+      {},
+      '',
+      '2021-05-10T00:00:00Z',
+      '2021-13-10',
+      '2021-05-32',
+    ])('should return false for invalid date-only values: %p', (value) => {
+      expect(isDateOnlyString(value)).toEqual(false)
+    })
   })
 
   describe('parseDateOnlyString', () => {

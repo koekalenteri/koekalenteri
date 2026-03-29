@@ -204,7 +204,8 @@ export function filterRelevantResults(
     usedEntryEndDate,
     qualificationStartDate
   )
-  const sameClassQualifies = hasSameClassResult(officialResults, eventType, regClass) || hasSameClassResult(manualValid, eventType, regClass)
+  const sameClassQualifies =
+    hasSameClassResult(officialResults, eventType, regClass) || hasSameClassResult(manualValid, eventType, regClass)
   if (!check.qualifies && sameClassQualifies) {
     return {
       qualifies: true,
