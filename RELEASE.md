@@ -112,5 +112,9 @@ The release workflow requires the following secrets to be configured in your Git
 - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
 - `AWS_REGION`: The AWS region for your resources (e.g., `eu-west-1`).
 - `AMPLIFY_APP_ID`: The App ID of your AWS Amplify application. This is retrieved from the CloudFormation stack outputs of the `prod` and `test` environments.
+- `AUTH0_DOMAIN`: Auth0 tenant domain for the frontend SPA (for example `tenant.eu.auth0.com`).
+- `AUTH0_CLIENT_ID`: Auth0 SPA client ID for the frontend application.
+- `AUTH0_AUDIENCE`: Auth0 API audience used by both backend JWT validation and frontend token requests.
+- `AUTH0_ISSUER`: Auth0 issuer URL with trailing slash used by backend JWT validation.
 - `DEPLOY_TRIGGER_HOOK`: A webhook URL that triggers a build of the `main` branch in the `dev` environment's Amplify app.
 - `GITHUB_TOKEN`: A GitHub token with permissions to create and push branches. The default `GITHUB_TOKEN` provided by Actions should suffice.

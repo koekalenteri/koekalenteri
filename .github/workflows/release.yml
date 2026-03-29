@@ -74,12 +74,14 @@ jobs:
             --stack-name ${{ env.environment }} \
             --s3-bucket ${{ env.environment }} \
             --parameter-overrides \
-              'ParameterKey=StageNameParam,ParameterValue=${{ env.stage }} \
-              ParameterKey=AuthJwtIssuer,ParameterValue=${{ secrets.AUTH0_ISSUER }} \
-              ParameterKey=AuthJwtAudience,ParameterValue=${{ secrets.AUTH0_AUDIENCE }} \
-              ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
-              ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
-              ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
+               'ParameterKey=StageNameParam,ParameterValue=${{ env.stage }} \
+               ParameterKey=AuthJwtIssuer,ParameterValue=${{ secrets.AUTH0_ISSUER }} \
+               ParameterKey=AuthJwtAudience,ParameterValue=${{ secrets.AUTH0_AUDIENCE }} \
+               ParameterKey=Auth0Domain,ParameterValue=${{ secrets.AUTH0_DOMAIN }} \
+               ParameterKey=Auth0ClientId,ParameterValue=${{ secrets.AUTH0_CLIENT_ID }} \
+               ParameterKey=Repository,ParameterValue=https://github.com/${{ github.repository }} \
+               ParameterKey=OauthToken,ParameterValue=${{ secrets.AWS_OAUTH_TOKEN }} \
+               ParameterKey=GoogleClientId,ParameterValue=${{ secrets.GOOGLE_CLIENT_ID }} \
               ParameterKey=GoogleClientSecret,ParameterValue=${{ secrets.GOOGLE_CLIENT_SECRET }} \
               ParameterKey=CustomDomain,ParameterValue=${{ secrets.CUSTOM_DOMAIN }} \
               ParameterKey=Branch,ParameterValue=${{ env.branch }}' \

@@ -27,8 +27,28 @@
       Description: Koekalenteri
       OauthToken: !Ref OauthToken
       EnvironmentVariables:
+        - Name: REACT_APP_REGION
+          Value: AWS::Region
+        - Name: REACT_APP_CLIENT_ID
+          Value: !GetAtt AmplifyApp.AppId
         - Name: REACT_APP_API_BASE_URL
           Value: !Sub "https://${KoekalenteriHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
+        - Name: REACT_APP_WS_API_URL
+          Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
+        - Name: REACT_APP_OAUTH_DOMAIN
+          Value: !Join ['-', !Ref AWS::StackName, !Ref CustomDomain]
+        - Name: REACT_APP_REDIRECT_SIGNIN
+          Value: !Join ['', 'https://', !Ref CustomDomain, '/login']
+        - Name: REACT_APP_REDIRECT_SIGOUT
+          Value: !Join ['', 'https://', !Ref CustomDomain, '/logout']
+        - Name: REACT_APP_AUTH0_DOMAIN
+          Value: !Ref Auth0Domain
+        - Name: REACT_APP_AUTH0_CLIENT_ID
+          Value: !Ref Auth0ClientId
+        - Name: REACT_APP_AUTH0_AUDIENCE
+          Value: !Ref AuthJwtAudience
+        - Name: _CUSTOM_IMAGE
+          Value: "node:24"
       BuildSpec: |-
         version: 0.1
         frontend:
@@ -65,4 +85,3 @@
           Value: koekalenteri-amplify-console
         - Key: Branch
           Value: !Ref Branch
-

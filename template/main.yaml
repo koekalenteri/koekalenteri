@@ -68,6 +68,14 @@ Parameters:
     Type: String
     Description: API audience / identifier, must match SPA requested audience (aud claim), e.g. https://dev.koekalenteri.snj.fi
     Default: https://dev.koekalenteri.snj.fi
+  Auth0Domain:
+    Type: String
+    Description: Auth0 tenant domain for the SPA, e.g. dev-example.eu.auth0.com
+    NoEcho: true
+  Auth0ClientId:
+    Type: String
+    Description: Auth0 SPA client ID
+    NoEcho: true
 
   # For Amplify Console frontend hosting
   Repository:
