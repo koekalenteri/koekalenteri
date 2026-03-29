@@ -16,7 +16,7 @@ import type {
   TestResult,
 } from '../../../types'
 import { differenceInMonths, startOfYear } from 'date-fns'
-import { getNextClass } from '../../../lib/registration'
+import { getNextClass, isRegistrationClass } from '../../../lib/registration'
 import { validatePerson } from '../../../lib/validation'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
 
@@ -150,6 +150,29 @@ export function validateDog(
 }
 
 const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
+const CLASS_ORDER: Registration['class'][] = ['ALO', 'AVO', 'VOI']
+
+const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: Registration['class']) => {
+  if (!resultClass || !regClass || !isRegistrationClass(resultClass)) {
+    return false
+  }
+
+  return CLASS_ORDER.indexOf(resultClass) > CLASS_ORDER.indexOf(regClass)
+}
+
+const hasSameClassResult = (
+  results: Partial<TestResult>[] | undefined,
+  eventType: string,
+  regClass?: Registration['class']
+) => Boolean(regClass && results?.some((r) => r.type === eventType && r.class === regClass))
+
+const isNOUDisqualifyingResult = (result: Partial<TestResult>, eventType: string, regClass?: Registration['class']) =>
+  eventType === 'NOU' &&
+  !regClass &&
+  !!result.class &&
+  typeof result.type === 'string' &&
+  result.type.startsWith('NOME-')
+
 export function filterRelevantResults(
   {
     eventType,
@@ -167,7 +190,7 @@ export function filterRelevantResults(
   const nextClassRules = nextClass && getRequirements(eventType, nextClass, startDate)
   const manualValid = manualResults?.filter((r) => r.type && r.date && r.location && r.judge)
 
-  const test = findDisqualifyingResult(officialResults, manualValid, eventType, nextClass)
+  const test = findDisqualifyingResult(officialResults, manualValid, eventType, regClass)
   if (test) {
     return test
   }
@@ -181,6 +204,14 @@ export function filterRelevantResults(
     usedEntryEndDate,
     qualificationStartDate
   )
+  const sameClassQualifies = hasSameClassResult(officialResults, eventType, regClass) || hasSameClassResult(manualValid, eventType, regClass)
+  if (!check.qualifies && sameClassQualifies) {
+    return {
+      qualifies: true,
+      relevant: bestResults(eventType, regClass, officialResults, manualValid, true),
+    }
+  }
+
   if (check.qualifies && check.relevant.length) {
     const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
     const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
@@ -210,10 +241,11 @@ function findDisqualifyingResult(
   officialResults: TestResult[] | undefined,
   manualResults: Partial<TestResult>[] | undefined,
   eventType: string,
-  nextClass?: Registration['class']
+  regClass?: Registration['class']
 ): QualifyingResults | undefined {
   const compare = (r: Partial<TestResult>) =>
-    r.type === eventType && ((r.class && r.class === nextClass) || r.result === 'NOU1')
+    (r.type === eventType && (isHigherClass(r.class, regClass) || r.result === 'NOU1')) ||
+    isNOUDisqualifyingResult(r, eventType, regClass)
   if (officialResults?.some(compare)) {
     // `.some` is used for the existence check; `find` is only used to fetch the value
     // and is safe here because `some` already guaranteed a match.
@@ -279,9 +311,11 @@ function bestResults(
   eventType: string,
   regClass: Registration['class'],
   officialResults: TestResult[] | undefined,
-  manualResults: Partial<TestResult>[] | undefined
+  manualResults: Partial<TestResult>[] | undefined,
+  sameClassOnly = false
 ): QualifyingResult[] {
-  const filter = (r: Partial<TestResult>) => r.type === eventType && r.class === regClass && r.result?.endsWith('1')
+  const filter = (r: Partial<TestResult>) =>
+    r.type === eventType && r.class === regClass && (sameClassOnly || r.result?.endsWith('1'))
   const officialBest: QualifyingResult[] = officialResults?.filter(filter).map((r) => ({ ...r, official: true })) ?? []
   const manualBest: QualifyingResult[] =
     manualResults?.filter(filter).map((r) => ({ ...r, official: false }) as QualifyingResult) ?? []

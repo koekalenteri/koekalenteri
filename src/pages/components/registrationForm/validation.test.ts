@@ -110,6 +110,48 @@ describe('validation', () => {
             filterRelevantResults({ eventType: 'NOU', startDate: new Date('2022-08-01') }, undefined, []).qualifies
           ).toEqual(true)
         })
+
+        it('Should reject a dog with ALO result from NOME-B', () => {
+          const testEvent = { eventType: 'NOU', startDate: new Date('2022-08-01') }
+          const ALO1 = {
+            class: 'ALO',
+            date: new Date('2022-05-30'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'ALO1',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, undefined, [ALO1]).qualifies).toEqual(false)
+        })
+
+        it('Should reject a dog with AVO result from NOME-B', () => {
+          const testEvent = { eventType: 'NOU', startDate: new Date('2022-08-01') }
+          const AVO1 = {
+            class: 'AVO',
+            date: new Date('2022-05-30'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'AVO1',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, undefined, [AVO1]).qualifies).toEqual(false)
+        })
+
+        it('Should reject a dog with VOI result from NOME-B', () => {
+          const testEvent = { eventType: 'NOU', startDate: new Date('2022-08-01') }
+          const VOI1 = {
+            class: 'VOI',
+            date: new Date('2022-05-30'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, undefined, [VOI1]).qualifies).toEqual(false)
+        })
       })
 
       describe('NOME-B - ALO', () => {
@@ -427,6 +469,34 @@ describe('validation', () => {
             type: 'NOME-B',
           }
           expect(filterRelevantResults(testEvent, 'AVO', [ALO1_1, ALO1_2, VOI]).qualifies).toEqual(false)
+        })
+
+        it('Should allow a dog with only VOI1 result', () => {
+          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const VOI1 = {
+            class: 'VOI',
+            date: new Date('2022-06-15'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, 'VOI', [VOI1]).qualifies).toEqual(true)
+        })
+
+        it('Should include same-class result in relevant qualifying results', () => {
+          const testEvent = { eventType: 'NOME-B', startDate: new Date('2022-08-01') }
+          const VOI2 = {
+            class: 'VOI',
+            date: new Date('2022-06-15'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI2',
+            type: 'NOME-B',
+          }
+
+          expect(filterRelevantResults(testEvent, 'VOI', [VOI2]).relevant).toEqual([{ ...VOI2, official: true }])
         })
 
         it('Should allow a dog with 1xALO1 2009..2015', () => {
@@ -750,6 +820,34 @@ describe('validation', () => {
             type: 'NOWT',
           }
           expect(filterRelevantResults(testEvent, 'VOI', [AVO2]).qualifies).toEqual(false)
+        })
+
+        it('Should allow a dog with only VOI1 result', () => {
+          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const VOI1 = {
+            class: 'VOI',
+            date: new Date('2022-06-15'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI1',
+            type: 'NOWT',
+          }
+
+          expect(filterRelevantResults(testEvent, 'VOI', [VOI1]).qualifies).toEqual(true)
+        })
+
+        it('Should include same-class result in relevant qualifying results', () => {
+          const testEvent = { eventType: 'NOWT', startDate: new Date('2022-08-01') }
+          const VOI0 = {
+            class: 'VOI',
+            date: new Date('2022-06-15'),
+            judge: 'Test Judge',
+            location: 'Test',
+            result: 'VOI0',
+            type: 'NOWT',
+          }
+
+          expect(filterRelevantResults(testEvent, 'VOI', [VOI0]).relevant).toEqual([{ ...VOI0, official: true }])
         })
       })
 
