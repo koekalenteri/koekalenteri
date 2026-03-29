@@ -61,7 +61,7 @@ export function Component() {
         enqueueSnackbar(
           t('registration.notifications.alreadyRegistered', {
             contact: printContactInfo(event.contactInfo?.secretary),
-            context: isObject(error.body) && error.body.cancelled && 'cancel',
+            context: isObject(error.body) && error.body.cancelled ? 'cancel' : undefined,
             reg: registration,
           }),
           {

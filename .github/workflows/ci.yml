@@ -106,7 +106,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Lint
-        run: npm run lint
+        run: npm run lint-backend && npm run lint-biome
       - name: Build
         run: npm run build-backend
       - name: Test
@@ -161,8 +161,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Lint
-        if: ${{ needs.setup.outputs.backend != 'true' }}
-        run: npm run lint
+        run: npm run lint-frontend && npm run lint-biome
       - name: Build
         run: npm run build-frontend
       - name: Upload build
