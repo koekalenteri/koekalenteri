@@ -23,6 +23,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
+import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
@@ -55,11 +56,24 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
         console.log('no files')
         return
       }
-      const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
-      const update = Boolean(event.invitationAttachment)
-      setAttachmentKey(fileKey)
-      setEvent({ ...event, invitationAttachment: fileKey })
-      enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
+
+      try {
+        const fileKey = await putInvitationAttachment(event.id, e.target.files[0], token)
+        const update = Boolean(event.invitationAttachment)
+        setAttachmentKey(fileKey)
+        setEvent({ ...event, invitationAttachment: fileKey })
+        enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
+      } catch (error) {
+        console.debug(error)
+        if (error instanceof APIError && error.status === 413) {
+          enqueueSnackbar('Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.', {
+            variant: 'error',
+          })
+          return
+        }
+
+        enqueueSnackbar('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', { variant: 'error' })
+      }
     },
     [event, setEvent, token]
   )

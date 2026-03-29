@@ -1,8 +1,11 @@
 import type { Registration } from '../../../types'
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { enqueueSnackbar } from 'notistack'
 import { RecoilRoot } from 'recoil'
 import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
+import * as eventApi from '../../../api/event'
+import { APIError } from '../../../api/http'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { renderWithUserEvents } from '../../../test-utils/utils'
 import InfoPanel from './InfoPanel'
@@ -155,5 +158,31 @@ describe('InfoPanel>', () => {
     // It should show a link to the attachment
     expect(screen.getByText('Kutsu.pdf')).toBeInTheDocument()
     expect(screen.queryByText('Ei liitettyä tiedostoa')).not.toBeInTheDocument()
+  })
+
+  it('shows a clear error message when koekutsu upload returns 413', async () => {
+    jest
+      .spyOn(eventApi, 'putInvitationAttachment')
+      .mockRejectedValueOnce(
+        new APIError(new Response(null, { status: 413, statusText: 'Content Too Large' }), 'Content Too Large')
+      )
+
+    const { container, user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper: RecoilRoot,
+    })
+
+    await user.click(screen.getByText('Tehtävälista'))
+
+    const input = container.querySelector('#koekutsu-file') as HTMLInputElement
+    const file = new File(['pdf'], 'kutsu.pdf', { type: 'application/pdf' })
+
+    await user.upload(input, file)
+
+    await waitFor(() => {
+      expect(enqueueSnackbar).toHaveBeenCalledWith(
+        'Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.',
+        { variant: 'error' }
+      )
+    })
   })
 })

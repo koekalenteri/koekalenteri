@@ -38,13 +38,22 @@
           ResponseParameters:
             Headers:
               Access-Control-Allow-Origin: "'*'"
-        DEFAULT_5XX:
-          StatusCode: 500
+        RESOURCE_NOT_FOUND:
+          StatusCode: 404
           ResponseParameters:
             Headers:
               Access-Control-Allow-Origin: "'*'"
-        RESOURCE_NOT_FOUND:
-          StatusCode: 404
+        REQUEST_TOO_LARGE:
+          StatusCode: 413
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+        DEFAULT_5XX:
+          StatusCode: 500
           ResponseParameters:
             Headers:
               Access-Control-Allow-Origin: "'*'"
