@@ -11,12 +11,13 @@
             TableName: !Ref EventTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetEvent:
-          Type: Api
+
+        GetEventHttpApi:
+          Type: HttpApi
           Properties:
             Path: /event/{id}
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   GetEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup

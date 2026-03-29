@@ -19,14 +19,15 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetRegistrationAuditTrail:
-          Type: Api
+
+        GetRegistrationAuditTrailHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/registration/audit/{eventId}/{id}
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetRegistrationAuditTrailFunctionLogGroup:
     Type: AWS::Logs::LogGroup

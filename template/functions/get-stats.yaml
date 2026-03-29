@@ -10,12 +10,13 @@
         - DynamoDBReadPolicy:
             TableName: !Ref EventStatsTable
       Events:
-        YearlyStatsApi:
-          Type: Api
+
+        YearlyStatsApiHttpApi:
+          Type: HttpApi
           Properties:
             Path: /yearly-stats
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   GetYearlyStatsFunctionLogGroup:
     Type: AWS::Logs::LogGroup

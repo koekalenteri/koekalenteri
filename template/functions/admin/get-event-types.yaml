@@ -24,14 +24,15 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
       Events:
-        GetEventTypes:
-          Type: Api
+
+        GetEventTypesHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/eventType
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetEventTypesFunctionLogGroup:
     Type: AWS::Logs::LogGroup

@@ -30,14 +30,15 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetOfficials:
-          Type: Api
+
+        GetOfficialsHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/official
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetOfficialsFunctionLogGroup:
     Type: AWS::Logs::LogGroup

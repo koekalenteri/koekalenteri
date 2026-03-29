@@ -26,12 +26,13 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        PutEvent:
-          Type: Api
+
+        PutEventHttpApi:
+          Type: HttpApi
           Properties:
             Path: /payment/create
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
 
   PaymentCreateFunctionLogGroup:
     Type: AWS::Logs::LogGroup

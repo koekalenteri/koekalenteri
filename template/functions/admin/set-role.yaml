@@ -23,14 +23,15 @@
             - ses:sendTemplatedEmail
             Resource: '*'
       Events:
-        GetUser:
-          Type: Api
+
+        GetUserHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/user/role
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   SetRoleFunctionLogGroup:
     Type: AWS::Logs::LogGroup

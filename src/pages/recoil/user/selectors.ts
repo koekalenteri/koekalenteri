@@ -1,7 +1,9 @@
 import { selector } from 'recoil'
 import { getUser } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
-import { idTokenAtom, userRefreshAtom } from './atoms'
+import { accessTokenAtom, userRefreshAtom } from './atoms'
+
+let inFlightRefresh: number | undefined
 
 export const userSelector = selector({
   /**
@@ -21,19 +23,27 @@ export const userSelector = selector({
     eviction: 'most-recent',
   },
   get: async ({ get }) => {
-    try {
-      const token = get(idTokenAtom)
-      // Refresh trigger (intentionally unused except for dependency tracking)
-      get(userRefreshAtom)
-      if (!token) return null
+    const token = get(accessTokenAtom)
+    // Refresh trigger (intentionally unused except for dependency tracking)
+    const refresh = get(userRefreshAtom)
+    if (!token) return null
+    if (refresh === inFlightRefresh) return
 
+    inFlightRefresh = refresh
+
+    try {
       const user = await getUser(token)
       return user
     } catch (e) {
+      // Only report real errors. If something upstream ever reintroduces Suspense
+      // here (e.g. an async atom default), Recoil will throw a Promise; that is not
+      // an app error and must not be reported.
+      if (e && typeof e === 'object' && 'then' in (e as any)) {
+        throw e
+      }
       reportError(e)
+      return null
     }
-
-    return null
   },
   key: 'user',
 })

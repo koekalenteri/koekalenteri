@@ -17,14 +17,15 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        PutJudge:
-          Type: Api
+
+        PutJudgeHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/judge
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   PutJudgeFunctionLogGroup:
     Type: AWS::Logs::LogGroup

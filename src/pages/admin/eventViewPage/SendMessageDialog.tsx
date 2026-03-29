@@ -30,7 +30,7 @@ import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { idTokenAtom } from '../../recoil'
+import { accessTokenAtom } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 import ContactInfoGroup from './sendMessageDialog/ContactInfoGroup'
@@ -51,7 +51,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [contactInfo, setContactInfo] = useState(event.contactInfo)
   const [text, setText] = useState('')
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(accessTokenAtom)
   const templates = useRecoilValue(adminEmailTemplatesAtom)
   const actions = useAdminRegistrationActions(event.id)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))

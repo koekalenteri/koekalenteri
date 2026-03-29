@@ -13,14 +13,15 @@
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetUser:
-          Type: Api
+
+        GetUserHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/user
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer # NB: CognitoAuthorizer does not work locally https://github.com/aws/aws-sam-cli/issues/137
+              Authorizer: JwtAuthorizer
 
   GetUsersFunctionLogGroup:
     Type: AWS::Logs::LogGroup

@@ -1,4 +1,3 @@
-import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
@@ -11,7 +10,6 @@ import AdminHomePage from './AdminHomePage'
 
 jest.mock('../../api/user', () => ({ getUser: () => undefined }))
 jest.mock('aws-amplify/auth', () => require('../global-mocks/auth/idle'))
-jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())
@@ -33,11 +31,9 @@ describe('AdminHomePage', () => {
       <ThemeProvider theme={theme}>
         <RecoilRoot>
           <SnackbarProvider>
-            <Authenticator.Provider>
-              <Suspense fallback={<div>loading...</div>}>
-                <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
-              </Suspense>
-            </Authenticator.Provider>
+            <Suspense fallback={<div>loading...</div>}>
+              <DataMemoryRouter initialEntries={[Path.admin.root]} routes={routes} />
+            </Suspense>
           </SnackbarProvider>
         </RecoilRoot>
       </ThemeProvider>

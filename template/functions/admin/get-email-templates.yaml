@@ -15,14 +15,15 @@
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        GetEmailTemplates:
-          Type: Api
+
+        GetEmailTemplatesHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/email-templates
             Method: GET
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   GetEmailTemplatesFunctionLogGroup:
     Type: AWS::Logs::LogGroup

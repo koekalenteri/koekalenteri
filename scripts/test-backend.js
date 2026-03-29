@@ -9,7 +9,8 @@ require('../config/env')
 
 const jest = require('jest')
 const argv = process.argv.slice(2)
-argv.push('--selectProjects=backend')
+
+argv.push('--selectProjects', 'backend')
 
 // Allow filtered runs to succeed when no tests match.
 if (argv.indexOf('--passWithNoTests') === -1) {

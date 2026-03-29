@@ -21,14 +21,15 @@
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
       Events:
-        RunMigration:
-          Type: Api
+
+        RunMigrationHttpApi:
+          Type: HttpApi
           Properties:
             Path: /admin/migrate
             Method: POST
-            RestApiId: !Ref KoekalenteriApi
+            ApiId: !Ref KoekalenteriHttpApi
             Auth:
-              Authorizer: CognitoAuthorizer
+              Authorizer: JwtAuthorizer
 
   RunMigrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup

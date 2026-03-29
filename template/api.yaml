@@ -1,62 +1,34 @@
-  KoekalenteriApi:
-    Type: AWS::Serverless::Api
+  KoekalenteriHttpApi:
+    Type: AWS::Serverless::HttpApi
     Properties:
-      MethodSettings:
-        - ResourcePath: '/*'
-          HttpMethod: '*'
-          DataTraceEnabled: false
-          MetricsEnabled: false
-          LoggingLevel: INFO
-
-      AccessLogSetting:
-        DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
-        Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
-      Name: !Join ['-', [Koekalenteri, !Ref AWS::StackName]]
       StageName: !Ref StageNameParam
-      OpenApiVersion: '3.0.1' # prevents the default 'Stage' creation
-      TracingEnabled: false
-      Cors:
-        AllowOrigin: "'*'"
-        AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,DELETE'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AccessLogSettings:
+        DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${HttpApiAccessLogGroup}'
+        Format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength","integrationError":"$context.integrationErrorMessage","sourceIp":"$context.identity.sourceIp"}'
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - OPTIONS
+          - HEAD
+          - GET
+          - PUT
+          - POST
+          - DELETE
+        AllowHeaders:
+          - Content-Type
+          - X-Amz-Date
+          - Authorization
+          - X-Api-Key
+          - X-Amz-Security-Token
       Auth:
         Authorizers:
-          CognitoAuthorizer:
-            UserPoolArn: !GetAtt "KoekalenteriUserPool.Arn"
-      BinaryMediaTypes:
-        - "multipart/form-data"
-        - "application/pdf"
-        - "text/html" # default first ACCEPT header for all browsers
-      GatewayResponses:
-        UNAUTHORIZED:
-          StatusCode: 401
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Origin: "'*'"
-        ACCESS_DENIED:
-          StatusCode: 403
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Origin: "'*'"
-        RESOURCE_NOT_FOUND:
-          StatusCode: 404
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Origin: "'*'"
-        REQUEST_TOO_LARGE:
-          StatusCode: 413
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Origin: "'*'"
-        DEFAULT_4XX:
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Origin: "'*'"
-        DEFAULT_5XX:
-          StatusCode: 500
-          ResponseParameters:
-            Headers:
-              Access-Control-Allow-Origin: "'*'"
+          JwtAuthorizer:
+            JwtConfiguration:
+              issuer: !Ref AuthJwtIssuer
+              audience:
+                - !Ref AuthJwtAudience
+            IdentitySource: "$request.header.Authorization"
 
   ApiGatewayPushToCloudWatchRole:
     Type: "AWS::IAM::Role"
@@ -73,8 +45,8 @@
       ManagedPolicyArns:
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
 
-  ApiAccessLogGroup:
+  HttpApiAccessLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/apigateway/AccessLog-${KoekalenteriApi}
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${KoekalenteriHttpApi}
       RetentionInDays: 365
