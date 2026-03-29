@@ -51,6 +51,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             >
               <a
                 href="/r/test1/cancelled-registration"
+                rel="noopener"
                 target="_blank"
               >
                 cancelled-registration
@@ -2767,6 +2768,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             >
               <a
                 href="/r/test1/nou-registration"
+                rel="noopener"
                 target="_blank"
               >
                 nou-registration
