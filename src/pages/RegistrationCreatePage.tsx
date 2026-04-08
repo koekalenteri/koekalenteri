@@ -2,9 +2,10 @@ import type { Registration } from '../types'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { APIError } from '../api/http'
+import { rum } from '../lib/client/rum'
 import { hasChanges, isEntryOpen, isObject, printContactInfo } from '../lib/utils'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
@@ -15,6 +16,7 @@ import { useRegistrationActions } from './recoil/registration/actions'
 
 export function Component() {
   const { t } = useTranslation()
+  const location = useLocation()
   const navigate = useNavigate()
   const params = useParams()
   const event = useRecoilValue(confirmedEventSelector(params.id))
@@ -93,6 +95,10 @@ export function Component() {
     // Should not happen (tm)
     throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
   }
+
+  useEffect(() => {
+    rum()?.recordPageView(location.pathname)
+  }, [location])
 
   useEffect(() => {
     // make sure the registration is for correct event
