@@ -9,9 +9,6 @@ updates:
       - "dependencies"
       - "automerge"
       - "weekly"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "npm"
     directory: "/"
