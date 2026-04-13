@@ -42,15 +42,8 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const event = eventLoadable.state === 'hasValue' ? eventLoadable.contents : undefined
   const eventNotFound = eventLoadable.state === 'hasValue' && eventLoadable.contents === null
   const { t } = useTranslation()
-  const [cancelOpen, setCancelOpen] = useState(!!cancel && !registration?.cancelled)
-  const [confirmOpen, setConfirmOpen] = useState(
-    !!confirm &&
-      !registration?.confirmed &&
-      !registration?.cancelled &&
-      !!event &&
-      isConfirmedEvent(event) &&
-      !isPast(event.endDate)
-  )
+  const [cancelOpen, setCancelOpen] = useState<boolean | null>(null)
+  const [confirmOpen, setConfirmOpen] = useState<boolean | null>(null)
   const [redirecting, setRedirecting] = useState(false)
   const [reloadCount, setReloadCount] = useState(0)
   const [paymentOpen, setPaymentOpen] = useState<boolean | null>(null)
@@ -186,6 +179,22 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     }
   }, [language, registration?.language, setLanguage])
 
+  useEffect(() => {
+    if (!registration || registration.cancelled) return
+
+    if (cancel) {
+      setCancelOpen((current) => current ?? true)
+    }
+  }, [cancel, registration])
+
+  useEffect(() => {
+    if (!event || !registration || registration.cancelled || registration.confirmed) return
+
+    if (confirm && isConfirmedEvent(event) && !isPast(event.endDate)) {
+      setConfirmOpen((current) => current ?? true)
+    }
+  }, [confirm, event, registration])
+
   if (eventNotFound) {
     return <>{t('error.eventNotFound')}</>
   }
@@ -236,11 +245,11 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           event={event}
           onCancel={handleCancel}
           onClose={handleCalcelClose}
-          open={cancelOpen}
+          open={cancelOpen ?? false}
           registration={registration}
         />
         <ConfirmDialog
-          open={confirmOpen}
+          open={confirmOpen ?? false}
           onClose={handleConfirmClose}
           registration={registration}
           event={event}
