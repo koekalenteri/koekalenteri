@@ -165,7 +165,6 @@ describe('PaymentInfo', () => {
         />
       </RecoilRoot>
     )
-    await flushPromises()
 
     expect(screen.getByText('costNames.optionalAdditionalCosts')).toBeInTheDocument()
   })

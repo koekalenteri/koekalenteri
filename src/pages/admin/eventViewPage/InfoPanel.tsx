@@ -66,7 +66,6 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
         setEvent({ ...event, invitationAttachment: fileKey })
         enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
       } catch (error) {
-        console.debug(error)
         if (error instanceof APIError && error.status === 413) {
           enqueueSnackbar('Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.', {
             variant: 'error',
