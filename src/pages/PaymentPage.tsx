@@ -88,7 +88,7 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
   )
 
   // If payment is after confirmation but registration is not confirmed yet, show message
-  if (event.paymentTime === 'confirmation' && !registration.confirmed) {
+  if (event.paymentTime === 'confirmation' && !registration.shouldPay) {
     return renderNotice(t('paymentStatus.waitingForConfirmation'))
   }
 

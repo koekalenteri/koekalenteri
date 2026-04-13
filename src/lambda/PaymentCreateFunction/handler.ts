@@ -10,7 +10,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getTransactionsByReference, paymentDescription, updateTransactionStatus } from '../lib/payment'
 import { createPayment } from '../lib/paytrail'
-import { getRegistration, updateRegistrationField } from '../lib/registration'
+import { getRegistration, isParticipantGroup, updateRegistrationField } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
@@ -40,9 +40,9 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     return response<string>(404, 'Registration not found', event)
   }
 
-  // Don't allow payment if event requires payment after confirmation but registration is not confirmed
-  if (jsonEvent.paymentTime === 'confirmation' && !registration.confirmed) {
-    return response<string>(403, 'Payment not allowed - registration must be confirmed first', event)
+  // Don't allow payment if event requires payment after confirmation but registration is not picked yet
+  if (jsonEvent.paymentTime === 'confirmation' && !isParticipantGroup(registration.group?.key)) {
+    return response<string>(403, 'Payment not allowed - registration must be picked first', event)
   }
 
   const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)

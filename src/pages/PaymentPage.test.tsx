@@ -213,7 +213,7 @@ describe('PaymentPage', () => {
       }
       const registration = {
         ...testRegistration,
-        confirmed: false,
+        shouldPay: false,
         totalAmount: 50,
       }
 
@@ -258,7 +258,7 @@ describe('PaymentPage', () => {
       }
       const registration = {
         ...testRegistration,
-        confirmed: true,
+        shouldPay: true,
         totalAmount: 50,
       }
 
@@ -308,7 +308,6 @@ describe('PaymentPage', () => {
       }
       const registration = {
         ...testRegistration,
-        confirmed: true,
         totalAmount: 50,
       }
 
@@ -359,7 +358,6 @@ describe('PaymentPage', () => {
       }
       const registration = {
         ...testRegistration,
-        confirmed: true,
         totalAmount: 50,
       }
 

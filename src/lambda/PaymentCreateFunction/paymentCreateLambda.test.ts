@@ -455,23 +455,35 @@ describe('paymentCreateLambda', () => {
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
-  it('returns 403 if payment is after confirmation but registration is not confirmed', async () => {
+  it('returns 403 if payment is after confirmation but registration is not picked', async () => {
     mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
     mockRead.mockReset()
-    mockRead.mockResolvedValueOnce(createMockRegistration({ confirmed: false }))
+    mockRead.mockResolvedValueOnce(createMockRegistration({ group: undefined }))
 
     const result = await paymentCreateLambda(event)
 
     expect(result.statusCode).toEqual(403)
-    expect(JSON.parse(result.body)).toEqual('Payment not allowed - registration must be confirmed first')
+    expect(JSON.parse(result.body)).toEqual('Payment not allowed - registration must be picked first')
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
-  it('allows payment if payment is after confirmation and registration is confirmed', async () => {
+  it('returns 403 if payment is after confirmation and registration is in reserve', async () => {
+    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
+    mockRead.mockReset()
+    mockRead.mockResolvedValueOnce(createMockRegistration({ group: { key: 'reserve', number: 1 } }))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(403)
+    expect(JSON.parse(result.body)).toEqual('Payment not allowed - registration must be picked first')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  it('allows payment if payment is after confirmation and registration is picked', async () => {
     mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
     mockRead.mockReset()
     mockRead
-      .mockResolvedValueOnce(createMockRegistration({ confirmed: true }))
+      .mockResolvedValueOnce(createMockRegistration({ group: { date: '2025-01-15', key: 'participants', number: 1 } }))
       .mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
@@ -480,11 +492,11 @@ describe('paymentCreateLambda', () => {
     expect(mockCreatePayment).toHaveBeenCalled()
   })
 
-  it('allows payment if payment is at registration time regardless of confirmation state', async () => {
+  it('allows payment if payment is at registration time regardless of group state', async () => {
     mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'registration' }))
     mockRead.mockReset()
     mockRead
-      .mockResolvedValueOnce(createMockRegistration({ confirmed: false }))
+      .mockResolvedValueOnce(createMockRegistration({ group: undefined }))
       .mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
