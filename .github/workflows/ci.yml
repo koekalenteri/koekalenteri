@@ -73,7 +73,7 @@ jobs:
 
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -98,7 +98,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -135,7 +135,7 @@ jobs:
             exit 1
           fi
       - name: Cache coverage report
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage-${{ github.run_id }}
@@ -153,7 +153,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Cache node_modules
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -186,7 +186,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -216,7 +216,7 @@ jobs:
           path: coverage
           merge-multiple: true
       - name: Cache frotnend coverage reports
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage-${{ github.run_id }}
@@ -308,18 +308,18 @@ jobs:
           cache-dependency-path: package-lock.json
       - name: Restore node_modules
         id: cache-restore
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - name: Download frontend coverage
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: coverage
           key: ${{ github.ref_name }}-frontend-coverage
           restore-keys: ${{ github.ref_name }}-frontend-coverage
       - name: Download backend coverage
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: coverage/lcov.info
           key: ${{ github.ref_name }}-backend-coverage
