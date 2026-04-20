@@ -37,27 +37,22 @@ const renderPage = (path: string, locale: Locale) =>
   )
 
 describe('SearchPage', () => {
+  const initialSystemTime = new Date()
+
   beforeAll(() => {
     window.matchMedia = createMatchMedia(1680)
     jest.useFakeTimers()
+    jest.setSystemTime(initialSystemTime)
   })
-  afterEach(() => jest.runOnlyPendingTimers())
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    jest.setSystemTime(initialSystemTime)
+  })
   afterAll(() => jest.useRealTimers())
 
-  const logNow = (label: string) => {
-    if (process.env.DEBUG_EVENT_FILTERS === '1') {
-      console.log(`[SearchPage.test] ${label}`, {
-        now: new Date().toISOString(),
-        nowMs: Date.now(),
-      })
-    }
-  }
-
   it('renders', async () => {
-    logNow('before render (renders)')
     renderPage('', locales.fi)
     await flushPromises()
-    logNow('after flushPromises (renders)')
     expect(screen.getAllByRole('article').length).toEqual(5)
   })
 
@@ -126,19 +121,15 @@ describe('SearchPage', () => {
   })
 
   it('filters by entryUpcoming', async () => {
-    logNow('before render (entryUpcoming)')
     renderPage('/?b=u', locales.fi)
     await flushPromises()
-    logNow('after flushPromises (entryUpcoming)')
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(1)
   })
 
   it('filters by entryOpen', async () => {
-    logNow('before render (entryOpen)')
     renderPage('/?b=o', locales.fi)
     await flushPromises()
-    logNow('after flushPromises (entryOpen)')
     expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
 
     // Log which events are shown
