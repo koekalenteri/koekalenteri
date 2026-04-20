@@ -141,10 +141,26 @@ export default class CustomDynamoClient {
       params.ExpressionAttributeNames = expressionAttributeNames
     }
 
-    logDb('DB.scan', params)
-    const data = await this.docClient.send(new ScanCommand(params))
+    const items: T[] = []
+    let lastEvaluatedKey: Record<string, any> | undefined
 
-    return data.Items as T[]
+    do {
+      const scanParams: ScanCommandInput = {
+        ...params,
+        ExclusiveStartKey: lastEvaluatedKey,
+      }
+
+      logDb('DB.scan', scanParams)
+      const data = await this.docClient.send(new ScanCommand(scanParams))
+
+      if (data.Items) {
+        items.push(...(data.Items as T[]))
+      }
+
+      lastEvaluatedKey = data.LastEvaluatedKey as Record<string, any> | undefined
+    } while (lastEvaluatedKey)
+
+    return items
   }
 
   async read<T extends object>(

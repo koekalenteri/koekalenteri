@@ -93,6 +93,7 @@ describe('CustomDynamoClient', () => {
       const result = await client.readAll()
 
       expect(mockSend).toHaveBeenCalledWith({
+        ExclusiveStartKey: undefined,
         FilterExpression: 'attribute_not_exists(deletedAt)',
         TableName: 'test-table',
       })
@@ -106,6 +107,7 @@ describe('CustomDynamoClient', () => {
       await client.readAll(undefined, 'attribute = :value', { ':value': 'test' })
 
       expect(mockSend).toHaveBeenCalledWith({
+        ExclusiveStartKey: undefined,
         ExpressionAttributeValues: { ':value': 'test' },
         FilterExpression: '(attribute_not_exists(deletedAt)) AND (attribute = :value)',
         TableName: 'test-table',
@@ -120,6 +122,7 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
+          ExclusiveStartKey: undefined,
           TableName: 'custom-table',
         })
       )
@@ -133,9 +136,31 @@ describe('CustomDynamoClient', () => {
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
+          ExclusiveStartKey: undefined,
           ExpressionAttributeNames: { '#attr': 'attribute' },
         })
       )
+    })
+
+    it('continues scanning until all pages are read', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend
+        .mockResolvedValueOnce({ Items: [{ id: '1' }], LastEvaluatedKey: { id: '1' } })
+        .mockResolvedValueOnce({ Items: [{ id: '2' }] })
+
+      const result = await client.readAll()
+
+      expect(mockSend).toHaveBeenNthCalledWith(1, {
+        ExclusiveStartKey: undefined,
+        FilterExpression: 'attribute_not_exists(deletedAt)',
+        TableName: 'test-table',
+      })
+      expect(mockSend).toHaveBeenNthCalledWith(2, {
+        ExclusiveStartKey: { id: '1' },
+        FilterExpression: 'attribute_not_exists(deletedAt)',
+        TableName: 'test-table',
+      })
+      expect(result).toEqual([{ id: '1' }, { id: '2' }])
     })
   })
 
