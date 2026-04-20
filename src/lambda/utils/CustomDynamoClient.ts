@@ -67,19 +67,40 @@ const processOperations = (
 
   for (const [field, value] of Object.entries(operations)) {
     const nameKey = `#${field}`
-    const valueKey = `:${field}`
 
     if (names[nameKey]) {
-      throw new Error(`DynamoDB: can not SET and ADD same field: ${field}`)
+      throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
 
     names[nameKey] = field
-    values[valueKey] = value
 
+    const valueKey = `:${field}`
+    values[valueKey] = value
     parts.push(`${nameKey}${operand}${valueKey}`)
   }
 
   return parts.length > 0 ? `${type} ${parts.join(', ')}` : null
+}
+
+const processRemoveOperations = (operations: string[] | undefined, names: Record<string, string>): string | null => {
+  if (!operations || operations.length === 0) {
+    return null
+  }
+
+  const parts: string[] = []
+
+  for (const field of operations) {
+    const nameKey = `#${field}`
+
+    if (names[nameKey]) {
+      throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
+    }
+
+    names[nameKey] = field
+    parts.push(nameKey)
+  }
+
+  return parts.length > 0 ? `REMOVE ${parts.join(', ')}` : null
 }
 
 /**
@@ -259,6 +280,7 @@ export default class CustomDynamoClient {
     updates: {
       set?: Record<string, any>
       add?: Record<string, any>
+      remove?: string[]
     },
     table?: string,
     returnValues?: ReturnValue
@@ -275,6 +297,11 @@ export default class CustomDynamoClient {
     const addExpression = processOperations(updates.add, names, values, 'ADD')
     if (addExpression) {
       expressionParts.push(addExpression)
+    }
+
+    const removeExpression = processRemoveOperations(updates.remove, names)
+    if (removeExpression) {
+      expressionParts.push(removeExpression)
     }
 
     // If no operations were provided, throw an error

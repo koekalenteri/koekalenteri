@@ -90,6 +90,7 @@ describe('paymentSuccessLambda', () => {
 
     mockRead.mockResolvedValue({
       amount: 5000,
+      paymentResponse: { transactionId: 'tx123' },
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'tx123',
@@ -148,6 +149,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(
       {
         amount: 5000,
+        paymentResponse: { transactionId: 'tx123' },
         reference: 'event123:reg456',
         status: 'pending',
         transactionId: 'tx123',

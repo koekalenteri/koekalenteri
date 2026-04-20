@@ -412,7 +412,29 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
 
       await expect(client.update({ cnt: 1, id: '1' }, { add: { cnt: 1 }, set: { cnt: 3 } })).rejects.toThrow(
-        'DynamoDB: can not SET and ADD same field: cnt'
+        'DynamoDB: duplicate field in update expression: cnt'
+      )
+    })
+
+    it('supports remove operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { remove: ['paymentResponse'], set: { status: 'ok' } })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ExpressionAttributeNames: {
+            '#paymentResponse': 'paymentResponse',
+            '#status': 'status',
+          },
+          ExpressionAttributeValues: {
+            ':status': 'ok',
+          },
+          Key: { id: '1' },
+          TableName: 'test-table',
+          UpdateExpression: 'SET #status = :status REMOVE #paymentResponse',
+        })
       )
     })
 

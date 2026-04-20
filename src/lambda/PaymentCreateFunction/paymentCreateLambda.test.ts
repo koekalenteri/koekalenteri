@@ -400,6 +400,7 @@ describe('paymentCreateLambda', () => {
   it('should cancel existing stale new transactions for the same reference', async () => {
     const existingTransaction = {
       createdAt: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
+      paymentResponse: createMockPaymentResponse({ transactionId: 'oldTx' }),
       reference: 'event123:reg456',
       status: 'new',
       transactionId: 'oldTx',
@@ -415,6 +416,7 @@ describe('paymentCreateLambda', () => {
   it('should cancel existing stale pending transactions for the same reference', async () => {
     const existingTransaction = {
       createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+      paymentResponse: createMockPaymentResponse({ transactionId: 'oldPendingTx' }),
       reference: 'event123:reg456',
       status: 'pending',
       transactionId: 'oldPendingTx',

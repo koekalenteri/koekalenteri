@@ -59,7 +59,7 @@ export const updateTransactionStatus = async (
   }
 
   // Prepare update object with set operations
-  const updateObj: { set: Record<string, any> } = {
+  const updateObj: { set: Record<string, any>; remove?: string[] } = {
     set: {
       status,
       statusAt: new Date().toISOString(),
@@ -69,6 +69,10 @@ export const updateTransactionStatus = async (
   // Add provider if provided
   if (provider) {
     updateObj.set.provider = provider
+  }
+
+  if (status !== 'new') {
+    updateObj.remove = ['paymentResponse']
   }
 
   await dynamoDB.update({ transactionId: transaction.transactionId }, updateObj, transactionTable)
