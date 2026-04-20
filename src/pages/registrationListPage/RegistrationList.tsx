@@ -23,6 +23,7 @@ type StrippedRegistration = Omit<Registration, 'grouo' | 'internalNotes'>
 interface Props {
   readonly disabled?: boolean
   readonly event: PublicDogEvent
+  readonly paymentVerificationInProgress?: boolean
   readonly rows: StrippedRegistration[]
   readonly onUnregister: (registration: StrippedRegistration) => void
 }
@@ -75,7 +76,13 @@ const RegistrationListItemIcons = ({
   )
 }
 
-export default function RegistrationList({ event, disabled, rows, onUnregister }: Props) {
+export default function RegistrationList({
+  event,
+  disabled,
+  rows,
+  onUnregister,
+  paymentVerificationInProgress = false,
+}: Props) {
   const { t } = useTranslation()
   const { t: breed } = useTranslation('breed')
   const sm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
@@ -148,6 +155,7 @@ export default function RegistrationList({ event, disabled, rows, onUnregister }
         ]
         if (
           !params.row.cancelled &&
+          !paymentVerificationInProgress &&
           params.row.paymentStatus !== 'SUCCESS' &&
           params.row.paymentStatus !== 'PENDING' &&
           (event.paymentTime === 'registration' || params.row.confirmed)

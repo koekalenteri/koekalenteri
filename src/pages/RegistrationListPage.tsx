@@ -48,6 +48,9 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const [reloadCount, setReloadCount] = useState(0)
   const [paymentOpen, setPaymentOpen] = useState<boolean | null>(null)
   const actions = useRegistrationActions()
+  const paymentFlow = new URLSearchParams(location.search).get('payment')
+  const paymentVerificationInProgress =
+    paymentFlow === 'verifying' && registration?.paymentStatus !== 'SUCCESS' && reloadCount < 5
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
     () => !event || allDisabled || isPast(subDays(event.startDate, 2)),
@@ -145,12 +148,26 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           { style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' }, variant: 'success' }
         )
       }
-      navigate(Path.registration(registration), { replace: true })
+
+      const search = paymentFlow === 'verifying' && registration.paymentStatus !== 'SUCCESS' ? '?payment=verifying' : ''
+      navigate(`${Path.registration(registration)}${search}`, { replace: true })
     }
-  }, [location.pathname, navigate, registration, t])
+  }, [location.pathname, navigate, paymentFlow, registration, t])
 
   useEffect(() => {
-    if (registration?.paymentStatus !== 'PENDING' || reloadCount >= 5) {
+    if (!paymentVerificationInProgress) {
+      return
+    }
+
+    enqueueSnackbar(t('registration.notifications.paymentVerifying'), { variant: 'info' })
+  }, [paymentVerificationInProgress, t])
+
+  useEffect(() => {
+    if (
+      (!paymentVerificationInProgress && registration?.paymentStatus !== 'PENDING') ||
+      reloadCount >= 5 ||
+      !registration
+    ) {
       return
     }
 
@@ -163,7 +180,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     const timeout = setTimeout(reload, 10_000)
 
     return () => clearTimeout(timeout)
-  }, [actions, registration, reloadCount, setRegistration])
+  }, [actions, paymentVerificationInProgress, registration, reloadCount, setRegistration])
 
   useEffect(() => {
     if (!event || !registration || registration.cancelled) return
@@ -230,13 +247,18 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             <Typography variant="h5">{t('entryList')}</Typography>
           </Grid>
           <Grid>
-            <InfoBox event={event} registration={registration} />
+            <InfoBox
+              event={event}
+              registration={registration}
+              paymentVerificationInProgress={paymentVerificationInProgress}
+            />
           </Grid>
         </Grid>
         <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} hideCostInfo />
         <RegistrationList
           disabled={allDisabled}
           event={event}
+          paymentVerificationInProgress={paymentVerificationInProgress}
           rows={registration ? [registration] : []}
           onUnregister={() => setCancelOpen(true)}
         />

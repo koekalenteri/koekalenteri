@@ -10,6 +10,7 @@ import { unpaidRegistrationWithStaticDates } from '../__mockData__/registrations
 import * as registrationApi from '../api/registration'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
+import { Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises, renderWithUserEvents } from '../test-utils/utils'
 import { RegistrationListPage } from './RegistrationListPage'
 
@@ -328,6 +329,41 @@ describe('RegistrationListPage', () => {
     await flushPromises()
 
     getRegistrationSpy.mockRestore()
+  })
+
+  it('reloads payment after successful payment return before backend status changes', async () => {
+    const getRegistrationSpy = jest
+      .spyOn(registrationApi, 'getRegistration')
+      .mockResolvedValueOnce({
+        ...unpaidRegistrationWithStaticDates,
+      })
+      .mockResolvedValue({
+        ...unpaidRegistrationWithStaticDates,
+        paymentStatus: 'SUCCESS',
+      })
+
+    renderWithRouter('/r/test1/unpaid-nou-registration/saved?payment=verifying')
+
+    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    jest.runOnlyPendingTimers()
+    await flushPromises(false)
+    expect(screen.queryByText('loading...')).not.toBeInTheDocument()
+
+    expect(enqueueSnackbar).toHaveBeenCalledWith('registration.notifications.paymentVerifying', { variant: 'info' })
+    expect(screen.queryByRole('button', { name: 'registration.cta.pay' })).not.toBeInTheDocument()
+    expect(getRegistrationSpy).toHaveBeenCalledTimes(1)
+
+    jest.advanceTimersByTime(10_000)
+    expect(getRegistrationSpy).toHaveBeenCalledTimes(2)
+    await flushPromises()
+
+    getRegistrationSpy.mockRestore()
+  })
+
+  it('builds payment verifying return path for successful payment redirect', () => {
+    expect(`${Path.registrationOk({ eventId: 'test1', id: 'reg1' })}?payment=verifying`).toEqual(
+      '/r/test1/reg1/saved?payment=verifying'
+    )
   })
 
   it('shows snackbar when on saved route with payment success and picked', async () => {

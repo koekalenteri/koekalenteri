@@ -416,7 +416,8 @@
     "notifications": {
       "alreadyRegistered": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan",
       "alreadyRegistered_cancel": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan, ja ilmoittautuminen on peruttu. Ota yhteyttä koesihteeriin {{contact}}, jos haluat ilmoittaa koiran uudelleen tapahtumaan.",
-      "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen"
+      "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen",
+      "paymentVerifying": "Maksu vastaanotettu, vahvistetaan vielä. Tila päivittyy hetken kuluttua."
     },
     "owner": "Omistajan tiedot",
     "ownerHandles": "Omistaja ohjaa",

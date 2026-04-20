@@ -38,12 +38,16 @@ const registrationStatus = (registration: Registration) => {
 interface Props {
   event: PublicDogEvent
   registration: Registration
+  paymentVerificationInProgress?: boolean
 }
 
-export const InfoBox = ({ event, registration }: Props) => {
+export const InfoBox = ({ event, registration, paymentVerificationInProgress = false }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const needsPayment = Boolean(registration.shouldPay)
+  const needsPayment = Boolean(registration.shouldPay) && !paymentVerificationInProgress
+  const paymentStatusText = paymentVerificationInProgress
+    ? t('registration.notifications.paymentVerifying')
+    : t(getPaymentStatus(registration, event))
 
   return (
     <Paper sx={{ bgcolor: 'background.selected', m: 1, p: 1 }}>
@@ -72,9 +76,7 @@ export const InfoBox = ({ event, registration }: Props) => {
           </ListItemIcon>
           <ListItemText
             primary={
-              registration.totalAmount
-                ? `${t(getPaymentStatus(registration, event))} (${registration.totalAmount}€)`
-                : t(getPaymentStatus(registration, event))
+              registration.totalAmount ? `${paymentStatusText} (${registration.totalAmount}€)` : paymentStatusText
             }
             slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
             sx={{ pr: needsPayment ? 12 : 0 }}
