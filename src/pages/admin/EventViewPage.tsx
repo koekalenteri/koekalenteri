@@ -37,6 +37,7 @@ import {
   adminBackgroundActionsRunningAtom,
   adminConfirmedEventSelector,
   adminEventClassAtom,
+  adminEventIdAtom,
   adminEventRegistrationsSelector,
   adminRegistrationIdAtom,
 } from './recoil'
@@ -53,6 +54,7 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
+  const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
   const event = useRecoilValue(adminConfirmedEventSelector(eventId))
   const actions = useAdminRegistrationActions(eventId)
 
@@ -112,6 +114,12 @@ export default function EventViewPage() {
     },
     [actions, registrations, selectedRegistration]
   )
+
+  useEffect(() => {
+    if (eventId) {
+      setSelectedEventId(eventId)
+    }
+  }, [eventId, setSelectedEventId])
 
   useEffect(() => {
     if (selectedEventClass && !allClasses.includes(selectedEventClass)) {
@@ -204,7 +212,9 @@ export default function EventViewPage() {
           <ClassEntrySelection
             event={event}
             eventClass={eventClass}
-            registrations={registrations}
+            registrations={allRegistrations.filter(
+              (r) => (r.class ?? undefined) === eventClass || (!r.class && r.eventType === eventClass)
+            )}
             setOpen={setOpen}
             setCancelOpen={setCancelOpen}
             setRefundOpen={setRefundOpen}

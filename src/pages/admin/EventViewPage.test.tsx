@@ -13,6 +13,7 @@ import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
+import { adminEventClassAtom, adminEventIdAtom } from './recoil'
 
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
@@ -81,6 +82,42 @@ describe('EventViewPage', () => {
         </LocalizationProvider>
       </ThemeProvider>
     )
+    await flushPromises()
+    expect(container).toMatchSnapshot()
+  })
+
+  it('uses the route event id instead of stale admin event selection state', async () => {
+    const routes: RouteObject[] = [
+      {
+        element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
+      },
+    ]
+
+    const { container } = render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <RecoilRoot
+            initializeState={({ set }) => {
+              set(adminEventIdAtom, 'stale-event-id')
+              set(adminEventClassAtom, 'VOI')
+            }}
+          >
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <DataMemoryRouter
+                    initialEntries={[Path.admin.viewEvent(eventWithStaticDatesAndClass.id)]}
+                    routes={routes}
+                  />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </RecoilRoot>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+
     await flushPromises()
     expect(container).toMatchSnapshot()
   })
