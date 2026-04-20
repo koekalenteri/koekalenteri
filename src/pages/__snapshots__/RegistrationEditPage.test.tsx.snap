@@ -1628,11 +1628,10 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
-                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             disabled=""
                             name="ownerHandles"
@@ -1640,11 +1639,11 @@ exports[`RegistrationEditPage should render 1`] = `
                             type="checkbox"
                           />
                           <span
-                            class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                            class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                           />
                         </span>
                         <span
-                          class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                          class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                         />
                       </span>
                       <span
@@ -1660,11 +1659,10 @@ exports[`RegistrationEditPage should render 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-disabled Mui-checked Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-disabled Mui-disabled css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
-                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             disabled=""
                             name="ownerPays"
@@ -1672,11 +1670,11 @@ exports[`RegistrationEditPage should render 1`] = `
                             type="checkbox"
                           />
                           <span
-                            class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                            class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                           />
                         </span>
                         <span
-                          class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                          class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                         />
                       </span>
                       <span

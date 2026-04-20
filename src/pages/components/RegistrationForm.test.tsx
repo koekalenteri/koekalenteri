@@ -90,6 +90,26 @@ describe('RegistrationForm', () => {
     expect(notes).toHaveValue(`${registrationWithStaticDates.notes} more!`)
   })
 
+  it('should normalize undefined owner role flags to booleans', async () => {
+    const registration = {
+      ...registrationWithStaticDates,
+      ownerHandles: undefined,
+      ownerPays: undefined,
+    }
+
+    const onChange = jest.fn().mockImplementation((props) => Object.assign(registration, props))
+
+    render(<RegistrationForm event={eventWithStaticDates} registration={registration} onChange={onChange} />, {
+      wrapper: Wrapper,
+    })
+
+    await flushPromises()
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ownerHandles: true, ownerPays: true }))
+    expect(registration.ownerHandles).toBe(true)
+    expect(registration.ownerPays).toBe(true)
+  })
+
   it('should not call onSave multiple times', async () => {
     const onSave = jest.fn()
 

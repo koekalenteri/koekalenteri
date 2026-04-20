@@ -1449,22 +1449,21 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
-                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerHandles"
                             role="switch"
                             type="checkbox"
                           />
                           <span
-                            class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                            class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                           />
                         </span>
                         <span
-                          class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                          class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                         />
                       </span>
                       <span
@@ -1480,22 +1479,21 @@ exports[`RegistrationForm renders 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
-                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerPays"
                             role="switch"
                             type="checkbox"
                           />
                           <span
-                            class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                            class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                           />
                         </span>
                         <span
-                          class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                          class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                         />
                       </span>
                       <span
@@ -3932,22 +3930,21 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
-                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerHandles"
                             role="switch"
                             type="checkbox"
                           />
                           <span
-                            class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                            class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                           />
                         </span>
                         <span
-                          class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                          class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                         />
                       </span>
                       <span
@@ -3963,22 +3960,21 @@ exports[`RegistrationForm renders with invalid dog information 1`] = `
                         class="MuiSwitch-root MuiSwitch-sizeMedium css-rehya9-MuiSwitch-root"
                       >
                         <span
-                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess Mui-checked Mui-checked css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
+                          class="MuiButtonBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess PrivateSwitchBase-root MuiSwitch-switchBase MuiSwitch-colorSuccess css-nty27q-MuiButtonBase-root-MuiSwitchBase-root-MuiSwitch-switchBase"
                           role="switch"
                         >
                           <input
-                            checked=""
                             class="PrivateSwitchBase-input MuiSwitch-input css-12xagqm-MuiSwitchBase-root"
                             name="ownerPays"
                             role="switch"
                             type="checkbox"
                           />
                           <span
-                            class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                            class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                           />
                         </span>
                         <span
-                          class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                          class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                         />
                       </span>
                       <span

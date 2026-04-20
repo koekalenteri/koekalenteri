@@ -167,7 +167,7 @@ exports[`EventListPage renders 1`] = `
               class="MuiFormControl-root MuiTextField-root css-vlljk4-MuiFormControl-root-MuiTextField-root"
             >
               <div
-                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-jx4wmz-MuiInputBase-root-MuiInput-root"
+                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd css-1624vf1-MuiInputBase-root-MuiInput-root"
               >
                 <svg
                   aria-hidden="true"
@@ -321,11 +321,11 @@ exports[`EventListPage renders 1`] = `
                       type="checkbox"
                     />
                     <span
-                      class="MuiSwitch-thumb css-1mw77bv-MuiSwitch-thumb"
+                      class="MuiSwitch-thumb css-17jyosd-MuiSwitch-thumb"
                     />
                   </span>
                   <span
-                    class="MuiSwitch-track css-1kf3qur-MuiSwitch-track"
+                    class="MuiSwitch-track css-tj8d99-MuiSwitch-track"
                   />
                 </span>
                 <span

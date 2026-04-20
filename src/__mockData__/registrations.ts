@@ -82,6 +82,8 @@ export const registrationWithStaticDates: Registration = {
     name: 'Owner Name',
     phone: '+3584012345',
   },
+  ownerHandles: false,
+  ownerPays: false,
   paidAmount: 123,
   paidAt: eventWithStaticDates.entryStartDate,
   payer: {

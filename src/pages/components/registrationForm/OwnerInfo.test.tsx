@@ -38,6 +38,8 @@ describe('OwnerInfo', () => {
 
   it('should call onChange', async () => {
     const reg = clone<Registration>(registrationWithStaticDates)
+    reg.ownerHandles = undefined
+    reg.ownerPays = undefined
     const onChange = jest.fn((props) => Object.assign(reg, props))
     const { user } = renderWithUserEvents(
       <OwnerInfo reg={reg} onChange={onChange} orgId="test" />,

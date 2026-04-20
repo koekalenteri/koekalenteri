@@ -967,7 +967,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                           inputmode="numeric"
                         >
                           <div
-                            class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd css-jx4wmz-MuiInputBase-root-MuiInput-root"
+                            class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd css-1624vf1-MuiInputBase-root-MuiInput-root"
                           >
                             <input
                               aria-invalid="false"

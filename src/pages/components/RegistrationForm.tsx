@@ -220,6 +220,15 @@ export default function RegistrationForm({
     }
   }, [i18n.language, handleChange, registration.language, registration.id])
 
+  useEffect(() => {
+    const ownerHandles = registration.ownerHandles ?? true
+    const ownerPays = registration.ownerPays ?? true
+
+    if (registration.ownerHandles !== ownerHandles || registration.ownerPays !== ownerPays) {
+      handleChange({ ownerHandles, ownerPays })
+    }
+  }, [handleChange, registration.ownerHandles, registration.ownerPays])
+
   return (
     <Paper
       elevation={2}
