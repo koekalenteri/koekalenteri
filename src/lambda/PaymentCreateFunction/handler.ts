@@ -63,7 +63,10 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
           await updateTransactionStatus(tx, 'fail')
         } else if (tx.status === 'pending') {
           freshPendingTransaction = true
-        } else if (!reusableNewTransaction || new Date(tx.createdAt).getTime() > new Date(reusableNewTransaction.createdAt).getTime()) {
+        } else if (
+          !reusableNewTransaction ||
+          new Date(tx.createdAt).getTime() > new Date(reusableNewTransaction.createdAt).getTime()
+        ) {
           reusableNewTransaction = tx as JsonPaymentTransaction
         } else {
           // Keep the newest reusable `new` transaction if there are multiple.
