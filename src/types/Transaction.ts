@@ -1,4 +1,5 @@
 import type { PaymentItem, RefundItem } from '../lambda/types/paytrail'
+import type { CreatePaymentResponse } from './paytrail'
 
 export interface JsonTransaction {
   transactionId: string
@@ -23,6 +24,7 @@ export interface Transaction extends Omit<JsonTransaction, 'createdAt' | 'status
 export interface JsonPaymentTransaction extends JsonTransaction {
   type: 'payment'
   items?: PaymentItem[]
+  paymentResponse?: CreatePaymentResponse
 }
 
 export interface JsonRefundTransaction extends JsonTransaction {

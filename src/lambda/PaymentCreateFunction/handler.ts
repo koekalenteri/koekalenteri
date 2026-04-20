@@ -1,4 +1,4 @@
-import type { CreatePaymentResponse, JsonConfirmedEvent, JsonTransaction, Organizer } from '../../types'
+import type { CreatePaymentResponse, JsonConfirmedEvent, JsonPaymentTransaction, Organizer } from '../../types'
 import type { PaymentCustomer, PaymentItem } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { calculateCost } from '../../lib/cost'
@@ -51,7 +51,8 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
-  let hasActiveTransaction = false
+  let freshPendingTransaction = false
+  let reusableNewTransaction: JsonPaymentTransaction | undefined
 
   // Cancel existing stale payment transactions for this reference
   const existingTransactions = await getTransactionsByReference(reference)
@@ -60,13 +61,21 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       if (tx.status === 'new' || tx.status === 'pending') {
         if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
           await updateTransactionStatus(tx, 'fail')
+        } else if (tx.status === 'pending') {
+          freshPendingTransaction = true
+        } else if (!reusableNewTransaction || new Date(tx.createdAt).getTime() > new Date(reusableNewTransaction.createdAt).getTime()) {
+          reusableNewTransaction = tx as JsonPaymentTransaction
         } else {
-          hasActiveTransaction = true
+          // Keep the newest reusable `new` transaction if there are multiple.
         }
       }
     }
 
-    if (hasActiveTransaction) {
+    if (reusableNewTransaction?.paymentResponse) {
+      return response<CreatePaymentResponse>(200, reusableNewTransaction.paymentResponse, event)
+    }
+
+    if (freshPendingTransaction) {
       return response<string>(409, 'Payment already in progress', event)
     }
   }
@@ -122,11 +131,12 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const user = await authorize(event)
-  const transaction: JsonTransaction = {
+  const transaction: JsonPaymentTransaction = {
     amount,
     bankReference: result.reference,
     createdAt: new Date().toISOString(),
     items,
+    paymentResponse: result,
     reference,
     stamp,
     status: 'new',

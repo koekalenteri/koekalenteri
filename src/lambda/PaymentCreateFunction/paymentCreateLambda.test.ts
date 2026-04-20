@@ -187,6 +187,7 @@ describe('paymentCreateLambda', () => {
       expect.objectContaining({
         amount: expectedAmount,
         bankReference: 'ref123',
+        paymentResponse: createMockPaymentResponse(),
         reference: 'event123:reg456',
         status: 'new',
         transactionId: 'tx123',
@@ -452,6 +453,53 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toEqual(409)
     expect(JSON.parse(result.body)).toEqual('Payment already in progress')
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+  })
+
+  it('reuses a fresh new transaction response instead of creating a new payment', async () => {
+    const existingResponse = createMockPaymentResponse({ transactionId: 'existingTx' })
+    const existingTransaction = {
+      createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+      paymentResponse: existingResponse,
+      reference: 'event123:reg456',
+      status: 'new',
+      transactionId: 'existingTx',
+      type: 'payment',
+    }
+    mockGetTransactionsByReference.mockResolvedValue([existingTransaction])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(JSON.parse(result.body)).toEqual(existingResponse)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('prefers reusing a fresh new transaction over returning 409 when both fresh new and pending exist', async () => {
+    const existingResponse = createMockPaymentResponse({ transactionId: 'existingTx' })
+    mockGetTransactionsByReference.mockResolvedValue([
+      {
+        createdAt: new Date(Date.now() - 90 * 1000).toISOString(),
+        paymentResponse: existingResponse,
+        reference: 'event123:reg456',
+        status: 'new',
+        transactionId: 'existingTx',
+        type: 'payment',
+      },
+      {
+        createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+        reference: 'event123:reg456',
+        status: 'pending',
+        transactionId: 'freshPendingTx',
+      },
+    ])
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(200)
+    expect(JSON.parse(result.body)).toEqual(existingResponse)
     expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
