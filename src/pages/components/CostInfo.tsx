@@ -23,26 +23,30 @@ export default function CostInfo({ event }: Props) {
   const { t } = useTranslation()
   const language = useRecoilValue(languageAtom)
   const { cost, costMember, paymentTime = 'registration' } = event
+  const normalizedCostMember =
+    typeof cost === 'number'
+      ? typeof costMember === 'number'
+        ? costMember
+        : undefined
+      : typeof costMember === 'number'
+        ? { normal: costMember }
+        : costMember
 
   const costText = (c: number, cm?: number) =>
     cm && cm !== c ? `${c}\u00A0€, ${t('event.costMember')} ${cm}\u00A0€` : `${c}\u00A0€`
 
   if (typeof cost === 'number') {
-    if (typeof costMember === 'object') return <>invalid cost configuration</>
+    const legacyMemberCost = typeof normalizedCostMember === 'number' ? normalizedCostMember : undefined
     return (
       <>
-        {costText(cost, costMember)}
+        {costText(cost, legacyMemberCost)}
         {'. '}
         <Typography variant="caption">{t(`paymentTimeOptions.${paymentTime}`)}</Typography>
       </>
     )
   }
 
-  if (typeof costMember === 'number') {
-    return <>invalid cost configuration</>
-  }
-
-  const mergedCostMember = mergeMemberCost(cost, costMember)
+  const mergedCostMember = mergeMemberCost(cost, normalizedCostMember)
 
   const getSegmentInfo = (
     cost: DogEventCost,

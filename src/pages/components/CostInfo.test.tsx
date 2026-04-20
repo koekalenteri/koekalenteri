@@ -38,22 +38,26 @@ describe('CostInfo', () => {
       expect(container).not.toHaveTextContent('event.costMember')
     })
 
-    it('should show error for invalid configuration (numeric cost with object costMember)', () => {
+    it('should ignore object member cost when base cost is numeric', () => {
       const { container } = setup({
         cost: 50,
         costMember: { normal: 40 } as any,
       })
-      expect(container).toHaveTextContent('invalid cost configuration')
+      expect(container).toHaveTextContent('50 €')
+      expect(container).not.toHaveTextContent('invalid cost configuration')
+      expect(container).not.toHaveTextContent('event.costMember')
     })
   })
 
   describe('with object costs', () => {
-    it('should show error for invalid configuration (object cost with numeric costMember)', () => {
-      const { container } = setup({
+    it('should treat numeric member cost as normal member price for object cost', () => {
+      setup({
         cost: { normal: 50 } as DogEventCost,
         costMember: 40 as any,
       })
-      expect(container).toHaveTextContent('invalid cost configuration')
+
+      expect(screen.getByText('costNames.normal')).toBeInTheDocument()
+      expect(screen.getByText('50 €, event.costMember 40 €')).toBeInTheDocument()
     })
 
     it('should render normal cost segment', () => {
