@@ -128,7 +128,7 @@ exports[`RefundFooter renders 1`] = `
                   inputmode="numeric"
                 >
                   <div
-                    class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd css-5h82ro-MuiInputBase-root-MuiInput-root"
+                    class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-formControl MuiInputBase-sizeSmall MuiInputBase-adornedEnd css-nxdme1-MuiInputBase-root-MuiInput-root"
                   >
                     <input
                       aria-invalid="false"

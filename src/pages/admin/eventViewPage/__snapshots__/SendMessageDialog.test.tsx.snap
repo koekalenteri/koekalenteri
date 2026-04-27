@@ -110,7 +110,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                               class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-b5g0yb-MuiListItem-root"
                             >
                               <div
-                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-11r84w7-MuiListItemText-root"
+                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-14ln1j6-MuiListItemText-root"
                               >
                                 <span
                                   class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-7ctihp-MuiTypography-root"
@@ -128,7 +128,7 @@ exports[`SendMessageDialog renders with all parameters 1`] = `
                               class="MuiListItem-root MuiListItem-dense MuiListItem-gutters MuiListItem-padding css-b5g0yb-MuiListItem-root"
                             >
                               <div
-                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-11r84w7-MuiListItemText-root"
+                                class="MuiListItemText-root MuiListItemText-dense MuiListItemText-multiline css-14ln1j6-MuiListItemText-root"
                               >
                                 <span
                                   class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary css-7ctihp-MuiTypography-root"
