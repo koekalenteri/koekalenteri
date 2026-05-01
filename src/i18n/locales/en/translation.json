@@ -315,7 +315,14 @@
     "actions": {
       "cancel": "Cancel registration",
       "edit": "Edit registration",
-      "pay": "Pay registration"
+      "moveBackToRegistered": "Move dog back to registered list",
+      "moveToGroup": "Move to group",
+      "moveToParticipants": "Move to participants",
+      "moveToPosition": "Move to start position",
+      "moveToReserve": "Move to reserve",
+      "pay": "Pay registration",
+      "refundPayment": "Refund payment",
+      "sendMessage": "Send message"
     },
     "agreeToTerms": "Terms and privacy policy",
     "breeder": "Breeder information",
@@ -403,6 +410,22 @@
     "membership": "Membership information",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "modified_other": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
+    "movedToReserve": "Dog moved to reserve",
+    "moveToGroupDialog": {
+      "currentGroup": "(current group)",
+      "moved": "Dog moved",
+      "moveToGroup": "Move to group",
+      "notRegisteredForDay": "Dog is not registered for this day",
+      "selectGroup": "Select group",
+      "title": "Move dog to group"
+    },
+    "moveToPositionDialog": {
+      "moved": "Dog moved to start position {{position}}",
+      "moveToPosition": "Move to start position",
+      "selectPosition": "Select start number",
+      "title": "Move dog to specific start position"
+    },
+    "moveToReserveFailed": "Error moving to reserve",
     "notes": "Notes",
     "notifications": {
       "alreadyRegistered": "Dog {{reg.dog.regNo}} {{reg.dog.name}} has already been registered to this event",
