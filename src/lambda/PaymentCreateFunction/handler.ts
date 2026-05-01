@@ -27,6 +27,45 @@ const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
   return Number.isFinite(age) && age >= STALE_PENDING_PAYMENT_AGE_MS
 }
 
+const canReuseNewTransaction = (
+  current: JsonPaymentTransaction | undefined,
+  candidate: JsonPaymentTransaction
+) =>
+  !current || new Date(candidate.createdAt).getTime() > new Date(current.createdAt).getTime()
+
+const inspectExistingTransactions = async (reference: string) => {
+  const existingTransactions = await getTransactionsByReference(reference)
+
+  if (!existingTransactions) {
+    return { freshPendingTransaction: false, reusableNewTransaction: undefined }
+  }
+
+  let freshPendingTransaction = false
+  let reusableNewTransaction: JsonPaymentTransaction | undefined
+
+  for (const tx of existingTransactions) {
+    if (tx.status !== 'new' && tx.status !== 'pending') {
+      continue
+    }
+
+    if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
+      await updateTransactionStatus(tx, 'fail')
+      continue
+    }
+
+    if (tx.status === 'pending') {
+      freshPendingTransaction = true
+      continue
+    }
+
+    if (canReuseNewTransaction(reusableNewTransaction, tx as JsonPaymentTransaction)) {
+      reusableNewTransaction = tx as JsonPaymentTransaction
+    }
+  }
+
+  return { freshPendingTransaction, reusableNewTransaction }
+}
+
 /**
  * paymentCreate is called by client to start the payment process
  */
@@ -51,36 +90,14 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   const reference = `${eventId}:${registrationId}`
-  let freshPendingTransaction = false
-  let reusableNewTransaction: JsonPaymentTransaction | undefined
+  const { freshPendingTransaction, reusableNewTransaction } = await inspectExistingTransactions(reference)
 
-  // Cancel existing stale payment transactions for this reference
-  const existingTransactions = await getTransactionsByReference(reference)
-  if (existingTransactions) {
-    for (const tx of existingTransactions) {
-      if (tx.status === 'new' || tx.status === 'pending') {
-        if (isStalePendingPayment(tx.createdAt, tx.statusAt)) {
-          await updateTransactionStatus(tx, 'fail')
-        } else if (tx.status === 'pending') {
-          freshPendingTransaction = true
-        } else if (
-          !reusableNewTransaction ||
-          new Date(tx.createdAt).getTime() > new Date(reusableNewTransaction.createdAt).getTime()
-        ) {
-          reusableNewTransaction = tx as JsonPaymentTransaction
-        } else {
-          // Keep the newest reusable `new` transaction if there are multiple.
-        }
-      }
-    }
+  if (reusableNewTransaction?.paymentResponse) {
+    return response<CreatePaymentResponse>(200, reusableNewTransaction.paymentResponse, event)
+  }
 
-    if (reusableNewTransaction?.paymentResponse) {
-      return response<CreatePaymentResponse>(200, reusableNewTransaction.paymentResponse, event)
-    }
-
-    if (freshPendingTransaction) {
-      return response<string>(409, 'Payment already in progress', event)
-    }
+  if (freshPendingTransaction) {
+    return response<string>(409, 'Payment already in progress', event)
   }
 
   const amount = Math.round(
