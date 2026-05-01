@@ -7,16 +7,18 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import { useTranslation } from 'react-i18next'
 import { isConfirmedEvent } from '../../lib/typeGuards'
+import { AsyncButton } from '../components/AsyncButton'
 
 interface Props {
   readonly event: PublicDogEvent | null | undefined
-  readonly onConfirm: () => void
+  readonly onConfirm: () => Promise<void>
   readonly onClose: () => void
   readonly open: boolean
+  readonly pending?: boolean
   readonly registration: Registration | null | undefined
 }
 
-export function ConfirmDialog({ event, onConfirm, onClose, open, registration }: Props) {
+export function ConfirmDialog({ event, onConfirm, onClose, open, pending = false, registration }: Props) {
   const { t } = useTranslation()
 
   if (!event || !registration || !isConfirmedEvent(event)) {
@@ -26,7 +28,7 @@ export function ConfirmDialog({ event, onConfirm, onClose, open, registration }:
   return (
     <Dialog
       open={open}
-      onClose={onClose}
+      onClose={pending ? undefined : onClose}
       aria-labelledby="confirm-dialog-title"
       aria-describedby="confirm-dialog-description"
     >
@@ -40,10 +42,10 @@ export function ConfirmDialog({ event, onConfirm, onClose, open, registration }:
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onConfirm} autoFocus variant="contained">
+        <AsyncButton onClick={onConfirm} autoFocus variant="contained">
           {t('registration.confirmDialog.cta')}
-        </Button>
-        <Button onClick={onClose} variant="outlined">
+        </AsyncButton>
+        <Button onClick={onClose} variant="outlined" disabled={pending}>
           {t('cancel')}
         </Button>
       </DialogActions>

@@ -44,6 +44,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const { t } = useTranslation()
   const [cancelOpen, setCancelOpen] = useState<boolean | null>(null)
   const [confirmOpen, setConfirmOpen] = useState<boolean | null>(null)
+  const [confirmPending, setConfirmPending] = useState(false)
   const [redirecting, setRedirecting] = useState(false)
   const [reloadCount, setReloadCount] = useState(0)
   const [paymentOpen, setPaymentOpen] = useState<boolean | null>(null)
@@ -76,21 +77,25 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     [actions, allDisabled, registration, setRegistration]
   )
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
+    if (confirmPending) {
+      return
+    }
     if (allDisabled || !registration || registration.confirmed || registration.cancelled) {
       setConfirmOpen(false)
       return
     }
-    actions.confirm(registration).then(
-      (saved) => {
-        setRegistration(saved)
-        setConfirmOpen(false)
-      },
-      (error_) => {
-        console.error(error_)
-      }
-    )
-  }, [actions, allDisabled, registration, setRegistration])
+    setConfirmPending(true)
+    try {
+      const saved = await actions.confirm(registration)
+      setRegistration(saved)
+      setConfirmOpen(false)
+    } catch (error_) {
+      console.error(error_)
+    } finally {
+      setConfirmPending(false)
+    }
+  }, [actions, allDisabled, confirmPending, registration, setRegistration])
 
   const handlePayment = useCallback(async () => {
     if (allDisabled || !registration || registration.cancelled) {
@@ -275,6 +280,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           onClose={handleConfirmClose}
           registration={registration}
           event={event}
+          pending={confirmPending}
           onConfirm={handleConfirm}
         />
         <PaymentDialog

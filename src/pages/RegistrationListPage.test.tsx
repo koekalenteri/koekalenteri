@@ -175,6 +175,11 @@ describe('RegistrationListPage', () => {
   })
 
   it('handles confirm action when confirm dialog is submitted', async () => {
+    const confirmRequest = new Promise((resolve) =>
+      setTimeout(() => resolve({ ...unpaidRegistrationWithStaticDates, confirmed: true }), 1000)
+    )
+    const putRegistrationSpy = jest.spyOn(registrationApi, 'putRegistration').mockReturnValue(confirmRequest as never)
+
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
 
@@ -190,9 +195,17 @@ describe('RegistrationListPage', () => {
     expect(confirmButton).toBeEnabled()
     await user.click(confirmButton)
 
+    expect(confirmButton).toBeDisabled()
+
+    expect(putRegistrationSpy).toHaveBeenCalledTimes(1)
+
+    jest.advanceTimersByTime(1000)
+
     await flushPromises()
 
     expect(dialog).not.toBeVisible()
+
+    putRegistrationSpy.mockRestore()
   })
 
   it('handles invitation read when on invitation route', async () => {
