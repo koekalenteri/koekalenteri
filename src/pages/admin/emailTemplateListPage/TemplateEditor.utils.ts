@@ -114,7 +114,7 @@ export function resolveForCompletion(doc: string, pos: number, root: Schema, idT
   // Determine the parent object for completion (all but the last token)
   const parentPath = parts.slice(0, Math.max(0, parts.length - 1))
   const parent = parentPath.length ? getChild(startBase, parentPath) : startBase
-  const lastToken = parts[parts.length - 1] ?? ''
+  const lastToken = parts.at(-1) ?? ''
 
   return { current, lastToken, parent, scopes }
 }

@@ -108,7 +108,7 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
    *   - Ne kennelpiirien hallitsevat piirinmestarit, jotka ovat voittaneet piirinmestaruuden VOI1-tuloksella,
    *     ovat etuoikeutettuja osallistumaan kokeeseen.
    */
-  const qualifies = Boolean(relevant.find((r) => r.result === 'VOI1'))
+  const qualifies = relevant.some((r) => r.result === 'VOI1')
 
   return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
 }

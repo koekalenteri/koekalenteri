@@ -114,7 +114,7 @@ function applyCache(
     result.dog = merge<DeepPartial<Dog>>(dog, overrides)
     result.dog.rfidEditable = !dog.rfid
   } else {
-    result.dog = { ...(cache?.dog ?? {}), regNo }
+    result.dog = cache?.dog ? { ...cache.dog, regNo } : { regNo }
   }
 
   return result

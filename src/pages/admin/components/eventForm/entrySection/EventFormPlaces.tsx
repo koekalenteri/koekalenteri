@@ -55,7 +55,7 @@ export default function EventFormPlaces({ event, disabled, helperTexts, onChange
   const handleDayPlacesChange = useCallback(
     (date: Date, value?: number) => {
       const dateStr = formatDate(date, 'yyyy-MM-dd')
-      const newPlacesPerDay = { ...(event.placesPerDay ?? {}) }
+      const newPlacesPerDay = event.placesPerDay ? { ...event.placesPerDay } : {}
 
       if (value && value > 0) {
         newPlacesPerDay[dateStr] = Math.min(Math.max(value ?? 0, 0), 200)

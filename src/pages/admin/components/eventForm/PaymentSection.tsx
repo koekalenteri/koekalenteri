@@ -28,6 +28,7 @@ import { EditCostDescriptionDialog } from './paymentSection/EditCostDescriptionD
 import { OptionalCostRow } from './paymentSection/OptionalCostRow'
 
 type PaymentTimeValue = 'registration' | 'confirmation'
+type EventCostInput = DogEventCost | number | undefined
 
 // Define the order for cost types
 const COST_TYPE_ORDER: Record<string, number> = {
@@ -45,13 +46,12 @@ const costSort = (a: string, b: string) => {
   return orderA - orderB
 }
 
-const toCostObject = (cost: DogEventCost | number | undefined): DogEventCost =>
+const toCostObject = (cost: EventCostInput): DogEventCost =>
   typeof cost === 'object' && cost ? { ...cost } : { normal: cost ?? 0 }
 
-const toClonedCostObject = (cost: DogEventCost | number | undefined): DogEventCost =>
-  structuredClone(toCostObject(cost))
+const toClonedCostObject = (cost: EventCostInput): DogEventCost => structuredClone(toCostObject(cost))
 
-const toExistingCostObject = (cost: DogEventCost | number | undefined): DogEventCost =>
+const toExistingCostObject = (cost: EventCostInput): DogEventCost =>
   typeof cost === 'object' && cost ? { ...cost } : ({} as DogEventCost)
 
 const getOptionalAdditionalCosts = (cost: DogEventCost) => [...(cost.optionalAdditionalCosts ?? [])]

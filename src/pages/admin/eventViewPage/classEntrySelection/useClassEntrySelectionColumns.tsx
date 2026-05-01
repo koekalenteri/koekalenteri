@@ -174,10 +174,8 @@ export function useClassEntrySelectionColumns(
                 label={t('registration.actions.moveToParticipants')}
                 onClick={() => callbacks?.moveToParticipants?.(p.row.id)}
                 showInMenu
-              />
-            )
-            // "Siirrä tietylle starttipaikalle" - moves from reserve to participants at specific position
-            actions.push(
+              />,
+              // "Siirrä tietylle starttipaikalle" - moves from reserve to participants at specific position
               <GridActionsCellItem
                 key="moveToPosition"
                 icon={<LowPriorityOutlined fontSize="small" />}
