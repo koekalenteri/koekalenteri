@@ -19,6 +19,32 @@ const byPointsAndDate = (a: QualifyingResult, b: QualifyingResult) => {
   return bPoints - aPoints
 }
 
+const toQualifyingResult = (
+  result: TestResult | ManualTestResult,
+  official: boolean,
+  rankingPoints: number
+): QualifyingResult => ({ ...result, official, qualifying: true, rankingPoints })
+
+const getRelevantRankingResults = ({
+  manualResults,
+  maxResults,
+  officialResults,
+  resultFilter,
+  resultPoints,
+}: {
+  officialResults: TestResult[]
+  manualResults: ManualTestResult[]
+  resultFilter: (result: TestResult | ManualTestResult) => boolean
+  resultPoints: (result: TestResult | ManualTestResult) => number
+  maxResults: number
+}): QualifyingResult[] =>
+  officialResults
+    .filter(resultFilter)
+    .map((result) => toQualifyingResult(result, true, resultPoints(result)))
+    .concat(manualResults.filter(resultFilter).map((result) => toQualifyingResult(result, false, resultPoints(result))))
+    .sort(byPointsAndDate)
+    .slice(0, maxResults)
+
 const getNOME_B_CH_RankingPeriod = (entryEndDate?: Date, qualificationStartDate?: Date) => ({
   maxResultDate: zonedEndOfDay(entryEndDate ?? new Date()),
   minResultDate: qualificationStartDate ?? NOME_B_CH_qualificationStartDate2023,
@@ -82,15 +108,13 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
   const resultPoints = (r: TestResult | ManualTestResult) => POINTS[r.result] || 0
 
   // 5 best results after last NOME-B SM event's registrationEndDate are considered
-  const relevant: QualifyingResult[] = officialResults
-    .filter(resultFilter)
-    .map((r) => ({ ...r, official: true, qualifying: true, rankingPoints: resultPoints(r) }))
-    .concat(
-      manualResults
-        .filter(resultFilter)
-        .map((r) => ({ ...r, official: false, qualifying: true, rankingPoints: resultPoints(r) }))
-    )
-    .sort(byPointsAndDate)
+  const relevant = getRelevantRankingResults({
+    manualResults,
+    maxResults,
+    officialResults,
+    resultFilter,
+    resultPoints,
+  })
 
   /**
    * SM-kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet
@@ -110,7 +134,7 @@ export const NOME_B_CH_requirements: EventResultRequirementFn = (
    */
   const qualifies = relevant.some((r) => r.result === 'VOI1')
 
-  return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
+  return { maxResultDate, minResultDate, qualifies, relevant }
 }
 
 export const NOME_A_CH_requirements: EventResultRequirementFn = (
@@ -156,17 +180,15 @@ export const NOME_A_CH_requirements: EventResultRequirementFn = (
     return 0
   }
 
-  const relevant: QualifyingResult[] = officialResults
-    .filter(resultFilter)
-    .map((r) => ({ ...r, official: true, qualifying: true, rankingPoints: resultPoints(r) }))
-    .concat(
-      manualResults
-        .filter(resultFilter)
-        .map((r) => ({ ...r, official: false, qualifying: true, rankingPoints: resultPoints(r) }))
-    )
-    .sort(byPointsAndDate)
+  const relevant = getRelevantRankingResults({
+    manualResults,
+    maxResults,
+    officialResults,
+    resultFilter,
+    resultPoints,
+  })
 
-  return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
+  return { maxResultDate, minResultDate, qualifies, relevant }
 }
 
 export const NOWT_CH_requirements: EventResultRequirementFn = (
@@ -216,17 +238,15 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
     return 0
   }
 
-  const relevant: QualifyingResult[] = officialResults
-    .filter(resultFilter)
-    .map((r) => ({ ...r, official: true, qualifying: true, rankingPoints: resultPoints(r) }))
-    .concat(
-      manualResults
-        .filter(resultFilter)
-        .map((r) => ({ ...r, official: false, qualifying: true, rankingPoints: resultPoints(r) }))
-    )
-    .sort(byPointsAndDate)
+  const relevant = getRelevantRankingResults({
+    manualResults,
+    maxResults,
+    officialResults,
+    resultFilter,
+    resultPoints,
+  })
 
   const qualifies = relevant.some((r) => r.result === 'VOI1')
 
-  return { maxResultDate, minResultDate, qualifies, relevant: relevant.slice(0, maxResults) }
+  return { maxResultDate, minResultDate, qualifies, relevant }
 }
