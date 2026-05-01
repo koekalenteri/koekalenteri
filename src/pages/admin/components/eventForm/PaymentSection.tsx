@@ -59,6 +59,43 @@ const getOptionalAdditionalCosts = (cost: DogEventCost) => [...(cost.optionalAdd
 const getPaymentTimeValue = (value: string): PaymentTimeValue =>
   value === 'confirmation' ? 'confirmation' : 'registration'
 
+function CostTableSection({
+  action,
+  children,
+  title,
+}: Readonly<{
+  title: string
+  action: React.ReactNode
+  children: React.ReactNode
+}>) {
+  return (
+    <>
+      <TableContainer>
+        <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
+          <TableHead>
+            <TableRow>
+              <TableCell sx={{ pl: 1 }}>
+                <Typography variant="subtitle1">{title}</Typography>
+              </TableCell>
+              <TableCell align="right" width={100}>
+                <Typography variant="subtitle1">Cost</Typography>
+              </TableCell>
+              <TableCell align="right" width={140}>
+                <Typography variant="subtitle1">Member cost</Typography>
+              </TableCell>
+              <TableCell width={40}></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>{children}</TableBody>
+        </Table>
+      </TableContainer>
+      <Stack direction="row" justifyContent="end" p={1}>
+        {action}
+      </Stack>
+    </>
+  )
+}
+
 export default function PaymentSection({
   disabled: _disabled,
   errorStates,
@@ -86,6 +123,8 @@ export default function PaymentSection({
     [errors]
   )
   const optionalAdditionalCosts = (typeof event.cost === 'object' && event.cost.optionalAdditionalCosts) || []
+
+  const tableLabels = useMemo(() => ({ amount: t('costAmount'), memberAmount: t('costMemberAmount') }), [t])
 
   useEffect(() => {
     const clean = (cost: DogEventCost | number | undefined) => {
@@ -331,101 +370,69 @@ export default function PaymentSection({
           </FormControl>
         </Grid>
         <Grid minWidth={600} width="100%">
-          <TableContainer>
-            <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ pl: 1 }}>
-                    <Typography variant="subtitle1">{t('cost')}</Typography>
-                  </TableCell>
-                  <TableCell align="right" width={100}>
-                    <Typography variant="subtitle1">{t('costAmount')}</Typography>
-                  </TableCell>
-                  <TableCell align="right" width={140}>
-                    <Typography variant="subtitle1">{t('costMemberAmount')}</Typography>
-                  </TableCell>
-                  <TableCell width={40}></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {eventCostKeys
-                  .filter((key) => key !== 'optionalAdditionalCosts')
-                  .sort(costSort)
-                  .flatMap((key) => {
-                    if (key === 'breed') {
-                      const breeds = (event.cost as DogEventCost).breed ?? {}
-                      return Object.keys(breeds).map((breedCode) => (
-                        <CostRow
-                          key={`${key}-${breedCode}`}
-                          costKey={key}
-                          event={event}
-                          breedCode={breedCode as BreedCode}
-                          onEditDescription={handleEditDescription}
-                          onRemove={handleRemove}
-                          onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
-                          onCostChange={handleChange}
-                          error={costErrorList.includes(`breed[${breedCode}]`)}
-                        />
-                      ))
-                    }
-                    return (
-                      <CostRow
-                        key={key}
-                        costKey={key}
-                        event={event}
-                        onEditDescription={handleEditDescription}
-                        onRemove={handleRemove}
-                        onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
-                        onCostChange={handleChange}
-                        error={costErrorList.includes(key)}
-                      />
-                    )
-                  })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Stack direction="row" justifyContent="end" p={1}>
-            <Button variant="outlined" onClick={() => setDialogMode('other')} startIcon={<AddIcon />}>
-              {t('costAdd')}
-            </Button>
-          </Stack>
-          <br />
-          <TableContainer>
-            <Table size="small" sx={{ '& .MuiTextField-root': { m: 0, width: '10ch' } }}>
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ pl: 1 }}>
-                    <Typography variant="subtitle1">{t('costNames.optionalAdditionalCosts')}</Typography>
-                  </TableCell>
-                  <TableCell align="right" width={100}>
-                    <Typography variant="subtitle1">{t('costAmount')}</Typography>
-                  </TableCell>
-                  <TableCell align="right" width={140}>
-                    <Typography variant="subtitle1">{t('costMemberAmount')}</Typography>
-                  </TableCell>
-                  <TableCell width={40}></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {optionalAdditionalCosts.map((optCost, index) => (
-                  <OptionalCostRow
-                    key={`optional-${optCost.description.fi}`}
+          <CostTableSection
+            title={t('cost')}
+            action={
+              <Button variant="outlined" onClick={() => setDialogMode('other')} startIcon={<AddIcon />}>
+                {t('costAdd')}
+              </Button>
+            }
+          >
+            {eventCostKeys
+              .filter((key) => key !== 'optionalAdditionalCosts')
+              .sort(costSort)
+              .flatMap((key) => {
+                if (key === 'breed') {
+                  const breeds = (event.cost as DogEventCost).breed ?? {}
+                  return Object.keys(breeds).map((breedCode) => (
+                    <CostRow
+                      key={`${key}-${breedCode}`}
+                      costKey={key}
+                      event={event}
+                      breedCode={breedCode as BreedCode}
+                      onEditDescription={handleEditDescription}
+                      onRemove={handleRemove}
+                      onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
+                      onCostChange={handleChange}
+                      error={costErrorList.includes(`breed[${breedCode}]`)}
+                    />
+                  ))
+                }
+                return (
+                  <CostRow
+                    key={key}
+                    costKey={key}
                     event={event}
-                    index={index}
-                    onRemove={handleRemoveOptional}
-                    onEditDescription={handleEditOptionalDescription}
-                    onCostChange={handleOptionalChange}
-                    error={costErrorList.includes(`optionalAdditionalCosts[${index}]`)}
+                    onEditDescription={handleEditDescription}
+                    onRemove={handleRemove}
+                    onEarlyBirdDaysChange={handleEarlyBirdDaysChange}
+                    onCostChange={handleChange}
+                    error={costErrorList.includes(key)}
                   />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Stack direction="row" justifyContent="end" p={1}>
-            <Button variant="outlined" onClick={() => setDialogMode('optional')} startIcon={<AddIcon />}>
-              {t('costAddOptional')}
-            </Button>
-          </Stack>
+                )
+              })}
+          </CostTableSection>
+          <br />
+          <CostTableSection
+            title={t('costNames.optionalAdditionalCosts')}
+            action={
+              <Button variant="outlined" onClick={() => setDialogMode('optional')} startIcon={<AddIcon />}>
+                {t('costAddOptional')}
+              </Button>
+            }
+          >
+            {optionalAdditionalCosts.map((optCost, index) => (
+              <OptionalCostRow
+                key={`optional-${optCost.description.fi}`}
+                event={event}
+                index={index}
+                onRemove={handleRemoveOptional}
+                onEditDescription={handleEditOptionalDescription}
+                onCostChange={handleOptionalChange}
+                error={costErrorList.includes(`optionalAdditionalCosts[${index}]`)}
+              />
+            ))}
+          </CostTableSection>
         </Grid>
       </Grid>
       <AddCostDialog
