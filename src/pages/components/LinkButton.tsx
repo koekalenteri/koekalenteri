@@ -8,7 +8,7 @@ interface Props extends Readonly<Omit<ComponentProps<typeof Link>, 'className' |
   readonly back?: boolean
 }
 
-export default function LinkButton({ to, text, sx, back, ...rest }: Props) {
+export default function LinkButton({ to, text, sx, back, ...rest }: Readonly<Props>) {
   const navigate = useNavigate()
   const handleClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
     e.stopPropagation()

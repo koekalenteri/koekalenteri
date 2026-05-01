@@ -178,7 +178,7 @@ export default class CustomDynamoClient {
         items.push(...(data.Items as T[]))
       }
 
-      lastEvaluatedKey = data.LastEvaluatedKey as Record<string, any> | undefined
+      lastEvaluatedKey = data.LastEvaluatedKey
     } while (lastEvaluatedKey)
 
     return items

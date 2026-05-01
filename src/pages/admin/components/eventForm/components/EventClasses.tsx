@@ -37,6 +37,8 @@ export const compareEventClass = (a: DeepPartial<EventClass>, b: DeepPartial<Eve
     ? (a.class?.localeCompare(b.class ?? '') ?? 0)
     : (a.date?.valueOf() ?? 0) - (b.date?.valueOf() ?? 0)
 
+type EventClassValue = DeepPartial<EventClass>
+
 export default function EventClasses(props: Props) {
   const { t } = useTranslation()
   const {
@@ -97,9 +99,9 @@ export default function EventClasses(props: Props) {
       renderInput={(inputProps) => (
         <TextField {...inputProps} required={required} error={!!error} helperText={helperText} label={label} />
       )}
-      renderTags={(tagValue, getTagProps) =>
+      renderValue={(tagValue: readonly EventClassValue[], getItemProps) =>
         tagValue.map((option, index) => {
-          const { key, ...props } = getTagProps({ index })
+          const { key, ...props } = getItemProps({ index })
           return (
             <Chip
               key={key}

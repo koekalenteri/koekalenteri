@@ -20,7 +20,7 @@ interface Props {
   onMove: (position: number) => Promise<void>
 }
 
-export default function MoveToPositionDialog({ open, onClose, registration, maxPosition, onMove }: Props) {
+export default function MoveToPositionDialog({ open, onClose, registration, maxPosition, onMove }: Readonly<Props>) {
   const { t } = useTranslation()
   const [selectedPosition, setSelectedPosition] = useState<number>(registration.group?.number ?? 1)
   const [saving, setSaving] = useState(false)

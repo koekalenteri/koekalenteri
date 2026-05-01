@@ -50,7 +50,7 @@ const resolveStartBaseAndParts = (raw: string, allScopes: EachScope[]) => {
     if (scopeStack.length > 1) scopeStack.pop()
     i++
   }
-  let startBase = scopeStack[scopeStack.length - 1].base
+  let startBase = scopeStack.at(-1)?.base
   const parts = rawParts.slice(i)
 
   if (parts[0] === 'this') {
@@ -106,7 +106,7 @@ function buildEachScopes(doc: string, pos: number, root: Schema): EachScope[] {
 /** Resolve an identifier path at `pos` into a parent object to complete under */
 export function resolveForCompletion(doc: string, pos: number, root: Schema, idText: string) {
   const scopes = buildEachScopes(doc, pos, root)
-  const current = scopes[scopes.length - 1]
+  const current = scopes.at(-1)
 
   // Normalize and resolve base/parts using common helper to avoid duplication
   const { startBase, parts } = resolveStartBaseAndParts(idText, scopes)

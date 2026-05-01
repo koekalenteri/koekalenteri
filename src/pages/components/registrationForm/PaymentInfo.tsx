@@ -81,7 +81,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
         title={t('cost')}
         open={open}
         error={!open}
-        helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
+        helperText={open ? undefined : t('validation.registration.choose', { field: 'dog' })}
       >
         <RadioGroup value={cost.segment} onChange={handleCostChange}>
           {segments.map((segment) => {
@@ -114,7 +114,7 @@ const PaymentInfo = ({ event, registration, cost, disabled, onChange }: Props) =
           title={t('costNames.optionalAdditionalCosts')}
           open={open}
           error={!open}
-          helperText={!open ? t('validation.registration.choose', { field: 'dog' }) : undefined}
+          helperText={open ? undefined : t('validation.registration.choose', { field: 'dog' })}
         >
           {cost.cost?.optionalAdditionalCosts?.map((c, index) => (
             <Box key={c.description.fi}>

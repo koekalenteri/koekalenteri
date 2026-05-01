@@ -101,8 +101,11 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   useEffect(() => {
     const payments = okTransactions.filter((t) => t.type === 'payment')
     if (payments.length === 1) {
-      setSelection([payments[0].transactionId!])
-      if (!payments[0].items && handlingCost) {
+      const [payment] = payments
+      if (payment.transactionId) {
+        setSelection([payment.transactionId])
+      }
+      if (!payment.items && handlingCost) {
         setHandlingCost(0)
       }
     }

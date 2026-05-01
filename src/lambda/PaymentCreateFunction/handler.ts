@@ -27,10 +27,7 @@ const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
   return Number.isFinite(age) && age >= STALE_PENDING_PAYMENT_AGE_MS
 }
 
-const canReuseNewTransaction = (
-  current: JsonPaymentTransaction | undefined,
-  candidate: JsonPaymentTransaction
-) =>
+const canReuseNewTransaction = (current: JsonPaymentTransaction | undefined, candidate: JsonPaymentTransaction) =>
   !current || new Date(candidate.createdAt).getTime() > new Date(current.createdAt).getTime()
 
 const inspectExistingTransactions = async (reference: string) => {

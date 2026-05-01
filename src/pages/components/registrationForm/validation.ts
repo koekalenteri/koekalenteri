@@ -21,11 +21,11 @@ import { validatePerson } from '../../../lib/validation'
 import { getRequirements, REQUIREMENTS } from '../../../rules'
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
-  return !breeder || !breeder.name || !breeder.location
+  return !breeder?.name || !breeder.location
 }
 
 const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent> = {
-  agreeToTerms: (reg) => (!reg.agreeToTerms ? 'terms' : false),
+  agreeToTerms: (reg) => (reg.agreeToTerms ? false : 'terms'),
   breeder: (reg) => (validateBreeder(reg.breeder) ? 'required' : false),
   class: (reg, _req, evt) => evt.classes.length > 0 && !reg.class,
   dates: (reg) => reg.dates.length === 0,
@@ -36,7 +36,7 @@ const VALIDATORS: Validators2<Registration, 'registration', PublicConfirmedEvent
   optionalCosts: () => false,
   owner: (reg) => validatePerson(reg.owner),
   payer: (reg) => (reg.ownerPays ? false : validatePerson(reg.payer, false)),
-  reserve: (reg) => (!reg.reserve ? 'reserve' : false),
+  reserve: (reg) => (reg.reserve ? false : 'reserve'),
   results: () => false,
   selectedCost: () => false,
 }

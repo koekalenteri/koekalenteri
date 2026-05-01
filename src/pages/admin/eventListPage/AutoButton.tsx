@@ -9,7 +9,7 @@ interface Props extends Readonly<Omit<ButtonProps, 'children'>> {
   readonly text: string
 }
 
-export default function AutoButton(props: Props) {
+export default function AutoButton(props: Readonly<Props>) {
   const sm = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'))
   const { text, startIcon, endIcon, ...rest } = props
 

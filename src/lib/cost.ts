@@ -147,7 +147,7 @@ const overrideIfSpecified = <T extends number | { cost: number }>(
 ): T | undefined => {
   if (member === undefined) return base
   const memberCost = typeof member === 'number' ? member : member.cost
-  return memberCost !== 0 ? member : base
+  return memberCost === 0 ? base : member
 }
 
 /**

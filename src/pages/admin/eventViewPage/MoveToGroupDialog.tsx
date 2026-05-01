@@ -25,7 +25,17 @@ interface Props {
   onMove: (groupKey: string) => Promise<void>
 }
 
-export default function MoveToGroupDialog({ open, onClose, registration, event: _event, groups, onMove }: Props) {
+const getGroupLabel = (dateLabel: string, timeLabel: string | undefined, currentGroupLabel: string | undefined) =>
+  `${dateLabel} ${timeLabel ?? ''}${currentGroupLabel ?? ''}`
+
+export default function MoveToGroupDialog({
+  open,
+  onClose,
+  registration,
+  event: _event,
+  groups,
+  onMove,
+}: Readonly<Props>) {
   const { t } = useTranslation()
   const currentGroupKey = getRegistrationGroupKey(registration)
   const [selectedGroup, setSelectedGroup] = useState<string>(currentGroupKey)
@@ -69,7 +79,12 @@ export default function MoveToGroupDialog({ open, onClose, registration, event: 
               const groupKey = eventRegistrationDateKey(group)
               const isCurrentGroup = groupKey === currentGroupKey
               const isRegistered = isRegisteredForGroup(groupKey)
-              const label = `${t('dateFormat.wdshort', { date: group.date })} ${group.time ? t(`registration.timeLong.${group.time}`) : ''}${isCurrentGroup ? ` ${t('registration.moveToGroupDialog.currentGroup')}` : ''}`
+              const dateLabel = t('dateFormat.wdshort', { date: group.date })
+              const timeLabel = group.time ? t(`registration.timeLong.${group.time}`) : undefined
+              const currentGroupLabel = isCurrentGroup
+                ? ` ${t('registration.moveToGroupDialog.currentGroup')}`
+                : undefined
+              const label = getGroupLabel(dateLabel, timeLabel, currentGroupLabel)
 
               return (
                 <FormControlLabel

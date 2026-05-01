@@ -27,6 +27,8 @@ import { CostRow } from './paymentSection/CostRow'
 import { EditCostDescriptionDialog } from './paymentSection/EditCostDescriptionDialog'
 import { OptionalCostRow } from './paymentSection/OptionalCostRow'
 
+type PaymentTimeValue = 'registration' | 'confirmation'
+
 // Define the order for cost types
 const COST_TYPE_ORDER: Record<string, number> = {
   breed: 4,
@@ -53,6 +55,9 @@ const toExistingCostObject = (cost: DogEventCost | number | undefined): DogEvent
   typeof cost === 'object' && cost ? { ...cost } : ({} as DogEventCost)
 
 const getOptionalAdditionalCosts = (cost: DogEventCost) => [...(cost.optionalAdditionalCosts ?? [])]
+
+const getPaymentTimeValue = (value: string): PaymentTimeValue =>
+  value === 'confirmation' ? 'confirmation' : 'registration'
 
 export default function PaymentSection({
   disabled: _disabled,
@@ -318,7 +323,7 @@ export default function PaymentSection({
               id="payment-time"
               value={event.paymentTime ?? 'registration'}
               label={t('paymentTime')}
-              onChange={(e) => onChange?.({ paymentTime: e.target.value as 'registration' | 'confirmation' })}
+              onChange={(e) => onChange?.({ paymentTime: getPaymentTimeValue(e.target.value) })}
             >
               <MenuItem value="registration">{t('paymentTimeOptions.registration')}</MenuItem>
               <MenuItem value="confirmation">{t('paymentTimeOptions.confirmation')}</MenuItem>
