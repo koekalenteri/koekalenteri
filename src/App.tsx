@@ -8,7 +8,6 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense, useCallback, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
-import { scan } from 'react-scan'
 import { useRecoilValue } from 'recoil'
 import { AWSConfig } from './amplify-env'
 import { useWebSocket } from './hooks/useWebSocket'
@@ -33,12 +32,6 @@ function App() {
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
 
   useWebSocket()
-
-  useEffect(() => {
-    if (isDevEnv()) {
-      scan({ enabled: true })
-    }
-  }, [])
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
