@@ -241,7 +241,7 @@ jobs:
         with:
           name: backend-build
           path: dist
-      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/setup-sam@v3
         with:
           use-installer: true
       - uses: aws-actions/configure-aws-credentials@v6

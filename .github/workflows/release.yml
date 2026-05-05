@@ -43,7 +43,7 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build-backend
-      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/setup-sam@v3
         with:
           use-installer: true
       - uses: aws-actions/configure-aws-credentials@v6
