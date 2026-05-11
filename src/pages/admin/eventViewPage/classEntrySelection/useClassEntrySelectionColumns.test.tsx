@@ -697,6 +697,33 @@ describe('Action column in detail', () => {
     expect(moveToPosition?.props.icon.type).toBe(CircularProgress)
   })
 
+  it('should disable reserve move to position when there are no participants yet', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        canMoveReserveToPosition: false,
+      })
+    )
+
+    const { entryColumns } = result.current
+    const actionsColumn = entryColumns.find((col) => col.field === 'actions')
+    expect(actionsColumn).toBeDefined()
+
+    const reserveRow = {
+      cancelled: false,
+      group: { key: registrationUtils.GROUP_KEY_RESERVE },
+      id: 'r-1',
+    } as unknown as Registration
+
+    const reserveActions = (actionsColumn as any)?.getActions({ row: reserveRow } as GridRenderCellParams<
+      any,
+      Registration
+    >) as ReactElement[]
+    const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
+
+    expect(moveToPosition?.props.disabled).toBe(true)
+    expect(moveToPosition?.props.icon.type).not.toBe(CircularProgress)
+  })
+
   it('should handle missing callback functions', () => {
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(

@@ -91,10 +91,44 @@ const ClassEntrySelection = ({
 
   const groups = useAdminEventRegistrationGroups(event, eventClass)
 
+  const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(
+    () => buildRegistrationsByGroup(registrations, groups),
+    [groups, registrations]
+  )
+
+  const selectedAdditionalCostsByGroup: Record<string, Array<{ cost: CustomCost; count: number }>> = useMemo(
+    () => buildSelectedAdditionalCostsByGroup(event, groups, registrationsByGroup),
+    [event, groups, registrationsByGroup]
+  )
+
+  const selectedAdditionalCostsTotal = useMemo(
+    () => buildSelectedAdditionalCostsTotal(groups, selectedAdditionalCostsByGroup),
+    [groups, selectedAdditionalCostsByGroup]
+  )
+
+  const moveToPositionMax = useMemo(() => {
+    if (!selectedForAction) return 1
+
+    const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+
+    if (currentGroupKey === GROUP_KEY_RESERVE) {
+      const targetGroupKey = groups[0]?.key
+      const participantCount = targetGroupKey ? (registrationsByGroup[targetGroupKey]?.length ?? 0) : 0
+      return Math.max(1, participantCount + 1)
+    }
+
+    return Math.max(1, registrationsByGroup[currentGroupKey]?.length ?? 0)
+  }, [groups, registrationsByGroup, selectedForAction])
+
+  const canMoveReserveToPosition = useMemo(() => {
+    return groups.some((group) => (registrationsByGroup[group.key]?.length ?? 0) > 0)
+  }, [groups, registrationsByGroup])
+
   // Callback functions for kebab menu actions
   const callbacks = useMemo(
     () => ({
       cancelRegistration: handleCancel,
+      canMoveReserveToPosition,
       moveToGroup: (id: string) => {
         const reg = registrations.find((r) => r.id === id)
         if (reg) {
@@ -149,39 +183,20 @@ const ClassEntrySelection = ({
         }
       },
     }),
-    [registrations, handleOpen, handleCancel, handleRefund, actions, event.id, pendingMoveId, t]
+    [
+      registrations,
+      handleOpen,
+      handleCancel,
+      handleRefund,
+      actions,
+      event.id,
+      pendingMoveId,
+      canMoveReserveToPosition,
+      t,
+    ]
   )
 
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(dates, event, callbacks)
-
-  const registrationsByGroup: Record<string, RegistrationWithGroups[]> = useMemo(
-    () => buildRegistrationsByGroup(registrations, groups),
-    [groups, registrations]
-  )
-
-  const selectedAdditionalCostsByGroup: Record<string, Array<{ cost: CustomCost; count: number }>> = useMemo(
-    () => buildSelectedAdditionalCostsByGroup(event, groups, registrationsByGroup),
-    [event, groups, registrationsByGroup]
-  )
-
-  const selectedAdditionalCostsTotal = useMemo(
-    () => buildSelectedAdditionalCostsTotal(groups, selectedAdditionalCostsByGroup),
-    [groups, selectedAdditionalCostsByGroup]
-  )
-
-  const moveToPositionMax = useMemo(() => {
-    if (!selectedForAction) return 1
-
-    const currentGroupKey = getRegistrationGroupKey(selectedForAction)
-
-    if (currentGroupKey === GROUP_KEY_RESERVE) {
-      const targetGroupKey = groups[0]?.key
-      const participantCount = targetGroupKey ? (registrationsByGroup[targetGroupKey]?.length ?? 0) : 0
-      return Math.max(1, participantCount + 1)
-    }
-
-    return Math.max(1, registrationsByGroup[currentGroupKey]?.length ?? 0)
-  }, [groups, registrationsByGroup, selectedForAction])
 
   const reserveNotNotified = useMemo(
     () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),
