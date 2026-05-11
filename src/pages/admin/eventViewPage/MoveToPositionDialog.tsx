@@ -16,11 +16,11 @@ interface Props {
   open: boolean
   onClose: () => void
   registration: Registration
-  maxPosition: number
+  positions: number[]
   onMove: (position: number) => Promise<void>
 }
 
-export default function MoveToPositionDialog({ open, onClose, registration, maxPosition, onMove }: Readonly<Props>) {
+export default function MoveToPositionDialog({ open, onClose, registration, positions, onMove }: Readonly<Props>) {
   const { t } = useTranslation()
   const [selectedPosition, setSelectedPosition] = useState<number>(registration.group?.number ?? 1)
   const [saving, setSaving] = useState(false)
@@ -42,9 +42,6 @@ export default function MoveToPositionDialog({ open, onClose, registration, maxP
       setSaving(false)
     }
   }
-
-  // Generate position options
-  const positions = Array.from({ length: maxPosition }, (_, i) => i + 1)
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>

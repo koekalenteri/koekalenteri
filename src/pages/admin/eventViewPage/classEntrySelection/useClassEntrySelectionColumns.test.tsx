@@ -724,6 +724,32 @@ describe('Action column in detail', () => {
     expect(moveToPosition?.props.icon.type).not.toBe(CircularProgress)
   })
 
+  it('should disable participant move to position when only current position is valid', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        canMoveToPosition: () => false,
+      })
+    )
+
+    const { entryColumns } = result.current
+    const actionsColumn = entryColumns.find((col) => col.field === 'actions')
+    expect(actionsColumn).toBeDefined()
+
+    const participantRow = {
+      cancelled: false,
+      group: { key: 'P', number: 2 },
+      id: 'p-1',
+    } as unknown as Registration
+
+    const participantActions = (actionsColumn as any)?.getActions({ row: participantRow } as GridRenderCellParams<
+      any,
+      Registration
+    >) as ReactElement[]
+    const moveToPosition = participantActions.find((a) => a.key === 'moveToPosition')
+
+    expect(moveToPosition?.props.disabled).toBe(true)
+  })
+
   it('should handle missing callback functions', () => {
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(

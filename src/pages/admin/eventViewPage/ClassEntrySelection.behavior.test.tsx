@@ -87,7 +87,7 @@ jest.mock(
         <button onClick={() => props.onMove(2.5)} type="button">
           move-position
         </button>
-        <div data-testid="move-position-max">{props.maxPosition}</div>
+        <div data-testid="move-position-max">{props.positions?.join(',')}</div>
       </>
     ) : null
 )
@@ -278,7 +278,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     })
     await flushPromises()
 
-    expect(screen.getByTestId('move-position-max')).toHaveTextContent('3')
+    expect(screen.getByTestId('move-position-max')).toHaveTextContent('1,2,3')
   })
 
   it('uses only position 1 when there are no participant dogs yet', async () => {

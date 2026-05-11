@@ -28,7 +28,7 @@ describe('MoveToPositionDialog', () => {
         open={true}
         onClose={jest.fn()}
         registration={registration}
-        maxPosition={4}
+        positions={[1, 2, 3, 4]}
         onMove={jest.fn()}
       />
     )
@@ -48,7 +48,7 @@ describe('MoveToPositionDialog', () => {
         open={true}
         onClose={onClose}
         registration={registration}
-        maxPosition={3}
+        positions={[1, 2, 3]}
         onMove={jest.fn()}
       />,
       undefined,
@@ -71,7 +71,7 @@ describe('MoveToPositionDialog', () => {
         open={true}
         onClose={onClose}
         registration={registration}
-        maxPosition={5}
+        positions={[1, 2, 3, 4, 5]}
         onMove={onMove}
       />,
       undefined,
@@ -109,7 +109,7 @@ describe('MoveToPositionDialog', () => {
         open={true}
         onClose={onClose}
         registration={registration}
-        maxPosition={3}
+        positions={[1, 2, 3]}
         onMove={onMove}
       />,
       undefined,
@@ -125,7 +125,7 @@ describe('MoveToPositionDialog', () => {
     expect(mockConsoleError).toHaveBeenCalled()
   })
 
-  it('shows only position 1 when maxPosition is 1', async () => {
+  it('shows only position 1 when only one position is available', async () => {
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { key: 'participants', number: 1 } as any,
@@ -136,7 +136,7 @@ describe('MoveToPositionDialog', () => {
         open={true}
         onClose={jest.fn()}
         registration={registration}
-        maxPosition={1}
+        positions={[1]}
         onMove={jest.fn()}
       />,
       undefined,
@@ -147,5 +147,31 @@ describe('MoveToPositionDialog', () => {
 
     expect(screen.getByRole('option', { name: '1' })).toBeInTheDocument()
     expect(screen.queryByRole('option', { name: '2' })).not.toBeInTheDocument()
+  })
+
+  it('shows only explicitly allowed positions', async () => {
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'participants', number: 2 } as any,
+    }
+
+    const { user } = renderWithUserEvents(
+      <MoveToPositionDialog
+        open={true}
+        onClose={jest.fn()}
+        registration={registration}
+        positions={[2, 5]}
+        onMove={jest.fn()}
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
+
+    expect(screen.getByRole('option', { name: '2' })).toBeInTheDocument()
+    expect(screen.getByRole('option', { name: '5' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: '1' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: '3' })).not.toBeInTheDocument()
   })
 })

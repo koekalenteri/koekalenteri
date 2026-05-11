@@ -120,15 +120,57 @@ const ClassEntrySelection = ({
     return Math.max(1, registrationsByGroup[currentGroupKey]?.length ?? 0)
   }, [groups, registrationsByGroup, selectedForAction])
 
+  const moveToPositionOptions = useMemo(() => {
+    if (!selectedForAction) return [1]
+
+    const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+    if (currentGroupKey === GROUP_KEY_RESERVE) {
+      return Array.from({ length: moveToPositionMax }, (_, i) => i + 1)
+    }
+
+    const allowedGroupKeys = new Set(selectedForAction.dates?.map((date) => eventRegistrationDateKey(date)) ?? [])
+    const allowedParticipantGroups = groups.filter((group) => allowedGroupKeys.has(eventRegistrationDateKey(group)))
+    const positions = allowedParticipantGroups.flatMap((group) =>
+      (registrationsByGroup[group.key] ?? [])
+        .map((reg) => reg.group?.number)
+        .filter((number): number is number => Number.isInteger(number))
+    )
+    const uniqueSortedPositions = [...new Set(positions)]
+      .filter((position) => position !== selectedForAction.group?.number)
+      .sort((a, b) => a - b)
+
+    return uniqueSortedPositions
+  }, [groups, moveToPositionMax, registrationsByGroup, selectedForAction])
+
   const canMoveReserveToPosition = useMemo(() => {
     return groups.some((group) => (registrationsByGroup[group.key]?.length ?? 0) > 0)
   }, [groups, registrationsByGroup])
+
+  const canMoveParticipantToPosition = useMemo(
+    () => (registration: Registration) => {
+      const currentGroupKey = getRegistrationGroupKey(registration)
+      if (currentGroupKey === GROUP_KEY_RESERVE || currentGroupKey === GROUP_KEY_CANCELLED) return true
+
+      const allowedGroupKeys = new Set(registration.dates?.map((date) => eventRegistrationDateKey(date)) ?? [])
+      const allowedParticipantGroups = groups.filter((group) => allowedGroupKeys.has(eventRegistrationDateKey(group)))
+      const positions = allowedParticipantGroups.flatMap((group) =>
+        (registrationsByGroup[group.key] ?? [])
+          .map((reg) => reg.group?.number)
+          .filter((number): number is number => Number.isInteger(number))
+      )
+      const uniqueSortedPositions = [...new Set(positions)].sort((a, b) => a - b)
+
+      return !(uniqueSortedPositions.length === 1 && uniqueSortedPositions[0] === registration.group?.number)
+    },
+    [groups, registrationsByGroup]
+  )
 
   // Callback functions for kebab menu actions
   const callbacks = useMemo(
     () => ({
       cancelRegistration: handleCancel,
       canMoveReserveToPosition,
+      canMoveToPosition: canMoveParticipantToPosition,
       moveToGroup: (id: string) => {
         const reg = registrations.find((r) => r.id === id)
         if (reg) {
@@ -192,6 +234,7 @@ const ClassEntrySelection = ({
       event.id,
       pendingMoveId,
       canMoveReserveToPosition,
+      canMoveParticipantToPosition,
       t,
     ]
   )
@@ -378,7 +421,7 @@ const ClassEntrySelection = ({
             open={moveToPositionDialogOpen}
             onClose={() => setMoveToPositionDialogOpen(false)}
             registration={selectedForAction}
-            maxPosition={moveToPositionMax}
+            positions={moveToPositionOptions}
             onMove={async (position) => {
               const currentGroupKey = getRegistrationGroupKey(selectedForAction)
               setPendingMoveId(selectedForAction.id)

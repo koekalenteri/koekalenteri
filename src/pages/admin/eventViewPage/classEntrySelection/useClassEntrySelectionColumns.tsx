@@ -32,6 +32,7 @@ interface RegistrationActionCallbacks {
   sendMessage?: (id: string) => void
   pendingMoveId?: string
   canMoveReserveToPosition?: boolean
+  canMoveToPosition?: (registration: Registration) => boolean
 }
 
 export function useClassEntrySelectionColumns(
@@ -127,6 +128,7 @@ export function useClassEntrySelectionColumns(
           const hasGroups = available.length > 1
           const isPendingMove = callbacks?.pendingMoveId === p.row.id
           const isReserveMoveToPositionDisabled = isPendingMove || callbacks?.canMoveReserveToPosition === false
+          const isParticipantMoveToPositionDisabled = isPendingMove || callbacks?.canMoveToPosition?.(p.row) === false
 
           const actions: ReactElement[] = []
 
@@ -147,7 +149,7 @@ export function useClassEntrySelectionColumns(
             actions.push(
               <GridActionsCellItem
                 key="moveToPosition"
-                disabled={isPendingMove}
+                disabled={isParticipantMoveToPositionDisabled}
                 icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToPosition')}
                 onClick={() => callbacks?.moveToPosition?.(p.row.id)}
