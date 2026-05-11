@@ -83,9 +83,12 @@ jest.mock(
   './MoveToPositionDialog',
   () => (props: any) =>
     props.open ? (
-      <button onClick={() => props.onMove(2.5)} type="button">
-        move-position
-      </button>
+      <>
+        <button onClick={() => props.onMove(2.5)} type="button">
+          move-position
+        </button>
+        <div data-testid="move-position-max">{props.maxPosition}</div>
+      </>
     ) : null
 )
 
@@ -242,5 +245,63 @@ describe('ClassEntrySelection behavior coverage', () => {
     })
     await flushPromises()
     expect(screen.getByText('send-message-open')).toBeInTheDocument()
+  })
+
+  it('uses participant count plus one as max position for reserve moves', async () => {
+    const registrations: Registration[] = [
+      {
+        ...registrationWithStaticDates,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
+        id: 'participant-1',
+      },
+      {
+        ...registrationWithStaticDates,
+        group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 2, time: 'ap' } as any,
+        id: 'participant-2',
+      },
+      {
+        ...registrationWithStaticDates,
+        group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
+        id: 'reserve-1',
+      },
+    ]
+
+    const { user } = renderWithUserEvents(
+      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    await act(async () => {
+      mockLastCallbacks.moveToPosition('reserve-1')
+    })
+    await flushPromises()
+
+    expect(screen.getByTestId('move-position-max')).toHaveTextContent('3')
+  })
+
+  it('uses only position 1 when there are no participant dogs yet', async () => {
+    const registrations: Registration[] = [
+      {
+        ...registrationWithStaticDates,
+        group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
+        id: 'reserve-1',
+      },
+    ]
+
+    const { user } = renderWithUserEvents(
+      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
+      { wrapper: Wrapper },
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+    await flushPromises()
+
+    await act(async () => {
+      mockLastCallbacks.moveToPosition('reserve-1')
+    })
+    await flushPromises()
+
+    expect(screen.getByTestId('move-position-max')).toHaveTextContent('1')
   })
 })

@@ -169,6 +169,20 @@ const ClassEntrySelection = ({
     [groups, selectedAdditionalCostsByGroup]
   )
 
+  const moveToPositionMax = useMemo(() => {
+    if (!selectedForAction) return 1
+
+    const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+
+    if (currentGroupKey === GROUP_KEY_RESERVE) {
+      const targetGroupKey = groups[0]?.key
+      const participantCount = targetGroupKey ? (registrationsByGroup[targetGroupKey]?.length ?? 0) : 0
+      return Math.max(1, participantCount + 1)
+    }
+
+    return Math.max(1, registrationsByGroup[currentGroupKey]?.length ?? 0)
+  }, [groups, registrationsByGroup, selectedForAction])
+
   const reserveNotNotified = useMemo(
     () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),
     [registrationsByGroup.reserve]
@@ -349,11 +363,7 @@ const ClassEntrySelection = ({
             open={moveToPositionDialogOpen}
             onClose={() => setMoveToPositionDialogOpen(false)}
             registration={selectedForAction}
-            maxPosition={
-              getRegistrationGroupKey(selectedForAction) === GROUP_KEY_RESERVE
-                ? (groups[0] && registrationsByGroup[groups[0].key]?.length) || 100
-                : registrationsByGroup[getRegistrationGroupKey(selectedForAction)]?.length || 100
-            }
+            maxPosition={moveToPositionMax}
             onMove={async (position) => {
               const currentGroupKey = getRegistrationGroupKey(selectedForAction)
               setPendingMoveId(selectedForAction.id)

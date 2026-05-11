@@ -124,4 +124,28 @@ describe('MoveToPositionDialog', () => {
     expect(onClose).toHaveBeenCalledTimes(0)
     expect(mockConsoleError).toHaveBeenCalled()
   })
+
+  it('shows only position 1 when maxPosition is 1', async () => {
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'participants', number: 1 } as any,
+    }
+
+    const { user } = renderWithUserEvents(
+      <MoveToPositionDialog
+        open={true}
+        onClose={jest.fn()}
+        registration={registration}
+        maxPosition={1}
+        onMove={jest.fn()}
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
+
+    expect(screen.getByRole('option', { name: '1' })).toBeInTheDocument()
+    expect(screen.queryByRole('option', { name: '2' })).not.toBeInTheDocument()
+  })
 })
