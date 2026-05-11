@@ -18,6 +18,8 @@ describe('CancelDialog', () => {
     )
 
     expect(screen.getByText(`registration.cancelDialog.lateText contact, event, registration`)).toBeInTheDocument()
+    expect(screen.queryByLabelText('registration.cancelDialog.reason')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'registration.cancelDialog.cta' })).not.toBeInTheDocument()
     expect(baseElement).toMatchSnapshot()
   })
 

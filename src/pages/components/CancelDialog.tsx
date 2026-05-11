@@ -75,40 +75,46 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
         <DialogContentText id="cancel-dialog-description2" sx={{ display: disabled ? 'none' : 'block', py: 1 }}>
           {t('registration.cancelDialog.confirmation')}
         </DialogContentText>
-        <FormControl fullWidth sx={{ my: 1 }}>
-          <InputLabel id="reason-label">{t('registration.cancelDialog.reason')}</InputLabel>
-          <Select
-            id="reaseon"
-            labelId="reason-label"
-            label={t('registration.cancelDialog.reason')}
-            value={reason}
-            onChange={handleReasonChange}
-          >
-            {admin && !registration.paidAt ? (
-              <MenuItem value="unpaid">{t('registration.cancelReason.unpaid')}</MenuItem>
-            ) : null}
-            <MenuItem value="dog-heat">{t('registration.cancelReason.dog-heat')}</MenuItem>
-            <MenuItem value="handler-sick">{t('registration.cancelReason.handler-sick')}</MenuItem>
-            <MenuItem value="dog-sick">{t('registration.cancelReason.dog-sick')}</MenuItem>
-            <MenuItem value="other">{t('registration.cancelReason.other')}</MenuItem>
-            <MenuItem value="gdpr">{t('registration.cancelReason.gdpr')}</MenuItem>
-          </Select>
-          <FormHelperText>
-            {!admin && (reason === 'handler-sick' || reason === 'dog-sick') && (
-              <>
-                {t(`registration.cancelReason.${reason}-info`)} &nbsp;
-                <a href={`mailto://${event.contactInfo?.secretary?.email}`}>{event.contactInfo?.secretary?.email}</a>
-              </>
+        {!disabled && (
+          <>
+            <FormControl fullWidth sx={{ my: 1 }}>
+              <InputLabel id="reason-label">{t('registration.cancelDialog.reason')}</InputLabel>
+              <Select
+                id="reaseon"
+                labelId="reason-label"
+                label={t('registration.cancelDialog.reason')}
+                value={reason}
+                onChange={handleReasonChange}
+              >
+                {admin && !registration.paidAt ? (
+                  <MenuItem value="unpaid">{t('registration.cancelReason.unpaid')}</MenuItem>
+                ) : null}
+                <MenuItem value="dog-heat">{t('registration.cancelReason.dog-heat')}</MenuItem>
+                <MenuItem value="handler-sick">{t('registration.cancelReason.handler-sick')}</MenuItem>
+                <MenuItem value="dog-sick">{t('registration.cancelReason.dog-sick')}</MenuItem>
+                <MenuItem value="other">{t('registration.cancelReason.other')}</MenuItem>
+                <MenuItem value="gdpr">{t('registration.cancelReason.gdpr')}</MenuItem>
+              </Select>
+              <FormHelperText>
+                {!admin && (reason === 'handler-sick' || reason === 'dog-sick') && (
+                  <>
+                    {t(`registration.cancelReason.${reason}-info`)} &nbsp;
+                    <a href={`mailto://${event.contactInfo?.secretary?.email}`}>
+                      {event.contactInfo?.secretary?.email}
+                    </a>
+                  </>
+                )}
+              </FormHelperText>
+            </FormControl>
+            {reason === 'other' && (
+              <TextField
+                fullWidth
+                label={t('registration.cancelDialog.reason_other')}
+                value={freeReason}
+                onChange={handleFreeReasonChange}
+              />
             )}
-          </FormHelperText>
-        </FormControl>
-        {reason === 'other' && (
-          <TextField
-            fullWidth
-            label={t('registration.cancelDialog.reason_other')}
-            value={freeReason}
-            onChange={handleFreeReasonChange}
-          />
+          </>
         )}
         <DialogContentText id="cancel-dialog-description3" sx={{ py: 1 }}>
           <Trans t={t} i18nKey="registration.cancelDialog.terms">
@@ -125,15 +131,17 @@ const CancelDialog = ({ admin, disabled, event, onCancel, onClose, open, registr
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={handleCancel}
-          disabled={disabled || reason === '' || (reason === 'other' && freeReason === '')}
-          autoFocus
-          variant="contained"
-          disableRipple
-        >
-          {t('registration.cancelDialog.cta')}
-        </Button>
+        {!disabled && (
+          <Button
+            onClick={handleCancel}
+            disabled={reason === '' || (reason === 'other' && freeReason === '')}
+            autoFocus
+            variant="contained"
+            disableRipple
+          >
+            {t('registration.cancelDialog.cta')}
+          </Button>
+        )}
         <Button onClick={onClose} variant="outlined" disableRipple>
           {t('close')}
         </Button>

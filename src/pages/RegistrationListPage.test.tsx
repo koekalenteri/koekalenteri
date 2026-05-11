@@ -123,9 +123,11 @@ describe('RegistrationListPage', () => {
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
-    // The cancel dialog should be open with the cancel button
-    const cancelButton = await screen.findByRole('button', { name: 'registration.cancelDialog.cta' })
-    expect(cancelButton).toBeInTheDocument()
+    const dialog = await screen.findByRole('dialog', { name: 'registration.cancelDialog.title' })
+    expect(dialog).toBeVisible()
+    expect(screen.getByText('registration.cancelDialog.lateText contact, event, registration')).toBeInTheDocument()
+    expect(screen.queryByLabelText('registration.cancelDialog.reason')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'registration.cancelDialog.cta' })).not.toBeInTheDocument()
   })
 
   it('opens confirm dialog when on confirm route', async () => {
@@ -433,7 +435,7 @@ describe('RegistrationListPage', () => {
     expect(redirectTo).toHaveBeenCalledWith('/file/attachment-file/kutsu-NOU-10.02.2021.pdf')
   })
 
-  it('disables cancel button when event start is close', async () => {
+  it('hides cancel controls when event start is close', async () => {
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
@@ -441,8 +443,8 @@ describe('RegistrationListPage', () => {
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
-    const cancelButton = await screen.findByRole('button', { name: 'registration.cancelDialog.cta' })
-    expect(cancelButton).toBeInTheDocument()
-    expect(cancelButton).toBeDisabled()
+    expect(screen.getByText('registration.cancelDialog.lateText contact, event, registration')).toBeInTheDocument()
+    expect(screen.queryByLabelText('registration.cancelDialog.reason')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'registration.cancelDialog.cta' })).not.toBeInTheDocument()
   })
 })
