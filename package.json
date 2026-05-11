@@ -15,7 +15,7 @@
     "@codemirror/lint": "^6.9.6",
     "@codemirror/view": "^6.41.1",
     "@date-fns/tz": "^1.4.1",
-    "@mui/icons-material": "^7.3.9",
+    "@mui/icons-material": "^7.3.11",
     "@mui/material": "^7.3.9",
     "@mui/system": "^7.3.11",
     "@mui/x-data-grid": "^7.29.13",
