@@ -101,6 +101,11 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         newState.costMember = props.costMember as DogEvent['costMember']
       }
 
+      // Keep season in sync with startDate year
+      if (props.startDate) {
+        newState.season = String(newState.startDate.getFullYear())
+      }
+
       setErrors(validateEvent(newState))
       onChange?.(newState)
     },

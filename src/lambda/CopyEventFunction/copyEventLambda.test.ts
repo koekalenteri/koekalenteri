@@ -92,6 +92,7 @@ describe('copyEventHandler', () => {
       modifiedAt: now.toISOString(),
       modifiedBy: user.name,
       name: 'Kopio - Original Event',
+      season: '2025',
       startDate: '2025-07-01T00:00:00.000Z',
       state: 'draft',
     })

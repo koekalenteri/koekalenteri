@@ -231,6 +231,7 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   copy.endDate = addDays(newEventStartDate, days)
   copy.entryStartDate = newEventEntryStartDate
   copy.entryEndDate = newEventEntryEndDate
+  copy.season = String(newEventStartDate.getFullYear())
 
   delete copy.kcId
   delete copy.entryOrigEndDate

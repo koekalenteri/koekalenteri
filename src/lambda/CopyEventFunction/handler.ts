@@ -35,6 +35,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const days = differenceInDays(parseISO(startDate), parseISO(item.startDate))
   item.startDate = addDays(parseISO(item.startDate), days).toISOString()
+  item.season = item.startDate.substring(0, 4)
   item.endDate = addDays(parseISO(item.endDate), days).toISOString()
   if (item.entryStartDate) item.entryStartDate = addDays(parseISO(item.entryStartDate), days).toISOString()
   if (item.entryEndDate) item.entryEndDate = addDays(parseISO(item.entryEndDate), days).toISOString()

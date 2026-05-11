@@ -277,6 +277,40 @@ describe('putEventLambda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  it('should update season when startDate is changed', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-08-20T00:00:00.000Z' })
+    )
+
+    expect(saveEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        season: '2025',
+        startDate: '2025-08-20T00:00:00.000Z',
+      })
+    )
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('should not update season when startDate is unchanged', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', location: 'New Location' })
+    )
+
+    expect(saveEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        season: '2024',
+        startDate: '2024-06-15T00:00:00.000Z',
+      })
+    )
+    expect(res.statusCode).toEqual(200)
+  })
+
   it('should set qualificationStartDate for existing NOME-B SM', async () => {
     const qualificationStartDate = '2024-02-02T00:00:00Z'
     const entryEndDate = '2025-01-01T00:00:00Z'
