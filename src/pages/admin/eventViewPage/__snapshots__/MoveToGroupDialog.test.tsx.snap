@@ -37,7 +37,7 @@ exports[`MoveToGroupDialog renders 1`] = `
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-rvoa5x-MuiTypography-root-MuiDialogTitle-root"
           id=":r0:"
         >
-          registration.moveToGroupDialog.title
+          registration.moveToGroupDialog.title name
         </h2>
         <div
           class="MuiDialogContent-root css-kw13he-MuiDialogContent-root"

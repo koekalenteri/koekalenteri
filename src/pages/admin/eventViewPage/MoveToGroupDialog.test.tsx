@@ -129,7 +129,7 @@ describe('MoveToGroupDialog', () => {
 
     expect(onMove).toHaveBeenCalledTimes(1)
     expect(onMove).toHaveBeenCalledWith('2021-02-10-ip')
-    expect(enqueueSnackbar).toHaveBeenCalledWith('registration.moveToGroupDialog.moved', { variant: 'success' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('registration.moveToGroupDialog.moved name', { variant: 'success' })
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
@@ -206,5 +206,28 @@ describe('MoveToGroupDialog', () => {
 
     expect(screen.getByRole('radio', { name: 'dateFormat.wdshort date registration.timeLong.ip' })).toBeChecked()
     expect(screen.getByRole('button', { name: 'registration.moveToGroupDialog.moveToGroup' })).not.toBeDisabled()
+  })
+
+  it('shows the dog name in the title', async () => {
+    const groups: RegistrationDate[] = [makeGroup(eventWithStaticDates.startDate, 'ap')]
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { date: groups[0].date, key: eventRegistrationDateKey(groups[0]), number: 1, time: groups[0].time } as any,
+    }
+
+    render(
+      <MoveToGroupDialog
+        open={true}
+        onClose={jest.fn()}
+        registration={registration}
+        event={eventWithStaticDates as unknown as DogEvent}
+        groups={groups}
+        onMove={jest.fn()}
+      />
+    )
+
+    await flushPromises()
+
+    expect(screen.getByText('registration.moveToGroupDialog.title name')).toBeInTheDocument()
   })
 })

@@ -206,7 +206,7 @@ const ClassEntrySelection = ({
               id,
             },
           ])
-          enqueueSnackbar(t('registration.movedToReserve'), { variant: 'success' })
+          enqueueSnackbar(t('registration.movedToReserve', { name: reg.dog.name }), { variant: 'success' })
         } catch (error) {
           console.error('Failed to move to reserve:', error)
           enqueueSnackbar(t('registration.moveToReserveFailed'), { variant: 'error' })

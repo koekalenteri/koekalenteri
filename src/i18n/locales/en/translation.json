@@ -409,20 +409,20 @@
     "membership": "Membership information",
     "modified_one": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
     "modified_other": "Changes saved.\nConfirmation email was sent to:\n{{to}}",
-    "movedToReserve": "Dog moved to reserve",
+    "movedToReserve": "Dog {{name}} moved to reserve",
     "moveToGroupDialog": {
       "currentGroup": "(current group)",
-      "moved": "Dog moved",
+      "moved": "Dog {{name}} moved",
       "moveToGroup": "Move to group",
       "notRegisteredForDay": "Dog is not registered for this day",
       "selectGroup": "Select group",
-      "title": "Move dog to group"
+      "title": "Move dog {{name}} to group"
     },
     "moveToPositionDialog": {
-      "moved": "Dog moved to start position {{position}}",
+      "moved": "Dog {{name}} moved to start position {{position}}",
       "moveToPosition": "Move to start position",
       "selectPosition": "Select start number",
-      "title": "Move dog to specific start position"
+      "title": "Move dog {{name}} to specific start position"
     },
     "moveToReserveFailed": "Error moving to reserve",
     "notes": "Notes",

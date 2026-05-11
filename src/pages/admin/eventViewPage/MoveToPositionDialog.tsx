@@ -31,9 +31,12 @@ export default function MoveToPositionDialog({ open, onClose, registration, posi
       // Subtract 0.5 so the registration is placed BEFORE the selected position
       // e.g., selecting position 2 will place it at 1.5 (between 1 and 2)
       await onMove(selectedPosition - 0.5)
-      enqueueSnackbar(t('registration.moveToPositionDialog.moved', { position: selectedPosition }), {
-        variant: 'success',
-      })
+      enqueueSnackbar(
+        t('registration.moveToPositionDialog.moved', { name: registration.dog.name, position: selectedPosition }),
+        {
+          variant: 'success',
+        }
+      )
       onClose()
     } catch (error) {
       console.error('Failed to move registration:', error)
@@ -45,7 +48,7 @@ export default function MoveToPositionDialog({ open, onClose, registration, posi
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('registration.moveToPositionDialog.title')}</DialogTitle>
+      <DialogTitle>{t('registration.moveToPositionDialog.title', { name: registration.dog.name })}</DialogTitle>
       <DialogContent>
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel id="position-select-label">{t('registration.moveToPositionDialog.selectPosition')}</InputLabel>

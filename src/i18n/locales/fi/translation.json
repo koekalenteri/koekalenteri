@@ -418,20 +418,20 @@
     "membership": "Jäsenyystiedot",
     "modified_one": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteeseen:\n{{to}}",
     "modified_other": "Muutokset on tallennettu.\nVahvistus on lähetetty sähköpostiosoitteisiin:\n{{to}}",
-    "movedToReserve": "Koira siirretty varasijalle",
+    "movedToReserve": "Koira {{name}} siirretty varasijalle",
     "moveToGroupDialog": {
       "currentGroup": "(nykyinen ryhmä)",
-      "moved": "Koira siirretty",
+      "moved": "Koira {{name}} siirretty",
       "moveToGroup": "Siirrä ryhmään",
       "notRegisteredForDay": "Koira ei ole ilmoittautunut tälle päivälle",
       "selectGroup": "Valitse ryhmä",
-      "title": "Siirrä koira ryhmään"
+      "title": "Siirrä koira {{name}} ryhmään"
     },
     "moveToPositionDialog": {
-      "moved": "Koira siirretty starttipaikalle {{position}}",
+      "moved": "Koira {{name}} siirretty starttipaikalle {{position}}",
       "moveToPosition": "Siirrä starttipaikalle",
       "selectPosition": "Valitse starttinumero",
-      "title": "Siirrä koira tietylle starttipaikalle"
+      "title": "Siirrä koira {{name}} tietylle starttipaikalle"
     },
     "moveToReserveFailed": "Virhe siirrossa",
     "notes": "Lisätiedot",

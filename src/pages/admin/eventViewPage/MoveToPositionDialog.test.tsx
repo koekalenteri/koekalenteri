@@ -88,7 +88,7 @@ describe('MoveToPositionDialog', () => {
 
     expect(onMove).toHaveBeenCalledTimes(1)
     expect(onMove).toHaveBeenCalledWith(3.5)
-    expect(enqueueSnackbar).toHaveBeenCalledWith('registration.moveToPositionDialog.moved position', {
+    expect(enqueueSnackbar).toHaveBeenCalledWith('registration.moveToPositionDialog.moved name, position', {
       variant: 'success',
     })
     expect(onClose).toHaveBeenCalledTimes(1)
@@ -173,5 +173,26 @@ describe('MoveToPositionDialog', () => {
     expect(screen.getByRole('option', { name: '5' })).toBeInTheDocument()
     expect(screen.queryByRole('option', { name: '1' })).not.toBeInTheDocument()
     expect(screen.queryByRole('option', { name: '3' })).not.toBeInTheDocument()
+  })
+
+  it('shows the dog name in the title', async () => {
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'participants', number: 2 } as any,
+    }
+
+    render(
+      <MoveToPositionDialog
+        open={true}
+        onClose={jest.fn()}
+        registration={registration}
+        positions={[2, 5]}
+        onMove={jest.fn()}
+      />
+    )
+
+    await flushPromises(false)
+
+    expect(screen.getByText('registration.moveToPositionDialog.title name')).toBeInTheDocument()
   })
 })

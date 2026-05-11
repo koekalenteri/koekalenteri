@@ -73,7 +73,9 @@ export default function MoveToGroupDialog({
     setSaving(true)
     try {
       await onMove(selectedGroup)
-      enqueueSnackbar(t('registration.moveToGroupDialog.moved'), { variant: 'success' })
+      enqueueSnackbar(t('registration.moveToGroupDialog.moved', { name: registration.dog.name }), {
+        variant: 'success',
+      })
       onClose()
     } catch (error) {
       console.error('Failed to move registration:', error)
@@ -85,7 +87,7 @@ export default function MoveToGroupDialog({
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{t('registration.moveToGroupDialog.title')}</DialogTitle>
+      <DialogTitle>{t('registration.moveToGroupDialog.title', { name: registration.dog.name })}</DialogTitle>
       <DialogContent>
         <FormControl component="fieldset" sx={{ mt: 2 }}>
           <FormLabel component="legend">{t('registration.moveToGroupDialog.selectGroup')}</FormLabel>
