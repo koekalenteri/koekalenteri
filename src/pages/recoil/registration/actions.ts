@@ -1,6 +1,7 @@
 import type { Registration } from '../../../types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
+import { APIError } from '../../../api/http'
 import { getRegistration, putRegistration } from '../../../api/registration'
 
 export function useRegistrationActions() {
@@ -20,7 +21,16 @@ export function useRegistrationActions() {
     confirm: async (reg: Registration) => {
       const mod = structuredClone(reg)
       mod.confirmed = true
-      const saved = await putRegistration(mod)
+      let saved: Registration
+      try {
+        saved = await putRegistration(mod)
+      } catch (error) {
+        if (error instanceof APIError && error.status === 304) {
+          saved = mod
+        } else {
+          throw error
+        }
+      }
       enqueueSnackbar(t('registration.confirmDialog.done'), { variant: 'info' })
       return saved
     },

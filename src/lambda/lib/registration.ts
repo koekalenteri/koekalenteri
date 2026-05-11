@@ -242,3 +242,19 @@ export const getRegistrationChanges = (existing: JsonRegistration, data: JsonReg
 
   return modified.length ? `Muutti: ${modified.join(', ')}` : ''
 }
+
+const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partial<JsonRegistration> => {
+  const {
+    modifiedAt: _modifiedAt,
+    modifiedBy: _modifiedBy,
+    ...comparable
+  } = registration
+
+  return comparable
+}
+
+export const hasRegistrationChanges = (existing: JsonRegistration, data: JsonRegistration) => {
+  const changes = diff(omitTechnicalRegistrationFields(existing), omitTechnicalRegistrationFields(data))
+
+  return Object.keys(changes).length > 0
+}

@@ -15,6 +15,7 @@ import {
   getCancelAuditMessage,
   getRegistration,
   getRegistrationChanges,
+  hasRegistrationChanges,
   isParticipantGroup,
   saveRegistration,
 } from '../lib/registration'
@@ -152,6 +153,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.modifiedBy = username
 
   const data: JsonRegistration = { ...existing, ...registration }
+
+  if (existing && !hasRegistrationChanges(existing, data)) {
+    return response(304, undefined, event)
+  }
+
   await saveRegistration(data)
   // Update organizer event stats after registration change
   await updateEventStatsForRegistration(data, existing, confirmedEvent)

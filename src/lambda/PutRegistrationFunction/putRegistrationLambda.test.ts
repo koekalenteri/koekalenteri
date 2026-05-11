@@ -492,6 +492,23 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  it('should not save already confirmed registration when nothing actually changes', async () => {
+    const existingJson = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, confirmed: true }))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
+
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockDynamoDBWrite).not.toHaveBeenCalled()
+    expect(mockSES.send).not.toHaveBeenCalled()
+
+    expect(res.statusCode).toEqual(304)
+    expect(res.body).toBeUndefined()
+  })
+
   it('should not send secretary email on cancellation if secretary has no email', async () => {
     const eventWithoutSecretaryEmail = {
       ...eventWithStaticDates,

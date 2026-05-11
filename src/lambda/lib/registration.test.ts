@@ -42,6 +42,7 @@ const {
   getLastEmailInfo,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
+  hasRegistrationChanges,
   getRegistrationsByEventId,
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
@@ -297,6 +298,35 @@ describe('registration', () => {
     it('should handle empty input', () => {
       const result = findClassesToMark({}, 'invitation')
       expect(result).toEqual([])
+    })
+  })
+
+  describe('hasRegistrationChanges', () => {
+    it('returns false when only modified fields change', () => {
+      const existing = JSON.parse(
+        JSON.stringify({
+          ...registrationsToEventWithParticipantsInvited[0],
+          modifiedAt: '2024-01-01T10:00:00.000Z',
+          modifiedBy: 'first-user',
+        })
+      ) as JsonRegistration
+      const updated = {
+        ...existing,
+        modifiedAt: '2024-01-01T11:00:00.000Z',
+        modifiedBy: 'second-user',
+      } as JsonRegistration
+
+      expect(hasRegistrationChanges(existing, updated)).toBe(false)
+    })
+
+    it('returns true when a meaningful registration field changes', () => {
+      const existing = JSON.parse(JSON.stringify(registrationsToEventWithParticipantsInvited[0])) as JsonRegistration
+      const updated = {
+        ...existing,
+        confirmed: true,
+      } as JsonRegistration
+
+      expect(hasRegistrationChanges(existing, updated)).toBe(true)
     })
   })
 

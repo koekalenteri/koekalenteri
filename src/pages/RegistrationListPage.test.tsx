@@ -7,6 +7,7 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
 import { unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
+import { APIError } from '../api/http'
 import * as registrationApi from '../api/registration'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
@@ -207,6 +208,33 @@ describe('RegistrationListPage', () => {
 
     expect(dialog).not.toBeVisible()
 
+    putRegistrationSpy.mockRestore()
+  })
+
+  it('handles 304 from confirm action as a successful no-op', async () => {
+    const putRegistrationSpy = jest
+      .spyOn(registrationApi, 'putRegistration')
+      .mockRejectedValue(new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), ''))
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    jest.setSystemTime(new Date('2021-02-08'))
+    const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
+
+    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    await flushPromises()
+    expect(screen.queryByText('loading...')).not.toBeInTheDocument()
+
+    const dialog = screen.getByRole('dialog', { name: 'registration.confirmDialog.title' })
+    const confirmButton = screen.getByRole('button', { name: 'registration.confirmDialog.cta' })
+
+    await user.click(confirmButton)
+    await flushPromises()
+
+    expect(putRegistrationSpy).toHaveBeenCalledTimes(1)
+    expect(dialog).not.toBeVisible()
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+
+    consoleErrorSpy.mockRestore()
     putRegistrationSpy.mockRestore()
   })
 
