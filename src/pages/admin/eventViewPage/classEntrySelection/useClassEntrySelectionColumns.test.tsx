@@ -2,6 +2,7 @@ import type { GridRenderCellParams } from '@mui/x-data-grid'
 import type React from 'react'
 import type { ReactElement } from 'react'
 import type { Registration, RegistrationDate } from '../../../../types'
+import CircularProgress from '@mui/material/CircularProgress'
 import { renderHook } from '@testing-library/react'
 import { eventWithStaticDatesAnd3Classes } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
@@ -675,6 +676,37 @@ describe('Action column in detail', () => {
     expect(moveToReserveMock).toHaveBeenCalledWith('c-1')
 
     canRefundSpy.mockRestore()
+  })
+
+  it('should show loading spinner and disable move actions for pending move row', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        pendingMoveId: 'r-1',
+      })
+    )
+
+    const { entryColumns } = result.current
+    const actionsColumn = entryColumns.find((col) => col.field === 'actions')
+    expect(actionsColumn).toBeDefined()
+
+    const reserveRow = {
+      cancelled: false,
+      group: { key: registrationUtils.GROUP_KEY_RESERVE },
+      id: 'r-1',
+    } as unknown as Registration
+
+    const reserveActions = (actionsColumn as any)?.getActions({ row: reserveRow } as GridRenderCellParams<
+      any,
+      Registration
+    >) as ReactElement[]
+
+    const moveToParticipants = reserveActions.find((a) => a.key === 'moveToParticipants')
+    const moveToPosition = reserveActions.find((a) => a.key === 'moveToPosition')
+
+    expect(moveToParticipants?.props.disabled).toBe(true)
+    expect(moveToPosition?.props.disabled).toBe(true)
+    expect(moveToParticipants?.props.icon.type).toBe(CircularProgress)
+    expect(moveToPosition?.props.icon.type).toBe(CircularProgress)
   })
 
   it('should handle missing callback functions', () => {

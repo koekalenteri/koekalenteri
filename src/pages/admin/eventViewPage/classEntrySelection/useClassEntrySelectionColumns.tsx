@@ -30,6 +30,7 @@ interface RegistrationActionCallbacks {
   moveToReserve?: (id: string) => void
   moveToParticipants?: (id: string) => void
   sendMessage?: (id: string) => void
+  pendingMoveId?: string
 }
 
 export function useClassEntrySelectionColumns(
@@ -123,6 +124,7 @@ export function useClassEntrySelectionColumns(
           const isReserve = groupKey === GROUP_KEY_RESERVE
           const isCancelled = groupKey === GROUP_KEY_CANCELLED
           const hasGroups = available.length > 1
+          const isPendingMove = callbacks?.pendingMoveId === p.row.id
 
           const actions: ReactElement[] = []
 
@@ -132,7 +134,8 @@ export function useClassEntrySelectionColumns(
               actions.push(
                 <GridActionsCellItem
                   key="moveToGroup"
-                  icon={<SwapHorizOutlined fontSize="small" />}
+                  disabled={isPendingMove}
+                  icon={isPendingMove ? <CircularProgress size={18} /> : <SwapHorizOutlined fontSize="small" />}
                   label={t('registration.actions.moveToGroup')}
                   onClick={() => callbacks?.moveToGroup?.(p.row.id)}
                   showInMenu
@@ -142,21 +145,24 @@ export function useClassEntrySelectionColumns(
             actions.push(
               <GridActionsCellItem
                 key="moveToPosition"
-                icon={<LowPriorityOutlined fontSize="small" />}
+                disabled={isPendingMove}
+                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToPosition')}
                 onClick={() => callbacks?.moveToPosition?.(p.row.id)}
                 showInMenu
               />,
               <GridActionsCellItem
                 key="moveToReserve"
-                icon={<LowPriorityOutlined fontSize="small" />}
+                disabled={isPendingMove}
+                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToReserve')}
                 onClick={() => callbacks?.moveToReserve?.(p.row.id)}
                 showInMenu
               />,
               <GridActionsCellItem
                 key="moveBackToRegistered"
-                icon={<LowPriorityOutlined fontSize="small" />}
+                disabled={isPendingMove}
+                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveBackToRegistered')}
                 onClick={() => callbacks?.moveToReserve?.(p.row.id)}
                 showInMenu
@@ -170,7 +176,8 @@ export function useClassEntrySelectionColumns(
             actions.push(
               <GridActionsCellItem
                 key="moveToParticipants"
-                icon={<SwapHorizOutlined fontSize="small" />}
+                disabled={isPendingMove}
+                icon={isPendingMove ? <CircularProgress size={18} /> : <SwapHorizOutlined fontSize="small" />}
                 label={t('registration.actions.moveToParticipants')}
                 onClick={() => callbacks?.moveToParticipants?.(p.row.id)}
                 showInMenu
@@ -178,7 +185,8 @@ export function useClassEntrySelectionColumns(
               // "Siirrä tietylle starttipaikalle" - moves from reserve to participants at specific position
               <GridActionsCellItem
                 key="moveToPosition"
-                icon={<LowPriorityOutlined fontSize="small" />}
+                disabled={isPendingMove}
+                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToPosition')}
                 onClick={() => callbacks?.moveToPosition?.(p.row.id)}
                 showInMenu
@@ -191,7 +199,8 @@ export function useClassEntrySelectionColumns(
             actions.push(
               <GridActionsCellItem
                 key="moveToReserve"
-                icon={<LowPriorityOutlined fontSize="small" />}
+                disabled={isPendingMove}
+                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToReserve')}
                 onClick={() => callbacks?.moveToReserve?.(p.row.id)}
                 showInMenu

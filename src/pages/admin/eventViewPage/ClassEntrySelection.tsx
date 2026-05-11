@@ -74,6 +74,7 @@ const ClassEntrySelection = ({
   const [moveToGroupDialogOpen, setMoveToGroupDialogOpen] = useState(false)
   const [moveToPositionDialogOpen, setMoveToPositionDialogOpen] = useState(false)
   const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
+  const [pendingMoveId, setPendingMoveId] = useState<string>()
   const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
 
   // Extract entry handlers to dedicated hook
@@ -119,6 +120,7 @@ const ClassEntrySelection = ({
         const reg = registrations.find((r) => r.id === id)
         if (!reg) return
         const reserveRegs = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_RESERVE)
+        setPendingMoveId(id)
         try {
           await actions.saveGroups(event.id, [
             {
@@ -132,9 +134,12 @@ const ClassEntrySelection = ({
         } catch (error) {
           console.error('Failed to move to reserve:', error)
           enqueueSnackbar(t('registration.moveToReserveFailed'), { variant: 'error' })
+        } finally {
+          setPendingMoveId(undefined)
         }
       },
       openEditDialog: handleOpen,
+      pendingMoveId,
       refundRegistration: handleRefund,
       sendMessage: (id: string) => {
         const reg = registrations.find((r) => r.id === id)
@@ -144,7 +149,7 @@ const ClassEntrySelection = ({
         }
       },
     }),
-    [registrations, handleOpen, handleCancel, handleRefund, actions, event.id, t]
+    [registrations, handleOpen, handleCancel, handleRefund, actions, event.id, pendingMoveId, t]
   )
 
   const { cancelledColumns, entryColumns, participantColumns } = useClassEntrySelectionColumns(dates, event, callbacks)
@@ -319,20 +324,24 @@ const ClassEntrySelection = ({
               if (!group) return
 
               const groupRegs = registrations.filter((r) => getRegistrationGroupKey(r) === groupKey)
-
-              await actions.saveGroups(event.id, [
-                {
-                  cancelled: false,
-                  eventId: event.id,
-                  group: {
-                    date: group.date,
-                    key: groupKey,
-                    number: groupRegs.length + 1,
-                    time: group.time,
+              setPendingMoveId(selectedForAction.id)
+              try {
+                await actions.saveGroups(event.id, [
+                  {
+                    cancelled: false,
+                    eventId: event.id,
+                    group: {
+                      date: group.date,
+                      key: groupKey,
+                      number: groupRegs.length + 1,
+                      time: group.time,
+                    },
+                    id: selectedForAction.id,
                   },
-                  id: selectedForAction.id,
-                },
-              ])
+                ])
+              } finally {
+                setPendingMoveId(undefined)
+              }
             }}
           />
 
@@ -347,41 +356,45 @@ const ClassEntrySelection = ({
             }
             onMove={async (position) => {
               const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+              setPendingMoveId(selectedForAction.id)
+              try {
+                // If moving from reserve to participants
+                if (currentGroupKey === GROUP_KEY_RESERVE) {
+                  const targetGroup = groups[0] // Use first participant group
+                  if (!targetGroup) return
 
-              // If moving from reserve to participants
-              if (currentGroupKey === GROUP_KEY_RESERVE) {
-                const targetGroup = groups[0] // Use first participant group
-                if (!targetGroup) return
-
-                await actions.saveGroups(event.id, [
-                  {
-                    cancelled: false,
-                    eventId: event.id,
-                    group: {
-                      date: targetGroup.date,
-                      key: targetGroup.key,
-                      number: position,
-                      time: targetGroup.time,
+                  await actions.saveGroups(event.id, [
+                    {
+                      cancelled: false,
+                      eventId: event.id,
+                      group: {
+                        date: targetGroup.date,
+                        key: targetGroup.key,
+                        number: position,
+                        time: targetGroup.time,
+                      },
+                      id: selectedForAction.id,
                     },
-                    id: selectedForAction.id,
-                  },
-                ])
-              } else {
-                // Moving within current group (participants or cancelled)
-                const currentGroup = selectedForAction.group
-                if (!currentGroup) return
+                  ])
+                } else {
+                  // Moving within current group (participants or cancelled)
+                  const currentGroup = selectedForAction.group
+                  if (!currentGroup) return
 
-                await actions.saveGroups(event.id, [
-                  {
-                    cancelled: false,
-                    eventId: event.id,
-                    group: {
-                      ...currentGroup,
-                      number: position,
+                  await actions.saveGroups(event.id, [
+                    {
+                      cancelled: false,
+                      eventId: event.id,
+                      group: {
+                        ...currentGroup,
+                        number: position,
+                      },
+                      id: selectedForAction.id,
                     },
-                    id: selectedForAction.id,
-                  },
-                ])
+                  ])
+                }
+              } finally {
+                setPendingMoveId(undefined)
               }
             }}
           />
