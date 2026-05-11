@@ -129,6 +129,9 @@ export function useClassEntrySelectionColumns(
           const isPendingMove = callbacks?.pendingMoveId === p.row.id
           const isReserveMoveToPositionDisabled = isPendingMove || callbacks?.canMoveReserveToPosition === false
           const isParticipantMoveToPositionDisabled = isPendingMove || callbacks?.canMoveToPosition?.(p.row) === false
+          const isParticipantMoveToReserveDisabled =
+            isPendingMove || event.state === 'picked' || event.state === 'invited'
+          const isCancelledMoveToReserveDisabled = isPendingMove
 
           const actions: ReactElement[] = []
 
@@ -157,7 +160,7 @@ export function useClassEntrySelectionColumns(
               />,
               <GridActionsCellItem
                 key="moveToReserve"
-                disabled={isPendingMove}
+                disabled={isParticipantMoveToReserveDisabled}
                 icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToReserve')}
                 onClick={() => callbacks?.moveToReserve?.(p.row.id)}
@@ -195,7 +198,7 @@ export function useClassEntrySelectionColumns(
             actions.push(
               <GridActionsCellItem
                 key="moveToReserve"
-                disabled={isPendingMove}
+                disabled={isCancelledMoveToReserveDisabled}
                 icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
                 label={t('registration.actions.moveToReserve')}
                 onClick={() => callbacks?.moveToReserve?.(p.row.id)}

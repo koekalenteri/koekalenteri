@@ -750,6 +750,38 @@ describe('Action column in detail', () => {
     expect(moveToPosition?.props.disabled).toBe(true)
   })
 
+  it('should disable participant move to reserve when event is in picked state', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, { ...eventWithStaticDatesAnd3Classes, state: 'picked' })
+    )
+
+    const { entryColumns, cancelledColumns } = result.current
+    const entryActionsColumn = entryColumns.find((col) => col.field === 'actions')
+    const cancelledActionsColumn = cancelledColumns.find((col) => col.field === 'actions')
+
+    const participantRow = {
+      cancelled: false,
+      group: { key: 'P', number: 2 },
+      id: 'p-1',
+    } as unknown as Registration
+
+    const cancelledRow = {
+      cancelled: true,
+      group: { key: registrationUtils.GROUP_KEY_CANCELLED, number: 1 },
+      id: 'c-1',
+    } as unknown as Registration
+
+    const participantActions = (entryActionsColumn as any)?.getActions({
+      row: participantRow,
+    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+    const cancelledActions = (cancelledActionsColumn as any)?.getActions({
+      row: cancelledRow,
+    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+
+    expect(participantActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(true)
+    expect(cancelledActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(false)
+  })
+
   it('should handle missing callback functions', () => {
     const { result } = renderHook(() =>
       useClassEntrySelectionColumns(

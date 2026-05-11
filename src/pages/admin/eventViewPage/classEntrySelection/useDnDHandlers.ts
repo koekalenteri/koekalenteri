@@ -86,7 +86,7 @@ export const useDnDHandlers = ({
       return
     }
 
-    if (state === 'picked' && group.key === GROUP_KEY_RESERVE) {
+    if ((state === 'picked' || state === 'invited') && group.key === GROUP_KEY_RESERVE) {
       enqueueSnackbar({
         message: `Kun koepaikat on vahvistettu, ei koirakkoa voi enää siirtää osallistujista varasijalle.`,
         variant: 'warning',
