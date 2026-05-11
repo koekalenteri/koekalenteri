@@ -59,24 +59,21 @@ export default function EventViewPage() {
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
   const allRegistrations = useRecoilValue(adminEventRegistrationsSelector(eventId))
-  const registrations = useMemo(
-    () =>
-      allRegistrations.filter(
-        (r) => (r.class ?? undefined) === selectedEventClass || (!r.class && r.eventType === selectedEventClass)
-      ),
-    [allRegistrations, selectedEventClass]
-  )
   const selectedRegistration = useMemo(
-    () => selectedRegistrationId && registrations.find((r) => r.id === selectedRegistrationId),
-    [registrations, selectedRegistrationId]
+    () => selectedRegistrationId && allRegistrations.find((r) => r.id === selectedRegistrationId),
+    [allRegistrations, selectedRegistrationId]
   )
   const [recipientRegistrations, setRecipientRegistrations] = useState<Registration[]>([])
   const [messageTemplateId, setMessageTemplateId] = useState<EmailTemplateId>()
   const { eventClasses, stateByClass, missingClasses } = useAdminEventRegistrationInfo(event, allRegistrations)
   const allClasses = useMemo(() => eventClasses.concat(missingClasses), [eventClasses, missingClasses])
+  const currentEventClass = useMemo(
+    () => (selectedEventClass && allClasses.includes(selectedEventClass) ? selectedEventClass : allClasses[0]),
+    [allClasses, selectedEventClass]
+  )
   const backgroundActionsRunning = useRecoilValue(adminBackgroundActionsRunningAtom)
 
-  const activeTab = useMemo(() => Math.max(allClasses.indexOf(selectedEventClass), 0), [allClasses, selectedEventClass])
+  const activeTab = useMemo(() => Math.max(allClasses.indexOf(currentEventClass), 0), [allClasses, currentEventClass])
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: number) => {
@@ -104,13 +101,13 @@ export default function EventViewPage() {
   const handleCancel = useCallback(
     async (reason: string) => {
       if (!selectedRegistration) return
-      const regs = registrations.filter(
+      const regs = allRegistrations.filter(
         (r) => getRegistrationGroupKey(r) === GROUP_KEY_CANCELLED && r.id !== selectedRegistration.id
       )
       setCancelOpen(false)
       await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason, regs.length + 1)
     },
-    [actions, registrations, selectedRegistration]
+    [actions, allRegistrations, selectedRegistration]
   )
 
   useEffect(() => {
@@ -120,13 +117,20 @@ export default function EventViewPage() {
   }, [eventId, setSelectedEventId])
 
   useEffect(() => {
-    if (selectedEventClass && !allClasses.includes(selectedEventClass)) {
+    if (!allClasses.length) {
+      return
+    }
+
+    if (currentEventClass && currentEventClass !== selectedEventClass && isRegistrationClass(currentEventClass)) {
+      setSelectedEventClass(currentEventClass)
+      setSelectedRegistrationId(undefined)
+    } else if (!selectedEventClass || !allClasses.includes(selectedEventClass)) {
       const fallback = allClasses[0]
       if (fallback && isRegistrationClass(fallback)) {
         setSelectedEventClass(fallback)
       }
     }
-  }, [allClasses, selectedEventClass, setSelectedEventClass])
+  }, [allClasses, currentEventClass, selectedEventClass, setSelectedEventClass, setSelectedRegistrationId])
 
   if (!event?.id) {
     return <EventNotFound eventId={eventId} />

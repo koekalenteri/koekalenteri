@@ -30,12 +30,103 @@ export const useAdminRegistrationActions = (eventId: string) => {
     setEventRegistrations([...regs])
   }
 
+  const saveGroups = async (targetEventId: string, groups: RegistrationGroupInfo[]) => {
+    try {
+      if (!token) throw new Error('missing token')
+
+      // early update for respinsiveness
+      const regs = [...eventRegistrations]
+      for (const group of groups) {
+        const index = regs.findIndex((r) => r.id === group.id)
+        if (index === -1) continue
+        const reg = regs[index]
+        regs.splice(index, 1, { ...reg, ...group })
+      }
+      setEventRegistrations([...regs])
+      setBackgroundActionsRunning(true)
+
+      const {
+        items,
+        classes,
+        entries,
+        invitedOk,
+        invitedFailed,
+        pickedOk,
+        pickedFailed,
+        reserveOk,
+        reserveFailed,
+        cancelledOk,
+        cancelledFailed,
+      } = await putRegistrationGroups(targetEventId, groups, token)
+
+      if (pickedOk.length) {
+        enqueueSnackbar(`Koepaikkailmoitus lähetetty onnistuneesti\n\n${pickedOk.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (invitedOk.length) {
+        enqueueSnackbar(`Koekutsu lähetetty onnistuneesti\n\n${invitedOk.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (reserveOk.length) {
+        enqueueSnackbar(`Varasijailmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (cancelledOk.length) {
+        enqueueSnackbar(`Peruutusilmoitus lähetetty onnistuneesti\n\n${cancelledOk.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (pickedFailed.length) {
+        enqueueSnackbar(`Koepaikkailmoituksen lähetys epäonnistui 💩\n\n${pickedFailed.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (invitedFailed.length) {
+        enqueueSnackbar(`Koekutsun lähetys epäonnistui 💩\n\n${invitedFailed.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (pickedFailed.length) {
+        enqueueSnackbar(`Varasijailmoituksen lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      if (cancelledFailed.length) {
+        enqueueSnackbar(`Peruutusilmoituksen lähetys epäonnistui 💩\n\n${cancelledFailed.join('\n')}`, {
+          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+          variant: 'success',
+        })
+      }
+      // Defensive against backend returning sparse arrays / null items.
+      // MUI X v7 will crash if `rows` contains nullish entries.
+      setEventRegistrations((items as Array<Registration | null | undefined>).filter(Boolean) as Registration[])
+      if (event) {
+        setEvent({ ...event, classes, entries })
+      }
+      setBackgroundActionsRunning(false)
+    } catch (e) {
+      setBackgroundActionsRunning(false)
+      reportError(e)
+      return false
+    }
+  }
+
   return {
     async cancel(eventId: string, id: string, cancelReason: string, number: number) {
       const reg = eventRegistrations.find((r) => r.id === id)
       if (!reg) throw new Error('unexpected error occured')
 
-      await this.saveGroups(eventId, [
+      await saveGroups(eventId, [
         { cancelled: true, cancelReason, eventId, group: { key: GROUP_KEY_CANCELLED, number }, id },
       ])
     },
@@ -82,95 +173,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
       return saved
     },
 
-    async saveGroups(eventId: string, groups: RegistrationGroupInfo[]) {
-      try {
-        if (!token) throw new Error('missing token')
-
-        // early update for respinsiveness
-        const regs = [...eventRegistrations]
-        for (const group of groups) {
-          const index = regs.findIndex((r) => r.id === group.id)
-          if (index === -1) continue
-          const reg = regs[index]
-          regs.splice(index, 1, { ...reg, ...group })
-        }
-        setEventRegistrations([...regs])
-        setBackgroundActionsRunning(true)
-
-        const {
-          items,
-          classes,
-          entries,
-          invitedOk,
-          invitedFailed,
-          pickedOk,
-          pickedFailed,
-          reserveOk,
-          reserveFailed,
-          cancelledOk,
-          cancelledFailed,
-        } = await putRegistrationGroups(eventId, groups, token)
-
-        if (pickedOk.length) {
-          enqueueSnackbar(`Koepaikkailmoitus lähetetty onnistuneesti\n\n${pickedOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (invitedOk.length) {
-          enqueueSnackbar(`Koekutsu lähetetty onnistuneesti\n\n${invitedOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (reserveOk.length) {
-          enqueueSnackbar(`Varasijailmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (cancelledOk.length) {
-          enqueueSnackbar(`Peruutusilmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (pickedFailed.length) {
-          enqueueSnackbar(`Koepaikkailmoituksen lähetys epäonnistui 💩\n\n${pickedFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (invitedFailed.length) {
-          enqueueSnackbar(`Koekutsun lähetys epäonnistui 💩\n\n${invitedFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (pickedFailed.length) {
-          enqueueSnackbar(`Varasijailmoituksen lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        if (cancelledFailed.length) {
-          enqueueSnackbar(`Peruutusilmoitukse lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
-            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-            variant: 'success',
-          })
-        }
-        // Defensive against backend returning sparse arrays / null items.
-        // MUI X v7 will crash if `rows` contains nullish entries.
-        setEventRegistrations((items as Array<Registration | null | undefined>).filter(Boolean) as Registration[])
-        if (event) {
-          setEvent({ ...event, classes, entries })
-        }
-        setBackgroundActionsRunning(false)
-      } catch (e) {
-        reportError(e)
-        return false
-      }
-    },
+    saveGroups,
 
     async transactions(eventId: PublicDogEvent['id'], registrationId: Registration['id']) {
       if (!token) throw new Error('missing token')
