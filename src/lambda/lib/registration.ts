@@ -244,11 +244,7 @@ export const getRegistrationChanges = (existing: JsonRegistration, data: JsonReg
 }
 
 const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partial<JsonRegistration> => {
-  const {
-    modifiedAt: _modifiedAt,
-    modifiedBy: _modifiedBy,
-    ...comparable
-  } = registration
+  const { modifiedAt: _modifiedAt, modifiedBy: _modifiedBy, ...comparable } = registration
 
   return comparable
 }
