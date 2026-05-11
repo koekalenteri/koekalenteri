@@ -158,14 +158,6 @@ export function useClassEntrySelectionColumns(
                 label={t('registration.actions.moveToReserve')}
                 onClick={() => callbacks?.moveToReserve?.(p.row.id)}
                 showInMenu
-              />,
-              <GridActionsCellItem
-                key="moveBackToRegistered"
-                disabled={isPendingMove}
-                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
-                label={t('registration.actions.moveBackToRegistered')}
-                onClick={() => callbacks?.moveToReserve?.(p.row.id)}
-                showInMenu
               />
             )
           }

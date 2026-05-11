@@ -315,7 +315,6 @@
     "actions": {
       "cancel": "Cancel registration",
       "edit": "Edit registration",
-      "moveBackToRegistered": "Move dog back to registered list",
       "moveToGroup": "Move to group",
       "moveToParticipants": "Move to participants",
       "moveToPosition": "Move to start position",

@@ -514,16 +514,7 @@ describe('Action column in detail', () => {
       // Participant registration (not reserve/cancelled) with payment
       {
         cancelled: false,
-        expectedActions: [
-          'moveToGroup',
-          'moveToPosition',
-          'moveToReserve',
-          'moveBackToRegistered',
-          'refund',
-          'edit',
-          'cancel',
-          'sendMessage',
-        ],
+        expectedActions: ['moveToGroup', 'moveToPosition', 'moveToReserve', 'refund', 'edit', 'cancel', 'sendMessage'],
         // ensure it is treated as a participant (not reserve/cancelled)
         group: { key: 'P' },
         id: 'test-id-1',
@@ -660,9 +651,6 @@ describe('Action column in detail', () => {
     clickByKey(participantActions, 'moveToPosition')
     expect(moveToPositionMock).toHaveBeenCalledWith('p-1')
     clickByKey(participantActions, 'moveToReserve')
-    expect(moveToReserveMock).toHaveBeenCalledWith('p-1')
-    clickByKey(participantActions, 'moveBackToRegistered')
-    // "moveBackToRegistered" is implemented via callbacks.moveToReserve
     expect(moveToReserveMock).toHaveBeenCalledWith('p-1')
 
     const reserveActions = getActions(reserveRow)

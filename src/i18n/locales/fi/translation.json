@@ -324,7 +324,6 @@
     "actions": {
       "cancel": "Peru ilmoittautuminen",
       "edit": "Muokkaa ilmoittautumista",
-      "moveBackToRegistered": "Siirrä koira takaisin Ilmoittautuneet-listalle",
       "moveToGroup": "Siirrä toiseen ryhmään",
       "moveToParticipants": "Siirrä osallistujiin",
       "moveToPosition": "Siirrä tietylle starttipaikalle",
