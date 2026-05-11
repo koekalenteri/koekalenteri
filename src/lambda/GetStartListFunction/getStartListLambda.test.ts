@@ -9,6 +9,14 @@ const mockIsStartListAvailable = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
+  LambdaError: class LambdaError extends Error {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
+      super(message)
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
 }))

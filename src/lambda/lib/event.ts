@@ -25,6 +25,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { broadcastEvent } from './broadcast'
 import { LambdaError } from './lambda'
+import { getRegistrationsByEventId } from './registration'
 
 type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
 
@@ -140,13 +141,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
     throw new LambdaError(404, `Event with id "${eventId}" not found`)
   }
 
-  const allRegistrations =
-    updatedRegistrations ??
-    (await dynamoDB.query<JsonRegistration>({
-      key: 'eventId = :id',
-      table: registrationTable,
-      values: { ':id': eventId },
-    }))
+  const allRegistrations = updatedRegistrations ?? (await getRegistrationsByEventId(eventId))
 
   // ignore cancelled or unpaid registrations
   const registrations = allRegistrations?.filter((r) => r.state === 'ready' && !r.cancelled)

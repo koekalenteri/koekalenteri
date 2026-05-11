@@ -44,7 +44,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
     item.createdAt = timestamp
     item.createdBy = user.name
   }
-  
+
   if (item.startDate && item.startDate !== existing?.startDate) {
     item.season = item.startDate.substring(0, 4)
   }

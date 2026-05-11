@@ -42,6 +42,8 @@ const {
   getLastEmailInfo,
   findClassesToMark,
   findExistingRegistrationToEventForDog,
+  getRegistrationsByEventId,
+  getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
   sendTemplatedEmailToEventRegistrations,
@@ -84,6 +86,80 @@ describe('registration', () => {
       const reg = registrationsToEventWithParticipantsInvited[0]
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo)).toEqual(reg)
+    })
+  })
+
+  describe('getRegistrationsByEventId', () => {
+    it('should return empty array when query returns undefined', async () => {
+      mockDynamoDB.query.mockResolvedValueOnce(undefined)
+
+      const result = await getRegistrationsByEventId('event-id')
+
+      expect(result).toEqual([])
+      expect(mockDynamoDB.query).toHaveBeenCalledWith({
+        key: 'eventId = :eventId',
+        values: { ':eventId': 'event-id' },
+      })
+    })
+
+    it('should return empty array when query returns empty array', async () => {
+      mockDynamoDB.query.mockResolvedValueOnce([])
+
+      const result = await getRegistrationsByEventId('event-id')
+
+      expect(result).toEqual([])
+    })
+
+    it('should return all registrations regardless of state', async () => {
+      const registrations = [
+        { eventId: 'event-id', id: 'reg1', state: 'ready' },
+        { eventId: 'event-id', id: 'reg2', state: 'cancelled' },
+        { eventId: 'event-id', id: 'reg3', state: 'pending' },
+      ]
+      mockDynamoDB.query.mockResolvedValueOnce(registrations)
+
+      const result = await getRegistrationsByEventId('event-id')
+
+      expect(result).toEqual(registrations)
+      expect(result).toHaveLength(3)
+    })
+  })
+
+  describe('getReadyRegistrationsByEventId', () => {
+    it('should return empty array when no registrations exist', async () => {
+      mockDynamoDB.query.mockResolvedValueOnce([])
+
+      const result = await getReadyRegistrationsByEventId('event-id')
+
+      expect(result).toEqual([])
+    })
+
+    it('should return only ready registrations', async () => {
+      const registrations = [
+        { eventId: 'event-id', id: 'reg1', state: 'ready' },
+        { eventId: 'event-id', id: 'reg2', state: 'cancelled' },
+        { eventId: 'event-id', id: 'reg3', state: 'ready' },
+        { eventId: 'event-id', id: 'reg4', state: 'pending' },
+      ]
+      mockDynamoDB.query.mockResolvedValueOnce(registrations)
+
+      const result = await getReadyRegistrationsByEventId('event-id')
+
+      expect(result).toHaveLength(2)
+      expect(result.every((r) => r.state === 'ready')).toBe(true)
+      expect(result.map((r) => r.id)).toEqual(['reg1', 'reg3'])
+    })
+
+    it('should return empty array when all registrations are non-ready', async () => {
+      const registrations = [
+        { eventId: 'event-id', id: 'reg1', state: 'cancelled' },
+        { eventId: 'event-id', id: 'reg2', state: 'pending' },
+      ]
+      mockDynamoDB.query.mockResolvedValueOnce(registrations)
+
+      const result = await getReadyRegistrationsByEventId('event-id')
+
+      expect(result).toEqual([])
     })
   })
 

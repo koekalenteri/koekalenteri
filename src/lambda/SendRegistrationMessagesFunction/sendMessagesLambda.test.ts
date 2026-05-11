@@ -8,11 +8,20 @@ const mockGetOrigin = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockSendTemplatedEmailToEventRegistrations = jest.fn<any>()
 const mockSetReserveNotified = jest.fn<any>()
+const mockGetReadyRegistrationsByEventId = jest.fn<any>()
 const mockMarkParticipants = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
+  LambdaError: class LambdaError extends Error {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
+      super(message)
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
 }))
@@ -34,6 +43,7 @@ import * as regLib from '../lib/registration'
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...regLib,
+  getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   sendTemplatedEmailToEventRegistrations: mockSendTemplatedEmailToEventRegistrations,
   setReserveNotified: mockSetReserveNotified,
 }))
@@ -107,7 +117,7 @@ describe('sendMessagesLambda', () => {
       text: 'Test message',
     })
 
-    mockQuery.mockResolvedValue(mockRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValue(mockRegistrations)
     mockRead.mockResolvedValue(mockEvent)
 
     // Set up the messagesSent property for the mock registrations
@@ -137,14 +147,11 @@ describe('sendMessagesLambda', () => {
 
   it('returns 400 if not all registrations were found', async () => {
     // Only return one registration when two were requested
-    mockQuery.mockResolvedValueOnce([mockRegistrations[0]])
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([mockRegistrations[0]])
 
     await sendMessagesLambda(event)
 
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': 'event123' },
-    })
+    expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123')
     expect(mockResponse).toHaveBeenCalledWith(400, 'Not all registrations were found, aborting!', event)
     expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
   })
@@ -315,7 +322,7 @@ describe('sendMessagesLambda', () => {
         state: 'ready',
       },
     ]
-    mockQuery.mockResolvedValueOnce(singleRegistration)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(singleRegistration)
 
     await sendMessagesLambda(event)
 
@@ -353,7 +360,7 @@ describe('sendMessagesLambda', () => {
         state: 'ready',
       },
     ]
-    mockQuery.mockResolvedValueOnce(singleRegistration)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(singleRegistration)
 
     await sendMessagesLambda(event)
 
@@ -373,8 +380,9 @@ describe('sendMessagesLambda', () => {
   })
 
   it('filters out registrations that are not in ready state', async () => {
-    // Include a registration that is not in 'ready' state
-    const mixedRegistrations = [
+    // getReadyRegistrationsByEventId already filters non-ready registrations
+    // so it returns only the ready ones (reg999 with state 'cancelled' is excluded)
+    const readyRegistrations = [
       {
         class: 'ALO',
         eventId: 'event123',
@@ -387,15 +395,9 @@ describe('sendMessagesLambda', () => {
         id: 'reg789',
         state: 'ready',
       },
-      {
-        class: 'ALO',
-        eventId: 'event123',
-        id: 'reg999',
-        state: 'cancelled', // Not in 'ready' state
-      },
     ]
 
-    // Add reg999 to the requested IDs
+    // Add reg999 to the requested IDs - it won't be returned since it's not ready
     mockParseJSONWithFallback.mockReturnValueOnce({
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
@@ -404,12 +406,12 @@ describe('sendMessagesLambda', () => {
       text: 'Test message',
     })
 
-    // Return all registrations including the non-ready one
-    mockQuery.mockResolvedValueOnce(mixedRegistrations)
+    // Return only ready registrations (cancelled one is filtered out by getReadyRegistrationsByEventId)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(readyRegistrations)
 
     await sendMessagesLambda(event)
 
-    // Should fail because not all requested registrations were found in ready state
+    // Should fail because reg999 is not in the ready registrations
     expect(mockResponse).toHaveBeenCalledWith(400, 'Not all registrations were found, aborting!', event)
     expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
   })
@@ -445,7 +447,7 @@ describe('sendMessagesLambda', () => {
       },
     ]
 
-    mockQuery.mockResolvedValueOnce(multiClassRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(multiClassRegistrations)
 
     const testEvent = {
       classes: [
@@ -503,7 +505,7 @@ describe('sendMessagesLambda', () => {
       },
     ]
 
-    mockQuery.mockResolvedValueOnce(sameClassRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(sameClassRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
@@ -550,7 +552,7 @@ describe('sendMessagesLambda', () => {
       },
     ]
 
-    mockQuery.mockResolvedValueOnce(allReceivedRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(allReceivedRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
@@ -603,7 +605,7 @@ describe('sendMessagesLambda', () => {
       },
     ]
 
-    mockQuery.mockResolvedValueOnce(mixedGroupRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(mixedGroupRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
@@ -642,7 +644,7 @@ describe('sendMessagesLambda', () => {
       },
     ]
 
-    mockQuery.mockResolvedValueOnce(noClassRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(noClassRegistrations)
     mockParseJSONWithFallback.mockReturnValueOnce({
       contactInfo: { email: 'contact@example.com' },
       eventId: 'event123',
@@ -681,7 +683,7 @@ describe('sendMessagesLambda', () => {
       template: 'picked',
       text: 'Test message',
     })
-    mockQuery.mockResolvedValueOnce(mockRegistrations)
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce(mockRegistrations)
     mockRead.mockResolvedValueOnce(mockEvent)
     mockSendTemplatedEmailToEventRegistrations.mockResolvedValueOnce({
       failed: [],

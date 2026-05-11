@@ -1,11 +1,8 @@
-import type { JsonPublicRegistration, JsonRegistration, JsonRegistrationWithGroup } from '../../types'
+import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
 import { isStartListAvailable } from '../../lib/event'
-import { CONFIG } from '../config'
 import { getEvent } from '../lib/event'
 import { getParam, lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
+import { getRegistrationsByEventId } from '../lib/registration'
 
 const getStartListLambda = lambda('getStartList', async (event) => {
   const eventId = getParam(event, 'eventId')
@@ -13,10 +10,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   let publicRegs: JsonPublicRegistration[] = []
 
   if (isStartListAvailable(confirmedEvent)) {
-    const items = await dynamoDB.query<JsonRegistration>({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
+    const items = await getRegistrationsByEventId(eventId)
 
     publicRegs =
       items

@@ -190,16 +190,26 @@ export const findClassesToMark = (
   return classesToMark
 }
 
+export const getRegistrationsByEventId = async (eventId: string): Promise<JsonRegistration[]> => {
+  const registrations = await dynamoDB.query<JsonRegistration>({
+    key: 'eventId = :eventId',
+    values: { ':eventId': eventId },
+  })
+  return registrations ?? []
+}
+
+export const getReadyRegistrationsByEventId = async (eventId: string): Promise<JsonRegistration[]> => {
+  const registrations = await getRegistrationsByEventId(eventId)
+
+  return registrations.filter((r) => r.state === 'ready')
+}
+
 export const findExistingRegistrationToEventForDog = async (
   eventId: string,
   regNo: string
 ): Promise<JsonRegistration | undefined> => {
-  const existingRegistrations = await dynamoDB.query<JsonRegistration>({
-    key: 'eventId = :eventId',
-    table: registrationTable,
-    values: { ':eventId': eventId },
-  })
-  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo && r.state === 'ready')
+  const existingRegistrations = await getReadyRegistrationsByEventId(eventId)
+  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo)
 
   return alreadyRegistered
 }

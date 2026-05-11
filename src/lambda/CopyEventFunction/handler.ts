@@ -1,15 +1,10 @@
-import type { JsonRegistration } from '../../types'
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
-import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
-import { getEvent } from '../lib/event'
+import { getEvent, saveEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const { eventTable, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
+import { getRegistrationsByEventId, saveRegistration } from '../lib/registration'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
   const user = await authorize(event)
@@ -44,13 +39,10 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     if (c.date) c.date = addDays(parseISO(c.date), days).toISOString()
   })
 
-  await dynamoDB.write(item)
+  await saveEvent(item)
 
-  const registrations = await dynamoDB.query<JsonRegistration>({
-    key: 'eventId = :id',
-    table: registrationTable,
-    values: { ':id': id },
-  })
+  const registrations = await getRegistrationsByEventId(id)
+
   for (const reg of registrations ?? []) {
     reg.eventId = item.id
     reg.dates.forEach((d) => {
@@ -62,7 +54,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
         reg.group.key = `${reg.group.date.slice(0, 10)}-${reg.group.time}`
       }
     }
-    await dynamoDB.write(reg, registrationTable)
+    await saveRegistration(reg)
   }
 
   return response(200, item, event)

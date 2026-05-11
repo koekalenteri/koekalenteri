@@ -13,6 +13,14 @@ jest.unstable_mockModule('../lib/auth', () => ({
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
+  LambdaError: class LambdaError extends Error {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
+      super(message)
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
 }))

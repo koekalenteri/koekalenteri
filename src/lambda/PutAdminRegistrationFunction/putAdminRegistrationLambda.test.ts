@@ -5,6 +5,15 @@ const mockAuthorize = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockSaveRegistration = jest.fn<any>()
+const mockGetReadyRegistrationsByEventId = jest.fn<any>(async () => [])
+const mockFixRegistrationGroups = jest.fn<any>(async (regs: JsonRegistration[]) => regs)
+const mockUpdateRegistrations = jest.fn<any>(async () => ({
+  classes: [{ class: 'ALO', entries: 10 }],
+  endDate: '2024-01-02',
+  id: 'event123',
+  name: 'Test Event',
+  startDate: '2024-01-01',
+}))
 const mockUpdateEventStatsForRegistration = jest.fn<any>()
 
 const mockDynamoDB = {
@@ -41,8 +50,14 @@ const libRegistration = await import('../lib/registration')
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
+  getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
   saveRegistration: mockSaveRegistration,
+}))
+
+jest.unstable_mockModule('../lib/event', () => ({
+  fixRegistrationGroups: mockFixRegistrationGroups,
+  updateRegistrations: mockUpdateRegistrations,
 }))
 
 jest.unstable_mockModule('../lib/stats', () => ({
@@ -113,7 +128,15 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   afterEach(() => {
-    jest.resetAllMocks()
+    mockGetReadyRegistrationsByEventId.mockResolvedValue([])
+    mockFixRegistrationGroups.mockImplementation(async (regs: JsonRegistration[]) => regs)
+    mockUpdateRegistrations.mockResolvedValue({
+      classes: [{ class: 'ALO', entries: 10 }],
+      endDate: '2024-01-02',
+      id: 'event123',
+      name: 'Test Event',
+      startDate: '2024-01-01',
+    })
   })
 
   it('returns 401 if not authorized', async () => {

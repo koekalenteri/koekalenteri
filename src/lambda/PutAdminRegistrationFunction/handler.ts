@@ -5,11 +5,12 @@ import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { updateRegistrations } from '../lib/event'
+import { fixRegistrationGroups, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
   findExistingRegistrationToEventForDog,
+  getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationChanges,
   saveRegistration,
@@ -63,10 +64,15 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   const confirmedEvent = await updateRegistrations(registration.eventId)
 
-  // Update organizer event stats after registration change
-  await updateEventStatsForRegistration(data, existing, confirmedEvent)
+  // Fix group numbers for all registrations in the event (assigns group.number to newly added registrations)
+  const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId)
+  const updatedRegistrations = await fixRegistrationGroups(readyRegistrations, user)
+  const updatedData = updatedRegistrations.find((r) => r.id === data.id) ?? data
 
-  const message = getAuditMessage(data, existing)
+  // Update organizer event stats after registration change
+  await updateEventStatsForRegistration(updatedData, existing, confirmedEvent)
+
+  const message = getAuditMessage(updatedData, existing)
   if (message) {
     await audit({
       auditKey: registrationAuditKey(registration),
@@ -78,7 +84,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const context = update ? 'update' : ''
   if (registration.handler?.email && registration.owner?.email) {
     const to = emailTo(registration)
-    const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
+    const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, context)
 
     await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
 
@@ -89,7 +95,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     })
   }
 
-  return response(200, data, event)
+  return response(200, updatedData, event)
 })
 
 function getAuditMessage(data: JsonRegistration, existing?: JsonRegistration): string {

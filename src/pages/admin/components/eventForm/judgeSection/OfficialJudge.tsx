@@ -29,7 +29,7 @@ export const OfficialJudge = ({ event, judge, index, selectedEventType, judges, 
           value={value}
           label={title}
           error={!!judge.id && !value}
-          helperText={!!judge.id && !value ? `Tuomari ${judge.name} (${judge.id}) ei ole käytettävissä` : ''}
+          helperText={judge.id && !value ? `Tuomari ${judge.name} (${judge.id}) ei ole käytettävissä` : ''}
           getOptionLabel={(o) => o?.name || ''}
           options={filterJudges(judges, event.judges, judge.id, selectedEventType)}
           onChange={(value) => {

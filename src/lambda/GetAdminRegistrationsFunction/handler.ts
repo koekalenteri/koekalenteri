@@ -1,11 +1,7 @@
-import type { JsonRegistration } from '../../types'
-import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { fixRegistrationGroups } from '../lib/event'
 import { getParam, lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.registrationTable)
+import { getRegistrationsByEventId } from '../lib/registration'
 
 const getAdminRegistrationsLambda = lambda('getAdminRegistrations', async (event) => {
   const user = await authorize(event)
@@ -14,10 +10,7 @@ const getAdminRegistrationsLambda = lambda('getAdminRegistrations', async (event
   }
 
   const eventId = getParam(event, 'eventId')
-  const allItems = await dynamoDB.query<JsonRegistration>({
-    key: 'eventId = :eventId',
-    values: { ':eventId': eventId },
-  })
+  const allItems = await getRegistrationsByEventId(eventId)
 
   // filter out registrations that are pending payment
   const items = allItems?.filter((item) => item.state === 'ready')

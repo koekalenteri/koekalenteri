@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonRegistration, RegistrationMessage } from '../../types'
+import type { JsonConfirmedEvent, RegistrationMessage } from '../../types'
 import { isRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -8,6 +8,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
   findClassesToMark,
+  getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
   sendTemplatedEmailToEventRegistrations,
@@ -49,12 +50,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const message: RegistrationMessage = parseJSONWithFallback(event.body)
   const { template, eventId, contactInfo, registrationIds, text } = message
 
-  const eventRegistrations = (
-    await dynamoDB.query<JsonRegistration>({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
-  )?.filter((r) => r.state === 'ready')
+  const eventRegistrations = await getReadyRegistrationsByEventId(eventId)
 
   const registrations = eventRegistrations?.filter((r) => registrationIds.includes(r.id))
 

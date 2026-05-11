@@ -2,6 +2,7 @@ import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
+const mockSaveEvent = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockNanoid = jest.fn<any>()
 const mockWrite = jest.fn<any>()
@@ -13,6 +14,7 @@ jest.unstable_mockModule('../lib/auth', () => ({
 }))
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
+  saveEvent: mockSaveEvent,
 }))
 jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
@@ -21,6 +23,14 @@ jest.unstable_mockModule('nanoid', () => ({
   nanoid: mockNanoid,
 }))
 jest.unstable_mockModule('../lib/lambda', () => ({
+  LambdaError: class LambdaError extends Error {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
+      super(message)
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
 }))
@@ -77,7 +87,7 @@ describe('copyEventHandler', () => {
 
     await copyEventHandler(event)
 
-    expect(mockWrite).toHaveBeenCalledWith({
+    expect(mockSaveEvent).toHaveBeenCalledWith({
       classes: [
         {
           date: '2025-07-01T00:00:00.000Z',
@@ -141,7 +151,7 @@ describe('copyEventHandler', () => {
     mockParseJSONWithFallback.mockReturnValueOnce(input)
     mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
     mockNanoid.mockReturnValueOnce('newid123')
-    mockWrite.mockRejectedValueOnce(new Error('fail'))
+    mockSaveEvent.mockRejectedValueOnce(new Error('fail'))
     let errorCaught = false
     try {
       await copyEventHandler(event)
