@@ -37,17 +37,17 @@ export const useUserActions = () => {
   )
 
   const signOut = useRecoilCallback(
-    ({ reset }) =>
+    ({ set }) =>
       async (notice: boolean = true) => {
         try {
-          navigate(Path.home, { replace: true })
-          reset(idTokenAtom)
+          await awsSignOut()
+          set(idTokenAtom, undefined)
           // reset(adminEventsAtom)
           sessionStorage.clear()
           if (notice) {
             enqueueSnackbar('Heippa!', { variant: 'info' })
           }
-          return awsSignOut()
+          navigate(Path.home, { replace: true })
         } catch (e) {
           reportError(e)
         }
