@@ -12,7 +12,7 @@ exports[`JudgeListPage renders 1`] = `
         class="MuiStack-root css-1hezniw-MuiStack-root"
       >
         <button
-          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
+          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
           tabindex="0"
           type="button"
         >

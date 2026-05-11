@@ -32,8 +32,10 @@ exports[`RefundDialog renders with open dialog 1`] = `
         aria-labelledby=":r4:"
         aria-modal="true"
         class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation24 MuiDialog-paper MuiDialog-paperScrollPaper MuiDialog-paperWidthMd MuiDialog-paperFullWidth css-1peo4km-MuiPaper-root-MuiDialog-paper"
+        data-mui-focusable=""
         role="dialog"
         style="--Paper-shadow: 0px 11px 15px -7px rgba(0,0,0,0.2),0px 24px 38px 3px rgba(0,0,0,0.14),0px 9px 46px 8px rgba(0,0,0,0.12);"
+        tabindex="-1"
       >
         <h2
           class="MuiTypography-root MuiTypography-h6 MuiDialogTitle-root css-b9dmvt-MuiTypography-root-MuiDialogTitle-root"
@@ -113,6 +115,7 @@ exports[`RefundDialog renders with open dialog 1`] = `
                                 class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium Mui-checked Mui-disabled MuiCheckbox-root MuiCheckbox-indeterminate MuiCheckbox-colorPrimary MuiCheckbox-sizeMedium MuiDataGrid-checkboxInput css-w0b183-MuiButtonBase-root-MuiSwitchBase-root-MuiCheckbox-root"
                               >
                                 <input
+                                  aria-checked="mixed"
                                   aria-label="Unselect all rows"
                                   class="PrivateSwitchBase-input css-12xagqm-MuiSwitchBase-root"
                                   data-indeterminate="true"
@@ -1061,14 +1064,14 @@ exports[`RefundDialog renders with open dialog 1`] = `
           class="MuiDialogActions-root MuiDialogActions-spacing css-15fu35s-MuiDialogActions-root"
         >
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >
             refund
           </button>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-abfou7-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >

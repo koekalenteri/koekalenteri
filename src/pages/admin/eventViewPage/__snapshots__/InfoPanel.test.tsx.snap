@@ -131,7 +131,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -168,7 +168,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -217,7 +217,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -250,7 +250,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -321,7 +321,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
                       for="koekutsu-file"
                     >
                       <span
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                         role="button"
                         tabindex="0"
                       >
@@ -471,7 +471,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -507,7 +507,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -556,7 +556,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -589,7 +589,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -661,7 +661,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
                       for="koekutsu-file"
                     >
                       <span
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                         role="button"
                         tabindex="0"
                       >
@@ -811,7 +811,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -860,7 +860,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                     class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                       disabled=""
                       tabindex="-1"
                       type="button"
@@ -932,7 +932,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
                       for="koekutsu-file"
                     >
                       <span
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-1626223-MuiButtonBase-root-MuiButton-root"
                         role="button"
                         tabindex="0"
                       >

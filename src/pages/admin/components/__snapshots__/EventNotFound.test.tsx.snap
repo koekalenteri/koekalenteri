@@ -37,7 +37,7 @@ exports[`EventNotFound renders with error message 1`] = `
             Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia
           </p>
           <a
-            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1fvpe7d-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1l4qv32-MuiButtonBase-root-MuiButton-root"
             data-discover="true"
             href="/admin/event"
             tabindex="0"
