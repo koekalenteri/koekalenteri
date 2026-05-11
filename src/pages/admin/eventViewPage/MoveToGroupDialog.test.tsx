@@ -80,7 +80,7 @@ describe('MoveToGroupDialog', () => {
     await flushPromises()
 
     expect(screen.getByLabelText(notRegisteredGroupKey)).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'registration.moveToGroupDialog.moveToGroup' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'registration.moveToGroupDialog.moveToGroup' })).not.toBeDisabled()
     await flushPromises()
 
     expect(onMove).toHaveBeenCalledTimes(0)
@@ -177,5 +177,34 @@ describe('MoveToGroupDialog', () => {
     expect(mockConsoleError).toHaveBeenCalled()
 
     mockConsoleError.mockRestore()
+  })
+
+  it('defaults selection to a registered group when current group is reserve', async () => {
+    const groups: RegistrationDate[] = [
+      makeGroup(eventWithStaticDates.startDate, 'ap'),
+      makeGroup(eventWithStaticDates.startDate, 'ip'),
+    ]
+
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      dates: [groups[1]],
+      group: { key: 'reserve', number: 1 } as any,
+    }
+
+    render(
+      <MoveToGroupDialog
+        open={true}
+        onClose={jest.fn()}
+        registration={registration}
+        event={eventWithStaticDates as unknown as DogEvent}
+        groups={groups}
+        onMove={jest.fn()}
+      />
+    )
+
+    await flushPromises()
+
+    expect(screen.getByRole('radio', { name: 'dateFormat.wdshort date registration.timeLong.ip' })).toBeChecked()
+    expect(screen.getByRole('button', { name: 'registration.moveToGroupDialog.moveToGroup' })).not.toBeDisabled()
   })
 })

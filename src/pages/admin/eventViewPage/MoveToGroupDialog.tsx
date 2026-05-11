@@ -11,7 +11,7 @@ import FormLabel from '@mui/material/FormLabel'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import { enqueueSnackbar } from 'notistack'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { getRegistrationGroupKey } from '../../../lib/registration'
@@ -38,7 +38,6 @@ export default function MoveToGroupDialog({
 }: Readonly<Props>) {
   const { t } = useTranslation()
   const currentGroupKey = getRegistrationGroupKey(registration)
-  const [selectedGroup, setSelectedGroup] = useState<string>(currentGroupKey)
   const [saving, setSaving] = useState(false)
 
   // Check if dog is registered for the selected group's date
@@ -48,6 +47,22 @@ export default function MoveToGroupDialog({
 
     return registration.dates?.some((d) => eventRegistrationDateKey(d) === groupKey) ?? false
   }
+
+  const defaultSelectedGroup = useMemo(() => {
+    const firstRegisteredGroup = groups.find((group) =>
+      registration.dates?.some((date) => eventRegistrationDateKey(date) === eventRegistrationDateKey(group))
+    )
+
+    return firstRegisteredGroup ? eventRegistrationDateKey(firstRegisteredGroup) : currentGroupKey
+  }, [currentGroupKey, groups, registration.dates])
+
+  const [selectedGroup, setSelectedGroup] = useState<string>(defaultSelectedGroup)
+
+  useEffect(() => {
+    if (open) {
+      setSelectedGroup(defaultSelectedGroup)
+    }
+  }, [defaultSelectedGroup, open])
 
   const handleMove = async () => {
     if (!isRegisteredForGroup(selectedGroup)) {
