@@ -1,7 +1,5 @@
 import type { EmailTemplateId, Registration } from '../../types'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
-import EditOutlined from '@mui/icons-material/EditOutlined'
-import EmailOutlined from '@mui/icons-material/EmailOutlined'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Alert from '@mui/material/Alert'
@@ -149,12 +147,6 @@ export default function EventViewPage() {
         <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
           Näytä tapahtuman tiedot
         </Button>
-        <Button
-          startIcon={<EmailOutlined />}
-          onClick={() => handleOpenMsgDialog(selectedRegistration ? [selectedRegistration] : [])}
-        >
-          Lähetä viesti
-        </Button>
         <Divider orientation="vertical"></Divider>
         <Button startIcon={<FormatListNumberedOutlined />} href={Path.admin.startList(eventId)} target="_blank">
           Katso sihteerin starttilista
@@ -167,15 +159,6 @@ export default function EventViewPage() {
           }}
         >
           {t('createRegistration')}
-        </Button>
-        <Button
-          startIcon={<EditOutlined />}
-          disabled={!selectedRegistrationId}
-          onClick={() => {
-            setOpen(true)
-          }}
-        >
-          {t('editRegistration')}
         </Button>
       </Stack>
 

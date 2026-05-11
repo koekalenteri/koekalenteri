@@ -318,28 +318,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
       </span>
       Näytä tapahtuman tiedot
     </button>
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="EmailOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-2 0-8 5-8-5zm0 12H4V8l8 5 8-5z"
-          />
-        </svg>
-      </span>
-      Lähetä viesti
-    </button>
     <div
       aria-orientation="vertical"
       class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
@@ -394,29 +372,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         </svg>
       </span>
       createRegistration
-    </button>
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
-      disabled=""
-      tabindex="-1"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="EditOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="m14.06 9.02.92.92L5.92 19H5v-.92zM17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z"
-          />
-        </svg>
-      </span>
-      editRegistration
     </button>
   </div>
   <div
@@ -4074,7 +4029,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rd4:"
+                          id=":rd0:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -5060,28 +5015,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
       </span>
       Näytä tapahtuman tiedot
     </button>
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="EmailOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-2 0-8 5-8-5zm0 12H4V8l8 5 8-5z"
-          />
-        </svg>
-      </span>
-      Lähetä viesti
-    </button>
     <div
       aria-orientation="vertical"
       class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
@@ -5136,29 +5069,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         </svg>
       </span>
       createRegistration
-    </button>
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
-      disabled=""
-      tabindex="-1"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="EditOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="m14.06 9.02.92.92L5.92 19H5v-.92zM17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z"
-          />
-        </svg>
-      </span>
-      editRegistration
     </button>
   </div>
   <div
@@ -8806,7 +8716,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5j:"
+                          id=":r5h:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9109,7 +9019,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5o:"
+                          id=":r5m:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9412,7 +9322,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5t:"
+                          id=":r5r:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9715,7 +9625,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r62:"
+                          id=":r60:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -10018,7 +9928,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r67:"
+                          id=":r65:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -10925,7 +10835,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r7a:"
+                          id=":r78:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -11302,28 +11212,6 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
       </span>
       Näytä tapahtuman tiedot
     </button>
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="EmailOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2zm-2 0-8 5-8-5zm0 12H4V8l8 5 8-5z"
-          />
-        </svg>
-      </span>
-      Lähetä viesti
-    </button>
     <div
       aria-orientation="vertical"
       class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
@@ -11378,29 +11266,6 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
         </svg>
       </span>
       createRegistration
-    </button>
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-ibqjzf-MuiButtonBase-root-MuiButton-root"
-      disabled=""
-      tabindex="-1"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="EditOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="m14.06 9.02.92.92L5.92 19H5v-.92zM17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29m-3.6 3.19L3 17.25V21h3.75L17.81 9.94z"
-          />
-        </svg>
-      </span>
-      editRegistration
     </button>
   </div>
   <div
@@ -15058,7 +14923,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rjs:"
+                          id=":rjm:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
