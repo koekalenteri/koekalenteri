@@ -3,7 +3,12 @@
     ".": {
       "ignore": ["aws/split.js", "scripts/marshall.cjs"],
       "ignoreBinaries": ["sam", "scripts/prebuild-backend.sh"],
-      "ignoreDependencies": ["@aws-amplify/core", "@codemirror/lang-html"],
+      "ignoreDependencies": [
+        "@aws-amplify/core",
+        "@codemirror/lang-html",
+        "@emnapi/core",
+        "@emnapi/runtime"
+      ],
       "entry": [
         "src/lambda/BackfillEventStatsFunction/handler.ts",
         "src/lambda/CopyEventFunction/handler.ts",
