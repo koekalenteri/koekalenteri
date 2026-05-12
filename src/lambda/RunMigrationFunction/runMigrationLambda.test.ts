@@ -112,8 +112,8 @@ describe('runMigrationLambda', () => {
       })
     )
 
-    // Verify response was returned with count of updated events
-    expect(mockResponse).toHaveBeenCalledWith(200, 2, event)
+    // Verify response was returned with per-migration results
+    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 2, name: 'fixSeasonFromStartDate' }], event)
   })
 
   it('does not update events that already have season field', async () => {
@@ -130,7 +130,51 @@ describe('runMigrationLambda', () => {
     )
   })
 
-  it('returns 0 if no events need updating', async () => {
+  it('updates events that have incorrect season for start date', async () => {
+    mockReadAll.mockResolvedValueOnce([
+      {
+        id: 'event1',
+        season: '2024',
+        startDate: '2025-01-01',
+      },
+    ])
+
+    await runMigrationLambda(event)
+
+    expect(mockWrite).toHaveBeenCalledTimes(1)
+    expect(mockWrite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'event1',
+        season: '2025',
+        startDate: '2025-01-01',
+      })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'fixSeasonFromStartDate' }], event)
+  })
+
+  it('uses zoned date in TIME_ZONE to determine season year', async () => {
+    mockReadAll.mockResolvedValueOnce([
+      {
+        id: 'event1',
+        season: '2024',
+        startDate: '2024-12-31T22:30:00.000Z',
+      },
+    ])
+
+    await runMigrationLambda(event)
+
+    expect(mockWrite).toHaveBeenCalledTimes(1)
+    expect(mockWrite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'event1',
+        season: '2025',
+        startDate: '2024-12-31T22:30:00.000Z',
+      })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'fixSeasonFromStartDate' }], event)
+  })
+
+  it('returns migration results with zero count if no events need updating', async () => {
     mockReadAll.mockResolvedValueOnce([
       {
         id: 'event1',
@@ -153,10 +197,10 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
-    expect(mockResponse).toHaveBeenCalledWith(200, 0, event)
+    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'fixSeasonFromStartDate' }], event)
   })
 
-  it('returns 0 if no events are found', async () => {
+  it('returns migration results with zero count if no events are found', async () => {
     mockReadAll.mockResolvedValueOnce(null)
 
     await runMigrationLambda(event)
@@ -168,7 +212,7 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
-    expect(mockResponse).toHaveBeenCalledWith(200, 0, event)
+    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'fixSeasonFromStartDate' }], event)
   })
 
   // Skip the test for handling invalid startDate as it requires more complex mocking

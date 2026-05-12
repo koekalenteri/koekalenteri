@@ -3,6 +3,7 @@ import { jest } from '@jest/globals'
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
+const mockQuery = jest.fn<any>()
 const mockSanitizeDogEvent = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -12,6 +13,7 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
+    query: mockQuery,
     readAll: mockReadAll,
   })),
 }))
@@ -115,13 +117,53 @@ describe('getEventsLambda', () => {
       { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
     ]
 
-    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
     const rangeEvent = {
       ...event,
       queryStringParameters: {
         start: String(Date.parse('2026-01-02T00:00:00.000Z')),
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':season': '2026',
+      },
+    })
+    expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':season': '2027',
+      },
+    })
+    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1], allEvents[2]], rangeEvent)
+  })
+
+  it('accepts ISO string start date query params', async () => {
+    const allEvents = [
+      { endDate: '2026-01-01T23:59:59.000Z', id: 'event1', startDate: '2026-01-01T00:00:00.000Z', state: 'confirmed' },
+      { endDate: '2026-01-05T00:00:00.000Z', id: 'event2', startDate: '2026-01-02T00:00:00.000Z', state: 'confirmed' },
+      { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
+    ]
+
+    mockQuery.mockResolvedValueOnce(allEvents)
+    mockSanitizeDogEvent.mockImplementation((e: any) => e)
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        start: '2026-01-02T00:00:00.000Z',
       },
     } as any
 
@@ -140,7 +182,7 @@ describe('getEventsLambda', () => {
       { id: 'event3', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
     ]
 
-    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
     const rangeEvent = {
@@ -165,7 +207,7 @@ describe('getEventsLambda', () => {
       { endDate: '2026-01-11T00:00:00.000Z', id: 'event3', startDate: '2026-01-10T00:00:00.000Z', state: 'confirmed' },
     ]
 
-    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
     const rangeEvent = {
@@ -187,7 +229,7 @@ describe('getEventsLambda', () => {
       { id: 'event2', startDate: '2026-01-03T00:00:00.000Z', state: 'confirmed' },
     ]
 
-    mockReadAll.mockResolvedValueOnce(allEvents)
+    mockQuery.mockResolvedValueOnce(allEvents)
     mockSanitizeDogEvent.mockImplementation((e: any) => e)
 
     const rangeEvent = {
@@ -232,6 +274,191 @@ describe('getEventsLambda', () => {
 
     await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
+    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+  })
+
+  it('accepts ISO string end and since query params', async () => {
+    const allEvents = [
+      {
+        id: 'event1',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        startDate: '2026-01-03T00:00:00.000Z',
+        state: 'confirmed',
+      },
+      {
+        id: 'event2',
+        modifiedAt: '2026-01-03T10:00:00.000Z',
+        startDate: '2026-01-03T00:00:00.000Z',
+        state: 'confirmed',
+      },
+      {
+        endDate: '2026-01-10T00:00:00.000Z',
+        id: 'event3',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        startDate: '2026-01-10T00:00:00.000Z',
+        state: 'confirmed',
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(allEvents)
+    mockSanitizeDogEvent.mockImplementation((e: any) => e)
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        end: '2026-01-05T00:00:00.000Z',
+        since: '2026-01-02T00:00:00.000Z',
+        start: '2026-01-02T00:00:00.000Z',
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+  })
+
+  it('returns unchanged ids only for unchanged in-range events when since is used with range filters', async () => {
+    const allEvents = [
+      {
+        id: 'event1',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        startDate: '2026-01-03T00:00:00.000Z',
+        state: 'confirmed',
+      },
+      {
+        id: 'event2',
+        modifiedAt: '2026-01-03T10:00:00.000Z',
+        startDate: '2026-01-03T00:00:00.000Z',
+        state: 'confirmed',
+      },
+      {
+        endDate: '2026-01-10T00:00:00.000Z',
+        id: 'event3',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        startDate: '2026-01-10T00:00:00.000Z',
+        state: 'confirmed',
+      },
+    ]
+
+    mockQuery.mockResolvedValueOnce(allEvents)
+    mockSanitizeDogEvent.mockImplementation((e: any) => e)
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        end: String(Date.parse('2026-01-05T00:00:00.000Z')),
+        since: String(Date.parse('2026-01-02T00:00:00.000Z')),
+        start: String(Date.parse('2026-01-02T00:00:00.000Z')),
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+  })
+
+  it('queries all derived seasons for cross-year ranges', async () => {
+    mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        end: String(Date.parse('2027-01-02T00:00:00.000Z')),
+        start: String(Date.parse('2026-12-31T00:00:00.000Z')),
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2027-01-02T00:00:00.000Z',
+        ':season': '2026',
+      },
+    })
+    expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2027-01-02T00:00:00.000Z',
+        ':season': '2027',
+      },
+    })
+  })
+
+  it('queries current and next season for open-ended current-season ranges', async () => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-05-12T00:00:00.000Z'))
+    mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        start: String(Date.parse('2026-05-01T00:00:00.000Z')),
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':season': '2026',
+      },
+    })
+    expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2027-12-31T23:59:59.999+02:00',
+        ':season': '2027',
+      },
+    })
+
+    jest.useRealTimers()
+  })
+
+  it('uses Helsinki timezone when deciding whether open-ended range is in current season', async () => {
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2026-12-31T22:30:00.000Z')) // 2027-01-01 in Helsinki
+    mockQuery.mockResolvedValueOnce([]).mockResolvedValueOnce([])
+
+    const rangeEvent = {
+      ...event,
+      queryStringParameters: {
+        start: String(Date.parse('2026-12-31T22:30:00.000Z')),
+      },
+    } as any
+
+    await getEventsLambda(rangeEvent)
+
+    expect(mockQuery).toHaveBeenNthCalledWith(1, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2028-12-31T23:59:59.999+02:00',
+        ':season': '2027',
+      },
+    })
+    expect(mockQuery).toHaveBeenNthCalledWith(2, {
+      index: 'gsiSeasonStartDate',
+      key: 'season = :season AND startDate <= :endDate',
+      table: expect.anything(),
+      values: {
+        ':endDate': '2028-12-31T23:59:59.999+02:00',
+        ':season': '2028',
+      },
+    })
+
+    jest.useRealTimers()
   })
 })
