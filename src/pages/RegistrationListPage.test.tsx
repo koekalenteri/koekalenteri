@@ -117,7 +117,25 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens cancel dialog when on cancel route', async () => {
-    jest.setSystemTime(new Date('2021-02-09')) // must be before event.endDate
+    // allow couple of minutes margin for timers
+    jest.setSystemTime(new Date('2021-02-08T23:55:00.000+02:00')) // must be before event.endDate
+    renderWithRouter('/r/test1/nou-registration/cancel')
+
+    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    await flushPromises()
+    expect(screen.queryByText('loading...')).not.toBeInTheDocument()
+
+    const dialog = await screen.findByRole('dialog', { name: 'registration.cancelDialog.title' })
+    expect(dialog).toBeVisible()
+    expect(
+      screen.queryByText('registration.cancelDialog.lateText contact, event, registration')
+    ).not.toBeInTheDocument()
+    expect(screen.getByLabelText('registration.cancelDialog.reason')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'registration.cancelDialog.cta' })).toBeInTheDocument()
+  })
+
+  it('opens cancel dialog when on cancel route (late)', async () => {
+    jest.setSystemTime(new Date('2021-02-08T23:59:59.000+02:00')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.queryByText('loading...')).toBeInTheDocument()
@@ -464,7 +482,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('hides cancel controls when event start is close', async () => {
-    jest.setSystemTime(new Date('2021-02-09')) // must be before event.endDate
+    jest.setSystemTime(new Date('2021-02-09T00:00:00.000+02:00')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.queryByText('loading...')).toBeInTheDocument()
