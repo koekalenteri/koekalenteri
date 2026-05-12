@@ -23,6 +23,7 @@ import SelectMulti from '../components/SelectMulti'
 import { type FilterProps, filterStrings } from '../recoil'
 
 interface Props {
+  readonly eventCount: number
   readonly eventTypes: string[]
   readonly eventClasses: RegistrationClass[]
   readonly filter: FilterProps
@@ -33,11 +34,13 @@ interface Props {
 
 const MIN_DATE = new Date(2020, 0, 1)
 
-export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange }: Props) => {
+export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filter, onChange, eventCount }: Props) => {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('sm'))
   const [expanded, setExpanded] = useState(md)
   const filters = useMemo(() => filterStrings(filter, t), [filter, t])
+  const resultsLabel = t('filter.results', { count: eventCount })
+  const titleLabel = t('filter.title')
 
   const setFilter = useCallback(
     (props: Partial<FilterProps>) => onChange?.({ ...filter, ...props }),
@@ -129,7 +132,10 @@ export const EventFilter = ({ judges, organizers, eventTypes, eventClasses, filt
             fullWidth
           >
             <Typography variant="caption" noWrap textOverflow="ellipsis">
-              <b>Rajaa ({filters.length})</b> • {filters.join(' | ')}
+              <b>
+                {titleLabel} ({filters.length})
+              </b>{' '}
+              • {filters.join(' | ')} • {resultsLabel}
             </Typography>
           </Button>
         </AccordionSummary>

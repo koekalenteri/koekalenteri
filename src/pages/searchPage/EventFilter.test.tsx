@@ -50,12 +50,14 @@ const eventClasses: RegistrationClass[] = ['ALO', 'AVO', 'VOI']
 const renderComponent = (
   filter: FilterProps,
   onChange?: (filter: FilterProps) => void,
-  fakeTimers: boolean = false
+  fakeTimers: boolean = false,
+  eventCount: number = 0
 ) => {
   return renderWithUserEvents(
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <EventFilter
+          eventCount={eventCount}
           judges={judges}
           organizers={organizers}
           filter={filter}
@@ -75,19 +77,25 @@ describe('EventFilter', () => {
     window.matchMedia = createMatchMedia(1200)
   })
   it('should render', () => {
-    renderComponent({
-      end: null,
-      eventClass: ['ALO'],
-      eventType: ['NOME-B'],
-      judge: ['Tuomari 2'],
-      organizer: ['2'],
-      start: null,
-    })
+    renderComponent(
+      {
+        end: null,
+        eventClass: ['ALO'],
+        eventType: ['NOME-B'],
+        judge: ['Tuomari 2'],
+        organizer: ['2'],
+        start: null,
+      },
+      undefined,
+      false,
+      3
+    )
 
     expect(screen.getByTestId('filter.eventType')).toHaveTextContent(/NOME-B/i)
     expect(screen.getByTestId('filter.eventClass')).toHaveTextContent(/ALO/i)
     expect(screen.getByTestId('judge')).toHaveTextContent(/Tuomari 2/i)
     expect(screen.getByTestId('filter.organizer')).toHaveTextContent(/Järjestäjä 2/i)
+    expect(screen.getByText(/filter.results count/)).toBeInTheDocument()
   })
 
   // Helper function for AutocompleteMulti components

@@ -45,12 +45,16 @@ exports[`SearchPage filters by date - no-results 1`] = `
                 class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
               >
                 <b>
-                  Rajaa (
+                  filter.title
+                   (
                   1
                   )
                 </b>
-                 • 
+                 
+                • 
                 daterangeBoth: 1.–2.3.2021
+                 • 
+                filter.results count
               </span>
             </div>
           </span>
@@ -651,12 +655,16 @@ exports[`SearchPage filters by date 1`] = `
                 class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
               >
                 <b>
-                  Rajaa (
+                  filter.title
+                   (
                   1
                   )
                 </b>
-                 • 
+                 
+                • 
                 daterangeBoth: 1.1.–1.3.2021
+                 • 
+                filter.results count
               </span>
             </div>
           </span>
@@ -2622,12 +2630,16 @@ exports[`SearchPage filters by date/end 1`] = `
                 class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
               >
                 <b>
-                  Rajaa (
+                  filter.title
+                   (
                   1
                   )
                 </b>
-                 • 
+                 
+                • 
                 daterangeBoth: 1.1.–1.3.2021
+                 • 
+                filter.results count
               </span>
             </div>
           </span>
@@ -4593,12 +4605,16 @@ exports[`SearchPage filters by event class 1`] = `
                 class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
               >
                 <b>
-                  Rajaa (
+                  filter.title
+                   (
                   2
                   )
                 </b>
-                 • 
+                 
+                • 
                 daterangeStart: 01.01.2021 | event.classes: AVO
+                 • 
+                filter.results count
               </span>
             </div>
           </span>
@@ -7025,12 +7041,16 @@ exports[`SearchPage filters by event type 1`] = `
                 class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
               >
                 <b>
-                  Rajaa (
+                  filter.title
+                   (
                   2
                   )
                 </b>
-                 • 
+                 
+                • 
                 daterangeStart: 01.01.2021 | eventTypes: NOME-B
+                 • 
+                filter.results count
               </span>
             </div>
           </span>
@@ -9438,12 +9458,16 @@ exports[`SearchPage filters by organizer 1`] = `
                 class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-c2kt6f-MuiTypography-root"
               >
                 <b>
-                  Rajaa (
+                  filter.title
+                   (
                   2
                   )
                 </b>
-                 • 
+                 
+                • 
                 daterangeStart: 01.01.2021 | Järjestäjät: 1
+                 • 
+                filter.results count
               </span>
             </div>
           </span>

@@ -45,6 +45,7 @@ export function SearchPage() {
         eventClasses={activeEventClasses}
         organizers={organizers}
         judges={activeJudges}
+        eventCount={events.length}
         filter={filter}
         onChange={setFilter}
       />

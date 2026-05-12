@@ -224,6 +224,8 @@
     "eventClass": "Luokka",
     "eventType": "Tapahtumatyyppi",
     "organizer": "Järjestäjä",
+    "results_one": "{{count}} tapahtuma",
+    "results_other": "{{count}} tapahtumaa",
     "title": "Rajaa"
   },
   "goBack": "Takaisin",

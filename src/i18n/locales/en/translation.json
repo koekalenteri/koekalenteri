@@ -215,6 +215,8 @@
     "eventClass": "Event class",
     "eventType": "Event type",
     "organizer": "Organizer",
+    "results_one": "{{count}} event",
+    "results_other": "{{count}} events",
     "title": "Filter"
   },
   "goBack": "Back",

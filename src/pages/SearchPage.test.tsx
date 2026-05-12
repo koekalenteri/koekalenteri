@@ -115,6 +115,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?s=2021-01-01&o=2', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
+    expect(screen.getByText(/filter.results count/i)).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(1)
     expect(container).toMatchSnapshot()
   })
