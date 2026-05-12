@@ -117,7 +117,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('opens cancel dialog when on cancel route', async () => {
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    jest.setSystemTime(new Date('2021-02-09')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.queryByText('loading...')).toBeInTheDocument()
@@ -144,7 +144,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('handles cancel action when cancel dialog is submitted', async () => {
-    jest.setSystemTime(new Date('2021-02-07')) // must be at leaset 2 days before event start
+    jest.setSystemTime(new Date('2021-02-08')) // must be at leaset 1 days before event start
 
     const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
 
@@ -464,7 +464,7 @@ describe('RegistrationListPage', () => {
   })
 
   it('hides cancel controls when event start is close', async () => {
-    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    jest.setSystemTime(new Date('2021-02-09')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
     expect(screen.queryByText('loading...')).toBeInTheDocument()

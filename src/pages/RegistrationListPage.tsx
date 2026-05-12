@@ -54,7 +54,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
     paymentFlow === 'verifying' && registration?.paymentStatus !== 'SUCCESS' && reloadCount < 5
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
-    () => !event || allDisabled || isPast(subDays(event.startDate, 2)),
+    () => !event || allDisabled || isPast(subDays(event.startDate, 1)),
     [allDisabled, event]
   )
   const costResult = event && registration && calculateCost(event, registration)
