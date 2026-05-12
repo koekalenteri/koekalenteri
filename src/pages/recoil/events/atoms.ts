@@ -1,13 +1,20 @@
 import type { PublicDogEvent } from '../../../types'
-import type { FilterProps } from './types'
+import type { EventMetadata, FilterProps } from './types'
 import { atom } from 'recoil'
 import { zonedStartOfDay } from '../../../i18n/dates'
 import { localStorageEffect, logEffect } from '../effects'
-import { remoteEventsEffect, urlSyncEffect } from './effects'
+import { urlSyncEffect } from './effects'
 
 export const eventsAtom = atom<PublicDogEvent[]>({
-  effects: [logEffect, localStorageEffect, remoteEventsEffect],
+  default: [],
+  effects: [logEffect, localStorageEffect],
   key: 'events',
+})
+
+export const eventMetadataAtom = atom<EventMetadata>({
+  default: { singles: {} },
+  effects: [logEffect, localStorageEffect],
+  key: 'eventMetadata',
 })
 
 export const eventFilterAtom = atom<FilterProps>({

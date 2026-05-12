@@ -11,7 +11,7 @@ import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { confirmedEventSelector, newRegistrationAtom, spaAtom } from './recoil'
+import { newRegistrationAtom, spaAtom, useConfirmedEvent } from './recoil'
 import { useRegistrationActions } from './recoil/registration/actions'
 
 export function Component() {
@@ -19,7 +19,7 @@ export function Component() {
   const location = useLocation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(confirmedEventSelector(params.id))
+  const event = useConfirmedEvent(params.id)
   const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
   const resetRegistration = useResetRecoilState(newRegistrationAtom)
   const spa = useRecoilValue(spaAtom)
@@ -83,24 +83,15 @@ export function Component() {
     return true
   }, [navigate, resetRegistration])
 
-  if (event === null) {
-    throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
-  }
-
-  if (!isEntryOpen(event)) {
-    throw new Response('Entry not open', { status: 410, statusText: t('error.entryNotOpen') })
-  }
-
-  if (!registration) {
-    // Should not happen (tm)
-    throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
-  }
-
   useEffect(() => {
     rum()?.recordPageView(location.pathname)
   }, [location])
 
   useEffect(() => {
+    if (!event || !registration) {
+      return
+    }
+
     // make sure the registration is for correct event
     if (registration.eventId !== event.id || registration.eventType !== event.eventType) {
       setRegistration({
@@ -113,7 +104,25 @@ export function Component() {
         selectedCost: undefined,
       })
     }
-  }, [event.eventType, event.id, registration, setRegistration])
+  }, [event, registration, setRegistration])
+
+  if (event === undefined) {
+    return null
+  }
+
+  if (event === null) {
+    // Let suspense/hydration handle loading; missing events are handled by route error boundaries.
+    throw new Response('Event not found', { status: 404, statusText: t('error.eventNotFound') })
+  }
+
+  if (!isEntryOpen(event)) {
+    throw new Response('Entry not open', { status: 410, statusText: t('error.entryNotOpen') })
+  }
+
+  if (!registration) {
+    // Should not happen (tm)
+    throw new Response('Registration not found', { status: 404, statusText: t('error.registrationNotFound') })
+  }
 
   return (
     <>

@@ -91,8 +91,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r35:"
-                            id=":r35:-label"
+                            for=":r39:"
+                            id=":r39:-label"
                           >
                             daterangeStart
                           </label>
@@ -103,7 +103,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r35:"
+                              id=":r39:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -155,8 +155,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r38:"
-                            id=":r38:-label"
+                            for=":r3c:"
+                            id=":r3c:-label"
                           >
                             daterangeEnd
                           </label>
@@ -167,7 +167,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r38:"
+                              id=":r3c:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -291,8 +291,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r3c:"
-                          id=":r3c:-label"
+                          for=":r3g:"
+                          id=":r3g:-label"
                         >
                           filter.eventClass
                         </label>
@@ -307,7 +307,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r3c:"
+                            id=":r3g:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -366,8 +366,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r3f:"
-                          id=":r3f:-label"
+                          for=":r3j:"
+                          id=":r3j:-label"
                         >
                           filter.organizer
                         </label>
@@ -382,7 +382,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r3f:"
+                            id=":r3j:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -441,8 +441,8 @@ exports[`SearchPage filters by date - no-results 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary Mui-disabled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r3i:"
-                          id=":r3i:-label"
+                          for=":r3m:"
+                          id=":r3m:-label"
                         >
                           judge
                         </label>
@@ -457,7 +457,7 @@ exports[`SearchPage filters by date - no-results 1`] = `
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
-                            id=":r3i:"
+                            id=":r3m:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -697,8 +697,8 @@ exports[`SearchPage filters by date 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r2e:"
-                            id=":r2e:-label"
+                            for=":r2i:"
+                            id=":r2i:-label"
                           >
                             daterangeStart
                           </label>
@@ -709,7 +709,7 @@ exports[`SearchPage filters by date 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2e:"
+                              id=":r2i:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -761,8 +761,8 @@ exports[`SearchPage filters by date 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="true"
-                            for=":r2h:"
-                            id=":r2h:-label"
+                            for=":r2l:"
+                            id=":r2l:-label"
                           >
                             daterangeEnd
                           </label>
@@ -773,7 +773,7 @@ exports[`SearchPage filters by date 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r2h:"
+                              id=":r2l:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -897,8 +897,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2l:"
-                          id=":r2l:-label"
+                          for=":r2p:"
+                          id=":r2p:-label"
                         >
                           filter.eventClass
                         </label>
@@ -912,7 +912,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2l:"
+                            id=":r2p:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -970,8 +970,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2o:"
-                          id=":r2o:-label"
+                          for=":r2s:"
+                          id=":r2s:-label"
                         >
                           filter.organizer
                         </label>
@@ -985,7 +985,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2o:"
+                            id=":r2s:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -1043,8 +1043,8 @@ exports[`SearchPage filters by date 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r2r:"
-                          id=":r2r:-label"
+                          for=":r2v:"
+                          id=":r2v:-label"
                         >
                           judge
                         </label>
@@ -1058,7 +1058,7 @@ exports[`SearchPage filters by date 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r2r:"
+                            id=":r2v:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -2627,7 +2627,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   )
                 </b>
                  • 
-                daterangeEnd: 01.03.2021
+                daterangeBoth: 1.1.–1.3.2021
               </span>
             </div>
           </span>
@@ -2666,8 +2666,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":r1i:"
                             id=":r1i:-label"
                           >
@@ -2684,13 +2684,13 @@ exports[`SearchPage filters by date/end 1`] = `
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -2713,7 +2713,7 @@ exports[`SearchPage filters by date/end 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -4594,11 +4594,11 @@ exports[`SearchPage filters by event class 1`] = `
               >
                 <b>
                   Rajaa (
-                  1
+                  2
                   )
                 </b>
                  • 
-                event.classes: AVO
+                daterangeStart: 01.01.2021 | event.classes: AVO
               </span>
             </div>
           </span>
@@ -4637,10 +4637,10 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
-                            for=":r4k:"
-                            id=":r4k:-label"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
+                            for=":r4r:"
+                            id=":r4r:-label"
                           >
                             daterangeStart
                           </label>
@@ -4651,17 +4651,17 @@ exports[`SearchPage filters by event class 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4k:"
+                              id=":r4r:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -4684,7 +4684,7 @@ exports[`SearchPage filters by event class 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -4703,8 +4703,8 @@ exports[`SearchPage filters by event class 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r4n:"
-                            id=":r4n:-label"
+                            for=":r4u:"
+                            id=":r4u:-label"
                           >
                             daterangeEnd
                           </label>
@@ -4715,7 +4715,7 @@ exports[`SearchPage filters by event class 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r4n:"
+                              id=":r4u:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -4839,8 +4839,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":r4r:"
-                          id=":r4r:-label"
+                          for=":r52:"
+                          id=":r52:-label"
                         >
                           filter.eventClass
                         </label>
@@ -4877,7 +4877,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r4r:"
+                            id=":r52:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -4954,8 +4954,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r4u:"
-                          id=":r4u:-label"
+                          for=":r55:"
+                          id=":r55:-label"
                         >
                           filter.organizer
                         </label>
@@ -4969,7 +4969,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r4u:"
+                            id=":r55:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -5027,8 +5027,8 @@ exports[`SearchPage filters by event class 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r51:"
-                          id=":r51:-label"
+                          for=":r58:"
+                          id=":r58:-label"
                         >
                           judge
                         </label>
@@ -5042,7 +5042,7 @@ exports[`SearchPage filters by event class 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r51:"
+                            id=":r58:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -7026,11 +7026,11 @@ exports[`SearchPage filters by event type 1`] = `
               >
                 <b>
                   Rajaa (
-                  1
+                  2
                   )
                 </b>
                  • 
-                eventTypes: NOME-B
+                daterangeStart: 01.01.2021 | eventTypes: NOME-B
               </span>
             </div>
           </span>
@@ -7069,10 +7069,10 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
-                            for=":r3s:"
-                            id=":r3s:-label"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
+                            for=":r40:"
+                            id=":r40:-label"
                           >
                             daterangeStart
                           </label>
@@ -7083,17 +7083,17 @@ exports[`SearchPage filters by event type 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r3s:"
+                              id=":r40:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -7116,7 +7116,7 @@ exports[`SearchPage filters by event type 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -7135,8 +7135,8 @@ exports[`SearchPage filters by event type 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r3v:"
-                            id=":r3v:-label"
+                            for=":r43:"
+                            id=":r43:-label"
                           >
                             daterangeEnd
                           </label>
@@ -7147,7 +7147,7 @@ exports[`SearchPage filters by event type 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r3v:"
+                              id=":r43:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -7291,8 +7291,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r43:"
-                          id=":r43:-label"
+                          for=":r47:"
+                          id=":r47:-label"
                         >
                           filter.eventClass
                         </label>
@@ -7306,7 +7306,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r43:"
+                            id=":r47:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -7364,8 +7364,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r46:"
-                          id=":r46:-label"
+                          for=":r4a:"
+                          id=":r4a:-label"
                         >
                           filter.organizer
                         </label>
@@ -7379,7 +7379,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r46:"
+                            id=":r4a:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -7437,8 +7437,8 @@ exports[`SearchPage filters by event type 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r49:"
-                          id=":r49:-label"
+                          for=":r4d:"
+                          id=":r4d:-label"
                         >
                           judge
                         </label>
@@ -7452,7 +7452,7 @@ exports[`SearchPage filters by event type 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r49:"
+                            id=":r4d:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -9439,11 +9439,11 @@ exports[`SearchPage filters by organizer 1`] = `
               >
                 <b>
                   Rajaa (
-                  1
+                  2
                   )
                 </b>
                  • 
-                Järjestäjät: 1
+                daterangeStart: 01.01.2021 | Järjestäjät: 1
               </span>
             </div>
           </span>
@@ -9482,10 +9482,10 @@ exports[`SearchPage filters by organizer 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
-                            for=":r5e:"
-                            id=":r5e:-label"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
+                            for=":r5l:"
+                            id=":r5l:-label"
                           >
                             daterangeStart
                           </label>
@@ -9496,17 +9496,17 @@ exports[`SearchPage filters by organizer 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r5e:"
+                              id=":r5l:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -9529,7 +9529,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -9548,8 +9548,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           <label
                             class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                             data-shrink="false"
-                            for=":r5h:"
-                            id=":r5h:-label"
+                            for=":r5o:"
+                            id=":r5o:-label"
                           >
                             daterangeEnd
                           </label>
@@ -9560,7 +9560,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               aria-invalid="false"
                               autocomplete="off"
                               class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                              id=":r5h:"
+                              id=":r5o:"
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
@@ -9684,8 +9684,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r5l:"
-                          id=":r5l:-label"
+                          for=":r5s:"
+                          id=":r5s:-label"
                         >
                           filter.eventClass
                         </label>
@@ -9699,7 +9699,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r5l:"
+                            id=":r5s:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -9757,8 +9757,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="true"
-                          for=":r5p:"
-                          id=":r5p:-label"
+                          for=":r60:"
+                          id=":r60:-label"
                         >
                           filter.organizer
                         </label>
@@ -9795,7 +9795,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-qve9l1-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r5p:"
+                            id=":r60:"
                             role="combobox"
                             spellcheck="false"
                             type="text"
@@ -9872,8 +9872,8 @@ exports[`SearchPage filters by organizer 1`] = `
                         <label
                           class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
                           data-shrink="false"
-                          for=":r5s:"
-                          id=":r5s:-label"
+                          for=":r63:"
+                          id=":r63:-label"
                         >
                           judge
                         </label>
@@ -9887,7 +9887,7 @@ exports[`SearchPage filters by organizer 1`] = `
                             autocapitalize="none"
                             autocomplete="off"
                             class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-1dune0f-MuiInputBase-input-MuiOutlinedInput-input"
-                            id=":r5s:"
+                            id=":r63:"
                             role="combobox"
                             spellcheck="false"
                             type="text"

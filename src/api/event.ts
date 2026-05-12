@@ -6,22 +6,39 @@ import http, { withToken } from './http'
 const PATH = '/event/'
 const ADMIN_PATH = '/admin/event/'
 
+export type PublicEventsDeltaResponse = {
+  events: PublicDogEvent[]
+  unchangedIds: string[]
+}
+
+export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
+
+function isPublicEventsDeltaResponse(response: PublicEventsResponse): response is PublicEventsDeltaResponse {
+  return !Array.isArray(response)
+}
+
 export async function getEvents(
   start?: Date,
   end?: Date,
   since?: number,
   signal?: AbortSignal
-): Promise<PublicDogEvent[]> {
+): Promise<PublicEventsResponse> {
   const params = new URLSearchParams()
 
-  if (start) params.append('start', start.toISOString())
-  if (end) params.append('end', end.toISOString())
+  if (start) params.append('start', start.getTime().toString())
+  if (end) params.append('end', end.getTime().toString())
   if (since) params.append('since', since.toString())
 
   const query = params.toString()
   const url = query ? `${PATH}?${query}` : PATH
 
-  return http.get<PublicDogEvent[]>(url, { signal })
+  const response = await http.get<PublicEventsResponse>(url, { signal })
+
+  if (since && Array.isArray(response)) {
+    return { events: response, unchangedIds: [] }
+  }
+
+  return isPublicEventsDeltaResponse(response) ? response : response
 }
 
 export async function getAdminEvents(token?: string, lastModified?: number, signal?: AbortSignal): Promise<DogEvent[]> {

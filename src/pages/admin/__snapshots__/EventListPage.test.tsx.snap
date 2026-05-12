@@ -139,7 +139,7 @@ exports[`EventListPage renders 1`] = `
             aria-label="Select columns"
             class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-h7g1og-MuiButtonBase-root-MuiButton-root"
             data-mui-internal-clone-element="true"
-            id=":r9:"
+            id=":r8:"
             tabindex="0"
             type="button"
           >
@@ -183,7 +183,7 @@ exports[`EventListPage renders 1`] = `
                 <input
                   aria-invalid="false"
                   class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd css-1yrc8ca-MuiInputBase-input-MuiInput-input"
-                  id=":rd:"
+                  id=":rc:"
                   placeholder="search.placeholder"
                   type="text"
                   value=""
@@ -227,8 +227,8 @@ exports[`EventListPage renders 1`] = `
                   <label
                     class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-sizeSmall MuiInputLabel-outlined css-8kr4nd-MuiFormLabel-root-MuiInputLabel-root"
                     data-shrink="true"
-                    for=":rf:"
-                    id=":rf:-label"
+                    for=":re:"
+                    id=":re:-label"
                   >
                     Yhdistys
                   </label>
@@ -242,7 +242,7 @@ exports[`EventListPage renders 1`] = `
                       autocapitalize="none"
                       autocomplete="off"
                       class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputSizeSmall MuiInputBase-inputAdornedEnd MuiAutocomplete-input MuiAutocomplete-inputFocused css-13meb6w-MuiInputBase-input-MuiOutlinedInput-input"
-                      id=":rf:"
+                      id=":re:"
                       role="combobox"
                       spellcheck="false"
                       type="text"

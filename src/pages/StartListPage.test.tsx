@@ -1,8 +1,6 @@
 import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import { render, screen } from '@testing-library/react'
-import { useLoaderData, useParams } from 'react-router'
-import { useRecoilValue } from 'recoil'
 import { StartListPage } from './StartListPage'
 
 // Mock react-router
@@ -17,9 +15,9 @@ jest.mock('recoil', () => ({
   useRecoilValue: jest.fn(),
 }))
 
-// Mock the confirmedEventSelector
+// Mock the useConfirmedEvent hook
 jest.mock('./recoil', () => ({
-  confirmedEventSelector: jest.fn(() => 'mocked-selector'),
+  useConfirmedEvent: jest.fn(),
 }))
 
 // Mock components
@@ -36,6 +34,8 @@ jest.mock('./startListPage/ParticipantList', () => ({
 }))
 
 describe('StartListPage', () => {
+  const mockUseLoaderData = require('react-router').useLoaderData as jest.Mock
+  const mockUseParams = require('react-router').useParams as jest.Mock
   const mockEvent: PublicConfirmedEvent = {
     classes: [],
     cost: 0,
@@ -92,9 +92,9 @@ describe('StartListPage', () => {
   ]
 
   beforeEach(() => {
-    ;(useParams as jest.Mock).mockReturnValue({ id: 'event-1' })
-    ;(useRecoilValue as jest.Mock).mockReturnValue(mockEvent)
-    ;(useLoaderData as jest.Mock).mockReturnValue(mockParticipants)
+    mockUseParams.mockReturnValue({ id: 'event-1' })
+    mockUseLoaderData.mockReturnValue(mockParticipants)
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(mockEvent)
   })
 
   it('renders event and participants when data is available', () => {
@@ -110,7 +110,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when event is not found', () => {
-    ;(useRecoilValue as jest.Mock).mockReturnValue(null)
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(null)
 
     render(<StartListPage />)
 
@@ -119,8 +119,7 @@ describe('StartListPage', () => {
   })
 
   it('shows error message when participants list is empty', () => {
-    ;(useLoaderData as jest.Mock).mockReturnValue([])
-
+    mockUseLoaderData.mockReturnValue([])
     render(<StartListPage />)
 
     // Check that error message is rendered

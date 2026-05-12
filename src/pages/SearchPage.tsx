@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { useRecoilState, useRecoilValue, useSetRecoilState, waitForAll } from 'recoil'
 import {
+  DateHandler,
   deserializeFilter,
   eventFilterAtom,
   filterEventClassesSelector,
@@ -38,6 +39,7 @@ export function SearchPage() {
 
   return (
     <>
+      <DateHandler />
       <EventFilter
         eventTypes={activeEventTypes}
         eventClasses={activeEventClasses}

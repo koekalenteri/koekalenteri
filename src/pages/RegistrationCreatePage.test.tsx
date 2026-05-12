@@ -116,7 +116,7 @@ describe('RegistrationCreatePage', () => {
 
     jest.setSystemTime(eventWithConfirmationPayment.entryStartDate)
 
-    jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([eventWithConfirmationPayment])
+    jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithConfirmationPayment)
     const { user } = renderWithRouter(path, { ...registrationWithStaticDates, agreeToTerms: true, id: '' })
     await flushPromises()
 
@@ -134,7 +134,7 @@ describe('RegistrationCreatePage', () => {
 
     const path = `/event/qwerty/asdf`
 
-    jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([])
+    jest.spyOn(eventApi, 'getEvent').mockRejectedValueOnce(new Error('not found'))
     const { container } = renderWithRouter(path)
 
     await flushPromises()
@@ -150,7 +150,7 @@ describe('RegistrationCreatePage', () => {
     const { eventType, id } = eventWithStaticDates
     const path = `/event/${eventType}/${id}`
 
-    jest.spyOn(eventApi, 'getEvents').mockResolvedValueOnce([eventWithStaticDates])
+    jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(eventWithStaticDates)
     const { container } = renderWithRouter(path)
 
     await flushPromises()

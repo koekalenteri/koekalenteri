@@ -6,7 +6,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { calculateCost } from '../lib/cost'
 import { redirectTo } from '../lib/navigation'
 import { isConfirmedEvent } from '../lib/typeGuards'
@@ -16,7 +16,7 @@ import Header from './components/Header'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, languageAtom, registrationSelector, spaAtom } from './recoil'
+import { languageAtom, registrationSelector, spaAtom, useConfirmedEvent } from './recoil'
 import { useRegistrationActions } from './recoil/registration/actions'
 import { ConfirmDialog } from './registrationListPage/ConfirmDialog'
 import { InfoBox } from './registrationListPage/InfoBox'
@@ -33,14 +33,13 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const params = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const eventLoadable = useRecoilValueLoadable(confirmedEventSelector(params.id))
+  const event = useConfirmedEvent(params.id)
   const [registration, setRegistration] = useRecoilState(
     registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
   )
   const [language, setLanguage] = useRecoilState(languageAtom)
   const spa = useRecoilValue(spaAtom)
-  const event = eventLoadable.state === 'hasValue' ? eventLoadable.contents : undefined
-  const eventNotFound = eventLoadable.state === 'hasValue' && eventLoadable.contents === null
+  const eventNotFound = !event
   const { t } = useTranslation()
   const [cancelOpen, setCancelOpen] = useState<boolean | null>(null)
   const [confirmOpen, setConfirmOpen] = useState<boolean | null>(null)

@@ -1,7 +1,6 @@
-import type { EventClass, PublicConfirmedEvent, PublicDogEvent, PublicJudge } from '../../../types'
+import type { PublicDogEvent, PublicJudge } from '../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily } from 'recoil'
-import { isConfirmedEvent } from '../../../lib/typeGuards'
 import { unique, uniqueFn } from '../../../lib/utils'
 import { eventFilterAtom, eventsAtom } from './atoms'
 import {
@@ -13,26 +12,16 @@ import {
   withinSwitchFilters,
 } from './filters'
 
-const eventSelector = selectorFamily<PublicDogEvent | null, string | undefined>({
+export const eventSelector = selectorFamily<PublicDogEvent | null | undefined, string | undefined>({
   get:
     (eventId) =>
     ({ get }) => {
       if (!eventId) {
         return null
       }
-      return get(eventsAtom).find((event) => event.id === eventId) ?? null
+      return get(eventsAtom).find((event) => event.id === eventId)
     },
   key: 'event',
-})
-
-export const confirmedEventSelector = selectorFamily<PublicConfirmedEvent | null, string | undefined>({
-  get:
-    (eventId) =>
-    ({ get }) => {
-      const event = get(eventSelector(eventId))
-      return isConfirmedEvent(event) ? event : null
-    },
-  key: 'confirmedEvent',
 })
 
 export const filteredEventsSelector = selector({
@@ -144,9 +133,8 @@ export const filterEventTypesSelector = selector({
 export const filterEventClassesSelector = selector({
   get: ({ get }) => {
     const events = get(filteredEventsForEventClassSelector)
-    const uniqueEventClasses = unique(
-      events.reduce<EventClass[]>((acc, cur) => [...acc, ...cur.classes], []).map((ec) => ec.class)
-    )
+    const eventClasses = events.flatMap((event) => event.classes)
+    const uniqueEventClasses = unique(eventClasses.map((eventClass) => eventClass.class))
     uniqueEventClasses.sort((a, b) => a.localeCompare(b, i18next.language))
     return uniqueEventClasses
   },
@@ -169,9 +157,7 @@ export const filterOrganizersSelector = selector({
     const events = get(filteredEventsForOrganizerSelector)
     const organizers = get(eventOrganizersSelector)
     const filter = get(eventFilterAtom)
-    const usedOrganizerIds = unique<string>(
-      events.reduce<string[]>((acc, cur) => [...acc, cur.organizer.id], [...filter.organizer])
-    )
+    const usedOrganizerIds = unique<string>([...filter.organizer, ...events.map((event) => event.organizer.id)])
 
     return organizers
       .filter((o) => usedOrganizerIds.includes(o.id))
@@ -184,10 +170,8 @@ export const filterJudgesSelector = selector({
   get: ({ get }) => {
     const events = get(filteredEventsForJudgeSelector)
     const filter = get(eventFilterAtom)
-    const usedJudges = uniqueFn<PublicJudge>(
-      events.reduce<PublicJudge[]>((acc, cur) => [...acc, ...cur.judges], []),
-      (a, b) => a.name === b.name
-    ).filter((j) => j.name) // remove empty
+    const judges = events.flatMap((event) => event.judges)
+    const usedJudges = uniqueFn<PublicJudge>(judges, (a, b) => a.name === b.name).filter((j) => j.name) // remove empty
     usedJudges.sort((a, b) => {
       const level = Number(filter.judge.includes(a.name)) - Number(filter.judge.includes(b.name))
 
