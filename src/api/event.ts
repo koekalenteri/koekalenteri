@@ -34,11 +34,9 @@ export async function getEvents(
 
   const response = await http.get<PublicEventsResponse>(url, { signal })
 
-  if (since && Array.isArray(response)) {
-    return { events: response, unchangedIds: [] }
-  }
+  if (isPublicEventsDeltaResponse(response)) return response
 
-  return isPublicEventsDeltaResponse(response) ? response : response
+  return { events: response, unchangedIds: [] }
 }
 
 export async function getAdminEvents(token?: string, lastModified?: number, signal?: AbortSignal): Promise<DogEvent[]> {

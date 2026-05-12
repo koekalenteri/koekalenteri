@@ -20,8 +20,7 @@ test('getEvents', async () => {
 
   const events = await getEvents()
 
-  expect(Array.isArray(events)).toEqual(true)
-  expect(events).toEqual([emptyEvent])
+  expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/`)
 })
