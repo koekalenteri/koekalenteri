@@ -10,6 +10,8 @@
             AttributeType: S
           - AttributeName: season
             AttributeType: S
+          - AttributeName: startDate
+            AttributeType: S
           - AttributeName: eventType
             AttributeType: S
           - AttributeName: modifiedAt
@@ -22,6 +24,14 @@
             - AttributeName: season
               KeyType: HASH
             - AttributeName: modifiedAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: gsiSeasonStartDate
+          KeySchema:
+            - AttributeName: season
+              KeyType: HASH
+            - AttributeName: startDate
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
