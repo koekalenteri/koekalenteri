@@ -20,24 +20,57 @@ test('getEvents', async () => {
 
   const events = await getEvents()
 
-  expect(events.length).toEqual(1)
+  expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/`)
 })
 
-test('getEvents with since', async () => {
+test('getEvents with start and end uses timestamps in query params', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'GET'
       ? Promise.resolve(JSON.stringify([emptyEvent]))
       : Promise.reject(new Error(`${req.method} !== 'GET'`))
   )
 
-  const since = 123
-  const events = await getEvents(undefined, undefined, since)
+  const start = new Date('2026-01-02T00:00:00.000Z')
+  const end = new Date('2026-01-05T00:00:00.000Z')
 
-  expect(events.length).toEqual(1)
+  await getEvents(start, end)
+
   expect(fetchMock.mock.calls.length).toEqual(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?since=123`)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?start=${start.getTime()}&end=${end.getTime()}`)
+})
+
+describe('getEvents with since', () => {
+  test('supports current delta response', async () => {
+    fetchMock.mockResponse((req) =>
+      req.method === 'GET'
+        ? Promise.resolve(JSON.stringify({ events: [emptyEvent], unchangedIds: ['event-1'] }))
+        : Promise.reject(new Error(`${req.method} !== 'GET'`))
+    )
+
+    const since = 123
+    const events = await getEvents(undefined, undefined, since)
+
+    expect(events).toEqual({ events: [emptyEvent], unchangedIds: ['event-1'] })
+    expect(fetchMock.mock.calls.length).toEqual(1)
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?since=123`)
+  })
+
+  test('supports legacy array response by normalizing it to delta response', async () => {
+    fetchMock.mockResponse((req) =>
+      req.method === 'GET'
+        ? Promise.resolve(JSON.stringify([emptyEvent]))
+        : Promise.reject(new Error(`${req.method} !== 'GET'`))
+    )
+
+    const since = 123
+    const events = await getEvents(undefined, undefined, since)
+
+    expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
+    expect(fetchMock.mock.calls.length).toEqual(1)
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?since=123`)
+  })
 })
 
 test('getEvent', async () => {

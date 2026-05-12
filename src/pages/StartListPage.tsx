@@ -1,10 +1,8 @@
-import type { Params } from 'react-router'
 import type { PublicRegistration } from '../types/Registration'
 import Box from '@mui/material/Box'
-import { useLoaderData, useParams } from 'react-router'
-import { useRecoilValue } from 'recoil'
+import { type Params, useLoaderData, useParams } from 'react-router'
 import { getStartList } from '../api/registration'
-import { confirmedEventSelector } from './recoil'
+import { useConfirmedEvent } from './recoil'
 import { EventHeader } from './startListPage/EventHeader'
 import { ParticipantList } from './startListPage/ParticipantList'
 
@@ -13,7 +11,7 @@ export const startListLoader = async ({ params }: { params: Params<string> }) =>
 
 export const StartListPage = () => {
   const { id } = useParams()
-  const event = useRecoilValue(confirmedEventSelector(id))
+  const event = useConfirmedEvent(id)
   const participants: PublicRegistration[] = useLoaderData()
   const now = new Date()
 

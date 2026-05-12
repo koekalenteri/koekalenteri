@@ -10,6 +10,7 @@ import { RecoilRoot } from 'recoil'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
 import { createMatchMedia, flushPromises } from '../test-utils/utils'
+import { DateHandler } from './recoil'
 import { SearchPage } from './SearchPage'
 
 jest.mock('../api/event')
@@ -27,6 +28,7 @@ const renderPage = (path: string, locale: Locale) =>
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
               <MemoryRouter initialEntries={[path]}>
+                <DateHandler />
                 <SearchPage />
               </MemoryRouter>
             </SnackbarProvider>
@@ -64,7 +66,8 @@ describe('SearchPage', () => {
   })
 
   it('filters by date/end', async () => {
-    const { container } = renderPage('/?s=&e=2021-03-01', locales.fi)
+    // start is required for fetching events
+    const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPromises()
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('article').length).toEqual(4)
@@ -90,7 +93,8 @@ describe('SearchPage', () => {
   })
 
   it('filters by event type', async () => {
-    const { container } = renderPage('/?s=&t=NOME-B', locales.fi)
+    // start is required for fetching events
+    const { container } = renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(5)
@@ -98,7 +102,8 @@ describe('SearchPage', () => {
   })
 
   it('filters by event class', async () => {
-    const { container } = renderPage('/?s=&c=AVO', locales.fi)
+    // start is required for fetching events
+    const { container } = renderPage('/?s=2021-01-01&c=AVO', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(5)
@@ -106,7 +111,8 @@ describe('SearchPage', () => {
   })
 
   it('filters by organizer', async () => {
-    const { container } = renderPage('/?s=&o=2', locales.fi)
+    // start is required for fetching events
+    const { container } = renderPage('/?s=2021-01-01&o=2', locales.fi)
     await flushPromises()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(1)

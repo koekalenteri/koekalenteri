@@ -9,14 +9,14 @@ import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
 import { LoadingPage } from './LoadingPage'
-import { confirmedEventSelector, editableRegistrationByIdsAtom, registrationByIdsAtom, spaAtom } from './recoil'
+import { editableRegistrationByIdsAtom, registrationByIdsAtom, spaAtom, useConfirmedEvent } from './recoil'
 import { useRegistrationActions } from './recoil/registration/actions'
 
 export default function RegistrationEditPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const params = useParams()
-  const event = useRecoilValue(confirmedEventSelector(params.id))
+  const event = useConfirmedEvent(params.id)
   const ids = `${params.id ?? ''}:${params.registrationId ?? ''}`
   const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
   const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))

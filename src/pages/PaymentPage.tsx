@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography'
 import { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, useLoaderData, useParams } from 'react-router'
-import { useRecoilState, useRecoilValueLoadable, useResetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { printContactInfo } from '../lib/utils'
@@ -18,7 +18,7 @@ import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
-import { confirmedEventSelector, languageAtom, newRegistrationAtom, registrationSelector } from './recoil'
+import { languageAtom, newRegistrationAtom, registrationSelector, useConfirmedEvent } from './recoil'
 
 export const loader = async ({ params }: { params: Params<string> }) => {
   const createPaymentWrap = async () => {
@@ -153,14 +153,10 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
 export function Component() {
   const { id, registrationId } = useParams()
-  const eventLoadable = useRecoilValueLoadable(confirmedEventSelector(id))
-  const registrationLoadable = useRecoilValueLoadable(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
+  const event = useConfirmedEvent(id)
+  const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
   const data: { response: Promise<{ response?: CreatePaymentResponse; status: number }> } = useLoaderData()
   const resetRegistration = useResetRecoilState(newRegistrationAtom)
-
-  const loadingEventOrRegistration = eventLoadable.state === 'loading' || registrationLoadable.state === 'loading'
-  const event = eventLoadable.state === 'hasValue' ? eventLoadable.contents : null
-  const registration = registrationLoadable.state === 'hasValue' ? registrationLoadable.contents : null
 
   useEffect(() => {
     // Reset the registration form here, to avoid flashing page.
@@ -172,7 +168,7 @@ export function Component() {
 
   return (
     <Suspense fallback={<LoadingPage />}>
-      {loadingEventOrRegistration ? (
+      {!event || !registration ? (
         <LoadingPage />
       ) : (
         <Await resolve={data.response} errorElement={<ErrorInfo />}>

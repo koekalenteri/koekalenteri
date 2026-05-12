@@ -2627,7 +2627,7 @@ exports[`SearchPage filters by date/end 1`] = `
                   )
                 </b>
                  • 
-                daterangeEnd: 01.03.2021
+                daterangeBoth: 1.1.–1.3.2021
               </span>
             </div>
           </span>
@@ -2666,8 +2666,8 @@ exports[`SearchPage filters by date/end 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":r1i:"
                             id=":r1i:-label"
                           >
@@ -2684,13 +2684,13 @@ exports[`SearchPage filters by date/end 1`] = `
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -2713,7 +2713,7 @@ exports[`SearchPage filters by date/end 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -4594,11 +4594,11 @@ exports[`SearchPage filters by event class 1`] = `
               >
                 <b>
                   Rajaa (
-                  1
+                  2
                   )
                 </b>
                  • 
-                event.classes: AVO
+                daterangeStart: 01.01.2021 | event.classes: AVO
               </span>
             </div>
           </span>
@@ -4637,8 +4637,8 @@ exports[`SearchPage filters by event class 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":r4k:"
                             id=":r4k:-label"
                           >
@@ -4655,13 +4655,13 @@ exports[`SearchPage filters by event class 1`] = `
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -4684,7 +4684,7 @@ exports[`SearchPage filters by event class 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -7026,11 +7026,11 @@ exports[`SearchPage filters by event type 1`] = `
               >
                 <b>
                   Rajaa (
-                  1
+                  2
                   )
                 </b>
                  • 
-                eventTypes: NOME-B
+                daterangeStart: 01.01.2021 | eventTypes: NOME-B
               </span>
             </div>
           </span>
@@ -7069,8 +7069,8 @@ exports[`SearchPage filters by event type 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":r3s:"
                             id=":r3s:-label"
                           >
@@ -7087,13 +7087,13 @@ exports[`SearchPage filters by event type 1`] = `
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -7116,7 +7116,7 @@ exports[`SearchPage filters by event type 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
@@ -9439,11 +9439,11 @@ exports[`SearchPage filters by organizer 1`] = `
               >
                 <b>
                   Rajaa (
-                  1
+                  2
                   )
                 </b>
                  • 
-                Järjestäjät: 1
+                daterangeStart: 01.01.2021 | Järjestäjät: 1
               </span>
             </div>
           </span>
@@ -9482,8 +9482,8 @@ exports[`SearchPage filters by organizer 1`] = `
                           class="MuiFormControl-root MuiTextField-root css-1b1fjlj-MuiFormControl-root-MuiTextField-root"
                         >
                           <label
-                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-outlined css-1f4asqf-MuiFormLabel-root-MuiInputLabel-root"
-                            data-shrink="false"
+                            class="MuiFormLabel-root MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined MuiFormLabel-colorPrimary MuiFormLabel-filled MuiInputLabel-root MuiInputLabel-formControl MuiInputLabel-animated MuiInputLabel-shrink MuiInputLabel-outlined css-ydetoq-MuiFormLabel-root-MuiInputLabel-root"
+                            data-shrink="true"
                             for=":r5e:"
                             id=":r5e:-label"
                           >
@@ -9500,13 +9500,13 @@ exports[`SearchPage filters by organizer 1`] = `
                               inputmode="text"
                               placeholder="DD.MM.YYYY"
                               type="text"
-                              value=""
+                              value="01.01.2021"
                             />
                             <div
                               class="MuiInputAdornment-root MuiInputAdornment-positionEnd MuiInputAdornment-outlined MuiInputAdornment-sizeMedium css-elo8k2-MuiInputAdornment-root"
                             >
                               <button
-                                aria-label="Choose date"
+                                aria-label="Choose date, selected date is 1. tammi 2021"
                                 class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeMedium css-1ysp02-MuiButtonBase-root-MuiIconButton-root"
                                 tabindex="0"
                                 type="button"
@@ -9529,7 +9529,7 @@ exports[`SearchPage filters by organizer 1`] = `
                               class="MuiOutlinedInput-notchedOutline css-18p5xg2-MuiNotchedOutlined-root-MuiOutlinedInput-notchedOutline"
                             >
                               <legend
-                                class="css-1n64csd-MuiNotchedOutlined-root"
+                                class="css-ex8a5f-MuiNotchedOutlined-root"
                               >
                                 <span>
                                   daterangeStart
