@@ -22,7 +22,7 @@ export async function getEvents(
   end?: Date,
   since?: number,
   signal?: AbortSignal
-): Promise<PublicEventsResponse> {
+): Promise<PublicEventsDeltaResponse> {
   const params = new URLSearchParams()
 
   if (start) params.append('start', start.getTime().toString())

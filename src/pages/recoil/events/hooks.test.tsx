@@ -123,4 +123,72 @@ describe('useFetchEvents', () => {
       expect(result.current.events).toEqual([changed])
     })
   })
+
+  it('skips incremental fetch for throttled same-range requests and only refreshes metadata', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+    const original = makeEvent('event-1', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+
+    const { result } = renderHook(
+      () => ({
+        events: useRecoilValue(eventsAtom),
+        fetchEvents: useFetchEvents(),
+        metadata: useRecoilValue(eventMetadataAtom),
+      }),
+      {
+        wrapper: wrapperWithState([original], {
+          lastRangeEnd: end.getTime(),
+          lastRangeStart: start.getTime(),
+          lastSyncAt: Date.now() - 60 * 1000,
+        }),
+      }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start, end)
+    })
+
+    await waitFor(() => {
+      expect(getEvents).not.toHaveBeenCalled()
+      expect(result.current.events).toEqual([original])
+      expect(result.current.metadata.lastRangeStart).toBe(start.getTime())
+      expect(result.current.metadata.lastRangeEnd).toBe(end.getTime())
+      expect(result.current.metadata.retainedStart).toBe(start.getTime())
+    })
+  })
+
+  it('uses cold-start full fetch when sync watermark is missing', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+    const fetched = makeEvent('fetched', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+
+    ;(getEvents as jest.Mock).mockResolvedValue({
+      events: [fetched],
+      unchangedIds: [],
+    })
+
+    const { result } = renderHook(
+      () => ({
+        events: useRecoilValue(eventsAtom),
+        fetchEvents: useFetchEvents(),
+        metadata: useRecoilValue(eventMetadataAtom),
+      }),
+      {
+        wrapper: wrapperWithState([], {
+          lastRangeEnd: end.getTime(),
+          lastRangeStart: start.getTime(),
+        }),
+      }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start, end)
+    })
+
+    await waitFor(() => {
+      expect(getEvents).toHaveBeenCalledWith(start, end, undefined)
+      expect(result.current.events).toEqual([fetched])
+      expect(result.current.metadata.lastSyncAt).toEqual(expect.any(Number))
+    })
+  })
 })

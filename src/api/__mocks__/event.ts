@@ -1,4 +1,4 @@
-import type { DogEvent, PublicDogEvent } from '../../types'
+import type { DogEvent } from '../../types'
 import type { PublicEventsResponse } from '../event'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
@@ -44,12 +44,12 @@ export const mockEvents: DogEvent[] = [
 export async function getEvents(
   _start?: Date,
   _end?: Date,
-  since?: number,
+  _since?: number,
   _signal?: AbortSignal
 ): Promise<PublicEventsResponse> {
   return new Promise((resolve) => {
     const events = mockEvents.map((item) => sanitizeDogEvent(item))
-    process.nextTick(() => resolve(since ? { events, unchangedIds: [] } : events))
+    process.nextTick(() => resolve({ events, unchangedIds: [] }))
   })
 }
 

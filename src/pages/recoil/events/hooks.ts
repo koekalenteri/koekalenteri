@@ -13,6 +13,21 @@ type DogEventRangeKey = Pick<DogEvent, 'startDate' | 'endDate'>
 
 const RANGE_INCREMENTAL_THROTTLE = 5 * 60 * 1000 // 5 min
 const SINGLE_FRESHNESS = 5 * 60 * 1000 // 5 min
+const RANGE_RETENTION_MS = 180 * 24 * 60 * 60 * 1000 // 180 days
+
+type RangeRequest = {
+  end: number | null
+  start: number
+}
+
+type RangePreparation<T> = {
+  nextEvents: T[]
+  wasPruned: boolean
+}
+
+type RangeStrategy =
+  | { kind: 'fetch'; isCold: boolean; request: RangeRequest }
+  | { kind: 'throttled'; request: RangeRequest }
 
 function compareEventsByDate(a: DogEventSortKey, b: DogEventSortKey) {
   const aStart = a.startDate ? new Date(a.startDate).getTime() : 0
@@ -34,14 +49,14 @@ function mergeAndSortByDate<T extends DogEventSortKey>(existing: T[], incoming: 
   return [...byId.values()].sort(compareEventsByDate)
 }
 
-function pruneBeforeStart<T extends DogEventPruneKey>(events: T[], start: Date): T[] {
-  const startTime = start.getTime()
+function pruneBeforeDate<T extends DogEventPruneKey>(events: T[], cutoff: Date): T[] {
+  const cutoffTime = cutoff.getTime()
   return events.filter((e) => {
     if (!e.endDate) {
       return true
     }
     const endTime = new Date(e.endDate).getTime()
-    return endTime >= startTime
+    return endTime >= cutoffTime
   })
 }
 
@@ -74,6 +89,64 @@ function isSingleFresh(metadata: EventMetadata, id: string): boolean {
   return Boolean(lastFetched && Date.now() - lastFetched < SINGLE_FRESHNESS)
 }
 
+function getRangeRequest(start: Date, end?: Date): RangeRequest {
+  return {
+    end: end ? end.getTime() : null,
+    start: start.getTime(),
+  }
+}
+
+function prepareRangeEvents<T extends DogEventPruneKey>(
+  events: T[],
+  start: Date | undefined,
+  now: number
+): RangePreparation<T> {
+  const retentionCutoff = new Date(now - RANGE_RETENTION_MS)
+  const shouldPrune = !start || start.getTime() >= retentionCutoff.getTime()
+  const nextEvents = shouldPrune ? pruneBeforeDate(events, retentionCutoff) : events
+
+  return {
+    nextEvents,
+    wasPruned: nextEvents.length !== events.length,
+  }
+}
+
+function getRangeStrategy(
+  metadata: EventMetadata,
+  eventCount: number,
+  start: Date,
+  end: Date | undefined,
+  now: number
+): RangeStrategy {
+  const request = getRangeRequest(start, end)
+  const lastSyncAt = metadata.lastSyncAt
+  const shouldThrottleIncremental = Boolean(lastSyncAt && now - lastSyncAt < RANGE_INCREMENTAL_THROTTLE)
+  const sameRequestedRange =
+    metadata.lastRangeStart === request.start && (metadata.lastRangeEnd ?? null) === request.end
+  const isCold = !lastSyncAt || eventCount === 0
+
+  if (!isCold && shouldThrottleIncremental && sameRequestedRange) {
+    return { kind: 'throttled', request }
+  }
+
+  return { isCold, kind: 'fetch', request }
+}
+
+function buildRangeMetadata(
+  metadata: EventMetadata,
+  request: RangeRequest,
+  now: number,
+  includeSyncAt: boolean
+): EventMetadata {
+  return {
+    ...metadata,
+    lastRangeEnd: request.end,
+    lastRangeStart: request.start,
+    lastSyncAt: includeSyncAt ? now : metadata.lastSyncAt,
+    retainedStart: request.start,
+  }
+}
+
 export function useFetchEvents() {
   return useRecoilCallback(
     ({ snapshot, set }) =>
@@ -81,45 +154,23 @@ export function useFetchEvents() {
         const metadata = await snapshot.getPromise(eventMetadataAtom)
         const events = await snapshot.getPromise(eventsAtom)
         const now = Date.now()
+        const preparedRange = prepareRangeEvents(events, start, now)
+        const preparedEvents = preparedRange.nextEvents
+
+        if (preparedRange.wasPruned) {
+          set(eventsAtom, preparedEvents)
+        }
 
         if (start) {
-          // Always prune events that are fully before the requested start.
-          const pruned = pruneBeforeStart(events, start)
-          if (pruned.length !== events.length) {
-            set(eventsAtom, pruned)
-          }
+          const strategy = getRangeStrategy(metadata, preparedEvents.length, start, end, now)
 
-          const lastSyncAt = metadata.lastSyncAt
-          const shouldThrottleIncremental = Boolean(lastSyncAt && now - lastSyncAt < RANGE_INCREMENTAL_THROTTLE)
-          const requestedStart = start.getTime()
-          const requestedEnd = end ? end.getTime() : null
-          const sameRequestedRange =
-            metadata.lastRangeStart === requestedStart && (metadata.lastRangeEnd ?? null) === requestedEnd
-
-          // Fetch strategy:
-          // - cold start (no watermark or no local events): full fetch for requested range
-          // - warm start: incremental fetch using since=watermark (throttled)
-          const isCold = !lastSyncAt || pruned.length === 0
-          if (!isCold && shouldThrottleIncremental && sameRequestedRange) {
-            set(eventMetadataAtom, {
-              ...metadata,
-              lastRangeEnd: requestedEnd,
-              lastRangeStart: requestedStart,
-              retainedStart: start.getTime(),
-            })
+          if (strategy.kind === 'throttled') {
+            set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, false))
           } else {
-            const response = isCold ? await getEvents(start, end) : await getEvents(start, end, lastSyncAt)
-            const nextEvents = Array.isArray(response)
-              ? mergeAndSortByDate(pruned, response)
-              : reconcileRange(pruned, response.events, response.unchangedIds, start, end)
+            const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
+            const nextEvents = reconcileRange(preparedEvents, response.events, response.unchangedIds, start, end)
             set(eventsAtom, nextEvents)
-            set(eventMetadataAtom, {
-              ...metadata,
-              lastRangeEnd: requestedEnd,
-              lastRangeStart: requestedStart,
-              lastSyncAt: now,
-              retainedStart: start.getTime(),
-            })
+            set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, true))
           }
         }
 
