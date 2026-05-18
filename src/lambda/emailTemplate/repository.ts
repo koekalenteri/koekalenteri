@@ -6,15 +6,13 @@ type EmailTemplateRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'read' | 'readAll' | 'write'>
 }
 
-export interface EmailTemplateRepository {
+interface EmailTemplateRepository {
   readById(id: string): Promise<JsonEmailTemplate | undefined>
   readAll(): Promise<JsonEmailTemplate[] | undefined>
   write(template: JsonEmailTemplate): Promise<void>
 }
 
-export const createEmailTemplateRepository = ({
-  db,
-}: EmailTemplateRepositoryDependencies): EmailTemplateRepository => ({
+const createEmailTemplateRepository = ({ db }: EmailTemplateRepositoryDependencies): EmailTemplateRepository => ({
   async readAll() {
     return db.readAll<JsonEmailTemplate>()
   },

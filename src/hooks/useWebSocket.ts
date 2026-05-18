@@ -59,7 +59,7 @@ export const applyRegistrationPatches = (
   return changed ? next : registrations
 }
 
-export interface EventViewer {
+interface EventViewer {
   userId: string
   name: string
 }

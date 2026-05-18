@@ -141,7 +141,7 @@ export const canRefund = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount'>
 ): boolean => (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
 
-export const getSelectedAdditionalCosts = (
+const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,
   registration: MinimalRegistrationForCost
 ): CustomCost[] => {

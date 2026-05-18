@@ -17,10 +17,7 @@ import { eventReadPort } from '../registration/api'
 import { getApiHost } from '../utils/proxyEvent'
 
 const loadRefundRequestData = createLoadRefundRequestData({
-  refundRepo: {
-    getPaymentTransaction: paymentTransactionRepository.getPaymentById,
-    writeRefundTransaction: paymentTransactionRepository.createRefund,
-  },
+  refundRepo: paymentTransactionRepository,
   registrationRead: {
     async getById(eventId, id) {
       return getRegistration(eventId, id)

@@ -101,7 +101,7 @@ type RegistrationRepositoryDependencies = {
 
 const { registrationTable } = CONFIG
 
-export const createRegistrationRepository = ({ db }: RegistrationRepositoryDependencies): RegistrationRepository => ({
+const createRegistrationRepository = ({ db }: RegistrationRepositoryDependencies): RegistrationRepository => ({
   async create(registration) {
     await db.write(registration, registrationTable)
   },

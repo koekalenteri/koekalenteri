@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent, JsonUser } from '../../types'
 
-export type EventPolicyContext = {
+type EventPolicyContext = {
   existing: Partial<JsonConfirmedEvent> | undefined
   item: Partial<JsonConfirmedEvent>
 }

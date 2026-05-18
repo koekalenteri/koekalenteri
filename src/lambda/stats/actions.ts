@@ -16,7 +16,7 @@ import { calculateStatDeltas, hashStatValue } from './rules'
 // recordRegistrationChange
 // ---------------------------------------------------------------------------
 
-export type RecordRegistrationChangeInput = {
+type RecordRegistrationChangeInput = {
   event: JsonConfirmedEvent
   next: JsonRegistration
   previous?: JsonRegistration

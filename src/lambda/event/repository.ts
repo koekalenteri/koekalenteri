@@ -7,8 +7,6 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
 
-export type EventRecord = JsonConfirmedEvent
-
 export type EventPatchValue =
   | string
   | number

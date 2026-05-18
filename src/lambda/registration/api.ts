@@ -52,7 +52,7 @@ export interface GroupChangeNotifier {
 // Port interfaces
 // ---------------------------------------------------------------------------
 
-export type PublishRegistrationChangeInput = {
+type PublishRegistrationChangeInput = {
   eventId: string
   organizerId: JsonConfirmedEvent['organizer']['id']
   registrations: JsonRegistration[]
@@ -62,7 +62,7 @@ export type PublishRegistrationChangeInput = {
  * Outbound port for websocket publication of registration-related changes.
  * Actions use this interface; the concrete adapter is wired below.
  */
-export interface RegistrationPublisher {
+interface RegistrationPublisher {
   publishChange(input: PublishRegistrationChangeInput): Promise<void>
 }
 
@@ -101,26 +101,26 @@ export interface EventReadPort {
 // Concrete adapters
 // ---------------------------------------------------------------------------
 
-export const createRegistrationPublisher = (): RegistrationPublisher => ({
+const createRegistrationPublisher = (): RegistrationPublisher => ({
   async publishChange({ eventId, organizerId, registrations }) {
     await publishRegistrationPatches(eventId, registrations, organizerId)
   },
 })
 
-export const createRegistrationStatsPort = (): RegistrationStatsPort => ({
+const createRegistrationStatsPort = (): RegistrationStatsPort => ({
   async recordRegistrationChange({ event, next, previous }) {
     await recordRegistrationChange({ event, next, previous })
   },
 })
 
-export const createSyncAggregatesPort = (): SyncAggregatesPort => ({
+const createSyncAggregatesPort = (): SyncAggregatesPort => ({
   async syncEventAggregates(eventId) {
     return syncEventAggregates({ eventId })
     // syncEventAggregates already returns { changed, event }
   },
 })
 
-export const createEventReadPort = (): EventReadPort => ({
+const createEventReadPort = (): EventReadPort => ({
   async getConfirmedEvent(eventId) {
     const event = await eventRepository.getById(eventId)
     if (!event) {
@@ -130,7 +130,7 @@ export const createEventReadPort = (): EventReadPort => ({
   },
 })
 
-export const createGroupChangeNotifier = (): GroupChangeNotifier => ({
+const createGroupChangeNotifier = (): GroupChangeNotifier => ({
   async sendCancelledEmails(confirmedEvent, registrations, origin, username) {
     return sendTemplatedEmailToEventRegistrations(
       'registration',
@@ -168,7 +168,7 @@ export const createGroupChangeNotifier = (): GroupChangeNotifier => ({
 // Singleton instances for production use
 // ---------------------------------------------------------------------------
 
-export const registrationPublisher = createRegistrationPublisher()
+const _registrationPublisher = createRegistrationPublisher()
 export const registrationStatsPort = createRegistrationStatsPort()
 export const syncAggregatesPort = createSyncAggregatesPort()
 export const eventReadPort = createEventReadPort()

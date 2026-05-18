@@ -10,7 +10,7 @@ export const configureDisconnectHandler = (handler: (connectionId: string) => Pr
 
 const createGateway = () => new ApiGatewayManagementApiClient({ endpoint: CONFIG.wsApiEndpoint })
 
-export const sendPayload = async (
+const sendPayload = async (
   connections: BroadcastTarget[],
   dataBuffer: Buffer,
   exceptConnectionId?: string,

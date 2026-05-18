@@ -6,13 +6,13 @@ type JudgeRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'batchWrite' | 'readAll' | 'write'>
 }
 
-export interface JudgeRepository {
+interface JudgeRepository {
   list(): Promise<JsonJudge[] | undefined>
   batchWrite(items: JsonJudge[]): Promise<void>
   write(item: JsonJudge): Promise<void>
 }
 
-export const createJudgeRepository = ({ db }: JudgeRepositoryDependencies): JudgeRepository => ({
+const createJudgeRepository = ({ db }: JudgeRepositoryDependencies): JudgeRepository => ({
   async batchWrite(items) {
     await db.batchWrite(items, CONFIG.judgeTable)
   },

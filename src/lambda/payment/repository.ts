@@ -3,7 +3,7 @@ import { CONFIG } from '../config'
 import { LambdaError } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-export type TransactionStatusPatch = {
+type TransactionStatusPatch = {
   status: JsonTransaction['status']
   provider?: string
   removePaymentResponse?: boolean

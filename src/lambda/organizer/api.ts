@@ -2,12 +2,12 @@ import type { Organizer } from '../../types'
 import { LambdaError } from '../lib/lambda'
 import { organizerRepository } from './repository'
 
-export interface OrganizerReadPort {
+interface OrganizerReadPort {
   getById(id: string): Promise<Organizer | undefined>
   getWithMerchantId(id: string): Promise<Organizer>
 }
 
-export const createOrganizerReadPort = (): OrganizerReadPort => ({
+const createOrganizerReadPort = (): OrganizerReadPort => ({
   async getById(id) {
     return organizerRepository.getById(id)
   },

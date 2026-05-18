@@ -7,7 +7,7 @@ type EventDraft = Partial<JsonConfirmedEvent>
 
 type EventPatchField = keyof JsonConfirmedEvent
 
-export const deriveEventSeason = (item: EventDraft, existing?: EventDraft): string | undefined => {
+const deriveEventSeason = (item: EventDraft, existing?: EventDraft): string | undefined => {
   if (!item.startDate || item.startDate === existing?.startDate) {
     return item.season
   }
@@ -15,7 +15,7 @@ export const deriveEventSeason = (item: EventDraft, existing?: EventDraft): stri
   return item.startDate.substring(0, 4)
 }
 
-export const deriveEntryOrigEndDate = (item: EventDraft, existing?: JsonConfirmedEvent): string | undefined => {
+const deriveEntryOrigEndDate = (item: EventDraft, existing?: JsonConfirmedEvent): string | undefined => {
   if (
     !existing ||
     !isEntryOpen(existing) ||
@@ -75,7 +75,7 @@ export const buildEventPatch = (
 // Aggregate calculation helpers
 // ---------------------------------------------------------------------------
 
-export type EventAggregatePatchFields = Pick<JsonConfirmedEvent, 'classes' | 'entries' | 'members'>
+type EventAggregatePatchFields = Pick<JsonConfirmedEvent, 'classes' | 'entries' | 'members'>
 
 /**
  * Filter registrations that count toward event aggregates.

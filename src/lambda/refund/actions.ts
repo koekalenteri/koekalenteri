@@ -1,6 +1,6 @@
 import type { JsonPaymentTransaction, JsonRefundTransaction, JsonRegistration } from '../../types'
+import type { PaymentTransactionRepository } from '../payment/repository'
 import type { PaytrailCallbackParams } from '../types/paytrail'
-import type { RefundRepository } from './repository'
 import { i18n } from '../../i18n/lambda'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
@@ -16,26 +16,26 @@ const { frontendURL, emailFrom } = CONFIG
 // loadRefundRequestData
 // ---------------------------------------------------------------------------
 
-export type RefundRequestInput = {
+type RefundRequestInput = {
   transactionId: string
 }
 
-export type RefundRequestData = {
+type RefundRequestData = {
   eventId: string
   registrationId: string
   registration: JsonRegistration
   paymentTransaction: JsonPaymentTransaction
 }
 
-export type RefundRequestDependencies = {
-  refundRepo: RefundRepository
+type RefundRequestDependencies = {
+  refundRepo: PaymentTransactionRepository
   registrationRead: { getById(eventId: string, id: string): Promise<JsonRegistration | undefined> }
 }
 
 export const createLoadRefundRequestData =
   ({ refundRepo, registrationRead }: RefundRequestDependencies) =>
   async ({ transactionId }: RefundRequestInput): Promise<RefundRequestData> => {
-    const paymentTransaction = await refundRepo.getPaymentTransaction(transactionId)
+    const paymentTransaction = await refundRepo.getPaymentById(transactionId)
     const [eventId, registrationId] = paymentTransaction.reference.split(':')
     const registration = await registrationRead.getById(eventId, registrationId)
 

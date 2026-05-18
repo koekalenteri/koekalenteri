@@ -22,7 +22,7 @@ import { buildRegistrationPatch } from './rules'
 // Apply payment success
 // ---------------------------------------------------------------------------
 
-export type ApplyPaymentSuccessCommand = {
+type ApplyPaymentSuccessCommand = {
   eventId: string
   registrationId: string
   /** Amount paid in this transaction, in currency units (not cents). */
@@ -31,7 +31,7 @@ export type ApplyPaymentSuccessCommand = {
   paidAt: string
 }
 
-export type ApplyPaymentSuccessResult = {
+type ApplyPaymentSuccessResult = {
   /** The registration state before the patch was applied. */
   previous: JsonRegistration
   /** The updated registration after the patch was applied. */
@@ -40,12 +40,12 @@ export type ApplyPaymentSuccessResult = {
   patch: PaymentStatePatch
 }
 
-export type ApplyPaymentCancelCommand = {
+type ApplyPaymentCancelCommand = {
   eventId: string
   registrationId: string
 }
 
-export type ApplyPaymentCancelResult = {
+type ApplyPaymentCancelResult = {
   previous: JsonRegistration
   registration: JsonRegistration
 }
@@ -125,7 +125,7 @@ export const createApplyPaymentCancel =
 // Apply refund success
 // ---------------------------------------------------------------------------
 
-export type ApplyRefundSuccessCommand = {
+type ApplyRefundSuccessCommand = {
   eventId: string
   registrationId: string
   /** Refund amount in currency units (not cents). */
@@ -134,7 +134,7 @@ export type ApplyRefundSuccessCommand = {
   refundAt: string
 }
 
-export type ApplyRefundSuccessResult = {
+type ApplyRefundSuccessResult = {
   /** The registration state before the patch was applied. */
   previous: JsonRegistration
   /** The updated registration after the patch was applied. */
@@ -143,12 +143,12 @@ export type ApplyRefundSuccessResult = {
   patch: RefundStatePatch
 }
 
-export type ApplyRefundCancelCommand = {
+type ApplyRefundCancelCommand = {
   eventId: string
   registrationId: string
 }
 
-export type ApplyRefundCancelResult = {
+type ApplyRefundCancelResult = {
   previous: JsonRegistration
   registration: JsonRegistration
 }
@@ -223,14 +223,14 @@ export const createApplyRefundCancel =
 // Apply refund create (pending state)
 // ---------------------------------------------------------------------------
 
-export type ApplyRefundCreateCommand = {
+type ApplyRefundCreateCommand = {
   eventId: string
   registrationId: string
   /** Whether the refund started as pending (true) or was immediately successful (false). */
   isPending: boolean
 }
 
-export type ApplyRefundCreateResult = {
+type ApplyRefundCreateResult = {
   /** The updated registration after the patch was applied. */
   registration: JsonRegistration
 }
@@ -267,11 +267,11 @@ export const createApplyRefundCreate =
     return { registration: updated }
   }
 
-export type ApplyPaymentSuccessWithSideEffectsResult = ApplyPaymentSuccessResult & {
+type ApplyPaymentSuccessWithSideEffectsResult = ApplyPaymentSuccessResult & {
   event: JsonConfirmedEvent
 }
 
-export const createApplyPaymentSuccessWithSideEffects =
+const createApplyPaymentSuccessWithSideEffects =
   (
     repo: RegistrationRepository,
     deps: {
@@ -295,7 +295,7 @@ export const createApplyPaymentSuccessWithSideEffects =
 // submitRegistration — public create / update / cancel / confirm flow
 // ---------------------------------------------------------------------------
 
-export type SubmitRegistrationCommand = {
+type SubmitRegistrationCommand = {
   /** Raw registration payload from the public API request. */
   registration: JsonRegistration
   /** ISO-8601 timestamp for modifiedAt and createdAt fields. */
@@ -312,7 +312,7 @@ export type SubmitRegistrationCommand = {
  * write audit entries — those concerns belong in the handler or a future
  * `RegistrationNotifier` port.
  */
-export type SubmitRegistrationResult =
+type SubmitRegistrationResult =
   | {
       kind: 'no-op'
       registration: JsonRegistration
@@ -339,7 +339,7 @@ export type SubmitRegistrationResult =
       event: JsonConfirmedEvent
     }
 
-export type SubmitRegistrationDependencies = {
+type SubmitRegistrationDependencies = {
   eventRead: EventReadPort
   repo: RegistrationRepository
   stats: RegistrationStatsPort
@@ -463,14 +463,14 @@ export const createSubmitRegistration =
 // saveAdminRegistration — admin/secretary create / update flow
 // ---------------------------------------------------------------------------
 
-export type SaveAdminRegistrationCommand = {
+type SaveAdminRegistrationCommand = {
   registration: JsonRegistration
   timestamp: string
   /** user.name from authorize() */
   username: string
 }
 
-export type SaveAdminRegistrationResult =
+type SaveAdminRegistrationResult =
   | { kind: 'already-registered'; cancelled: boolean }
   | {
       kind: 'saved'
@@ -479,7 +479,7 @@ export type SaveAdminRegistrationResult =
       confirmedEvent: JsonConfirmedEvent
     }
 
-export type SaveAdminRegistrationDependencies = {
+type SaveAdminRegistrationDependencies = {
   fixGroups: {
     fixRegistrationGroups(
       registrations: JsonRegistration[],
@@ -566,13 +566,13 @@ export const createSaveAdminRegistration =
 // updateRegistrationNotes — update internalNotes on a registration
 // ---------------------------------------------------------------------------
 
-export type UpdateRegistrationNotesCommand = {
+type UpdateRegistrationNotesCommand = {
   eventId: string
   registrationId: string
   internalNotes: string | undefined
 }
 
-export type UpdateRegistrationNotesResult = {
+type UpdateRegistrationNotesResult = {
   registration: JsonRegistration
 }
 
@@ -599,7 +599,7 @@ export const createUpdateRegistrationNotes =
 // Apply group changes — admin group reorder flow
 // ---------------------------------------------------------------------------
 
-export type ApplyGroupChangesCommand = {
+type ApplyGroupChangesCommand = {
   eventId: string
   eventGroups: JsonRegistrationGroupInfo[]
   origin: string
@@ -623,7 +623,7 @@ export type ApplyGroupChangesResult = {
   }
 }
 
-export type ApplyGroupChangesDependencies = {
+type ApplyGroupChangesDependencies = {
   repo: RegistrationRepository
   sync: SyncAggregatesPort
   notifier: GroupChangeNotifier
@@ -791,7 +791,6 @@ import { eventReadPort, groupChangeNotifier, registrationStatsPort, syncAggregat
 import { fixRegistrationGroups } from './groups'
 import { registrationRepository } from './repository'
 
-export const applyPaymentSuccess = createApplyPaymentSuccess(registrationRepository)
 export const applyPaymentSuccessWithSideEffects = createApplyPaymentSuccessWithSideEffects(registrationRepository, {
   stats: registrationStatsPort,
   sync: syncAggregatesPort,
@@ -819,18 +818,3 @@ export const applyGroupChanges = createApplyGroupChanges({
   repo: registrationRepository,
   sync: syncAggregatesPort,
 })
-
-// ---------------------------------------------------------------------------
-// Helper: build SaveEventCommand-compatible actor type is re-exported here
-// when needed by downstream registration slices in future steps.
-// ---------------------------------------------------------------------------
-
-export type RegistrationActor = {
-  id: string
-  name: string
-  admin?: boolean
-  roles?: Record<string, string>
-}
-
-/** Re-export for test factories and downstream callers. */
-export type { ApplyPaymentSuccessCommand as PaymentSuccessCommand }

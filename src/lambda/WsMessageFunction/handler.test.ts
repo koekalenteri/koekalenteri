@@ -10,7 +10,7 @@ jest.unstable_mockModule('../ws/broadcastService', () => ({
   unsubscribeWebSocketFromEvent: mockUnsubscribe,
 }))
 
-const { wsMessageHandler } = await import('./handler')
+const { default: wsMessageHandler } = await import('./handler')
 
 describe('wsMessageHandler', () => {
   beforeEach(() => {

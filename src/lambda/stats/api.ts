@@ -7,5 +7,4 @@
 // Re-exports the main write orchestration entrypoint.
 // Read-side queries live in src/lambda/stats/queries.ts.
 
-export type { RecordRegistrationChangeInput } from './actions'
-export { createRecordRegistrationChange, recordRegistrationChange } from './actions'
+export { recordRegistrationChange } from './actions'

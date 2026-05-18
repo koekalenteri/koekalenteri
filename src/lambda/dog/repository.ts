@@ -12,7 +12,7 @@ export interface DogRepository {
   write(dog: JsonDog): Promise<void>
 }
 
-export const createDogRepository = ({ db }: DogRepositoryDependencies): DogRepository => ({
+const createDogRepository = ({ db }: DogRepositoryDependencies): DogRepository => ({
   async deleteByRegNo(regNo) {
     return db.delete({ regNo })
   },

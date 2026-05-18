@@ -6,7 +6,7 @@ type OrganizerRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'batchWrite' | 'read' | 'readAll' | 'update' | 'write'>
 }
 
-export interface OrganizerRepository {
+interface OrganizerRepository {
   batchWrite(items: Organizer[]): Promise<void>
   getById(id: string): Promise<Organizer | undefined>
   list(): Promise<Organizer[] | undefined>
@@ -14,7 +14,7 @@ export interface OrganizerRepository {
   write(item: Organizer): Promise<void>
 }
 
-export const createOrganizerRepository = ({ db }: OrganizerRepositoryDependencies): OrganizerRepository => ({
+const createOrganizerRepository = ({ db }: OrganizerRepositoryDependencies): OrganizerRepository => ({
   async batchWrite(items) {
     await db.batchWrite(items)
   },

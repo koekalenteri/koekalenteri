@@ -6,12 +6,12 @@ type UserRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'batchWrite' | 'readAll'>
 }
 
-export interface UserRepository {
+interface UserRepository {
   list(): Promise<JsonUser[] | undefined>
   batchWrite(items: JsonUser[]): Promise<void>
 }
 
-export const createUserRepository = ({ db }: UserRepositoryDependencies): UserRepository => ({
+const createUserRepository = ({ db }: UserRepositoryDependencies): UserRepository => ({
   async batchWrite(items) {
     await db.batchWrite(items, CONFIG.userTable)
   },

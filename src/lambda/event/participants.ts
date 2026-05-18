@@ -8,10 +8,7 @@ const dynamoDB = new CustomDynamoClient(eventTable)
 const EVENT_CLASS_STATES: EventClassState[] = ['picked', 'invited', 'started', 'ended'] as const
 const EVENT_STATES: EventState[] = ['confirmed', ...EVENT_CLASS_STATES] as const
 
-export const upgradeClassState = (
-  oldState: EventClassState | undefined,
-  newState: EventClassState
-): EventClassState => {
+const upgradeClassState = (oldState: EventClassState | undefined, newState: EventClassState): EventClassState => {
   if (!oldState) return newState
   const oldIndex = EVENT_CLASS_STATES.indexOf(oldState)
   const newIndex = EVENT_CLASS_STATES.indexOf(newState)
@@ -19,7 +16,7 @@ export const upgradeClassState = (
   return oldIndex < newIndex ? newState : oldState
 }
 
-export const upgradeEventState = (
+const upgradeEventState = (
   oldState: ConfirmedEventStates | undefined,
   newState: ConfirmedEventStates
 ): ConfirmedEventStates => {
@@ -61,16 +58,4 @@ export const markParticipants = async (
   )
 
   return confirmedEvent
-}
-
-/**
- * Map template name to a valid EventClassState
- */
-export const getStateFromTemplate = (template: string): EventClassState => {
-  if (template === 'invitation') return 'invited'
-  if (template === 'picked') return 'picked'
-
-  // Default to 'picked' for any other template
-  // This is a fallback that shouldn't happen in normal operation
-  return 'picked'
 }

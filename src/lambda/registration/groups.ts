@@ -11,7 +11,7 @@ import { isDefined } from '../../lib/typeGuards'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationRepository } from './repository'
 
-export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']): string => {
+const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']): string => {
   if (!group) return ''
 
   if (group.key === GROUP_KEY_CANCELLED) return `Peruneet #${group.number}`

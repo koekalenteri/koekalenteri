@@ -21,7 +21,7 @@ const parseBody = (body: string | null): WsMessage => {
   }
 }
 
-export const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
+const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   const connectionId = event.requestContext.connectionId!
   const message = parseBody(event.body)
 

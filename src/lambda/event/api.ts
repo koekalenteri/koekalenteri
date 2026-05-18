@@ -25,7 +25,7 @@ export interface EventPublisher {
   publishRegistrationPatches(input: PublishRegistrationPatchesInput): Promise<void>
 }
 
-export const createEventPublisher = (): EventPublisher => ({
+const createEventPublisher = (): EventPublisher => ({
   async publishChange({ organizerId, payload, exceptConnectionId }: PublishEventChangeInput) {
     await publishPublicEvent(payload, exceptConnectionId)
     await publishAdminEventPatch(payload, organizerId, exceptConnectionId)
@@ -41,7 +41,7 @@ export interface RegistrationReadPort {
   listByEventId(eventId: string): Promise<JsonRegistration[]>
 }
 
-export const createRegistrationReadPort = (): RegistrationReadPort => ({
+const createRegistrationReadPort = (): RegistrationReadPort => ({
   async listByEventId(eventId) {
     return getRegistrationsByEventId(eventId).then((regs) => regs ?? [])
   },

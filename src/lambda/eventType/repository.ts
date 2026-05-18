@@ -6,7 +6,7 @@ type EventTypeRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'batchWrite' | 'readAll' | 'update' | 'write'>
 }
 
-export interface EventTypeRepository {
+interface EventTypeRepository {
   list(): Promise<JsonEventType[] | undefined>
   write(item: JsonEventType): Promise<void>
   batchWrite(items: JsonEventType[]): Promise<void>
@@ -18,7 +18,7 @@ export interface EventTypeRepository {
   }): Promise<void>
 }
 
-export const createEventTypeRepository = ({ db }: EventTypeRepositoryDependencies): EventTypeRepository => ({
+const createEventTypeRepository = ({ db }: EventTypeRepositoryDependencies): EventTypeRepository => ({
   async batchWrite(items) {
     await db.batchWrite(items)
   },

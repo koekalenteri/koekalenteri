@@ -6,13 +6,13 @@ type OfficialRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'batchWrite' | 'readAll' | 'write'>
 }
 
-export interface OfficialRepository {
+interface OfficialRepository {
   list(): Promise<JsonOfficial[] | undefined>
   batchWrite(items: JsonOfficial[]): Promise<void>
   write(item: JsonOfficial): Promise<void>
 }
 
-export const createOfficialRepository = ({ db }: OfficialRepositoryDependencies): OfficialRepository => ({
+const createOfficialRepository = ({ db }: OfficialRepositoryDependencies): OfficialRepository => ({
   async batchWrite(items) {
     await db.batchWrite(items, CONFIG.officialTable)
   },

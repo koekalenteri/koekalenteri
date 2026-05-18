@@ -10,19 +10,19 @@ import { buildEventPatch, calculateEventAggregates, hasAggregateChanges, normali
 // Aggregate sync action
 // ---------------------------------------------------------------------------
 
-export type SyncEventAggregatesInput = {
+type SyncEventAggregatesInput = {
   eventId: JsonConfirmedEvent['id']
   /** Pre-fetched registrations; if omitted the action will load them from the repository. */
   registrations?: JsonRegistration[]
 }
 
-export type SyncEventAggregatesDependencies = {
+type SyncEventAggregatesDependencies = {
   registrations: RegistrationReadPort
   publisher: EventPublisher
   repository: EventRepository
 }
 
-export type SyncEventAggregatesResult = {
+type SyncEventAggregatesResult = {
   event: JsonConfirmedEvent
   changed: boolean
 }
@@ -95,7 +95,7 @@ export const syncEventAggregates = createSyncEventAggregates({
 // Save event action
 // ---------------------------------------------------------------------------
 
-export type SaveEventInput = {
+type SaveEventInput = {
   item: Partial<JsonConfirmedEvent>
   timestamp: string
   user: JsonUser
@@ -111,14 +111,14 @@ const AGGREGATE_AFFECTING_KEYS: ReadonlySet<keyof JsonConfirmedEvent> = new Set(
   'state',
 ])
 
-export type SaveEventDependencies = {
+type SaveEventDependencies = {
   findQualificationStartDate: (eventType: string, entryEndDate: string) => Promise<string | undefined>
   publisher: EventPublisher
   repository: EventRepository
   syncAggregates?: (input: SyncEventAggregatesInput) => Promise<SyncEventAggregatesResult>
 }
 
-export type SaveEventResult = {
+type SaveEventResult = {
   created: boolean
   event: JsonConfirmedEvent
   aggregateSyncTriggered: boolean

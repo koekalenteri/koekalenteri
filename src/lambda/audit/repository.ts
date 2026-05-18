@@ -6,12 +6,12 @@ type AuditRepositoryDependencies = {
   db: Pick<CustomDynamoClient, 'query' | 'write'>
 }
 
-export interface AuditRepository {
+interface AuditRepository {
   create(item: Omit<AuditRecord, 'timestamp'>): Promise<void>
   listByAuditKey(auditKey: string): Promise<JsonAuditRecord[]>
 }
 
-export const createAuditRepository = ({ db }: AuditRepositoryDependencies): AuditRepository => ({
+const createAuditRepository = ({ db }: AuditRepositoryDependencies): AuditRepository => ({
   async create(item) {
     await db.write({ ...item, timestamp: new Date().toISOString() }, CONFIG.auditTable)
   },
