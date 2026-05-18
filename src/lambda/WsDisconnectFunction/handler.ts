@@ -1,11 +1,11 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { broadcastConnectionCount, wsDisconnect } from '../lib/broadcast'
+import { disconnectWebSocket, publishConnectionCount } from '../ws/broadcastService'
 
 const wsDisconnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   const connectionId = event.requestContext.connectionId!
 
-  await wsDisconnect(connectionId)
-  await broadcastConnectionCount()
+  await disconnectWebSocket(connectionId)
+  await publishConnectionCount()
 
   return { body: 'Disonnected', statusCode: 200 }
 }

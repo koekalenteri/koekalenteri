@@ -15,12 +15,14 @@ import Tabs from '@mui/material/Tabs'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
+import { useWebSocket } from '../../hooks/useWebSocket'
 import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, isRegistrationClass } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
+import { userSelector } from '../recoil/user/selectors'
 import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
@@ -52,6 +54,8 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
+  const { viewers } = useWebSocket(true, eventId)
+  const currentUserLoadable = useRecoilValueLoadable(userSelector)
   const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
   const event = useRecoilValue(adminConfirmedEventSelector(eventId))
   const actions = useAdminRegistrationActions(eventId)
@@ -72,6 +76,16 @@ export default function EventViewPage() {
     [allClasses, selectedEventClass]
   )
   const backgroundActionsRunning = useRecoilValue(adminBackgroundActionsRunningAtom)
+  const otherViewers = useMemo(() => {
+    const currentUserId = currentUserLoadable.state === 'hasValue' ? currentUserLoadable.contents?.id : undefined
+    return viewers.filter((viewer) => viewer.userId !== currentUserId)
+  }, [currentUserLoadable, viewers])
+  const otherViewersText = useMemo(() => {
+    if (!otherViewers.length) return ''
+
+    const names = otherViewers.map((viewer) => viewer.name).join(', ')
+    return t(otherViewers.length === 1 ? 'event.viewerBanner.one' : 'event.viewerBanner.many', { names })
+  }, [otherViewers, t])
 
   const activeTab = useMemo(() => Math.max(allClasses.indexOf(currentEventClass), 0), [allClasses, currentEventClass])
 
@@ -148,6 +162,7 @@ export default function EventViewPage() {
       </Grid>
 
       <Stack direction="row" spacing={2}>
+        {!!otherViewers.length && <Alert severity="info">{otherViewersText}</Alert>}
         <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
           Näytä tapahtuman tiedot
         </Button>

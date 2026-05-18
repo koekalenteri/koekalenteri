@@ -3,9 +3,9 @@ import { jest } from '@jest/globals'
 const mockWsDisconnect = jest.fn<any>()
 const mockBroadcastConnectionCount = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/broadcast', () => ({
-  broadcastConnectionCount: mockBroadcastConnectionCount,
-  wsDisconnect: mockWsDisconnect,
+jest.unstable_mockModule('../ws/broadcastService', () => ({
+  disconnectWebSocket: mockWsDisconnect,
+  publishConnectionCount: mockBroadcastConnectionCount,
 }))
 
 const { default: wsDisconnectHandler } = await import('./handler')

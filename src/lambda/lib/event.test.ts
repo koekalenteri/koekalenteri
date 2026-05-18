@@ -25,9 +25,15 @@ jest.unstable_mockModule('./audit', () => ({
 }))
 
 const mockBroadcast = jest.fn()
-jest.unstable_mockModule('./broadcast', () => ({
+const mockBroadcastAdminEvent = jest.fn()
+const mockBroadcastEventRegistrations = jest.fn()
+const mockBroadcastPublicEvent = jest.fn()
+jest.unstable_mockModule('../ws/broadcastService', () => ({
   __esModule: true,
-  broadcastEvent: mockBroadcast,
+  publishAdminEventPatch: mockBroadcastAdminEvent,
+  publishConnectionCount: mockBroadcast,
+  publishPublicEvent: mockBroadcastPublicEvent,
+  publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
 
 // Mock registration module functions
@@ -274,16 +280,24 @@ describe('lib/event', () => {
       mockQuery.mockReset()
       mockRead.mockReset()
       mockBroadcast.mockReset()
+      mockBroadcastAdminEvent.mockReset()
+      mockBroadcastEventRegistrations.mockReset()
+      mockBroadcastPublicEvent.mockReset()
       mockHasPriority.mockReset()
     })
 
     it('updates event entries and members', async () => {
-      const event = { classes: [{ class: 'A' }], id: 'e3', state: 'ready' }
+      const event = {
+        classes: [{ class: 'ALO' }, { class: 'AVO' }],
+        id: 'e3',
+        organizer: { id: 'org-1' },
+        state: 'ready',
+      }
       mockRead.mockResolvedValueOnce(event)
       const regs = [
-        { cancelled: false, class: 'ALO', paidAmount: 1, state: 'ready' },
-        { cancelled: false, class: 'AVO', paidAmount: 0, state: 'ready' },
-      ]
+        { cancelled: false, class: 'ALO', eventId: 'e3', id: 'r1', paidAmount: 1, state: 'ready' },
+        { cancelled: false, class: 'AVO', eventId: 'e3', id: 'r2', paidAmount: 0, state: 'ready' },
+      ] as JsonRegistration[]
       mockQuery.mockResolvedValueOnce(regs)
 
       // Mock hasPriority to return false for all registrations
@@ -292,6 +306,12 @@ describe('lib/event', () => {
       const result = await updateRegistrations('e3')
       expect(result.entries).toBe(2)
       expect(mockUpdate).toHaveBeenCalled()
+      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({ entries: 2, eventId: 'e3', members: 0 })
+      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+        { classes: result.classes, entries: 2, eventId: 'e3', members: 0 },
+        'org-1'
+      )
+      expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith('e3', regs, 'org-1')
     })
 
     it('avoids noop updates when no changes are detected', async () => {
@@ -335,6 +355,7 @@ describe('lib/event', () => {
           { class: 'AVO', entries: 0, members: 0 },
         ],
         id: 'e5',
+        organizer: { id: 'org-1' },
         state: 'ready',
       }
       mockRead.mockResolvedValueOnce(event)
@@ -389,8 +410,12 @@ describe('lib/event', () => {
         expect.anything()
       )
 
-      // Verify broadcast was called
-      expect(mockBroadcast).toHaveBeenCalled()
+      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({ entries: 3, eventId: 'e5', members: 1 })
+      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+        { classes: result.classes, entries: 3, eventId: 'e5', members: 1 },
+        'org-1'
+      )
+      expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith('e5', updatedRegs, 'org-1')
     })
 
     it('handles empty updatedRegistrations array', async () => {
@@ -402,6 +427,7 @@ describe('lib/event', () => {
         entries: 5,
         id: 'e6',
         members: 2,
+        organizer: { id: 'org-1' },
         state: 'ready',
       }
       mockRead.mockResolvedValueOnce(event)
