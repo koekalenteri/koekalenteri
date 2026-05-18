@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-import { flushPromises } from '../../../test-utils/utils'
 import PaymentInfo from './PaymentInfo'
 
 describe('PaymentInfo', () => {
