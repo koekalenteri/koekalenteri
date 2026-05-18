@@ -389,7 +389,8 @@ describe('registration', () => {
           set: {
             lastEmail: 'Koekutsu 1.1.2023 14:00',
           },
-        }
+        },
+        expect.any(String)
       )
 
       // Check messagesSent updates
@@ -399,7 +400,8 @@ describe('registration', () => {
           set: {
             messagesSent: { invitation: true },
           },
-        }
+        },
+        expect.any(String)
       )
 
       jest.useRealTimers()
@@ -467,7 +469,8 @@ describe('registration', () => {
           set: {
             messagesSent: { invitation: true, registration: true },
           },
-        }
+        },
+        expect.any(String)
       )
 
       // Check that the in-memory object was updated
@@ -498,7 +501,8 @@ describe('registration', () => {
           set: {
             lastEmail: 'Varasijailmoitus (#1) 1.1.2023 14:00',
           },
-        }
+        },
+        expect.any(String)
       )
 
       expect(mockDynamoDB.update).toHaveBeenCalledWith(
@@ -509,7 +513,8 @@ describe('registration', () => {
               reserve: true,
             },
           },
-        }
+        },
+        expect.any(String)
       )
 
       jest.useRealTimers()

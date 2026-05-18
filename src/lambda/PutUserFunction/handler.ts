@@ -1,6 +1,6 @@
 import type { JsonUser } from '../../types'
+import { authorize, getAndUpdateUserByEmail } from '../auth/api'
 import { getOrigin } from '../lib/api-gw'
-import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
@@ -8,7 +8,7 @@ import { setUserRole } from '../lib/user'
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] === 'admin')
 
-const putUserLambda = lambda('putUser', async (event) => {
+export const putUserLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -27,6 +27,8 @@ const putUserLambda = lambda('putUser', async (event) => {
   }
 
   return response(200, newUser, event)
-})
+}
 
-export default putUserLambda
+export default lambda('putUser', putUserLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

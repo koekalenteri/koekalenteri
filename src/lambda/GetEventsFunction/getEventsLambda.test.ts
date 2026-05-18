@@ -1,15 +1,8 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockSanitizeDogEvent = jest.fn<any>()
-
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
@@ -22,7 +15,7 @@ jest.unstable_mockModule('../../lib/event', () => ({
   sanitizeDogEvent: mockSanitizeDogEvent,
 }))
 
-const { default: getEventsLambda } = await import('./handler')
+const { getEventsLambda } = await import('./handler')
 
 describe('getEventsLambda', () => {
   const event = {
@@ -51,33 +44,36 @@ describe('getEventsLambda', () => {
       return rest
     })
 
-    await getEventsLambda(event)
+    const result = await getEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).toHaveBeenCalledTimes(2)
     expect(mockSanitizeDogEvent).toHaveBeenCalledWith(allEvents[0])
     expect(mockSanitizeDogEvent).toHaveBeenCalledWith(allEvents[2])
-    expect(mockResponse).toHaveBeenCalledWith(200, [sanitizedEvent1, sanitizedEvent3], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([sanitizedEvent1, sanitizedEvent3])
   })
 
   it('returns empty array if no events found', async () => {
     mockReadAll.mockResolvedValueOnce([])
 
-    await getEventsLambda(event)
+    const result = await getEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([])
   })
 
   it('returns empty array if readAll returns undefined', async () => {
     mockReadAll.mockResolvedValueOnce(undefined)
 
-    await getEventsLambda(event)
+    const result = await getEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([])
   })
 
   it('filters out all draft events', async () => {
@@ -88,11 +84,12 @@ describe('getEventsLambda', () => {
 
     mockReadAll.mockResolvedValueOnce(allEvents)
 
-    await getEventsLambda(event)
+    const result = await getEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([])
   })
 
   it('passes through errors from readAll', async () => {
@@ -104,7 +101,6 @@ describe('getEventsLambda', () => {
 
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('filters events by start date (excludes those ending before start)', async () => {
@@ -127,7 +123,7 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
     expect(mockQuery).toHaveBeenNthCalledWith(1, {
       index: 'gsiSeasonStartDate',
@@ -147,7 +143,8 @@ describe('getEventsLambda', () => {
         ':season': '2027',
       },
     })
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1], allEvents[2]], rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([allEvents[1], allEvents[2]])
   })
 
   it('accepts ISO string start date query params', async () => {
@@ -167,9 +164,10 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1], allEvents[2]], rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([allEvents[1], allEvents[2]])
   })
 
   it('filters events by end date (excludes those starting after end)', async () => {
@@ -192,9 +190,10 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[0], allEvents[1]], rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([allEvents[0], allEvents[1]])
   })
 
   it('filters events by both start and end dates (keeps only overlapping)', async () => {
@@ -218,9 +217,10 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([allEvents[1]])
   })
 
   it('still excludes draft events before applying date filtering', async () => {
@@ -240,10 +240,11 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
     expect(mockSanitizeDogEvent).toHaveBeenCalledTimes(1)
-    expect(mockResponse).toHaveBeenCalledWith(200, [allEvents[1]], rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([allEvents[1]])
   })
 
   it('filters events by since (excludes those modified before since)', async () => {
@@ -272,9 +273,10 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({ events: [allEvents[1]], unchangedIds: ['event1'] })
   })
 
   it('accepts ISO string end and since query params', async () => {
@@ -312,9 +314,10 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({ events: [allEvents[1]], unchangedIds: ['event1'] })
   })
 
   it('returns unchanged ids only for unchanged in-range events when since is used with range filters', async () => {
@@ -352,9 +355,10 @@ describe('getEventsLambda', () => {
       },
     } as any
 
-    await getEventsLambda(rangeEvent)
+    const result = await getEventsLambda(rangeEvent)
 
-    expect(mockResponse).toHaveBeenCalledWith(200, { events: [allEvents[1]], unchangedIds: ['event1'] }, rangeEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({ events: [allEvents[1]], unchangedIds: ['event1'] })
   })
 
   it('queries all derived seasons for cross-year ranges', async () => {

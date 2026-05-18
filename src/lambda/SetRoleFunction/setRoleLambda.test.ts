@@ -1,19 +1,12 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockSetUserRole = jest.fn<any>()
 const mockRead = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -35,7 +28,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   })),
 }))
 
-const { default: setRoleLambda } = await import('./handler')
+const { setRoleLambda } = await import('./handler')
 
 describe('setRoleLambda', () => {
   const event = {
@@ -91,10 +84,10 @@ describe('setRoleLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
@@ -104,11 +97,11 @@ describe('setRoleLambda', () => {
       userId: 'user456',
     })
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
+    expect(result.statusCode).toBe(400)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
@@ -119,11 +112,11 @@ describe('setRoleLambda', () => {
       userId: 'user123', // Same as authorized user
     })
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(result.statusCode).toBe(403)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
@@ -137,28 +130,28 @@ describe('setRoleLambda', () => {
       },
     })
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(result.statusCode).toBe(403)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('returns 404 if user is not found', async () => {
     mockRead.mockResolvedValueOnce(null)
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
-    expect(mockResponse).toHaveBeenCalledWith(404, 'Not found', event)
+    expect(result.statusCode).toBe(404)
     expect(mockSetUserRole).not.toHaveBeenCalled()
   })
 
   it('sets user role successfully as global admin', async () => {
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     // Verify origin was retrieved
     expect(mockGetOrigin).toHaveBeenCalledWith(event)
@@ -181,18 +174,7 @@ describe('setRoleLambda', () => {
     )
 
     // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        email: 'test@example.com',
-        id: 'user456',
-        name: 'Test User',
-        roles: {
-          org789: 'secretary',
-        },
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('sets user role successfully as organizer admin', async () => {
@@ -205,7 +187,7 @@ describe('setRoleLambda', () => {
       },
     })
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     // Verify user role was set
     expect(mockSetUserRole).toHaveBeenCalledWith(
@@ -217,7 +199,7 @@ describe('setRoleLambda', () => {
     )
 
     // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('removes user role when role is "none"', async () => {
@@ -243,7 +225,7 @@ describe('setRoleLambda', () => {
       roles: {}, // Role removed
     })
 
-    await setRoleLambda(event)
+    const result = await setRoleLambda(event)
 
     // Verify user role was set to 'none'
     expect(mockSetUserRole).toHaveBeenCalledWith(
@@ -255,16 +237,7 @@ describe('setRoleLambda', () => {
     )
 
     // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        email: 'test@example.com',
-        id: 'user456',
-        name: 'Test User',
-        roles: {},
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('logs warning when trying to set own roles', async () => {

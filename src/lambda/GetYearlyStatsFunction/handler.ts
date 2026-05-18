@@ -1,8 +1,8 @@
 import type { YearlyTotalStat } from '../../types/Stats'
 import { lambda, response } from '../lib/lambda'
-import { getAvailableYears, getDogHandlerBuckets, getYearlyTotalStats } from '../lib/stats'
+import { getAvailableYears, getDogHandlerBuckets, getYearlyTotalStats } from '../stats/queries'
 
-const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
+export const getYearlyStatsLambda = async (event: APIGatewayProxyEvent) => {
   // Optional year parameter (?year=2025)
   const yearParam = event.queryStringParameters?.year
 
@@ -43,6 +43,8 @@ const getYearlyStatsLambda = lambda('getYearlyStatsLambda', async (event) => {
   }
 
   return response(200, result, event)
-})
+}
 
-export default getYearlyStatsLambda
+export default lambda('getYearlyStatsLambda', getYearlyStatsLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

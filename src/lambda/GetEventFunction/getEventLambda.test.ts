@@ -1,26 +1,19 @@
 import { jest } from '@jest/globals'
 
-const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
+const mockGetConfirmedEvent = jest.fn<any>()
 const mockSanitizeDogEvent = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  getParam: mockGetParam,
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
+  },
 }))
 
 jest.unstable_mockModule('../../lib/event', () => ({
   sanitizeDogEvent: mockSanitizeDogEvent,
 }))
 
-const { default: getEventLambda } = await import('./handler')
+const { getEventLambda } = await import('./handler')
 
 describe('getEventLambda', () => {
   const event = {
@@ -51,42 +44,47 @@ describe('getEventLambda', () => {
       // sanitized fields...
     }
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(rawEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(rawEvent)
     mockSanitizeDogEvent.mockReturnValueOnce(sanitizedEvent)
 
-    await getEventLambda(event)
+    const result = await getEventLambda(event)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockSanitizeDogEvent).toHaveBeenCalledWith(rawEvent)
-    expect(mockResponse).toHaveBeenCalledWith(200, sanitizedEvent, event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(sanitizedEvent)
   })
 
-  it('passes through errors from getEvent', async () => {
+  it('passes through errors from eventReadPort.getConfirmedEvent', async () => {
     const eventId = 'nonexistent'
     const error = new Error('Event not found')
+    const missingEvent = {
+      ...event,
+      pathParameters: { id: eventId },
+    }
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockRejectedValueOnce(error)
+    mockGetConfirmedEvent.mockRejectedValueOnce(error)
 
-    await expect(getEventLambda(event)).rejects.toThrow(error)
+    await expect(getEventLambda(missingEvent)).rejects.toThrow(error)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockSanitizeDogEvent).not.toHaveBeenCalled()
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('handles missing event ID parameter', async () => {
-    mockGetParam.mockReturnValueOnce(undefined)
+    const eventWithoutId = {
+      ...event,
+      pathParameters: {},
+    }
 
-    await getEventLambda(event)
+    mockGetConfirmedEvent.mockResolvedValueOnce(undefined)
+    mockSanitizeDogEvent.mockReturnValueOnce(undefined)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetEvent).toHaveBeenCalledWith(undefined)
-    // The function will still try to get the event with undefined ID
-    // and the error handling will be done in the getEvent function
+    const result = await getEventLambda(eventWithoutId)
+
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('')
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBeUndefined()
   })
 
   it('preserves all public fields after sanitization', async () => {
@@ -129,13 +127,13 @@ describe('getEventLambda', () => {
       state: 'confirmed',
     }
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(rawEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(rawEvent)
     mockSanitizeDogEvent.mockReturnValueOnce(sanitizedEvent)
 
-    await getEventLambda(event)
+    const result = await getEventLambda(event)
 
     expect(mockSanitizeDogEvent).toHaveBeenCalledWith(rawEvent)
-    expect(mockResponse).toHaveBeenCalledWith(200, sanitizedEvent, event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(sanitizedEvent)
   })
 })

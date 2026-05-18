@@ -1,19 +1,12 @@
 import type { YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 import { jest } from '@jest/globals'
 
-const mockResponse = jest.fn()
-
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: jest.fn((_name, fn) => fn),
-  response: mockResponse,
-}))
-
 // Mock the stats functions
 const mockGetYearlyTotalStats = jest.fn<() => Promise<YearlyTotalStat[]>>()
 const mockGetAvailableYears = jest.fn<() => Promise<number[]>>()
 const mockGetDogHandlerBuckets = jest.fn<() => Promise<{ bucket: string; count: number }[]>>()
 
-jest.unstable_mockModule('../lib/stats', () => ({
+jest.unstable_mockModule('../stats/queries', () => ({
   getAvailableYears: mockGetAvailableYears,
   getDogHandlerBuckets: mockGetDogHandlerBuckets,
   getYearlyTotalStats: mockGetYearlyTotalStats,
@@ -26,10 +19,7 @@ describe('GetYearlyStatsFunction', () => {
     jest.clearAllMocks()
     // Import the handler after mocking dependencies
     const module = await import('./handler')
-    handler = module.default
-
-    // Default mock responses
-    mockResponse.mockImplementation((status, body) => ({ body, status }))
+    handler = module.getYearlyStatsLambda
   })
 
   it('returns stats for a specific year when year parameter is provided', async () => {
@@ -49,7 +39,7 @@ describe('GetYearlyStatsFunction', () => {
     mockGetDogHandlerBuckets.mockResolvedValueOnce(dogHandlerBuckets)
 
     // Call handler with year parameter
-    const event = { queryStringParameters: { year: '2024' } }
+    const event = { headers: {}, queryStringParameters: { year: '2024' } }
     const result = await handler(event)
 
     // Verify correct functions were called
@@ -57,8 +47,8 @@ describe('GetYearlyStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).toHaveBeenCalledWith(year)
 
     // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(200, { dogHandlerBuckets, totals, year }, event)
-    expect(result.body).toEqual({ dogHandlerBuckets, totals, year })
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({ dogHandlerBuckets, totals, year })
   })
 
   it('returns stats for all available years when no year parameter is provided', async () => {
@@ -77,8 +67,8 @@ describe('GetYearlyStatsFunction', () => {
     mockGetDogHandlerBuckets.mockResolvedValueOnce(buckets2024)
 
     // Call handler without year parameter
-    const event = { queryStringParameters: {} }
-    await handler(event)
+    const event = { headers: {}, queryStringParameters: {} }
+    const result = await handler(event)
 
     // Verify correct functions were called
     expect(mockGetAvailableYears).toHaveBeenCalled()
@@ -88,17 +78,14 @@ describe('GetYearlyStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).toHaveBeenCalledWith(2024)
 
     // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        stats: [
-          { dogHandlerBuckets: buckets2023, totals: totals2023, year: 2023 },
-          { dogHandlerBuckets: buckets2024, totals: totals2024, year: 2024 },
-        ],
-        years,
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({
+      stats: [
+        { dogHandlerBuckets: buckets2023, totals: totals2023, year: 2023 },
+        { dogHandlerBuckets: buckets2024, totals: totals2024, year: 2024 },
+      ],
+      years,
+    })
   })
 
   it('handles invalid year parameter gracefully', async () => {
@@ -117,7 +104,7 @@ describe('GetYearlyStatsFunction', () => {
     mockGetDogHandlerBuckets.mockResolvedValueOnce(buckets2024)
 
     // Call handler with invalid year parameter
-    const event = { queryStringParameters: { year: 'invalid' } }
+    const event = { headers: {}, queryStringParameters: { year: 'invalid' } }
     const result = await handler(event)
 
     // Should fall back to getting all years
@@ -128,7 +115,8 @@ describe('GetYearlyStatsFunction', () => {
     expect(mockGetDogHandlerBuckets).toHaveBeenCalledWith(2024)
 
     // Verify response structure
-    expect(result.body).toEqual({
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual({
       stats: [
         { dogHandlerBuckets: buckets2023, totals: totals2023, year: 2023 },
         { dogHandlerBuckets: buckets2024, totals: totals2024, year: 2024 },

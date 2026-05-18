@@ -1,10 +1,7 @@
 import type { JsonDogEvent } from '../../types'
-import { CONFIG } from '../config'
-import { authorizeWithMemberOf } from '../lib/auth'
+import { authorizeWithMemberOf } from '../auth/api'
+import { eventRepository } from '../event/repository'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> => {
   if (since) {
@@ -14,11 +11,9 @@ const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> 
     const result: JsonDogEvent[] = []
 
     for (let season = startSeason; season <= endSeason; season++) {
-      const seasonEvents = await dynamoDB.query<JsonDogEvent>({
-        index: 'gsiSeasonModifiedAt',
-        key: 'season = :season AND modifiedAt > :modifiedAfter',
-        table: CONFIG.eventTable,
-        values: { ':modifiedAfter': modifiedAfter, ':season': season.toString() },
+      const seasonEvents = await eventRepository.listBySeasonModifiedAfter({
+        modifiedAfterIso: modifiedAfter,
+        season: season.toString(),
       })
       if (seasonEvents) result.push(...seasonEvents)
     }
@@ -26,10 +21,10 @@ const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> 
     return result
   }
 
-  return dynamoDB.readAll<JsonDogEvent>()
+  return eventRepository.listAll()
 }
 
-const getAdminEventsLambda = lambda('getAdminEvents', async (event) => {
+export const getAdminEventsLambda = async (event: Parameters<typeof response>[2]) => {
   const { user, memberOf, res } = await authorizeWithMemberOf(event)
 
   if (res) return res
@@ -38,6 +33,6 @@ const getAdminEventsLambda = lambda('getAdminEvents', async (event) => {
   const allowed = items?.filter((item) => user.admin || memberOf.includes(item.organizer.id))
 
   return response(200, allowed, event)
-})
+}
 
-export default getAdminEventsLambda
+export default lambda('getAdminEvents', getAdminEventsLambda)

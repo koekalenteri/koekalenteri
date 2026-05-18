@@ -1,23 +1,18 @@
-import type { JsonConfirmedEvent } from '../../types'
 import { nanoid } from 'nanoid'
-import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
-import { getEvent } from '../lib/event'
+import { authorize } from '../auth/api'
+import { eventRepository } from '../event/repository'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
 import { getParam, lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { eventReadPort } from '../registration/api'
 
-const { eventTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(eventTable)
-
-const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (event) => {
+export const putInvitationAttachmentLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
   }
 
   const eventId = getParam(event, 'eventId')
-  const existing = await getEvent<JsonConfirmedEvent>(eventId)
+  const existing = await eventReadPort.getConfirmedEvent(eventId)
   if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
     return response(403, 'Forbidden', event)
   }
@@ -40,16 +35,11 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
   const key = nanoid()
   await uploadFile(key, file.data)
 
-  await dynamoDB.update(
-    { id: eventId },
-    {
-      set: {
-        invitationAttachment: key,
-      },
-    }
-  )
+  await eventRepository.updateInvitationAttachment(eventId, key)
 
   return response(200, key, event)
-})
+}
 
-export default putInvitationAttachmentLambda
+export default lambda('putInvitationAttachment', putInvitationAttachmentLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

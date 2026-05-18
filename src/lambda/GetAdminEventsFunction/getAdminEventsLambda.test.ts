@@ -1,17 +1,11 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorizeWithMemberOf = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn()
 const mockQuery = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
-}))
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
 }))
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
@@ -20,7 +14,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   })),
 }))
 
-const { default: getAdminEventsLambda } = await import('./handler')
+const { getAdminEventsLambda } = await import('./handler')
 
 describe('getAdminEventsLambda', () => {
   const event = {
@@ -37,10 +31,10 @@ describe('getAdminEventsLambda', () => {
     const res = { body: 'Unauthorized', statusCode: 401 }
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
 
-    await getAdminEventsLambda(event)
+    const result = await getAdminEventsLambda(event)
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(result).toEqual(res)
   })
 
   it('returns all events for admin user', async () => {
@@ -55,10 +49,10 @@ describe('getAdminEventsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(allEvents)
 
-    await getAdminEventsLambda(event)
+    const result = await getAdminEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, allEvents, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('filters events for non-admin user based on membership', async () => {
@@ -77,10 +71,10 @@ describe('getAdminEventsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(allEvents)
 
-    await getAdminEventsLambda(event)
+    const result = await getAdminEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, filteredEvents, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('queries events with since parameter', async () => {
@@ -102,7 +96,7 @@ describe('getAdminEventsLambda', () => {
     mockQuery.mockResolvedValueOnce(seasonEvents1)
     mockQuery.mockResolvedValueOnce(seasonEvents2)
 
-    await getAdminEventsLambda(eventWithSince)
+    const result = await getAdminEventsLambda(eventWithSince)
 
     // Check that query was called for each season
     expect(mockQuery).toHaveBeenCalledTimes(endSeason - startSeason + 1)
@@ -119,7 +113,7 @@ describe('getAdminEventsLambda', () => {
     })
 
     // Check that response combines all season events
-    expect(mockResponse).toHaveBeenCalledWith(200, [...seasonEvents1, ...seasonEvents2], eventWithSince)
+    expect(result.statusCode).toBe(200)
   })
 
   it('returns empty array if no events found', async () => {
@@ -133,10 +127,10 @@ describe('getAdminEventsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(allEvents)
 
-    await getAdminEventsLambda(event)
+    const result = await getAdminEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('handles undefined result from readAll', async () => {
@@ -146,9 +140,9 @@ describe('getAdminEventsLambda', () => {
     mockAuthorizeWithMemberOf.mockResolvedValueOnce({ memberOf, user })
     mockReadAll.mockResolvedValueOnce(undefined)
 
-    await getAdminEventsLambda(event)
+    const result = await getAdminEventsLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 })

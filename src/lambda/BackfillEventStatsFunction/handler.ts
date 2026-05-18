@@ -1,24 +1,19 @@
-import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
-import { CONFIG } from '../config'
-import { updateEventStatsForRegistration } from '../lib/stats'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-// Single global client for all DynamoDB operations
-const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
+import { eventRepository } from '../event/repository'
+import { recordRegistrationChange } from '../stats/api'
 
 export default async function handler(): Promise<void> {
   console.log('Starting backfill of event stats...')
 
   // Read all registrations from the registration table
-  const registrations = (await dynamoDB.readAll<JsonRegistration>(CONFIG.registrationTable)) || []
+  const registrations = (await eventRepository.listAllRegistrations()) || []
   console.log(`Found ${registrations.length} registrations to process`)
 
   // Read all events into memory first for efficiency
-  const allEvents = (await dynamoDB.readAll<JsonConfirmedEvent>(CONFIG.eventTable)) || []
+  const allEvents = (await eventRepository.listAllConfirmed()) || []
   console.log(`Found ${allEvents.length} events`)
 
   // Create a map of eventId -> event for quick lookup
-  const eventMap = new Map<string, JsonConfirmedEvent>()
+  const eventMap = new Map<string, (typeof allEvents)[number]>()
   for (const event of allEvents) {
     eventMap.set(event.id, event)
   }
@@ -37,9 +32,8 @@ export default async function handler(): Promise<void> {
         continue
       }
 
-      // Use the updateEventStatsForRegistration function to update all stat types
-      // Pass undefined as existingRegistration since this is a backfill
-      await updateEventStatsForRegistration(reg, undefined, evt)
+      // Pass previous as undefined since this is a backfill.
+      await recordRegistrationChange({ event: evt, next: reg, previous: undefined })
       processedCount++
 
       // Log progress every 100 registrations

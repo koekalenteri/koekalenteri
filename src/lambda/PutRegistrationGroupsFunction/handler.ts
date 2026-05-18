@@ -1,64 +1,17 @@
-import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../lib/registration'
+import { authorize } from '../auth/api'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
-import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda, response } from '../lib/lambda'
-import {
-  getCancelAuditMessage,
-  getReadyRegistrationsByEventId,
-  isParticipantGroup,
-  sendTemplatedEmailToEventRegistrations,
-  updateReserveNotified,
-} from '../lib/registration'
+import { getCancelAuditMessage } from '../lib/registration'
+import { applyGroupChanges } from '../registration/actions'
 
-const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
-  Boolean(event.state === state || (cls && event.classes.some((c) => c.class === cls && c.state === state)))
-
-const classEquals = (a: string | null | undefined, b: string | null | undefined) => (!a && !b) || a === b
-
-const regString = (r: JsonRegistration) =>
-  `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
-
-const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegistrationGroupInfo[], user: JsonUser) => {
-  // create a new copy of oldItems, so we can update without touching the original ones
-  const updatedItems: JsonRegistration[] = oldItems.map((r) => ({ ...r }))
-
-  // update the items in memory first
-  for (const group of eventGroups) {
-    const reg = updatedItems.find((r) => r.id === group.id)
-    if (reg) {
-      Object.assign(reg, group)
-    }
-  }
-
-  // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
-  await fixRegistrationGroups(updatedItems, user, false)
-
-  // Finally save any changes
-  for (const reg of updatedItems) {
-    const oldGroup = oldItems.find((r) => r.id === reg.id)?.group
-    if (reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number) {
-      const reason = eventGroups.some((g) => g.id === reg.id) ? 'siirto' : 'seuraus'
-
-      // update cancellation status, so the counts get right in updateRegistrations
-      reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
-
-      await saveGroup(reg, oldGroup, user, reason, reg.cancelReason)
-    }
-  }
-
-  return updatedItems
-}
-
-const parseGroups = (json: string | null, eventId: string): JsonRegistrationGroupInfo[] => {
+const parseGroups = (json: string | null, eventId: string) => {
   const parsed = parseJSONWithFallback(json, [])
   if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
     return []
   }
-  const filtered: JsonRegistrationGroupInfo[] = parsed.filter((g) => g.eventId === eventId)
+  const filtered = parsed.filter((g: { eventId?: string }) => g.eventId === eventId)
 
   if (filtered.length === 0) {
     console.error(`no groups after filtering by eventId='${eventId}'`, parsed)
@@ -66,7 +19,7 @@ const parseGroups = (json: string | null, eventId: string): JsonRegistrationGrou
   return filtered
 }
 
-const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event) => {
+export const putRegistrationGroupsLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -79,132 +32,10 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     return response(422, 'no groups', event)
   }
 
-  const oldItems = await getReadyRegistrationsByEventId(eventId)
-
-  // create a new copy of oldItems, so we can update without touching the original ones
-  const updatedItems = await updateItems(oldItems, eventGroups, user)
-
-  // update event counts
-  const confirmedEvent = await updateRegistrations(eventId, updatedItems)
-  const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
-
-  const emails = {
-    cancelledFailed: [],
-    cancelledOk: [],
-    invitedFailed: [],
-    invitedOk: [],
-    pickedFailed: [],
-    pickedOk: [],
-    reserveFailed: [],
-    reserveOk: [],
-  }
-
-  const oldCancelled = oldItems.filter((reg) => getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED)
-  const oldResCan =
-    oldItems.filter((reg) => [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE].includes(getRegistrationGroupKey(reg))) ?? []
-
-  const picked = isEventOrClassState(confirmedEvent, cls, 'picked')
-  const invited = isEventOrClassState(confirmedEvent, cls, 'invited')
-
-  if (picked || invited) {
-    /**
-     * When event/class has already been 'picked' or 'invited', registrations moved from reserve to participants receive 'picked' email
-     */
-    const newParticipants = updatedItems.filter(
-      (reg) =>
-        classEquals(reg.class, cls) && isParticipantGroup(reg.group?.key) && oldResCan.some((old) => old.id === reg.id)
-    )
-
-    console.log({
-      newParticipants: newParticipants.map(regString),
-    })
-
-    const { ok: pickedOk, failed: pickedFailed } = await sendTemplatedEmailToEventRegistrations(
-      'picked',
-      confirmedEvent,
-      newParticipants,
-      origin,
-      '',
-      user.name,
-      ''
-    )
-
-    const { ok: invitedOk, failed: invitedFailed } = invited
-      ? await sendTemplatedEmailToEventRegistrations(
-          'invitation',
-          confirmedEvent,
-          newParticipants,
-          origin,
-          '',
-          user.name,
-          ''
-        )
-      : { failed: [], ok: [] }
-
-    /**
-     * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email
-     */
-    const movedReserve = updatedItems.filter(
-      (reg) =>
-        classEquals(reg.class, cls) &&
-        getRegistrationGroupKey(reg) === GROUP_KEY_RESERVE &&
-        reg.reserveNotified &&
-        (reg.reserveNotified === true
-          ? oldResCan.find(
-              (old) =>
-                old.id === reg.id &&
-                getRegistrationGroupKey(old) === GROUP_KEY_RESERVE &&
-                (old.group?.number ?? 999) > (reg.group?.number ?? 999)
-            )
-          : reg.reserveNotified > (reg.group?.number ?? 999))
-    )
-
-    const { ok: reserveOk, failed: reserveFailed } = await sendTemplatedEmailToEventRegistrations(
-      GROUP_KEY_RESERVE,
-      confirmedEvent,
-      movedReserve,
-      origin,
-      '',
-      user.name,
-      ''
-    )
-
-    await updateReserveNotified(movedReserve)
-
-    Object.assign(emails, {
-      invitedFailed,
-      invitedOk,
-      pickedFailed,
-      pickedOk,
-      reserveFailed,
-      reserveOk,
-    })
-  }
-
-  /**
-   * Registrations moved to cancelled group receive "cancelled" email
-   */
-  const cancelled = updatedItems.filter(
-    (reg) =>
-      classEquals(reg.class, cls) &&
-      getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED &&
-      !oldCancelled.some((old) => old.id === reg.id)
-  )
-
-  console.log({ cancelled: cancelled.map(regString) })
-
-  const { ok: cancelledOk, failed: cancelledFailed } = await sendTemplatedEmailToEventRegistrations(
-    'registration',
-    confirmedEvent,
-    cancelled,
-    origin,
-    '',
-    user.name,
-    'cancel'
-  )
+  const result = await applyGroupChanges({ eventGroups, eventId, origin, user })
 
   // audit cancellations
-  for (const reg of cancelled) {
+  for (const reg of result.cancelledItems) {
     const message = getCancelAuditMessage(reg)
     await audit({
       auditKey: registrationAuditKey(reg),
@@ -213,13 +44,27 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     })
   }
 
-  Object.assign(emails, { cancelledFailed, cancelledOk })
+  const { confirmedEvent, updatedItems, emails } = result
 
   return response(
     200,
-    { classes: confirmedEvent.classes, entries: confirmedEvent.entries, items: updatedItems, ...emails },
+    {
+      cancelledFailed: emails.cancelledFailed,
+      cancelledOk: emails.cancelledOk,
+      classes: confirmedEvent.classes,
+      entries: confirmedEvent.entries,
+      invitedFailed: emails.invitedFailed,
+      invitedOk: emails.invitedOk,
+      items: updatedItems,
+      pickedFailed: emails.pickedFailed,
+      pickedOk: emails.pickedOk,
+      reserveFailed: emails.reserveFailed,
+      reserveOk: emails.reserveOk,
+    },
     event
   )
-})
+}
 
-export default putRegistrationGroupsLambda
+export default lambda('putRegistrationGroups', putRegistrationGroupsLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

@@ -1,52 +1,37 @@
-import type {
-  JsonConfirmedEvent,
-  JsonPaymentTransaction,
-  JsonRefundTransaction,
-  Organizer,
-  RefundPaymentResponse,
-} from '../../types'
+import type { JsonRefundTransaction, RefundPaymentResponse } from '../../types'
 import type { RefundItem } from '../types/paytrail'
 import { nanoid } from 'nanoid'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
-import { CONFIG } from '../config'
+import { authorize } from '../auth/api'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
-import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { refundPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { organizerReadPort } from '../organizer/api'
+import { paymentTransactionRepository } from '../payment/repository'
+import { createLoadRefundRequestData } from '../refund/actions'
+import { applyRefundCreate } from '../registration/actions'
+import { eventReadPort } from '../registration/api'
 import { getApiHost } from '../utils/proxyEvent'
 
-const { organizerTable, registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
-
-const getData = async (transactionId: string) => {
-  const paymentTransaction = await dynamoDB.read<JsonPaymentTransaction>({ transactionId }, transactionTable)
-
-  if (!paymentTransaction) {
-    throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
-  }
-
-  const [eventId, registrationId] = paymentTransaction.reference.split(':')
-
-  const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
-  const registration = await getRegistration(eventId, registrationId)
-
-  const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
-  if (!organizer?.paytrailMerchantId) {
-    throw new LambdaError(412, `Organizer ${jsonEvent.organizer.id} does not have MerchantId!`)
-  }
-
-  return { eventId, paymentTransaction, registration, registrationId }
-}
+const loadRefundRequestData = createLoadRefundRequestData({
+  refundRepo: {
+    getPaymentTransaction: paymentTransactionRepository.getPaymentById,
+    writeRefundTransaction: paymentTransactionRepository.createRefund,
+  },
+  registrationRead: {
+    async getById(eventId, id) {
+      return getRegistration(eventId, id)
+    },
+  },
+})
 
 /**
  * refundCreate is called by client to refund a payment
  */
-const refundCreateLambda = lambda('refundCreate', async (event) => {
+export const refundCreateLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -61,7 +46,10 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     throw new LambdaError(400, `Invalid amount: '${amount}'`)
   }
 
-  const { paymentTransaction, eventId, registrationId, registration } = await getData(transactionId)
+  const { paymentTransaction, eventId, registrationId, registration } = await loadRefundRequestData({ transactionId })
+
+  const jsonEvent = await eventReadPort.getConfirmedEvent(eventId)
+  await organizerReadPort.getWithMerchantId(jsonEvent.organizer.id)
 
   const reference = `${eventId}:${registrationId}`
   const stamp = nanoid()
@@ -96,7 +84,9 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     throw new LambdaError(500, 'refundPayment did not return a result')
   }
 
-  const transaction: JsonRefundTransaction = {
+  const isPending = result.status === 'pending' || result.provider === 'email refund'
+
+  const refundTransaction: JsonRefundTransaction = {
     amount,
     createdAt: new Date().toISOString(),
     items,
@@ -108,27 +98,22 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     type: 'refund',
     user: user.name,
   }
-  await dynamoDB.write(transaction)
+  await paymentTransactionRepository.createRefund(refundTransaction)
 
-  await dynamoDB.update(
-    { eventId, id: registrationId },
-    {
-      set: {
-        refundStatus: result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
-      },
-    },
-    registrationTable
-  )
+  // Apply the pending refund state transition through the domain action boundary
+  await applyRefundCreate({ eventId, isPending, registrationId })
 
-  if (result.status === 'pending' || result.provider === 'email refund') {
+  if (isPending) {
     await audit({
       auditKey: registrationAuditKey(registration),
-      message: `Palautus on kesken (${getProviderName(transaction.provider)}), ${formatMoney(amount / 100)}`,
-      user: transaction.user,
+      message: `Palautus on kesken (${getProviderName(refundTransaction.provider)}), ${formatMoney(amount / 100)}`,
+      user: refundTransaction.user,
     })
   }
 
   return response<RefundPaymentResponse>(200, result, event)
-})
+}
 
-export default refundCreateLambda
+export default lambda('refundCreate', refundCreateLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

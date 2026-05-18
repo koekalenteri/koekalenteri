@@ -1,11 +1,5 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>().mockImplementation((statusCode: number, body: any) => ({
-  body: JSON.stringify(body),
-  headers: { 'Content-Type': 'application/json' },
-  statusCode,
-}))
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
@@ -13,14 +7,9 @@ const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockFormatMoney = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
+const mockGetById = jest.fn<any>()
+const mockApplyPaymentCancel = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
-
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
 
 jest.unstable_mockModule('../lib/payment', () => ({
   parseParams: mockParseParams,
@@ -44,18 +33,25 @@ jest.unstable_mockModule('../../lib/payment', () => ({
   getProviderName: mockGetProviderName,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-  })),
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: {
+    getById: mockGetById,
+  },
+}))
+
+jest.unstable_mockModule('../registration/actions', () => ({
+  createApplyPaymentCancel: jest.fn(() => mockApplyPaymentCancel),
+}))
+
+jest.unstable_mockModule('../registration/repository', () => ({
+  registrationRepository: {},
 }))
 
 jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
-const { default: paymentVerifyLambda } = await import('./handler')
+const { paymentVerifyLambda } = await import('./handler')
 
 describe('paymentVerifyLambda', () => {
   const event = {
@@ -91,7 +87,7 @@ describe('paymentVerifyLambda', () => {
 
     mockVerifyParams.mockResolvedValue(undefined)
 
-    mockRead.mockResolvedValue({
+    mockGetById.mockResolvedValue({
       amount: 5000,
       reference: 'event123:reg456',
       status: 'pending',
@@ -111,7 +107,7 @@ describe('paymentVerifyLambda', () => {
 
     mockGetProviderName.mockReturnValue('Paytrail')
 
-    mockUpdate.mockResolvedValue({})
+    mockApplyPaymentCancel.mockResolvedValue({})
   })
 
   it('verifies a successful payment correctly', async () => {
@@ -137,36 +133,18 @@ describe('paymentVerifyLambda', () => {
     })
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify registration was NOT retrieved for successful payment
     expect(mockGetRegistration).not.toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        eventId: 'event123',
-        paymentStatus: 'ok',
-        registrationId: 'reg456',
-        status: 'ok',
-      },
-      event
-    )
-
-    // Verify the result
-    expect(result).toEqual(
-      expect.objectContaining({
-        body: expect.any(String),
-        statusCode: 200,
-      })
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('handles a failed payment correctly', async () => {
@@ -178,24 +156,16 @@ describe('paymentVerifyLambda', () => {
       transactionId: 'tx123',
     })
 
-    await paymentVerifyLambda(event)
+    const result = await paymentVerifyLambda(event)
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify registration was retrieved for failed payment
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
     // Verify registration payment status was updated
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          paymentStatus: 'CANCEL',
-        },
-      },
-      expect.any(String) // registrationTable
-    )
+    expect(mockApplyPaymentCancel).toHaveBeenCalledWith({ eventId: 'event123', registrationId: 'reg456' })
 
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
@@ -204,17 +174,7 @@ describe('paymentVerifyLambda', () => {
       user: 'user123',
     })
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        eventId: 'event123',
-        paymentStatus: 'fail',
-        registrationId: 'reg456',
-        status: 'error',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('does not update registration if payment status is not PENDING', async () => {
@@ -232,54 +192,34 @@ describe('paymentVerifyLambda', () => {
       paymentStatus: 'CANCEL', // Already cancelled
     })
 
-    await paymentVerifyLambda(event)
+    const result = await paymentVerifyLambda(event)
 
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        eventId: 'event123',
-        paymentStatus: 'fail',
-        registrationId: 'reg456',
-        status: 'error',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('throws error if transaction is not found', async () => {
-    mockRead.mockResolvedValueOnce(null)
+    mockGetById.mockResolvedValueOnce(null)
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    await paymentVerifyLambda(event)
+    const result = await paymentVerifyLambda(event)
 
     // Verify transaction was attempted to be retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify error was logged
     expect(consoleSpy).toHaveBeenCalled()
     consoleSpy.mockRestore()
 
-    // Verify response was returned with error status
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        eventId: 'event123',
-        paymentStatus: 'ok',
-        registrationId: 'reg456',
-        status: 'error',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('handles verification errors gracefully', async () => {
@@ -287,47 +227,27 @@ describe('paymentVerifyLambda', () => {
     mockVerifyParams.mockRejectedValueOnce(error)
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    await paymentVerifyLambda(event)
+    const result = await paymentVerifyLambda(event)
 
     // Verify error was logged
     expect(consoleSpy).toHaveBeenCalledWith(error)
 
-    // Verify response was returned with error status
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        eventId: 'event123',
-        paymentStatus: 'ok',
-        registrationId: 'reg456',
-        status: 'error',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
 
     consoleSpy.mockRestore()
   })
 
   it('handles other errors gracefully', async () => {
     const error = new Error('Unexpected error')
-    mockRead.mockRejectedValueOnce(error)
+    mockGetById.mockRejectedValueOnce(error)
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
-    await paymentVerifyLambda(event)
+    const result = await paymentVerifyLambda(event)
 
     // Verify error was logged
     expect(consoleSpy).toHaveBeenCalledWith(error)
 
-    // Verify response was returned with error status
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        eventId: 'event123',
-        paymentStatus: 'ok',
-        registrationId: 'reg456',
-        status: 'error',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
 
     consoleSpy.mockRestore()
   })

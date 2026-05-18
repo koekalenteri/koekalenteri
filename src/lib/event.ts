@@ -14,7 +14,7 @@ import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, 
 import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
 import { unique } from './utils'
 
-export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
+export { OFFICIAL_EVENT_TYPES } from './types'
 
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3

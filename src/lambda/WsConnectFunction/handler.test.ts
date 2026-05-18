@@ -4,7 +4,7 @@ const mockWsConnect = jest.fn<any>()
 const mockBroadcastConnectionCount = jest.fn<any>()
 const mockAuthorizeWithMemberOf = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 

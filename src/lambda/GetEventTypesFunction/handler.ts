@@ -1,14 +1,11 @@
 import type { JsonEventType, JsonUser } from '../../types'
 import { diff } from 'deep-object-diff'
-import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorize } from '../auth/api'
+import { eventTypeRepository } from '../eventType/repository'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTypeTable)
 
 const getEventTypesFromKlapi = async (user: JsonUser) => {
   const klapi = new KLAPI(getKLAPIConfig)
@@ -43,14 +40,14 @@ const getEventTypesFromKlapi = async (user: JsonUser) => {
 }
 
 const refreshEventTypes = async (user: JsonUser) => {
-  const existing = await dynamoDB.readAll<JsonEventType>()
+  const existing = await eventTypeRepository.list()
   const eventTypes = await getEventTypesFromKlapi(user)
 
   const insert = eventTypes.filter((et) => !existing?.find((ex) => ex.eventType === et.eventType))
 
   if (insert.length) {
     console.log('new eventTypes', insert)
-    await dynamoDB.batchWrite(insert)
+    await eventTypeRepository.batchWrite(insert)
   }
 
   const updates = eventTypes.filter((et) => {
@@ -61,20 +58,16 @@ const refreshEventTypes = async (user: JsonUser) => {
   for (const updated of updates) {
     const ex = existing?.find((ex) => ex.eventType === updated.eventType)
     console.log(`description changed for ${updated.eventType}`, ex?.description, updated.description)
-    await dynamoDB.update(
-      { eventType: updated.eventType },
-      {
-        set: {
-          description: updated.description,
-          modifiedAt: updated.modifiedAt,
-          modifiedBy: updated.modifiedBy,
-        },
-      }
-    )
+    await eventTypeRepository.updateDescription({
+      description: updated.description,
+      eventType: updated.eventType,
+      modifiedAt: updated.modifiedAt,
+      modifiedBy: updated.modifiedBy,
+    })
   }
 }
 
-const getEventTypesLambda = lambda('getEventTypes', async (event) => {
+export const getEventTypesLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -87,8 +80,10 @@ const getEventTypesLambda = lambda('getEventTypes', async (event) => {
     await refreshEventTypes(user)
   }
 
-  const items = await dynamoDB.readAll<JsonEventType>()
+  const items = await eventTypeRepository.list()
   return response(200, items, event)
-})
+}
 
-export default getEventTypesLambda
+export default lambda('getEventTypes', getEventTypesLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

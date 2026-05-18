@@ -1,9 +1,9 @@
 import type { JsonConfirmedEvent, RegistrationMessage } from '../../types'
 import { isRegistrationClass } from '../../lib/registration'
+import { authorize } from '../auth/api'
 import { CONFIG } from '../config'
+import { markParticipants } from '../event/participants'
 import { getOrigin } from '../lib/api-gw'
-import { authorize } from '../lib/auth'
-import { getStateFromTemplate, markParticipants } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
@@ -30,7 +30,7 @@ const markClassesAsReceived = async (
   let updatedEvent = confirmedEvent
 
   for (const classKey of classesToMark) {
-    const state = getStateFromTemplate(template)
+    const state = template === 'invitation' ? 'invited' : 'picked'
     const classToUse = isRegistrationClass(classKey) ? classKey : undefined
 
     updatedEvent = await markParticipants(updatedEvent, state, classToUse)
@@ -39,7 +39,7 @@ const markClassesAsReceived = async (
   return updatedEvent
 }
 
-const sendMessagesLambda = lambda('sendMessages', async (event) => {
+export const sendMessagesLambda = async (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)
 
   const user = await authorize(event)
@@ -89,6 +89,8 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
 
   const { state, classes } = confirmedEvent
   return response(200, { classes, failed, ok, registrations, state }, event)
-})
+}
 
-export default sendMessagesLambda
+export default lambda('sendMessages', sendMessagesLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

@@ -1,17 +1,10 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 const mockWrite = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -22,7 +15,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   })),
 }))
 
-const { default: runMigrationLambda } = await import('./handler')
+const { runMigrationLambda } = await import('./handler')
 
 describe('runMigrationLambda', () => {
   const event = {
@@ -68,25 +61,25 @@ describe('runMigrationLambda', () => {
       name: 'Test User',
     })
 
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockReadAll).not.toHaveBeenCalled()
   })
 
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockReadAll).not.toHaveBeenCalled()
   })
 
   it('adds season field to events that do not have it', async () => {
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     // Verify events were retrieved
     expect(mockReadAll).toHaveBeenCalled()
@@ -100,7 +93,8 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2025',
         startDate: '2025-01-01',
-      })
+      }),
+      expect.any(String)
     )
 
     // Verify second event was updated with correct season
@@ -109,15 +103,17 @@ describe('runMigrationLambda', () => {
         id: 'event2',
         season: '2025',
         startDate: '2025-02-01',
-      })
+      }),
+      expect.any(String)
     )
 
     // Verify response was returned with per-migration results
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 2, name: 'fixSeasonFromStartDate' }], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([{ count: 2, name: 'fixSeasonFromStartDate' }])
   })
 
   it('does not update events that already have season field', async () => {
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     // Verify events were retrieved
     expect(mockReadAll).toHaveBeenCalled()
@@ -128,6 +124,7 @@ describe('runMigrationLambda', () => {
         id: 'event3',
       })
     )
+    expect(result.statusCode).toBe(200)
   })
 
   it('updates events that have incorrect season for start date', async () => {
@@ -139,7 +136,7 @@ describe('runMigrationLambda', () => {
       },
     ])
 
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     expect(mockWrite).toHaveBeenCalledTimes(1)
     expect(mockWrite).toHaveBeenCalledWith(
@@ -147,9 +144,10 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2025',
         startDate: '2025-01-01',
-      })
+      }),
+      expect.any(String)
     )
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'fixSeasonFromStartDate' }], event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('uses zoned date in TIME_ZONE to determine season year', async () => {
@@ -161,7 +159,7 @@ describe('runMigrationLambda', () => {
       },
     ])
 
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     expect(mockWrite).toHaveBeenCalledTimes(1)
     expect(mockWrite).toHaveBeenCalledWith(
@@ -169,9 +167,10 @@ describe('runMigrationLambda', () => {
         id: 'event1',
         season: '2025',
         startDate: '2024-12-31T22:30:00.000Z',
-      })
+      }),
+      expect.any(String)
     )
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'fixSeasonFromStartDate' }], event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('returns migration results with zero count if no events need updating', async () => {
@@ -188,7 +187,7 @@ describe('runMigrationLambda', () => {
       },
     ])
 
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     // Verify events were retrieved
     expect(mockReadAll).toHaveBeenCalled()
@@ -197,13 +196,14 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'fixSeasonFromStartDate' }], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([{ count: 0, name: 'fixSeasonFromStartDate' }])
   })
 
   it('returns migration results with zero count if no events are found', async () => {
     mockReadAll.mockResolvedValueOnce(null)
 
-    await runMigrationLambda(event)
+    const result = await runMigrationLambda(event)
 
     // Verify events were attempted to be retrieved
     expect(mockReadAll).toHaveBeenCalled()
@@ -212,7 +212,8 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'fixSeasonFromStartDate' }], event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual([{ count: 0, name: 'fixSeasonFromStartDate' }])
   })
 
   // Skip the test for handling invalid startDate as it requires more complex mocking

@@ -1,34 +1,21 @@
-import type { updateEventStatsForRegistration } from '../lib/stats'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
+import type { EventRepository } from '../event/repository'
+import type { recordRegistrationChange } from '../stats/api'
 import { jest } from '@jest/globals'
 
-// Mocks for CustomDynamoClient methods
-const mockReadAll = jest.fn<CustomDynamoClient['readAll']>()
-const mockRead = jest.fn<CustomDynamoClient['read']>()
-const mockWrite = jest.fn<CustomDynamoClient['write']>()
-const mockUpdateEventStatsForRegistration = jest.fn<typeof updateEventStatsForRegistration>()
+const mockListAllRegistrations = jest.fn<EventRepository['listAllRegistrations']>()
+const mockListAllConfirmed = jest.fn<EventRepository['listAllConfirmed']>()
+const mockRecordRegistrationChange = jest.fn<typeof recordRegistrationChange>()
 
-// Mock the CustomDynamoClient class
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: class {
-    readAll = mockReadAll
-    read = mockRead
-    write = mockWrite
+jest.unstable_mockModule('../event/repository', () => ({
+  eventRepository: {
+    listAllConfirmed: mockListAllConfirmed,
+    listAllRegistrations: mockListAllRegistrations,
   },
 }))
 
 // Mock the stats module
-jest.unstable_mockModule('../lib/stats', () => ({
-  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
-}))
-
-// Mock CONFIG to provide table names
-jest.unstable_mockModule('../config', () => ({
-  CONFIG: {
-    eventStatsTable: 'event-stats-table',
-    eventTable: 'event-table',
-    registrationTable: 'registration-table',
-  },
+jest.unstable_mockModule('../stats/api', () => ({
+  recordRegistrationChange: mockRecordRegistrationChange,
 }))
 
 const { default: handler } = await import('./handler')
@@ -40,18 +27,18 @@ describe('BackfillEventStatsFunction', () => {
   })
 
   it('does nothing if there are no registrations', async () => {
-    mockReadAll.mockResolvedValueOnce([]) // registrations
-    mockReadAll.mockResolvedValueOnce([]) // events
+    mockListAllRegistrations.mockResolvedValueOnce([])
+    mockListAllConfirmed.mockResolvedValueOnce([])
     await handler()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockRecordRegistrationChange).not.toHaveBeenCalled()
   })
 
   it('skips registrations if event is not found', async () => {
     const registration = { cancelled: false, eventId: 'event1', id: 'reg1', paidAmount: 10, refundAmount: 0 }
-    mockReadAll.mockResolvedValueOnce([registration]) // registrations
-    mockReadAll.mockResolvedValueOnce([]) // events (empty, so event not found)
+    mockListAllRegistrations.mockResolvedValueOnce([registration] as any)
+    mockListAllConfirmed.mockResolvedValueOnce([])
     await handler()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockRecordRegistrationChange).not.toHaveBeenCalled()
   })
 
   it('processes a single registration correctly', async () => {
@@ -69,13 +56,13 @@ describe('BackfillEventStatsFunction', () => {
       organizer: { id: 'org1' },
       startDate: '2025-01-01',
     }
-    mockReadAll.mockResolvedValueOnce([registration]) // registrations
-    mockReadAll.mockResolvedValueOnce([event]) // events
+    mockListAllRegistrations.mockResolvedValueOnce([registration] as any)
+    mockListAllConfirmed.mockResolvedValueOnce([event] as any)
 
     await handler()
 
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledWith(registration, undefined, event)
+    expect(mockRecordRegistrationChange).toHaveBeenCalledTimes(1)
+    expect(mockRecordRegistrationChange).toHaveBeenCalledWith({ event, next: registration, previous: undefined })
   })
 
   it('processes multiple registrations correctly', async () => {
@@ -98,15 +85,27 @@ describe('BackfillEventStatsFunction', () => {
         startDate: '2025-02-01',
       },
     ]
-    mockReadAll.mockResolvedValueOnce(registrations) // registrations
-    mockReadAll.mockResolvedValueOnce(events) // events
+    mockListAllRegistrations.mockResolvedValueOnce(registrations as any)
+    mockListAllConfirmed.mockResolvedValueOnce(events as any)
 
     await handler()
 
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(3)
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledWith(registrations[0], undefined, events[0])
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledWith(registrations[1], undefined, events[0])
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledWith(registrations[2], undefined, events[1])
+    expect(mockRecordRegistrationChange).toHaveBeenCalledTimes(3)
+    expect(mockRecordRegistrationChange).toHaveBeenCalledWith({
+      event: events[0],
+      next: registrations[0],
+      previous: undefined,
+    })
+    expect(mockRecordRegistrationChange).toHaveBeenCalledWith({
+      event: events[0],
+      next: registrations[1],
+      previous: undefined,
+    })
+    expect(mockRecordRegistrationChange).toHaveBeenCalledWith({
+      event: events[1],
+      next: registrations[2],
+      previous: undefined,
+    })
   })
 
   it('handles errors during processing', async () => {
@@ -115,17 +114,17 @@ describe('BackfillEventStatsFunction', () => {
       { eventId: 'event2', id: 'reg2' },
     ]
     const events = [{ id: 'event1', organizer: { id: 'org1' } }]
-    mockReadAll.mockResolvedValueOnce(registrations) // registrations
-    mockReadAll.mockResolvedValueOnce(events) // events
+    mockListAllRegistrations.mockResolvedValueOnce(registrations as any)
+    mockListAllConfirmed.mockResolvedValueOnce(events as any)
 
     // Make the first call succeed and the second one fail
-    mockUpdateEventStatsForRegistration.mockResolvedValueOnce(undefined)
-    mockUpdateEventStatsForRegistration.mockRejectedValueOnce(new Error('Test error'))
+    mockRecordRegistrationChange.mockResolvedValueOnce(undefined)
+    mockRecordRegistrationChange.mockRejectedValueOnce(new Error('Test error'))
 
     // Should not throw
     await handler()
 
     // Should have attempted to process both registrations
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
+    expect(mockRecordRegistrationChange).toHaveBeenCalledTimes(1)
   })
 })

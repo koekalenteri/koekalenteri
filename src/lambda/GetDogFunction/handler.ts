@@ -1,13 +1,10 @@
 import type { BreedCode, JsonDog, JsonTestResult } from '../../types'
 import { differenceInMinutes } from 'date-fns'
-import { CONFIG } from '../config'
+import { dogRepository } from '../dog/repository'
 import KLAPI from '../lib/KLAPI'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { KLKieli } from '../types/KLAPI'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.dogTable)
 
 const GENDER: Record<string, 'F' | 'M'> = {
   female: 'F',
@@ -122,10 +119,10 @@ const readDogFromKlapi = async (regNo: string, existing?: JsonDog) => {
   return { dog, error, status }
 }
 
-const getDogLambda = lambda('getDog', async (event) => {
+export const getDogLambda = async (event: APIGatewayProxyEvent) => {
   const regNo = getParam(event, 'regNo').replaceAll('~', '/')
 
-  let item = await dynamoDB.read<JsonDog>({ regNo })
+  let item = await dogRepository.readByRegNo(regNo)
 
   const itemAge = item?.refreshDate ? differenceInMinutes(new Date(), new Date(item.refreshDate)) : 0
   const refresh = (event.queryStringParameters && 'refresh' in event.queryStringParameters) || itemAge > 60
@@ -141,17 +138,19 @@ const getDogLambda = lambda('getDog', async (event) => {
     }
 
     if (status === 404 && error === 'diseased') {
-      await dynamoDB.delete({ regNo })
+      await dogRepository.deleteByRegNo(regNo)
 
       throw new LambdaError(status, `Upstream error: ${error}`)
     }
 
-    await dynamoDB.write(dog)
+    await dogRepository.write(dog)
 
     item = dog
   }
 
   return response(200, item, event)
-})
+}
 
-export default getDogLambda
+export default lambda('getDog', getDogLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

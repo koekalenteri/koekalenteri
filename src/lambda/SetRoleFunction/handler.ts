@@ -1,7 +1,7 @@
 import type { JsonUser, UserRole } from '../../types'
+import { authorize } from '../auth/api'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
-import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
@@ -9,7 +9,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
-const setRoleLambda = lambda('setRole', async (event) => {
+export const setRoleLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -41,6 +41,8 @@ const setRoleLambda = lambda('setRole', async (event) => {
   const saved = await setUserRole(existing, item.orgId, item.role, user.name || user.email, origin)
 
   return response(200, saved, event)
-})
+}
 
-export default setRoleLambda
+export default lambda('setRole', setRoleLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

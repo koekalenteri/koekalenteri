@@ -10,7 +10,7 @@ jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: jest.fn(),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: jest.fn(),
   getAndUpdateUserByEmail: jest.fn(),
 }))
@@ -19,11 +19,17 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({ readAll: jest.fn() })),
 }))
 
-const { authorize } = await import('../lib/auth')
+const mockJudgeList = jest.fn<any>()
+jest.unstable_mockModule('../judge/repository', () => ({
+  judgeRepository: {
+    list: mockJudgeList,
+  },
+}))
+
+const { authorize } = await import('../auth/api')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { default: getJudgesHandler, dynamoDB } = await import('./handler')
-const mockDynamoDB = dynamoDB as jest.Mocked<typeof dynamoDB>
+const { default: getJudgesHandler } = await import('./handler')
 
 const mockUser: JsonUser = {
   createdAt: '',
@@ -54,7 +60,7 @@ describe('getJudgesLambda', () => {
 
   it('should return all non-deleted officials', async () => {
     authorizeMock.mockResolvedValueOnce(mockUser)
-    mockDynamoDB.readAll.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
+    mockJudgeList.mockResolvedValue([{ deletedAt: 'sometimes' }, { name: 'not deleted' }])
 
     const res = await getJudgesHandler(constructAPIGwEvent({}))
     expect(res.statusCode).toEqual(200)

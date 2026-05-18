@@ -1,16 +1,13 @@
 import type { Organizer } from '../../types'
 import { nanoid } from 'nanoid'
-import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorize } from '../auth/api'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
+import { organizerRepository } from '../organizer/repository'
 import { KLYhdistysRajaus } from '../types/KLAPI'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
-
-const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
+export const refreshOrganizersLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user?.admin) {
     return response(401, 'Unauthorized', event)
@@ -20,7 +17,7 @@ const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
   const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })
   if (status === 200 && json) {
     const insert: Organizer[] = []
-    const existing = await dynamoDB.readAll<Organizer>()
+    const existing = await organizerRepository.list()
     for (const item of json) {
       const old = existing?.find((org) => org.kcId === item.jäsennumero)
       if (!old) {
@@ -28,33 +25,28 @@ const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
         insert.push(org)
       } else if (old.name !== item.strYhdistys) {
         console.log(`Organizer ${old.kcId} name changed from ${old.name} to ${item.strYhdistys}`, old, item)
-        await dynamoDB.update(
-          { id: old.id },
-          {
-            set: {
-              name: item.strYhdistys,
-            },
-          }
-        )
+        await organizerRepository.updateName(old.id, item.strYhdistys)
       }
     }
     if (insert.length) {
-      await dynamoDB.batchWrite(insert)
+      await organizerRepository.batchWrite(insert)
     }
   }
-  const items = await dynamoDB.readAll<Organizer>()
+  const items = await organizerRepository.list()
 
   return response(200, items, event)
-})
+}
 
-const getOrganizersLambda = lambda('getOrganizers', async (event) => {
+export const getOrganizersLambda = async (event: APIGatewayProxyEvent) => {
   if (event.queryStringParameters && 'refresh' in event.queryStringParameters) {
     return refreshOrganizersLambda(event)
   }
 
-  const items = await dynamoDB.readAll<Organizer>()
+  const items = await organizerRepository.list()
 
   return response(200, items, event)
-})
+}
 
-export default getOrganizersLambda
+export default lambda('getOrganizers', getOrganizersLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

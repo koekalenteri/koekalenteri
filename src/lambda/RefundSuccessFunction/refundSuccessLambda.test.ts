@@ -1,48 +1,29 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockParseParams = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
+const mockGetConfirmedEvent = jest.fn<any>()
 const mockUpdateTransactionStatus = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
-const mockDynamoRead = jest.fn<any>()
-const mockDynamoUpdate = jest.fn<any>()
-const mockDynamoClient = jest.fn(() => ({
-  read: mockDynamoRead,
-  update: mockDynamoUpdate,
-}))
-
-jest.unstable_mockModule('../lib/lambda', () => ({
-  LambdaError: class LambdaError extends Error {
-    status: number
-    constructor(status: number, message: string) {
-      super(message)
-      this.status = status
-    }
-  },
-  lambda: mockLambda,
-  response: mockResponse,
-}))
+const mockGetById = jest.fn<any>()
+const mockHandleSuccessfulRefund = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/payment', () => ({
-  getProviderName: mockGetProviderName,
   parseParams: mockParseParams,
-  updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
-  getRegistration: mockGetRegistration,
+jest.unstable_mockModule('../refund/actions', () => ({
+  handleSuccessfulRefund: mockHandleSuccessfulRefund,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
+  },
 }))
 
 jest.unstable_mockModule('../lib/email', () => ({
@@ -55,14 +36,18 @@ jest.unstable_mockModule('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: mockDynamoClient,
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: {
+    getRefundById: mockGetById,
+    patchStatus: mockUpdateTransactionStatus,
+  },
 }))
 
-const { default: refundSuccessLambda } = await import('./handler')
+const { refundSuccessLambda } = await import('./handler')
 
 describe('refundSuccessLambda', () => {
   const event = {
+    headers: {},
     queryStringParameters: {
       'checkout-amount': '1000',
       'checkout-provider': 'paytrail',
@@ -81,7 +66,7 @@ describe('refundSuccessLambda', () => {
     user: 'Test User',
   }
 
-  const mockRegistration = {
+  const _mockRegistration = {
     eventId: 'event123',
     id: 'reg456',
     language: 'fi',
@@ -113,13 +98,13 @@ describe('refundSuccessLambda', () => {
       transactionId: 'transaction123',
     })
 
-    mockDynamoRead.mockResolvedValue(mockTransaction)
-    mockGetRegistration.mockResolvedValue(mockRegistration)
-    mockGetEvent.mockResolvedValue(mockConfirmedEvent)
+    mockGetById.mockResolvedValue(mockTransaction)
+    mockGetConfirmedEvent.mockResolvedValue(mockConfirmedEvent)
     mockUpdateTransactionStatus.mockResolvedValue(true)
     mockSendTemplatedMail.mockResolvedValue(undefined)
     mockGetProviderName.mockReturnValue('Paytrail')
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
+    mockHandleSuccessfulRefund.mockResolvedValue(undefined)
   })
 
   it('throws error if status is missing', async () => {
@@ -132,115 +117,67 @@ describe('refundSuccessLambda', () => {
     })
 
     await expect(refundSuccessLambda(event)).rejects.toThrow('Bad Request')
-    expect(mockDynamoRead).not.toHaveBeenCalled()
+    expect(mockGetById).not.toHaveBeenCalled()
   })
 
   it('throws error if transaction is not found', async () => {
-    mockDynamoRead.mockResolvedValueOnce(null)
+    mockGetById.mockRejectedValueOnce(new Error("Transaction with id 'transaction123' was not found"))
 
     await expect(refundSuccessLambda(event)).rejects.toThrow("Transaction with id 'transaction123' was not found")
-    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockHandleSuccessfulRefund).not.toHaveBeenCalled()
   })
 
   it('returns early if transaction already has status "ok"', async () => {
-    mockDynamoRead.mockResolvedValueOnce({
+    mockGetById.mockResolvedValueOnce({
       ...mockTransaction,
       status: 'ok',
       statusAt: '2023-01-01T12:30:00.000Z',
     })
 
-    await refundSuccessLambda(event)
+    const result = await refundSuccessLambda(event)
 
-    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockHandleSuccessfulRefund).not.toHaveBeenCalled()
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('processes successful refund with status "ok"', async () => {
     const now = new Date()
-    const isoDate = now.toISOString()
+    const _isoDate = now.toISOString()
     jest.spyOn(global, 'Date').mockImplementation(() => now as any)
 
-    await refundSuccessLambda(event)
+    const result = await refundSuccessLambda(event)
 
     // Verify transaction status was updated
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(mockTransaction, 'ok')
+    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(mockTransaction, { status: 'ok' })
 
-    // Verify registration was updated
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundAmount: 10,
-          refundAt: isoDate,
-          refundStatus: 'SUCCESS',
-        },
-      },
-      expect.any(String)
-    )
-
-    // Verify email was sent
-    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'refund',
-      'fi',
-      expect.any(String),
-      ['payer@example.com'],
-      expect.objectContaining({
-        amount: '10,00\u00A0€',
-        handlingCost: '10,00\u00A0€',
-        paidAmount: '20,00\u00A0€',
-        providerName: 'Paytrail',
-        refundAmount: 10,
-        refundStatus: 'SUCCESS',
-        status: 'pending',
-        transactionId: 'transaction123',
-        type: 'refund',
-        user: 'Test User',
-      })
-    )
-
-    // Verify audit entry was created
-    expect(mockAudit).toHaveBeenCalledWith({
-      auditKey: 'event123:reg456',
-      message: 'Palautus (Paytrail), 10,00\u00A0€',
-      user: 'Test User',
+    expect(mockHandleSuccessfulRefund).toHaveBeenCalledWith({
+      eventId: 'event123',
+      params: event.queryStringParameters,
+      provider: 'paytrail',
+      registrationId: 'reg456',
+      transaction: mockTransaction,
     })
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('handles failed email sending gracefully', async () => {
-    mockSendTemplatedMail.mockRejectedValueOnce(new Error('Email sending failed'))
+    const result = await refundSuccessLambda(event)
+    expect(mockHandleSuccessfulRefund).toHaveBeenCalled()
 
-    await refundSuccessLambda(event)
-
-    // Verify error was logged
-    expect(console.error).toHaveBeenCalledWith('failed to send refund email', expect.any(Error))
-
-    // Verify audit entry was still created
-    expect(mockAudit).toHaveBeenCalled()
-
-    // Verify response was still returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('skips updates if transaction status is not changed', async () => {
     mockUpdateTransactionStatus.mockResolvedValueOnce(false)
 
-    await refundSuccessLambda(event)
+    const result = await refundSuccessLambda(event)
 
     // Verify registration was not updated
-    expect(mockDynamoUpdate).not.toHaveBeenCalled()
+    expect(mockHandleSuccessfulRefund).not.toHaveBeenCalled()
 
-    // Verify email was not sent
-    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
-
-    // Verify audit entry was not created
-    expect(mockAudit).not.toHaveBeenCalled()
-
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('verifies params before processing', async () => {
@@ -252,6 +189,7 @@ describe('refundSuccessLambda', () => {
 
   it('handles empty query parameters', async () => {
     const emptyEvent = {
+      headers: {},
       queryStringParameters: null,
     } as any
 

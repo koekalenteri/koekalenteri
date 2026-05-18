@@ -1,5 +1,5 @@
 import type { JsonDogEvent, JsonUser, Official, Organizer, UserRole } from '../../types'
-import type { UserLink } from './auth'
+import type { UserLink } from '../auth/api'
 import type { EmailHistoryEntry } from './emailHistory'
 import type { PartialJsonJudge } from './judge'
 import { diff } from 'deep-object-diff'
@@ -443,6 +443,28 @@ type UserSyncContext = {
   itemsWithEmail: Official[]
 }
 
+type UserSyncClient =
+  | Pick<CustomDynamoClient, 'batchWrite' | 'readAll'>
+  | {
+      list(): Promise<JsonUser[] | undefined>
+      batchWrite(items: JsonUser[]): Promise<void>
+    }
+
+const listUsers = async (dynamoDB: UserSyncClient): Promise<JsonUser[]> => {
+  if ('readAll' in dynamoDB) {
+    return (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+  }
+  return (await dynamoDB.list()) ?? []
+}
+
+const batchWriteUsers = async (dynamoDB: UserSyncClient, items: JsonUser[]): Promise<void> => {
+  if ('readAll' in dynamoDB) {
+    await dynamoDB.batchWrite(items, userTable)
+    return
+  }
+  await dynamoDB.batchWrite(items)
+}
+
 type UserSyncPlan = {
   duplicateIdToCanonicalId: Map<string, string>
   mergeWrites: JsonUser[]
@@ -450,11 +472,11 @@ type UserSyncPlan = {
 }
 
 const loadSyncContext = async (
-  dynamoDB: CustomDynamoClient,
+  dynamoDB: UserSyncClient,
   items: Official[] | PartialJsonJudge[]
 ): Promise<UserSyncContext> => {
   const dateString = new Date().toISOString()
-  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+  const allUsers = await listUsers(dynamoDB)
 
   // Prefer keeping user records that have actually been used to log in.
   const userLinksDb = new CustomDynamoClient(userLinkTable)
@@ -490,7 +512,7 @@ const planUserSync = (ctx: UserSyncContext, eventTypesFiled: 'officer' | 'judge'
   return { duplicateIdToCanonicalId, mergeWrites, upsertWrites }
 }
 
-const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncContext, plan: UserSyncPlan) => {
+const applyUserSyncPlan = async (dynamoDB: UserSyncClient, ctx: UserSyncContext, plan: UserSyncPlan) => {
   if (plan.duplicateIdToCanonicalId.size) {
     await updateEventReferences(plan.duplicateIdToCanonicalId, ctx.allUsers, plan.mergeWrites, ctx.dateString)
   }
@@ -503,7 +525,7 @@ const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncCont
 
   if (write.length) {
     try {
-      await dynamoDB.batchWrite(write, userTable)
+      await batchWriteUsers(dynamoDB, write)
     } catch (e) {
       console.error(e)
       console.log('write:')
@@ -516,7 +538,7 @@ const applyUserSyncPlan = async (dynamoDB: CustomDynamoClient, ctx: UserSyncCont
 }
 
 export const updateUsersFromOfficialsOrJudges = async (
-  dynamoDB: CustomDynamoClient,
+  dynamoDB: UserSyncClient,
   items: Official[] | PartialJsonJudge[],
   eventTypesFiled: 'officer' | 'judge'
 ) => {

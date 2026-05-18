@@ -1,18 +1,11 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockCreateDbRecord = jest.fn<any>()
 const mockWrite = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -37,7 +30,7 @@ afterAll(() => {
   Date.prototype.toISOString = originalDateToISOString
 })
 
-const { default: putEventTypeLambda } = await import('./handler')
+const { putEventTypeLambda } = await import('./handler')
 
 describe('putEventTypeLambda', () => {
   const event = {
@@ -80,10 +73,11 @@ describe('putEventTypeLambda', () => {
       name: 'Regular User',
     })
 
-    await putEventTypeLambda(event)
+    const result = await putEventTypeLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
+    expect(JSON.parse(result.body)).toBe('Unauthorized')
     expect(mockCreateDbRecord).not.toHaveBeenCalled()
     expect(mockWrite).not.toHaveBeenCalled()
   })
@@ -100,7 +94,7 @@ describe('putEventTypeLambda', () => {
     }
     mockCreateDbRecord.mockReturnValueOnce(eventTypeItem)
 
-    await putEventTypeLambda(event)
+    const result = await putEventTypeLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(event, mockTimestamp, 'Admin User', false)
@@ -109,7 +103,8 @@ describe('putEventTypeLambda', () => {
     // Since it's active, we shouldn't need to check for judges/officials to remove
     expect(mockReadAll).not.toHaveBeenCalled()
 
-    expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(eventTypeItem)
   })
 
   it('creates an inactive event type and removes affected judges and officials', async () => {
@@ -155,7 +150,7 @@ describe('putEventTypeLambda', () => {
       .mockResolvedValueOnce([...judgesToRemove, ...judgesToKeep]) // Second call for judges
       .mockResolvedValueOnce([...officialsToRemove, ...officialsToKeep]) // Third call for officials
 
-    await putEventTypeLambda(inactiveEvent)
+    const result = await putEventTypeLambda(inactiveEvent)
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
@@ -184,7 +179,8 @@ describe('putEventTypeLambda', () => {
       expect.any(String)
     )
 
-    expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(eventTypeItem)
   })
 
   it('handles judges and officials with no eventTypes property', async () => {
@@ -228,7 +224,7 @@ describe('putEventTypeLambda', () => {
       .mockResolvedValueOnce(judgesWithNoEventTypes) // Second call for judges
       .mockResolvedValueOnce(officialsWithNoEventTypes) // Third call for officials
 
-    await putEventTypeLambda(inactiveEvent)
+    const result = await putEventTypeLambda(inactiveEvent)
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
@@ -257,7 +253,8 @@ describe('putEventTypeLambda', () => {
       expect.any(String)
     )
 
-    expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(eventTypeItem)
   })
 
   it('handles judges and officials that are already deleted', async () => {
@@ -301,7 +298,7 @@ describe('putEventTypeLambda', () => {
       .mockResolvedValueOnce(deletedJudges) // Second call for judges
       .mockResolvedValueOnce(deletedOfficials) // Third call for officials
 
-    await putEventTypeLambda(inactiveEvent)
+    const result = await putEventTypeLambda(inactiveEvent)
 
     expect(mockAuthorize).toHaveBeenCalledWith(inactiveEvent)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
@@ -313,7 +310,8 @@ describe('putEventTypeLambda', () => {
     // Should not mark already deleted judges as deleted again
     expect(mockWrite).toHaveBeenCalledTimes(1) // Only the event type write
 
-    expect(mockResponse).toHaveBeenCalledWith(200, eventTypeItem, inactiveEvent)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(eventTypeItem)
   })
 
   it('throws an error if write fails', async () => {
@@ -325,7 +323,6 @@ describe('putEventTypeLambda', () => {
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockCreateDbRecord).toHaveBeenCalledWith(event, mockTimestamp, 'Admin User', false)
     expect(mockWrite).toHaveBeenCalledTimes(1)
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('throws an error if readAll fails', async () => {
@@ -359,6 +356,5 @@ describe('putEventTypeLambda', () => {
     expect(mockCreateDbRecord).toHaveBeenCalledWith(inactiveEvent, mockTimestamp, 'Admin User', false)
     expect(mockWrite).toHaveBeenCalledTimes(1)
     expect(mockReadAll).toHaveBeenCalledTimes(1)
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 })

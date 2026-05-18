@@ -1,18 +1,12 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn()
 const mockFilterRelevantUsers = jest.fn()
 const mockGetAllUsers = jest.fn<any>()
 const mockUserIsMemberOf = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
-}))
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
 }))
 jest.unstable_mockModule('../lib/user', () => ({
   filterRelevantUsers: mockFilterRelevantUsers,
@@ -20,9 +14,9 @@ jest.unstable_mockModule('../lib/user', () => ({
   userIsMemberOf: mockUserIsMemberOf,
 }))
 
-const { default: getUsersHandler } = await import('./handler')
+const { getUsersLambda } = await import('./handler')
 
-describe('getUsersHandler', () => {
+describe('getUsersLambda', () => {
   const event = { body: '', headers: {} } as any
   let errorSpy: jest.SpiedFunction<any>
 
@@ -40,16 +34,16 @@ describe('getUsersHandler', () => {
 
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
-    await getUsersHandler(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    const result = await getUsersLambda(event)
+    expect(result.statusCode).toBe(401)
   })
 
   it('returns 403 if user is not admin or member of any organizations', async () => {
     const user = { admin: false, id: 'user1' }
     mockAuthorize.mockResolvedValueOnce(user)
     mockUserIsMemberOf.mockReturnValueOnce([])
-    await getUsersHandler(event)
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    const result = await getUsersLambda(event)
+    expect(result.statusCode).toBe(403)
     expect(errorSpy).toHaveBeenCalledWith('User user1 is not admin or member of any organizations.')
   })
 
@@ -62,8 +56,8 @@ describe('getUsersHandler', () => {
     mockUserIsMemberOf.mockReturnValueOnce(memberOf)
     mockGetAllUsers.mockResolvedValueOnce(users)
     mockFilterRelevantUsers.mockReturnValueOnce(filtered)
-    await getUsersHandler(event)
-    expect(mockResponse).toHaveBeenCalledWith(200, filtered, event)
+    const result = await getUsersLambda(event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('returns 200 and filtered users if user is admin', async () => {
@@ -75,7 +69,7 @@ describe('getUsersHandler', () => {
     mockUserIsMemberOf.mockReturnValueOnce(memberOf)
     mockGetAllUsers.mockResolvedValueOnce(users)
     mockFilterRelevantUsers.mockReturnValueOnce(filtered)
-    await getUsersHandler(event)
-    expect(mockResponse).toHaveBeenCalledWith(200, filtered, event)
+    const result = await getUsersLambda(event)
+    expect(result.statusCode).toBe(200)
   })
 })

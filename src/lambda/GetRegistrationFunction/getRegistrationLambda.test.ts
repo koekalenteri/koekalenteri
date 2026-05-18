@@ -22,14 +22,16 @@ jest.unstable_mockModule('../lib/registration', () => ({
 
 const mockGetEvent = jest.fn(() => mockEventWithInvitationAttachment)
 
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetEvent,
+  },
 }))
 
-const mockGetTransactionsByReference = jest.fn(() => [] as JsonTransaction[])
+const mockListByReference = jest.fn(() => [] as JsonTransaction[])
 
-jest.unstable_mockModule('../lib/payment', () => ({
-  getTransactionsByReference: mockGetTransactionsByReference,
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: { listByReference: mockListByReference },
 }))
 
 const { default: getRegistrationLambda } = await import('./handler')
@@ -84,7 +86,7 @@ describe('getRegistration', () => {
       ...registrationsToEventWithParticipantsInvited[0],
       paymentStatus: 'PENDING',
     })
-    mockGetTransactionsByReference.mockReturnValueOnce([{ status: 'new' } as JsonTransaction])
+    mockListByReference.mockReturnValueOnce([{ status: 'new' } as JsonTransaction])
 
     const res = await getRegistrationLambda(
       constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '456' } })
@@ -94,7 +96,7 @@ describe('getRegistration', () => {
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.paymentStatus).toEqual('NEW')
     expect(reg.shouldPay).toBe(true)
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith('123:456')
+    expect(mockListByReference).toHaveBeenCalledWith('123:456')
   })
 
   it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([

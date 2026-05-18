@@ -137,14 +137,14 @@ describe('official', () => {
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty array', async () => {
-      await updateOfficials(mockDB, [])
+      await updateOfficials(mockDB as unknown as Parameters<typeof updateOfficials>[0], [])
 
       expect(mockReadAll).not.toHaveBeenCalled()
       expect(mockBatchWrite).not.toHaveBeenCalled()
     })
 
     it('should add new officials', async () => {
-      await updateOfficials(mockDB, [
+      await updateOfficials(mockDB as unknown as Parameters<typeof updateOfficials>[0], [
         {
           district: 'some district',
           email: 'test@example.com',
@@ -191,7 +191,7 @@ describe('official', () => {
       }
       mockReadAll.mockResolvedValueOnce([existing])
 
-      await updateOfficials(mockDB, [
+      await updateOfficials(mockDB as unknown as Parameters<typeof updateOfficials>[0], [
         {
           district: existing.district,
           email: existing.email,
@@ -241,7 +241,7 @@ describe('official', () => {
         name: 'other',
       }
 
-      await updateOfficials(mockDB, [added])
+      await updateOfficials(mockDB as unknown as Parameters<typeof updateOfficials>[0], [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       expect(mockReadAll).toHaveBeenCalledWith('official-table-not-found-in-env')
@@ -279,7 +279,7 @@ describe('official', () => {
         name: 'other',
       }
 
-      await updateOfficials(mockDB, [added])
+      await updateOfficials(mockDB as unknown as Parameters<typeof updateOfficials>[0], [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       expect(mockReadAll).toHaveBeenCalledWith('official-table-not-found-in-env')

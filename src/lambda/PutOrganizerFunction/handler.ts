@@ -1,13 +1,10 @@
 import type { Organizer } from '../../types'
-import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorize } from '../auth/api'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { organizerRepository } from '../organizer/repository'
 
-const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
-
-const putOrganizerLambda = lambda('putOrganizer', async (event) => {
+export const putOrganizerLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user?.admin) {
     return response(401, 'Unauthorized', event)
@@ -19,12 +16,14 @@ const putOrganizerLambda = lambda('putOrganizer', async (event) => {
     return response(400, 'no data', event)
   }
 
-  const existing = await dynamoDB.read<Organizer>({ id: item.id })
-  const updated = { ...existing, ...item }
+  const existing = await organizerRepository.getById(item.id)
+  const updated = { ...(existing ?? {}), ...item, id: item.id } as Organizer
 
-  await dynamoDB.write(updated)
+  await organizerRepository.write(updated)
 
   return response(200, updated, event)
-})
+}
 
-export default putOrganizerLambda
+export default lambda('putOrganizer', putOrganizerLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

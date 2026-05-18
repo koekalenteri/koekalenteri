@@ -1,41 +1,24 @@
 import { jest } from '@jest/globals'
 
-const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockQuery = jest.fn<any>()
+const mockGetConfirmedEvent = jest.fn<any>()
+const mockGetRegistrationsByEventId = jest.fn<any>()
 const mockIsStartListAvailable = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  getParam: mockGetParam,
-  LambdaError: class LambdaError extends Error {
-    constructor(
-      public statusCode: number,
-      message: string
-    ) {
-      super(message)
-    }
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
   },
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
 }))
 
 jest.unstable_mockModule('../../lib/event', () => ({
   isStartListAvailable: mockIsStartListAvailable,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    query: mockQuery,
-  })),
+jest.unstable_mockModule('../lib/registration', () => ({
+  getRegistrationsByEventId: mockGetRegistrationsByEventId,
 }))
 
-const { default: getStartListLambda } = await import('./handler')
+const { getStartListLambda } = await import('./handler')
 
 describe('getStartListLambda', () => {
   const event = {
@@ -52,17 +35,16 @@ describe('getStartListLambda', () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: false, state: 'draft' }
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(confirmedEvent)
     mockIsStartListAvailable.mockReturnValueOnce(false)
 
-    await getStartListLambda(event)
+    const result = await getStartListLambda(event)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockQuery).not.toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(404, [], event)
+    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(result.statusCode).toBe(404)
+    expect(JSON.parse(result.body)).toEqual([])
   })
 
   it('returns 200 with public registrations if start list is available', async () => {
@@ -135,21 +117,17 @@ describe('getStartListLambda', () => {
       },
     ]
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(confirmedEvent)
     mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockQuery.mockResolvedValueOnce(registrations)
+    mockGetRegistrationsByEventId.mockResolvedValueOnce(registrations)
 
-    await getStartListLambda(event)
+    const result = await getStartListLambda(event)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
-    expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event)
+    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith(eventId)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(expectedPublicRegs)
   })
 
   it('returns 404 if no registrations match the criteria', async () => {
@@ -179,79 +157,62 @@ describe('getStartListLambda', () => {
       },
     ]
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(confirmedEvent)
     mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockQuery.mockResolvedValueOnce(registrations)
+    mockGetRegistrationsByEventId.mockResolvedValueOnce(registrations)
 
-    await getStartListLambda(event)
+    const result = await getStartListLambda(event)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
-    expect(mockResponse).toHaveBeenCalledWith(404, [], event)
+    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith(eventId)
+    expect(result.statusCode).toBe(404)
+    expect(JSON.parse(result.body)).toEqual([])
   })
 
   it('returns 404 if query returns undefined', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(confirmedEvent)
     mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockQuery.mockResolvedValueOnce(undefined)
+    mockGetRegistrationsByEventId.mockResolvedValueOnce(undefined)
 
-    await getStartListLambda(event)
+    const result = await getStartListLambda(event)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
-    expect(mockResponse).toHaveBeenCalledWith(404, [], event)
+    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith(eventId)
+    expect(result.statusCode).toBe(404)
+    expect(JSON.parse(result.body)).toEqual([])
   })
 
-  it('passes through errors from getEvent', async () => {
+  it('passes through errors from eventReadPort.getConfirmedEvent', async () => {
     const eventId = 'event123'
     const error = new Error('Event not found')
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockRejectedValueOnce(error)
+    mockGetConfirmedEvent.mockRejectedValueOnce(error)
 
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).not.toHaveBeenCalled()
-    expect(mockQuery).not.toHaveBeenCalled()
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(mockGetRegistrationsByEventId).not.toHaveBeenCalled()
   })
 
-  it('passes through errors from query', async () => {
+  it('passes through errors from getRegistrationsByEventId', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
     const error = new Error('Database error')
 
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockGetConfirmedEvent.mockResolvedValueOnce(confirmedEvent)
     mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockQuery.mockRejectedValueOnce(error)
+    mockGetRegistrationsByEventId.mockRejectedValueOnce(error)
 
     await expect(getStartListLambda(event)).rejects.toThrow(error)
 
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetEvent).toHaveBeenCalledWith(eventId)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockQuery).toHaveBeenCalledWith({
-      key: 'eventId = :eventId',
-      values: { ':eventId': eventId },
-    })
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(mockGetRegistrationsByEventId).toHaveBeenCalledWith(eventId)
   })
 })

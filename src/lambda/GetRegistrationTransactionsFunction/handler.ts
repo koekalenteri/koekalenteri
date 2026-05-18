@@ -1,8 +1,8 @@
-import { authorize } from '../lib/auth'
+import { authorize } from '../auth/api'
 import { getParam, lambda, response } from '../lib/lambda'
-import { getTransactionsByReference } from '../lib/payment'
+import { paymentTransactionRepository } from '../payment/repository'
 
-const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', async (event) => {
+export const getRegistrationTransactionsLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -10,9 +10,11 @@ const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', 
   const eventId = getParam(event, 'eventId')
   const id = getParam(event, 'id')
   const reference = `${eventId}:${id}`
-  const transactions = await getTransactionsByReference(reference)
+  const transactions = await paymentTransactionRepository.listByReference(reference)
 
   return response(200, transactions, event)
-})
+}
 
-export default getRegistrationTransactionsLambda
+export default lambda('getRegistrationTransactions', getRegistrationTransactionsLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

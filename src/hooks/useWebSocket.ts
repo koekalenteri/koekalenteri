@@ -124,7 +124,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
       },
     []
   )
-  const setRegistrations = useRecoilCallback(
+  const _setRegistrations = useRecoilCallback(
     ({ snapshot, set }) =>
       (nextEventId: string, registrations: Registration[]) => {
         const loadable = snapshot.getLoadable(adminEventRegistrationsAtom(nextEventId))

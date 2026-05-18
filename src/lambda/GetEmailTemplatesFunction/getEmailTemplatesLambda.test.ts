@@ -1,26 +1,19 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+jest.unstable_mockModule('../emailTemplate/repository', () => ({
+  emailTemplateRepository: {
     readAll: mockReadAll,
-  })),
+  },
 }))
 
-const { default: getEmailTemplatesLambda } = await import('./handler')
+const { getEmailTemplatesLambda } = await import('./handler')
 
 describe('getEmailTemplatesLambda', () => {
   const event = {
@@ -35,10 +28,11 @@ describe('getEmailTemplatesLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await getEmailTemplatesLambda(event)
+    const result = await getEmailTemplatesLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
+    expect(JSON.parse(result.body)).toBe('Unauthorized')
     expect(mockReadAll).not.toHaveBeenCalled()
   })
 
@@ -52,11 +46,12 @@ describe('getEmailTemplatesLambda', () => {
     mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockResolvedValueOnce(templates)
 
-    await getEmailTemplatesLambda(event)
+    const result = await getEmailTemplatesLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(templates)
   })
 
   it('returns empty array if no templates found', async () => {
@@ -66,11 +61,12 @@ describe('getEmailTemplatesLambda', () => {
     mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockResolvedValueOnce(templates)
 
-    await getEmailTemplatesLambda(event)
+    const result = await getEmailTemplatesLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(templates)
   })
 
   it('returns undefined if readAll returns undefined', async () => {
@@ -79,11 +75,12 @@ describe('getEmailTemplatesLambda', () => {
     mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockResolvedValueOnce(undefined)
 
-    await getEmailTemplatesLambda(event)
+    const result = await getEmailTemplatesLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBeUndefined()
   })
 
   it('passes through errors from readAll', async () => {
@@ -97,6 +94,5 @@ describe('getEmailTemplatesLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 })

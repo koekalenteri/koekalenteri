@@ -1,7 +1,7 @@
 import type { DeepPartial, JsonDogEvent, JsonRegistration } from '../../types'
 import type { WebSocketConnection } from '../types/webscoket'
 import type { BroadcastPlan, EventScopedAdminPayload } from './types'
-import { getEvent } from '../lib/event'
+import { eventReadPort } from '../registration/api'
 import {
   createConnection,
   getConnection,
@@ -76,7 +76,7 @@ export const disconnectWebSocket = async (connectionId: string) => {
   await removeConnection(connectionId)
 
   if (connection?.eventId) {
-    const event = await getEvent<JsonDogEvent>(connection.eventId)
+    const event = await eventReadPort.getConfirmedEvent(connection.eventId)
     await publishEventViewers(connection.eventId, event.organizer.id)
   }
 

@@ -1,5 +1,5 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { authorizeWithMemberOf } from '../lib/auth'
+import { authorizeWithMemberOf } from '../auth/api'
 import { connectWebSocket, publishConnectionCount } from '../ws/broadcastService'
 
 const getExpiryEpochSeconds = (event: APIGatewayEvent) => {

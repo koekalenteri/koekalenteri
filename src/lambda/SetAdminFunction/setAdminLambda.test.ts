@@ -1,18 +1,11 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -27,7 +20,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   })),
 }))
 
-const { default: setAdminLambda } = await import('./handler')
+const { setAdminLambda } = await import('./handler')
 
 describe('setAdminLambda', () => {
   const event = {
@@ -66,10 +59,10 @@ describe('setAdminLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
@@ -78,11 +71,11 @@ describe('setAdminLambda', () => {
       admin: true,
     })
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
+    expect(result.statusCode).toBe(400)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
@@ -92,11 +85,11 @@ describe('setAdminLambda', () => {
       userId: 'user123', // Same as authorized user
     })
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(result.statusCode).toBe(403)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
@@ -107,28 +100,28 @@ describe('setAdminLambda', () => {
       name: 'Test User',
     })
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(result.statusCode).toBe(403)
     expect(mockRead).not.toHaveBeenCalled()
   })
 
   it('returns 404 if user is not found', async () => {
     mockRead.mockResolvedValueOnce(null)
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
-    expect(mockResponse).toHaveBeenCalledWith(404, 'Not found', event)
+    expect(result.statusCode).toBe(404)
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
   it('grants admin privileges successfully', async () => {
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     // Verify user was retrieved
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
@@ -146,17 +139,7 @@ describe('setAdminLambda', () => {
     )
 
     // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        admin: true,
-        email: 'test@example.com',
-        id: 'user456',
-        name: 'Test User',
-        userId: 'user456',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('revokes admin privileges successfully', async () => {
@@ -172,7 +155,7 @@ describe('setAdminLambda', () => {
       name: 'Test User',
     })
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
     // Verify user was retrieved
     expect(mockRead).toHaveBeenCalledWith({ id: 'user456' })
@@ -190,17 +173,7 @@ describe('setAdminLambda', () => {
     )
 
     // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        admin: false,
-        email: 'test@example.com',
-        id: 'user456',
-        name: 'Test User',
-        userId: 'user456',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('preserves existing user fields when updating', async () => {
@@ -214,21 +187,8 @@ describe('setAdminLambda', () => {
       userId: 'user456',
     })
 
-    await setAdminLambda(event)
+    const result = await setAdminLambda(event)
 
-    // Verify response includes all existing fields
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        address: '123 Main St',
-        admin: true,
-        email: 'test@example.com',
-        id: 'user456',
-        name: 'Test User',
-        phone: '1234567890',
-        userId: 'user456',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 })

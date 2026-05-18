@@ -1,5 +1,4 @@
 import type { JsonOfficial, Official } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { diff } from 'deep-object-diff'
 import { CONFIG } from '../config'
@@ -51,10 +50,30 @@ export const fetchOfficialsForEventTypes = async (
   return officials
 }
 
-export const updateOfficials = async (dynamoDB: CustomDynamoClient, officials: Official[]): Promise<void> => {
+type OfficialWriteClient =
+  | {
+      list(): Promise<JsonOfficial[] | undefined>
+      batchWrite(items: JsonOfficial[]): Promise<void>
+    }
+  | {
+      readAll<T>(table?: string): Promise<T[] | undefined>
+      batchWrite<T>(items: T[], table?: string): Promise<void>
+    }
+
+const listOfficials = async (dynamoDB: OfficialWriteClient): Promise<JsonOfficial[]> => {
+  if ('list' in dynamoDB) return (await dynamoDB.list()) ?? []
+  return (await dynamoDB.readAll<JsonOfficial>(officialTable)) ?? []
+}
+
+const writeOfficials = async (dynamoDB: OfficialWriteClient, items: JsonOfficial[]): Promise<void> => {
+  if ('list' in dynamoDB) return dynamoDB.batchWrite(items)
+  return dynamoDB.batchWrite(items, officialTable)
+}
+
+export const updateOfficials = async (dynamoDB: OfficialWriteClient, officials: Official[]): Promise<void> => {
   if (!officials.length) return
 
-  const existingOfficials = (await dynamoDB.readAll<JsonOfficial>(officialTable)) ?? []
+  const existingOfficials = await listOfficials(dynamoDB)
   const newOfficials = officials.filter((o) => !existingOfficials.some((ej) => ej.id === o.id))
   const deletedOfficials = existingOfficials.filter((eo) => !eo.deletedAt && !officials.some((j) => j.id === eo.id))
 
@@ -101,6 +120,6 @@ export const updateOfficials = async (dynamoDB: CustomDynamoClient, officials: O
   }
 
   if (write.length) {
-    await dynamoDB.batchWrite(write, officialTable)
+    await writeOfficials(dynamoDB, write)
   }
 }

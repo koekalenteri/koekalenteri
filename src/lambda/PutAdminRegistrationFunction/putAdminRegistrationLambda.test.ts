@@ -3,18 +3,7 @@ import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
-const mockSaveRegistration = jest.fn<any>()
-const mockGetReadyRegistrationsByEventId = jest.fn<any>(async () => [])
-const mockFixRegistrationGroups = jest.fn<any>(async (regs: JsonRegistration[]) => regs)
-const mockUpdateRegistrations = jest.fn<any>(async () => ({
-  classes: [{ class: 'ALO', entries: 10 }],
-  endDate: '2024-01-02',
-  id: 'event123',
-  name: 'Test Event',
-  startDate: '2024-01-01',
-}))
-const mockUpdateEventStatsForRegistration = jest.fn<any>()
+const mockSaveAdminRegistration = jest.fn<any>()
 
 const mockDynamoDB = {
   batchWrite: jest.fn<any>(),
@@ -30,7 +19,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -41,32 +30,54 @@ jest.unstable_mockModule('../lib/email', () => ({
   sendTemplatedMail: mockSendTemplatedMail,
 }))
 
-const mockfindExistingRegistrationToEventForDog = jest.fn<
-  (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
->(async () => undefined)
-
-const libRegistration = await import('../lib/registration')
-
-jest.unstable_mockModule('../lib/registration', () => ({
-  ...libRegistration,
-  findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
-  getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
-  getRegistration: mockGetRegistration,
-  saveRegistration: mockSaveRegistration,
-}))
-
-jest.unstable_mockModule('../lib/event', () => ({
-  fixRegistrationGroups: mockFixRegistrationGroups,
-  updateRegistrations: mockUpdateRegistrations,
-}))
-
-jest.unstable_mockModule('../lib/stats', () => ({
-  updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
+jest.unstable_mockModule('../registration/actions', () => ({
+  saveAdminRegistration: mockSaveAdminRegistration,
 }))
 
 const { default: putAdminRegistrationLambda } = await import('./handler')
 
 describe('putAdminRegistrationLambda', () => {
+  const confirmedEvent = {
+    classes: [{ class: 'ALO', entries: 10 }],
+    endDate: '2024-01-02',
+    id: 'event123',
+    name: 'Test Event',
+    startDate: '2024-01-01',
+  }
+
+  const savedRegistration: JsonRegistration = {
+    agreeToTerms: true,
+    breeder: { name: '' },
+    class: 'ALO',
+    createdAt: '2024-01-01T00:00:00.000Z',
+    createdBy: 'Test User',
+    dates: [],
+    dog: {
+      breedCode: '111',
+      regNo: 'DOG123',
+    },
+    eventId: 'event123',
+    eventType: 'test',
+    handler: {
+      email: 'handler@example.com',
+      membership: false,
+      name: '',
+    },
+    id: 'reg456',
+    language: 'fi',
+    modifiedAt: '2024-01-01T00:00:00.000Z',
+    modifiedBy: 'Test User',
+    notes: '',
+    owner: {
+      email: 'owner@example.com',
+      membership: false,
+      name: '',
+    },
+    qualifyingResults: [],
+    reserve: 'ANY',
+    state: 'ready',
+  }
+
   const event = {
     body: JSON.stringify({
       class: 'ALO',
@@ -96,47 +107,32 @@ describe('putAdminRegistrationLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    // Default mock implementations
     mockAuthorize.mockResolvedValue({
       id: 'user123',
       name: 'Test User',
     })
 
-    mockGetRegistration.mockResolvedValue({
-      eventId: 'event123',
-      id: 'reg456',
-      state: 'draft',
+    // Default: successful save (update path)
+    mockSaveAdminRegistration.mockResolvedValue({
+      confirmedEvent,
+      data: savedRegistration,
+      existing: {
+        eventId: 'event123',
+        id: 'reg456',
+        state: 'draft',
+      },
+      kind: 'saved',
     })
-
-    mockSaveRegistration.mockResolvedValue({})
-
-    mockUpdateEventStatsForRegistration.mockResolvedValue({})
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
 
-    // Mock DynamoDB responses
-    mockDynamoDB.read.mockResolvedValue({
-      classes: [{ class: 'ALO', entries: 10 }],
-      endDate: '2024-01-02',
-      id: 'event123',
-      name: 'Test Event',
-      startDate: '2024-01-01',
-    })
+    // Mock DynamoDB responses for audit writes
+    mockDynamoDB.read.mockResolvedValue(confirmedEvent)
+    mockDynamoDB.write.mockResolvedValue(undefined)
+    mockDynamoDB.update.mockResolvedValue(undefined)
 
     jest.spyOn(console, 'debug').mockImplementation(() => {})
     jest.spyOn(console, 'log').mockImplementation(() => {})
-  })
-
-  afterEach(() => {
-    mockGetReadyRegistrationsByEventId.mockResolvedValue([])
-    mockFixRegistrationGroups.mockImplementation(async (regs: JsonRegistration[]) => regs)
-    mockUpdateRegistrations.mockResolvedValue({
-      classes: [{ class: 'ALO', entries: 10 }],
-      endDate: '2024-01-02',
-      id: 'event123',
-      name: 'Test Event',
-      startDate: '2024-01-01',
-    })
   })
 
   it('returns 401 if not authorized', async () => {
@@ -146,10 +142,48 @@ describe('putAdminRegistrationLambda', () => {
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(result.statusCode).toBe(401)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockSaveAdminRegistration).not.toHaveBeenCalled()
   })
 
-  it('creates a new registration when id is not provided', async () => {
+  it('returns 409 if dog is already registered to the event', async () => {
+    const newEvent = {
+      ...event,
+      body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
+        eventId: 'event123',
+        handler: {
+          email: 'handler@example.com',
+        },
+        language: 'fi',
+        owner: {
+          email: 'owner@example.com',
+        },
+        qualifyingResults: [],
+        reserve: 'ANY',
+        // No id — new registration
+      }),
+    }
+
+    mockSaveAdminRegistration.mockResolvedValueOnce({
+      cancelled: false,
+      kind: 'already-registered',
+    })
+
+    const result = await putAdminRegistrationLambda(newEvent)
+
+    expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual({
+      cancelled: false,
+      message: 'Conflict: Dog already registered to this event',
+    })
+  })
+
+  it('returns 409 with cancelled=true when existing registration is cancelled', async () => {
     const newEvent = {
       ...event,
       body: JSON.stringify({
@@ -172,54 +206,66 @@ describe('putAdminRegistrationLambda', () => {
       }),
     }
 
+    mockSaveAdminRegistration.mockResolvedValueOnce({
+      cancelled: true,
+      kind: 'already-registered',
+    })
+
     const result = await putAdminRegistrationLambda(newEvent)
 
-    // Verify registration was saved with new ID and state 'ready'
-    expect(mockSaveRegistration).toHaveBeenCalledWith(
-      expect.objectContaining({
-        createdAt: expect.any(String),
-        createdBy: 'Test User',
-        eventId: 'event123',
-        id: expect.any(String), // nanoid generated
-        modifiedAt: expect.any(String),
-        modifiedBy: 'Test User',
-        state: 'ready',
-      })
-    )
-
-    expect(result.statusCode).toBe(200)
+    expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual({
+      cancelled: true,
+      message: 'Conflict: Dog already registered to this event',
+    })
   })
 
-  it('updates an existing registration', async () => {
-    const result = await putAdminRegistrationLambda(event)
-
-    // Verify existing registration was retrieved
-    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
-
-    // Verify registration was saved with updated data
-    expect(mockSaveRegistration).toHaveBeenCalledWith(
-      expect.objectContaining({
+  it('creates a new registration and sends email', async () => {
+    const newEvent = {
+      ...event,
+      body: JSON.stringify({
         class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
         eventId: 'event123',
         handler: {
           email: 'handler@example.com',
         },
-        id: 'reg456',
         language: 'fi',
-        modifiedAt: expect.any(String),
-        modifiedBy: 'Test User',
         owner: {
           email: 'owner@example.com',
         },
-        state: 'draft', // Preserved from existing
-      })
-    )
+        qualifyingResults: [],
+        reserve: 'ANY',
+        // No id — new registration
+      }),
+    }
+
+    const newReg = { ...savedRegistration, id: 'newid123' }
+    mockSaveAdminRegistration.mockResolvedValueOnce({
+      confirmedEvent,
+      data: newReg,
+      existing: undefined, // no existing → create
+      kind: 'saved',
+    })
+
+    const result = await putAdminRegistrationLambda(newEvent)
 
     expect(result.statusCode).toBe(200)
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'registration',
+      'fi',
+      expect.any(String),
+      expect.any(Array),
+      expect.any(Object)
+    )
   })
 
-  it('does not send email if handler or owner email is missing', async () => {
-    const eventWithoutEmail = {
+  it('creates a new registration without sending email when handler email is missing', async () => {
+    const newEvent = {
       ...event,
       body: JSON.stringify({
         class: 'ALO',
@@ -230,7 +276,6 @@ describe('putAdminRegistrationLambda', () => {
         },
         eventId: 'event123',
         handler: {}, // No email
-        id: 'reg456',
         language: 'fi',
         owner: {
           email: 'owner@example.com',
@@ -240,196 +285,30 @@ describe('putAdminRegistrationLambda', () => {
       }),
     }
 
-    const result = await putAdminRegistrationLambda(eventWithoutEmail)
+    const newReg = { ...savedRegistration, handler: { membership: false, name: '' } }
+    mockSaveAdminRegistration.mockResolvedValueOnce({
+      confirmedEvent,
+      data: newReg,
+      existing: undefined,
+      kind: 'saved',
+    })
 
-    // Verify email was not sent
+    const result = await putAdminRegistrationLambda(newEvent)
+
+    expect(result.statusCode).toBe(200)
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+  })
 
-    // Verify registration was still saved
-    expect(mockSaveRegistration).toHaveBeenCalled()
+  it('updates an existing registration and sends email', async () => {
+    const result = await putAdminRegistrationLambda(event)
 
     expect(result.statusCode).toBe(200)
-  })
-
-  it('handles missing dog regNo gracefully', async () => {
-    const eventWithoutRegNo = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-        }, // No regNo
-        eventId: 'event123',
-        handler: {
-          email: 'handler@example.com',
-        },
-        language: 'fi',
-        owner: {
-          email: 'owner@example.com',
-        },
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
-
-    const result = await putAdminRegistrationLambda(eventWithoutRegNo)
-
-    // Should still work, just won't check for existing registrations
-    expect(result.statusCode).toBe(200)
-  })
-
-  it('should return 409 if dog is already registered to the event', async () => {
-    const newEventWithExistingDog = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {
-          email: 'handler@example.com',
-        },
-        language: 'fi',
-        owner: {
-          email: 'owner@example.com',
-        },
-        qualifyingResults: [],
-        reserve: 'ANY',
-        // No id - this triggers the new registration path
-      }),
-    }
-
-    // Mock that the dog is already registered
-    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
-      agreeToTerms: true,
-      breeder: { name: 'Test Breeder' },
-      class: 'ALO',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      createdBy: 'test',
-      dates: [],
-      dog: {
-        breedCode: '111',
-        regNo: 'DOG123',
-      },
-      eventId: 'event123',
-      eventType: 'test',
-      handler: {
-        email: 'existing@example.com',
-        membership: false,
-        name: '',
-      },
-      id: 'existing-reg-id',
-      language: 'fi',
-      modifiedAt: '2024-01-01T00:00:00.000Z',
-      modifiedBy: 'test',
-      notes: '',
-      owner: {
-        email: 'existing@example.com',
-        membership: false,
-        name: '',
-      },
-      qualifyingResults: [],
-      reserve: 'ANY',
-      state: 'ready',
-    })
-
-    const result = await putAdminRegistrationLambda(newEventWithExistingDog)
-
-    expect(result.statusCode).toBe(409)
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
-  })
-
-  it('should return 409 with cancelled flag when dog is already registered with cancelled registration', async () => {
-    const newEventWithCancelledDog = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {
-          email: 'handler@example.com',
-        },
-        language: 'fi',
-        owner: {
-          email: 'owner@example.com',
-        },
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
-
-    // Mock that the dog is already registered but cancelled
-    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
-      agreeToTerms: true,
-      breeder: { name: 'Test Breeder' },
-      cancelled: true, // This registration is cancelled
-      class: 'ALO',
-      createdAt: '2024-01-01T00:00:00.000Z',
-      createdBy: 'test',
-      dates: [],
-      dog: { breedCode: '111', regNo: 'DOG123' },
-      eventId: 'event123',
-      eventType: 'test',
-      handler: { email: 'existing@example.com', membership: false, name: '' },
-      id: 'existing-reg-id',
-      language: 'fi',
-      modifiedAt: '2024-01-01T00:00:00.000Z',
-      modifiedBy: 'test',
-      notes: '',
-      owner: { email: 'existing@example.com', membership: false, name: '' },
-      qualifyingResults: [],
-      reserve: 'ANY',
-      state: 'ready',
-    })
-
-    const result = await putAdminRegistrationLambda(newEventWithCancelledDog)
-
-    expect(result.statusCode).toBe(409)
-    expect(JSON.parse(result.body)).toEqual({
-      cancelled: true,
-      message: 'Conflict: Dog already registered to this event',
-    })
-    expect(mockSaveRegistration).not.toHaveBeenCalled()
-  })
-
-  it('does not send email if owner email is missing', async () => {
-    const eventWithoutOwnerEmail = {
-      ...event,
-      body: JSON.stringify({
-        class: 'ALO',
-        dates: [],
-        dog: {
-          breedCode: '111',
-          regNo: 'DOG123',
-        },
-        eventId: 'event123',
-        handler: {
-          email: 'handler@example.com',
-        },
-        id: 'reg456',
-        language: 'fi',
-        owner: {}, // No email
-        qualifyingResults: [],
-        reserve: 'ANY',
-      }),
-    }
-
-    const result = await putAdminRegistrationLambda(eventWithoutOwnerEmail)
-
-    // Verify email was not sent
-    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
-
-    // Verify registration was still saved
-    expect(mockSaveRegistration).toHaveBeenCalled()
-
-    expect(result.statusCode).toBe(200)
+    expect(mockSaveAdminRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        username: 'Test User',
+      })
+    )
+    // Email sent for update since handler.email and owner.email exist on the request body
+    expect(mockSendTemplatedMail).toHaveBeenCalled()
   })
 })

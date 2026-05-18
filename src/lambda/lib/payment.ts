@@ -1,20 +1,8 @@
-import type {
-  DogEvent,
-  JsonDogEvent,
-  JsonPaymentTransaction,
-  JsonRefundTransaction,
-  JsonTransaction,
-  Language,
-} from '../../types'
+import type { DogEvent, JsonDogEvent, Language } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { i18n } from '../../i18n/lambda'
-import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { calculateHmac, HMAC_KEY_PREFIX } from './paytrail'
 import { getPaytrailConfig } from './secrets'
-
-const { transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
 
 export const parseParams = (params: Partial<PaytrailCallbackParams>) => {
   const [eventId, registrationId] = params['checkout-reference']?.split(':') ?? []
@@ -45,41 +33,6 @@ export const verifyParams = async (params: Partial<PaytrailCallbackParams>) => {
   }
 }
 
-export const updateTransactionStatus = async (
-  transaction: JsonTransaction | undefined,
-  status: JsonTransaction['status'] | undefined,
-  provider?: string
-): Promise<boolean> => {
-  if (!transaction || !status) return false
-
-  // Skip update if no changes
-  if (transaction.statusAt && transaction.status === status && (!provider || transaction.provider === provider)) {
-    console.log('skipping no-op transaction status/provider update')
-    return false
-  }
-
-  // Prepare update object with set operations
-  const updateObj: { set: Record<string, any>; remove?: string[] } = {
-    set: {
-      status,
-      statusAt: new Date().toISOString(),
-    },
-  }
-
-  // Add provider if provided
-  if (provider) {
-    updateObj.set.provider = provider
-  }
-
-  if (status !== 'new') {
-    updateObj.remove = ['paymentResponse']
-  }
-
-  await dynamoDB.update({ transactionId: transaction.transactionId }, updateObj, transactionTable)
-
-  return true
-}
-
 export const paymentDescription = (
   jsonEvent: Pick<JsonDogEvent | DogEvent, 'eventType' | 'startDate' | 'endDate' | 'name' | 'location'>,
   language: Language
@@ -93,14 +46,3 @@ export const paymentDescription = (
 
   return [jsonEvent.eventType, eventDate, jsonEvent.location, jsonEvent.name].filter(Boolean).join(' ')
 }
-
-export const getTransactionsByReference = async (reference: string) =>
-  dynamoDB.query<JsonPaymentTransaction | JsonRefundTransaction>({
-    index: 'gsiReference',
-    key: '#reference = :reference',
-    names: {
-      '#reference': 'reference',
-    },
-    table: transactionTable,
-    values: { ':reference': reference },
-  })

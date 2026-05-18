@@ -1,19 +1,12 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetAndUpdateUserByEmail = jest.fn<any>()
 const mockSetUserRole = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
   getAndUpdateUserByEmail: mockGetAndUpdateUserByEmail,
 }))
@@ -30,7 +23,7 @@ jest.unstable_mockModule('../lib/user', () => ({
   setUserRole: mockSetUserRole,
 }))
 
-const { default: putUserLambda } = await import('./handler')
+const { putUserLambda } = await import('./handler')
 
 describe('putUserLambda', () => {
   const event = {
@@ -88,10 +81,10 @@ describe('putUserLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await putUserLambda(event)
+    const result = await putUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
@@ -105,10 +98,10 @@ describe('putUserLambda', () => {
       },
     })
 
-    await putUserLambda(event)
+    const result = await putUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(result.statusCode).toBe(403)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
@@ -122,15 +115,15 @@ describe('putUserLambda', () => {
       },
     })
 
-    await putUserLambda(event)
+    const result = await putUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' })
-    expect(mockResponse).not.toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('updates user name and roles successfully', async () => {
-    await putUserLambda(event)
+    const result = await putUserLambda(event)
 
     // Verify user was retrieved and updated
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' })
@@ -156,8 +149,7 @@ describe('putUserLambda', () => {
       'https://example.com'
     )
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('handles empty roles object', async () => {
@@ -167,7 +159,7 @@ describe('putUserLambda', () => {
       roles: {},
     })
 
-    await putUserLambda(event)
+    const result = await putUserLambda(event)
 
     // Verify user was retrieved and updated
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' })
@@ -175,8 +167,7 @@ describe('putUserLambda', () => {
     // Verify no roles were set
     expect(mockSetUserRole).not.toHaveBeenCalled()
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('handles undefined roles', async () => {
@@ -186,7 +177,7 @@ describe('putUserLambda', () => {
       // No roles property
     })
 
-    await putUserLambda(event)
+    const result = await putUserLambda(event)
 
     // Verify user was retrieved and updated
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' })
@@ -194,8 +185,7 @@ describe('putUserLambda', () => {
     // Verify no roles were set
     expect(mockSetUserRole).not.toHaveBeenCalled()
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('throws an error if getAndUpdateUserByEmail fails', async () => {

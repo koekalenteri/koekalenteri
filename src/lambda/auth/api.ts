@@ -3,19 +3,17 @@ import type { JsonUser } from '../../types'
 import { diff } from 'deep-object-diff'
 import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
+import { appendEmailHistory } from '../lib/emailHistory'
 import { response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { appendEmailHistory } from './emailHistory'
-import { findUserByEmail, updateUser, userIsMemberOf } from './user'
+import { findUserByEmail, updateUser, userIsMemberOf } from '../lib/user'
+import { authRepository } from './repository'
 
 export interface UserLink {
   cognitoUser: string
   userId: string
 }
 
-const { userTable, userLinkTable } = CONFIG
-
-const dynamoDB = new CustomDynamoClient(userLinkTable)
+const { userLinkTable } = CONFIG
 
 export async function authorize(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
   const user = await getOrCreateUserFromEvent(event, updateLastSeen)
@@ -73,13 +71,13 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
 
   console.log('claims', event.requestContext.authorizer.claims)
 
-  const link = await dynamoDB.read<UserLink>({ cognitoUser })
+  const link = await authRepository.readUserLink(cognitoUser)
   const { name, email } = event.requestContext.authorizer.claims
 
   if (link) {
     // IMPORTANT: When the cognito user is already linked, honor the link.
     // Do not re-resolve the user by email, as email may change in KL / IdP claims.
-    user = await dynamoDB.read<JsonUser>({ id: link.userId }, userTable)
+    user = await authRepository.readUserById(link.userId)
     if (user) {
       user = await updateExistingUser(user, { name }, false, updateLastSeen)
     }
@@ -101,11 +99,11 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
 
       // Update lastSeen/name on the existing user record.
       user = await updateExistingUser(existingByEmail, { name }, false, updateLastSeen)
-      await dynamoDB.write({ cognitoUser, userId: existingByEmail.id }, userLinkTable)
+      await authRepository.writeUserLink({ cognitoUser, userId: existingByEmail.id })
       console.log('added user link', { cognitoUser, userId: existingByEmail.id })
     } else {
       user = await getAndUpdateUserByEmail(email, { name }, false, updateLastSeen)
-      await dynamoDB.write({ cognitoUser, userId: user.id }, userLinkTable)
+      await authRepository.writeUserLink({ cognitoUser, userId: user.id })
       console.log('added user link', { cognitoUser, userId: user.id })
     }
   }

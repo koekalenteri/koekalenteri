@@ -1,13 +1,13 @@
 import type { JsonUser } from '../../types'
+import { authorize } from '../auth/api'
 import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
 
-const setAdminLambda = lambda('setAdmin', async (event) => {
+export const setAdminLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -41,6 +41,8 @@ const setAdminLambda = lambda('setAdmin', async (event) => {
   )
 
   return response(200, { ...existing, ...item }, event)
-})
+}
 
-export default setAdminLambda
+export default lambda('setAdmin', setAdminLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

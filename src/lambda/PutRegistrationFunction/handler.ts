@@ -1,53 +1,34 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
-import { nanoid } from 'nanoid'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
-import { isEntryOpen } from '../../lib/utils'
+import { getUsername } from '../auth/api'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import {
-  findExistingRegistrationToEventForDog,
-  getCancelAuditMessage,
-  getRegistration,
-  getRegistrationChanges,
-  hasRegistrationChanges,
-  isParticipantGroup,
-  saveRegistration,
-} from '../lib/registration'
-import { updateEventStatsForRegistration } from '../lib/stats'
+import { getCancelAuditMessage, getRegistrationChanges, isParticipantGroup } from '../lib/registration'
+import { submitRegistration } from '../registration/actions'
 
 const { emailFrom } = CONFIG
 
-const getData = async (registration: JsonRegistration) => {
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
-  const existing = registration.id ? await getRegistration(registration.eventId, registration.id) : undefined
-
-  return { confirmedEvent, existing }
-}
-
-const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
-  if (cancel) return 'cancel'
-  if (confirm) return 'confirm'
-  if (invitation) return 'invitation'
-  if (update) return 'update'
-  return ''
+const getEmailContext = (
+  classification: 'cancelled' | 'confirmed' | 'invitation-read' | 'updated'
+): RegistrationTemplateContext => {
+  if (classification === 'cancelled') return 'cancel'
+  if (classification === 'confirmed') return 'confirm'
+  if (classification === 'invitation-read') return 'invitation'
+  return 'update'
 }
 
 const getAuditMessage = (
-  cancel: boolean,
-  confirm: boolean,
+  classification: 'cancelled' | 'confirmed' | 'created' | 'invitation-read' | 'updated',
   data: JsonRegistration,
   existing?: JsonRegistration
 ): string => {
-  if (cancel) return getCancelAuditMessage(data)
-  if (confirm) return 'Ilmoittautumisen vahvistus'
-  if (!existing) return 'Ilmoittautui'
-
+  if (classification === 'cancelled') return getCancelAuditMessage(data)
+  if (classification === 'confirmed') return 'Ilmoittautumisen vahvistus'
+  if (classification === 'created' || !existing) return 'Ilmoittautui'
   return getRegistrationChanges(existing, data)
 }
 
@@ -100,7 +81,7 @@ const sendMessages = async (
   }
 }
 
-const putRegistrationLambda = lambda('putRegistration', async (event) => {
+export const putRegistrationLambda = async (event: APIGatewayProxyEvent) => {
   const username = await getUsername(event)
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
@@ -112,79 +93,63 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   delete registration.paidAt
   delete registration.paymentStatus
 
-  const { confirmedEvent, existing } = await getData(registration)
+  const result = await submitRegistration({ registration, timestamp, username })
 
-  if (!confirmedEvent) {
-    return response(404, { message: 'Not found' }, event)
-  }
-
-  if (!existing) {
-    if (!isEntryOpen(confirmedEvent)) {
-      return response(410, { message: 'Gone: Entry is not open' }, event)
-    }
-
-    // Prevent double registrations when trying to insert new registration
-    const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
-
-    if (alreadyRegistered) {
-      return response(
-        409,
-        {
-          cancelled: Boolean(alreadyRegistered.cancelled),
-          message: 'Conflict: Dog already registered to this event',
-        },
-        event
-      )
-    }
-
-    registration.id = nanoid(10)
-    registration.createdAt = timestamp
-    registration.createdBy = username
-    registration.state = confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
-  }
-
-  const update = !!existing
-  const cancel = !existing?.cancelled && !!registration.cancelled
-  const confirm = !existing?.confirmed && !!registration.confirmed && !existing?.cancelled
-  const invitation = !existing?.invitationRead && !!registration.invitationRead && !existing?.cancelled
-
-  // modification info is always updated
-  registration.modifiedAt = timestamp
-  registration.modifiedBy = username
-
-  const data: JsonRegistration = { ...existing, ...registration }
-
-  if (existing && !hasRegistrationChanges(existing, data)) {
+  if (result.kind === 'no-op') {
     return response(304, undefined, event)
   }
 
-  await saveRegistration(data)
-  // Update organizer event stats after registration change
-  await updateEventStatsForRegistration(data, existing, confirmedEvent)
-
-  if (cancel || registration.state === 'ready') {
-    await updateRegistrations(registration.eventId)
+  if (result.kind === 'entry-closed') {
+    return response(410, { message: 'Gone: Entry is not open' }, event)
   }
 
-  const message = getAuditMessage(cancel, confirm, data, existing)
-  if (message) {
+  if (result.kind === 'already-registered') {
+    return response(
+      409,
+      { cancelled: result.cancelled, message: 'Conflict: Dog already registered to this event' },
+      event
+    )
+  }
+
+  if (result.kind === 'created') {
+    const { registration: created, event: confirmedEvent } = result
+
+    const auditMessage = getAuditMessage('created', created)
+    if (auditMessage) {
+      await audit({
+        auditKey: registrationAuditKey(created),
+        message: auditMessage,
+        user: username,
+      })
+    }
+
+    if (created.handler?.email && created.owner?.email && confirmedEvent.paymentTime === 'confirmation') {
+      await sendMessages(origin, '', created, confirmedEvent)
+    }
+
+    return response(200, created, event)
+  }
+
+  // result.kind === 'updated'
+  const { classification, registration: updated, existing, event: confirmedEvent } = result
+  const context = getEmailContext(classification)
+
+  const auditMessage = getAuditMessage(classification, updated, existing)
+  if (auditMessage) {
     await audit({
-      auditKey: registrationAuditKey(registration),
-      message,
+      auditKey: registrationAuditKey(updated),
+      message: auditMessage,
       user: username,
     })
   }
 
-  const context = getEmailContext(update, cancel, confirm, invitation)
-  if (
-    (context || confirmedEvent.paymentTime === 'confirmation') &&
-    registration.handler?.email &&
-    registration.owner?.email
-  ) {
-    await sendMessages(origin, context, data, confirmedEvent, existing)
+  if ((context || confirmedEvent.paymentTime === 'confirmation') && updated.handler?.email && updated.owner?.email) {
+    await sendMessages(origin, context, updated, confirmedEvent, existing)
   }
 
-  return response(200, data, event)
-})
+  return response(200, updated, event)
+}
 
-export default putRegistrationLambda
+export default lambda('putRegistration', putRegistrationLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

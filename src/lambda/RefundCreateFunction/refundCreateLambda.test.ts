@@ -1,13 +1,10 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetApiHost = jest.fn<any>()
 const mockRefundPayment = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
-const mockGetRegistration = jest.fn<any>()
+const mockGetConfirmedEvent = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockDynamoRead = jest.fn<any>()
@@ -21,20 +18,11 @@ const mockDynamoClient = jest.fn(() => ({
 const mockNanoid = jest.fn<any>()
 const mockFormatMoney = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
+const mockApplyRefundCreate = jest.fn<any>()
+const mockLoadRefundRequestData = jest.fn<any>()
+const mockWriteRefundTransaction = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  LambdaError: class LambdaError extends Error {
-    status: number
-    constructor(status: number, message: string) {
-      super(message)
-      this.status = status
-    }
-  },
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -50,12 +38,10 @@ jest.unstable_mockModule('../lib/paytrail', () => ({
   refundPayment: mockRefundPayment,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
-}))
-
-jest.unstable_mockModule('../lib/registration', () => ({
-  getRegistration: mockGetRegistration,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
+  },
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({
@@ -79,7 +65,22 @@ jest.unstable_mockModule('../../lib/payment', () => ({
   getProviderName: mockGetProviderName,
 }))
 
-const { default: refundCreateLambda } = await import('./handler')
+jest.unstable_mockModule('../registration/actions', () => ({
+  applyRefundCreate: mockApplyRefundCreate,
+}))
+
+jest.unstable_mockModule('../refund/actions', () => ({
+  createLoadRefundRequestData: jest.fn(() => mockLoadRefundRequestData),
+}))
+
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: {
+    createRefund: mockWriteRefundTransaction,
+    getPaymentById: jest.fn(),
+  },
+}))
+
+const { refundCreateLambda } = await import('./handler')
 
 describe('refundCreateLambda', () => {
   const event = {
@@ -142,38 +143,38 @@ describe('refundCreateLambda', () => {
 
     mockGetApiHost.mockReturnValue('api.example.com')
 
-    // Set up default behavior for DynamoDB read
-    // Set up default behavior for DynamoDB read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve(mockPaymentTransaction)
-      }
-      return Promise.resolve(null)
+    mockLoadRefundRequestData.mockResolvedValue({
+      eventId: 'event123',
+      paymentTransaction: mockPaymentTransaction,
+      registration: mockRegistration,
+      registrationId: 'reg456',
     })
 
-    mockGetEvent.mockResolvedValue(mockConfirmedEvent)
-    mockGetRegistration.mockResolvedValue(mockRegistration)
+    // Organizer read only (CustomDynamoClient.read in the handler)
+    mockDynamoRead.mockResolvedValue(mockOrganizer)
+
+    mockGetConfirmedEvent.mockResolvedValue(mockConfirmedEvent)
 
     mockNanoid.mockReturnValue('stamp123')
 
     mockRefundPayment.mockResolvedValue(mockRefundResult)
 
+    mockWriteRefundTransaction.mockResolvedValue(undefined)
     mockFormatMoney.mockReturnValue('10,00 €')
     mockGetProviderName.mockReturnValue('Paytrail')
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
+    mockApplyRefundCreate.mockResolvedValue(undefined)
   })
 
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await refundCreateLambda(event)
+    const result = await refundCreateLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
-    expect(mockDynamoRead).not.toHaveBeenCalled()
+    expect(result.statusCode).toBe(401)
+    expect(JSON.parse(result.body)).toBe('Unauthorized')
+    expect(mockLoadRefundRequestData).not.toHaveBeenCalled()
   })
 
   it('throws error if amount is invalid', async () => {
@@ -183,72 +184,34 @@ describe('refundCreateLambda', () => {
     })
 
     await expect(refundCreateLambda(event)).rejects.toThrow("Invalid amount: '0'")
-    expect(mockDynamoRead).not.toHaveBeenCalled()
+    expect(mockLoadRefundRequestData).not.toHaveBeenCalled()
   })
 
   it('throws error if transaction is not found', async () => {
-    mockDynamoRead.mockImplementationOnce(() => Promise.resolve(null))
+    mockLoadRefundRequestData.mockRejectedValueOnce(
+      Object.assign(new Error("Transaction with id 'transaction123' was not found"), { status: 404 })
+    )
 
     await expect(refundCreateLambda(event)).rejects.toThrow("Transaction with id 'transaction123' was not found")
-    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockGetConfirmedEvent).not.toHaveBeenCalled()
   })
 
   it('throws error if organizer does not have MerchantId', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve({ id: 'org123' }) // No paytrailMerchantId
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve(mockPaymentTransaction)
-      }
-      return Promise.resolve(null)
-    })
+    mockDynamoRead.mockResolvedValueOnce({ id: 'org123' }) // No paytrailMerchantId
 
     await expect(refundCreateLambda(event)).rejects.toThrow('Organizer org123 does not have MerchantId!')
     expect(mockRefundPayment).not.toHaveBeenCalled()
   })
 
   it('throws error if refundPayment does not return a result', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve(mockPaymentTransaction)
-      }
-      return Promise.resolve(null)
-    })
-
     mockRefundPayment.mockResolvedValueOnce(null)
 
     await expect(refundCreateLambda(event)).rejects.toThrow(/refundPayment did not return a result/)
-    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockWriteRefundTransaction).not.toHaveBeenCalled()
   })
 
   it('creates a refund transaction with items', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve(mockPaymentTransaction)
-      }
-      return Promise.resolve(null)
-    })
-
-    await refundCreateLambda(event)
+    const result = await refundCreateLambda(event)
 
     // Verify refundPayment was called with correct parameters
     expect(mockRefundPayment).toHaveBeenCalledWith(
@@ -268,8 +231,8 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    // Verify transaction was written
-    expect(mockDynamoWrite).toHaveBeenCalledWith({
+    // Verify transaction was written via repository
+    expect(mockWriteRefundTransaction).toHaveBeenCalledWith({
       amount: 1000,
       createdAt: expect.any(String),
       items: [
@@ -289,43 +252,33 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
-    // Verify registration was updated
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundStatus: 'SUCCESS',
-        },
-      },
-      expect.any(String)
-    )
+    // Verify registration refund state transition was delegated to action
+    expect(mockApplyRefundCreate).toHaveBeenCalledWith({
+      eventId: 'event123',
+      isPending: false,
+      registrationId: 'reg456',
+    })
 
     // Verify audit was not called (since status is 'ok')
     expect(mockAudit).not.toHaveBeenCalled()
 
     // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, mockRefundResult, event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(mockRefundResult)
   })
 
   it('creates a refund transaction without items', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock a payment transaction without items
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve({
-          reference: 'event123:reg456',
-          transactionId: 'transaction123',
-        })
-      }
-      return Promise.resolve(null)
+    mockLoadRefundRequestData.mockResolvedValueOnce({
+      eventId: 'event123',
+      paymentTransaction: {
+        reference: 'event123:reg456',
+        transactionId: 'transaction123',
+      },
+      registration: mockRegistration,
+      registrationId: 'reg456',
     })
 
-    await refundCreateLambda(event)
+    const result = await refundCreateLambda(event)
 
     // Verify refundPayment was called with correct parameters
     expect(mockRefundPayment).toHaveBeenCalledWith(
@@ -338,8 +291,8 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    // Verify transaction was written
-    expect(mockDynamoWrite).toHaveBeenCalledWith({
+    // Verify transaction was written via repository
+    expect(mockWriteRefundTransaction).toHaveBeenCalledWith({
       amount: 1000,
       createdAt: expect.any(String),
       items: undefined,
@@ -351,23 +304,10 @@ describe('refundCreateLambda', () => {
       type: 'refund',
       user: 'Test User',
     })
+    expect(result.statusCode).toBe(200)
   })
 
   it('creates audit entry for pending refunds', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve(mockPaymentTransaction)
-      }
-      return Promise.resolve(null)
-    })
-
     mockRefundPayment.mockResolvedValueOnce({
       provider: 'paytrail',
       status: 'pending',
@@ -383,33 +323,14 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
-    // Verify registration was updated with PENDING status
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundStatus: 'PENDING',
-        },
-      },
-      expect.any(String)
-    )
+    expect(mockApplyRefundCreate).toHaveBeenCalledWith({
+      eventId: 'event123',
+      isPending: true,
+      registrationId: 'reg456',
+    })
   })
 
   it('creates audit entry for email refunds', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock transaction read
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve(mockPaymentTransaction)
-      }
-      return Promise.resolve(null)
-    })
-
     mockRefundPayment.mockResolvedValueOnce({
       provider: 'email refund',
       status: 'ok',
@@ -425,35 +346,23 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
-    // Verify registration was updated with PENDING status
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundStatus: 'PENDING',
-        },
-      },
-      expect.any(String)
-    )
+    expect(mockApplyRefundCreate).toHaveBeenCalledWith({
+      eventId: 'event123',
+      isPending: true,
+      registrationId: 'reg456',
+    })
   })
 
   it('handles unsupported transaction with multiple items', async () => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Mock transaction with multiple items
-    mockDynamoRead.mockImplementation((params: any, table: any) => {
-      if (table === 'organizer' || params.id === 'org123') {
-        return Promise.resolve(mockOrganizer)
-      }
-      if (params.transactionId === 'transaction123' || !table || table === 'transaction') {
-        return Promise.resolve({
-          items: [{ stamp: 'item1' }, { stamp: 'item2' }],
-          reference: 'event123:reg456',
-          transactionId: 'transaction123',
-        })
-      }
-      return Promise.resolve(null)
+    mockLoadRefundRequestData.mockResolvedValueOnce({
+      eventId: 'event123',
+      paymentTransaction: {
+        items: [{ stamp: 'item1' }, { stamp: 'item2' }],
+        reference: 'event123:reg456',
+        transactionId: 'transaction123',
+      },
+      registration: mockRegistration,
+      registrationId: 'reg456',
     })
 
     await expect(refundCreateLambda(event)).rejects.toThrow('Unsupported transaction')
@@ -486,7 +395,7 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockDynamoWrite).toHaveBeenCalledWith(
+    expect(mockWriteRefundTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: partialRefundAmount,
       })

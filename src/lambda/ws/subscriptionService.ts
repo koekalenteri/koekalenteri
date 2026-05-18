@@ -1,7 +1,6 @@
-import type { JsonDogEvent } from '../../types'
 import type { WebSocketConnection } from '../types/webscoket'
-import { getEvent } from '../lib/event'
 import { LambdaError } from '../lib/lambda'
+import { eventReadPort } from '../registration/api'
 import { publishEventViewers } from './broadcastService'
 import { isConnectionExpired } from './connectionPolicy'
 import { getConnection, subscribeConnection, unsubscribeConnection } from './connectionRepository'
@@ -12,7 +11,7 @@ export const subscribeToEvent = async (connection: WebSocketConnection, eventId:
   }
 
   const previousEventId = connection.eventId
-  const event = await getEvent<JsonDogEvent>(eventId)
+  const event = await eventReadPort.getConfirmedEvent(eventId)
 
   if (!connection.admin && !connection.memberOf?.includes(event.organizer.id)) {
     throw new LambdaError(403, 'Forbidden')
@@ -21,7 +20,7 @@ export const subscribeToEvent = async (connection: WebSocketConnection, eventId:
   await subscribeConnection(connection.connectionId, eventId)
 
   if (previousEventId && previousEventId !== eventId) {
-    const previousEvent = await getEvent<JsonDogEvent>(previousEventId)
+    const previousEvent = await eventReadPort.getConfirmedEvent(previousEventId)
     await publishEventViewers(previousEventId, previousEvent.organizer.id)
   }
 
@@ -36,7 +35,7 @@ export const unsubscribeFromEvent = async (connectionId: string) => {
   await unsubscribeConnection(connectionId)
 
   if (connection?.eventId) {
-    const event = await getEvent<JsonDogEvent>(connection.eventId)
+    const event = await eventReadPort.getConfirmedEvent(connection.eventId)
     await publishEventViewers(connection.eventId, event.organizer.id)
   }
 }

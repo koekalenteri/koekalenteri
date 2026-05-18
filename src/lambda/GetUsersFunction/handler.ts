@@ -1,4 +1,4 @@
-import { authorize } from '../lib/auth'
+import { authorize } from '../auth/api'
 import { lambda, response } from '../lib/lambda'
 import { filterRelevantUsers, getAllUsers, userIsMemberOf } from '../lib/user'
 
@@ -49,7 +49,7 @@ function dedupeUsersByEmail<
   return [...byEmail.values()]
 }
 
-const getUsersLambda = lambda('getUsers', async (event) => {
+export const getUsersLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -65,6 +65,8 @@ const getUsersLambda = lambda('getUsers', async (event) => {
   const deduped = dedupeUsersByEmail(relevant)
 
   return response(200, deduped, event)
-})
+}
 
-export default getUsersLambda
+export default lambda('getUsers', getUsersLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

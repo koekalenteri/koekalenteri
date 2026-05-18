@@ -201,14 +201,14 @@ describe('judge', () => {
     } as unknown as CustomDynamoClient
 
     it('should do nothing with empty array', async () => {
-      await updateJudges(mockDB, [])
+      await updateJudges(mockDB as unknown as Parameters<typeof updateJudges>[0], [])
 
       expect(mockReadAll).not.toHaveBeenCalled()
       expect(mockBatchWrite).not.toHaveBeenCalled()
     })
 
     it('should add new judges', async () => {
-      await updateJudges(mockDB, [
+      await updateJudges(mockDB as unknown as Parameters<typeof updateJudges>[0], [
         {
           district: 'some district',
           email: 'test@example.com',
@@ -259,7 +259,7 @@ describe('judge', () => {
       }
       mockReadAll.mockResolvedValueOnce([existing])
 
-      await updateJudges(mockDB, [
+      await updateJudges(mockDB as unknown as Parameters<typeof updateJudges>[0], [
         {
           district: existing.district,
           email: existing.email,
@@ -311,7 +311,7 @@ describe('judge', () => {
         name: 'other',
       }
 
-      await updateJudges(mockDB, [added])
+      await updateJudges(mockDB as unknown as Parameters<typeof updateJudges>[0], [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       expect(mockReadAll).toHaveBeenCalledWith('judge-table-not-found-in-env')
@@ -351,7 +351,7 @@ describe('judge', () => {
         name: 'other',
       }
 
-      await updateJudges(mockDB, [added])
+      await updateJudges(mockDB as unknown as Parameters<typeof updateJudges>[0], [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       expect(mockReadAll).toHaveBeenCalledWith('judge-table-not-found-in-env')

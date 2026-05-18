@@ -1,6 +1,6 @@
 import type { APIGatewayProxyResult } from 'aws-lambda'
 import type { JsonUser } from '../../types'
-import type { authorizeWithMemberOf } from '../lib/auth'
+import type { authorizeWithMemberOf } from '../auth/api'
 import { jest } from '@jest/globals'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
@@ -32,7 +32,7 @@ const mockAdminUser: JsonUser = {
   admin: true,
 }
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({

@@ -1,20 +1,19 @@
-import type { JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { formatMoney } from '../../lib/money'
-import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { LambdaError, lambda, response } from '../lib/lambda'
-import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { lambda, response } from '../lib/lambda'
+import { parseParams, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { paymentTransactionRepository } from '../payment/repository'
+import { createApplyRefundCancel } from '../registration/actions'
+import { registrationRepository } from '../registration/repository'
 
-const { registrationTable, transactionTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(transactionTable)
+const applyRefundCancel = createApplyRefundCancel(registrationRepository)
 
 /**
  * refundCancel is called by payment provider, to update cancelled refund status
  */
-const refundCancelLambda = lambda('refundCancel', async (event) => {
+export const refundCancelLambda = async (event: APIGatewayProxyEvent) => {
   const params: Partial<PaytrailCallbackParams> = event.queryStringParameters ?? {}
   const { eventId, registrationId, transactionId } = parseParams(params)
 
@@ -27,25 +26,14 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
 
   await verifyParams(params)
 
-  const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
-  if (!transaction) {
-    throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
-  }
+  const transaction = await paymentTransactionRepository.getRefundById(transactionId!)
 
   const registration = await getRegistration(eventId, registrationId)
 
-  const updated = await updateTransactionStatus(transaction, 'fail')
+  const updated = await paymentTransactionRepository.patchStatus(transaction, { status: 'fail' })
   if (updated) {
     if (registration.refundStatus === 'PENDING') {
-      await dynamoDB.update(
-        { eventId, id: registrationId },
-        {
-          set: {
-            refundStatus: 'CANCEL',
-          },
-        },
-        registrationTable
-      )
+      await applyRefundCancel({ eventId, registrationId })
     }
 
     await audit({
@@ -58,6 +46,8 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
   }
 
   return response(200, undefined, event)
-})
+}
 
-export default refundCancelLambda
+export default lambda('refundCancel', refundCancelLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

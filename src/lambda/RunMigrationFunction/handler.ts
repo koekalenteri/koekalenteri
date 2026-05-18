@@ -1,11 +1,8 @@
 import type { JsonDogEvent } from '../../types'
 import { formatDate, TIME_ZONE } from '../../i18n/dates'
-import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorize } from '../auth/api'
+import { eventRepository } from '../event/repository'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const getSeasonFromStartDate = (startDate?: string): string =>
   formatDate(startDate ?? '', 'yyyy', { timeZone: TIME_ZONE })
@@ -31,13 +28,13 @@ const migrations: EventMigration[] = [
   },
 ]
 
-const runMigrationLambda = lambda('runMigration', async (event) => {
+export const runMigrationLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user?.admin) {
     return response(401, 'Unauthorized', event)
   }
 
-  const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
+  const events = (await eventRepository.listAll()) ?? []
 
   const migrationResults = migrations.map((migration) => ({ count: 0, name: migration.name }))
   const modifiedEvents = new Set<JsonDogEvent>()
@@ -52,7 +49,7 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
   }
 
   for (const item of modifiedEvents) {
-    await dynamoDB.write(item)
+    await eventRepository.save(item)
   }
 
   return response(
@@ -63,6 +60,8 @@ const runMigrationLambda = lambda('runMigration', async (event) => {
     })),
     event
   )
-})
+}
 
-export default runMigrationLambda
+export default lambda('runMigration', runMigrationLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

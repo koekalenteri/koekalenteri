@@ -1,8 +1,8 @@
+import { authorize } from '../auth/api'
 import { auditTrail } from '../lib/audit'
-import { authorize } from '../lib/auth'
 import { getParam, lambda, response } from '../lib/lambda'
 
-const getAuditTrailLambda = lambda('getAuditTrail', async (event) => {
+export const getAuditTrailLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -12,6 +12,8 @@ const getAuditTrailLambda = lambda('getAuditTrail', async (event) => {
   const trail = await auditTrail(`${eventId}:${id}`)
 
   return response(200, trail, event)
-})
+}
 
-export default getAuditTrailLambda
+export default lambda('getAuditTrail', getAuditTrailLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

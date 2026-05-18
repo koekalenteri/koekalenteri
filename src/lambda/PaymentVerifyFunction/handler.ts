@@ -1,21 +1,22 @@
-import type { JsonTransaction, VerifyPaymentResponse } from '../../types'
+import type { VerifyPaymentResponse } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
-import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { parseParams, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { paymentTransactionRepository } from '../payment/repository'
+import { createApplyPaymentCancel } from '../registration/actions'
+import { registrationRepository } from '../registration/repository'
 
-const dynamoDB = new CustomDynamoClient(CONFIG.transactionTable)
+const applyPaymentCancel = createApplyPaymentCancel(registrationRepository)
 
 /**
  * paymentVerify is called by client when returning from payment provider.
  */
-const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
+export const paymentVerifyLambda = async (event: APIGatewayProxyEvent) => {
   const params: Partial<PaytrailCallbackParams> = parseJSONWithFallback(event.body)
   const { eventId, registrationId, transactionId, status: paymentStatus } = parseParams(params)
 
@@ -25,7 +26,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     /**
      * NB: the stored transaction status is probably outdated, since its updated by callback from the payment provider.
      */
-    const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+    const transaction = await paymentTransactionRepository.getById(transactionId!)
     if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
 
     const status = paymentStatus === 'fail' ? 'error' : 'ok'
@@ -34,15 +35,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
       const registration = await getRegistration(eventId, registrationId)
 
       if (registration.paymentStatus === 'PENDING') {
-        await dynamoDB.update(
-          { eventId, id: registrationId },
-          {
-            set: {
-              paymentStatus: 'CANCEL',
-            },
-          },
-          CONFIG.registrationTable
-        )
+        await applyPaymentCancel({ eventId, registrationId })
 
         const provider = params['checkout-provider']
 
@@ -59,6 +52,8 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
     console.error(e)
     return response<VerifyPaymentResponse>(200, { eventId, paymentStatus, registrationId, status: 'error' }, event)
   }
-})
+}
 
-export default paymentVerifyLambda
+export default lambda('paymentVerify', paymentVerifyLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

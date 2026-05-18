@@ -1,19 +1,12 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
-const mockUpdateRegistrationField = jest.fn<any>()
+const mockUpdateRegistrationNotes = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -26,11 +19,11 @@ jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
-jest.unstable_mockModule('../lib/registration', () => ({
-  updateRegistrationField: mockUpdateRegistrationField,
+jest.unstable_mockModule('../registration/actions', () => ({
+  updateRegistrationNotes: mockUpdateRegistrationNotes,
 }))
 
-const { default: putAdminRegistrationNotesLambda } = await import('./handler')
+const { putAdminRegistrationNotesLambda } = await import('./handler')
 
 describe('putAdminRegistrationNotesLambda', () => {
   const event = {
@@ -59,29 +52,30 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
-    mockUpdateRegistrationField.mockResolvedValue({})
+    mockUpdateRegistrationNotes.mockResolvedValue({
+      registration: { eventId: 'event123', id: 'reg456', internalNotes: 'Test internal notes' },
+    })
   })
 
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await putAdminRegistrationNotesLambda(event)
+    const result = await putAdminRegistrationNotesLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(result.statusCode).toBe(401)
+    expect(mockUpdateRegistrationNotes).not.toHaveBeenCalled()
   })
 
-  it('updates registration internal notes successfully', async () => {
-    await putAdminRegistrationNotesLambda(event)
+  it('updates registration internal notes successfully and calls audit', async () => {
+    const result = await putAdminRegistrationNotesLambda(event)
 
-    // Verify registration field was updated
-    expect(mockUpdateRegistrationField).toHaveBeenCalledWith(
-      'event123',
-      'reg456',
-      'internalNotes',
-      'Test internal notes'
-    )
+    // Verify updateRegistrationNotes was called with correct command
+    expect(mockUpdateRegistrationNotes).toHaveBeenCalledWith({
+      eventId: 'event123',
+      internalNotes: 'Test internal notes',
+      registrationId: 'reg456',
+    })
 
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
@@ -91,7 +85,8 @@ describe('putAdminRegistrationNotesLambda', () => {
     })
 
     // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(200, 'ok', event)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toBe('ok')
   })
 
   it('throws error if eventId is missing', async () => {
@@ -102,8 +97,8 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     await expect(putAdminRegistrationNotesLambda(event)).rejects.toThrow('Event id or registration id missing')
 
-    // Verify registration field was not updated
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    // Verify updateRegistrationNotes was not called
+    expect(mockUpdateRegistrationNotes).not.toHaveBeenCalled()
 
     // Verify audit entry was not created
     expect(mockAudit).not.toHaveBeenCalled()
@@ -117,23 +112,23 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     await expect(putAdminRegistrationNotesLambda(event)).rejects.toThrow('Event id or registration id missing')
 
-    // Verify registration field was not updated
-    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    // Verify updateRegistrationNotes was not called
+    expect(mockUpdateRegistrationNotes).not.toHaveBeenCalled()
 
     // Verify audit entry was not created
     expect(mockAudit).not.toHaveBeenCalled()
   })
 
-  it('passes through errors from updateRegistrationField', async () => {
-    const error = new Error('Database error')
-    mockUpdateRegistrationField.mockRejectedValueOnce(error)
+  it('passes through errors from updateRegistrationNotes', async () => {
+    const error = new Error('Registration not found')
+    mockUpdateRegistrationNotes.mockRejectedValueOnce(error)
 
     await expect(putAdminRegistrationNotesLambda(event)).rejects.toThrow(error)
 
-    // Verify registration field update was attempted
-    expect(mockUpdateRegistrationField).toHaveBeenCalled()
+    // Verify updateRegistrationNotes was attempted
+    expect(mockUpdateRegistrationNotes).toHaveBeenCalled()
 
-    // Verify audit entry was not created
+    // Verify audit entry was not created since action failed
     expect(mockAudit).not.toHaveBeenCalled()
   })
 })

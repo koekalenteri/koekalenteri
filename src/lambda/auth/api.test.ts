@@ -14,22 +14,23 @@ jest.unstable_mockModule('../lib/user', () => ({
 const mockRead = jest.fn(async (): Promise<any> => undefined)
 const mockWrite = jest.fn()
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+jest.unstable_mockModule('./repository', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    read: mockRead,
-    write: mockWrite,
-  })),
+  authRepository: {
+    readUserById: mockRead,
+    readUserLink: mockRead,
+    writeUserLink: mockWrite,
+  },
 }))
 
 const logSpy = jest.spyOn(console, 'log').mockImplementation(() => null)
 const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null)
 const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => null)
 
-const { findUserByEmail, updateUser, userIsMemberOf } = await import('./user')
-const { authorize, authorizeWithMemberOf, getAndUpdateUserByEmail, getUsername } = await import('./auth')
+const { findUserByEmail, updateUser, userIsMemberOf } = await import('../lib/user')
+const { authorize, authorizeWithMemberOf, getAndUpdateUserByEmail, getUsername } = await import('./api')
 
-describe('auth', () => {
+describe('auth api', () => {
   afterEach(() => {
     jest.resetAllMocks()
   })
@@ -68,8 +69,8 @@ describe('auth', () => {
       const result = await authorize(event)
 
       expect(logSpy).toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
-      expect(mockWrite).toHaveBeenCalledWith(link, 'user-link-table-not-found-in-env')
+      expect(mockRead).toHaveBeenCalledWith(cognitoUser)
+      expect(mockWrite).toHaveBeenCalledWith(link)
       expect(logSpy).toHaveBeenCalledWith('added user link', link)
       expect(result).toEqual({
         createdAt: '2023-11-30T20:00:00.000Z',
@@ -108,12 +109,8 @@ describe('auth', () => {
         'no user link found; linking cognito user to existing user by email',
         expect.objectContaining({ cognitoUser, email: 'test@example.com', userId: 'existing-id' })
       )
-
-      // First: mitigation lookup by normalized email.
       expect(findUserByEmail).toHaveBeenCalledWith('test@example.com')
-
-      // Link should be created against the existing id, not a new nanoid.
-      expect(mockWrite).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' }, 'user-link-table-not-found-in-env')
+      expect(mockWrite).toHaveBeenCalledWith({ cognitoUser, userId: 'existing-id' })
       expect(result?.id).toBe('existing-id')
       expect(result?.email).toBe('test@example.com')
     })
@@ -136,14 +133,13 @@ describe('auth', () => {
         name: 'test-user',
       }
 
-      // auth reads link first, then loads user by id
       mockRead.mockResolvedValueOnce(link)
       mockRead.mockResolvedValueOnce(existingUser)
 
       const result = await authorize(event)
 
       expect(logSpy).toHaveBeenCalledWith('claims', event.requestContext.authorizer.claims)
-      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
+      expect(mockRead).toHaveBeenCalledWith(cognitoUser)
       expect(mockWrite).not.toHaveBeenCalled()
       expect(logSpy).not.toHaveBeenCalledWith('added user link', link)
       expect(result).toEqual(existingUser)
@@ -352,7 +348,6 @@ describe('auth', () => {
         })
       )
 
-      // We do not overwrite stored email on login, but we do record the observed change in emailHistory.
       expect(updateUser).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'old@example.com',

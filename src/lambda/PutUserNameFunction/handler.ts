@@ -1,9 +1,9 @@
 import type { JsonUser } from '../../types'
-import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
+import { authorize, getAndUpdateUserByEmail } from '../auth/api'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 
-const putUserNameLambda = lambda('putUserName', async (event) => {
+export const putUserNameLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -22,6 +22,8 @@ const putUserNameLambda = lambda('putUserName', async (event) => {
   const updated = await getAndUpdateUserByEmail(user.email, { name }, true)
 
   return response(200, updated, event)
-})
+}
 
-export default putUserNameLambda
+export default lambda('putUserName', putUserNameLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

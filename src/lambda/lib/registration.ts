@@ -4,29 +4,22 @@ import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
 import { CONFIG } from '../config'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { registrationRepository } from '../registration/repository'
 import { audit, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
 
-const { emailFrom, registrationTable } = CONFIG
-const dynamoDB = new CustomDynamoClient(registrationTable)
+const { emailFrom } = CONFIG
 
 export const getRegistration = async (eventId: string, registrationId: string): Promise<JsonRegistration> => {
-  const registration = await dynamoDB.read<JsonRegistration>(
-    {
-      eventId: eventId,
-      id: registrationId,
-    },
-    registrationTable
-  )
+  const registration = await registrationRepository.getById(eventId, registrationId)
   if (!registration) {
     throw new LambdaError(404, `Registration with id '${registrationId}' for event with id '${eventId}' was not found`)
   }
   return registration
 }
 
-export const saveRegistration = async (data: JsonRegistration) => dynamoDB.write(data, registrationTable)
+export const saveRegistration = async (data: JsonRegistration) => registrationRepository.create(data)
 
 export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   eventId: JsonRegistration['eventId'],
@@ -34,14 +27,11 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   field: F,
   value: JsonRegistration[F]
 ) =>
-  dynamoDB.update(
-    { eventId, id },
-    {
-      set: {
-        [field]: value,
-      },
-    }
-  )
+  registrationRepository.patch(eventId, id, {
+    set: {
+      [field]: value,
+    },
+  })
 
 const setLastEmail = async (reg: JsonRegistration, value: string) => {
   // update the in-memory object too
@@ -191,11 +181,7 @@ export const findClassesToMark = (
 }
 
 export const getRegistrationsByEventId = async (eventId: string): Promise<JsonRegistration[]> => {
-  const registrations = await dynamoDB.query<JsonRegistration>({
-    key: 'eventId = :eventId',
-    values: { ':eventId': eventId },
-  })
-  return registrations ?? []
+  return registrationRepository.listByEventId(eventId)
 }
 
 export const getReadyRegistrationsByEventId = async (eventId: string): Promise<JsonRegistration[]> => {
@@ -208,10 +194,7 @@ export const findExistingRegistrationToEventForDog = async (
   eventId: string,
   regNo: string
 ): Promise<JsonRegistration | undefined> => {
-  const existingRegistrations = await getReadyRegistrationsByEventId(eventId)
-  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo)
-
-  return alreadyRegistered
+  return registrationRepository.findExistingForDog(eventId, regNo)
 }
 
 export const getCancelAuditMessage = (data: JsonRegistration) => {

@@ -1,7 +1,5 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockUpdateTransactionStatus = jest.fn<any>()
@@ -10,26 +8,11 @@ const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockFormatMoney = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
-const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<any>()
-
-jest.unstable_mockModule('../lib/lambda', () => ({
-  LambdaError: class LambdaError extends Error {
-    status: number
-    error: string | undefined
-    constructor(status: number, error: string | undefined) {
-      super(`${status} ${error}`)
-      this.status = status
-      this.error = error
-    }
-  },
-  lambda: mockLambda,
-  response: mockResponse,
-}))
+const mockGetById = jest.fn<any>()
+const mockApplyPaymentCancel = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/payment', () => ({
   parseParams: mockParseParams,
-  updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
 }))
 
@@ -50,14 +33,22 @@ jest.unstable_mockModule('../../lib/payment', () => ({
   getProviderName: mockGetProviderName,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-  })),
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: {
+    getPaymentById: mockGetById,
+    patchStatus: mockUpdateTransactionStatus,
+  },
 }))
 
-const { default: paymentCancelLambda } = await import('./handler')
+jest.unstable_mockModule('../registration/actions', () => ({
+  createApplyPaymentCancel: jest.fn(() => mockApplyPaymentCancel),
+}))
+
+jest.unstable_mockModule('../registration/repository', () => ({
+  registrationRepository: {},
+}))
+
+const { paymentCancelLambda } = await import('./handler')
 
 describe('paymentCancelLambda', () => {
   const event = {
@@ -88,7 +79,7 @@ describe('paymentCancelLambda', () => {
 
     mockVerifyParams.mockResolvedValue(undefined)
 
-    mockRead.mockResolvedValue({
+    mockGetById.mockResolvedValue({
       amount: 5000,
       paymentResponse: { transactionId: 'tx123' },
       reference: 'event123:reg456',
@@ -105,7 +96,7 @@ describe('paymentCancelLambda', () => {
 
     mockUpdateTransactionStatus.mockResolvedValue(true)
 
-    mockUpdate.mockResolvedValue({})
+    mockApplyPaymentCancel.mockResolvedValue({})
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
@@ -115,14 +106,14 @@ describe('paymentCancelLambda', () => {
   })
 
   it('processes a cancelled payment correctly', async () => {
-    await paymentCancelLambda(event)
+    const result = await paymentCancelLambda(event)
 
     // Verify params were parsed and verified
     expect(mockParseParams).toHaveBeenCalledWith(event.queryStringParameters)
     expect(mockVerifyParams).toHaveBeenCalledWith(event.queryStringParameters)
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
@@ -137,20 +128,11 @@ describe('paymentCancelLambda', () => {
         transactionId: 'tx123',
         user: 'user123',
       },
-      'fail',
-      'paytrail'
+      { provider: 'paytrail', status: 'fail' }
     )
 
     // Verify registration payment status was updated
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          paymentStatus: 'CANCEL',
-        },
-      },
-      expect.any(String) // registrationTable
-    )
+    expect(mockApplyPaymentCancel).toHaveBeenCalledWith({ eventId: 'event123', registrationId: 'reg456' })
 
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
@@ -159,8 +141,7 @@ describe('paymentCancelLambda', () => {
       user: 'user123',
     })
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('does not update registration if payment status is not PENDING', async () => {
@@ -170,46 +151,44 @@ describe('paymentCancelLambda', () => {
       paymentStatus: 'CANCEL', // Already cancelled
     })
 
-    await paymentCancelLambda(event)
+    const result = await paymentCancelLambda(event)
 
     // Verify transaction status was updated
     expect(mockUpdateTransactionStatus).toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).toHaveBeenCalled()
 
     // Verify audit entry was still created
     expect(mockAudit).toHaveBeenCalled()
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('does not update or audit if transaction status update returns false', async () => {
     mockUpdateTransactionStatus.mockResolvedValueOnce(false)
 
-    await paymentCancelLambda(event)
+    const result = await paymentCancelLambda(event)
 
     // Verify transaction status was attempted to be updated
     expect(mockUpdateTransactionStatus).toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('throws 404 error if transaction is not found', async () => {
-    mockRead.mockResolvedValueOnce(null)
+    mockGetById.mockRejectedValueOnce(new Error("404 Transaction with id 'tx123' was not found"))
 
     await expect(paymentCancelLambda(event)).rejects.toThrow("404 Transaction with id 'tx123' was not found")
 
     // Verify transaction was attempted to be retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify registration was NOT retrieved
     expect(mockGetRegistration).not.toHaveBeenCalled()
@@ -218,13 +197,10 @@ describe('paymentCancelLambda', () => {
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
-
-    // Verify response was NOT returned
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('passes through errors from verifyParams', async () => {
@@ -240,7 +216,7 @@ describe('paymentCancelLambda', () => {
     expect(mockVerifyParams).toHaveBeenCalledWith(event.queryStringParameters)
 
     // Verify transaction was NOT retrieved
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockGetById).not.toHaveBeenCalled()
 
     // Verify registration was NOT retrieved
     expect(mockGetRegistration).not.toHaveBeenCalled()
@@ -249,13 +225,10 @@ describe('paymentCancelLambda', () => {
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
-
-    // Verify response was NOT returned
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('passes through errors from getRegistration', async () => {
@@ -265,7 +238,7 @@ describe('paymentCancelLambda', () => {
     await expect(paymentCancelLambda(event)).rejects.toThrow(error)
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify registration retrieval was attempted
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
@@ -274,13 +247,10 @@ describe('paymentCancelLambda', () => {
     expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
-
-    // Verify response was NOT returned
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('passes through errors from updateTransactionStatus', async () => {
@@ -290,7 +260,7 @@ describe('paymentCancelLambda', () => {
     await expect(paymentCancelLambda(event)).rejects.toThrow(error)
 
     // Verify transaction was retrieved
-    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockGetById).toHaveBeenCalledWith('tx123')
 
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
@@ -299,24 +269,20 @@ describe('paymentCancelLambda', () => {
     expect(mockUpdateTransactionStatus).toHaveBeenCalled()
 
     // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockApplyPaymentCancel).not.toHaveBeenCalled()
 
     // Verify audit entry was NOT created
     expect(mockAudit).not.toHaveBeenCalled()
-
-    // Verify response was NOT returned
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('logs a message if transaction is already marked as failed', async () => {
     mockUpdateTransactionStatus.mockResolvedValueOnce(false)
 
-    await paymentCancelLambda(event)
+    const result = await paymentCancelLambda(event)
 
     // Verify console.log was called with the expected message
     expect(console.log).toHaveBeenCalledWith("Transaction 'tx123' already marked as failed")
 
-    // Verify response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 })

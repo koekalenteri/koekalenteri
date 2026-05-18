@@ -1,25 +1,10 @@
-import type { JsonConfirmedEvent, JsonUser } from '../../types'
-import { nanoid } from 'nanoid'
-import { isEventDeletable } from '../../lib/event'
-import { isEntryOpen } from '../../lib/utils'
-import { authorize } from '../lib/auth'
-import { findQualificationStartDate, getEvent, saveEvent, updateRegistrations } from '../lib/event'
+import type { JsonConfirmedEvent } from '../../types'
+import { authorize } from '../auth/api'
+import { saveEvent } from '../event/actions'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 
-const isUserForbidden = (
-  user: JsonUser,
-  existing: Partial<JsonConfirmedEvent> | undefined,
-  item: Partial<JsonConfirmedEvent>
-): boolean => {
-  if (user.admin) return false
-  if (existing?.organizer?.id && !user.roles?.[existing.organizer.id]) return true
-  if (item?.organizer?.id && !user.roles?.[item.organizer.id]) return true
-
-  return false
-}
-
-const putEventLambda = lambda('putEvent', async (event) => {
+export const putEventLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -28,57 +13,18 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const timestamp = new Date().toISOString()
 
   const item: Partial<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
-  const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
-  if (isUserForbidden(user, existing, item)) {
-    return response(403, 'Forbidden', event)
+  try {
+    const result = await saveEvent({ item, timestamp, user })
+    return response(200, result.event, event)
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Forbidden') {
+      return response(403, 'Forbidden', event)
+    }
+    throw error
   }
+}
 
-  if (item.deletedAt && !isEventDeletable(existing)) {
-    console.log('Event is not deletable', { existing, item })
-    return response(403, 'Forbidden', event)
-  }
+export default lambda('putEvent', putEventLambda)
 
-  if (!existing) {
-    item.id = nanoid(10)
-    item.createdAt = timestamp
-    item.createdBy = user.name
-  }
-
-  if (item.startDate && item.startDate !== existing?.startDate) {
-    item.season = item.startDate.substring(0, 4)
-  }
-
-  if (
-    existing &&
-    isEntryOpen(existing) &&
-    existing.entryEndDate &&
-    !existing.entryOrigEndDate &&
-    item.entryEndDate &&
-    item.entryEndDate > existing.entryEndDate
-  ) {
-    // entry period was extended, use additional field to store the original entry end date
-    item.entryOrigEndDate = existing.entryEndDate
-  }
-
-  const data = { ...existing, ...item } as JsonConfirmedEvent
-
-  if (data.eventType === 'NOME-B SM' && !data.qualificationStartDate) {
-    data.qualificationStartDate = await findQualificationStartDate(data.eventType, data.entryEndDate)
-  }
-
-  // modification info is always updated
-  data.modifiedAt = timestamp
-  data.modifiedBy = user.name
-
-  await saveEvent(data)
-
-  if (existing && existing.entries !== data.entries) {
-    // update registrations in case the secretary version was out of date
-    updateRegistrations(data.id)
-  }
-
-  return response(200, data, event)
-})
-
-export default putEventLambda
+import type { APIGatewayProxyEvent } from 'aws-lambda'

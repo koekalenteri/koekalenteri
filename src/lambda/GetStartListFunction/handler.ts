@@ -1,12 +1,12 @@
 import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
 import { isStartListAvailable } from '../../lib/event'
-import { getEvent } from '../lib/event'
 import { getParam, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
+import { eventReadPort } from '../registration/api'
 
-const getStartListLambda = lambda('getStartList', async (event) => {
+export const getStartListLambda = async (event: APIGatewayProxyEvent) => {
   const eventId = getParam(event, 'eventId')
-  const confirmedEvent = await getEvent(eventId)
+  const confirmedEvent = await eventReadPort.getConfirmedEvent(eventId)
   let publicRegs: JsonPublicRegistration[] = []
 
   if (isStartListAvailable(confirmedEvent)) {
@@ -29,6 +29,8 @@ const getStartListLambda = lambda('getStartList', async (event) => {
   }
 
   return response(publicRegs.length > 0 ? 200 : 404, publicRegs, event)
-})
+}
 
-export default getStartListLambda
+export default lambda('getStartList', getStartListLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

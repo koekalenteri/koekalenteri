@@ -1,17 +1,10 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetAndUpdateUserByEmail = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
   getAndUpdateUserByEmail: mockGetAndUpdateUserByEmail,
 }))
@@ -20,7 +13,7 @@ jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
-const { default: putUserNameLambda } = await import('./handler')
+const { putUserNameLambda } = await import('./handler')
 
 describe('putUserNameLambda', () => {
   const event = {
@@ -56,10 +49,10 @@ describe('putUserNameLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
@@ -68,10 +61,10 @@ describe('putUserNameLambda', () => {
       name: '',
     })
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
+    expect(result.statusCode).toBe(400)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
@@ -80,20 +73,20 @@ describe('putUserNameLambda', () => {
       name: '   ',
     })
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
+    expect(result.statusCode).toBe(400)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
   it('returns 400 if name is missing', async () => {
     mockParseJSONWithFallback.mockReturnValueOnce({})
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
+    expect(result.statusCode).toBe(400)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
@@ -103,27 +96,19 @@ describe('putUserNameLambda', () => {
       name: longName,
     })
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Bad request', event)
+    expect(result.statusCode).toBe(400)
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
   })
 
   it('updates user name successfully', async () => {
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' }, true)
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      {
-        email: 'test@example.com',
-        id: 'user123',
-        name: 'Test User',
-      },
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('trims whitespace from name before updating', async () => {
@@ -131,10 +116,10 @@ describe('putUserNameLambda', () => {
       name: '  Test User  ',
     })
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' }, true)
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('accepts name at maximum length (200 characters)', async () => {
@@ -143,10 +128,10 @@ describe('putUserNameLambda', () => {
       name: maxLengthName,
     })
 
-    await putUserNameLambda(event)
+    const result = await putUserNameLambda(event)
 
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: maxLengthName }, true)
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('throws an error if getAndUpdateUserByEmail fails', async () => {

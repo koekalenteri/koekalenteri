@@ -1,11 +1,8 @@
 import type { JsonDogEvent } from '../../types'
 import { formatDate, TIME_ZONE, zonedEndOfDay, zonedParseDate } from '../../i18n/dates'
 import { sanitizeDogEvent } from '../../lib/event'
-import { CONFIG } from '../config'
+import { eventRepository } from '../event/repository'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
-
-const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 function parseDateParam(value: string | undefined): Date | undefined {
   if (!value) return undefined
@@ -47,7 +44,7 @@ function zonedYear(date: Date): number {
 
 async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEvent[] | undefined> {
   if (!start && !end) {
-    return dynamoDB.readAll<JsonDogEvent>()
+    return eventRepository.listAll()
   }
 
   const fallbackLowerBoundYear = zonedYear(end ?? new Date())
@@ -61,14 +58,9 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
   const result: JsonDogEvent[] = []
 
   for (const season of seasons) {
-    const seasonEvents = await dynamoDB.query<JsonDogEvent>({
-      index: 'gsiSeasonStartDate',
-      key: 'season = :season AND startDate <= :endDate',
-      table: CONFIG.eventTable,
-      values: {
-        ':endDate': upperBound.toISOString(),
-        ':season': season,
-      },
+    const seasonEvents = await eventRepository.listBySeasonStartDateRange({
+      endDateIso: upperBound.toISOString(),
+      season,
     })
 
     if (seasonEvents) result.push(...seasonEvents)
@@ -77,7 +69,7 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
   return result
 }
 
-const getEventsLambda = lambda('getEvents', async (event) => {
+export const getEventsLambda = async (event: APIGatewayProxyEvent) => {
   const start = parseDateParam(event.queryStringParameters?.start)
   const end = parseDateParam(event.queryStringParameters?.end)
   const since = parseDateParam(event.queryStringParameters?.since)
@@ -109,6 +101,8 @@ const getEventsLambda = lambda('getEvents', async (event) => {
   }
 
   return response(200, publicItems, event)
-})
+}
 
-export default getEventsLambda
+export default lambda('getEvents', getEventsLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

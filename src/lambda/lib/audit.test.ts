@@ -1,14 +1,14 @@
 import type { AuditRecord, JsonAuditRecord } from '../../types'
 import { jest } from '@jest/globals'
 
-const mockQuery = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
+const mockListByAuditKey = jest.fn<any>()
+const mockCreate = jest.fn<any>()
+jest.unstable_mockModule('../audit/repository', () => ({
   __esModule: true,
-  default: jest.fn(() => ({
-    query: mockQuery,
-    write: mockWrite,
-  })),
+  auditRepository: {
+    create: mockCreate,
+    listByAuditKey: mockListByAuditKey,
+  },
 }))
 
 process.env.AUDIT_TABLE_NAME = 'audit-table-name'
@@ -30,18 +30,15 @@ describe('audit', () => {
 
       await audit(record)
 
-      expect(mockWrite).toHaveBeenCalledWith(
-        expect.objectContaining({ ...record, timestamp: expect.any(String) }),
-        'audit-table-name'
-      )
-      expect(mockWrite).toHaveBeenCalledTimes(1)
+      expect(mockCreate).toHaveBeenCalledWith(record)
+      expect(mockCreate).toHaveBeenCalledTimes(1)
     })
 
     it('logs database error to console', async () => {
       const error = new Error('DB error')
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      mockWrite.mockRejectedValueOnce(error)
+      mockCreate.mockRejectedValueOnce(error)
 
       await audit({ auditKey: 'key', message: 'msg', user: 'user' })
 
@@ -56,7 +53,7 @@ describe('audit', () => {
         { auditKey: 'key', message: 'message', timestamp: '2021-01-01T00:00:00Z', user: 'user' },
       ]
 
-      mockQuery.mockResolvedValueOnce(records)
+      mockListByAuditKey.mockResolvedValueOnce(records)
 
       const res = await auditTrail('key')
 
@@ -64,7 +61,7 @@ describe('audit', () => {
     })
 
     it('returns empty array if no records are found', async () => {
-      mockQuery.mockResolvedValueOnce(undefined)
+      mockListByAuditKey.mockResolvedValueOnce(undefined)
 
       const res = await auditTrail('key')
 
@@ -75,7 +72,7 @@ describe('audit', () => {
       const error = new Error('DB error')
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
-      mockQuery.mockRejectedValueOnce(error)
+      mockListByAuditKey.mockRejectedValueOnce(error)
 
       const res = await auditTrail('key')
 

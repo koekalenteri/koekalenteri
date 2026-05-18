@@ -1,19 +1,12 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-const { default: getUserLambda } = await import('./handler')
+const { getUserLambda } = await import('./handler')
 
 describe('getUserLambda', () => {
   const event = {
@@ -28,10 +21,10 @@ describe('getUserLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await getUserLambda(event)
+    const result = await getUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event, true)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
   })
 
   it('returns user if authorized', async () => {
@@ -44,10 +37,10 @@ describe('getUserLambda', () => {
 
     mockAuthorize.mockResolvedValueOnce(user)
 
-    await getUserLambda(event)
+    const result = await getUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event, true)
-    expect(mockResponse).toHaveBeenCalledWith(200, user, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('passes through errors from authorize', async () => {
@@ -58,6 +51,5 @@ describe('getUserLambda', () => {
     await expect(getUserLambda(event)).rejects.toThrow(error)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event, true)
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 })

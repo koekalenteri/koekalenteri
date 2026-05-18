@@ -1,19 +1,22 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
+const mockGetConfirmedEvent = jest.fn<any>()
 const mockSaveEvent = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockNanoid = jest.fn<any>()
-const mockWrite = jest.fn<any>()
-const mockResponse = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
+const mockGetRegistrationsByEventId = jest.fn<any>()
+const mockSaveRegistration = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
+  },
+}))
+jest.unstable_mockModule('../event/actions', () => ({
   saveEvent: mockSaveEvent,
 }))
 jest.unstable_mockModule('../lib/json', () => ({
@@ -22,41 +25,26 @@ jest.unstable_mockModule('../lib/json', () => ({
 jest.unstable_mockModule('nanoid', () => ({
   nanoid: mockNanoid,
 }))
-jest.unstable_mockModule('../lib/lambda', () => ({
-  LambdaError: class LambdaError extends Error {
-    constructor(
-      public statusCode: number,
-      message: string
-    ) {
-      super(message)
-    }
-  },
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-const mockQuery = jest.fn<any>()
-
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    query: mockQuery,
-    write: mockWrite,
-  })),
+jest.unstable_mockModule('../lib/registration', () => ({
+  getRegistrationsByEventId: mockGetRegistrationsByEventId,
+  saveRegistration: mockSaveRegistration,
 }))
 
-const { default: copyEventHandler } = await import('./handler')
+const { copyEventLambda } = await import('./handler')
 
-describe('copyEventHandler', () => {
-  const event = { body: '{}' } as any
+describe('copyEventLambda', () => {
+  const event = { body: '{}', headers: {} } as any
 
   beforeEach(() => {
     jest.clearAllMocks()
-    mockQuery.mockResolvedValue([])
+    mockGetRegistrationsByEventId.mockResolvedValue([])
   })
 
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
-    await copyEventHandler(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    const result = await copyEventLambda(event)
+    expect(result.statusCode).toBe(401)
+    expect(JSON.parse(result.body)).toBe('Unauthorized')
   })
 
   it('copies event and returns 200 on success', async () => {
@@ -79,35 +67,39 @@ describe('copyEventHandler', () => {
     }
     mockAuthorize.mockResolvedValueOnce(user)
     mockParseJSONWithFallback.mockReturnValueOnce(input)
-    mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
+    mockGetConfirmedEvent.mockResolvedValueOnce({ ...originalEvent })
     mockNanoid.mockReturnValueOnce('newid123')
 
     const now = new Date('2025-06-02T12:00:00.000Z')
     jest.useFakeTimers().setSystemTime(now)
 
-    await copyEventHandler(event)
+    const result = await copyEventLambda(event)
 
     expect(mockSaveEvent).toHaveBeenCalledWith({
-      classes: [
-        {
-          date: '2025-07-01T00:00:00.000Z',
-        },
-      ],
-      createdAt: now.toISOString(),
-      createdBy: user.name,
-      endDate: '2025-07-03T00:00:00.000Z',
-      entryEndDate: '2025-06-26T00:00:00.000Z',
-      entryStartDate: '2025-06-22T00:00:00.000Z',
-      id: 'newid123',
-      modifiedAt: now.toISOString(),
-      modifiedBy: user.name,
-      name: 'Kopio - Original Event',
-      season: '2025',
-      startDate: '2025-07-01T00:00:00.000Z',
-      state: 'draft',
+      item: expect.objectContaining({
+        classes: [
+          {
+            date: '2025-07-01T00:00:00.000Z',
+          },
+        ],
+        createdAt: now.toISOString(),
+        createdBy: user.name,
+        endDate: '2025-07-03T00:00:00.000Z',
+        entryEndDate: '2025-06-26T00:00:00.000Z',
+        entryStartDate: '2025-06-22T00:00:00.000Z',
+        id: 'newid123',
+        modifiedAt: now.toISOString(),
+        modifiedBy: user.name,
+        name: 'Kopio - Original Event',
+        season: '2025',
+        startDate: '2025-07-01T00:00:00.000Z',
+        state: 'invited',
+      }),
+      timestamp: now.toISOString(),
+      user,
     })
 
-    expect(mockResponse).toHaveBeenCalled()
+    expect(result.statusCode).toBe(200)
 
     jest.useRealTimers()
   })
@@ -116,17 +108,14 @@ describe('copyEventHandler', () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)
     mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
-    mockGetEvent.mockRejectedValueOnce(new Error('fail'))
+    mockGetConfirmedEvent.mockRejectedValueOnce(new Error('fail'))
     let errorCaught = false
     try {
-      await copyEventHandler(event)
+      await copyEventLambda(event)
     } catch {
       errorCaught = true
     }
-    // If the handler catches and responds, this will pass; if not, errorCaught will be true
-    if (!errorCaught) {
-      expect(mockResponse).toHaveBeenCalledWith(500, 'Internal Server Error', event)
-    }
+    expect(errorCaught).toBe(true)
   })
 
   it('returns 500 if write throws', async () => {
@@ -149,17 +138,15 @@ describe('copyEventHandler', () => {
     }
     mockAuthorize.mockResolvedValueOnce(user)
     mockParseJSONWithFallback.mockReturnValueOnce(input)
-    mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
+    mockGetConfirmedEvent.mockResolvedValueOnce({ ...originalEvent })
     mockNanoid.mockReturnValueOnce('newid123')
     mockSaveEvent.mockRejectedValueOnce(new Error('fail'))
     let errorCaught = false
     try {
-      await copyEventHandler(event)
+      await copyEventLambda(event)
     } catch {
       errorCaught = true
     }
-    if (!errorCaught) {
-      expect(mockResponse).toHaveBeenCalledWith(500, 'Internal Server Error', event)
-    }
+    expect(errorCaught).toBe(true)
   })
 })

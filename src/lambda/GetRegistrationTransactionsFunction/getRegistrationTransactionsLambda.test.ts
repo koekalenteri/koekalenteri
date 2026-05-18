@@ -1,26 +1,17 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
-const mockGetTransactionsByReference = jest.fn<any>()
+const mockListByReference = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  getParam: mockGetParam,
-  lambda: mockLambda,
-  response: mockResponse,
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: { listByReference: mockListByReference },
 }))
 
-jest.unstable_mockModule('../lib/payment', () => ({
-  getTransactionsByReference: mockGetTransactionsByReference,
-}))
-
-const { default: getRegistrationTransactionsLambda } = await import('./handler')
+const { getRegistrationTransactionsLambda } = await import('./handler')
 
 describe('getRegistrationTransactionsLambda', () => {
   const event = {
@@ -36,12 +27,11 @@ describe('getRegistrationTransactionsLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await getRegistrationTransactionsLambda(event)
+    const result = await getRegistrationTransactionsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
-    expect(mockGetParam).not.toHaveBeenCalled()
-    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+    expect(result.statusCode).toBe(401)
+    expect(mockListByReference).not.toHaveBeenCalled()
   })
 
   it('returns transactions if authorized', async () => {
@@ -67,16 +57,14 @@ describe('getRegistrationTransactionsLambda', () => {
     ]
 
     mockAuthorize.mockResolvedValueOnce(user)
-    mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
-    mockGetTransactionsByReference.mockResolvedValueOnce(transactions)
+    mockListByReference.mockResolvedValueOnce(transactions)
 
-    await getRegistrationTransactionsLambda(event)
+    const result = await getRegistrationTransactionsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockResponse).toHaveBeenCalledWith(200, transactions, event)
+    expect(mockListByReference).toHaveBeenCalledWith(reference)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(transactions)
   })
 
   it('returns empty array if no transactions found', async () => {
@@ -87,16 +75,14 @@ describe('getRegistrationTransactionsLambda', () => {
     const emptyTransactions: any[] = []
 
     mockAuthorize.mockResolvedValueOnce(user)
-    mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
-    mockGetTransactionsByReference.mockResolvedValueOnce(emptyTransactions)
+    mockListByReference.mockResolvedValueOnce(emptyTransactions)
 
-    await getRegistrationTransactionsLambda(event)
+    const result = await getRegistrationTransactionsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockResponse).toHaveBeenCalledWith(200, emptyTransactions, event)
+    expect(mockListByReference).toHaveBeenCalledWith(reference)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(emptyTransactions)
   })
 
   it('returns undefined if getTransactionsByReference returns undefined', async () => {
@@ -106,36 +92,37 @@ describe('getRegistrationTransactionsLambda', () => {
     const reference = `${eventId}:${regId}`
 
     mockAuthorize.mockResolvedValueOnce(user)
-    mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
-    mockGetTransactionsByReference.mockResolvedValueOnce(undefined)
+    mockListByReference.mockResolvedValueOnce(undefined)
 
-    await getRegistrationTransactionsLambda(event)
+    const result = await getRegistrationTransactionsLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(mockListByReference).toHaveBeenCalledWith(reference)
+    expect(result.statusCode).toBe(200)
+    expect(result.body).toBeUndefined()
   })
 
   it('handles missing eventId or id parameters', async () => {
     const user = { id: 'user1', name: 'Test User' }
-    const eventId = undefined
-    const regId = undefined
-    const reference = 'undefined:undefined'
+    const eventId = ''
+    const regId = ''
+    const reference = ':'
     const emptyTransactions: any[] = []
 
     mockAuthorize.mockResolvedValueOnce(user)
-    mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
-    mockGetTransactionsByReference.mockResolvedValueOnce(emptyTransactions)
+    mockListByReference.mockResolvedValueOnce(emptyTransactions)
 
-    await getRegistrationTransactionsLambda(event)
+    const eventWithoutParams = {
+      ...event,
+      pathParameters: {},
+    }
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockResponse).toHaveBeenCalledWith(200, emptyTransactions, event)
+    const result = await getRegistrationTransactionsLambda(eventWithoutParams)
+
+    expect(mockAuthorize).toHaveBeenCalledWith(eventWithoutParams)
+    expect(mockListByReference).toHaveBeenCalledWith(reference)
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).toEqual(emptyTransactions)
   })
 
   it('passes through errors from getTransactionsByReference', async () => {
@@ -146,15 +133,11 @@ describe('getRegistrationTransactionsLambda', () => {
     const error = new Error('Database error')
 
     mockAuthorize.mockResolvedValueOnce(user)
-    mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
-    mockGetTransactionsByReference.mockRejectedValueOnce(error)
+    mockListByReference.mockRejectedValueOnce(error)
 
     await expect(getRegistrationTransactionsLambda(event)).rejects.toThrow(error)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
-    expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
-    expect(mockGetTransactionsByReference).toHaveBeenCalledWith(reference)
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(mockListByReference).toHaveBeenCalledWith(reference)
   })
 })

@@ -6,14 +6,13 @@ import {
   TemplateDoesNotExistException,
   UpdateTemplateCommand,
 } from '@aws-sdk/client-ses'
+import { authorize, getUsername } from '../auth/api'
 import { CONFIG } from '../config'
-import { authorize, getUsername } from '../lib/auth'
+import { emailTemplateRepository } from '../emailTemplate/repository'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
 
-const dynamoDB = new CustomDynamoClient(CONFIG.emailTemplateTable)
 const ses = new SESClient()
 
 const updateOrCreateTemplate = async (template: Template) => {
@@ -40,7 +39,7 @@ const updateOrCreateTemplate = async (template: Template) => {
   }
 }
 
-const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
+export const putEmailTemplateLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user?.admin) {
     return response(401, 'Unauthorized', event)
@@ -50,7 +49,7 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
   const username = await getUsername(event)
 
   const item: JsonEmailTemplate = parseJSONWithFallback(event.body)
-  const existing = await dynamoDB.read<JsonEmailTemplate>({ id: item.id })
+  const existing = await emailTemplateRepository.readById(item.id)
 
   // modification info is always updated
   item.modifiedAt = timestamp
@@ -69,9 +68,11 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
     await updateOrCreateTemplate(data.ses.en)
   }
 
-  await dynamoDB.write(data)
+  await emailTemplateRepository.write(data)
 
   return response(200, data, event)
-})
+}
 
-export default putEmailTemplateLambda
+export default lambda('putEmailTemplate', putEmailTemplateLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

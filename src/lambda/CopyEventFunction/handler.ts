@@ -1,12 +1,13 @@
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
-import { authorize } from '../lib/auth'
-import { getEvent, saveEvent } from '../lib/event'
+import { authorize } from '../auth/api'
+import { saveEvent } from '../event/actions'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, saveRegistration } from '../lib/registration'
+import { eventReadPort } from '../registration/api'
 
-const copyEventLambda = lambda('copyEvent', async (event) => {
+export const copyEventLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -15,11 +16,11 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   const timestamp = new Date().toISOString()
 
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
-  const item = await getEvent(id)
+  const item = await eventReadPort.getConfirmedEvent(id)
 
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`
-  item.state = 'draft'
+  item.state = 'invited'
   item.createdAt = timestamp
   item.createdBy = user.name
   delete item.entryOrigEndDate
@@ -39,7 +40,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
     if (c.date) c.date = addDays(parseISO(c.date), days).toISOString()
   })
 
-  await saveEvent(item)
+  await saveEvent({ item, timestamp, user })
 
   const registrations = await getRegistrationsByEventId(id)
 
@@ -58,6 +59,8 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   }
 
   return response(200, item, event)
-})
+}
 
-export default copyEventLambda
+export default lambda('copyEvent', copyEventLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

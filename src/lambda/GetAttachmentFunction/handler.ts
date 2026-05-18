@@ -13,7 +13,7 @@ const streamToBase64 = async (stream: StreamingBlobTypes): Promise<string> => {
   return Buffer.concat(chunks).toString('base64')
 }
 
-const getAttachmentLambda = lambda('getAttachment', async (event) => {
+export const getAttachmentLambda = async (event: APIGatewayProxyEvent) => {
   const data = await downloadFile(getParam(event, 'key'))
 
   if (!data.Body) {
@@ -37,6 +37,8 @@ const getAttachmentLambda = lambda('getAttachment', async (event) => {
     isBase64Encoded: true,
     statusCode: 200,
   }
-})
+}
 
-export default getAttachmentLambda
+export default lambda('getAttachment', getAttachmentLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

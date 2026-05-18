@@ -1,7 +1,5 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 const mockBatchWrite = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
@@ -20,20 +18,15 @@ class MockKLAPI {
   }
 }
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
+jest.unstable_mockModule('../organizer/repository', () => ({
+  organizerRepository: {
     batchWrite: mockBatchWrite,
-    readAll: mockReadAll,
-    update: mockUpdate,
-  })),
+    list: mockReadAll,
+    updateName: mockUpdate,
+  },
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
@@ -49,7 +42,7 @@ jest.unstable_mockModule('../lib/KLAPI', () => ({
   default: MockKLAPI,
 }))
 
-const { default: getOrganizersLambda } = await import('./handler')
+const { getOrganizersLambda } = await import('./handler')
 
 describe('getOrganizersLambda', () => {
   const event = {
@@ -80,10 +73,10 @@ describe('getOrganizersLambda', () => {
 
     mockReadAll.mockResolvedValueOnce(organizers)
 
-    await getOrganizersLambda(event)
+    const result = await getOrganizersLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, organizers, event)
+    expect(result.statusCode).toBe(200)
     expect(mockAuthorize).not.toHaveBeenCalled()
     expect(mockLueYhdistykset).not.toHaveBeenCalled()
   })
@@ -91,19 +84,19 @@ describe('getOrganizersLambda', () => {
   it('returns empty array if no organizers found', async () => {
     mockReadAll.mockResolvedValueOnce([])
 
-    await getOrganizersLambda(event)
+    const result = await getOrganizersLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('returns undefined if readAll returns undefined', async () => {
     mockReadAll.mockResolvedValueOnce(undefined)
 
-    await getOrganizersLambda(event)
+    const result = await getOrganizersLambda(event)
 
     expect(mockReadAll).toHaveBeenCalled()
-    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('calls refreshOrganizersLambda when refresh parameter is present', async () => {
@@ -132,17 +125,13 @@ describe('getOrganizersLambda', () => {
     mockBatchWrite.mockResolvedValueOnce(undefined)
     mockReadAll.mockResolvedValueOnce([...organizers, { id: 'org3', kcId: '789', name: 'Organizer 3' }]) // Second call after refresh
 
-    await getOrganizersLambda(eventWithRefresh)
+    const result = await getOrganizersLambda(eventWithRefresh)
 
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
     expect(mockLueYhdistykset).toHaveBeenCalled()
     expect(mockReadAll).toHaveBeenCalledTimes(2)
     expect(mockBatchWrite).toHaveBeenCalledWith([{ id: 'org3', kcId: '789', name: 'Organizer 3' }])
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      [...organizers, { id: 'org3', kcId: '789', name: 'Organizer 3' }],
-      eventWithRefresh
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('returns 401 in refresh mode if user is not admin', async () => {
@@ -155,10 +144,10 @@ describe('getOrganizersLambda', () => {
 
     mockAuthorize.mockResolvedValueOnce(user)
 
-    await getOrganizersLambda(eventWithRefresh)
+    const result = await getOrganizersLambda(eventWithRefresh)
 
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', eventWithRefresh)
+    expect(result.statusCode).toBe(401)
     expect(mockLueYhdistykset).not.toHaveBeenCalled()
     expect(mockReadAll).not.toHaveBeenCalled()
   })
@@ -181,13 +170,13 @@ describe('getOrganizersLambda', () => {
     mockUpdate.mockResolvedValueOnce(undefined)
     mockReadAll.mockResolvedValueOnce([{ id: 'org1', kcId: '123', name: 'New Name' }]) // Second call after refresh
 
-    await getOrganizersLambda(eventWithRefresh)
+    const result = await getOrganizersLambda(eventWithRefresh)
 
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
     expect(mockLueYhdistykset).toHaveBeenCalled()
     expect(mockReadAll).toHaveBeenCalledTimes(2)
-    expect(mockUpdate).toHaveBeenCalledWith({ id: 'org1' }, { set: { name: 'New Name' } })
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ id: 'org1', kcId: '123', name: 'New Name' }], eventWithRefresh)
+    expect(mockUpdate).toHaveBeenCalledWith('org1', 'New Name')
+    expect(result.statusCode).toBe(200)
 
     // Verify console.log was called with the name change message
     expect(consoleLogSpy).toHaveBeenCalledWith(

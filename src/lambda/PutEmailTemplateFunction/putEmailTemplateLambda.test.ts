@@ -1,21 +1,14 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockGetUsername = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockMarkdownToTemplate = jest.fn<any>()
-const mockRead = jest.fn<any>()
+const mockReadById = jest.fn<any>()
 const mockWrite = jest.fn<any>()
 const mockSend = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
   getUsername: mockGetUsername,
 }))
@@ -28,11 +21,11 @@ jest.unstable_mockModule('../utils/email/markdown', () => ({
   markdownToTemplate: mockMarkdownToTemplate,
 }))
 
-jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    read: mockRead,
+jest.unstable_mockModule('../emailTemplate/repository', () => ({
+  emailTemplateRepository: {
+    readById: mockReadById,
     write: mockWrite,
-  })),
+  },
 }))
 
 // Mock AWS SES client
@@ -97,7 +90,7 @@ afterAll(() => {
 jest.spyOn(console, 'info').mockImplementation(() => {})
 jest.spyOn(console, 'error').mockImplementation(() => {})
 
-const { default: putEmailTemplateLambda } = await import('./handler')
+const { putEmailTemplateLambda } = await import('./handler')
 
 describe('putEmailTemplateLambda', () => {
   const event = {
@@ -129,7 +122,7 @@ describe('putEmailTemplateLambda', () => {
       name: 'Test Template',
     })
 
-    mockRead.mockResolvedValue(null) // No existing template by default
+    mockReadById.mockResolvedValue(null) // No existing template by default
 
     mockMarkdownToTemplate.mockImplementation((templateName: string, _source: string) => {
       return Promise.resolve({
@@ -151,12 +144,13 @@ describe('putEmailTemplateLambda', () => {
       name: 'Regular User',
     })
 
-    await putEmailTemplateLambda(event)
+    const result = await putEmailTemplateLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
+    expect(JSON.parse(result.body)).toBe('Unauthorized')
     expect(mockParseJSONWithFallback).not.toHaveBeenCalled()
-    expect(mockRead).not.toHaveBeenCalled()
+    expect(mockReadById).not.toHaveBeenCalled()
     expect(mockMarkdownToTemplate).not.toHaveBeenCalled()
     expect(mockSend).not.toHaveBeenCalled()
     expect(mockWrite).not.toHaveBeenCalled()
@@ -179,14 +173,14 @@ describe('putEmailTemplateLambda', () => {
 
     mockMarkdownToTemplate.mockResolvedValueOnce(enTemplate).mockResolvedValueOnce(fiTemplate)
 
-    await putEmailTemplateLambda(event)
+    const result = await putEmailTemplateLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetUsername).toHaveBeenCalledWith(event)
     expect(mockParseJSONWithFallback).toHaveBeenCalledWith(event.body)
 
     // Check if existing template was queried
-    expect(mockRead).toHaveBeenCalledWith({ id: 'test-template' })
+    expect(mockReadById).toHaveBeenCalledWith('test-template')
 
     // Check if markdown was converted to templates
     expect(mockMarkdownToTemplate).toHaveBeenCalledTimes(2)
@@ -219,8 +213,7 @@ describe('putEmailTemplateLambda', () => {
       })
     )
 
-    // Check if response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('updates an existing email template successfully', async () => {
@@ -236,7 +229,7 @@ describe('putEmailTemplateLambda', () => {
       name: 'Old Template Name',
     }
 
-    mockRead.mockResolvedValueOnce(existingTemplate)
+    mockReadById.mockResolvedValueOnce(existingTemplate)
 
     const fiTemplate = {
       HtmlPart: '<h1>Test HTML content</h1>',
@@ -254,10 +247,10 @@ describe('putEmailTemplateLambda', () => {
 
     mockMarkdownToTemplate.mockResolvedValueOnce(enTemplate).mockResolvedValueOnce(fiTemplate)
 
-    await putEmailTemplateLambda(event)
+    const result = await putEmailTemplateLambda(event)
 
     // Check if existing template was queried
-    expect(mockRead).toHaveBeenCalledWith({ id: 'test-template' })
+    expect(mockReadById).toHaveBeenCalledWith('test-template')
 
     // Check if data was written to DynamoDB with merged properties
     expect(mockWrite).toHaveBeenCalledWith(
@@ -277,8 +270,7 @@ describe('putEmailTemplateLambda', () => {
       })
     )
 
-    // Check if response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('creates a new SES template when it does not exist', async () => {
@@ -294,7 +286,7 @@ describe('putEmailTemplateLambda', () => {
       .mockResolvedValueOnce({}) // Second call succeeds
       .mockResolvedValueOnce({}) // Third call succeeds
 
-    await putEmailTemplateLambda(event)
+    const result = await putEmailTemplateLambda(event)
 
     // Check if SES was called 3 times (1 update attempt that fails, 1 create, 1 update for second template)
     expect(mockSend).toHaveBeenCalledTimes(3)
@@ -303,8 +295,7 @@ describe('putEmailTemplateLambda', () => {
     // Check if data was written to DynamoDB
     expect(mockWrite).toHaveBeenCalledWith(expect.any(Object))
 
-    // Check if response was returned
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(Object), event)
+    expect(result.statusCode).toBe(200)
   })
 
   it('throws an error if SES update fails with a non-TemplateDoesNotExistException error', async () => {
@@ -360,9 +351,6 @@ describe('putEmailTemplateLambda', () => {
 
     // Check if write was attempted
     expect(mockWrite).toHaveBeenCalledTimes(1)
-
-    // Check if response was not returned
-    expect(mockResponse).not.toHaveBeenCalled()
   })
 
   it('throws an error if markdownToTemplate fails', async () => {

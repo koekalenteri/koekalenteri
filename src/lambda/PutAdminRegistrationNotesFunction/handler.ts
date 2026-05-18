@@ -1,11 +1,11 @@
 import type { JsonRegistration } from '../../types'
+import { authorize } from '../auth/api'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
-import { updateRegistrationField } from '../lib/registration'
+import { updateRegistrationNotes } from '../registration/actions'
 
-const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (event) => {
+export const putAdminRegistrationNotesLambda = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {
     return response(401, 'Unauthorized', event)
@@ -16,7 +16,7 @@ const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (ev
 
   if (!eventId || !id) throw new Error('Event id or registration id missing')
 
-  await updateRegistrationField(eventId, id, 'internalNotes', internalNotes)
+  await updateRegistrationNotes({ eventId, internalNotes, registrationId: id })
   await audit({
     auditKey: registrationAuditKey({ eventId, id }),
     message: 'Muutti sisäistä kommenttia',
@@ -24,6 +24,8 @@ const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (ev
   })
 
   return response(200, 'ok', event)
-})
+}
 
-export default putAdminRegistrationNotesLambda
+export default lambda('putRegistrationNotes', putAdminRegistrationNotesLambda)
+
+import type { APIGatewayProxyEvent } from 'aws-lambda'

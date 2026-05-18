@@ -1,10 +1,29 @@
 import type { JsonJudge, Judge, RequireAllKeys } from '../../types'
-import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import type KLAPI from './KLAPI'
 import { diff } from 'deep-object-diff'
 import { CONFIG } from '../config'
 import { KLKieli } from '../types/KLAPI'
 import { capitalize } from './string'
+
+type JudgeWriteClient =
+  | {
+      list(): Promise<JsonJudge[] | undefined>
+      batchWrite(items: JsonJudge[]): Promise<void>
+    }
+  | {
+      readAll<T>(table?: string): Promise<T[] | undefined>
+      batchWrite<T>(items: T[], table?: string): Promise<void>
+    }
+
+const listJudges = async (dynamoDB: JudgeWriteClient): Promise<JsonJudge[]> => {
+  if ('list' in dynamoDB) return (await dynamoDB.list()) ?? []
+  return (await dynamoDB.readAll<JsonJudge>(judgeTable)) ?? []
+}
+
+const writeJudges = async (dynamoDB: JudgeWriteClient, items: JsonJudge[]): Promise<void> => {
+  if ('list' in dynamoDB) return dynamoDB.batchWrite(items)
+  return dynamoDB.batchWrite(items, judgeTable)
+}
 
 const { judgeTable } = CONFIG
 
@@ -65,10 +84,10 @@ export const partializeJudge = (judge: JsonJudge): RequireAllKeys<PartialJsonJud
   phone: judge.phone,
 })
 
-export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: PartialJsonJudge[]): Promise<void> => {
+export const updateJudges = async (dynamoDB: JudgeWriteClient, judges: PartialJsonJudge[]): Promise<void> => {
   if (!judges.length) return
 
-  const existingJudges = (await dynamoDB.readAll<JsonJudge>(judgeTable)) ?? []
+  const existingJudges = await listJudges(dynamoDB)
   const newJudges = judges.filter((j) => !existingJudges.some((ej) => ej.id === j.id))
   const deletedJudges = existingJudges.filter((ej) => !ej.deletedAt && !judges.some((j) => j.id === ej.id))
 
@@ -118,6 +137,6 @@ export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: Partial
   }
 
   if (write.length) {
-    await dynamoDB.batchWrite(write, judgeTable)
+    await writeJudges(dynamoDB, write)
   }
 }

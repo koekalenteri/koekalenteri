@@ -17,7 +17,7 @@ jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: jest.fn(),
 }))
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: jest.fn(),
   getAndUpdateUserByEmail: jest.fn(),
 }))
@@ -33,7 +33,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => mockDynamoDB),
 }))
 
-const { authorize } = await import('../lib/auth')
+const { authorize } = await import('../auth/api')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
 const { default: getEventTypesLambda } = await import('./handler')

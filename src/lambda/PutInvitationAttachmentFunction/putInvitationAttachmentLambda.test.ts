@@ -1,27 +1,20 @@
 import { jest } from '@jest/globals'
 
-const mockLambda = jest.fn((_name, fn) => fn)
-const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
-const mockGetParam = jest.fn<any>()
-const mockGetEvent = jest.fn<any>()
+const mockGetConfirmedEvent = jest.fn<any>()
 const mockParsePostFile = jest.fn<any>()
 const mockDeleteFile = jest.fn<any>()
 const mockUploadFile = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/lambda', () => ({
-  getParam: mockGetParam,
-  lambda: mockLambda,
-  response: mockResponse,
-}))
-
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
+  },
 }))
 
 jest.unstable_mockModule('../lib/file', () => ({
@@ -36,7 +29,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   })),
 }))
 
-const { default: putInvitationAttachmentLambda } = await import('./handler')
+const { putInvitationAttachmentLambda } = await import('./handler')
 
 describe('putInvitationAttachmentLambda', () => {
   const event = {
@@ -64,9 +57,7 @@ describe('putInvitationAttachmentLambda', () => {
       },
     })
 
-    mockGetParam.mockReturnValue('event123')
-
-    mockGetEvent.mockResolvedValue({
+    mockGetConfirmedEvent.mockResolvedValue({
       id: 'event123',
       invitationAttachment: 'old-attachment-key',
       name: 'Test Event',
@@ -99,10 +90,10 @@ describe('putInvitationAttachmentLambda', () => {
   it('returns 401 if not authorized', async () => {
     mockAuthorize.mockResolvedValueOnce(null)
 
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(result.statusCode).toBe(401)
     expect(mockParsePostFile).not.toHaveBeenCalled()
   })
 
@@ -115,11 +106,11 @@ describe('putInvitationAttachmentLambda', () => {
       },
     })
 
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
-    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
+    expect(result.statusCode).toBe(403)
     expect(mockParsePostFile).not.toHaveBeenCalled()
   })
 
@@ -128,12 +119,12 @@ describe('putInvitationAttachmentLambda', () => {
       error: 'Invalid file format',
     })
 
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'Invalid file format', event)
+    expect(result.statusCode).toBe(400)
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
 
@@ -148,12 +139,12 @@ describe('putInvitationAttachmentLambda', () => {
       filename: 'test.pdf',
     })
 
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(400, 'no data', event)
+    expect(result.statusCode).toBe(400)
     expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).not.toHaveBeenCalled()
 
@@ -162,10 +153,10 @@ describe('putInvitationAttachmentLambda', () => {
   })
 
   it('uploads new attachment and deletes old one', async () => {
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     // Verify event was retrieved
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
 
     // Verify file was parsed
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
@@ -186,19 +177,15 @@ describe('putInvitationAttachmentLambda', () => {
         set: {
           invitationAttachment: expect.any(String),
         },
-      }
+      },
+      expect.any(String)
     )
 
-    // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      expect.any(String), // nanoid generated key
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('uploads new attachment when no previous attachment exists', async () => {
-    mockGetEvent.mockResolvedValueOnce({
+    mockGetConfirmedEvent.mockResolvedValueOnce({
       id: 'event123',
       name: 'Test Event',
       organizer: {
@@ -208,10 +195,10 @@ describe('putInvitationAttachmentLambda', () => {
       // No invitationAttachment
     })
 
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     // Verify event was retrieved
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
 
     // Verify file was parsed
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
@@ -232,15 +219,11 @@ describe('putInvitationAttachmentLambda', () => {
         set: {
           invitationAttachment: expect.any(String),
         },
-      }
+      },
+      expect.any(String)
     )
 
-    // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      expect.any(String), // nanoid generated key
-      event
-    )
+    expect(result.statusCode).toBe(200)
   })
 
   it('allows admin to upload attachment regardless of organizer', async () => {
@@ -251,10 +234,10 @@ describe('putInvitationAttachmentLambda', () => {
       roles: {},
     })
 
-    await putInvitationAttachmentLambda(event)
+    const result = await putInvitationAttachmentLambda(event)
 
     // Verify event was retrieved
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
 
     // Verify file was parsed
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
@@ -268,7 +251,6 @@ describe('putInvitationAttachmentLambda', () => {
     // Verify event was updated with new attachment key
     expect(mockUpdate).toHaveBeenCalled()
 
-    // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(String), event)
+    expect(result.statusCode).toBe(200)
   })
 })

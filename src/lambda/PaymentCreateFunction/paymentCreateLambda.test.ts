@@ -4,20 +4,24 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // --- Mock setup ---
 const mockAuthorize = jest.fn<() => Promise<{ id: string; name: string } | null>>()
-const mockGetEvent = jest.fn<() => Promise<JsonConfirmedEvent | undefined>>()
+const mockGetConfirmedEvent = jest.fn<() => Promise<JsonConfirmedEvent | undefined>>()
 const mockCreatePayment = jest.fn<() => Promise<CreatePaymentResponse | null>>()
 const mockGetTransactionsByReference = jest.fn<() => Promise<any[] | undefined>>()
 const mockUpdateTransactionStatus = jest.fn<() => Promise<boolean>>()
-const mockRead = jest.fn<() => Promise<JsonRegistration | Organizer | undefined>>()
-const mockWrite = jest.fn()
+const mockGetRegistration = jest.fn<() => Promise<JsonRegistration | undefined>>()
+const mockGetOrganizerById = jest.fn<() => Promise<Organizer | undefined>>()
+const mockRepoCreatePayment = jest.fn()
 const mockUpdate = jest.fn()
+const mockUpdateRegistrationField = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/auth', () => ({
+jest.unstable_mockModule('../auth/api', () => ({
   authorize: mockAuthorize,
 }))
 
-jest.unstable_mockModule('../lib/event', () => ({
-  getEvent: mockGetEvent,
+jest.unstable_mockModule('../registration/api', () => ({
+  eventReadPort: {
+    getConfirmedEvent: mockGetConfirmedEvent,
+  },
 }))
 
 jest.unstable_mockModule('../lib/paytrail', () => ({
@@ -27,17 +31,31 @@ jest.unstable_mockModule('../lib/paytrail', () => ({
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
-  getTransactionsByReference: mockGetTransactionsByReference,
   paymentDescription: jest.fn(() => 'Test Type 1.–2.1. Test Location Test Event'),
-  updateTransactionStatus: mockUpdateTransactionStatus,
+}))
+
+jest.unstable_mockModule('../payment/repository', () => ({
+  paymentTransactionRepository: {
+    createPayment: mockRepoCreatePayment,
+    listByReference: mockGetTransactionsByReference,
+    patchStatus: mockUpdateTransactionStatus,
+  },
+}))
+
+jest.unstable_mockModule('../lib/registration', () => ({
+  getRegistration: mockGetRegistration,
+  isParticipantGroup: jest.fn((groupKey?: string) => groupKey === 'participants'),
+  updateRegistrationField: mockUpdateRegistrationField,
+}))
+
+jest.unstable_mockModule('../organizer/api', () => ({
+  organizerReadPort: {
+    getById: mockGetOrganizerById,
+  },
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
-  default: jest.fn(() => ({
-    read: mockRead,
-    update: mockUpdate,
-    write: mockWrite,
-  })),
+  default: jest.fn(() => ({ update: mockUpdate })),
 }))
 
 const { default: paymentCreateLambda } = await import('./handler')
@@ -140,12 +158,14 @@ describe('paymentCreateLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.spyOn(console, 'debug').mockImplementation(() => {})
+    mockGetRegistration.mockReset()
+    mockGetOrganizerById.mockReset()
 
     // Default mock implementations
-    mockGetEvent.mockResolvedValue(createMockConfirmedEvent())
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration()) // for getRegistration
-      .mockResolvedValueOnce(createMockOrganizer()) // for organizer
+    mockGetConfirmedEvent.mockResolvedValue(createMockConfirmedEvent())
+    mockGetRegistration.mockResolvedValue(createMockRegistration())
+    mockGetOrganizerById.mockResolvedValue(createMockOrganizer())
+    mockUpdateRegistrationField.mockResolvedValue(undefined)
     mockCreatePayment.mockResolvedValue(createMockPaymentResponse())
     mockAuthorize.mockResolvedValue({ id: 'user123', name: 'Test User' })
     mockGetTransactionsByReference.mockResolvedValue([])
@@ -155,9 +175,9 @@ describe('paymentCreateLambda', () => {
   it('creates a payment successfully for a member', async () => {
     const result = await paymentCreateLambda(event)
 
-    expect(mockGetEvent).toHaveBeenCalledWith('event123')
-    expect(mockRead).toHaveBeenCalledWith({ eventId: 'event123', id: 'reg456' }, expect.any(String))
-    expect(mockRead).toHaveBeenCalledWith({ id: 'org789' }, expect.any(String))
+    expect(mockGetConfirmedEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
+    expect(mockGetOrganizerById).toHaveBeenCalledWith('org789')
 
     const expectedAmount = 4000 // 40 EUR * 100
 
@@ -183,7 +203,7 @@ describe('paymentCreateLambda', () => {
       stamp: expect.any(String),
     })
 
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockRepoCreatePayment).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: expectedAmount,
         bankReference: 'ref123',
@@ -195,22 +215,17 @@ describe('paymentCreateLambda', () => {
       })
     )
 
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      { set: { paymentStatus: 'PENDING' } }
-    )
+    expect(mockUpdateRegistrationField).toHaveBeenCalledWith('event123', 'reg456', 'paymentStatus', 'PENDING')
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual(createMockPaymentResponse())
   })
 
   it('creates a payment with regular price for non-member', async () => {
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(
-        createMockRegistration({ handler: { email: 'handler@exmaple.com', membership: false, name: 'Test Handler' } })
-      )
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetRegistration.mockResolvedValueOnce(
+      createMockRegistration({ handler: { email: 'handler@exmaple.com', membership: false, name: 'Test Handler' } })
+    )
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     await paymentCreateLambda(event)
 
@@ -238,8 +253,7 @@ describe('paymentCreateLambda', () => {
   })
 
   it('returns 404 if registration is cancelled', async () => {
-    mockRead.mockReset()
-    mockRead.mockResolvedValueOnce(createMockRegistration({ cancelled: true }))
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ cancelled: true }))
 
     const result = await paymentCreateLambda(event)
 
@@ -249,10 +263,8 @@ describe('paymentCreateLambda', () => {
   })
 
   it('returns 412 if organizer does not have MerchantId', async () => {
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration())
-      .mockResolvedValueOnce(createMockOrganizer({ paytrailMerchantId: undefined }))
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration())
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer({ paytrailMerchantId: undefined }))
 
     const result = await paymentCreateLambda(event)
 
@@ -262,10 +274,8 @@ describe('paymentCreateLambda', () => {
   })
 
   it('returns 204 if registration is already paid', async () => {
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ paidAmount: 40 })) // cost is 40 for member
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ paidAmount: 40 })) // cost is 40 for member
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
 
@@ -281,21 +291,24 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toEqual(500)
     expect(result.body).toBeUndefined()
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockRepoCreatePayment).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
   })
 
   it('calculates partial payment correctly if some amount is already paid', async () => {
-    mockRead.mockReset()
-    mockGetEvent.mockResolvedValue(
+    mockGetRegistration.mockReset()
+    mockGetOrganizerById.mockReset()
+    mockGetConfirmedEvent.mockResolvedValue(
       createMockConfirmedEvent({
         cost: { earlyBird: { cost: 30, days: 1 }, normal: 50 },
         costMember: { earlyBird: { cost: 25, days: 1 }, normal: 40 },
       })
     )
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ createdAt: '2024-12-31T00:00:00.000Z', paidAmount: 20 })) // member, earlybird
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetRegistration.mockResolvedValueOnce(
+      createMockRegistration({ createdAt: '2024-12-31T00:00:00.000Z', paidAmount: 20 })
+    ) // member, earlybird
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     await paymentCreateLambda(event)
 
@@ -316,7 +329,7 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockWrite).toHaveBeenCalledWith(
+    expect(mockRepoCreatePayment).toHaveBeenCalledWith(
       expect.objectContaining({
         user: 'Test Payer',
       })
@@ -324,16 +337,14 @@ describe('paymentCreateLambda', () => {
   })
 
   it('creates a payment with custom cost', async () => {
-    mockGetEvent.mockResolvedValue(
+    mockGetConfirmedEvent.mockResolvedValue(
       createMockConfirmedEvent({
         cost: { custom: { cost: 60, description: { en: 'custom', fi: 'custom' } }, normal: 50 },
         costMember: { custom: { cost: 60, description: { en: 'custom', fi: 'custom' } }, normal: 40 },
       })
     )
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ selectedCost: 'custom' }))
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ selectedCost: 'custom' }))
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     await paymentCreateLambda(event)
 
@@ -366,10 +377,8 @@ describe('paymentCreateLambda', () => {
   })
 
   it('should handle undefined paidAmount', async () => {
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ paidAmount: undefined }))
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ paidAmount: undefined }))
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     await paymentCreateLambda(event)
 
@@ -382,10 +391,8 @@ describe('paymentCreateLambda', () => {
   })
 
   it('should respect registration language', async () => {
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ language: 'en' }))
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ language: 'en' }))
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     await paymentCreateLambda(event)
 
@@ -410,7 +417,7 @@ describe('paymentCreateLambda', () => {
     await paymentCreateLambda(event)
 
     expect(mockGetTransactionsByReference).toHaveBeenCalledWith('event123:reg456')
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, { status: 'fail' })
   })
 
   it('should cancel existing stale pending transactions for the same reference', async () => {
@@ -425,7 +432,7 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, 'fail')
+    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(existingTransaction, { status: 'fail' })
   })
 
   it('should not cancel fresh pending transactions within safety margin', async () => {
@@ -475,7 +482,7 @@ describe('paymentCreateLambda', () => {
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual(existingResponse)
     expect(mockCreatePayment).not.toHaveBeenCalled()
-    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockRepoCreatePayment).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
   })
 
@@ -506,9 +513,8 @@ describe('paymentCreateLambda', () => {
   })
 
   it('returns 403 if payment is after confirmation but registration is not picked', async () => {
-    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
-    mockRead.mockReset()
-    mockRead.mockResolvedValueOnce(createMockRegistration({ group: undefined }))
+    mockGetConfirmedEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ group: undefined }))
 
     const result = await paymentCreateLambda(event)
 
@@ -518,9 +524,8 @@ describe('paymentCreateLambda', () => {
   })
 
   it('returns 403 if payment is after confirmation and registration is in reserve', async () => {
-    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
-    mockRead.mockReset()
-    mockRead.mockResolvedValueOnce(createMockRegistration({ group: { key: 'reserve', number: 1 } }))
+    mockGetConfirmedEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ group: { key: 'reserve', number: 1 } }))
 
     const result = await paymentCreateLambda(event)
 
@@ -530,11 +535,11 @@ describe('paymentCreateLambda', () => {
   })
 
   it('allows payment if payment is after confirmation and registration is picked', async () => {
-    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ group: { date: '2025-01-15', key: 'participants', number: 1 } }))
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetConfirmedEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'confirmation' }))
+    mockGetRegistration.mockResolvedValueOnce(
+      createMockRegistration({ group: { date: '2025-01-15', key: 'participants', number: 1 } })
+    )
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
 
@@ -543,11 +548,9 @@ describe('paymentCreateLambda', () => {
   })
 
   it('allows payment if payment is at registration time regardless of group state', async () => {
-    mockGetEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'registration' }))
-    mockRead.mockReset()
-    mockRead
-      .mockResolvedValueOnce(createMockRegistration({ group: undefined }))
-      .mockResolvedValueOnce(createMockOrganizer())
+    mockGetConfirmedEvent.mockResolvedValue(createMockConfirmedEvent({ paymentTime: 'registration' }))
+    mockGetRegistration.mockResolvedValueOnce(createMockRegistration({ group: undefined }))
+    mockGetOrganizerById.mockResolvedValueOnce(createMockOrganizer())
 
     const result = await paymentCreateLambda(event)
 
