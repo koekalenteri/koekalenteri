@@ -351,6 +351,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockSES.send).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
+    expect(mockUpdateRegistrations).toHaveBeenCalledWith(eventWithStaticDates.id)
 
     expect(res.statusCode).toEqual(200)
   })
@@ -418,6 +419,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockSES.send).toHaveBeenCalledTimes(2)
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
+    expect(mockUpdateRegistrations).toHaveBeenCalledWith(eventWithStaticDates.id)
 
     expect(res.statusCode).toEqual(200)
   })

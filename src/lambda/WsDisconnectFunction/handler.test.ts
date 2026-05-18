@@ -3,9 +3,13 @@ import { jest } from '@jest/globals'
 const mockWsDisconnect = jest.fn<any>()
 const mockBroadcastConnectionCount = jest.fn<any>()
 
-jest.unstable_mockModule('../lib/broadcast', () => ({
-  broadcastConnectionCount: mockBroadcastConnectionCount,
-  wsDisconnect: mockWsDisconnect,
+jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
+  disconnectWebSocket: mockWsDisconnect,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishConnectionCount: mockBroadcastConnectionCount,
+  publishEventViewers: jest.fn(),
 }))
 
 const { default: wsDisconnectHandler } = await import('./handler')
@@ -29,7 +33,10 @@ describe('wsDisconnectHandler', () => {
     const result = await wsDisconnectHandler(event)
 
     // Verify wsDisconnect was called with the connection ID
-    expect(mockWsDisconnect).toHaveBeenCalledWith('test-connection-id')
+    expect(mockWsDisconnect).toHaveBeenCalledWith(
+      'test-connection-id',
+      expect.objectContaining({ notifyEventViewers: expect.any(Function) })
+    )
 
     // Verify broadcastConnectionCount was called
     expect(mockBroadcastConnectionCount).toHaveBeenCalled()
@@ -50,7 +57,10 @@ describe('wsDisconnectHandler', () => {
     await expect(wsDisconnectHandler(event)).rejects.toThrow('Disconnection error')
 
     // Verify wsDisconnect was called
-    expect(mockWsDisconnect).toHaveBeenCalledWith('test-connection-id')
+    expect(mockWsDisconnect).toHaveBeenCalledWith(
+      'test-connection-id',
+      expect.objectContaining({ notifyEventViewers: expect.any(Function) })
+    )
 
     // Verify broadcastConnectionCount was not called
     expect(mockBroadcastConnectionCount).not.toHaveBeenCalled()
@@ -65,7 +75,10 @@ describe('wsDisconnectHandler', () => {
     await expect(wsDisconnectHandler(event)).rejects.toThrow('Broadcast error')
 
     // Verify wsDisconnect was called
-    expect(mockWsDisconnect).toHaveBeenCalledWith('test-connection-id')
+    expect(mockWsDisconnect).toHaveBeenCalledWith(
+      'test-connection-id',
+      expect.objectContaining({ notifyEventViewers: expect.any(Function) })
+    )
 
     // Verify broadcastConnectionCount was called
     expect(mockBroadcastConnectionCount).toHaveBeenCalled()

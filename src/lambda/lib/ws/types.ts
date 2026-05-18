@@ -1,0 +1,24 @@
+import type { DeepPartial, JsonDogEvent, JsonRegistration } from '../../../types'
+
+export interface WebSocketConnection {
+  connectionId: string
+  admin?: boolean
+  audience?: 'auth'
+  eventId?: string
+  expiresAt?: number
+  memberOf?: string[]
+  userId?: string
+}
+
+export type EventPatchPayload = Partial<Pick<JsonDogEvent, 'classes' | 'entries' | 'members'>> & {
+  eventId: string
+}
+
+export type RegistrationPatchPayload = {
+  eventId: string
+  patch: DeepPartial<JsonRegistration>[]
+}
+
+export type EventViewer = {
+  userId: string
+}

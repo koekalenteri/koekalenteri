@@ -42,9 +42,15 @@ const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
 const mockBroadcast = jest.fn()
-jest.unstable_mockModule('../lib/broadcast', () => ({
+const mockBroadcastAdminEvent = jest.fn()
+const mockBroadcastEventRegistrations = jest.fn()
+const mockBroadcastPublicEvent = jest.fn()
+jest.unstable_mockModule('../lib/ws/actions', () => ({
   __esModule: true,
-  broadcastEvent: mockBroadcast,
+  publishAdminEventPatch: mockBroadcastAdminEvent,
+  publishConnectionCount: mockBroadcast,
+  publishPublicEvent: mockBroadcastPublicEvent,
+  publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
 
 const { default: putRegistrationGroupsLambda } = await import('./handler')
@@ -151,6 +157,17 @@ describe('putRegistrationGroupsLambda', () => {
           members: 0,
         },
       },
+      'event-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { id: event.id },
+      expect.objectContaining({
+        set: expect.objectContaining({
+          entries: 7,
+          members: 0,
+        }),
+      }),
       'event-table-not-found-in-env'
     )
 
@@ -402,6 +419,17 @@ describe('putRegistrationGroupsLambda', () => {
           members: 0,
         },
       },
+      'event-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { id: event.id },
+      expect.objectContaining({
+        set: expect.objectContaining({
+          entries: 5,
+          members: 0,
+        }),
+      }),
       'event-table-not-found-in-env'
     )
 
