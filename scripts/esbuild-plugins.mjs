@@ -1,5 +1,5 @@
 import { existsSync, lstatSync } from 'fs'
-import { join } from 'path'
+import { join, relative, resolve } from 'path'
 
 /**
  * Checks if a path exists and is a directory
@@ -56,31 +56,26 @@ const resolveNodeModulesPath = (path) => {
  */
 const rewriteRelativeImport = (resolveDir, path, { isLambda = false } = {}) => {
   const localPath = resolveLocalPath(resolveDir, path)
-  const parentDepth = (localPath.match(/\.\.\//g) || []).length
-  const trimmedPath = localPath.replace(/^(\.\.\/)+/, '')
 
-  // Check if we're in the lambda directory
-  const isInLayerLambdaDir = !isLambda && resolveDir.includes('/lambda/')
+  // Resolve against src/ so we can map to the deployed layer structure reliably.
+  // This avoids lossy heuristics based only on parent depth.
+  const absResolveDir = resolve(resolveDir)
+  const absTarget = resolve(absResolveDir, localPath)
+  const fromSrcRoot = relative(resolve('src'), absTarget).replaceAll('\\', '/')
 
-  // If we're in the lambda directory and importing from lambda directory,
-  // make sure the path includes 'lambda'
-  if (isInLayerLambdaDir && trimmedPath.startsWith('lambda/')) {
-    return `/opt/nodejs/${trimmedPath}`
+  // In layer build, keep imports relative inside lambda subtree when both
+  // importer and imported module are under src/lambda/**.
+  if (!isLambda) {
+    const importerFromSrcRoot = relative(resolve('src'), absResolveDir).replaceAll('\\', '/')
+    if (importerFromSrcRoot.startsWith('lambda/') && fromSrcRoot.startsWith('lambda/')) {
+      const relInsideLambda = relative(absResolveDir, absTarget).replaceAll('\\', '/')
+      return relInsideLambda.startsWith('.') ? relInsideLambda : `./${relInsideLambda}`
+    }
   }
 
-  // If we're in the lambda directory and importing with parent depth 1,
-  // it's likely importing from the lambda directory
-  if (isInLayerLambdaDir && parentDepth === 1 && !trimmedPath.includes('lambda/')) {
-    return `/opt/nodejs/lambda/${trimmedPath}`
-  }
-
-  if (parentDepth >= 2) {
-    return `/opt/nodejs/${trimmedPath}`
-  }
-  if (parentDepth === 1) {
-    return isLambda ? `/opt/nodejs/lambda/${trimmedPath}` : `/opt/nodejs/${trimmedPath}`
-  }
-  return localPath
+  // Imports that resolve under src/ map 1:1 into /opt/nodejs/<relative path>
+  // in layer output (e.g. src/lambda/config.ts -> /opt/nodejs/lambda/config.mjs).
+  return `/opt/nodejs/${fromSrcRoot.replace(/\.(ts|js|mjs)$/, '.mjs')}`
 }
 
 /**
