@@ -290,6 +290,45 @@ describe('CustomDynamoClient', () => {
         })
       )
     })
+
+    it('supports nested dot-path SET operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { set: { 'contactInfo.secretary.email': 'sec@example.com' } })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ExpressionAttributeNames: expect.objectContaining({
+            '#contactInfo': 'contactInfo',
+            '#email': 'email',
+            '#secretary': 'secretary',
+          }),
+          ExpressionAttributeValues: {
+            ':contactInfo_secretary_email': 'sec@example.com',
+          },
+          UpdateExpression: 'SET #contactInfo.#secretary.#email = :contactInfo_secretary_email',
+        })
+      )
+    })
+
+    it('supports nested dot-path REMOVE operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { remove: ['contactInfo.secretary.phone'] })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ExpressionAttributeNames: expect.objectContaining({
+            '#contactInfo': 'contactInfo',
+            '#phone': 'phone',
+            '#secretary': 'secretary',
+          }),
+          UpdateExpression: 'REMOVE #contactInfo.#secretary.#phone',
+        })
+      )
+    })
   })
 
   describe('batchWrite', () => {

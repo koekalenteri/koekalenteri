@@ -47,10 +47,19 @@ export type TransactWriteItemWithoutTable = {
   ConditionCheck?: ConditionCheckWithoutTable
 }
 
-function fromSamLocalTable(table: string) {
-  // sam local does not provide proper table name as env variable
-  // EventTable => event-table
-  return table.replaceAll(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
+/**
+ * sam local does not provide proper table name as env variable
+ * EventTable -> event-table
+ **/
+const fromSamLocalTable = (table: string) => table.replaceAll(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
+
+const toPathExpression = (field: string): { duplicateKey: string; path: string } => {
+  const segments = field.split('.')
+  const nameKeys = segments.map((segment) => `#${segment}`)
+  return {
+    duplicateKey: field,
+    path: nameKeys.join('.'),
+  }
 }
 
 const processOperations = (
@@ -66,17 +75,21 @@ const processOperations = (
   const parts: string[] = []
 
   for (const [field, value] of Object.entries(operations)) {
-    const nameKey = `#${field}`
+    const { duplicateKey, path } = toPathExpression(field)
 
-    if (names[nameKey]) {
+    if (names[`#${duplicateKey}`]) {
       throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
 
-    names[nameKey] = field
+    names[`#${duplicateKey}`] = duplicateKey
 
-    const valueKey = `:${field}`
+    for (const segment of field.split('.')) {
+      names[`#${segment}`] = segment
+    }
+
+    const valueKey = `:${field.replaceAll('.', '_')}`
     values[valueKey] = value
-    parts.push(`${nameKey}${operand}${valueKey}`)
+    parts.push(`${path}${operand}${valueKey}`)
   }
 
   return parts.length > 0 ? `${type} ${parts.join(', ')}` : null
@@ -90,14 +103,19 @@ const processRemoveOperations = (operations: string[] | undefined, names: Record
   const parts: string[] = []
 
   for (const field of operations) {
-    const nameKey = `#${field}`
+    const { duplicateKey, path } = toPathExpression(field)
 
-    if (names[nameKey]) {
+    if (names[`#${duplicateKey}`]) {
       throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
 
-    names[nameKey] = field
-    parts.push(nameKey)
+    names[`#${duplicateKey}`] = duplicateKey
+
+    for (const segment of field.split('.')) {
+      names[`#${segment}`] = segment
+    }
+
+    parts.push(path)
   }
 
   return parts.length > 0 ? `REMOVE ${parts.join(', ')}` : null
