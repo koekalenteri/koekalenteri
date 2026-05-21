@@ -55,10 +55,13 @@ const fromSamLocalTable = (table: string) => table.replaceAll(/([a-zA-Z])(?=[A-Z
 
 const toPathExpression = (field: string): { duplicateKey: string; path: string } => {
   const segments = field.split('.')
-  const nameKeys = segments.map((segment) => `#${segment}`)
+  const nameKeys = segments.map((segment) => (String(Number(segment)) === segment ? `[${segment}]` : `#${segment}`))
   return {
     duplicateKey: field,
-    path: nameKeys.join('.'),
+    path: nameKeys.reduce((acc, part) => {
+      if (!acc) return part
+      return part.startsWith('[') ? `${acc}${part}` : `${acc}.${part}`
+    }, ''),
   }
 }
 
@@ -84,6 +87,7 @@ const processOperations = (
     names[`#${duplicateKey}`] = duplicateKey
 
     for (const segment of field.split('.')) {
+      if (String(Number(segment)) === segment) continue
       names[`#${segment}`] = segment
     }
 
@@ -112,6 +116,7 @@ const processRemoveOperations = (operations: string[] | undefined, names: Record
     names[`#${duplicateKey}`] = duplicateKey
 
     for (const segment of field.split('.')) {
+      if (String(Number(segment)) === segment) continue
       names[`#${segment}`] = segment
     }
 

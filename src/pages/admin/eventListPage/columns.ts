@@ -36,10 +36,11 @@ export default function useEventListColumns(): GridColDef<EventWithDate>[] {
       flex: 1,
       headerName: t('event.classes'),
       minWidth: 100,
-      valueGetter: (_value, row) =>
-        ((row.classes || []) as Array<EventClass | string>)
-          .map((c) => (typeof c === 'string' ? c : c.class))
-          .join(', '),
+      valueGetter: (_value, row) => {
+        const classes = row.classes
+        if (!Array.isArray(classes)) return ''
+        return (classes as Array<EventClass | string>).map((c) => (typeof c === 'string' ? c : c.class)).join(', ')
+      },
     },
     {
       field: 'organizer',

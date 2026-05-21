@@ -312,6 +312,26 @@ describe('CustomDynamoClient', () => {
       )
     })
 
+    it('supports nested dot-path SET operations with array index segments', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { set: { 'classes.0.class': 'ALO' } })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ExpressionAttributeNames: expect.objectContaining({
+            '#class': 'class',
+            '#classes': 'classes',
+          }),
+          ExpressionAttributeValues: {
+            ':classes_0_class': 'ALO',
+          },
+          UpdateExpression: 'SET #classes[0].#class = :classes_0_class',
+        })
+      )
+    })
+
     it('supports nested dot-path REMOVE operations', async () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({})
@@ -326,6 +346,23 @@ describe('CustomDynamoClient', () => {
             '#secretary': 'secretary',
           }),
           UpdateExpression: 'REMOVE #contactInfo.#secretary.#phone',
+        })
+      )
+    })
+
+    it('supports nested dot-path REMOVE operations with array index segments', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { remove: ['classes.0.judge.0'] })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ExpressionAttributeNames: expect.objectContaining({
+            '#classes': 'classes',
+            '#judge': 'judge',
+          }),
+          UpdateExpression: 'REMOVE #classes[0].#judge[0]',
         })
       )
     })
