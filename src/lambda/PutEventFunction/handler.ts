@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid'
 import { isEventDeletable } from '../../lib/event'
 import { isEntryOpen } from '../../lib/utils'
 import { authorize } from '../lib/auth'
-import { findQualificationStartDate, getEvent, saveEvent, updateRegistrations } from '../lib/event'
+import { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 
@@ -71,14 +71,20 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
 
-  await saveEvent(data)
+  if (existing) {
+    await patchEvent(existing.id, existing, data)
+  } else {
+    await saveEvent(data)
+  }
+
+  let result: JsonConfirmedEvent = data
 
   if (existing && existing.entries !== data.entries) {
     // update registrations in case the secretary version was out of date
-    updateRegistrations(data.id)
+    result = await updateRegistrations(data.id)
   }
 
-  return response(200, data, event)
+  return response(200, result, event)
 })
 
 export default putEventLambda

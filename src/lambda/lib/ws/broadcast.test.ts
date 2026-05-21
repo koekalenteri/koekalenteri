@@ -2,6 +2,12 @@ import { jest } from '@jest/globals'
 import { broadcast } from './broadcast'
 
 describe('ws/broadcast', () => {
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+
+  afterAll(() => {
+    logSpy.mockRestore()
+  })
+
   it('sends to audience and returns counters', async () => {
     const send = jest
       .fn<any>()

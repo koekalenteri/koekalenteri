@@ -1,10 +1,10 @@
 import type { DeepPartial, JsonDogEvent, JsonRegistration } from '../../../types'
 import type { EventPatchPayload, EventViewer, RegistrationPatchPayload, WebSocketConnection } from './types'
 
-export const buildEventPatchPayload = (
-  eventId: string,
-  patch: Partial<Pick<JsonDogEvent, 'classes' | 'entries' | 'members'>>
-): EventPatchPayload => ({ eventId, ...patch })
+export const buildEventPatchPayload = (eventId: string, patch: Partial<JsonDogEvent>): EventPatchPayload => ({
+  eventId,
+  ...patch,
+})
 
 export const buildRegistrationPatchPayload = (
   eventId: string,

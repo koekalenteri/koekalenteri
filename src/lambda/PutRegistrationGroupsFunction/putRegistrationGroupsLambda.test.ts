@@ -49,6 +49,7 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: mockBroadcastAdminEvent,
   publishConnectionCount: mockBroadcast,
+  publishEventPatch: jest.fn(),
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))

@@ -10,7 +10,7 @@ export interface WebSocketConnection {
   userId?: string
 }
 
-export type EventPatchPayload = Partial<Pick<JsonDogEvent, 'classes' | 'entries' | 'members'>> & {
+export type EventPatchPayload = Partial<JsonDogEvent> & {
   eventId: string
 }
 
