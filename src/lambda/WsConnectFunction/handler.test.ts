@@ -147,6 +147,20 @@ describe('wsConnectHandler', () => {
     })
   })
 
+  it('returns authorization response when token is in query params and authorization fails', async () => {
+    const eventWithQueryToken = {
+      ...event,
+      queryStringParameters: { token: 'ws-token' },
+    } as any
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
+
+    const result = await wsConnectHandler(eventWithQueryToken)
+
+    expect(result).toEqual({ body: 'Forbidden', statusCode: 403 })
+    expect(mockWsConnect).not.toHaveBeenCalled()
+    expect(mockBroadcastConnectionCount).not.toHaveBeenCalled()
+  })
+
   it('omits expiresAt when exp claim is not numeric', async () => {
     const invalidExpEvent = {
       requestContext: {

@@ -12,7 +12,7 @@ const getExpiryEpochSeconds = (event: APIGatewayEvent) => {
 
 const wsConnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
   const connectionId = event.requestContext.connectionId!
-  const hasAuthToken = !!event.headers?.Authorization || !!event.headers?.authorization
+  const hasAuthToken = !!event.queryStringParameters?.token
 
   const auth = await authorizeWithMemberOf(event as any).catch((err) => {
     console.error('ws connect auth failed', { connectionId, message: err instanceof Error ? err.message : String(err) })

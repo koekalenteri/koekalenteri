@@ -25,6 +25,7 @@
     "@uiw/react-codemirror": "^4.25.10",
     "@xiechao/codemirror-lang-handlebars": "^1.0.4",
     "aws-amplify": "^6.18.0",
+    "aws-jwt-verify": "^5.1.1",
     "aws-embedded-metrics": "^4.2.1",
     "aws-rum-web": "^2.1.0",
     "busboy": "^1.6.0",
