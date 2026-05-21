@@ -19,6 +19,8 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const { default: wsConnectHandler } = await import('./handler')
 
 describe('wsConnectHandler', () => {
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
   const event = {
     requestContext: {
       authorizer: {
@@ -40,6 +42,10 @@ describe('wsConnectHandler', () => {
     })
     mockWsConnect.mockResolvedValue(undefined)
     mockBroadcastConnectionCount.mockResolvedValue(undefined)
+  })
+
+  afterAll(() => {
+    errorSpy.mockRestore()
   })
 
   it('connects the websocket and broadcasts connection count', async () => {
@@ -134,6 +140,10 @@ describe('wsConnectHandler', () => {
       expiresAt: 2000000000,
       memberOf: undefined,
       userId: undefined,
+    })
+    expect(errorSpy).toHaveBeenCalledWith('ws connect auth failed', {
+      connectionId: 'test-connection-id',
+      message: 'auth failed',
     })
   })
 

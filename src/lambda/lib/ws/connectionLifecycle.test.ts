@@ -18,13 +18,20 @@ jest.unstable_mockModule('../../lib/event', () => ({
 const { connectWebSocket, disconnectWebSocket } = await import('./connectionLifecycle')
 
 describe('ws/connectionLifecycle', () => {
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  afterAll(() => {
+    logSpy.mockRestore()
   })
 
   it('connectWebSocket writes connection', async () => {
     await connectWebSocket({ connectionId: 'c1' } as any)
     expect(mockCreateConnection).toHaveBeenCalledWith({ connectionId: 'c1' })
+    expect(logSpy).toHaveBeenCalledWith('wsConnect: c1', { connectionId: 'c1' })
   })
 
   it('disconnectWebSocket removes and notifies viewers when subscribed', async () => {
@@ -36,5 +43,6 @@ describe('ws/connectionLifecycle', () => {
 
     expect(mockRemoveConnection).toHaveBeenCalledWith('c1')
     expect(notifyEventViewers).toHaveBeenCalledWith('e1', 'org-1')
+    expect(logSpy).toHaveBeenCalledWith('wsDisconnect: c1')
   })
 })
