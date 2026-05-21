@@ -10,6 +10,7 @@ import type {
   Registration,
 } from '../../types'
 import { addDays } from 'date-fns'
+import { diff } from 'deep-object-diff'
 import { formatDate, zonedStartOfDay } from '../../i18n/dates'
 import {
   GROUP_KEY_CANCELLED,
@@ -21,7 +22,12 @@ import {
 } from '../../lib/registration'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
-import { publishAdminEventPatch, publishPublicEvent, publishRegistrationPatches } from '../lib/ws/actions'
+import {
+  publishAdminEventPatch,
+  publishEventPatch,
+  publishPublicEvent,
+  publishRegistrationPatches,
+} from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
@@ -65,6 +71,43 @@ export const findQualificationStartDate = async (
 }
 
 export const saveEvent = async (data: JsonDogEvent) => dynamoDB.write(data, eventTable)
+
+export const patchEvent = async (
+  eventId: string,
+  existing: JsonDogEvent,
+  next: JsonDogEvent
+): Promise<JsonDogEvent> => {
+  const set: Record<string, unknown> = {}
+  const remove: Array<keyof JsonDogEvent> = []
+
+  const changes = diff(existing, next) as Partial<JsonDogEvent>
+  for (const [key, value] of Object.entries(changes) as Array<
+    [keyof JsonDogEvent, JsonDogEvent[keyof JsonDogEvent] | undefined]
+  >) {
+    if (value === undefined) {
+      remove.push(key)
+      continue
+    }
+    set[key as string] = value
+  }
+
+  if (!Object.keys(set).length && !remove.length) {
+    return existing
+  }
+
+  await dynamoDB.update(
+    { id: eventId },
+    {
+      ...(Object.keys(set).length ? { set } : {}),
+      ...(remove.length ? { remove } : {}),
+    },
+    eventTable
+  )
+
+  await publishEventPatch({ eventId, ...changes }, next.organizer.id)
+
+  return getEvent<JsonDogEvent>(eventId)
+}
 
 /**
  * Map template name to a valid EventClassState

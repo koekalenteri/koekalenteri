@@ -28,10 +28,12 @@ const mockBroadcast = jest.fn()
 const mockBroadcastAdminEvent = jest.fn()
 const mockBroadcastEventRegistrations = jest.fn()
 const mockBroadcastPublicEvent = jest.fn()
+const mockPublishEventPatch = jest.fn()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: mockBroadcastAdminEvent,
   publishConnectionCount: mockBroadcast,
+  publishEventPatch: mockPublishEventPatch,
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
@@ -66,6 +68,7 @@ const {
   getEvent,
   getStateFromTemplate,
   markParticipants,
+  patchEvent,
   saveEvent,
   saveGroup,
   updateRegistrations,
@@ -833,6 +836,104 @@ describe('lib/event', () => {
       expect(result[1].group?.number).toBe(1)
 
       expect(mockAudit).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('patchEvent', () => {
+    beforeEach(() => {
+      mockUpdate.mockReset()
+      mockPublishEventPatch.mockReset()
+      mockRead.mockReset()
+    })
+
+    it('returns existing event and does nothing for no-op patch', async () => {
+      const existing = { id: 'e1', name: 'Event' } as JsonDogEvent
+
+      const result = await patchEvent(existing.id, existing, { ...existing })
+
+      expect(result).toEqual(existing)
+      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockPublishEventPatch).not.toHaveBeenCalled()
+      expect(mockRead).not.toHaveBeenCalled()
+    })
+
+    it('updates set/remove fields and publishes admin patch', async () => {
+      const existing = {
+        id: 'e2',
+        name: 'Old name',
+        organizer: { id: 'org-1', name: 'Org' },
+        qualificationStartDate: '2024-01-01T00:00:00Z',
+      } as JsonDogEvent
+      const next = {
+        ...existing,
+        name: 'New name',
+        qualificationStartDate: undefined,
+      } as JsonDogEvent
+      const persisted = { ...next } as JsonDogEvent
+      mockRead.mockResolvedValueOnce(persisted)
+
+      const result = await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          remove: ['qualificationStartDate'],
+          set: { name: 'New name' },
+        },
+        expect.anything()
+      )
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          eventId: existing.id,
+          name: 'New name',
+          qualificationStartDate: undefined,
+        },
+        'org-1'
+      )
+      expect(result).toEqual(persisted)
+    })
+
+    it('updates nested field changes and publishes nested admin patch', async () => {
+      const existing = {
+        contactInfo: {
+          secretary: { email: 'old@example.com' },
+        },
+        id: 'e3',
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        contactInfo: {
+          secretary: { email: 'new@example.com' },
+        },
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          set: {
+            contactInfo: {
+              secretary: { email: 'new@example.com' },
+            },
+          },
+        },
+        expect.anything()
+      )
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          contactInfo: {
+            secretary: { email: 'new@example.com' },
+          },
+          eventId: existing.id,
+        },
+        'org-1'
+      )
     })
   })
 
