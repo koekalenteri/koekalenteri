@@ -71,14 +71,31 @@ describe('ws/actions', () => {
     await publishPublicEvent({ entries: 5, eventId: 'e1' })
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    expect(mockBroadcast).toHaveBeenCalledWith(
-      expect.objectContaining({
-        audience: mockPublicAudience,
-        buildPayload: expect.any(Function),
-        onGoneConnection: expect.any(Function),
-      })
-    )
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    await call.audience()
+    call.buildPayload()
+
+    expect(mockPublicAudience).toHaveBeenCalledTimes(1)
     expect(mockBuildEventPatchPayload).toHaveBeenCalledWith('e1', { entries: 5, eventId: 'e1' })
+  })
+
+  it('publishPublicEvent excludes specified connection ids from public audience', async () => {
+    mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }, { connectionId: 'c3' }])
+
+    await publishPublicEvent({ entries: 5, eventId: 'e1' }, ['c2'])
+
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<Array<{ connectionId: string }>> }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    await expect(call.audience()).resolves.toEqual([{ connectionId: 'c1' }, { connectionId: 'c3' }])
   })
 
   it('publishAdminEventPatch sends organizer audience patch payload', async () => {
@@ -92,6 +109,15 @@ describe('ws/actions', () => {
         onGoneConnection: expect.any(Function),
       })
     )
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    await call.audience()
+    call.buildPayload()
+
     expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1')
     expect(mockBuildEventPatchPayload).toHaveBeenCalledWith('e1', { eventId: 'e1', name: 'Updated' })
   })
@@ -103,9 +129,20 @@ describe('ws/actions', () => {
   })
 
   it('publishes admin patch and derived public patch when public fields changed', async () => {
+    mockOrganizerAudience.mockResolvedValueOnce([{ connectionId: 'a1' }])
+    mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'p1' }])
+
     await publishEventPatch({ entries: 10, eventId: 'e1' }, 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(2)
+
+    const publicCall = mockBroadcast.mock.calls[1]?.[0] as
+      | { audience: () => Promise<Array<{ connectionId: string }>> }
+      | undefined
+    expect(publicCall).toBeTruthy()
+    if (!publicCall) throw new Error('missing public broadcast call')
+
+    await expect(publicCall.audience()).resolves.toEqual([{ connectionId: 'p1' }])
   })
 
   it('publishRegistrationPatches sends admin:event-registrations payload to event audience', async () => {
@@ -114,24 +151,55 @@ describe('ws/actions', () => {
     await publishRegistrationPatches('e1', patch as any, 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    await call.audience()
+    call.buildPayload()
+
     expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1')
     expect(mockBuildRegistrationPatchPayload).toHaveBeenCalledWith('e1', patch)
   })
 
   it('publishEventViewers builds viewers payload from audience', async () => {
+    mockEventAudience.mockResolvedValueOnce([{ connectionId: 'c1', userId: 'u1' }])
+
     await publishEventViewers('e1', 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    const audience = await call.audience()
+    call.buildPayload(audience)
+
     expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1')
     expect(mockToEventViewers).toHaveBeenCalled()
     expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', expect.any(Array))
   })
 
   it('publishConnectionCount builds payload from public audience size', async () => {
+    mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }])
+
     await publishConnectionCount()
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith(expect.any(Number))
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    const audience = await call.audience()
+    call.buildPayload(audience)
+
+    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith(2)
   })
 
   it('subscribeWebSocketToEvent delegates to subscriptionService with publishEventViewers callback', async () => {

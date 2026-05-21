@@ -24,9 +24,10 @@ const send = <T>(args: Omit<Parameters<typeof broadcast<T>>[0], 'onGoneConnectio
     },
   })
 
-export const publishPublicEvent = (patch: PublicEventPatch) =>
+export const publishPublicEvent = (patch: PublicEventPatch, excludeConnectionIds: string[] = []) =>
   send({
-    audience: publicAudience,
+    audience: async () =>
+      (await publicAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
     buildPayload: () => buildEventPatchPayload(patch.eventId, patch),
   })
 
@@ -37,6 +38,8 @@ export const publishAdminEventPatch = (patch: AdminEventPatch, organizerId: stri
   })
 
 export const publishEventPatch = async (patch: AdminEventPatch, organizerId: string) => {
+  const adminRecipients = await organizerAudience(organizerId)
+
   await publishAdminEventPatch(patch, organizerId)
 
   const publicFromSanitized = sanitizeDogEvent(patch)
@@ -47,7 +50,8 @@ export const publishEventPatch = async (patch: AdminEventPatch, organizerId: str
   }
 
   if (Object.keys(publicPatch).length > 0) {
-    await publishPublicEvent({ eventId: patch.eventId, ...publicPatch })
+    const adminConnectionIds = adminRecipients.map((connection) => connection.connectionId)
+    await publishPublicEvent({ eventId: patch.eventId, ...publicPatch }, adminConnectionIds)
   }
 }
 
