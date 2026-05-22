@@ -56,6 +56,35 @@ describe('auth', () => {
       expect(logSpy).toHaveBeenCalledWith('no claims.sub in requestContext.autorizer', event.requestContext.authorizer)
     })
 
+    it('should parse JSON-string claims from ws custom authorizer context', async () => {
+      const cognitoUser = 'cognito-user'
+      const claims = { email: 'test@example.com', name: 'test-user', sub: cognitoUser }
+      const event = {
+        requestContext: {
+          authorizer: { claims: JSON.stringify(claims) },
+        },
+      } as any
+
+      await authorize(event)
+
+      expect(logSpy).toHaveBeenCalledWith('claims', claims)
+      expect(mockRead).toHaveBeenCalledWith({ cognitoUser })
+    })
+
+    it('should return null for non-JSON string claims', async () => {
+      const event = {
+        requestContext: {
+          authorizer: { claims: 'not-json' },
+        },
+      } as any
+
+      const result = await authorize(event)
+
+      expect(result).toBeNull()
+      expect(warnSpy).toHaveBeenCalledWith('authorizer.claims was a non-JSON string')
+      expect(logSpy).toHaveBeenCalledWith('no authorizer in requestContext', event.requestContext)
+    })
+
     it('should create link if not found', async () => {
       const cognitoUser = 'cognito-user'
       const event = {
