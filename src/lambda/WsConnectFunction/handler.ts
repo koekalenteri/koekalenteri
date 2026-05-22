@@ -35,7 +35,7 @@ const wsConnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
     memberOf: canReceiveAdmin ? memberOf : undefined,
     userId: user?.id,
   })
-  await publishConnectionCount()
+  await publishConnectionCount([connectionId])
 
   return { body: 'Connected', statusCode: 200 }
 }

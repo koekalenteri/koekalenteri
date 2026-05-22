@@ -202,6 +202,25 @@ describe('ws/actions', () => {
     expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith(2)
   })
 
+  it('publishConnectionCount excludes specified connection ids from public audience', async () => {
+    mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }, { connectionId: 'c3' }])
+
+    await publishConnectionCount(['c2'])
+
+    expect(mockBroadcast).toHaveBeenCalledTimes(1)
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: (audience: unknown[]) => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    const audience = await call.audience()
+    expect(audience).toEqual([{ connectionId: 'c1' }, { connectionId: 'c3' }])
+
+    call.buildPayload(audience)
+    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith(2)
+  })
+
   it('subscribeWebSocketToEvent delegates to subscriptionService with publishEventViewers callback', async () => {
     const connection = { connectionId: 'c1', userName: 'u1' }
 

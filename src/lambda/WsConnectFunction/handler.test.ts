@@ -60,8 +60,8 @@ describe('wsConnectHandler', () => {
       userId: 'user-1',
     })
 
-    // Verify broadcastConnectionCount was called
-    expect(mockBroadcastConnectionCount).toHaveBeenCalled()
+    // Verify broadcastConnectionCount was called excluding current connection
+    expect(mockBroadcastConnectionCount).toHaveBeenCalledWith(['test-connection-id'])
 
     // Verify the response
     expect(result).toEqual({
@@ -108,8 +108,8 @@ describe('wsConnectHandler', () => {
       userId: 'user-1',
     })
 
-    // Verify broadcastConnectionCount was called
-    expect(mockBroadcastConnectionCount).toHaveBeenCalled()
+    // Verify broadcastConnectionCount was called excluding current connection
+    expect(mockBroadcastConnectionCount).toHaveBeenCalledWith(['test-connection-id'])
   })
 
   it('returns authorization response when user is not allowed to connect', async () => {
@@ -125,7 +125,7 @@ describe('wsConnectHandler', () => {
       memberOf: undefined,
       userId: undefined,
     })
-    expect(mockBroadcastConnectionCount).toHaveBeenCalled()
+    expect(mockBroadcastConnectionCount).toHaveBeenCalledWith(['test-connection-id'])
   })
 
   it('connects anonymously if authorization throws', async () => {

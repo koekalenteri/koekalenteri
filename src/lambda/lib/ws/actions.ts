@@ -71,9 +71,10 @@ export const publishEventViewers = (eventId: string, organizerId: string) =>
     buildPayload: (audience) => buildEventViewersPayload(eventId, toEventViewers(audience)),
   })
 
-export const publishConnectionCount = () =>
+export const publishConnectionCount = (excludeConnectionIds: string[] = []) =>
   send({
-    audience: publicAudience,
+    audience: async () =>
+      (await publicAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
     buildPayload: (audience) => buildConnectionCountPayload(audience.length),
   })
 
