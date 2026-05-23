@@ -121,7 +121,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         const loadable = snapshot.getLoadable(eventsAtom)
         if (loadable.state !== 'hasValue') return
 
-        set(eventsAtom, (current) => applyPatch(current, eventId, patch))
+        set(eventsAtom, (current) => applyPatchOrInsert(current, eventId, patch))
       },
     []
   )

@@ -452,6 +452,41 @@ describe('useWebSocket', () => {
     expect(result.current[0]?.entries).toBe(2)
   })
 
+  it('should insert new public events from scoped public event patch messages', async () => {
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(false)
+        return useRecoilValue(eventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          entries: 2,
+          eventId: 'event-2',
+          eventType: 'NOME-A',
+          name: 'New Public Event',
+          scope: 'public:event-patch',
+        }),
+      })
+    })
+
+    expect(result.current).toHaveLength(1)
+    expect(result.current[0]).toEqual(
+      expect.objectContaining({ entries: 2, eventType: 'NOME-A', id: 'event-2', name: 'New Public Event' })
+    )
+  })
+
   it('should not let the global websocket consume admin event patch messages as public events', async () => {
     const event = {
       endDate: new Date('2026-01-02'),
