@@ -153,7 +153,11 @@ export default class CustomDynamoClient {
     }
 
     this.client = new DynamoDBClient(options)
-    this.docClient = DynamoDBDocumentClient.from(this.client)
+    this.docClient = DynamoDBDocumentClient.from(this.client, {
+      marshallOptions: {
+        removeUndefinedValues: true,
+      },
+    })
   }
 
   async readAll<T extends object>(

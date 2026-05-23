@@ -514,6 +514,37 @@ describe('CustomDynamoClient', () => {
       )
     })
 
+    it('supports combined dotted nested SET and REMOVE operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update(
+        { id: '1' },
+        {
+          remove: ['contactInfo.secretary.phone'],
+          set: { 'contactInfo.secretary.email': 'sec@example.com' },
+        }
+      )
+
+      expect(mockSend).toHaveBeenCalledWith({
+        ExpressionAttributeNames: {
+          '#contactInfo': 'contactInfo',
+          '#contactInfo.secretary.email': 'contactInfo.secretary.email',
+          '#contactInfo.secretary.phone': 'contactInfo.secretary.phone',
+          '#email': 'email',
+          '#phone': 'phone',
+          '#secretary': 'secretary',
+        },
+        ExpressionAttributeValues: {
+          ':contactInfo_secretary_email': 'sec@example.com',
+        },
+        Key: { id: '1' },
+        TableName: 'test-table',
+        UpdateExpression:
+          'SET #contactInfo.#secretary.#email = :contactInfo_secretary_email REMOVE #contactInfo.#secretary.#phone',
+      })
+    })
+
     it('includes ReturnValues when provided', async () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({})
