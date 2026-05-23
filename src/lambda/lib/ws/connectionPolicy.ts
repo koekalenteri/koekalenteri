@@ -19,9 +19,3 @@ export const canReceiveAnyAdminEvent = (connection: WebSocketConnection) => {
 
   return !!connection.memberOf?.length
 }
-
-export const canReceivePublicEvent = (connection: WebSocketConnection) => {
-  if (isConnectionExpired(connection)) return false
-
-  return true
-}

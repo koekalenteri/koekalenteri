@@ -8,15 +8,26 @@ export const listConnections = async () => (await dynamoDB.readAll<WebSocketConn
 
 export const getConnection = async (connectionId: string) => dynamoDB.read<WebSocketConnection>({ connectionId })
 
-export const createConnection = async ({ admin, connectionId, expiresAt, memberOf, userId }: WebSocketConnection) => {
-  await dynamoDB.write({
-    ...(typeof admin === 'boolean' ? { admin } : {}),
-    ...(userId ? { audience: 'auth' as const } : {}),
-    connectionId,
-    ...(typeof expiresAt === 'number' ? { expiresAt } : {}),
-    ...(memberOf?.length ? { memberOf } : {}),
-    ...(userId ? { userId } : {}),
-  })
+export const createConnection = async ({ connectionId }: Pick<WebSocketConnection, 'connectionId'>) => {
+  await dynamoDB.write({ audience: 'public' as const, connectionId })
+}
+
+export const authenticateConnection = async ({ admin, connectionId, expiresAt, memberOf, userId }: WebSocketConnection) => {
+  if (!userId) throw new Error('Cannot authenticate websocket connection without userId')
+
+  await dynamoDB.update(
+    { connectionId },
+    {
+      remove: ['eventId'],
+      set: {
+        ...(typeof admin === 'boolean' ? { admin } : {}),
+        audience: 'auth' as const,
+        ...(typeof expiresAt === 'number' ? { expiresAt } : {}),
+        ...(memberOf?.length ? { memberOf } : {}),
+        userId,
+      },
+    }
+  )
 }
 
 export const subscribeConnection = async (connectionId: string, eventId: string) => {
@@ -42,9 +53,13 @@ export const removeConnection = async (connectionId: string) => {
   await dynamoDB.delete({ connectionId })
 }
 
-export const queryAuthenticatedConnections = async () =>
+const queryConnectionsByAudience = async (audience: NonNullable<WebSocketConnection['audience']>) =>
   (await dynamoDB.query<WebSocketConnection>({
     index: 'audience-index',
     key: 'audience = :audience',
-    values: { ':audience': 'auth' },
+    values: { ':audience': audience },
   })) ?? []
+
+export const queryAuthenticatedConnections = async () => queryConnectionsByAudience('auth')
+
+export const queryPublicConnections = async () => queryConnectionsByAudience('public')

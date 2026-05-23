@@ -1,4 +1,4 @@
-import { canReceiveAdminEvent, canReceivePublicEvent, isConnectionExpired } from './connectionPolicy'
+import { canReceiveAdminEvent, isConnectionExpired } from './connectionPolicy'
 
 describe('ws/connectionPolicy', () => {
   describe('isConnectionExpired', () => {
@@ -42,14 +42,4 @@ describe('ws/connectionPolicy', () => {
     })
   })
 
-  describe('canReceivePublicEvent', () => {
-    it('returns false for expired connections', () => {
-      const now = Math.floor(Date.now() / 1000)
-      expect(canReceivePublicEvent({ connectionId: 'c1', expiresAt: now - 1 } as any)).toBe(false)
-    })
-
-    it('returns true for active connections', () => {
-      expect(canReceivePublicEvent({ connectionId: 'c1' } as any)).toBe(true)
-    })
-  })
 })

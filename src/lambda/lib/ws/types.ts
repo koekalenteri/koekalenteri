@@ -4,7 +4,7 @@ export interface WebSocketConnection {
   connectionId: string
   admin?: boolean
   adminSubscribed?: boolean
-  audience?: 'auth'
+  audience?: 'auth' | 'public'
   eventId?: string
   expiresAt?: number
   memberOf?: string[]

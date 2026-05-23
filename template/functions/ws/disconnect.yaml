@@ -19,7 +19,7 @@
         - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
         - { LambdaArn: !GetAtt WsDisconnectFunction.Arn }
 
-  DiscnnectRoute:
+  DisconnectRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref WebSocketApi

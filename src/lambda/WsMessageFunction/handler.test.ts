@@ -6,10 +6,17 @@ const mockSubscribeToEvent = jest.fn<any>()
 const mockUnsubscribeFromAdmin = jest.fn<any>()
 const mockUnsubscribeFromEvent = jest.fn<any>()
 const mockGetWsConnection = jest.fn<any>()
+const mockAuthenticateToken = jest.fn<any>()
+const mockAuthenticateWebSocket = jest.fn<any>()
 const mockResponse = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
+  authenticateWebSocket: mockAuthenticateWebSocket,
   getWebSocketConnection: mockGetWsConnection,
+}))
+
+jest.unstable_mockModule('../lib/ws/authentication', () => ({
+  authenticateWebSocketToken: mockAuthenticateToken,
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
@@ -79,6 +86,48 @@ describe('wsMessageHandler', () => {
 
     expect(mockSubscribeToAdmin).toHaveBeenCalledWith({ admin: true, connectionId: 'conn-1' })
     expect(result).toEqual({ body: { adminSubscribed: true }, statusCode: 200 })
+  })
+
+  it('authenticates a websocket connection', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
+    mockAuthenticateToken.mockResolvedValueOnce({
+      admin: false,
+      expiresAt: 2000000000,
+      memberOf: ['org-1'],
+      userId: 'user-1',
+    })
+    mockAuthenticateWebSocket.mockResolvedValueOnce(undefined)
+
+    const event = {
+      body: JSON.stringify({ action: 'authenticate', token: 'id-token' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any
+    const result = await wsMessageHandler(event)
+
+    expect(mockAuthenticateToken).toHaveBeenCalledWith(event, 'id-token')
+    expect(mockAuthenticateWebSocket).toHaveBeenCalledWith({
+      admin: false,
+      connectionId: 'conn-1',
+      expiresAt: 2000000000,
+      memberOf: ['org-1'],
+      userId: 'user-1',
+    })
+    expect(result).toEqual({
+      body: { admin: false, authenticated: true, expiresAt: 2000000000, memberOf: ['org-1'], userId: 'user-1' },
+      statusCode: 200,
+    })
+  })
+
+  it('returns 400 when authenticate token is missing', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ connectionId: 'conn-1' })
+
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'authenticate' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+    expect(mockAuthenticateToken).not.toHaveBeenCalled()
   })
 
   it('subscribes to an event channel', async () => {

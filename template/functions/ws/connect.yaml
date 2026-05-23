@@ -28,29 +28,8 @@
     Properties:
       ApiId: !Ref WebSocketApi
       RouteKey: $connect
-      AuthorizationType: CUSTOM
-      AuthorizerId: !Ref ConnectAuthorizer
+      AuthorizationType: NONE
       Target: !Sub integrations/${ConnectIntegration}
-
-  WsAuthorizerFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: lambda/WsAuthorizerFunction
-      Handler: handler.default
-      Layers:
-        - !Ref CommonLayer
-
-  ConnectAuthorizer:
-    Type: AWS::ApiGatewayV2::Authorizer
-    Properties:
-      ApiId: !Ref WebSocketApi
-      AuthorizerType: REQUEST
-      Name: WsConnectAuthorizer
-      AuthorizerUri: !Sub
-        - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
-        - { LambdaArn: !GetAtt WsAuthorizerFunction.Arn }
-      IdentitySource:
-        - route.request.querystring.token
 
   ConnectPermission:
     Type: AWS::Lambda::Permission
@@ -59,14 +38,6 @@
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$connect
-
-  ConnectAuthorizerPermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      FunctionName: !Ref WsAuthorizerFunction
-      Action: lambda:InvokeFunction
-      Principal: apigateway.amazonaws.com
-      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/authorizers/${ConnectAuthorizer}
 
   WsConnectFunctionLogGroup:
     Type: AWS::Logs::LogGroup

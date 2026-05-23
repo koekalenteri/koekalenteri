@@ -43,7 +43,7 @@ describe('wsDisconnectHandler', () => {
 
     // Verify the response
     expect(result).toEqual({
-      body: 'Disonnected', // Note: This matches the typo in the original handler
+      body: 'Disconnected',
       statusCode: 200,
     })
   })

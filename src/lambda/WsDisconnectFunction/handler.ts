@@ -16,7 +16,7 @@ const wsDisconnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayPr
   })
   await publishConnectionCounts()
 
-  return { body: 'Disonnected', statusCode: 200 }
+  return { body: 'Disconnected', statusCode: 200 }
 }
 
 export default wsDisconnectHandler

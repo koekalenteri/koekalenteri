@@ -2,11 +2,6 @@ import { jest } from '@jest/globals'
 
 const mockWsConnect = jest.fn<any>()
 const mockBroadcastConnectionCounts = jest.fn<any>()
-const mockAuthorizeWithMemberOf = jest.fn<any>()
-
-jest.unstable_mockModule('../lib/auth', () => ({
-  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
-}))
 
 jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
   connectWebSocket: mockWsConnect,
@@ -23,11 +18,6 @@ describe('wsConnectHandler', () => {
 
   const event = {
     requestContext: {
-      authorizer: {
-        claims: {
-          exp: '2000000000',
-        },
-      },
       connectionId: 'test-connection-id',
     },
   } as any
@@ -35,11 +25,6 @@ describe('wsConnectHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    // Default mock implementations
-    mockAuthorizeWithMemberOf.mockResolvedValue({
-      memberOf: ['org-1'],
-      user: { admin: false, id: 'user-1' },
-    })
     mockWsConnect.mockResolvedValue(undefined)
     mockBroadcastConnectionCounts.mockResolvedValue(undefined)
   })
@@ -52,13 +37,7 @@ describe('wsConnectHandler', () => {
     const result = await wsConnectHandler(event)
 
     // Verify wsConnect was called with the connection ID
-    expect(mockWsConnect).toHaveBeenCalledWith({
-      admin: false,
-      connectionId: 'test-connection-id',
-      expiresAt: 2000000000,
-      memberOf: ['org-1'],
-      userId: 'user-1',
-    })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
 
     // Verify broadcastConnectionCount was called excluding current connection
     expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
@@ -79,13 +58,7 @@ describe('wsConnectHandler', () => {
     await expect(wsConnectHandler(event)).rejects.toThrow('Connection error')
 
     // Verify wsConnect was called
-    expect(mockWsConnect).toHaveBeenCalledWith({
-      admin: false,
-      connectionId: 'test-connection-id',
-      expiresAt: 2000000000,
-      memberOf: ['org-1'],
-      userId: 'user-1',
-    })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
 
     // Verify broadcastConnectionCount was not called
     expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
@@ -100,87 +73,16 @@ describe('wsConnectHandler', () => {
     await expect(wsConnectHandler(event)).rejects.toThrow('Broadcast error')
 
     // Verify wsConnect was called
-    expect(mockWsConnect).toHaveBeenCalledWith({
-      admin: false,
-      connectionId: 'test-connection-id',
-      expiresAt: 2000000000,
-      memberOf: ['org-1'],
-      userId: 'user-1',
-    })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
 
     // Verify broadcastConnectionCount was called excluding current connection
     expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
   })
 
-  it('returns authorization response when user is not allowed to connect', async () => {
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
-
-    const result = await wsConnectHandler(event)
+  it('ignores query token and connects anonymously', async () => {
+    const result = await wsConnectHandler({ ...event, queryStringParameters: { token: 'ignored' } } as any)
 
     expect(result).toEqual({ body: 'Connected', statusCode: 200 })
-    expect(mockWsConnect).toHaveBeenCalledWith({
-      admin: undefined,
-      connectionId: 'test-connection-id',
-      expiresAt: 2000000000,
-      memberOf: undefined,
-      userId: undefined,
-    })
-    expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
-  })
-
-  it('connects anonymously if authorization throws', async () => {
-    mockAuthorizeWithMemberOf.mockRejectedValueOnce(new Error('auth failed'))
-
-    const result = await wsConnectHandler(event)
-
-    expect(result).toEqual({ body: 'Connected', statusCode: 200 })
-    expect(mockWsConnect).toHaveBeenCalledWith({
-      admin: undefined,
-      connectionId: 'test-connection-id',
-      expiresAt: 2000000000,
-      memberOf: undefined,
-      userId: undefined,
-    })
-    expect(errorSpy).toHaveBeenCalledWith('ws connect auth failed', {
-      connectionId: 'test-connection-id',
-      message: 'auth failed',
-    })
-  })
-
-  it('returns authorization response when token is in query params and authorization fails', async () => {
-    const eventWithQueryToken = {
-      ...event,
-      queryStringParameters: { token: 'ws-token' },
-    } as any
-    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
-
-    const result = await wsConnectHandler(eventWithQueryToken)
-
-    expect(result).toEqual({ body: 'Forbidden', statusCode: 403 })
-    expect(mockWsConnect).not.toHaveBeenCalled()
-    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
-  })
-
-  it('omits expiresAt when exp claim is not numeric', async () => {
-    const invalidExpEvent = {
-      requestContext: {
-        authorizer: {
-          claims: {
-            exp: 'not-a-number',
-          },
-        },
-        connectionId: 'test-connection-id',
-      },
-    } as any
-
-    await wsConnectHandler(invalidExpEvent)
-
-    expect(mockWsConnect).toHaveBeenCalledWith({
-      admin: false,
-      connectionId: 'test-connection-id',
-      expiresAt: undefined,
-      memberOf: ['org-1'],
-      userId: 'user-1',
-    })
+    expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
   })
 })

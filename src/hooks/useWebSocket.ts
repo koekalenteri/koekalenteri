@@ -1,6 +1,7 @@
 import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../types'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
+import { sanitizeDogEvent } from '../lib/event'
 import { parseJSON, patchMerge } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
@@ -258,12 +259,16 @@ export const useWebSocket = () => {
     if (!shouldReconnectRef.current) return
 
     const token = idTokenRef.current
-    const url = token ? `${WS_API_URL}?token=${encodeURIComponent(token)}` : WS_API_URL
-    const ws = new WebSocket(url)
+    const ws = new WebSocket(WS_API_URL)
     wsRef.current = ws
 
     ws.onopen = () => {
       reconnectAttempts.current = 0
+
+      if (token) {
+        ws.send(JSON.stringify({ action: 'authenticate', token }))
+        return
+      }
 
       // Re-send all active subscriptions after reconnect
       if (adminSubscribedRef.current) {
@@ -309,10 +314,24 @@ export const useWebSocket = () => {
           return
         }
 
+        if (data.authenticated === true) {
+          if (adminSubscribedRef.current) {
+            ws.send(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
+          }
+          if (eventIdRef.current) {
+            ws.send(JSON.stringify({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }))
+          }
+          return
+        }
+
         if (data.eventId) {
           const { eventId, scope, ...patch } = data
           if (scope === 'admin:event-patch') {
             setAdminEvents(eventId, patch)
+            const publicPatch = sanitizeDogEvent(patch) as unknown as Partial<PublicDogEvent>
+            if (Object.keys(publicPatch).length > 0) {
+              setPublicEvents(eventId, publicPatch)
+            }
           } else if (scope === 'public:event-patch' || !scope) {
             setPublicEvents(eventId, patch)
           }

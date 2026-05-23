@@ -6,12 +6,14 @@ import {
   unsubscribeWebSocketFromAdmin,
   unsubscribeWebSocketFromEvent,
 } from '../lib/ws/actions'
-import { getWebSocketConnection } from '../lib/ws/connectionLifecycle'
+import { authenticateWebSocketToken } from '../lib/ws/authentication'
+import { authenticateWebSocket, getWebSocketConnection } from '../lib/ws/connectionLifecycle'
 
 interface WsMessage {
-  action?: 'subscribe' | 'unsubscribe'
+  action?: 'authenticate' | 'subscribe' | 'unsubscribe'
   channel?: 'admin' | 'event'
   eventId?: string
+  token?: string
 }
 
 const parseBody = (body: string | null): WsMessage | undefined => {
@@ -40,6 +42,16 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   }
 
   try {
+    if (message.action === 'authenticate') {
+      if (typeof message.token !== 'string' || message.token.trim().length === 0) {
+        return response(400, 'Bad request', event)
+      }
+      const auth = await authenticateWebSocketToken(event, message.token)
+      await authenticateWebSocket({ connectionId, ...auth })
+
+      return response(200, { authenticated: true, ...auth }, event)
+    }
+
     if (message.action === 'subscribe') {
       if (message.channel === 'admin') {
         const result = await subscribeWebSocketToAdmin(connection)

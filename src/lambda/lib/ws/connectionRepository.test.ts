@@ -27,6 +27,7 @@ const {
   getConnection,
   listConnections,
   queryAuthenticatedConnections,
+  queryPublicConnections,
   removeConnection,
   subscribeAdminChannel,
   subscribeConnection,
@@ -52,10 +53,10 @@ describe('ws/connectionRepository', () => {
 
   it('createConnection writes minimal payload when optional fields are missing', async () => {
     await createConnection({ connectionId: 'c1' } as any)
-    expect(mockWrite).toHaveBeenCalledWith({ connectionId: 'c1' })
+    expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1' })
   })
 
-  it('createConnection writes all optional fields when present', async () => {
+  it('createConnection ignores legacy auth fields and writes anonymous connection only', async () => {
     await createConnection({
       admin: true,
       connectionId: 'c1',
@@ -64,14 +65,7 @@ describe('ws/connectionRepository', () => {
       userId: 'u1',
     } as any)
 
-    expect(mockWrite).toHaveBeenCalledWith({
-      admin: true,
-      audience: 'auth',
-      connectionId: 'c1',
-      expiresAt: 123,
-      memberOf: ['org-1'],
-      userId: 'u1',
-    })
+    expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1' })
   })
 
   it('subscribeConnection updates eventId', async () => {
@@ -118,6 +112,16 @@ describe('ws/connectionRepository', () => {
       index: 'audience-index',
       key: 'audience = :audience',
       values: { ':audience': 'auth' },
+    })
+  })
+
+  it('queryPublicConnections queries audience index', async () => {
+    mockQuery.mockResolvedValueOnce([{ connectionId: 'c1' }])
+    await expect(queryPublicConnections()).resolves.toEqual([{ connectionId: 'c1' }])
+    expect(mockQuery).toHaveBeenCalledWith({
+      index: 'audience-index',
+      key: 'audience = :audience',
+      values: { ':audience': 'public' },
     })
   })
 })

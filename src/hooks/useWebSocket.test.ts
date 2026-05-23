@@ -284,10 +284,16 @@ describe('useWebSocket', () => {
     expect(result.current.viewers).toEqual([])
   })
 
-  it('should use token in websocket url when available', async () => {
+  it('should authenticate over websocket message when token is available', async () => {
     renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
-    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledWith(expect.stringContaining('token=')))
+    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledWith('wss://example.invalid/ws'))
+
+    act(() => {
+      mockWebSocketInstance.onopen?.({} as Event)
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'authenticate', token: 'id-token' }))
   })
 
   it('should subscribe to event channel when subscribeEvent is called', async () => {

@@ -1,20 +1,18 @@
 import { jest } from '@jest/globals'
 
-const mockListConnections = jest.fn<any>()
 const mockQueryAuthenticatedConnections = jest.fn<any>()
-const mockCanReceivePublicEvent = jest.fn<any>()
+const mockQueryPublicConnections = jest.fn<any>()
 const mockCanReceiveAdminEvent = jest.fn<any>()
 const mockCanReceiveAnyAdminEvent = jest.fn<any>()
 
 jest.unstable_mockModule('./connectionRepository', () => ({
-  listConnections: mockListConnections,
   queryAuthenticatedConnections: mockQueryAuthenticatedConnections,
+  queryPublicConnections: mockQueryPublicConnections,
 }))
 
 jest.unstable_mockModule('./connectionPolicy', () => ({
   canReceiveAdminEvent: mockCanReceiveAdminEvent,
   canReceiveAnyAdminEvent: mockCanReceiveAnyAdminEvent,
-  canReceivePublicEvent: mockCanReceivePublicEvent,
 }))
 
 const { adminAudience, eventAudience, organizerAudience, publicAudience } = await import('./connectionSelectors')
@@ -24,10 +22,11 @@ describe('ws/connectionSelectors', () => {
     jest.clearAllMocks()
   })
 
-  it('filters public audience from all connections', async () => {
-    mockListConnections.mockResolvedValueOnce([{ connectionId: 'a' }, { connectionId: 'b' }])
-    mockCanReceivePublicEvent.mockReturnValueOnce(true).mockReturnValueOnce(false)
-    await expect(publicAudience()).resolves.toEqual([{ connectionId: 'a' }])
+  it('filters public audience from indexed public connections only', async () => {
+    mockQueryPublicConnections.mockResolvedValueOnce([{ audience: 'public', connectionId: 'a' }])
+
+    await expect(publicAudience()).resolves.toEqual([{ audience: 'public', connectionId: 'a' }])
+    expect(mockQueryAuthenticatedConnections).not.toHaveBeenCalled()
   })
 
   it('filters organizer audience from authenticated connections — adminSubscribed', async () => {
