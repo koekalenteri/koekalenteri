@@ -236,44 +236,44 @@ describe('useWebSocket', () => {
     }).not.toThrow()
   })
 
-  it('should expose public connection count only from public scoped messages', () => {
-    const { result } = renderHook(() => useWebSocket(false), { wrapper: wrapperWithToken(undefined) })
+  it('should expose public connection count from public scoped messages', () => {
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({ count: 2, scope: 'admin:connection-count' }),
       })
     })
-    expect(result.current.count).toBe(0)
+    expect(result.current.publicCount).toBe(0)
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({ count: 5, scope: 'public:connection-count' }),
       })
     })
-    expect(result.current.count).toBe(5)
+    expect(result.current.publicCount).toBe(5)
   })
 
-  it('should expose admin connection count only from admin scoped messages', () => {
-    const { result } = renderHook(() => useWebSocket(true), { wrapper: wrapperWithToken('id-token') })
+  it('should expose admin connection count from admin scoped messages', () => {
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({ count: 5, scope: 'public:connection-count' }),
       })
     })
-    expect(result.current.count).toBe(0)
+    expect(result.current.adminCount).toBe(0)
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({ count: 2, scope: 'admin:connection-count' }),
       })
     })
-    expect(result.current.count).toBe(2)
+    expect(result.current.adminCount).toBe(2)
   })
 
   it('should ignore subscribe acknowledgements without mutating viewer state', () => {
-    const { result } = renderHook(() => useWebSocket(true, 'event-1'), { wrapper: wrapperWithToken('id-token') })
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
@@ -285,33 +285,82 @@ describe('useWebSocket', () => {
   })
 
   it('should use token in websocket url when available', async () => {
-    renderHook(() => useWebSocket(true), { wrapper: wrapperWithToken('id-token') })
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
     await waitFor(() => expect(global.WebSocket).toHaveBeenCalledWith(expect.stringContaining('token=')))
   })
 
-  it('should subscribe to event when admin eventId is provided', async () => {
-    renderHook(() => useWebSocket(true, 'event-1'), { wrapper: wrapperWithToken('id-token') })
-
-    mockWebSocketInstance.onopen?.()
-
-    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', eventId: 'event-1' }))
-  })
-
-  it('should send updated admin event subscription when eventId changes', () => {
+  it('should subscribe to event channel when subscribeEvent is called', async () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
-    const { rerender } = renderHook(({ eventId }: { eventId?: string }) => useWebSocket(true, eventId), {
-      initialProps: { eventId: 'event-1' } as { eventId?: string },
-      wrapper: wrapperWithToken('id-token'),
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    act(() => {
+      result.current.subscribeEvent('event-1')
     })
 
-    rerender({ eventId: 'event-2' })
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' })
+    )
+  })
 
-    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', eventId: 'event-2' }))
+  it('should subscribe to admin channel when subscribeAdmin is called', async () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
-    rerender({ eventId: undefined })
+    act(() => {
+      result.current.subscribeAdmin()
+    })
 
-    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'unsubscribe' }))
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
+  })
+
+  it('should send unsubscribe on unsubscribeEvent call', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    act(() => {
+      result.current.subscribeEvent('event-1')
+    })
+
+    act(() => {
+      result.current.unsubscribeEvent()
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'unsubscribe', channel: 'event' }))
+  })
+
+  it('should re-send event subscription after reconnect', () => {
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    act(() => {
+      result.current.subscribeEvent('event-1')
+    })
+
+    // Simulate reconnect: onopen fires again
+    act(() => {
+      mockWebSocketInstance.onopen?.()
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' })
+    )
+  })
+
+  it('should re-send admin subscription after reconnect', () => {
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    act(() => {
+      result.current.subscribeAdmin()
+    })
+
+    // Simulate reconnect: onopen fires again
+    act(() => {
+      mockWebSocketInstance.onopen?.()
+    })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
   })
 
   it('should close websocket on errors', () => {
@@ -351,7 +400,7 @@ describe('useWebSocket', () => {
   })
 
   it('should expose event viewers from websocket messages', async () => {
-    const { result } = renderHook(() => useWebSocket(true, 'event-1'), { wrapper: wrapperWithToken('id-token') })
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
@@ -387,7 +436,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(true)
+        useWebSocket()
         return {
           events: useRecoilValue(adminEventsAtom),
           recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
@@ -433,7 +482,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(true)
+        useWebSocket()
         return useRecoilValue(adminEventsAtom)
       },
       { wrapper }
@@ -469,7 +518,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(true)
+        useWebSocket()
         return useRecoilValue(adminEventsAtom)
       },
       { wrapper }
@@ -507,7 +556,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(false)
+        useWebSocket()
         return {
           events: useRecoilValue(eventsAtom),
           recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
@@ -540,7 +589,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(false)
+        useWebSocket()
         return useRecoilValue(recentlyUpdatedAtom)
       },
       { wrapper }
@@ -566,7 +615,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(false)
+        useWebSocket()
         return useRecoilValue(eventsAtom)
       },
       { wrapper }
@@ -592,40 +641,6 @@ describe('useWebSocket', () => {
     })
   })
 
-  it('should not let the global websocket consume admin event patch messages as public events', async () => {
-    const event = {
-      endDate: new Date('2026-01-02'),
-      eventType: 'NOME-B',
-      id: 'event-1',
-      name: 'Old Public Name',
-      organizer: { id: 'org-1', name: 'Organizer' },
-      startDate: new Date('2026-01-01'),
-    }
-    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
-      return createElement(RecoilRoot, {
-        children,
-        initializeState: ({ set }: MutableSnapshot) => {
-          set(idTokenAtom, 'id-token')
-          set(adminEventsAtom, [event as any])
-        },
-      })
-    }
-    const { result } = renderHook(
-      () => {
-        useWebSocket(false)
-        return useRecoilValue(adminEventsAtom)
-      },
-      { wrapper }
-    )
-
-    act(() => {
-      mockWebSocketInstance.onmessage?.({
-        data: JSON.stringify({ eventId: 'event-1', name: 'New Admin Name', scope: 'admin:event-patch' }),
-      })
-    })
-    expect(result.current[0]?.name).toBe('Old Public Name')
-  })
-
   it('should apply registration patches from websocket messages', async () => {
     const registration = { id: 'reg-1', notes: 'old' } as Registration
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
@@ -639,7 +654,7 @@ describe('useWebSocket', () => {
     }
     const { result } = renderHook(
       () => {
-        useWebSocket(true, 'event-1')
+        useWebSocket()
         return {
           recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
           registrations: useRecoilValue(adminEventRegistrationsAtom('event-1')),
@@ -664,12 +679,18 @@ describe('useWebSocket', () => {
     })
   })
 
-  it('should clear viewers when switching to another event before next payload arrives', async () => {
-    const { result, rerender } = renderHook(({ eventId }) => useWebSocket(true, eventId), {
-      initialProps: { eventId: 'event-1' },
+  it('should clear viewers when switching to another event via subscribeEvent', async () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const { result } = renderHook(() => useWebSocket(), {
       wrapper: wrapperWithToken('id-token'),
     })
 
+    // First subscribe to event-1 so eventIdRef is set
+    act(() => {
+      result.current.subscribeEvent('event-1')
+    })
+
+    // Receive viewers for event-1
     act(() => {
       mockWebSocketInstance.onmessage?.({
         data: JSON.stringify({
@@ -682,7 +703,10 @@ describe('useWebSocket', () => {
 
     expect(result.current.viewers).toEqual([{ name: 'User Two', userId: 'user-2' }])
 
-    rerender({ eventId: 'event-2' })
+    // Now switch to event-2 — viewers must be cleared immediately
+    act(() => {
+      result.current.subscribeEvent('event-2')
+    })
 
     expect(result.current.viewers).toEqual([])
   })
@@ -697,7 +721,7 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         const setUsers = useSetRecoilState(adminUsersAtom)
-        useWebSocket(true)
+        useWebSocket()
         return { setUsers }
       },
       { wrapper: wrapperWithToken('id-token') }

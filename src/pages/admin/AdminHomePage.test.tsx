@@ -1,4 +1,3 @@
-import type React from 'react'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
@@ -11,9 +10,8 @@ import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import AdminHomePage from './AdminHomePage'
 
 jest.mock('../../api/user')
-jest.mock('../../hooks/useAdminWebSocket', () => ({
-  AdminWebSocketProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  useAdminWebSocketSubscription: jest.fn(() => ({ viewers: [] })),
+jest.mock('../../hooks/useAdminSubscription', () => ({
+  useAdminSubscription: jest.fn(),
 }))
 
 describe('AdminHomePage', () => {

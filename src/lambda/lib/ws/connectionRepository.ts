@@ -23,6 +23,14 @@ export const subscribeConnection = async (connectionId: string, eventId: string)
   await dynamoDB.update({ connectionId }, { set: { eventId } })
 }
 
+export const subscribeAdminChannel = async (connectionId: string) => {
+  await dynamoDB.update({ connectionId }, { set: { adminSubscribed: true } })
+}
+
+export const unsubscribeAdminChannel = async (connectionId: string) => {
+  await dynamoDB.update({ connectionId }, { remove: ['adminSubscribed'] })
+}
+
 export const unsubscribeConnection = async (connectionId: string) => {
   await dynamoDB.update({ connectionId }, { remove: ['eventId'] })
 }

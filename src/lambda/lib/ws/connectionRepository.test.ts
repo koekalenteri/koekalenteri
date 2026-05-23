@@ -28,7 +28,9 @@ const {
   listConnections,
   queryAuthenticatedConnections,
   removeConnection,
+  subscribeAdminChannel,
   subscribeConnection,
+  unsubscribeAdminChannel,
   unsubscribeConnection,
 } = await import('./connectionRepository')
 
@@ -80,6 +82,16 @@ describe('ws/connectionRepository', () => {
   it('unsubscribeConnection removes eventId', async () => {
     await unsubscribeConnection('c1')
     expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { remove: ['eventId'] })
+  })
+
+  it('subscribeAdminChannel sets adminSubscribed', async () => {
+    await subscribeAdminChannel('c1')
+    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { set: { adminSubscribed: true } })
+  })
+
+  it('unsubscribeAdminChannel removes adminSubscribed', async () => {
+    await unsubscribeAdminChannel('c1')
+    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { remove: ['adminSubscribed'] })
   })
 
   it('removeConnection does nothing when no existing connection', async () => {

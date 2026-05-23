@@ -15,8 +15,8 @@ import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './recoil'
 
-jest.mock('../../hooks/useAdminWebSocket', () => ({
-  useAdminWebSocketSubscription: jest.fn(() => ({ viewers: [] })),
+jest.mock('../../hooks/useEventSubscription', () => ({
+  useEventSubscription: jest.fn(() => ({ viewers: [] })),
 }))
 
 jest.mock('../recoil/user/selectors', () => {
@@ -39,8 +39,8 @@ jest.mock('../../api/email')
 jest.mock('../../api/user')
 
 describe('EventViewPage', () => {
-  const { useAdminWebSocketSubscription } = jest.requireMock('../../hooks/useAdminWebSocket') as {
-    useAdminWebSocketSubscription: jest.Mock
+  const { useEventSubscription } = jest.requireMock('../../hooks/useEventSubscription') as {
+    useEventSubscription: jest.Mock
   }
 
   beforeAll(() => jest.useFakeTimers())
@@ -48,7 +48,7 @@ describe('EventViewPage', () => {
   afterAll(() => jest.useRealTimers())
 
   beforeEach(() => {
-    useAdminWebSocketSubscription.mockReturnValue({ viewers: [] })
+    useEventSubscription.mockReturnValue({ viewers: [] })
   })
 
   it('renders properly for event without classes', async () => {
@@ -145,7 +145,7 @@ describe('EventViewPage', () => {
   })
 
   it('shows other viewers and hides the current user from the viewer banner', async () => {
-    useAdminWebSocketSubscription.mockReturnValue({
+    useEventSubscription.mockReturnValue({
       viewers: [
         { name: 'Current User', userId: 'user1' },
         { name: 'Viewer Two', userId: 'user2' },

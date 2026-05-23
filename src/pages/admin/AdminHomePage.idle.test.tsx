@@ -12,6 +12,9 @@ import AdminHomePage from './AdminHomePage'
 jest.mock('../../api/user', () => ({ getUser: () => undefined }))
 jest.mock('aws-amplify/auth', () => require('../global-mocks/auth/idle'))
 jest.mock('@aws-amplify/ui-react', () => require('../global-mocks/auth/idle'))
+jest.mock('../../hooks/useAdminSubscription', () => ({
+  useAdminSubscription: jest.fn(),
+}))
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())

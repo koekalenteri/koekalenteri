@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
-import { useAdminWebSocketSubscription } from '../../hooks/useAdminWebSocket'
+import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, isRegistrationClass } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
@@ -54,7 +54,7 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
-  const { viewers } = useAdminWebSocketSubscription(eventId)
+  const { viewers } = useEventSubscription(eventId)
   const currentUserLoadable = useRecoilValueLoadable(userSelector)
   const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
   const event = useRecoilValue(adminConfirmedEventSelector(eventId))

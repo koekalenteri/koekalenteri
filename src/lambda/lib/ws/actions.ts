@@ -11,7 +11,7 @@ import {
   buildRegistrationPatchPayload,
   toEventViewers,
 } from './payloads'
-import { subscribeToEvent, unsubscribeFromEvent } from './subscriptionService'
+import { subscribeToAdmin, subscribeToEvent, unsubscribeFromAdmin, unsubscribeFromEvent } from './subscriptionService'
 
 type PublicEventPatch = Partial<Pick<JsonDogEvent, 'classes' | 'entries' | 'members'>> & { eventId: string }
 type AdminEventPatch = Partial<JsonDogEvent> & { eventId: string }
@@ -33,12 +33,12 @@ export const publishPublicEvent = (patch: PublicEventPatch, excludeConnectionIds
 
 export const publishAdminEventPatch = (patch: AdminEventPatch, organizerId: string) =>
   send({
-    audience: () => organizerAudience(organizerId),
+    audience: () => organizerAudience(organizerId, patch.eventId),
     buildPayload: () => ({ scope: 'admin:event-patch', ...buildEventPatchPayload(patch.eventId, patch) }),
   })
 
 export const publishEventPatch = async (patch: AdminEventPatch, organizerId: string) => {
-  const adminRecipients = await organizerAudience(organizerId)
+  const adminRecipients = await organizerAudience(organizerId, patch.eventId)
 
   await publishAdminEventPatch(patch, organizerId)
 
@@ -95,5 +95,9 @@ export const publishConnectionCounts = async (excludeConnectionIds: string[] = [
 export const subscribeWebSocketToEvent = (connection: WebSocketConnection, eventId: string) =>
   subscribeToEvent(connection, eventId, publishEventViewers)
 
+export const subscribeWebSocketToAdmin = (connection: WebSocketConnection) => subscribeToAdmin(connection)
+
 export const unsubscribeWebSocketFromEvent = (connectionId: string) =>
   unsubscribeFromEvent(connectionId, publishEventViewers)
+
+export const unsubscribeWebSocketFromAdmin = (connectionId: string) => unsubscribeFromAdmin(connectionId)

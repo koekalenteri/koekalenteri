@@ -2,10 +2,28 @@ import type { JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { getEvent } from '../../lib/event'
 import { LambdaError } from '../../lib/lambda'
-import { isConnectionExpired } from './connectionPolicy'
-import { getConnection, subscribeConnection, unsubscribeConnection } from './connectionRepository'
+import { canReceiveAnyAdminEvent, isConnectionExpired } from './connectionPolicy'
+import {
+  getConnection,
+  subscribeAdminChannel,
+  subscribeConnection,
+  unsubscribeAdminChannel,
+  unsubscribeConnection,
+} from './connectionRepository'
 
 type PublishEventViewers = (eventId: string, organizerId: string) => Promise<unknown>
+
+export const subscribeToAdmin = async (connection: WebSocketConnection) => {
+  if (isConnectionExpired(connection)) {
+    throw new LambdaError(401, 'Connection expired')
+  }
+  if (!canReceiveAnyAdminEvent(connection)) {
+    throw new LambdaError(403, 'Forbidden')
+  }
+
+  await subscribeAdminChannel(connection.connectionId)
+  return { adminSubscribed: true }
+}
 
 export const subscribeToEvent = async (
   connection: WebSocketConnection,
@@ -44,4 +62,9 @@ export const unsubscribeFromEvent = async (connectionId: string, publishEventVie
     const event = await getEvent<JsonDogEvent>(connection.eventId)
     await publishEventViewers(connection.eventId, event.organizer.id)
   }
+}
+
+export const unsubscribeFromAdmin = async (connectionId: string) => {
+  await unsubscribeAdminChannel(connectionId)
+  return { adminSubscribed: false }
 }

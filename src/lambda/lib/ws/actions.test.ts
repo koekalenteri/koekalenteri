@@ -13,6 +13,8 @@ const mockBuildRegistrationPatchPayload = jest.fn((eventId: string, patch: unkno
 const mockToEventViewers = jest.fn((audience: unknown[]) => audience)
 const mockSubscribeToEvent = jest.fn<any>().mockResolvedValue(undefined)
 const mockUnsubscribeFromEvent = jest.fn<any>().mockResolvedValue(undefined)
+const mockSubscribeToAdmin = jest.fn<any>().mockResolvedValue({ adminSubscribed: true })
+const mockUnsubscribeFromAdmin = jest.fn<any>().mockResolvedValue({ adminSubscribed: false })
 
 jest.unstable_mockModule('./broadcast', () => ({
   broadcast: mockBroadcast,
@@ -38,7 +40,9 @@ jest.unstable_mockModule('./payloads', () => ({
 }))
 
 jest.unstable_mockModule('./subscriptionService', () => ({
+  subscribeToAdmin: mockSubscribeToAdmin,
   subscribeToEvent: mockSubscribeToEvent,
+  unsubscribeFromAdmin: mockUnsubscribeFromAdmin,
   unsubscribeFromEvent: mockUnsubscribeFromEvent,
 }))
 
@@ -51,7 +55,9 @@ const {
   publishAdminConnectionCount,
   publishConnectionCounts,
   publishPublicConnectionCount,
+  subscribeWebSocketToAdmin,
   subscribeWebSocketToEvent,
+  unsubscribeWebSocketFromAdmin,
   unsubscribeWebSocketFromEvent,
 } = await import('./actions')
 
@@ -68,7 +74,9 @@ describe('ws/actions', () => {
     mockBuildEventViewersPayload.mockClear()
     mockBuildRegistrationPatchPayload.mockClear()
     mockToEventViewers.mockClear()
+    mockSubscribeToAdmin.mockClear()
     mockSubscribeToEvent.mockClear()
+    mockUnsubscribeFromAdmin.mockClear()
     mockUnsubscribeFromEvent.mockClear()
   })
 
@@ -124,7 +132,7 @@ describe('ws/actions', () => {
     await call.audience()
     call.buildPayload()
 
-    expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1')
+    expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1', 'e1')
     expect(call.buildPayload()).toEqual({ eventId: 'e1', name: 'Updated', scope: 'admin:event-patch' })
     expect(mockBuildEventPatchPayload).toHaveBeenCalledWith('e1', { eventId: 'e1', name: 'Updated' })
   })
@@ -282,6 +290,20 @@ describe('ws/actions', () => {
     await unsubscribeWebSocketFromEvent('c1')
 
     expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith('c1', publishEventViewers)
+  })
+
+  it('subscribeWebSocketToAdmin delegates to subscriptionService', async () => {
+    const connection = { admin: true, connectionId: 'c1' }
+
+    await subscribeWebSocketToAdmin(connection as any)
+
+    expect(mockSubscribeToAdmin).toHaveBeenCalledWith(connection)
+  })
+
+  it('unsubscribeWebSocketFromAdmin delegates to subscriptionService', async () => {
+    await unsubscribeWebSocketFromAdmin('c1')
+
+    expect(mockUnsubscribeFromAdmin).toHaveBeenCalledWith('c1')
   })
 
   it('send uses onGoneConnection handler to disconnect gone connection', async () => {

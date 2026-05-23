@@ -10,7 +10,7 @@ import { Suspense, useCallback } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import { AWSConfig } from './amplify-env'
-import { useWebSocket } from './hooks/useWebSocket'
+import WebSocketProvider from './hooks/WebSocketProvider'
 import { locales, muiLocales } from './i18n'
 import { reportError } from './lib/client/error'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
@@ -29,8 +29,6 @@ const router = createBrowserRouter(routes)
 function App() {
   const language = useRecoilValue(languageAtom)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
-
-  useWebSocket()
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
@@ -53,9 +51,11 @@ function App() {
             }}
           >
             <Authenticator.Provider>
-              <Suspense fallback={<LoadingPage />}>
-                <RouterProvider router={router} />
-              </Suspense>
+              <WebSocketProvider>
+                <Suspense fallback={<LoadingPage />}>
+                  <RouterProvider router={router} />
+                </Suspense>
+              </WebSocketProvider>
             </Authenticator.Provider>
           </ConfirmProvider>
         </SnackbarProvider>

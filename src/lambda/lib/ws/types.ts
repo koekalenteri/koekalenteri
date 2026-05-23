@@ -3,6 +3,7 @@ import type { DeepPartial, JsonDogEvent, JsonRegistration } from '../../../types
 export interface WebSocketConnection {
   connectionId: string
   admin?: boolean
+  adminSubscribed?: boolean
   audience?: 'auth'
   eventId?: string
   expiresAt?: number

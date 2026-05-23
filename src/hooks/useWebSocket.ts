@@ -1,5 +1,5 @@
 import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../types'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { parseJSON, patchMerge } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
@@ -127,17 +127,34 @@ export const applyViewers = (current: EventViewer[], next: EventViewer[]) => {
   return next
 }
 
-export const useWebSocket = (admin: boolean = false, eventId?: string) => {
+// ── Context ──────────────────────────────────────────────────────────────────
+
+interface WebSocketContextValue {
+  publicCount: number
+  adminCount: number
+  viewers: EventViewer[]
+  subscribeAdmin: () => void
+  subscribeEvent: (eventId: string) => void
+  unsubscribeEvent: () => void
+}
+
+export const WebSocketContext = createContext<WebSocketContextValue | null>(null)
+
+// ── Hook ─────────────────────────────────────────────────────────────────────
+
+export const useWebSocket = () => {
   const idTokenLoadable = useRecoilValueLoadable(idTokenAtom)
   const adminUsersLoadable = useRecoilValueLoadable(adminUsersAtom)
   const currentUserLoadable = useRecoilValueLoadable(userSelector)
   const markRecentlyUpdated = useMarkRecentlyUpdated()
-  const eventIdRef = useRef<string | undefined>(eventId)
-  const rawViewersRef = useRef<Array<{ userId?: string }>>([])
   const shouldReconnectRef = useRef(true)
 
-  // Keep mutable refs for values that are only needed inside callbacks/handlers
-  // so that `connect` never needs to be recreated just because these changed.
+  // Subscription state — persisted across reconnects
+  const adminSubscribedRef = useRef(false)
+  const eventIdRef = useRef<string | undefined>(undefined)
+  const rawViewersRef = useRef<Array<{ userId?: string }>>([])
+
+  // Mutable refs for values only needed inside callbacks
   const idTokenRef = useRef<string | undefined>(undefined)
   const adminUsersRef = useRef<Array<{ id: string; name?: string }>>([])
   const currentUserRef = useRef<{ id: string; name?: string } | undefined>(undefined)
@@ -148,7 +165,6 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
       ? currentUserLoadable.contents
       : undefined
 
-  // Sync refs so the stable `connect` callback always reads the latest values.
   idTokenRef.current = idTokenLoadable.state === 'hasValue' ? idTokenLoadable.contents : undefined
   adminUsersRef.current = adminUsers
   currentUserRef.current = currentUser
@@ -193,7 +209,9 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
       },
     [markRecentlyUpdated]
   )
-  const [count, setCount] = useState(0)
+
+  const [publicCount, setPublicCount] = useState(0)
+  const [adminCount, setAdminCount] = useState(0)
   const [viewers, setViewers] = useState<EventViewer[]>([])
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
@@ -203,6 +221,38 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
     () => mapEventViewers(rawViewersRef.current, adminUsers, currentUser),
     [adminUsers, currentUser]
   )
+
+  const sendIfOpen = useCallback((msg: object) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(msg))
+    }
+  }, [])
+
+  const subscribeAdmin = useCallback(() => {
+    adminSubscribedRef.current = true
+    sendIfOpen({ action: 'subscribe', channel: 'admin' })
+  }, [sendIfOpen])
+
+  const subscribeEvent = useCallback(
+    (eventId: string) => {
+      const previous = eventIdRef.current
+      if (previous && previous !== eventId) {
+        rawViewersRef.current = []
+        setViewers([])
+      }
+      eventIdRef.current = eventId
+      sendIfOpen({ action: 'subscribe', channel: 'event', eventId })
+    },
+    [sendIfOpen]
+  )
+
+  const unsubscribeEvent = useCallback(() => {
+    if (!eventIdRef.current) return
+    sendIfOpen({ action: 'unsubscribe', channel: 'event' })
+    eventIdRef.current = undefined
+    rawViewersRef.current = []
+    setViewers([])
+  }, [sendIfOpen])
 
   const connect = useCallback(() => {
     if (!shouldReconnectRef.current) return
@@ -215,19 +265,18 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
     ws.onopen = () => {
       reconnectAttempts.current = 0
 
-      if (admin && eventIdRef.current) {
-        ws.send(JSON.stringify({ action: 'subscribe', eventId: eventIdRef.current }))
+      // Re-send all active subscriptions after reconnect
+      if (adminSubscribedRef.current) {
+        ws.send(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
+      }
+      if (eventIdRef.current) {
+        ws.send(JSON.stringify({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }))
       }
     }
 
     ws.onclose = () => {
-      // Ignore close events from a superseded WebSocket instance (e.g. React
-      // StrictMode double-mount tears down WS1 and immediately creates WS2;
-      // WS1's async onclose fires after WS2 is already in wsRef and would
-      // otherwise schedule a redundant reconnect).
       if (!shouldReconnectRef.current || wsRef.current !== ws) return
 
-      // Try to reconnect with exponential backoff
       const delay = Math.min(30000, RECONNECT_INTERVAL * 2 ** reconnectAttempts.current)
       reconnectAttempts.current++
       reconnectTimeoutRef.current = globalThis.setTimeout(connect, delay)
@@ -243,12 +292,8 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         console.debug('ws: ', data)
 
         if (typeof data.count === 'number') {
-          if (
-            (!admin && data.scope === 'public:connection-count') ||
-            (admin && data.scope === 'admin:connection-count')
-          ) {
-            setCount(data.count)
-          }
+          if (data.scope === 'public:connection-count') setPublicCount(data.count)
+          else if (data.scope === 'admin:connection-count') setAdminCount(data.count)
           return
         }
 
@@ -266,9 +311,9 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
 
         if (data.eventId) {
           const { eventId, scope, ...patch } = data
-          if (admin && scope === 'admin:event-patch') {
+          if (scope === 'admin:event-patch') {
             setAdminEvents(eventId, patch)
-          } else if (scope === 'public:event-patch' || (!scope && !admin)) {
+          } else if (scope === 'public:event-patch' || !scope) {
             setPublicEvents(eventId, patch)
           }
         }
@@ -276,25 +321,11 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         // ignore invalid messages
       }
     }
-  }, [admin, patchRegistrations, setAdminEvents, setPublicEvents])
+  }, [patchRegistrations, setAdminEvents, setPublicEvents])
 
   useEffect(() => {
     setViewers((current) => applyViewers(current, resolvedViewers))
   }, [resolvedViewers])
-
-  useEffect(() => {
-    const previousEventId = eventIdRef.current
-    eventIdRef.current = eventId
-
-    if (admin && previousEventId !== eventId) {
-      rawViewersRef.current = []
-      setViewers([])
-    }
-
-    if (!admin || !wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return
-
-    wsRef.current.send(JSON.stringify(eventId ? { action: 'subscribe', eventId } : { action: 'unsubscribe' }))
-  }, [admin, eventId])
 
   useEffect(() => {
     shouldReconnectRef.current = true
@@ -314,5 +345,11 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
     }
   }, [connect])
 
-  return { count, viewers }
+  return { adminCount, publicCount, subscribeAdmin, subscribeEvent, unsubscribeEvent, viewers }
+}
+
+export const useWebSocketContext = (): WebSocketContextValue => {
+  const ctx = useContext(WebSocketContext)
+  if (!ctx) throw new Error('useWebSocketContext must be used within WebSocketProvider')
+  return ctx
 }

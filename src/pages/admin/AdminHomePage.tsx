@@ -3,7 +3,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import { HEADER_HEIGHT } from '../../assets/Theme'
-import { AdminWebSocketProvider } from '../../hooks/useAdminWebSocket'
+import { useAdminSubscription } from '../../hooks/useAdminSubscription'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
@@ -18,6 +18,8 @@ export default function AdminHomePage() {
   const closeMenu = () => setMenuOpen(false)
   const toggleMenu = () => setMenuOpen(!menuOpen)
 
+  useAdminSubscription()
+
   useEffect(() => {
     if (!hasAccess) actions.login()
   }, [actions, hasAccess])
@@ -25,7 +27,7 @@ export default function AdminHomePage() {
   if (!hasAccess) return null
 
   return (
-    <AdminWebSocketProvider>
+    <>
       <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }} minWidth={900}>
         <SideMenu open={menuOpen} onClose={closeMenu} />
@@ -44,6 +46,6 @@ export default function AdminHomePage() {
           </Suspense>
         </Box>
       </Box>
-    </AdminWebSocketProvider>
+    </>
   )
 }

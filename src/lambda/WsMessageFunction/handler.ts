@@ -1,10 +1,16 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { response } from '../lib/lambda'
-import { subscribeWebSocketToEvent, unsubscribeWebSocketFromEvent } from '../lib/ws/actions'
+import {
+  subscribeWebSocketToAdmin,
+  subscribeWebSocketToEvent,
+  unsubscribeWebSocketFromAdmin,
+  unsubscribeWebSocketFromEvent,
+} from '../lib/ws/actions'
 import { getWebSocketConnection } from '../lib/ws/connectionLifecycle'
 
 interface WsMessage {
   action?: 'subscribe' | 'unsubscribe'
+  channel?: 'admin' | 'event'
   eventId?: string
 }
 
@@ -33,21 +39,39 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   }
 
   if (message.action === 'subscribe') {
-    if (typeof message.eventId !== 'string' || message.eventId.trim().length === 0) {
-      return response(400, 'Bad request', event)
+    if (message.channel === 'admin') {
+      const result = await subscribeWebSocketToAdmin(connection)
+      return response(200, result, event)
     }
-    const result = await subscribeWebSocketToEvent(connection, message.eventId)
 
-    return response(200, result, event)
+    if (message.channel === 'event') {
+      if (typeof message.eventId !== 'string' || message.eventId.trim().length === 0) {
+        return response(400, 'Bad request', event)
+      }
+      const result = await subscribeWebSocketToEvent(connection, message.eventId)
+
+      return response(200, result, event)
+    }
+
+    return response(400, 'Bad request', event)
   }
 
   if (message.action === 'unsubscribe') {
-    if (!connection.eventId) {
-      return response(400, 'Bad request', event)
+    if (message.channel === 'admin') {
+      const result = await unsubscribeWebSocketFromAdmin(connectionId)
+      return response(200, { connectionId, ...result }, event)
     }
-    await unsubscribeWebSocketFromEvent(connectionId)
 
-    return response(200, { connectionId, unsubscribed: true }, event)
+    if (message.channel === 'event') {
+      if (!connection.eventId) {
+        return response(400, 'Bad request', event)
+      }
+      await unsubscribeWebSocketFromEvent(connectionId)
+
+      return response(200, { connectionId, unsubscribed: true }, event)
+    }
+
+    return response(400, 'Bad request', event)
   }
 
   return response(400, 'Bad request', event)

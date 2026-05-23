@@ -30,16 +30,31 @@ describe('ws/connectionSelectors', () => {
     await expect(publicAudience()).resolves.toEqual([{ connectionId: 'a' }])
   })
 
-  it('filters organizer audience from authenticated connections', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([{ connectionId: 'a' }, { connectionId: 'b' }])
-    mockCanReceiveAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(false)
-    await expect(organizerAudience('org-1')).resolves.toEqual([{ connectionId: 'a' }])
+  it('filters organizer audience from authenticated connections — adminSubscribed', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+      { adminSubscribed: true, connectionId: 'a' },
+      { adminSubscribed: false, connectionId: 'b' },
+    ])
+    mockCanReceiveAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(true)
+    await expect(organizerAudience('org-1', 'e1')).resolves.toEqual([{ adminSubscribed: true, connectionId: 'a' }])
   })
 
-  it('filters admin audience from authenticated connections', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([{ connectionId: 'a' }, { connectionId: 'b' }])
-    mockCanReceiveAnyAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(false)
-    await expect(adminAudience()).resolves.toEqual([{ connectionId: 'a' }])
+  it('filters organizer audience from authenticated connections — eventId match', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+      { connectionId: 'a', eventId: 'e1' },
+      { connectionId: 'b', eventId: 'e2' },
+    ])
+    mockCanReceiveAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(true)
+    await expect(organizerAudience('org-1', 'e1')).resolves.toEqual([{ connectionId: 'a', eventId: 'e1' }])
+  })
+
+  it('filters admin audience from authenticated connections — requires adminSubscribed', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+      { adminSubscribed: true, connectionId: 'a' },
+      { connectionId: 'b' },
+    ])
+    mockCanReceiveAnyAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(true)
+    await expect(adminAudience()).resolves.toEqual([{ adminSubscribed: true, connectionId: 'a' }])
   })
 
   it('filters event audience by eventId and admin policy', async () => {
