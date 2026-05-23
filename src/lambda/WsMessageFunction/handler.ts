@@ -29,16 +29,12 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   const connectionId = event.requestContext.connectionId
   const message = parseBody(event.body)
 
-  console.debug({ connectionId, message})
-
   if (!connectionId || !message) {
     return response(400, 'Bad request', event)
   }
 
   const connection = await getWebSocketConnection(connectionId)
 
-  console.debug({ connection })
-  
   if (!connection) {
     return response(400, 'Bad request', event)
   }
