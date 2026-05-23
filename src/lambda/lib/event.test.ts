@@ -965,6 +965,81 @@ describe('lib/event', () => {
         },
         expect.anything()
       )
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          classes: next.classes,
+          eventId: existing.id,
+        },
+        'org-1'
+      )
+    })
+
+    it('publishes full replacement arrays when array length changes', async () => {
+      const existing = {
+        classes: [{ class: 'ALO', entries: 1, members: 0 }],
+        id: 'e5',
+        judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        classes: [],
+        judges: [
+          { id: 842408, name: 'Fontell Ari-Pekka', official: true },
+          { id: 653323, name: 'Uusimäki Pekka', official: true },
+        ],
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          classes: next.classes,
+          eventId: existing.id,
+          judges: next.judges,
+        },
+        'org-1'
+      )
+    })
+
+    it('publishes full nested replacement arrays', async () => {
+      const existing = {
+        classes: [
+          { class: 'ALO', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
+          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+        ],
+        id: 'e6',
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        classes: [
+          {
+            class: 'ALO',
+            judge: [
+              { id: 842408, name: 'Fontell Ari-Pekka', official: true },
+              { id: 653323, name: 'Uusimäki Pekka', official: true },
+            ],
+          },
+          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+        ],
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          classes: next.classes,
+          eventId: existing.id,
+        },
+        'org-1'
+      )
     })
   })
 

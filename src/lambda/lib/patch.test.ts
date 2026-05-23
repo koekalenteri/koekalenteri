@@ -88,9 +88,37 @@ describe('createPatch', () => {
 
     expect(createPatch(next, existing)).toEqual({
       changes: {
-        classes: {
-          0: { entries: 3 },
+        classes: next.classes,
+      },
+      set: { classes: next.classes },
+    })
+  })
+
+  it('replaces nested changed arrays instead of returning sparse array diffs in changes', () => {
+    const existing = {
+      classes: [
+        { class: 'ALO', judge: [{ id: 1, name: 'Judge 1' }] },
+        { class: 'AVO', judge: [{ id: 3, name: 'Judge 3' }] },
+      ],
+      id: '1',
+    }
+    const next = {
+      classes: [
+        {
+          class: 'ALO',
+          judge: [
+            { id: 1, name: 'Judge 1' },
+            { id: 2, name: 'Judge 2' },
+          ],
         },
+        { class: 'AVO', judge: [{ id: 3, name: 'Judge 3' }] },
+      ],
+      id: '1',
+    }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: {
+        classes: next.classes,
       },
       set: { classes: next.classes },
     })

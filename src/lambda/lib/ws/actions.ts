@@ -86,7 +86,10 @@ export const publishAdminConnectionCount = (excludeConnectionIds: string[] = [])
   })
 
 export const publishConnectionCounts = async (excludeConnectionIds: string[] = []) => {
-  await Promise.all([publishPublicConnectionCount(excludeConnectionIds), publishAdminConnectionCount(excludeConnectionIds)])
+  await Promise.all([
+    publishPublicConnectionCount(excludeConnectionIds),
+    publishAdminConnectionCount(excludeConnectionIds),
+  ])
 }
 
 export const subscribeWebSocketToEvent = (connection: WebSocketConnection, eventId: string) =>

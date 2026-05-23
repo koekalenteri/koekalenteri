@@ -184,7 +184,10 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         console.debug('ws: ', data)
 
         if (typeof data.count === 'number') {
-          if ((!admin && data.scope === 'public:connection-count') || (admin && data.scope === 'admin:connection-count')) {
+          if (
+            (!admin && data.scope === 'public:connection-count') ||
+            (admin && data.scope === 'admin:connection-count')
+          ) {
             setCount(data.count)
           }
           return

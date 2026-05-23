@@ -43,12 +43,29 @@ const addPatchOperations = (
   set[path] = nextValue
 }
 
+const normalizeChanges = (value: unknown, nextValue: unknown): unknown => {
+  if (Array.isArray(nextValue)) {
+    return nextValue
+  }
+
+  if (isDiffObject(value) && isDiffObject(nextValue)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [key, normalizeChanges(nestedValue, nextValue[key])])
+    )
+  }
+
+  return value
+}
+
 export const createPatch = <T extends object>(next: PartialWithUndefined<T>, oldObject: T): UpdatePatch => {
   const set: Record<string, unknown> = {}
   const remove: string[] = []
-  const changes = diff(oldObject, next) as Record<string, unknown>
+  const rawChanges = diff(oldObject, next) as Record<string, unknown>
+  const changes = Object.fromEntries(
+    Object.entries(rawChanges).map(([key, value]) => [key, normalizeChanges(value, next[key as keyof typeof next])])
+  )
 
-  for (const [key, value] of Object.entries(changes)) {
+  for (const [key, value] of Object.entries(rawChanges)) {
     addPatchOperations(key, value, next[key as keyof typeof next], set, remove)
   }
 
