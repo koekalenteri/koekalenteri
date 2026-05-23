@@ -5,8 +5,10 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
 import { RecoilRoot, useRecoilValue } from 'recoil'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
+import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
 import { idTokenAtom } from '../pages/recoil'
+import { eventsAtom } from '../pages/recoil/events/atoms'
 import { applyPatch, applyRegistrationPatches, applyRegistrations, applyViewers, useWebSocket } from './useWebSocket'
 
 jest.mock('../routeConfig', () => ({
@@ -17,6 +19,13 @@ jest.mock('../pages/admin/recoil/events', () => {
   const { atom } = jest.requireActual('recoil')
   return {
     adminEventsAtom: atom({ default: [], key: 'adminEventsAtomTestWs' }),
+  }
+})
+
+jest.mock('../pages/admin/recoil/registrations/atoms', () => {
+  const { atomFamily } = jest.requireActual('recoil')
+  return {
+    adminEventRegistrationsAtom: atomFamily({ default: [], key: 'adminEventRegistrationsAtomTestWs' }),
   }
 })
 
@@ -133,6 +142,7 @@ describe('useWebSocket', () => {
   }
 
   beforeEach(() => {
+    jest.useRealTimers()
     // Create mock WebSocket instance
     mockWebSocketInstance = {
       close: jest.fn(),
@@ -244,6 +254,58 @@ describe('useWebSocket', () => {
     expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', eventId: 'event-1' }))
   })
 
+  it('should send updated admin event subscription when eventId changes', () => {
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    const { rerender } = renderHook(({ eventId }: { eventId?: string }) => useWebSocket(true, eventId), {
+      initialProps: { eventId: 'event-1' } as { eventId?: string },
+      wrapper: wrapperWithToken('id-token'),
+    })
+
+    rerender({ eventId: 'event-2' })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', eventId: 'event-2' }))
+
+    rerender({ eventId: undefined })
+
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'unsubscribe' }))
+  })
+
+  it('should close websocket on errors', () => {
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      mockWebSocketInstance.onerror?.()
+    })
+
+    expect(mockWebSocketInstance.close).toHaveBeenCalledTimes(1)
+  })
+
+  it('should close websocket and prevent reconnect on cleanup', () => {
+    jest.useFakeTimers()
+    const { unmount } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    unmount()
+    act(() => {
+      mockWebSocketInstance.onclose?.()
+      jest.runOnlyPendingTimers()
+    })
+
+    expect(mockWebSocketInstance.close).toHaveBeenCalledTimes(1)
+    expect(global.WebSocket).toHaveBeenCalledTimes(1)
+  })
+
+  it('should reconnect after close while mounted', () => {
+    jest.useFakeTimers()
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      mockWebSocketInstance.onclose?.()
+      jest.advanceTimersByTime(1000)
+    })
+
+    expect(global.WebSocket).toHaveBeenCalledTimes(2)
+  })
+
   it('should expose event viewers from websocket messages', async () => {
     const { result } = renderHook(() => useWebSocket(true, 'event-1'), { wrapper: wrapperWithToken('id-token') })
 
@@ -300,6 +362,33 @@ describe('useWebSocket', () => {
     expect(result.current[0]?.judges?.[0]?.name).toBe('New Judge')
   })
 
+  it('should update public events from scoped public event patch messages', async () => {
+    const event = { entries: 1, id: 'event-1', name: 'Old Public Name' }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(false)
+        return useRecoilValue(eventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ entries: 2, eventId: 'event-1', scope: 'public:event-patch' }),
+      })
+    })
+
+    expect(result.current[0]?.entries).toBe(2)
+  })
+
   it('should not let the global websocket consume admin event patch messages as public events', async () => {
     const event = {
       endDate: new Date('2026-01-02'),
@@ -335,7 +424,23 @@ describe('useWebSocket', () => {
   })
 
   it('should apply registration patches from websocket messages', async () => {
-    renderHook(() => useWebSocket(true, 'event-1'), { wrapper: wrapperWithToken('id-token') })
+    const registration = { id: 'reg-1', notes: 'old' } as Registration
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventRegistrationsAtom('event-1'), [registration])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(true, 'event-1')
+        return useRecoilValue(adminEventRegistrationsAtom('event-1'))
+      },
+      { wrapper }
+    )
 
     act(() => {
       mockWebSocketInstance.onmessage?.({
@@ -347,7 +452,7 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(mockWebSocketInstance.onmessage).toBeDefined()
+    expect(result.current[0]?.notes).toBe('updated')
   })
 
   it('should clear viewers when switching to another event before next payload arrives', async () => {
