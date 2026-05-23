@@ -9,7 +9,14 @@ import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
 import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
-import { applyPatch, applyRegistrationPatches, applyRegistrations, applyViewers, useWebSocket } from './useWebSocket'
+import {
+  applyPatch,
+  applyPatchOrInsert,
+  applyRegistrationPatches,
+  applyRegistrations,
+  applyViewers,
+  useWebSocket,
+} from './useWebSocket'
 
 jest.mock('../routeConfig', () => ({
   WS_API_URL: 'wss://example.invalid/ws',
@@ -78,6 +85,26 @@ describe('applyPatch', () => {
     const patch = { name: 'Event 1' }
     const result = applyPatch(baseEvents, '1', patch)
     expect(result).toBe(baseEvents)
+  })
+})
+
+describe('applyPatchOrInsert', () => {
+  const baseEvents = [
+    { id: '1', name: 'Event 1' },
+    { id: '2', name: 'Event 2' },
+  ] as PublicDogEvent[]
+
+  it('patches existing events', () => {
+    const result = applyPatchOrInsert(baseEvents, '1', { name: 'Updated Event 1' })
+
+    expect(result).not.toBe(baseEvents)
+    expect(result.find((e) => e.id === '1')?.name).toBe('Updated Event 1')
+  })
+
+  it('inserts missing events from patches', () => {
+    const result = applyPatchOrInsert(baseEvents, '3', { name: 'Event 3' })
+
+    expect(result).toEqual([...baseEvents, { id: '3', name: 'Event 3' }])
   })
 })
 
@@ -360,6 +387,42 @@ describe('useWebSocket', () => {
     })
 
     expect(result.current[0]?.judges?.[0]?.name).toBe('New Judge')
+  })
+
+  it('should insert new admin events from scoped admin event patch messages', async () => {
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, [])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(true)
+        return useRecoilValue(adminEventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-2',
+          eventType: 'NOME-A',
+          judges: [{ id: 2, name: 'New Judge', official: true }],
+          organizer: { id: 'org-1', name: 'Organizer' },
+          scope: 'admin:event-patch',
+        }),
+      })
+    })
+
+    expect(result.current).toHaveLength(1)
+    expect(result.current[0]).toEqual(
+      expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', organizer: { id: 'org-1', name: 'Organizer' } })
+    )
   })
 
   it('should update public events from scoped public event patch messages', async () => {

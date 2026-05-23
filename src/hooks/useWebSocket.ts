@@ -31,6 +31,17 @@ export const applyPatch = <T extends { id: string }, P extends DeepPartial<T>>(
   return changed ? next : events
 }
 
+export const applyPatchOrInsert = <T extends { id: string }, P extends DeepPartial<T>>(
+  events: T[],
+  eventId: string,
+  patch: P
+): T[] => {
+  const next = applyPatch(events, eventId, patch)
+  if (next !== events || events.some((event) => event.id === eventId)) return next
+
+  return [...events, { ...patch, id: eventId } as unknown as T]
+}
+
 export const applyRegistrations = (registrations: Registration[], next: Registration[]) => {
   if (registrations === next) return registrations
   return next
@@ -120,7 +131,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         const loadable = snapshot.getLoadable(adminEventsAtom)
         if (loadable.state !== 'hasValue') return
 
-        set(adminEventsAtom, (current) => applyPatch(current, eventId, patch))
+        set(adminEventsAtom, (current) => applyPatchOrInsert(current, eventId, patch))
       },
     []
   )
