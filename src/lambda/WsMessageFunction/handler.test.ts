@@ -176,7 +176,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(result).toEqual({ body: { message: 'Forbidden' }, statusCode: 403 })
+    expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 200 })
   })
 
   it('returns LambdaError status when subscribeWebSocketToEvent throws LambdaError', async () => {
@@ -188,7 +188,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(result).toEqual({ body: { message: 'Forbidden' }, statusCode: 403 })
+    expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 200 })
   })
 
   it('returns 500 when an unexpected error is thrown', async () => {
@@ -200,6 +200,6 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(result).toEqual({ body: { message: 'Internal server error' }, statusCode: 500 })
+    expect(result).toEqual({ body: { error: 'Internal server error', ok: false, status: 500 }, statusCode: 200 })
   })
 })

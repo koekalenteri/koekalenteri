@@ -29,11 +29,16 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   const connectionId = event.requestContext.connectionId
   const message = parseBody(event.body)
 
+  console.debug({ connectionId, message})
+
   if (!connectionId || !message) {
     return response(400, 'Bad request', event)
   }
 
   const connection = await getWebSocketConnection(connectionId)
+
+  console.debug({ connection })
+  
   if (!connection) {
     return response(400, 'Bad request', event)
   }
@@ -77,9 +82,9 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
   } catch (err) {
     console.error(err)
     if (err instanceof LambdaError) {
-      return response(err.status, { message: err.error }, event)
+      return response(200, { error: err.error, ok: false, status: err.status }, event)
     }
-    return response(500, { message: 'Internal server error' }, event)
+    return response(200, { error: 'Internal server error', ok: false, status: 500 }, event)
   }
 
   return response(400, 'Bad request', event)
