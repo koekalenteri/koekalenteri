@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { LambdaError } from '../lib/lambda'
 
 const mockSubscribeToAdmin = jest.fn<any>()
 const mockSubscribeToEvent = jest.fn<any>()
@@ -19,15 +20,22 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
+  LambdaError,
   response: mockResponse,
 }))
 
 const { default: wsMessageHandler } = await import('./handler')
 
 describe('wsMessageHandler', () => {
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
   beforeEach(() => {
     jest.resetAllMocks()
     mockResponse.mockImplementation((statusCode: number, body: unknown) => ({ body, statusCode }))
+  })
+
+  afterAll(() => {
+    errorSpy.mockRestore()
   })
 
   it('returns 400 when connectionId is missing', async () => {
@@ -157,5 +165,41 @@ describe('wsMessageHandler', () => {
     } as any)
 
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+  })
+
+  it('returns LambdaError status when subscribeWebSocketToAdmin throws LambdaError', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: [] })
+    mockSubscribeToAdmin.mockRejectedValueOnce(new LambdaError(403, 'Forbidden'))
+
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(result).toEqual({ body: { message: 'Forbidden' }, statusCode: 403 })
+  })
+
+  it('returns LambdaError status when subscribeWebSocketToEvent throws LambdaError', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ admin: false, connectionId: 'conn-1', memberOf: [] })
+    mockSubscribeToEvent.mockRejectedValueOnce(new LambdaError(403, 'Forbidden'))
+
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(result).toEqual({ body: { message: 'Forbidden' }, statusCode: 403 })
+  })
+
+  it('returns 500 when an unexpected error is thrown', async () => {
+    mockGetWsConnection.mockResolvedValueOnce({ admin: true, connectionId: 'conn-1' })
+    mockSubscribeToAdmin.mockRejectedValueOnce(new Error('unexpected'))
+
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'subscribe', channel: 'admin' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(result).toEqual({ body: { message: 'Internal server error' }, statusCode: 500 })
   })
 })
