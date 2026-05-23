@@ -135,6 +135,24 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
   const eventIdRef = useRef<string | undefined>(eventId)
   const rawViewersRef = useRef<Array<{ userId?: string }>>([])
   const shouldReconnectRef = useRef(true)
+
+  // Keep mutable refs for values that are only needed inside callbacks/handlers
+  // so that `connect` never needs to be recreated just because these changed.
+  const idTokenRef = useRef<string | undefined>(undefined)
+  const adminUsersRef = useRef<Array<{ id: string; name?: string }>>([])
+  const currentUserRef = useRef<{ id: string; name?: string } | undefined>(undefined)
+
+  const adminUsers = adminUsersLoadable.state === 'hasValue' ? adminUsersLoadable.contents : []
+  const currentUser =
+    currentUserLoadable.state === 'hasValue' && currentUserLoadable.contents?.id
+      ? currentUserLoadable.contents
+      : undefined
+
+  // Sync refs so the stable `connect` callback always reads the latest values.
+  idTokenRef.current = idTokenLoadable.state === 'hasValue' ? idTokenLoadable.contents : undefined
+  adminUsersRef.current = adminUsers
+  currentUserRef.current = currentUser
+
   const setPublicEvents = useRecoilCallback(
     ({ snapshot, set }) =>
       (eventId: string, patch: Partial<PublicDogEvent>) => {
@@ -180,11 +198,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
   const reconnectAttempts = useRef(0)
-  const adminUsers = adminUsersLoadable.state === 'hasValue' ? adminUsersLoadable.contents : []
-  const currentUser =
-    currentUserLoadable.state === 'hasValue' && currentUserLoadable.contents?.id
-      ? currentUserLoadable.contents
-      : undefined
+
   const resolvedViewers = useMemo(
     () => mapEventViewers(rawViewersRef.current, adminUsers, currentUser),
     [adminUsers, currentUser]
@@ -193,7 +207,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
   const connect = useCallback(() => {
     if (!shouldReconnectRef.current) return
 
-    const token = idTokenLoadable.state === 'hasValue' ? idTokenLoadable.contents : undefined
+    const token = idTokenRef.current
     const url = token ? `${WS_API_URL}?token=${encodeURIComponent(token)}` : WS_API_URL
     const ws = new WebSocket(url)
     wsRef.current = ws
@@ -207,7 +221,11 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
     }
 
     ws.onclose = () => {
-      if (!shouldReconnectRef.current) return
+      // Ignore close events from a superseded WebSocket instance (e.g. React
+      // StrictMode double-mount tears down WS1 and immediately creates WS2;
+      // WS1's async onclose fires after WS2 is already in wsRef and would
+      // otherwise schedule a redundant reconnect).
+      if (!shouldReconnectRef.current || wsRef.current !== ws) return
 
       // Try to reconnect with exponential backoff
       const delay = Math.min(30000, RECONNECT_INTERVAL * 2 ** reconnectAttempts.current)
@@ -241,7 +259,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
 
         if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
           rawViewersRef.current = data.viewers
-          const nextViewers = mapEventViewers(data.viewers, adminUsers, currentUser)
+          const nextViewers = mapEventViewers(data.viewers, adminUsersRef.current, currentUserRef.current)
           setViewers((current) => applyViewers(current, nextViewers))
           return
         }
@@ -258,7 +276,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         // ignore invalid messages
       }
     }
-  }, [admin, adminUsers, currentUser, idTokenLoadable, patchRegistrations, setAdminEvents, setPublicEvents])
+  }, [admin, patchRegistrations, setAdminEvents, setPublicEvents])
 
   useEffect(() => {
     setViewers((current) => applyViewers(current, resolvedViewers))

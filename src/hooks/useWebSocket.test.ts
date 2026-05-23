@@ -3,7 +3,7 @@ import type { MutableSnapshot } from 'recoil'
 import type { PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
-import { RecoilRoot, useRecoilValue } from 'recoil'
+import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
@@ -640,5 +640,85 @@ describe('useWebSocket', () => {
     rerender({ eventId: 'event-2' })
 
     expect(result.current.viewers).toEqual([])
+  })
+
+  it('should not open a new WebSocket connection when Recoil state changes (e.g. adminUsersAtom update)', async () => {
+    // Regression test: adminUsers / currentUser were previously listed in
+    // connect's useCallback deps.  Any Recoil update (e.g. adminUsersAtom
+    // changing after an event save) produced a new array ref, gave connect a
+    // new identity, triggered the useEffect, closed the existing socket and
+    // opened a fresh one – causing duplicate WS broadcast messages to be
+    // processed and logged multiple times per browser tab.
+    const { result } = renderHook(
+      () => {
+        const setUsers = useSetRecoilState(adminUsersAtom)
+        useWebSocket(true)
+        return { setUsers }
+      },
+      { wrapper: wrapperWithToken('id-token') }
+    )
+
+    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledTimes(1))
+
+    // Simulate adminUsersAtom being updated (e.g. admin user list loaded after
+    // an event save triggers a re-render of the hook consumer)
+    act(() => {
+      result.current.setUsers([{ id: 'user-3', name: 'User Three' }] as User[])
+    })
+
+    // connect must remain stable – no second WebSocket should be opened
+    expect(global.WebSocket).toHaveBeenCalledTimes(1)
+  })
+
+  it('should not schedule a reconnect when a stale onclose fires after a new connection is already established', () => {
+    // Regression test for the React StrictMode double-mount race condition.
+    //
+    // StrictMode tears down and re-mounts effects synchronously.  The sequence:
+    //   1. mount  → connect() → WS1 created, wsRef = WS1
+    //   2. cleanup → shouldReconnect=false, WS1.close()
+    //   3. re-mount → shouldReconnect=true, connect() → WS2 created, wsRef = WS2
+    //   4. WS1.onclose fires asynchronously (close is async)
+    //      Before the fix: shouldReconnect===true, schedules connect() → WS3
+    //      After  the fix: wsRef.current (WS2) !== ws (WS1) → early return, no WS3
+    jest.useFakeTimers()
+
+    // Override the shared mock so each construction returns a distinct instance
+    const wsInstances: (typeof mockWebSocketInstance)[] = []
+    global.WebSocket = jest.fn(() => {
+      const instance = {
+        close: jest.fn(),
+        onclose: null as (() => void) | null,
+        onerror: null as (() => void) | null,
+        onmessage: null as ((e: { data: string }) => void) | null,
+        onopen: null as (() => void) | null,
+        readyState: WebSocket.CONNECTING,
+        send: jest.fn(),
+      }
+      wsInstances.push(instance)
+      return instance
+    }) as unknown as typeof WebSocket
+
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken(undefined) })
+
+    // WS1 should now be in wsInstances[0]
+    expect(wsInstances).toHaveLength(1)
+    const ws1OnClose = wsInstances[0].onclose
+
+    // Legitimate close → reconnect timer fires → WS2 created
+    act(() => {
+      ws1OnClose?.()
+      jest.advanceTimersByTime(1000)
+    })
+    expect(wsInstances).toHaveLength(2)
+
+    // Stale WS1 onclose fires again (simulates the async close from StrictMode
+    // unmount arriving after WS2 is already in wsRef)
+    act(() => {
+      ws1OnClose?.()
+      jest.advanceTimersByTime(1000)
+    })
+
+    // No third WebSocket should have been created
+    expect(wsInstances).toHaveLength(2)
   })
 })
