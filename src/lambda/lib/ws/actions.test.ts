@@ -86,6 +86,7 @@ describe('ws/actions', () => {
     call.buildPayload()
 
     expect(mockPublicAudience).toHaveBeenCalledTimes(1)
+    expect(call.buildPayload()).toEqual({ entries: 5, eventId: 'e1', scope: 'public:event-patch' })
     expect(mockBuildEventPatchPayload).toHaveBeenCalledWith('e1', { entries: 5, eventId: 'e1' })
   })
 
@@ -124,6 +125,7 @@ describe('ws/actions', () => {
     call.buildPayload()
 
     expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1')
+    expect(call.buildPayload()).toEqual({ eventId: 'e1', name: 'Updated', scope: 'admin:event-patch' })
     expect(mockBuildEventPatchPayload).toHaveBeenCalledWith('e1', { eventId: 'e1', name: 'Updated' })
   })
 

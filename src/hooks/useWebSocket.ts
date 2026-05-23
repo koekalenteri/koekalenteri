@@ -206,10 +206,10 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         }
 
         if (data.eventId) {
-          const { eventId, ...patch } = data
-          if (admin) {
+          const { eventId, scope, ...patch } = data
+          if (admin && scope === 'admin:event-patch') {
             setAdminEvents(eventId, patch)
-          } else {
+          } else if (scope === 'public:event-patch' || (!scope && !admin)) {
             setPublicEvents(eventId, patch)
           }
         }

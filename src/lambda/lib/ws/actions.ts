@@ -28,13 +28,13 @@ export const publishPublicEvent = (patch: PublicEventPatch, excludeConnectionIds
   send({
     audience: async () =>
       (await publicAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
-    buildPayload: () => buildEventPatchPayload(patch.eventId, patch),
+    buildPayload: () => ({ scope: 'public:event-patch', ...buildEventPatchPayload(patch.eventId, patch) }),
   })
 
 export const publishAdminEventPatch = (patch: AdminEventPatch, organizerId: string) =>
   send({
     audience: () => organizerAudience(organizerId),
-    buildPayload: () => buildEventPatchPayload(patch.eventId, patch),
+    buildPayload: () => ({ scope: 'admin:event-patch', ...buildEventPatchPayload(patch.eventId, patch) }),
   })
 
 export const publishEventPatch = async (patch: AdminEventPatch, organizerId: string) => {

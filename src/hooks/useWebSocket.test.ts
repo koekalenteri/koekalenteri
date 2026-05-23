@@ -3,7 +3,8 @@ import type { MutableSnapshot } from 'recoil'
 import type { PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
-import { RecoilRoot } from 'recoil'
+import { RecoilRoot, useRecoilValue } from 'recoil'
+import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
 import { idTokenAtom } from '../pages/recoil'
 import { applyPatch, applyRegistrationPatches, applyRegistrations, applyViewers, useWebSocket } from './useWebSocket'
@@ -257,6 +258,80 @@ describe('useWebSocket', () => {
     })
 
     expect(result.current.viewers).toEqual([{ name: 'User Two', userId: 'user-2' }])
+  })
+
+  it('should update admin events from scoped admin event patch messages', async () => {
+    const event = {
+      classes: [],
+      endDate: new Date('2026-01-02'),
+      eventType: 'NOME-B',
+      id: 'event-1',
+      judges: [{ id: 1, name: 'Old Judge', official: true }],
+      organizer: { id: 'org-1', name: 'Organizer' },
+      startDate: new Date('2026-01-01'),
+    }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(true)
+        return useRecoilValue(adminEventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          judges: [{ id: 2, name: 'New Judge', official: true }],
+          scope: 'admin:event-patch',
+        }),
+      })
+    })
+
+    expect(result.current[0]?.judges?.[0]?.name).toBe('New Judge')
+  })
+
+  it('should not let the global websocket consume admin event patch messages as public events', async () => {
+    const event = {
+      endDate: new Date('2026-01-02'),
+      eventType: 'NOME-B',
+      id: 'event-1',
+      name: 'Old Public Name',
+      organizer: { id: 'org-1', name: 'Organizer' },
+      startDate: new Date('2026-01-01'),
+    }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(false)
+        return useRecoilValue(adminEventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', name: 'New Admin Name', scope: 'admin:event-patch' }),
+      })
+    })
+    expect(result.current[0]?.name).toBe('Old Public Name')
   })
 
   it('should apply registration patches from websocket messages', async () => {
