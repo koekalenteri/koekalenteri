@@ -30,4 +30,27 @@ describe('ws/broadcast', () => {
     expect(onGoneConnection).toHaveBeenCalledWith('b')
     expect(result).toEqual({ attempted: 3, failed: 1, gone: 1, sent: 1 })
   })
+
+  it('limits broadcast concurrency', async () => {
+    let active = 0
+    let maxActive = 0
+    const send = jest.fn<any>(async () => {
+      active += 1
+      maxActive = Math.max(maxActive, active)
+      await Promise.resolve()
+      active -= 1
+      return 'sent'
+    })
+
+    const result = await broadcast({
+      audience: async () => Array.from({ length: 5 }, (_, index) => ({ connectionId: `connection-${index}` }) as any),
+      buildPayload: () => ({ type: 'test' }),
+      concurrency: 2,
+      send,
+    })
+
+    expect(send).toHaveBeenCalledTimes(5)
+    expect(maxActive).toBe(2)
+    expect(result).toEqual({ attempted: 5, failed: 0, gone: 0, sent: 5 })
+  })
 })

@@ -16,12 +16,38 @@ interface WsMessage {
   token?: string
 }
 
-const parseBody = (body: string | null): WsMessage | undefined => {
+type ValidWsMessage =
+  | { action: 'authenticate'; token: string }
+  | { action: 'subscribe'; channel: 'admin' }
+  | { action: 'subscribe'; channel: 'event'; eventId: string }
+  | { action: 'unsubscribe'; channel: 'admin' | 'event' }
+
+const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
+
+const parseBody = (body: string | null): ValidWsMessage | undefined => {
   if (!body) return undefined
   try {
     const parsed = JSON.parse(body)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return undefined
-    return parsed as WsMessage
+    const message = parsed as WsMessage
+
+    if (message.action === 'authenticate' && isNonEmptyString(message.token)) {
+      return { action: 'authenticate', token: message.token }
+    }
+
+    if (message.action === 'subscribe' && message.channel === 'admin') {
+      return { action: 'subscribe', channel: 'admin' }
+    }
+
+    if (message.action === 'subscribe' && message.channel === 'event' && isNonEmptyString(message.eventId)) {
+      return { action: 'subscribe', channel: 'event', eventId: message.eventId }
+    }
+
+    if (message.action === 'unsubscribe' && (message.channel === 'admin' || message.channel === 'event')) {
+      return { action: 'unsubscribe', channel: message.channel }
+    }
+
+    return undefined
   } catch {
     return undefined
   }
@@ -43,9 +69,6 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
 
   try {
     if (message.action === 'authenticate') {
-      if (typeof message.token !== 'string' || message.token.trim().length === 0) {
-        return response(400, 'Bad request', event)
-      }
       const auth = await authenticateWebSocketToken(event, message.token)
       await authenticateWebSocket({ connectionId, ...auth })
 
@@ -59,15 +82,10 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
       }
 
       if (message.channel === 'event') {
-        if (typeof message.eventId !== 'string' || message.eventId.trim().length === 0) {
-          return response(400, 'Bad request', event)
-        }
         const result = await subscribeWebSocketToEvent(connection, message.eventId)
 
         return response(200, result, event)
       }
-
-      return response(400, 'Bad request', event)
     }
 
     if (message.action === 'unsubscribe') {
@@ -84,15 +102,13 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
 
         return response(200, { connectionId, unsubscribed: true }, event)
       }
-
-      return response(400, 'Bad request', event)
     }
   } catch (err) {
     console.error(err)
     if (err instanceof LambdaError) {
-      return response(200, { error: err.error, ok: false, status: err.status }, event)
+      return response(err.status, { error: err.error, ok: false, status: err.status }, event)
     }
-    return response(200, { error: 'Internal server error', ok: false, status: 500 }, event)
+    return response(500, { error: 'Internal server error', ok: false, status: 500 }, event)
   }
 
   return response(400, 'Bad request', event)

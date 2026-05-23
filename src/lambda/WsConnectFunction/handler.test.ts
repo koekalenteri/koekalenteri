@@ -1,4 +1,5 @@
 import { jest } from '@jest/globals'
+import { LambdaError } from '../lib/lambda'
 
 const mockWsConnect = jest.fn<any>()
 const mockBroadcastConnectionCounts = jest.fn<any>()
@@ -61,6 +62,15 @@ describe('wsConnectHandler', () => {
     expect(mockWsConnect).toHaveBeenCalledWith({ connectionId: 'test-connection-id' })
 
     // Verify broadcastConnectionCount was not called
+    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
+  })
+
+  it('returns LambdaError status if wsConnect rejects with LambdaError', async () => {
+    mockWsConnect.mockRejectedValueOnce(new LambdaError(429, 'Too many public websocket connections'))
+
+    const result = await wsConnectHandler(event)
+
+    expect(result).toEqual({ body: 'Too many public websocket connections', statusCode: 429 })
     expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 

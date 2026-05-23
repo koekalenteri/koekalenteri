@@ -64,6 +64,26 @@ describe('wsMessageHandler', () => {
     expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
   })
 
+  it('returns 400 when message action is unknown', async () => {
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'ping' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+    expect(mockGetWsConnection).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 when eventId is only whitespace', async () => {
+    const result = await wsMessageHandler({
+      body: JSON.stringify({ action: 'subscribe', channel: 'event', eventId: '   ' }),
+      requestContext: { connectionId: 'conn-1' },
+    } as any)
+
+    expect(result).toEqual({ body: 'Bad request', statusCode: 400 })
+    expect(mockGetWsConnection).not.toHaveBeenCalled()
+  })
+
   it('returns 400 when connection is not found', async () => {
     mockGetWsConnection.mockResolvedValueOnce(undefined)
 
@@ -225,7 +245,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 200 })
+    expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
   it('returns LambdaError status when subscribeWebSocketToEvent throws LambdaError', async () => {
@@ -237,7 +257,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 200 })
+    expect(result).toEqual({ body: { error: 'Forbidden', ok: false, status: 403 }, statusCode: 403 })
   })
 
   it('returns 500 when an unexpected error is thrown', async () => {
@@ -249,6 +269,6 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(result).toEqual({ body: { error: 'Internal server error', ok: false, status: 500 }, statusCode: 200 })
+    expect(result).toEqual({ body: { error: 'Internal server error', ok: false, status: 500 }, statusCode: 500 })
   })
 })

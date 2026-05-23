@@ -293,7 +293,31 @@ describe('useWebSocket', () => {
       mockWebSocketInstance.onopen?.({} as Event)
     })
 
-    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'authenticate', token: 'id-token' }))
+    expect(mockWebSocketInstance.send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'authenticate', token: 'id-token' })
+    )
+  })
+
+  it('should close and stop reconnecting when authentication fails', async () => {
+    jest.useFakeTimers()
+    renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledWith('wss://example.invalid/ws'))
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ error: 'Unauthorized', ok: false, status: 401 }),
+      })
+    })
+
+    expect(mockWebSocketInstance.close).toHaveBeenCalled()
+
+    act(() => {
+      mockWebSocketInstance.onclose?.({} as CloseEvent)
+      jest.runOnlyPendingTimers()
+    })
+
+    expect(global.WebSocket).toHaveBeenCalledTimes(1)
   })
 
   it('should subscribe to event channel when subscribeEvent is called', async () => {

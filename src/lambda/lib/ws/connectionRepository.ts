@@ -8,11 +8,24 @@ export const listConnections = async () => (await dynamoDB.readAll<WebSocketConn
 
 export const getConnection = async (connectionId: string) => dynamoDB.read<WebSocketConnection>({ connectionId })
 
-export const createConnection = async ({ connectionId }: Pick<WebSocketConnection, 'connectionId'>) => {
-  await dynamoDB.write({ audience: 'public' as const, connectionId })
+export const createConnection = async ({
+  connectionId,
+  expiresAt,
+}: Pick<WebSocketConnection, 'connectionId' | 'expiresAt'>) => {
+  await dynamoDB.write({
+    audience: 'public' as const,
+    connectionId,
+    ...(typeof expiresAt === 'number' ? { expiresAt } : {}),
+  })
 }
 
-export const authenticateConnection = async ({ admin, connectionId, expiresAt, memberOf, userId }: WebSocketConnection) => {
+export const authenticateConnection = async ({
+  admin,
+  connectionId,
+  expiresAt,
+  memberOf,
+  userId,
+}: WebSocketConnection) => {
   if (!userId) throw new Error('Cannot authenticate websocket connection without userId')
 
   await dynamoDB.update(

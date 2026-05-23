@@ -3,6 +3,7 @@ import { jest } from '@jest/globals'
 const mockCreateConnection = jest.fn<any>()
 const mockAuthenticateConnection = jest.fn<any>()
 const mockGetConnection = jest.fn<any>()
+const mockQueryPublicConnections = jest.fn<any>()
 const mockRemoveConnection = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 
@@ -10,6 +11,7 @@ jest.unstable_mockModule('./connectionRepository', () => ({
   authenticateConnection: mockAuthenticateConnection,
   createConnection: mockCreateConnection,
   getConnection: mockGetConnection,
+  queryPublicConnections: mockQueryPublicConnections,
   removeConnection: mockRemoveConnection,
 }))
 
@@ -24,6 +26,8 @@ describe('ws/connectionLifecycle', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.useRealTimers()
+    mockQueryPublicConnections.mockResolvedValue([])
   })
 
   afterAll(() => {
@@ -31,9 +35,25 @@ describe('ws/connectionLifecycle', () => {
   })
 
   it('connectWebSocket writes connection', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-05-23T19:00:00.000Z'))
+
     await connectWebSocket({ connectionId: 'c1' } as any)
-    expect(mockCreateConnection).toHaveBeenCalledWith({ connectionId: 'c1' })
+
+    expect(mockQueryPublicConnections).toHaveBeenCalledWith()
+    expect(mockCreateConnection).toHaveBeenCalledWith({ connectionId: 'c1', expiresAt: 1779570000 })
     expect(logSpy).toHaveBeenCalledWith('wsConnect: c1', { connectionId: 'c1' })
+  })
+
+  it('connectWebSocket rejects when public connection limit is reached', async () => {
+    mockQueryPublicConnections.mockResolvedValue(
+      Array.from({ length: 1000 }, (_, index) => ({ connectionId: `c${index}` }))
+    )
+
+    await expect(connectWebSocket({ connectionId: 'c1001' } as any)).rejects.toMatchObject({
+      error: 'Too many public websocket connections',
+      status: 429,
+    })
+    expect(mockCreateConnection).not.toHaveBeenCalled()
   })
 
   it('authenticateWebSocket updates connection auth metadata', async () => {

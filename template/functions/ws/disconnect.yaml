@@ -8,6 +8,8 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref WsConnectionsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
         - !Ref WebSocketPolicy
 
   DisconnectIntegration:
@@ -19,7 +21,7 @@
         - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
         - { LambdaArn: !GetAtt WsDisconnectFunction.Arn }
 
-  DisconnectRoute:
+  DiscnnectRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref WebSocketApi

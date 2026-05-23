@@ -56,7 +56,7 @@ describe('ws/connectionRepository', () => {
     expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1' })
   })
 
-  it('createConnection ignores legacy auth fields and writes anonymous connection only', async () => {
+  it('createConnection writes expiresAt but ignores legacy auth fields', async () => {
     await createConnection({
       admin: true,
       connectionId: 'c1',
@@ -65,7 +65,7 @@ describe('ws/connectionRepository', () => {
       userId: 'u1',
     } as any)
 
-    expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1' })
+    expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1', expiresAt: 123 })
   })
 
   it('subscribeConnection updates eventId', async () => {

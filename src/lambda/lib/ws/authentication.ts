@@ -43,7 +43,8 @@ export const authenticateWebSocketToken = async (event: APIGatewayEvent, token: 
   const claims = (await getVerifier().verify(token)) as JwtPayload
   const auth = await authorizeWithMemberOf(withClaims(event, claims) as any)
 
-  if (auth.res || !auth.user) throw new LambdaError(auth.res?.statusCode ?? 401, String(auth.res?.body ?? 'Unauthorized'))
+  if (auth.res || !auth.user)
+    throw new LambdaError(auth.res?.statusCode ?? 401, String(auth.res?.body ?? 'Unauthorized'))
 
   return {
     admin: auth.user.admin,

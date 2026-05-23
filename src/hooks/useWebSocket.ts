@@ -159,6 +159,7 @@ export const useWebSocket = () => {
   const idTokenRef = useRef<string | undefined>(undefined)
   const adminUsersRef = useRef<Array<{ id: string; name?: string }>>([])
   const currentUserRef = useRef<{ id: string; name?: string } | undefined>(undefined)
+  const authFailedTokenRef = useRef<string | undefined>(undefined)
 
   const adminUsers = adminUsersLoadable.state === 'hasValue' ? adminUsersLoadable.contents : []
   const currentUser =
@@ -259,6 +260,8 @@ export const useWebSocket = () => {
     if (!shouldReconnectRef.current) return
 
     const token = idTokenRef.current
+    if (token && authFailedTokenRef.current === token) return
+
     const ws = new WebSocket(WS_API_URL)
     wsRef.current = ws
 
@@ -315,12 +318,20 @@ export const useWebSocket = () => {
         }
 
         if (data.authenticated === true) {
+          authFailedTokenRef.current = undefined
           if (adminSubscribedRef.current) {
             ws.send(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
           }
           if (eventIdRef.current) {
             ws.send(JSON.stringify({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }))
           }
+          return
+        }
+
+        if (data.ok === false && (data.status === 401 || data.status === 403)) {
+          if (token) authFailedTokenRef.current = token
+          shouldReconnectRef.current = false
+          ws.close()
           return
         }
 

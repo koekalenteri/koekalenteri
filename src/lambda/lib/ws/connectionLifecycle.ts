@@ -1,13 +1,32 @@
 import type { JsonDogEvent } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { getEvent } from '../../lib/event'
-import { authenticateConnection, createConnection, getConnection, removeConnection } from './connectionRepository'
+import { LambdaError } from '../../lib/lambda'
+import {
+  authenticateConnection,
+  createConnection,
+  getConnection,
+  queryPublicConnections,
+  removeConnection,
+} from './connectionRepository'
 
 type NotifyEventViewers = (eventId: string, organizerId: string) => Promise<unknown>
 
+const MAX_PUBLIC_CONNECTIONS = 1000
+const API_GATEWAY_WEBSOCKET_MAX_CONNECTION_SECONDS = 2 * 60 * 60
+
+const expiresAtForMaxGatewayLifetime = () =>
+  Math.floor(Date.now() / 1000) + API_GATEWAY_WEBSOCKET_MAX_CONNECTION_SECONDS
+
 export const connectWebSocket = async (connection: WebSocketConnection) => {
   console.log(`wsConnect: ${connection.connectionId}`, connection)
-  await createConnection(connection)
+
+  const publicConnections = await queryPublicConnections()
+  if (publicConnections.length >= MAX_PUBLIC_CONNECTIONS) {
+    throw new LambdaError(429, 'Too many public websocket connections')
+  }
+
+  await createConnection({ ...connection, expiresAt: expiresAtForMaxGatewayLifetime() })
 }
 
 export const authenticateWebSocket = async (connection: WebSocketConnection) => {
