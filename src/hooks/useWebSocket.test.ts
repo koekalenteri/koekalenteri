@@ -62,8 +62,7 @@ jest.mock('../pages/recoil/events/atoms', () => {
   }
 })
 
-// Mock console.debug to avoid noise in tests
-jest.spyOn(console, 'debug').mockImplementation(() => {})
+let consoleDebugSpy: jest.SpyInstance
 
 describe('applyPatch', () => {
   const baseEvents = [
@@ -186,6 +185,7 @@ describe('useWebSocket', () => {
 
   beforeEach(() => {
     jest.useRealTimers()
+    consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
     // Create mock WebSocket instance
     mockWebSocketInstance = {
       close: jest.fn(),
@@ -201,6 +201,7 @@ describe('useWebSocket', () => {
   })
 
   afterEach(() => {
+    consoleDebugSpy.mockRestore()
     jest.restoreAllMocks()
   })
 

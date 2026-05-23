@@ -9,11 +9,19 @@ import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import AdminHomePage from './AdminHomePage'
 
+const mockUseWebSocket = jest.fn()
+
 jest.mock('../../api/user')
+jest.mock('../../hooks/useWebSocket', () => ({
+  useWebSocket: (...args: unknown[]) => mockUseWebSocket(...args),
+}))
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
+  afterEach(() => {
+    mockUseWebSocket.mockClear()
+    jest.runOnlyPendingTimers()
+  })
   afterAll(() => jest.useRealTimers())
 
   it('renders the page when user is logged in', async () => {
@@ -43,6 +51,7 @@ describe('AdminHomePage', () => {
 
     await flushPromises()
     expect(container).toMatchSnapshot()
+    expect(mockUseWebSocket).toHaveBeenCalledWith(true)
   })
 
   it('renders the child page content when user is logged in', async () => {
