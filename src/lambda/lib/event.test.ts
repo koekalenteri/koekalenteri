@@ -893,10 +893,10 @@ describe('lib/event', () => {
       expect(result).toEqual(persisted)
     })
 
-    it('updates nested field changes and publishes nested admin patch', async () => {
+    it('updates nested field changes partially and publishes nested admin patch', async () => {
       const existing = {
         contactInfo: {
-          secretary: { email: 'old@example.com' },
+          secretary: { email: 'old@example.com', name: 'Secretary' },
         },
         id: 'e3',
         organizer: { id: 'org-1', name: 'Org' },
@@ -905,7 +905,7 @@ describe('lib/event', () => {
       const next = {
         ...existing,
         contactInfo: {
-          secretary: { email: 'new@example.com' },
+          secretary: { email: 'new@example.com', name: 'Secretary' },
         },
       } as JsonDogEvent
 
@@ -917,9 +917,7 @@ describe('lib/event', () => {
         { id: existing.id },
         {
           set: {
-            contactInfo: {
-              secretary: { email: 'new@example.com' },
-            },
+            'contactInfo.secretary.email': 'new@example.com',
           },
         },
         expect.anything()
@@ -933,6 +931,39 @@ describe('lib/event', () => {
           eventId: existing.id,
         },
         'org-1'
+      )
+    })
+
+    it('replaces changed arrays instead of persisting sparse array diffs', async () => {
+      const existing = {
+        classes: [
+          { class: 'ALO', entries: 1, members: 0 },
+          { class: 'AVO', entries: 2, members: 0 },
+        ],
+        id: 'e4',
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        classes: [
+          { class: 'ALO', entries: 3, members: 0 },
+          { class: 'AVO', entries: 2, members: 0 },
+        ],
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          set: {
+            classes: next.classes,
+          },
+        },
+        expect.anything()
       )
     })
   })

@@ -10,7 +10,6 @@ import type {
   Registration,
 } from '../../types'
 import { addDays } from 'date-fns'
-import { diff } from 'deep-object-diff'
 import { formatDate, zonedStartOfDay } from '../../i18n/dates'
 import {
   GROUP_KEY_CANCELLED,
@@ -31,6 +30,7 @@ import {
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
+import { createPatch } from './patch'
 import { getRegistrationsByEventId } from './registration'
 
 type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
@@ -77,29 +77,17 @@ export const patchEvent = async (
   existing: JsonDogEvent,
   next: JsonDogEvent
 ): Promise<JsonDogEvent> => {
-  const set: Record<string, unknown> = {}
-  const remove: Array<keyof JsonDogEvent> = []
+  const { changes, remove, set } = createPatch(next, existing)
 
-  const changes = diff(existing, next) as Partial<JsonDogEvent>
-  for (const [key, value] of Object.entries(changes) as Array<
-    [keyof JsonDogEvent, JsonDogEvent[keyof JsonDogEvent] | undefined]
-  >) {
-    if (value === undefined) {
-      remove.push(key)
-      continue
-    }
-    set[key as string] = value
-  }
-
-  if (!Object.keys(set).length && !remove.length) {
+  if (!set && !remove) {
     return existing
   }
 
   await dynamoDB.update(
     { id: eventId },
     {
-      ...(Object.keys(set).length ? { set } : {}),
-      ...(remove.length ? { remove } : {}),
+      ...(set ? { set } : {}),
+      ...(remove ? { remove } : {}),
     },
     eventTable
   )
