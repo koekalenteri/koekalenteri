@@ -5,7 +5,7 @@ type PartialWithUndefined<T> = {
   [K in keyof T]?: T[K] extends object ? PartialWithUndefined<T[K]> | undefined : T[K] | undefined
 }
 
-export type UpdatePatch = {
+type UpdatePatch = {
   changes: Record<string, unknown>
   remove?: string[]
   set?: Record<string, unknown>

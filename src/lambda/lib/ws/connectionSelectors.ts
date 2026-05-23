@@ -1,4 +1,4 @@
-import { canReceiveAdminEvent, canReceivePublicEvent } from './connectionPolicy'
+import { canReceiveAdminEvent, canReceiveAnyAdminEvent, canReceivePublicEvent } from './connectionPolicy'
 import { listConnections, queryAuthenticatedConnections } from './connectionRepository'
 
 export const publicAudience = async () =>
@@ -6,6 +6,9 @@ export const publicAudience = async () =>
 
 export const organizerAudience = async (organizerId: string) =>
   (await queryAuthenticatedConnections()).filter((connection) => canReceiveAdminEvent(connection, organizerId))
+
+export const adminAudience = async () =>
+  (await queryAuthenticatedConnections()).filter((connection) => canReceiveAnyAdminEvent(connection))
 
 export const eventAudience = async (eventId: string, organizerId: string) =>
   (await queryAuthenticatedConnections()).filter(

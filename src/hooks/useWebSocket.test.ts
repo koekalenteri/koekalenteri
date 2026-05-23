@@ -181,6 +181,42 @@ describe('useWebSocket', () => {
     }).not.toThrow()
   })
 
+  it('should expose public connection count only from public scoped messages', () => {
+    const { result } = renderHook(() => useWebSocket(false), { wrapper: wrapperWithToken(undefined) })
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ count: 2, scope: 'admin:connection-count' }),
+      })
+    })
+    expect(result.current.count).toBe(0)
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ count: 5, scope: 'public:connection-count' }),
+      })
+    })
+    expect(result.current.count).toBe(5)
+  })
+
+  it('should expose admin connection count only from admin scoped messages', () => {
+    const { result } = renderHook(() => useWebSocket(true), { wrapper: wrapperWithToken('id-token') })
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ count: 5, scope: 'public:connection-count' }),
+      })
+    })
+    expect(result.current.count).toBe(0)
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ count: 2, scope: 'admin:connection-count' }),
+      })
+    })
+    expect(result.current.count).toBe(2)
+  })
+
   it('should ignore subscribe acknowledgements without mutating viewer state', () => {
     const { result } = renderHook(() => useWebSocket(true, 'event-1'), { wrapper: wrapperWithToken('id-token') })
 

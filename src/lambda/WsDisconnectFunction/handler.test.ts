@@ -1,14 +1,14 @@
 import { jest } from '@jest/globals'
 
 const mockWsDisconnect = jest.fn<any>()
-const mockBroadcastConnectionCount = jest.fn<any>()
+const mockBroadcastConnectionCounts = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
   disconnectWebSocket: mockWsDisconnect,
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
-  publishConnectionCount: mockBroadcastConnectionCount,
+  publishConnectionCounts: mockBroadcastConnectionCounts,
   publishEventViewers: jest.fn(),
 }))
 
@@ -26,7 +26,7 @@ describe('wsDisconnectHandler', () => {
 
     // Default mock implementations
     mockWsDisconnect.mockResolvedValue(undefined)
-    mockBroadcastConnectionCount.mockResolvedValue(undefined)
+    mockBroadcastConnectionCounts.mockResolvedValue(undefined)
   })
 
   it('disconnects the websocket and broadcasts connection count', async () => {
@@ -39,7 +39,7 @@ describe('wsDisconnectHandler', () => {
     )
 
     // Verify broadcastConnectionCount was called
-    expect(mockBroadcastConnectionCount).toHaveBeenCalled()
+    expect(mockBroadcastConnectionCounts).toHaveBeenCalled()
 
     // Verify the response
     expect(result).toEqual({
@@ -63,13 +63,13 @@ describe('wsDisconnectHandler', () => {
     )
 
     // Verify broadcastConnectionCount was not called
-    expect(mockBroadcastConnectionCount).not.toHaveBeenCalled()
+    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 
   it('throws an error if broadcastConnectionCount fails', async () => {
     // Setup broadcastConnectionCount to throw an error
     const error = new Error('Broadcast error')
-    mockBroadcastConnectionCount.mockRejectedValueOnce(error)
+    mockBroadcastConnectionCounts.mockRejectedValueOnce(error)
 
     // Expect the handler to throw the error
     await expect(wsDisconnectHandler(event)).rejects.toThrow('Broadcast error')
@@ -81,6 +81,6 @@ describe('wsDisconnectHandler', () => {
     )
 
     // Verify broadcastConnectionCount was called
-    expect(mockBroadcastConnectionCount).toHaveBeenCalled()
+    expect(mockBroadcastConnectionCounts).toHaveBeenCalled()
   })
 })

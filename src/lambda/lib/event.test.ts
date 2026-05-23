@@ -32,7 +32,7 @@ const mockPublishEventPatch = jest.fn()
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   __esModule: true,
   publishAdminEventPatch: mockBroadcastAdminEvent,
-  publishConnectionCount: mockBroadcast,
+  publishConnectionCounts: mockBroadcast,
   publishEventPatch: mockPublishEventPatch,
   publishPublicEvent: mockBroadcastPublicEvent,
   publishRegistrationPatches: mockBroadcastEventRegistrations,

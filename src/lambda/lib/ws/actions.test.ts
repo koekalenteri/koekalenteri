@@ -5,7 +5,8 @@ const mockDisconnectWebSocket = jest.fn<any>().mockResolvedValue(undefined)
 const mockEventAudience = jest.fn<any>().mockReturnValue([])
 const mockOrganizerAudience = jest.fn<any>().mockReturnValue([])
 const mockPublicAudience = jest.fn<any>().mockReturnValue([])
-const mockBuildConnectionCountPayload = jest.fn((count: number) => ({ count }))
+const mockAdminAudience = jest.fn<any>().mockReturnValue([])
+const mockBuildConnectionCountPayload = jest.fn((scope: string, count: number) => ({ count, scope }))
 const mockBuildEventPatchPayload = jest.fn((eventId: string, patch: object) => ({ eventId, ...patch }))
 const mockBuildEventViewersPayload = jest.fn((eventId: string, viewers: unknown[]) => ({ eventId, viewers }))
 const mockBuildRegistrationPatchPayload = jest.fn((eventId: string, patch: unknown[]) => ({ eventId, patch }))
@@ -22,6 +23,7 @@ jest.unstable_mockModule('./connectionLifecycle', () => ({
 }))
 
 jest.unstable_mockModule('./connectionSelectors', () => ({
+  adminAudience: mockAdminAudience,
   eventAudience: mockEventAudience,
   organizerAudience: mockOrganizerAudience,
   publicAudience: mockPublicAudience,
@@ -46,7 +48,9 @@ const {
   publishEventPatch,
   publishRegistrationPatches,
   publishEventViewers,
-  publishConnectionCount,
+  publishAdminConnectionCount,
+  publishConnectionCounts,
+  publishPublicConnectionCount,
   subscribeWebSocketToEvent,
   unsubscribeWebSocketFromEvent,
 } = await import('./actions')
@@ -58,6 +62,7 @@ describe('ws/actions', () => {
     mockEventAudience.mockClear()
     mockOrganizerAudience.mockClear()
     mockPublicAudience.mockClear()
+    mockAdminAudience.mockClear()
     mockBuildConnectionCountPayload.mockClear()
     mockBuildEventPatchPayload.mockClear()
     mockBuildEventViewersPayload.mockClear()
@@ -184,10 +189,10 @@ describe('ws/actions', () => {
     expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', expect.any(Array))
   })
 
-  it('publishConnectionCount builds payload from public audience size', async () => {
+  it('publishPublicConnectionCount builds public scoped payload from public audience size', async () => {
     mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }])
 
-    await publishConnectionCount()
+    await publishPublicConnectionCount()
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
     const call = mockBroadcast.mock.calls[0]?.[0] as
@@ -199,13 +204,13 @@ describe('ws/actions', () => {
     const audience = await call.audience()
     call.buildPayload(audience)
 
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith(2)
+    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('public:connection-count', 2)
   })
 
-  it('publishConnectionCount excludes specified connection ids from public audience', async () => {
+  it('publishPublicConnectionCount excludes specified connection ids from public audience', async () => {
     mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'c1' }, { connectionId: 'c2' }, { connectionId: 'c3' }])
 
-    await publishConnectionCount(['c2'])
+    await publishPublicConnectionCount(['c2'])
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
     const call = mockBroadcast.mock.calls[0]?.[0] as
@@ -218,7 +223,49 @@ describe('ws/actions', () => {
     expect(audience).toEqual([{ connectionId: 'c1' }, { connectionId: 'c3' }])
 
     call.buildPayload(audience)
-    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith(2)
+    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('public:connection-count', 2)
+  })
+
+  it('publishAdminConnectionCount builds admin scoped payload from admin audience size', async () => {
+    mockAdminAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'a2' }])
+
+    await publishAdminConnectionCount()
+
+    expect(mockBroadcast).toHaveBeenCalledTimes(1)
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    const audience = await call.audience()
+    call.buildPayload(audience)
+
+    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('admin:connection-count', 2)
+  })
+
+  it('publishAdminConnectionCount excludes specified connection ids from admin audience', async () => {
+    mockAdminAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'a2' }, { connectionId: 'a3' }])
+
+    await publishAdminConnectionCount(['a2'])
+
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: (audience: unknown[]) => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    const audience = await call.audience()
+    expect(audience).toEqual([{ connectionId: 'a1' }, { connectionId: 'a3' }])
+
+    call.buildPayload(audience)
+    expect(mockBuildConnectionCountPayload).toHaveBeenCalledWith('admin:connection-count', 2)
+  })
+
+  it('publishConnectionCounts publishes public and admin counts', async () => {
+    await publishConnectionCounts(['c1'])
+
+    expect(mockBroadcast).toHaveBeenCalledTimes(2)
   })
 
   it('subscribeWebSocketToEvent delegates to subscriptionService with publishEventViewers callback', async () => {
@@ -236,7 +283,7 @@ describe('ws/actions', () => {
   })
 
   it('send uses onGoneConnection handler to disconnect gone connection', async () => {
-    await publishConnectionCount()
+    await publishPublicConnectionCount()
 
     const call = mockBroadcast.mock.calls[0]?.[0] as { onGoneConnection: (id: string) => Promise<void> } | undefined
     expect(call).toBeTruthy()

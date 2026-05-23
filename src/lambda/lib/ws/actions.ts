@@ -3,7 +3,7 @@ import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { broadcast } from './broadcast'
 import { disconnectWebSocket } from './connectionLifecycle'
-import { eventAudience, organizerAudience, publicAudience } from './connectionSelectors'
+import { adminAudience, eventAudience, organizerAudience, publicAudience } from './connectionSelectors'
 import {
   buildConnectionCountPayload,
   buildEventPatchPayload,
@@ -71,12 +71,23 @@ export const publishEventViewers = (eventId: string, organizerId: string) =>
     buildPayload: (audience) => buildEventViewersPayload(eventId, toEventViewers(audience)),
   })
 
-export const publishConnectionCount = (excludeConnectionIds: string[] = []) =>
+export const publishPublicConnectionCount = (excludeConnectionIds: string[] = []) =>
   send({
     audience: async () =>
       (await publicAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
-    buildPayload: (audience) => buildConnectionCountPayload(audience.length),
+    buildPayload: (audience) => buildConnectionCountPayload('public:connection-count', audience.length),
   })
+
+export const publishAdminConnectionCount = (excludeConnectionIds: string[] = []) =>
+  send({
+    audience: async () =>
+      (await adminAudience()).filter((connection) => !excludeConnectionIds.includes(connection.connectionId)),
+    buildPayload: (audience) => buildConnectionCountPayload('admin:connection-count', audience.length),
+  })
+
+export const publishConnectionCounts = async (excludeConnectionIds: string[] = []) => {
+  await Promise.all([publishPublicConnectionCount(excludeConnectionIds), publishAdminConnectionCount(excludeConnectionIds)])
+}
 
 export const subscribeWebSocketToEvent = (connection: WebSocketConnection, eventId: string) =>
   subscribeToEvent(connection, eventId, publishEventViewers)

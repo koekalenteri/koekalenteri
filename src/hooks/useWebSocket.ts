@@ -134,6 +134,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
       },
     []
   )
+  const [count, setCount] = useState(0)
   const [viewers, setViewers] = useState<EventViewer[]>([])
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
@@ -181,6 +182,13 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
       try {
         const data = JSON.parse(event.data)
         console.debug('ws: ', data)
+
+        if (typeof data.count === 'number') {
+          if ((!admin && data.scope === 'public:connection-count') || (admin && data.scope === 'admin:connection-count')) {
+            setCount(data.count)
+          }
+          return
+        }
 
         if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
           patchRegistrations(data.eventId, data.patch)
@@ -244,5 +252,5 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
     }
   }, [connect])
 
-  return { viewers }
+  return { count, viewers }
 }

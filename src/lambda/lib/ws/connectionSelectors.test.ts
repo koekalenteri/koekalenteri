@@ -4,6 +4,7 @@ const mockListConnections = jest.fn<any>()
 const mockQueryAuthenticatedConnections = jest.fn<any>()
 const mockCanReceivePublicEvent = jest.fn<any>()
 const mockCanReceiveAdminEvent = jest.fn<any>()
+const mockCanReceiveAnyAdminEvent = jest.fn<any>()
 
 jest.unstable_mockModule('./connectionRepository', () => ({
   listConnections: mockListConnections,
@@ -12,10 +13,11 @@ jest.unstable_mockModule('./connectionRepository', () => ({
 
 jest.unstable_mockModule('./connectionPolicy', () => ({
   canReceiveAdminEvent: mockCanReceiveAdminEvent,
+  canReceiveAnyAdminEvent: mockCanReceiveAnyAdminEvent,
   canReceivePublicEvent: mockCanReceivePublicEvent,
 }))
 
-const { eventAudience, organizerAudience, publicAudience } = await import('./connectionSelectors')
+const { adminAudience, eventAudience, organizerAudience, publicAudience } = await import('./connectionSelectors')
 
 describe('ws/connectionSelectors', () => {
   beforeEach(() => {
@@ -32,6 +34,12 @@ describe('ws/connectionSelectors', () => {
     mockQueryAuthenticatedConnections.mockResolvedValueOnce([{ connectionId: 'a' }, { connectionId: 'b' }])
     mockCanReceiveAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(false)
     await expect(organizerAudience('org-1')).resolves.toEqual([{ connectionId: 'a' }])
+  })
+
+  it('filters admin audience from authenticated connections', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([{ connectionId: 'a' }, { connectionId: 'b' }])
+    mockCanReceiveAnyAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(false)
+    await expect(adminAudience()).resolves.toEqual([{ connectionId: 'a' }])
   })
 
   it('filters event audience by eventId and admin policy', async () => {

@@ -13,6 +13,13 @@ export const canReceiveAdminEvent = (connection: WebSocketConnection, organizerI
   return connection.memberOf?.includes(organizerId) ?? false
 }
 
+export const canReceiveAnyAdminEvent = (connection: WebSocketConnection) => {
+  if (isConnectionExpired(connection)) return false
+  if (connection.admin) return true
+
+  return !!connection.memberOf?.length
+}
+
 export const canReceivePublicEvent = (connection: WebSocketConnection) => {
   if (isConnectionExpired(connection)) return false
 

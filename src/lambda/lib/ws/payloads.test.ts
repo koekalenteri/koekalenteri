@@ -34,8 +34,18 @@ describe('ws/payloads', () => {
     })
   })
 
-  it('buildConnectionCountPayload returns count object', () => {
-    expect(buildConnectionCountPayload(3)).toEqual({ count: 3 })
+  it('buildConnectionCountPayload returns public scoped count object', () => {
+    expect(buildConnectionCountPayload('public:connection-count', 3)).toEqual({
+      count: 3,
+      scope: 'public:connection-count',
+    })
+  })
+
+  it('buildConnectionCountPayload returns admin scoped count object', () => {
+    expect(buildConnectionCountPayload('admin:connection-count', 2)).toEqual({
+      count: 2,
+      scope: 'admin:connection-count',
+    })
   })
 
   it('toEventViewers filters missing ids, deduplicates, and sorts by user id', () => {

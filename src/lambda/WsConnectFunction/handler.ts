@@ -1,6 +1,6 @@
 import type { APIGatewayEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { publishConnectionCount } from '../lib/ws/actions'
+import { publishConnectionCounts } from '../lib/ws/actions'
 import { connectWebSocket } from '../lib/ws/connectionLifecycle'
 
 const getExpiryEpochSeconds = (event: APIGatewayEvent) => {
@@ -11,8 +11,12 @@ const getExpiryEpochSeconds = (event: APIGatewayEvent) => {
 }
 
 const wsConnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
-  const connectionId = event.requestContext.connectionId!
+  const connectionId = event.requestContext.connectionId
   const hasAuthToken = !!event.queryStringParameters?.token
+
+  if (!connectionId) {
+    return { body: 'Bad request', statusCode: 400 }
+  }
 
   const auth = await authorizeWithMemberOf(event as any).catch((err) => {
     console.error('ws connect auth failed', { connectionId, message: err instanceof Error ? err.message : String(err) })
@@ -35,7 +39,7 @@ const wsConnectHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
     memberOf: canReceiveAdmin ? memberOf : undefined,
     userId: user?.id,
   })
-  await publishConnectionCount([connectionId])
+  await publishConnectionCounts([connectionId])
 
   return { body: 'Connected', statusCode: 200 }
 }

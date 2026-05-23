@@ -1,7 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockWsConnect = jest.fn<any>()
-const mockBroadcastConnectionCount = jest.fn<any>()
+const mockBroadcastConnectionCounts = jest.fn<any>()
 const mockAuthorizeWithMemberOf = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/auth', () => ({
@@ -13,7 +13,7 @@ jest.unstable_mockModule('../lib/ws/connectionLifecycle', () => ({
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
-  publishConnectionCount: mockBroadcastConnectionCount,
+  publishConnectionCounts: mockBroadcastConnectionCounts,
 }))
 
 const { default: wsConnectHandler } = await import('./handler')
@@ -41,7 +41,7 @@ describe('wsConnectHandler', () => {
       user: { admin: false, id: 'user-1' },
     })
     mockWsConnect.mockResolvedValue(undefined)
-    mockBroadcastConnectionCount.mockResolvedValue(undefined)
+    mockBroadcastConnectionCounts.mockResolvedValue(undefined)
   })
 
   afterAll(() => {
@@ -61,7 +61,7 @@ describe('wsConnectHandler', () => {
     })
 
     // Verify broadcastConnectionCount was called excluding current connection
-    expect(mockBroadcastConnectionCount).toHaveBeenCalledWith(['test-connection-id'])
+    expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
 
     // Verify the response
     expect(result).toEqual({
@@ -88,13 +88,13 @@ describe('wsConnectHandler', () => {
     })
 
     // Verify broadcastConnectionCount was not called
-    expect(mockBroadcastConnectionCount).not.toHaveBeenCalled()
+    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 
   it('throws an error if broadcastConnectionCount fails', async () => {
     // Setup broadcastConnectionCount to throw an error
     const error = new Error('Broadcast error')
-    mockBroadcastConnectionCount.mockRejectedValueOnce(error)
+    mockBroadcastConnectionCounts.mockRejectedValueOnce(error)
 
     // Expect the handler to throw the error
     await expect(wsConnectHandler(event)).rejects.toThrow('Broadcast error')
@@ -109,7 +109,7 @@ describe('wsConnectHandler', () => {
     })
 
     // Verify broadcastConnectionCount was called excluding current connection
-    expect(mockBroadcastConnectionCount).toHaveBeenCalledWith(['test-connection-id'])
+    expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
   })
 
   it('returns authorization response when user is not allowed to connect', async () => {
@@ -125,7 +125,7 @@ describe('wsConnectHandler', () => {
       memberOf: undefined,
       userId: undefined,
     })
-    expect(mockBroadcastConnectionCount).toHaveBeenCalledWith(['test-connection-id'])
+    expect(mockBroadcastConnectionCounts).toHaveBeenCalledWith(['test-connection-id'])
   })
 
   it('connects anonymously if authorization throws', async () => {
@@ -158,7 +158,7 @@ describe('wsConnectHandler', () => {
 
     expect(result).toEqual({ body: 'Forbidden', statusCode: 403 })
     expect(mockWsConnect).not.toHaveBeenCalled()
-    expect(mockBroadcastConnectionCount).not.toHaveBeenCalled()
+    expect(mockBroadcastConnectionCounts).not.toHaveBeenCalled()
   })
 
   it('omits expiresAt when exp claim is not numeric', async () => {
