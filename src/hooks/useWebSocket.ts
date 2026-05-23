@@ -7,6 +7,7 @@ import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
 import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
+import { useMarkRecentlyUpdated } from '../pages/recoil/recentUpdates'
 import { userSelector } from '../pages/recoil/user/selectors'
 import { WS_API_URL } from '../routeConfig'
 
@@ -70,6 +71,24 @@ export const applyRegistrationPatches = (
   return changed ? next : registrations
 }
 
+export const getRegistrationPatchChangedIds = (
+  registrations: Registration[],
+  patch: DeepPartial<Registration>[]
+): string[] => {
+  if (!patch.length) return []
+
+  const patchesById = new Map(
+    patch.filter((item): item is DeepPartial<Registration> & { id: string } => !!item.id).map((item) => [item.id, item])
+  )
+
+  return registrations.flatMap((registration) => {
+    const registrationPatch = patchesById.get(registration.id)
+    if (!registrationPatch) return []
+
+    return patchMerge(registration, registrationPatch) !== registration ? [registration.id] : []
+  })
+}
+
 interface EventViewer {
   userId: string
   name: string
@@ -112,6 +131,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
   const idTokenLoadable = useRecoilValueLoadable(idTokenAtom)
   const adminUsersLoadable = useRecoilValueLoadable(adminUsersAtom)
   const currentUserLoadable = useRecoilValueLoadable(userSelector)
+  const markRecentlyUpdated = useMarkRecentlyUpdated()
   const eventIdRef = useRef<string | undefined>(eventId)
   const rawViewersRef = useRef<Array<{ userId?: string }>>([])
   const shouldReconnectRef = useRef(true)
@@ -121,9 +141,11 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         const loadable = snapshot.getLoadable(eventsAtom)
         if (loadable.state !== 'hasValue') return
 
-        set(eventsAtom, (current) => applyPatchOrInsert(current, eventId, patch))
+        const next = applyPatchOrInsert(loadable.contents, eventId, patch)
+        if (next !== loadable.contents) markRecentlyUpdated('public:event', eventId)
+        set(eventsAtom, next)
       },
-    []
+    [markRecentlyUpdated]
   )
   const setAdminEvents = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -131,9 +153,11 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         const loadable = snapshot.getLoadable(adminEventsAtom)
         if (loadable.state !== 'hasValue') return
 
-        set(adminEventsAtom, (current) => applyPatchOrInsert(current, eventId, patch))
+        const next = applyPatchOrInsert(loadable.contents, eventId, patch)
+        if (next !== loadable.contents) markRecentlyUpdated('admin:event', eventId)
+        set(adminEventsAtom, next)
       },
-    []
+    [markRecentlyUpdated]
   )
   const patchRegistrations = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -141,9 +165,15 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
         const loadable = snapshot.getLoadable(adminEventRegistrationsAtom(nextEventId))
         if (loadable.state !== 'hasValue') return
 
-        set(adminEventRegistrationsAtom(nextEventId), (current) => applyRegistrationPatches(current, patch))
+        const next = applyRegistrationPatches(loadable.contents, patch)
+        if (next !== loadable.contents) {
+          for (const registrationId of getRegistrationPatchChangedIds(loadable.contents, patch)) {
+            markRecentlyUpdated('admin:registration', registrationId)
+          }
+        }
+        set(adminEventRegistrationsAtom(nextEventId), next)
       },
-    []
+    [markRecentlyUpdated]
   )
   const [count, setCount] = useState(0)
   const [viewers, setViewers] = useState<EventViewer[]>([])

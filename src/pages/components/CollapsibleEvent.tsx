@@ -7,7 +7,9 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import { useCallback } from 'react'
 import { useRecoilState } from 'recoil'
+import { recentUpdateSx } from '../../assets/highlight'
 import { openedEventAtom } from '../recoil'
+import { useIsRecentlyUpdated } from '../recoil/recentUpdates'
 
 interface Props {
   readonly eventId: string
@@ -17,6 +19,7 @@ interface Props {
 
 export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithChildren<Props>) => {
   const [open, setOpen] = useRecoilState(openedEventAtom(eventId))
+  const recentlyUpdated = useIsRecentlyUpdated('public:event', eventId)
 
   const handleClick = useCallback(() => setOpen(!open), [open, setOpen])
 
@@ -30,6 +33,7 @@ export const CollapsibleEvent = ({ eventId, odd, header, children }: PropsWithCh
         pr: 1,
         py: 1,
         width: '100%',
+        ...(recentlyUpdated ? recentUpdateSx : {}),
       }}
       component="article"
     >

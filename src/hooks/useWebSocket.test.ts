@@ -9,12 +9,14 @@ import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
 import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
+import { recentlyUpdatedAtom } from '../pages/recoil/recentUpdates'
 import {
   applyPatch,
   applyPatchOrInsert,
   applyRegistrationPatches,
   applyRegistrations,
   applyViewers,
+  getRegistrationPatchChangedIds,
   useWebSocket,
 } from './useWebSocket'
 
@@ -134,6 +136,20 @@ describe('applyRegistrationPatches', () => {
       { id: '1', notes: 'new' },
       { id: '2', notes: 'keep' },
     ])
+  })
+
+  it('returns changed registration ids', () => {
+    const current = [
+      { id: '1', notes: 'old' },
+      { id: '2', notes: 'keep' },
+    ] as Registration[]
+
+    expect(
+      getRegistrationPatchChangedIds(current, [
+        { id: '1', notes: 'new' },
+        { id: '2', notes: 'keep' },
+      ])
+    ).toEqual(['1'])
   })
 })
 
@@ -371,7 +387,10 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket(true)
-        return useRecoilValue(adminEventsAtom)
+        return {
+          events: useRecoilValue(adminEventsAtom),
+          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+        }
       },
       { wrapper }
     )
@@ -386,7 +405,10 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(result.current[0]?.judges?.[0]?.name).toBe('New Judge')
+    await waitFor(() => {
+      expect(result.current.events[0]?.judges?.[0]?.name).toBe('New Judge')
+      expect(result.current.recentlyUpdated['admin:event:event-1']).toEqual(expect.any(Number))
+    })
   })
 
   it('should insert new admin events from scoped admin event patch messages', async () => {
@@ -419,10 +441,12 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(result.current).toHaveLength(1)
-    expect(result.current[0]).toEqual(
-      expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', organizer: { id: 'org-1', name: 'Organizer' } })
-    )
+    await waitFor(() => {
+      expect(result.current).toHaveLength(1)
+      expect(result.current[0]).toEqual(
+        expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', organizer: { id: 'org-1', name: 'Organizer' } })
+      )
+    })
   })
 
   it('should update public events from scoped public event patch messages', async () => {
@@ -438,7 +462,10 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket(false)
-        return useRecoilValue(eventsAtom)
+        return {
+          events: useRecoilValue(eventsAtom),
+          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+        }
       },
       { wrapper }
     )
@@ -449,7 +476,37 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(result.current[0]?.entries).toBe(2)
+    await waitFor(() => {
+      expect(result.current.events[0]?.entries).toBe(2)
+      expect(result.current.recentlyUpdated['public:event:event-1']).toEqual(expect.any(Number))
+    })
+  })
+
+  it('should not mark unchanged public event patches as recently updated', async () => {
+    const event = { entries: 1, id: 'event-1', name: 'Old Public Name' }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(false)
+        return useRecoilValue(recentlyUpdatedAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ entries: 1, eventId: 'event-1', scope: 'public:event-patch' }),
+      })
+    })
+
+    expect(result.current['public:event:event-1']).toBeUndefined()
   })
 
   it('should insert new public events from scoped public event patch messages', async () => {
@@ -481,10 +538,12 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(result.current).toHaveLength(1)
-    expect(result.current[0]).toEqual(
-      expect.objectContaining({ entries: 2, eventType: 'NOME-A', id: 'event-2', name: 'New Public Event' })
-    )
+    await waitFor(() => {
+      expect(result.current).toHaveLength(1)
+      expect(result.current[0]).toEqual(
+        expect.objectContaining({ entries: 2, eventType: 'NOME-A', id: 'event-2', name: 'New Public Event' })
+      )
+    })
   })
 
   it('should not let the global websocket consume admin event patch messages as public events', async () => {
@@ -535,7 +594,10 @@ describe('useWebSocket', () => {
     const { result } = renderHook(
       () => {
         useWebSocket(true, 'event-1')
-        return useRecoilValue(adminEventRegistrationsAtom('event-1'))
+        return {
+          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+          registrations: useRecoilValue(adminEventRegistrationsAtom('event-1')),
+        }
       },
       { wrapper }
     )
@@ -550,7 +612,10 @@ describe('useWebSocket', () => {
       })
     })
 
-    expect(result.current[0]?.notes).toBe('updated')
+    await waitFor(() => {
+      expect(result.current.registrations[0]?.notes).toBe('updated')
+      expect(result.current.recentlyUpdated['admin:registration:reg-1']).toEqual(expect.any(Number))
+    })
   })
 
   it('should clear viewers when switching to another event before next payload arrives', async () => {
