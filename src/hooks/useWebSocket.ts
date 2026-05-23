@@ -1,7 +1,7 @@
 import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../types'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
-import { patchMerge } from '../lib/utils'
+import { parseJSON, patchMerge } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
@@ -239,7 +239,7 @@ export const useWebSocket = (admin: boolean = false, eventId?: string) => {
 
     ws.onmessage = (event) => {
       try {
-        const data = JSON.parse(event.data)
+        const data = parseJSON(event.data)
         console.debug('ws: ', data)
 
         if (typeof data.count === 'number') {

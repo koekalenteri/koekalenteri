@@ -412,6 +412,51 @@ describe('useWebSocket', () => {
     })
   })
 
+  it('should revive date strings in admin event patch messages as Date objects', async () => {
+    const event = {
+      classes: [],
+      endDate: new Date('2026-01-02'),
+      eventType: 'NOME-B',
+      id: 'event-1',
+      judges: [],
+      organizer: { id: 'org-1', name: 'Organizer' },
+      startDate: new Date('2026-01-01'),
+    }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket(true)
+        return useRecoilValue(adminEventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          endDate: '2026-03-15',
+          eventId: 'event-1',
+          scope: 'admin:event-patch',
+          startDate: '2026-03-10',
+        }),
+      })
+    })
+
+    await waitFor(() => {
+      const updated = result.current[0]
+      expect((updated as any).startDate).toBeInstanceOf(Date)
+      expect((updated as any).endDate).toBeInstanceOf(Date)
+    })
+  })
+
   it('should insert new admin events from scoped admin event patch messages', async () => {
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
       return createElement(RecoilRoot, {
