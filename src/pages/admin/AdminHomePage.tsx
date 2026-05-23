@@ -3,15 +3,13 @@ import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import { HEADER_HEIGHT } from '../../assets/Theme'
-import { useWebSocket } from '../../hooks/useWebSocket'
+import { AdminWebSocketProvider } from '../../hooks/useAdminWebSocket'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
 import { hasAdminAccessSelector, useUserActions } from '../recoil'
 
 export default function AdminHomePage() {
-  useWebSocket(true)
-
   const actions = useUserActions()
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
   const location = useLocation()
@@ -27,7 +25,7 @@ export default function AdminHomePage() {
   if (!hasAccess) return null
 
   return (
-    <>
+    <AdminWebSocketProvider>
       <Header toggleMenu={toggleMenu} />
       <Box sx={{ display: 'flex', height: '100%' }} minWidth={900}>
         <SideMenu open={menuOpen} onClose={closeMenu} />
@@ -46,6 +44,6 @@ export default function AdminHomePage() {
           </Suspense>
         </Box>
       </Box>
-    </>
+    </AdminWebSocketProvider>
   )
 }

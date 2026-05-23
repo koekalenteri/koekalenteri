@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Authenticator } from '@aws-amplify/ui-react'
 import { ThemeProvider } from '@mui/material'
 import { render } from '@testing-library/react'
@@ -9,17 +10,15 @@ import { Path } from '../../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import AdminHomePage from './AdminHomePage'
 
-const mockUseWebSocket = jest.fn()
-
 jest.mock('../../api/user')
-jest.mock('../../hooks/useWebSocket', () => ({
-  useWebSocket: (...args: unknown[]) => mockUseWebSocket(...args),
+jest.mock('../../hooks/useAdminWebSocket', () => ({
+  AdminWebSocketProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useAdminWebSocketSubscription: jest.fn(() => ({ viewers: [] })),
 }))
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())
   afterEach(() => {
-    mockUseWebSocket.mockClear()
     jest.runOnlyPendingTimers()
   })
   afterAll(() => jest.useRealTimers())
@@ -51,7 +50,6 @@ describe('AdminHomePage', () => {
 
     await flushPromises()
     expect(container).toMatchSnapshot()
-    expect(mockUseWebSocket).toHaveBeenCalledWith(true)
   })
 
   it('renders the child page content when user is logged in', async () => {
