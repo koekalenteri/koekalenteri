@@ -138,7 +138,7 @@ describe('ws/actions', () => {
   })
 
   it('publishes only admin patch when no public fields changed', async () => {
-    await publishEventPatch({ eventId: 'e1', name: 'Updated' }, 'org-1')
+    await publishEventPatch({ eventId: 'e1', kcId: 123 }, 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
   })
@@ -147,17 +147,23 @@ describe('ws/actions', () => {
     mockOrganizerAudience.mockResolvedValueOnce([{ connectionId: 'a1' }])
     mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'p1' }])
 
-    await publishEventPatch({ entries: 10, eventId: 'e1' }, 'org-1')
+    await publishEventPatch({ entries: 10, eventId: 'e1', name: 'Updated' }, 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(2)
 
     const publicCall = mockBroadcast.mock.calls[1]?.[0] as
-      | { audience: () => Promise<Array<{ connectionId: string }>> }
+      | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: () => unknown }
       | undefined
     expect(publicCall).toBeTruthy()
     if (!publicCall) throw new Error('missing public broadcast call')
 
     await expect(publicCall.audience()).resolves.toEqual([{ connectionId: 'p1' }])
+    expect(publicCall.buildPayload()).toEqual({
+      entries: 10,
+      eventId: 'e1',
+      name: 'Updated',
+      scope: 'public:event-patch',
+    })
   })
 
   it('publishRegistrationPatches sends admin:event-registrations payload to event audience', async () => {
