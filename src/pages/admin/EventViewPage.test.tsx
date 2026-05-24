@@ -177,6 +177,6 @@ describe('EventViewPage', () => {
 
     await flushPromises()
     await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
-    expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner.one names')
+    expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
   })
 })

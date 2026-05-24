@@ -20,6 +20,4 @@ export type RegistrationPatchPayload = {
   patch: DeepPartial<JsonRegistration>[]
 }
 
-export type EventViewer = {
-  userId: string
-}
+export type EventViewer = string

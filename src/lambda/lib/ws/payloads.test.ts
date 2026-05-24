@@ -26,7 +26,7 @@ describe('ws/payloads', () => {
   })
 
   it('buildEventViewersPayload returns admin scope payload', () => {
-    const viewers = [{ userId: 'u1' }, { userId: 'u2' }]
+    const viewers = ['u1', 'u2']
     expect(buildEventViewersPayload('e1', viewers)).toEqual({
       eventId: 'e1',
       scope: 'admin:event-viewers',
@@ -48,7 +48,7 @@ describe('ws/payloads', () => {
     })
   })
 
-  it('toEventViewers filters missing ids, deduplicates, and sorts by user id', () => {
+  it('toEventViewers returns distinct user ids in connection order', () => {
     const connections = [
       { connectionId: 'c1', userId: 'matti' },
       { connectionId: 'c2' },
@@ -57,6 +57,6 @@ describe('ws/payloads', () => {
       { connectionId: 'c5', userId: 'åke' },
     ] as any
 
-    expect(toEventViewers(connections)).toEqual([{ userId: 'anna' }, { userId: 'matti' }, { userId: 'åke' }])
+    expect(toEventViewers(connections)).toEqual(['matti', 'anna', 'åke'])
   })
 })

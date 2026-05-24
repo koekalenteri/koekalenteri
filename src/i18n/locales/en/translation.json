@@ -190,10 +190,8 @@
       "tentative_save": "Event was published as tentative"
     },
     "statusText": "",
-    "viewerBanner": {
-      "many": "{{names}} are also viewing this event.",
-      "one": "{{names}} is also viewing this event."
-    }
+    "viewerBanner_one": "{{names}} is also viewing this event.",
+    "viewerBanner_other": "{{names}} are also viewing this event."
   },
   "eventInfo": "Event information",
   "events": "Events",

@@ -437,7 +437,7 @@ describe('useWebSocket', () => {
         data: JSON.stringify({
           eventId: 'event-1',
           scope: 'admin:event-viewers',
-          viewers: [{ userId: 'user-2' }],
+          viewers: ['user-2'],
         }),
       })
     })
@@ -726,7 +726,7 @@ describe('useWebSocket', () => {
         data: JSON.stringify({
           eventId: 'event-1',
           scope: 'admin:event-viewers',
-          viewers: [{ userId: 'user-2' }],
+          viewers: ['user-2'],
         }),
       })
     })

@@ -1,5 +1,5 @@
 import type { DeepPartial, JsonDogEvent, JsonPublicDogEvent, JsonRegistration } from '../../../types'
-import type { WebSocketConnection } from './types'
+import type { EventViewer, WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { broadcast } from './broadcast'
 import { disconnectWebSocket } from './connectionLifecycle'
@@ -15,6 +15,9 @@ import { subscribeToAdmin, subscribeToEvent, unsubscribeFromAdmin, unsubscribeFr
 
 type PublicEventPatch = Partial<JsonPublicDogEvent> & { eventId: string }
 type AdminEventPatch = Partial<JsonDogEvent> & { eventId: string }
+
+const excludeRecipientFromViewers = (viewers: EventViewer[], recipient: WebSocketConnection) =>
+  viewers.filter((userId) => userId !== recipient.userId)
 
 const send = <T>(args: Omit<Parameters<typeof broadcast<T>>[0], 'onGoneConnection'>) =>
   broadcast<T>({
@@ -70,7 +73,8 @@ export const publishRegistrationPatches = (
 export const publishEventViewers = (eventId: string, organizerId: string) =>
   send({
     audience: () => eventAudience(eventId, organizerId),
-    buildPayload: (audience) => buildEventViewersPayload(eventId, toEventViewers(audience)),
+    buildPayload: (audience, recipient) =>
+      buildEventViewersPayload(eventId, excludeRecipientFromViewers(toEventViewers(audience), recipient)),
   })
 
 export const publishPublicConnectionCount = (excludeConnectionIds: string[] = []) =>

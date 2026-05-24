@@ -22,12 +22,11 @@ export const buildEventViewersPayload = (eventId: string, viewers: EventViewer[]
 export const buildConnectionCountPayload = (scope: ConnectionCountScope, count: number) => ({ count, scope })
 
 export const toEventViewers = (connections: WebSocketConnection[]): EventViewer[] => {
-  const viewersById = new Map<string, EventViewer>()
+  const userIds = new Set<string>()
 
-  for (const connection of connections) {
-    if (!connection.userId || viewersById.has(connection.userId)) continue
-    viewersById.set(connection.userId, { userId: connection.userId })
+  for (const { userId } of connections) {
+    if (userId) userIds.add(userId)
   }
 
-  return [...viewersById.values()].sort((a, b) => a.userId.localeCompare(b.userId, 'fi'))
+  return [...userIds]
 }

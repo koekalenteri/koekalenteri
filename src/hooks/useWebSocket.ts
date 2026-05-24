@@ -96,7 +96,7 @@ interface EventViewer {
 }
 
 const mapEventViewers = (
-  viewers: Array<{ userId?: string }>,
+  viewers: string[],
   adminUsers: Array<{ id: string; name?: string }>,
   currentUser?: { id: string; name?: string }
 ) => {
@@ -105,16 +105,10 @@ const mapEventViewers = (
     usersById.set(currentUser.id, currentUser)
   }
 
-  return viewers
-    .map((viewer) => {
-      if (!viewer.userId) return undefined
-
-      return {
-        name: usersById.get(viewer.userId)?.name ?? viewer.userId,
-        userId: viewer.userId,
-      }
-    })
-    .filter((viewer): viewer is EventViewer => !!viewer)
+  return viewers.map((userId) => ({
+    name: usersById.get(userId)?.name ?? userId,
+    userId,
+  }))
 }
 
 export const applyViewers = (current: EventViewer[], next: EventViewer[]) => {
@@ -153,7 +147,7 @@ export const useWebSocket = () => {
   // Subscription state — persisted across reconnects
   const adminSubscribedRef = useRef(false)
   const eventIdRef = useRef<string | undefined>(undefined)
-  const rawViewersRef = useRef<Array<{ userId?: string }>>([])
+  const rawViewersRef = useRef<string[]>([])
 
   // Mutable refs for values only needed inside callbacks
   const idTokenRef = useRef<string | undefined>(undefined)
@@ -311,8 +305,9 @@ export const useWebSocket = () => {
         }
 
         if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
-          rawViewersRef.current = data.viewers
-          const nextViewers = mapEventViewers(data.viewers, adminUsersRef.current, currentUserRef.current)
+          const viewerUserIds = data.viewers.filter((viewer: unknown): viewer is string => typeof viewer === 'string')
+          rawViewersRef.current = viewerUserIds
+          const nextViewers = mapEventViewers(viewerUserIds, adminUsersRef.current, currentUserRef.current)
           setViewers((current) => applyViewers(current, nextViewers))
           return
         }

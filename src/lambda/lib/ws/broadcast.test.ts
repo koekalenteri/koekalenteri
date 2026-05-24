@@ -19,7 +19,7 @@ describe('ws/broadcast', () => {
 
     const result = await broadcast({
       audience: async () => [{ connectionId: 'a' } as any, { connectionId: 'b' } as any, { connectionId: 'c' } as any],
-      buildPayload: () => ({ type: 'test' }),
+      buildPayload: (_audience, recipient) => ({ recipientId: recipient.connectionId, type: 'test' }),
       log,
       onGoneConnection,
       send,
@@ -27,8 +27,32 @@ describe('ws/broadcast', () => {
 
     expect(log).toHaveBeenCalledWith({ audience: 3 })
     expect(send).toHaveBeenCalledTimes(3)
+    expect(send).toHaveBeenNthCalledWith(1, 'a', Buffer.from(JSON.stringify({ recipientId: 'a', type: 'test' })))
     expect(onGoneConnection).toHaveBeenCalledWith('b')
     expect(result).toEqual({ attempted: 3, failed: 1, gone: 1, sent: 1 })
+  })
+
+  it('builds payload separately for each recipient', async () => {
+    const send = jest.fn<any>().mockResolvedValue('sent')
+    const buildPayload = jest.fn((audience: Array<{ connectionId: string }>, recipient: { connectionId: string }) => ({
+      audience: audience.map((connection) => connection.connectionId),
+      recipient: recipient.connectionId,
+    }))
+
+    await broadcast({
+      audience: async () => [{ connectionId: 'a' } as any, { connectionId: 'b' } as any],
+      buildPayload,
+      send,
+    })
+
+    expect(buildPayload).toHaveBeenNthCalledWith(1, [{ connectionId: 'a' }, { connectionId: 'b' }], {
+      connectionId: 'a',
+    })
+    expect(buildPayload).toHaveBeenNthCalledWith(2, [{ connectionId: 'a' }, { connectionId: 'b' }], {
+      connectionId: 'b',
+    })
+    expect(send).toHaveBeenNthCalledWith(1, 'a', Buffer.from(JSON.stringify({ audience: ['a', 'b'], recipient: 'a' })))
+    expect(send).toHaveBeenNthCalledWith(2, 'b', Buffer.from(JSON.stringify({ audience: ['a', 'b'], recipient: 'b' })))
   })
 
   it('limits broadcast concurrency', async () => {
