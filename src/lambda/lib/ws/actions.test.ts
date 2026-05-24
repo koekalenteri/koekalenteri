@@ -332,9 +332,11 @@ describe('ws/actions', () => {
   })
 
   it('unsubscribeWebSocketFromEvent delegates to subscriptionService with publishEventViewers callback', async () => {
-    await unsubscribeWebSocketFromEvent('c1')
+    const connection = { connectionId: 'c1', eventId: 'e1' }
 
-    expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith('c1', publishEventViewers)
+    await unsubscribeWebSocketFromEvent(connection as any)
+
+    expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith(connection, publishEventViewers)
   })
 
   it('subscribeWebSocketToAdmin delegates to subscriptionService', async () => {

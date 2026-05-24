@@ -98,7 +98,7 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
         if (!connection.eventId) {
           return response(400, 'Bad request', event)
         }
-        await unsubscribeWebSocketFromEvent(connectionId)
+        await unsubscribeWebSocketFromEvent(connection)
 
         return response(200, { connectionId, unsubscribed: true }, event)
       }

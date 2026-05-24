@@ -4,7 +4,6 @@ import { getEvent } from '../../lib/event'
 import { LambdaError } from '../../lib/lambda'
 import { canReceiveAnyAdminEvent, isConnectionExpired } from './connectionPolicy'
 import {
-  getConnection,
   subscribeAdminChannel,
   subscribeConnection,
   unsubscribeAdminChannel,
@@ -58,8 +57,11 @@ export const subscribeToEvent = async (
   return { eventId, subscribed: true }
 }
 
-export const unsubscribeFromEvent = async (connectionId: string, publishEventViewers: PublishEventViewers) => {
-  const connection = await getConnection(connectionId)
+export const unsubscribeFromEvent = async (
+  connection: WebSocketConnection,
+  publishEventViewers: PublishEventViewers
+) => {
+  const { connectionId } = connection
 
   await unsubscribeConnection(connectionId)
 

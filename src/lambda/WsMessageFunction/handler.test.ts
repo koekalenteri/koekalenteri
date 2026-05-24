@@ -210,7 +210,7 @@ describe('wsMessageHandler', () => {
       requestContext: { connectionId: 'conn-1' },
     } as any)
 
-    expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith('conn-1')
+    expect(mockUnsubscribeFromEvent).toHaveBeenCalledWith({ connectionId: 'conn-1', eventId: 'event-1' })
     expect(result).toEqual({ body: { connectionId: 'conn-1', unsubscribed: true }, statusCode: 200 })
   })
 

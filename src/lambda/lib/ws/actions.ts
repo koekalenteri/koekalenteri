@@ -103,7 +103,7 @@ export const subscribeWebSocketToEvent = (connection: WebSocketConnection, event
 
 export const subscribeWebSocketToAdmin = (connection: WebSocketConnection) => subscribeToAdmin(connection)
 
-export const unsubscribeWebSocketFromEvent = (connectionId: string) =>
-  unsubscribeFromEvent(connectionId, publishEventViewers)
+export const unsubscribeWebSocketFromEvent = (connection: WebSocketConnection) =>
+  unsubscribeFromEvent(connection, publishEventViewers)
 
 export const unsubscribeWebSocketFromAdmin = (connectionId: string) => unsubscribeFromAdmin(connectionId)

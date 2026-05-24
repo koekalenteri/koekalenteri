@@ -107,22 +107,22 @@ describe('ws/subscriptionService', () => {
   })
 
   it('unsubscribeFromEvent unsubscribes and publishes when connection has event', async () => {
-    mockGetConnection.mockResolvedValueOnce({ connectionId: 'c1', eventId: 'e1' })
     mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-1' } })
     const publishEventViewers = jest.fn<any>().mockResolvedValue(undefined)
 
-    await unsubscribeFromEvent('c1', publishEventViewers)
+    await unsubscribeFromEvent({ connectionId: 'c1', eventId: 'e1' } as any, publishEventViewers)
 
+    expect(mockGetConnection).not.toHaveBeenCalled()
     expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')
     expect(publishEventViewers).toHaveBeenCalledWith('e1', 'org-1', { excludeConnectionId: 'c1' })
   })
 
   it('unsubscribeFromEvent only unsubscribes when connection has no event', async () => {
-    mockGetConnection.mockResolvedValueOnce({ connectionId: 'c1' })
     const publishEventViewers = jest.fn<any>().mockResolvedValue(undefined)
 
-    await unsubscribeFromEvent('c1', publishEventViewers)
+    await unsubscribeFromEvent({ connectionId: 'c1' } as any, publishEventViewers)
 
+    expect(mockGetConnection).not.toHaveBeenCalled()
     expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')
     expect(mockGetEvent).not.toHaveBeenCalled()
     expect(publishEventViewers).not.toHaveBeenCalled()
