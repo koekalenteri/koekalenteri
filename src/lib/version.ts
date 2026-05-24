@@ -7,8 +7,8 @@ export const isEarlierVersionThan = (version: string, current: string = appVersi
   const comparedVersionParts = version.split('.')
 
   for (let i = 0; i < comparedVersionParts.length; i++) {
-    const current = currentVersionParts[i].split('-')
-    const compared = comparedVersionParts[i].split('-')
+    const current = (currentVersionParts[i] ?? '0').split('-')
+    const compared = (comparedVersionParts[i] ?? '0').split('-')
 
     // current includes '-beta' for example, but compared does not
     if (current.length > compared.length) return true
