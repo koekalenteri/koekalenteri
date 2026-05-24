@@ -53,9 +53,22 @@ export type TransactWriteItemWithoutTable = {
  **/
 const fromSamLocalTable = (table: string) => table.replaceAll(/([a-zA-Z])(?=[A-Z])/g, '$1-').toLowerCase()
 
+/**
+ * Sanitizes a string into a valid DynamoDB ExpressionAttributeNames key suffix.
+ * DynamoDB requires keys to start with a letter or underscore (after `#`) and
+ * contain only alphanumeric characters and underscores.
+ * e.g. "2026-08-22" → "n2026_08_22", "my-field" → "my_field"
+ */
+const toSafeExpressionName = (s: string): string => {
+  const safe = s.replaceAll(/[^a-zA-Z0-9_]/g, '_')
+  return /^\d/.test(safe) ? `n${safe}` : safe
+}
+
 const toPathExpression = (field: string): { duplicateKey: string; path: string } => {
   const segments = field.split('.')
-  const nameKeys = segments.map((segment) => (String(Number(segment)) === segment ? `[${segment}]` : `#${segment}`))
+  const nameKeys = segments.map((segment) =>
+    String(Number(segment)) === segment ? `[${segment}]` : `#${toSafeExpressionName(segment)}`
+  )
   return {
     duplicateKey: field,
     path: nameKeys.reduce((acc, part) => {
@@ -88,10 +101,10 @@ const processOperations = (
 
     for (const segment of field.split('.')) {
       if (String(Number(segment)) === segment) continue
-      names[`#${segment}`] = segment
+      names[`#${toSafeExpressionName(segment)}`] = segment
     }
 
-    const valueKey = `:${field.replaceAll('.', '_')}`
+    const valueKey = `:${field.replaceAll('.', '_').replaceAll(/[^a-zA-Z0-9_]/g, '_')}`
     values[valueKey] = value
     parts.push(`${path}${operand}${valueKey}`)
   }
@@ -117,7 +130,7 @@ const processRemoveOperations = (operations: string[] | undefined, names: Record
 
     for (const segment of field.split('.')) {
       if (String(Number(segment)) === segment) continue
-      names[`#${segment}`] = segment
+      names[`#${toSafeExpressionName(segment)}`] = segment
     }
 
     parts.push(path)

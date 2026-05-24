@@ -368,6 +368,29 @@ describe('CustomDynamoClient', () => {
       )
       expect(mockSend.mock.calls[0]?.[0]).not.toHaveProperty('ExpressionAttributeValues')
     })
+
+    it('supports nested dot-path SET operations with date-string keys (regression: #2026-08-22 is invalid)', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { set: { 'placesPerDay.2026-08-22': 1 } })
+
+      const call = mockSend.mock.calls[0]?.[0] as Record<string, any>
+      // All ExpressionAttributeNames keys must start with a letter or underscore after '#'
+      for (const key of Object.keys(call.ExpressionAttributeNames ?? {})) {
+        expect(key).toMatch(/^#[a-zA-Z_]/)
+      }
+      expect(call).toMatchObject({
+        ExpressionAttributeNames: expect.objectContaining({
+          '#n2026_08_22': '2026-08-22',
+          '#placesPerDay': 'placesPerDay',
+        }),
+        ExpressionAttributeValues: {
+          ':placesPerDay_2026_08_22': 1,
+        },
+        UpdateExpression: 'SET #placesPerDay.#n2026_08_22 = :placesPerDay_2026_08_22',
+      })
+    })
   })
 
   describe('batchWrite', () => {
