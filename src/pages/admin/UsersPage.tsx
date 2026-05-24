@@ -31,6 +31,7 @@ import {
   adminUsersColumnsAtom,
   adminUsersOrganizerIdAtom,
   adminUsersOrganizersSelector,
+  useAdminUserActions,
 } from './recoil'
 import { CreateUserDialog } from './usersPage/CreateUserDialog'
 import { EditUserRolesDialog } from './usersPage/EditUserRolesDialog'
@@ -222,6 +223,13 @@ export default function UsersPage() {
     },
     [setSelectedUserID]
   )
+
+  const { refresh } = useAdminUserActions()
+
+  useEffect(() => {
+    // Always refresh on mount so lastSeen is up-to-date for the admin users list.
+    void refresh()
+  }, [refresh])
 
   useEffect(() => {
     if (options.length === 1 && orgId !== options[0].id) {

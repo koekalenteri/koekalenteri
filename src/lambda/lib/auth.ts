@@ -67,9 +67,14 @@ async function updateExistingUser(
     ...(updateLastSeen ? { lastSeen: dateString } : {}),
   }
 
-  if (Object.keys(diff(existing, final)).length > 0) {
+  const changedKeys = Object.keys(diff(existing, final))
+  if (changedKeys.length > 0) {
     console.log('updating user', { existing, final, userId: existing.id })
-    await updateUser({ ...final, modifiedAt: dateString, modifiedBy })
+    // Only bump modifiedAt when something meaningful changed (not just lastSeen).
+    // lastSeen updates on every login and must not invalidate dataVersions caches.
+    const onlyLastSeenChanged = changedKeys.every((k) => k === 'lastSeen')
+    const writeModifiedAt = onlyLastSeenChanged ? (existing.modifiedAt ?? dateString) : dateString
+    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy })
   }
 
   return final
@@ -182,10 +187,15 @@ export async function getAndUpdateUserByEmail(
       : {}),
     ...(updateLastSeen ? { lastSeen: dateString } : {}),
   }
-  if (Object.keys(diff(existing ?? {}, final)).length > 0) {
+  const changedKeys = Object.keys(diff(existing ?? {}, final))
+  if (changedKeys.length > 0) {
     if (existing) console.log('updating user', { existing, final })
     else console.log('creating user', { ...final })
-    await updateUser({ ...final, modifiedAt: dateString, modifiedBy })
+    // Only bump modifiedAt when something meaningful changed (not just lastSeen).
+    // lastSeen updates on every login and must not invalidate dataVersions caches.
+    const onlyLastSeenChanged = existing !== undefined && changedKeys.every((k) => k === 'lastSeen')
+    const writeModifiedAt = onlyLastSeenChanged ? (existing.modifiedAt ?? dateString) : dateString
+    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy })
   }
   return final
 }

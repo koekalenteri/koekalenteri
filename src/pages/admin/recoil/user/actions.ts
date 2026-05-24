@@ -1,7 +1,8 @@
 import type { User, UserRole } from '../../../../types'
 import { useSnackbar } from 'notistack'
+import { useCallback } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { putAdmin, putRole, putUser } from '../../../../api/user'
+import { getUsers, putAdmin, putRole, putUser } from '../../../../api/user'
 import { reportError } from '../../../../lib/client/error'
 import { idTokenAtom } from '../../../recoil'
 import { adminOrganizersAtom } from '../organizers'
@@ -19,6 +20,16 @@ export const useAdminUserActions = () => {
     newUsers.splice(oldIndex === -1 ? users.length : oldIndex, oldIndex === -1 ? 0 : 1, user)
     setUsers(newUsers)
   }
+
+  const refresh = useCallback(async () => {
+    if (!token) return
+    try {
+      const fresh = await getUsers(token)
+      setUsers(fresh)
+    } catch (e) {
+      reportError(e)
+    }
+  }, [token, setUsers])
 
   return {
     addRole: async (user: User, orgId: string, role: UserRole) => {
@@ -46,6 +57,7 @@ export const useAdminUserActions = () => {
         reportError(e)
       }
     },
+    refresh,
     removeRole: async (user: User, orgId: string) => {
       try {
         const saved = await putRole({ orgId, role: 'none', userId: user.id }, token)
