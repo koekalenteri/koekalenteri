@@ -26,7 +26,6 @@
     "@xiechao/codemirror-lang-handlebars": "^1.0.4",
     "aws-amplify": "^6.17.0",
     "aws-embedded-metrics": "^4.2.1",
-    "aws-jwt-verify": "^5.1.1",
     "aws-rum-web": "^2.1.0",
     "busboy": "^1.6.0",
     "date-fns": "^4.2.1",
