@@ -14,9 +14,11 @@ const mockUpdateRegistrations = jest.fn<any>(async () => ({
   endDate: '2024-01-02',
   id: 'event123',
   name: 'Test Event',
+  organizer: { id: 'org-1' },
   startDate: '2024-01-01',
 }))
 const mockUpdateEventStatsForRegistration = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 
 const mockDynamoDB = {
   batchWrite: jest.fn<any>(),
@@ -86,6 +88,10 @@ jest.unstable_mockModule('../lib/event', () => ({
 
 jest.unstable_mockModule('../lib/stats', () => ({
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 const { default: putAdminRegistrationLambda } = await import('./handler')
@@ -160,6 +166,7 @@ describe('putAdminRegistrationLambda', () => {
       endDate: '2024-01-02',
       id: 'event123',
       name: 'Test Event',
+      organizer: { id: 'org-1' },
       startDate: '2024-01-01',
     })
   })
@@ -216,6 +223,11 @@ describe('putAdminRegistrationLambda', () => {
         payer: expect.objectContaining({ email: 'payer@example.com' }),
         state: 'ready',
       })
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [expect.objectContaining({ eventId: 'event123', state: 'ready' })],
+      'org-1'
     )
 
     expect(result.statusCode).toBe(200)
@@ -344,6 +356,11 @@ describe('putAdminRegistrationLambda', () => {
         },
         state: 'draft', // Preserved from existing
       })
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [expect.objectContaining({ id: 'reg456', state: 'draft' })],
+      'org-1'
     )
 
     expect(result.statusCode).toBe(200)

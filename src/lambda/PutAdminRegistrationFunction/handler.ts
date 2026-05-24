@@ -22,6 +22,7 @@ import {
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const { emailFrom } = CONFIG
 
@@ -81,6 +82,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId)
   const updatedRegistrations = await fixRegistrationGroups(readyRegistrations, user)
   const updatedData = updatedRegistrations.find((r) => r.id === data.id) ?? data
+  await publishRegistrationPatches(registration.eventId, [updatedData], confirmedEvent.organizer.id)
 
   // Update organizer event stats after registration change
   await updateEventStatsForRegistration(updatedData, existing, confirmedEvent)

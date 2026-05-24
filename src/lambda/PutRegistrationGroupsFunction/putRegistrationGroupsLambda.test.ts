@@ -177,6 +177,11 @@ describe('putRegistrationGroupsLambda', () => {
     const resultItem = resultItems.find((r) => r.id === reg.id)
     expect(resultItem?.cancelled).toBe(false)
     expect(resultItem?.group).toEqual(reg.group)
+    expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
+      event.id,
+      expect.arrayContaining([expect.objectContaining({ group: reg.group, id: reg.id })]),
+      event.organizer.id
+    )
   })
 
   it('should move to last place', async () => {

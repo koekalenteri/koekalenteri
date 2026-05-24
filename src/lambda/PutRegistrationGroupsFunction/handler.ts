@@ -17,6 +17,7 @@ import {
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
   Boolean(event.state === state || (cls && event.classes.some((c) => c.class === cls && c.state === state)))
@@ -25,6 +26,12 @@ const classEquals = (a: string | null | undefined, b: string | null | undefined)
 
 const regString = (r: JsonRegistration) =>
   `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
+
+const getChangedRegistrations = (oldItems: JsonRegistration[], updatedItems: JsonRegistration[]) =>
+  updatedItems.filter((reg) => {
+    const oldGroup = oldItems.find((old) => old.id === reg.id)?.group
+    return reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number
+  })
 
 const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegistrationGroupInfo[], user: JsonUser) => {
   // create a new copy of oldItems, so we can update without touching the original ones
@@ -87,9 +94,11 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   // create a new copy of oldItems, so we can update without touching the original ones
   const updatedItems = await updateItems(oldItems, eventGroups, user)
+  const changedRegistrations = getChangedRegistrations(oldItems, updatedItems)
 
   // update event counts
   const confirmedEvent = await updateRegistrations(eventId, updatedItems)
+  await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
   const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
 
   const emails = {

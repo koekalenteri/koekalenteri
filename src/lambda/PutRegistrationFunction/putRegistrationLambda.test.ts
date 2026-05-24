@@ -18,7 +18,8 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
 
 const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonDogEvent>>()
 const mockUpdateEventStatsForRegistration = jest.fn()
-const mockUpdateRegistrations = jest.fn()
+const mockUpdateRegistrations = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn()
 const mockDynamoDBWrite = jest.fn()
 const mockDynamoDBUpdate = jest.fn()
 
@@ -29,6 +30,10 @@ jest.unstable_mockModule('../lib/event', () => ({
 
 jest.unstable_mockModule('../lib/stats', () => ({
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -88,6 +93,7 @@ describe('putRegistrationLabmda', () => {
   afterEach(() => {
     jest.clearAllMocks()
     mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
+    mockUpdateRegistrations.mockResolvedValue({ ...eventWithStaticDates, organizer: { id: 'org-1' } })
   })
   afterAll(() => {
     jest.useRealTimers()
@@ -132,6 +138,7 @@ describe('putRegistrationLabmda', () => {
 
     expect(mockSES.send).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
 
     expect(res.statusCode).toEqual(200)
   })
@@ -352,6 +359,11 @@ describe('putRegistrationLabmda', () => {
 
     expect(mockUpdateRegistrations).toHaveBeenCalledTimes(1)
     expect(mockUpdateRegistrations).toHaveBeenCalledWith(eventWithStaticDates.id)
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      [expect.objectContaining({ cancelled: true })],
+      'org-1'
+    )
 
     expect(res.statusCode).toEqual(200)
   })
@@ -605,7 +617,12 @@ describe('putRegistrationLabmda', () => {
     })
     expect(mockSES.send).toHaveBeenCalledTimes(1)
 
-    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).toHaveBeenCalledWith(eventWithStaticDates.id)
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      [expect.objectContaining({ id: registrationWithStaticDates.id, notes: 'updated notes' })],
+      'org-1'
+    )
 
     expect(res.statusCode).toEqual(200)
   })
@@ -655,7 +672,12 @@ describe('putRegistrationLabmda', () => {
     })
     expect(mockSES.send).toHaveBeenCalledTimes(1)
 
-    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).toHaveBeenCalledWith(eventWithStaticDates.id)
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      [expect.objectContaining({ confirmed: true, id: registrationWithStaticDates.id })],
+      'org-1'
+    )
 
     expect(res.statusCode).toEqual(200)
   })
