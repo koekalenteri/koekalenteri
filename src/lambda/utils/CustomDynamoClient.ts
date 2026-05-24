@@ -70,7 +70,7 @@ const toPathExpression = (field: string): { duplicateKey: string; path: string }
     String(Number(segment)) === segment ? `[${segment}]` : `#${toSafeExpressionName(segment)}`
   )
   return {
-    duplicateKey: field,
+    duplicateKey: toSafeExpressionName(field),
     path: nameKeys.reduce((acc, part) => {
       if (!acc) return part
       return part.startsWith('[') ? `${acc}${part}` : `${acc}.${part}`
@@ -97,7 +97,7 @@ const processOperations = (
       throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
 
-    names[`#${duplicateKey}`] = duplicateKey
+    names[`#${duplicateKey}`] = field
 
     for (const segment of field.split('.')) {
       if (String(Number(segment)) === segment) continue
@@ -126,7 +126,7 @@ const processRemoveOperations = (operations: string[] | undefined, names: Record
       throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
 
-    names[`#${duplicateKey}`] = duplicateKey
+    names[`#${duplicateKey}`] = field
 
     for (const segment of field.split('.')) {
       if (String(Number(segment)) === segment) continue

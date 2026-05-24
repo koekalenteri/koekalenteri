@@ -568,8 +568,8 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenCalledWith({
         ExpressionAttributeNames: {
           '#contactInfo': 'contactInfo',
-          '#contactInfo.secretary.email': 'contactInfo.secretary.email',
-          '#contactInfo.secretary.phone': 'contactInfo.secretary.phone',
+          '#contactInfo_secretary_email': 'contactInfo.secretary.email',
+          '#contactInfo_secretary_phone': 'contactInfo.secretary.phone',
           '#email': 'email',
           '#phone': 'phone',
           '#secretary': 'secretary',
