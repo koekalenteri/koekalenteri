@@ -3,6 +3,7 @@ import { jest } from '@jest/globals'
 const mockAuthorize = jest.fn<any>()
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn()
+const mockDedupeUsersByEmail = jest.fn<any>((users: any[]) => users)
 const mockFilterRelevantUsers = jest.fn()
 const mockGetAllUsers = jest.fn<any>()
 const mockUserIsMemberOf = jest.fn<any>()
@@ -15,6 +16,7 @@ jest.unstable_mockModule('../lib/lambda', () => ({
   response: mockResponse,
 }))
 jest.unstable_mockModule('../lib/user', () => ({
+  dedupeUsersByEmail: mockDedupeUsersByEmail,
   filterRelevantUsers: mockFilterRelevantUsers,
   getAllUsers: mockGetAllUsers,
   userIsMemberOf: mockUserIsMemberOf,

@@ -1,8 +1,7 @@
 import type { DataVersion, DataVersions, JsonUser } from '../../types'
 import { CONFIG } from '../config'
-import { dedupeUsersByEmail } from '../GetUsersFunction/handler'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { filterRelevantUsers, getAllUsers, userIsMemberOf } from './user'
+import { dedupeUsersByEmail, filterRelevantUsers, getAllUsers, userIsMemberOf } from './user'
 
 type VersionRecord = { modifiedAt?: string }
 

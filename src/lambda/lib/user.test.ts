@@ -61,6 +61,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 }))
 
 const {
+  dedupeUsersByEmail,
   filterRelevantUsers,
   getAllUsers,
   findUserByEmail,
@@ -120,6 +121,109 @@ const testUsers: JsonUser[] = [
   otherOrgSecretary,
   justUser,
 ]
+
+describe('dedupeUsersByEmail', () => {
+  it('returns empty array for empty input', () => {
+    expect(dedupeUsersByEmail([])).toEqual([])
+  })
+
+  it('returns all users when emails are unique', () => {
+    const users = [
+      { email: 'a@example.com', id: '1' },
+      { email: 'b@example.com', id: '2' },
+      { email: 'c@example.com', id: '3' },
+    ]
+    expect(dedupeUsersByEmail(users)).toEqual(users)
+  })
+
+  it('deduplicates case-insensitively, keeping the higher-scored user', () => {
+    const lower = { email: 'user@example.com', id: 'low', roles: {} }
+    const upper = { email: 'User@Example.COM', id: 'high', roles: { org1: 'admin' as const } }
+    const result = dedupeUsersByEmail([lower, upper])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('high')
+  })
+
+  it('prefers admin user over non-admin with same email', () => {
+    const plain = { admin: false, email: 'x@example.com', id: 'plain' }
+    const adminUser = { admin: true, email: 'x@example.com', id: 'admin' }
+    const result = dedupeUsersByEmail([plain, adminUser])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('admin')
+  })
+
+  it('prefers user with more roles when admin flag is equal', () => {
+    const fewer = { email: 'x@example.com', id: 'fewer', roles: { org1: 'secretary' as const } }
+    const more = { email: 'x@example.com', id: 'more', roles: { org1: 'admin' as const, org2: 'secretary' as const } }
+    const result = dedupeUsersByEmail([fewer, more])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('more')
+  })
+
+  it('prefers user with more officer entries when roles are equal', () => {
+    const less = { email: 'x@example.com', id: 'less', officer: ['NOME-A'] }
+    const more = { email: 'x@example.com', id: 'more', officer: ['NOME-A', 'NOU'] }
+    const result = dedupeUsersByEmail([less, more])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('more')
+  })
+
+  it('prefers user with more judge entries when roles and officer are equal', () => {
+    const less = { email: 'x@example.com', id: 'less', judge: ['NOME-A'] }
+    const more = { email: 'x@example.com', id: 'more', judge: ['NOME-A', 'NOU'] }
+    const result = dedupeUsersByEmail([less, more])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('more')
+  })
+
+  it('breaks score ties by preferring the more recently modified user', () => {
+    const older = { email: 'x@example.com', id: 'older', modifiedAt: '2024-01-01T00:00:00.000Z' }
+    const newer = { email: 'x@example.com', id: 'newer', modifiedAt: '2024-06-01T00:00:00.000Z' }
+    const result = dedupeUsersByEmail([older, newer])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('newer')
+  })
+
+  it('keeps the existing entry when scores and timestamps are tied', () => {
+    const first = { email: 'x@example.com', id: 'first', modifiedAt: '2024-01-01T00:00:00.000Z' }
+    const second = { email: 'x@example.com', id: 'second', modifiedAt: '2024-01-01T00:00:00.000Z' }
+    const result = dedupeUsersByEmail([first, second])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('first')
+  })
+
+  it('keeps users without email, each under a unique key', () => {
+    const noEmail1 = { email: undefined, id: 'no-email-1' }
+    const noEmail2 = { email: undefined, id: 'no-email-2' }
+    const withEmail = { email: 'a@example.com', id: 'with-email' }
+    const result = dedupeUsersByEmail([noEmail1, noEmail2, withEmail])
+    expect(result).toHaveLength(3)
+    expect(result.map((u) => u.email)).toContain(undefined)
+    expect(result.map((u) => u.email)).toContain('a@example.com')
+    expect(result.filter((u) => u.email === undefined)).toHaveLength(2)
+  })
+
+  it('handles missing modifiedAt gracefully when comparing timestamps', () => {
+    const noDate = { email: 'x@example.com', id: 'no-date' }
+    const withDate = { email: 'x@example.com', id: 'with-date', modifiedAt: '2024-01-01T00:00:00.000Z' }
+    const result = dedupeUsersByEmail([noDate, withDate])
+    expect(result).toHaveLength(1)
+    expect(result[0].id).toBe('with-date')
+  })
+
+  it('deduplicates multiple groups independently', () => {
+    const users = [
+      { email: 'a@example.com', id: 'a1', roles: {} },
+      { email: 'a@example.com', id: 'a2', roles: { org: 'admin' as const } },
+      { email: 'b@example.com', id: 'b1' },
+      { email: 'b@example.com', id: 'b2', modifiedAt: '2025-01-01T00:00:00.000Z' },
+    ]
+    const result = dedupeUsersByEmail(users)
+    expect(result).toHaveLength(2)
+    expect(result.find((u) => u.email === 'a@example.com')?.id).toBe('a2')
+    expect(result.find((u) => u.email === 'b@example.com')?.id).toBe('b2')
+  })
+})
 
 describe('lib/user', () => {
   const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined)
