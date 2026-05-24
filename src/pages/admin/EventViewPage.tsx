@@ -120,6 +120,10 @@ export default function EventViewPage() {
   }, [eventId, setSelectedEventId])
 
   useEffect(() => {
+    actions.refreshIfStale()
+  }, [actions.refreshIfStale])
+
+  useEffect(() => {
     if (!allClasses.length) {
       return
     }

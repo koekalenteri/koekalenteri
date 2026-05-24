@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { createRefund } from '../../../../api/payment'
 import {
+  getRegistrations,
   getRegistrationTransactions,
   putAdminRegistration,
   putAdminRegistrationNotes,
@@ -14,11 +15,16 @@ import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
 import { idTokenAtom } from '../../../recoil'
 import { showRegistrationSaveConflict } from '../../../recoil/registration/registrationSaveError'
 import { adminEventSelector } from '../events'
-import { adminBackgroundActionsRunningAtom } from './atoms'
+import { adminBackgroundActionsRunningAtom, adminEventRegistrationsFetchedAtAtom } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
+
+const REGISTRATIONS_REFRESH_GRACE_MS = 5 * 60 * 1000
 
 export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
+  const [eventRegistrationsFetchedAt, setEventRegistrationsFetchedAt] = useRecoilState(
+    adminEventRegistrationsFetchedAtAtom(eventId)
+  )
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const setBackgroundActionsRunning = useSetRecoilState(adminBackgroundActionsRunningAtom)
   const token = useRecoilValue(idTokenAtom)
@@ -146,6 +152,39 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
       await putAdminRegistrationNotes({ eventId, id, internalNotes }, token)
       updateAdminRegistration({ ...reg, internalNotes })
+    },
+
+    async refreshIfStale() {
+      if (!token || !eventId) return
+      if (!eventRegistrationsFetchedAt) {
+        setEventRegistrationsFetchedAt(new Date())
+        return
+      }
+
+      const now = new Date()
+      if (now.getTime() - eventRegistrationsFetchedAt.getTime() < REGISTRATIONS_REFRESH_GRACE_MS) return
+
+      const response = await getRegistrations(eventId, token, undefined, eventRegistrationsFetchedAt)
+      setEventRegistrationsFetchedAt(now)
+
+      if (Array.isArray(response)) {
+        setEventRegistrations(response)
+        return
+      }
+
+      const unchanged = new Set(response.unchangedIds)
+      const changed = new Map(response.registrations.map((registration) => [registration.id, registration]))
+      const merged = eventRegistrations
+        .filter((registration) => unchanged.has(registration.id) || changed.has(registration.id))
+        .map((registration) => changed.get(registration.id) ?? registration)
+
+      for (const registration of response.registrations) {
+        if (!eventRegistrations.some((existing) => existing.id === registration.id)) {
+          merged.push(registration)
+        }
+      }
+
+      setEventRegistrations(merged)
     },
 
     async refund(reg: Registration, transactionId: string, amount: number) {
