@@ -18,6 +18,7 @@ const addPatchOperations = (
   path: string,
   value: unknown,
   nextValue: unknown,
+  oldValue: unknown,
   set: Record<string, unknown>,
   remove: string[]
 ) => {
@@ -33,9 +34,13 @@ const addPatchOperations = (
     return
   }
 
-  if (isDiffObject(value) && isDiffObject(nextValue)) {
+  // Only descend into nested dot-paths when the parent map already exists on the
+  // stored item. DynamoDB rejects "SET #a.#b = ..." with "The document path provided
+  // in the update expression is invalid for update" when `#a` doesn't yet exist.
+  // In that case we must persist the whole subtree at the current path instead.
+  if (isDiffObject(value) && isDiffObject(nextValue) && isDiffObject(oldValue)) {
     for (const [key, nestedValue] of Object.entries(value)) {
-      addPatchOperations(`${path}.${key}`, nestedValue, nextValue[key], set, remove)
+      addPatchOperations(`${path}.${key}`, nestedValue, nextValue[key], oldValue[key], set, remove)
     }
     return
   }
@@ -66,7 +71,14 @@ export const createPatch = <T extends object>(next: PartialWithUndefined<T>, old
   )
 
   for (const [key, value] of Object.entries(rawChanges)) {
-    addPatchOperations(key, value, next[key as keyof typeof next], set, remove)
+    addPatchOperations(
+      key,
+      value,
+      next[key as keyof typeof next],
+      (oldObject as Record<string, unknown>)[key],
+      set,
+      remove
+    )
   }
 
   return {
