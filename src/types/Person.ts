@@ -51,6 +51,7 @@ export interface DataVersion {
 }
 
 export interface DataVersions {
+  emailTemplates: DataVersion
   eventTypes: DataVersion
   judges: DataVersion
   officials: DataVersion

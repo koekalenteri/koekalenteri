@@ -32,12 +32,13 @@ async function getRelevantUsersDataVersion(user: JsonUser): Promise<DataVersion>
 }
 
 export async function getDataVersions(user: JsonUser): Promise<DataVersions> {
-  const [eventTypes, judges, officials, users] = await Promise.all([
+  const [emailTemplates, eventTypes, judges, officials, users] = await Promise.all([
+    getTableDataVersion(CONFIG.emailTemplateTable),
     getTableDataVersion(CONFIG.eventTypeTable),
     getTableDataVersion(CONFIG.judgeTable),
     getTableDataVersion(CONFIG.officialTable),
     getRelevantUsersDataVersion(user),
   ])
 
-  return { eventTypes, judges, officials, users }
+  return { emailTemplates, eventTypes, judges, officials, users }
 }

@@ -37,6 +37,7 @@ const makeEffect = (fetch = jest.fn<any>()) => {
     if (recoilValue === userSelector) {
       return Promise.resolve({
         dataVersions: {
+          emailTemplates: { count: 0 },
           eventTypes: { count: 0 },
           judges: { count: 1, modifiedAt: '2026-01-02T00:00:00.000Z' },
           officials: { count: 0 },

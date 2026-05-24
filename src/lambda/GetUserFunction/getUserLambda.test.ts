@@ -48,6 +48,7 @@ describe('getUserLambda', () => {
       name: 'Test User',
     }
     const dataVersions = {
+      emailTemplates: { count: 10, modifiedAt: '2026-01-00T00:00:00.000Z' },
       eventTypes: { count: 1, modifiedAt: '2026-01-01T00:00:00.000Z' },
       judges: { count: 2, modifiedAt: '2026-01-02T00:00:00.000Z' },
       officials: { count: 3, modifiedAt: '2026-01-03T00:00:00.000Z' },

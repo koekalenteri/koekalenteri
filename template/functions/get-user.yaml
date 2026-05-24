@@ -12,6 +12,8 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref UserLinkTable
         - DynamoDBReadPolicy:
+            TableName: !Ref EmailTemplatesTable
+        - DynamoDBReadPolicy:
             TableName: !Ref OfficialTable
         - DynamoDBReadPolicy:
             TableName: !Ref JudgeTable
