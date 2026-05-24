@@ -5,6 +5,7 @@ import {
   DateHandler,
   deserializeFilter,
   eventFilterAtom,
+  eventsLoadingAtom,
   filterEventClassesSelector,
   filterEventTypesSelector,
   filteredEventsSelector,
@@ -27,6 +28,7 @@ export function SearchPage() {
       filteredEventsSelector,
     ])
   )
+  const loading = useRecoilValue(eventsLoadingAtom)
   const location = useLocation()
 
   useEffect(() => setSpa(true), [setSpa])
@@ -49,7 +51,7 @@ export function SearchPage() {
         filter={filter}
         onChange={setFilter}
       />
-      <EventList events={events} />
+      <EventList events={events} loading={loading} />
     </>
   )
 }

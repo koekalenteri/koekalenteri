@@ -17,6 +17,12 @@ export const eventMetadataAtom = atom<EventMetadata>({
   key: 'eventMetadata',
 })
 
+export const eventsLoadingAtom = atom<boolean>({
+  default: false,
+  effects: [logEffect],
+  key: 'eventsLoading',
+})
+
 export const eventFilterAtom = atom<FilterProps>({
   default: {
     end: null,

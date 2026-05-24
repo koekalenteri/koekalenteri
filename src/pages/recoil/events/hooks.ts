@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { getEvent, getEvents } from '../../../api/event'
 import { isConfirmedEvent } from '../../../lib/typeGuards'
-import { eventMetadataAtom, eventsAtom } from './atoms'
+import { eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { eventSelector } from './selectors'
 
 type DogEventSortKey = Pick<DogEvent, 'id' | 'startDate' | 'endDate'>
@@ -167,10 +167,15 @@ export function useFetchEvents() {
           if (strategy.kind === 'throttled') {
             set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, false))
           } else {
-            const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
-            const nextEvents = reconcileRange(preparedEvents, response.events, response.unchangedIds, start, end)
-            set(eventsAtom, nextEvents)
-            set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, true))
+            set(eventsLoadingAtom, true)
+            try {
+              const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
+              const nextEvents = reconcileRange(preparedEvents, response.events, response.unchangedIds, start, end)
+              set(eventsAtom, nextEvents)
+              set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, true))
+            } finally {
+              set(eventsLoadingAtom, false)
+            }
           }
         }
 
