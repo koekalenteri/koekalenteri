@@ -45,6 +45,18 @@ interface UserRoles {
   [organizer: string]: UserRole
 }
 
+export interface DataVersion {
+  count: number
+  modifiedAt?: string
+}
+
+export interface DataVersions {
+  eventTypes: DataVersion
+  judges: DataVersion
+  officials: DataVersion
+  users: DataVersion
+}
+
 export interface User extends Person, Partial<DbRecord> {
   id: string
   kcId?: number
@@ -53,6 +65,7 @@ export interface User extends Person, Partial<DbRecord> {
   officer?: string[]
   roles?: UserRoles
   admin?: boolean
+  dataVersions?: DataVersions
   lastSeen?: Date
   emailHistory?: { email: string; changedAt: string; source: 'kl' | 'login' }[]
 }

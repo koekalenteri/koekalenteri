@@ -2,7 +2,7 @@ import { authorize } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
 import { filterRelevantUsers, getAllUsers, userIsMemberOf } from '../lib/user'
 
-function dedupeUsersByEmail<
+export function dedupeUsersByEmail<
   T extends {
     email?: string
     admin?: boolean

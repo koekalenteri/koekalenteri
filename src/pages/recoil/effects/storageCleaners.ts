@@ -1,3 +1,4 @@
+import { clearEncryptedStore } from '../../../lib/client/encryptedStore'
 import { getStorageKeysStartingWith } from '../../../lib/client/storage'
 import { isTestEnv } from '../../../lib/env'
 import { appVersion, isEarlierVersionThan } from '../../../lib/version'
@@ -34,6 +35,9 @@ export const runCleaners = () => {
   if (currentVersion === appVersion) return
 
   if (isEarlierVersionThan('1.1.3')) cleanPre112()
+  // The cache is only an optimization: cleanup may run in parallel with atom effects.
+  // Cache read failures are ignored and stale blobs are overwritten after refetch.
+  clearEncryptedStore().catch((e) => console.warn('Failed to clean encrypted store', e))
 
   localStorage.setItem('version', appVersion)
 }
