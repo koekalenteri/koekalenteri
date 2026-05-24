@@ -628,6 +628,45 @@ describe('useWebSocket', () => {
     })
   })
 
+  it('should merge public data from scoped admin event patch messages without losing existing fields', async () => {
+    const event = {
+      entries: 1,
+      id: 'event-1',
+      name: 'Old Public Name',
+      organizer: { id: 'org-1', name: 'Organizer' },
+    }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return useRecoilValue(eventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ entries: 2, eventId: 'event-1', scope: 'admin:event-patch' }),
+      })
+    })
+
+    await waitFor(() => {
+      expect(result.current[0]).toEqual({
+        entries: 2,
+        id: 'event-1',
+        name: 'Old Public Name',
+        organizer: { id: 'org-1', name: 'Organizer' },
+      })
+    })
+  })
+
   it('should not mark unchanged public event patches as recently updated', async () => {
     const event = { entries: 1, id: 'event-1', name: 'Old Public Name' }
     const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {

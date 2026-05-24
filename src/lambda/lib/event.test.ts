@@ -1041,6 +1041,49 @@ describe('lib/event', () => {
         'org-1'
       )
     })
+
+    it('publishes full event patch when draft becomes public', async () => {
+      const existing = {
+        classes: [{ class: 'ALO', date: '2026-06-01', entries: 0, members: 0 }],
+        cost: 10,
+        description: 'Description',
+        endDate: '2026-06-01',
+        eventType: 'NOME-B',
+        id: 'e7',
+        judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
+        location: 'Helsinki',
+        name: 'Draft event',
+        official: { id: 'official-1', name: 'Official' },
+        organizer: { id: 'org-1', name: 'Org' },
+        places: 10,
+        secretary: { id: 'secretary-1', name: 'Secretary' },
+        startDate: '2026-06-01',
+        state: 'draft',
+      } as JsonDogEvent
+      const next = {
+        ...existing,
+        state: 'tentative',
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          set: { state: 'tentative' },
+        },
+        expect.anything()
+      )
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          eventId: existing.id,
+          ...next,
+        },
+        'org-1'
+      )
+    })
   })
 
   // saveEvent
