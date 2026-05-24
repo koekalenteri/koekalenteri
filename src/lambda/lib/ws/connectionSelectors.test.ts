@@ -64,4 +64,34 @@ describe('ws/connectionSelectors', () => {
     mockCanReceiveAdminEvent.mockReturnValue(true)
     await expect(eventAudience('e1', 'org-1')).resolves.toEqual([{ connectionId: 'a', eventId: 'e1' }])
   })
+
+  it('includes provided subscribed connection when index query has not caught up', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([])
+    mockCanReceiveAdminEvent.mockReturnValue(true)
+
+    await expect(
+      eventAudience('e1', 'org-1', { include: { connectionId: 'subscribed', eventId: 'e1' } })
+    ).resolves.toEqual([{ connectionId: 'subscribed', eventId: 'e1' }])
+  })
+
+  it('does not duplicate provided subscribed connection', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([{ connectionId: 'subscribed', eventId: 'e1' }])
+    mockCanReceiveAdminEvent.mockReturnValue(true)
+
+    await expect(
+      eventAudience('e1', 'org-1', { include: { connectionId: 'subscribed', eventId: 'e1' } })
+    ).resolves.toEqual([{ connectionId: 'subscribed', eventId: 'e1' }])
+  })
+
+  it('excludes provided unsubscribed connection when index query has not caught up', async () => {
+    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+      { connectionId: 'stale', eventId: 'e1' },
+      { connectionId: 'other', eventId: 'e1' },
+    ])
+    mockCanReceiveAdminEvent.mockReturnValue(true)
+
+    await expect(eventAudience('e1', 'org-1', { excludeConnectionId: 'stale' })).resolves.toEqual([
+      { connectionId: 'other', eventId: 'e1' },
+    ])
+  })
 })

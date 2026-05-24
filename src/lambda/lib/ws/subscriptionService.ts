@@ -11,7 +11,11 @@ import {
   unsubscribeConnection,
 } from './connectionRepository'
 
-type PublishEventViewers = (eventId: string, organizerId: string) => Promise<unknown>
+type PublishEventViewers = (
+  eventId: string,
+  organizerId: string,
+  options?: { excludeConnectionId?: string; include?: WebSocketConnection }
+) => Promise<unknown>
 
 export const subscribeToAdmin = async (connection: WebSocketConnection) => {
   if (isConnectionExpired(connection)) {
@@ -42,13 +46,14 @@ export const subscribeToEvent = async (
   }
 
   await subscribeConnection(connection.connectionId, eventId)
+  const subscribedConnection = { ...connection, eventId }
 
   if (previousEventId && previousEventId !== eventId) {
     const previousEvent = await getEvent<JsonDogEvent>(previousEventId)
     await publishEventViewers(previousEventId, previousEvent.organizer.id)
   }
 
-  await publishEventViewers(eventId, event.organizer.id)
+  await publishEventViewers(eventId, event.organizer.id, { include: subscribedConnection })
 
   return { eventId, subscribed: true }
 }
@@ -60,7 +65,7 @@ export const unsubscribeFromEvent = async (connectionId: string, publishEventVie
 
   if (connection?.eventId) {
     const event = await getEvent<JsonDogEvent>(connection.eventId)
-    await publishEventViewers(connection.eventId, event.organizer.id)
+    await publishEventViewers(connection.eventId, event.organizer.id, { excludeConnectionId: connectionId })
   }
 }
 

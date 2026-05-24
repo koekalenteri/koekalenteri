@@ -209,7 +209,7 @@ describe('ws/actions', () => {
     const audience = await call.audience()
     call.buildPayload(audience)
 
-    expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1')
+    expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1', {})
     expect(mockToEventViewers).toHaveBeenCalled()
     expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', ['u1', 'u2'])
   })

@@ -81,7 +81,9 @@ describe('ws/subscriptionService', () => {
 
     expect(mockSubscribeConnection).toHaveBeenCalledWith('c1', 'e1')
     expect(publishEventViewers).toHaveBeenCalledTimes(1)
-    expect(publishEventViewers).toHaveBeenCalledWith('e1', 'org-1')
+    expect(publishEventViewers).toHaveBeenCalledWith('e1', 'org-1', {
+      include: { admin: true, connectionId: 'c1', eventId: 'e1' },
+    })
     expect(result).toEqual({ eventId: 'e1', subscribed: true })
   })
 
@@ -95,7 +97,13 @@ describe('ws/subscriptionService', () => {
 
     expect(mockSubscribeConnection).toHaveBeenCalledWith('c1', 'e-new')
     expect(publishEventViewers).toHaveBeenNthCalledWith(1, 'e-old', 'org-old')
-    expect(publishEventViewers).toHaveBeenNthCalledWith(2, 'e-new', 'org-new')
+    expect(publishEventViewers).toHaveBeenNthCalledWith(2, 'e-new', 'org-new', {
+      include: {
+        admin: true,
+        connectionId: 'c1',
+        eventId: 'e-new',
+      },
+    })
   })
 
   it('unsubscribeFromEvent unsubscribes and publishes when connection has event', async () => {
@@ -106,7 +114,7 @@ describe('ws/subscriptionService', () => {
     await unsubscribeFromEvent('c1', publishEventViewers)
 
     expect(mockUnsubscribeConnection).toHaveBeenCalledWith('c1')
-    expect(publishEventViewers).toHaveBeenCalledWith('e1', 'org-1')
+    expect(publishEventViewers).toHaveBeenCalledWith('e1', 'org-1', { excludeConnectionId: 'c1' })
   })
 
   it('unsubscribeFromEvent only unsubscribes when connection has no event', async () => {

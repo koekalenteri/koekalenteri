@@ -67,9 +67,13 @@ export const publishRegistrationPatches = (
     buildPayload: () => ({ scope: 'admin:event-registrations', ...buildRegistrationPatchPayload(eventId, patch) }),
   })
 
-export const publishEventViewers = (eventId: string, organizerId: string) =>
+export const publishEventViewers = (
+  eventId: string,
+  organizerId: string,
+  options: { excludeConnectionId?: string; include?: WebSocketConnection } = {}
+) =>
   send({
-    audience: () => eventAudience(eventId, organizerId),
+    audience: () => eventAudience(eventId, organizerId, options),
     buildPayload: (audience) => buildEventViewersPayload(eventId, toEventViewers(audience)),
   })
 
