@@ -216,6 +216,7 @@ export const applyPatchesById = <T extends { id: string }, P extends DeepPartial
   const patchesById = new Map(
     patches.filter((item): item is P & { id: string } => !!item.id).map((item) => [item.id, item])
   )
+  const existingIds = new Set(items.map((item) => item.id))
   let changed = false
 
   const next = items.map((item) => {
@@ -226,6 +227,13 @@ export const applyPatchesById = <T extends { id: string }, P extends DeepPartial
     if (merged !== item) changed = true
     return merged
   })
+
+  for (const [id, patch] of patchesById) {
+    if (!existingIds.has(id)) {
+      next.push({ ...patch, id } as unknown as T)
+      changed = true
+    }
+  }
 
   return changed ? next : items
 }

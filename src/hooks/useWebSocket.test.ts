@@ -136,6 +136,15 @@ describe('applyRegistrationPatches', () => {
     ])
   })
 
+  it('inserts missing registrations by id', () => {
+    const current = [{ id: '1', notes: 'old' }] as Registration[]
+
+    expect(applyRegistrationPatches(current, [{ id: '2', notes: 'new' }])).toEqual([
+      { id: '1', notes: 'old' },
+      { id: '2', notes: 'new' },
+    ])
+  })
+
   it('returns changed registration ids', () => {
     const current = [
       { id: '1', notes: 'old' },

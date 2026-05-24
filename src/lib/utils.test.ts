@@ -538,6 +538,15 @@ describe('utils', () => {
         { id: '2', notes: 'keep' },
       ])
     })
+
+    it('inserts missing items by id', () => {
+      const current = [{ id: '1', notes: 'old' }]
+
+      expect(applyPatchesById(current, [{ id: '2', notes: 'new' }])).toEqual([
+        { id: '1', notes: 'old' },
+        { id: '2', notes: 'new' },
+      ])
+    })
   })
 
   describe('getPatchChangedIds', () => {
