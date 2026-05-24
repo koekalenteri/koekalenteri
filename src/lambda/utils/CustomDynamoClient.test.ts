@@ -568,8 +568,6 @@ describe('CustomDynamoClient', () => {
       expect(mockSend).toHaveBeenCalledWith({
         ExpressionAttributeNames: {
           '#contactInfo': 'contactInfo',
-          '#contactInfo_secretary_email': 'contactInfo.secretary.email',
-          '#contactInfo_secretary_phone': 'contactInfo.secretary.phone',
           '#email': 'email',
           '#phone': 'phone',
           '#secretary': 'secretary',
@@ -582,6 +580,57 @@ describe('CustomDynamoClient', () => {
         UpdateExpression:
           'SET #contactInfo.#secretary.#email = :contactInfo_secretary_email REMOVE #contactInfo.#secretary.#phone',
       })
+    })
+
+    it('does not include unused duplicate-key entries in ExpressionAttributeNames (regression)', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      // Mirrors a real update payload that previously triggered:
+      //   "Value provided in ExpressionAttributeNames unused in expressions:
+      //    keys: {#official_email, #cost_normal, #placesPerDay_2026_08_22, ...}"
+      await client.update(
+        { id: 'ZsHxFka3xG' },
+        {
+          set: {
+            'contactInfo.secretary.email': 'kurkle@gmail.com',
+            'contactInfo.secretary.name': '',
+            'contactInfo.secretary.phone': '',
+            'cost.normal': 5,
+            modifiedAt: '2026-05-24T21:37:12.375Z',
+            'official.createdAt': '2025-08-29T05:14:02.541Z',
+            'official.createdBy': 'system',
+            'official.email': 'kikke.haverinen@gmail.com',
+            'official.id': 'x-lzZyIYnX',
+            'official.kcEmail': 'kikke.haverinen@gmail.com',
+            'official.kcId': 613302,
+            'official.location': 'Rovaniemi',
+            'official.modifiedAt': '2026-05-18T23:14:30.960Z',
+            'official.modifiedBy': 'system',
+            'official.name': 'Kaisa Haverinen',
+            'official.officer': ['NOME-A', 'NOME-B', 'NOU', 'NOWT'],
+            'official.phone': '045 672 6795',
+            places: 1,
+            'placesPerDay.2026-08-22': 1,
+            state: 'confirmed',
+          },
+        }
+      )
+
+      const call = mockSend.mock.calls[0]?.[0] as Record<string, any>
+      const updateExpression: string = call.UpdateExpression
+      const names: Record<string, string> = call.ExpressionAttributeNames
+
+      // Every entry in ExpressionAttributeNames must actually be referenced in UpdateExpression
+      for (const key of Object.keys(names)) {
+        expect(updateExpression).toContain(key)
+      }
+
+      // The unused flattened "duplicateKey" entries must NOT be present
+      expect(names).not.toHaveProperty('#contactInfo_secretary_email')
+      expect(names).not.toHaveProperty('#official_email')
+      expect(names).not.toHaveProperty('#cost_normal')
+      expect(names).not.toHaveProperty('#placesPerDay_2026_08_22')
     })
 
     it('includes ReturnValues when provided', async () => {

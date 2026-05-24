@@ -82,6 +82,7 @@ const processOperations = (
   operations: Record<string, any> | undefined,
   names: Record<string, string>,
   values: Record<string, string>,
+  seenFields: Set<string>,
   type: 'SET' | 'ADD'
 ): string | null => {
   if (!operations || Object.keys(operations).length === 0) {
@@ -93,11 +94,10 @@ const processOperations = (
   for (const [field, value] of Object.entries(operations)) {
     const { duplicateKey, path } = toPathExpression(field)
 
-    if (names[`#${duplicateKey}`]) {
+    if (seenFields.has(duplicateKey)) {
       throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
-
-    names[`#${duplicateKey}`] = field
+    seenFields.add(duplicateKey)
 
     for (const segment of field.split('.')) {
       if (String(Number(segment)) === segment) continue
@@ -112,7 +112,11 @@ const processOperations = (
   return parts.length > 0 ? `${type} ${parts.join(', ')}` : null
 }
 
-const processRemoveOperations = (operations: string[] | undefined, names: Record<string, string>): string | null => {
+const processRemoveOperations = (
+  operations: string[] | undefined,
+  names: Record<string, string>,
+  seenFields: Set<string>
+): string | null => {
   if (!operations || operations.length === 0) {
     return null
   }
@@ -122,11 +126,10 @@ const processRemoveOperations = (operations: string[] | undefined, names: Record
   for (const field of operations) {
     const { duplicateKey, path } = toPathExpression(field)
 
-    if (names[`#${duplicateKey}`]) {
+    if (seenFields.has(duplicateKey)) {
       throw new Error(`DynamoDB: duplicate field in update expression: ${field}`)
     }
-
-    names[`#${duplicateKey}`] = field
+    seenFields.add(duplicateKey)
 
     for (const segment of field.split('.')) {
       if (String(Number(segment)) === segment) continue
@@ -327,19 +330,20 @@ export default class CustomDynamoClient {
   ) {
     const names: Record<string, string> = {}
     const values: Record<string, any> = {}
+    const seenFields = new Set<string>()
     const expressionParts: string[] = []
 
-    const setExpression = processOperations(updates.set, names, values, 'SET')
+    const setExpression = processOperations(updates.set, names, values, seenFields, 'SET')
     if (setExpression) {
       expressionParts.push(setExpression)
     }
 
-    const addExpression = processOperations(updates.add, names, values, 'ADD')
+    const addExpression = processOperations(updates.add, names, values, seenFields, 'ADD')
     if (addExpression) {
       expressionParts.push(addExpression)
     }
 
-    const removeExpression = processRemoveOperations(updates.remove, names)
+    const removeExpression = processRemoveOperations(updates.remove, names, seenFields)
     if (removeExpression) {
       expressionParts.push(removeExpression)
     }
