@@ -165,6 +165,37 @@ describe('getAdminRegistrationsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, filteredRegistrations, event)
   })
 
+  it('filters registrations by since and returns unchanged ids', async () => {
+    const user = { id: 'user1', name: 'Test User' }
+    const eventId = 'event123'
+    const eventWithSince = {
+      ...event,
+      queryStringParameters: { since: String(Date.parse('2026-01-02T00:00:00.000Z')) },
+    }
+    const allRegistrations = [
+      { class: 'ALO', eventId, id: 'reg1', modifiedAt: '2026-01-01T10:00:00.000Z', state: 'ready' },
+      { class: 'AVO', eventId, id: 'reg2', modifiedAt: '2026-01-02T10:00:00.000Z', state: 'ready' },
+      { class: 'VOI', eventId, id: 'reg3', state: 'ready' },
+    ]
+    const registrationsWithGroups = allRegistrations.map((registration) => ({
+      ...registration,
+      group: { key: registration.class, number: 1 },
+    }))
+
+    mockAuthorize.mockResolvedValueOnce(user)
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockQuery.mockResolvedValueOnce(allRegistrations)
+    mockFixRegistrationGroups.mockResolvedValueOnce(registrationsWithGroups)
+
+    await getAdminRegistrationsLambda(eventWithSince)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { registrations: [registrationsWithGroups[1], registrationsWithGroups[2]], unchangedIds: ['reg1'] },
+      eventWithSince
+    )
+  })
+
   it('passes through errors from query', async () => {
     const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
