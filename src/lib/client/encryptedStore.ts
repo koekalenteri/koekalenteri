@@ -1,16 +1,13 @@
-import { appVersion } from '../version'
 import { DATASETS, idbClear, idbDeleteDatabase, idbGet, idbSet, KEYSTORE } from './idb'
 
 const KEY_META_ID = 'meta'
 const KEY_ID = 'aes-key'
 
 interface KeyMeta {
-  appVersion: string
   userId: string
 }
 
 interface CachedDatasetMeta {
-  appVersion: string
   count: number
   modifiedAt?: string
   storedAt: string
@@ -40,7 +37,7 @@ async function resetForUser(userId: string): Promise<CryptoKey> {
   await idbClear(DATASETS)
   const key = await createKey()
   await idbSet(KEYSTORE, KEY_ID, key)
-  await idbSet<KeyMeta>(KEYSTORE, KEY_META_ID, { appVersion, userId })
+  await idbSet<KeyMeta>(KEYSTORE, KEY_META_ID, { userId })
   activeUserId = userId
   keyPromise = Promise.resolve(key)
   return key
@@ -53,7 +50,7 @@ async function getKey(userId: string): Promise<CryptoKey> {
     const meta = await idbGet<KeyMeta>(KEYSTORE, KEY_META_ID)
     const key = await idbGet<CryptoKey>(KEYSTORE, KEY_ID)
 
-    if (!meta || !key || meta.userId !== userId || meta.appVersion !== appVersion) {
+    if (!meta || !key || meta.userId !== userId) {
       return resetForUser(userId)
     }
 
@@ -69,7 +66,7 @@ const datasetKey = (userId: string, key: string) => `${userId}:${key}`
 export async function readEncryptedDataset<T>(userId: string, key: string): Promise<CachedDataset<T> | undefined> {
   const cryptoKey = await getKey(userId)
   const stored = await idbGet<EncryptedDataset>(DATASETS, datasetKey(userId, key))
-  if (!stored || stored.userId !== userId || stored.appVersion !== appVersion) return undefined
+  if (!stored || stored.userId !== userId) return undefined
 
   const plaintext = await crypto.subtle.decrypt({ iv: stored.iv, name: 'AES-GCM' }, cryptoKey, stored.cipherText)
   const data = JSON.parse(decoder.decode(plaintext)) as T
@@ -92,7 +89,6 @@ export async function writeEncryptedDataset<T>(
   )
 
   await idbSet<EncryptedDataset>(DATASETS, datasetKey(userId, key), {
-    appVersion,
     cipherText,
     count: meta.count,
     iv: iv.buffer.slice(0) as ArrayBuffer,

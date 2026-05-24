@@ -96,23 +96,6 @@ describe('encryptedStore', () => {
     await expect(readEncryptedDataset<string[]>('user-2', 'judges')).resolves.toMatchObject({ data: ['judge-b'] })
   })
 
-  it('wipes datasets and creates a new key when the app version changes', async () => {
-    await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { count: 1 })
-    expect(stores.datasets.has('user-1:judges')).toBe(true)
-
-    stores.keystore.set('meta', { appVersion: 'older-version', userId: 'user-1' })
-
-    jest.resetModules()
-    const module = await import('./encryptedStore')
-    readEncryptedDataset = module.readEncryptedDataset
-    writeEncryptedDataset = module.writeEncryptedDataset
-
-    await writeEncryptedDataset('user-1', 'officials', ['official-a'], { count: 1 })
-
-    expect(stores.datasets.has('user-1:judges')).toBe(false)
-    await expect(readEncryptedDataset<string[]>('user-1', 'officials')).resolves.toMatchObject({ data: ['official-a'] })
-  })
-
   it('clears the database on explicit clear', async () => {
     await writeEncryptedDataset('user-1', 'judges', ['judge-a'], { count: 1 })
 

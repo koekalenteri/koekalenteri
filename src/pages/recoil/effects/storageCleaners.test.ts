@@ -1,3 +1,4 @@
+import * as encryptedStoreLib from '../../../lib/client/encryptedStore'
 import * as storageLib from '../../../lib/client/storage'
 import * as envLib from '../../../lib/env'
 import * as versionLib from '../../../lib/version'
@@ -72,12 +73,34 @@ describe('storageCleaners', () => {
       jest.spyOn(storageLib, 'getStorageKeysStartingWith').mockReturnValue([])
       jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
       jest.spyOn(versionLib, 'isEarlierVersionThan').mockReturnValue(true)
+      jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
       getSpy.mockReturnValueOnce(null)
       runCleaners()
       expect(getSpy).toHaveBeenCalledWith('version')
       expect(getSpy).toHaveBeenCalledTimes(1)
       expect(setSpy).toHaveBeenCalledWith('version', versionLib.appVersion)
       expect(setSpy).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not wipe the encrypted store when the previous version is not earlier than the cache threshold', () => {
+      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      const isEarlierSpy = jest.spyOn(versionLib, 'isEarlierVersionThan').mockReturnValue(false)
+      const clearSpy = jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
+      getSpy.mockReturnValueOnce('1.9.0')
+      runCleaners()
+      expect(isEarlierSpy).toHaveBeenCalledWith('1.9.0', '1.9.0')
+      expect(clearSpy).not.toHaveBeenCalled()
+    })
+
+    it('should wipe the encrypted store when upgrading from an earlier version', () => {
+      jest.spyOn(console, 'log').mockImplementation(() => undefined)
+      jest.spyOn(storageLib, 'getStorageKeysStartingWith').mockReturnValue([])
+      jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
+      jest.spyOn(versionLib, 'isEarlierVersionThan').mockReturnValue(true)
+      const clearSpy = jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
+      getSpy.mockReturnValueOnce('1.8.0')
+      runCleaners()
+      expect(clearSpy).toHaveBeenCalled()
     })
   })
 })

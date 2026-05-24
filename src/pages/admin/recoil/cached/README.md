@@ -12,16 +12,18 @@ The `users` version follows the same visibility rules as `/admin/user`: non-glob
 
 Data is stored in IndexedDB through two stores:
 
-- `keystore`: one non-extractable AES-GCM `CryptoKey` plus `{ userId, appVersion }` metadata.
+- `keystore`: one non-extractable AES-GCM `CryptoKey` plus `{ userId }` metadata.
 - `datasets`: encrypted blobs keyed by `${userId}:${datasetName}`.
 
 The AES key is generated with `extractable: false`, persisted by IndexedDB, and reused across logout for the same user. On login as a different user, all dataset blobs are wiped and a new key is generated.
 
 ## Logout and version bump behavior
 
-Logout does not clear encrypted blobs, so same-user re-login can hydrate from cache. Application version changes clear the encrypted store to avoid schema migration issues. If cleanup races with atom initialization, cache read failures are ignored and the affected atom falls back to remote fetching; the fresh response overwrites the stale encrypted blob.
+Logout does not clear encrypted blobs, so same-user re-login can hydrate from cache.
 
-The encrypted store also checks `{ userId, appVersion }` metadata before reusing the AES key. A user change or app-version mismatch clears datasets and creates a new key.
+The encrypted cache is only wiped when upgrading from a version that predates the cache schema (see `isEarlierVersionThan('1.9.0', currentVersion)` in `storageCleaners.runCleaners`). Routine version bumps that do not change the cache schema preserve the cache. When the schema changes, bump the threshold version.
+
+If cleanup races with atom initialization, cache read failures are ignored and the affected atom falls back to remote fetching; the fresh response overwrites the stale encrypted blob.
 
 ## Recoil integration
 
