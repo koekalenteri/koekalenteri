@@ -348,6 +348,7 @@ describe('CustomDynamoClient', () => {
           UpdateExpression: 'REMOVE #contactInfo.#secretary.#phone',
         })
       )
+      expect(mockSend.mock.calls[0]?.[0]).not.toHaveProperty('ExpressionAttributeValues')
     })
 
     it('supports nested dot-path REMOVE operations with array index segments', async () => {
@@ -365,6 +366,7 @@ describe('CustomDynamoClient', () => {
           UpdateExpression: 'REMOVE #classes[0].#judge[0]',
         })
       )
+      expect(mockSend.mock.calls[0]?.[0]).not.toHaveProperty('ExpressionAttributeValues')
     })
   })
 
@@ -512,6 +514,20 @@ describe('CustomDynamoClient', () => {
           UpdateExpression: 'SET #status = :status REMOVE #paymentResponse',
         })
       )
+    })
+
+    it('omits ExpressionAttributeValues for remove-only operations', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { remove: ['eventId'] })
+
+      expect(mockSend).toHaveBeenCalledWith({
+        ExpressionAttributeNames: { '#eventId': 'eventId' },
+        Key: { id: '1' },
+        TableName: 'test-table',
+        UpdateExpression: 'REMOVE #eventId',
+      })
     })
 
     it('supports combined dotted nested SET and REMOVE operations', async () => {

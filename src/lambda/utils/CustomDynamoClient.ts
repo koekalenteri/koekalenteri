@@ -339,10 +339,13 @@ export default class CustomDynamoClient {
     // Create params object for the update operation
     const params: UpdateCommandInput = {
       ExpressionAttributeNames: names,
-      ExpressionAttributeValues: values,
       Key: key,
       TableName: table ? fromSamLocalTable(table) : this.table,
       UpdateExpression: expressionParts.join(' '),
+    }
+
+    if (Object.keys(values).length > 0) {
+      params.ExpressionAttributeValues = values
     }
 
     // Add ReturnValues if provided
