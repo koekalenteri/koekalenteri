@@ -185,7 +185,7 @@ describe('ws/actions', () => {
     expect(mockBuildRegistrationPatchPayload).toHaveBeenCalledWith('e1', patch)
   })
 
-  it('publishEventViewers builds viewers payload without the receiving viewer', async () => {
+  it('publishEventViewers builds viewers payload with all viewers', async () => {
     mockEventAudience.mockResolvedValueOnce([
       { connectionId: 'c1', userId: 'u1' },
       { connectionId: 'c2', userId: 'u2' },
@@ -200,21 +200,48 @@ describe('ws/actions', () => {
     const call = mockBroadcast.mock.calls[0]?.[0] as
       | {
           audience: () => Promise<Array<{ connectionId: string; userId: string }>>
-          buildPayload: (
-            audience: Array<{ connectionId: string; userId: string }>,
-            recipient: { connectionId: string; userId: string }
-          ) => unknown
+          buildPayload: (audience: Array<{ connectionId: string; userId: string }>) => unknown
         }
       | undefined
     expect(call).toBeTruthy()
     if (!call) throw new Error('missing broadcast call')
 
     const audience = await call.audience()
-    call.buildPayload(audience, audience[0]!)
+    call.buildPayload(audience)
 
     expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1')
     expect(mockToEventViewers).toHaveBeenCalled()
-    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', ['u2'])
+    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', ['u1', 'u2'])
+  })
+
+  it('publishEventViewers includes the same user only once when same user has multiple windows open', async () => {
+    mockEventAudience.mockResolvedValueOnce([
+      { connectionId: 'c1', userId: 'u1' },
+      { connectionId: 'c2', userId: 'u1' },
+    ])
+    mockToEventViewers.mockImplementationOnce((audience: unknown[]) => [
+      ...new Set((audience as Array<{ userId: string }>).map(({ userId }) => userId)),
+    ])
+
+    await publishEventViewers('e1', 'org-1')
+
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | {
+          audience: () => Promise<Array<{ connectionId: string; userId: string }>>
+          buildPayload: (audience: Array<{ connectionId: string; userId: string }>) => unknown
+        }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    const audience = await call.audience()
+    call.buildPayload(audience)
+
+    expect(mockToEventViewers).toHaveBeenCalledWith([
+      { connectionId: 'c1', userId: 'u1' },
+      { connectionId: 'c2', userId: 'u1' },
+    ])
+    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', ['u1'])
   })
 
   it('publishPublicConnectionCount builds public scoped payload from public audience size', async () => {
