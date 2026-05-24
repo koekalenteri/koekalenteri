@@ -151,50 +151,57 @@ export function useFetchEvents() {
   return useRecoilCallback(
     ({ snapshot, set }) =>
       async (start?: Date, end?: Date, eventId?: string) => {
-        const metadata = await snapshot.getPromise(eventMetadataAtom)
-        const events = await snapshot.getPromise(eventsAtom)
-        const now = Date.now()
-        const preparedRange = prepareRangeEvents(events, start, now)
-        const preparedEvents = preparedRange.nextEvents
-
-        if (preparedRange.wasPruned) {
-          set(eventsAtom, preparedEvents)
+        // Set loading eagerly — before any awaits — so React observes the true
+        // state in the first render after the microtask yield.
+        if (start) {
+          set(eventsLoadingAtom, true)
         }
 
-        if (start) {
-          const strategy = getRangeStrategy(metadata, preparedEvents.length, start, end, now)
+        try {
+          const metadata = await snapshot.getPromise(eventMetadataAtom)
+          const events = await snapshot.getPromise(eventsAtom)
+          const now = Date.now()
+          const preparedRange = prepareRangeEvents(events, start, now)
+          const preparedEvents = preparedRange.nextEvents
 
-          if (strategy.kind === 'throttled') {
-            set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, false))
-          } else {
-            set(eventsLoadingAtom, true)
-            try {
+          if (preparedRange.wasPruned) {
+            set(eventsAtom, preparedEvents)
+          }
+
+          if (start) {
+            const strategy = getRangeStrategy(metadata, preparedEvents.length, start, end, now)
+
+            if (strategy.kind === 'throttled') {
+              set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, false))
+            } else {
               const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
               const nextEvents = reconcileRange(preparedEvents, response.events, response.unchangedIds, start, end)
               set(eventsAtom, nextEvents)
               set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, true))
-            } finally {
-              set(eventsLoadingAtom, false)
             }
           }
-        }
 
-        if (eventId) {
-          if (!isSingleFresh(metadata, eventId)) {
-            try {
-              const event = await getEvent(eventId)
-              const merged = mergeAndSortByDate(await snapshot.getPromise(eventsAtom), [event])
-              set(eventsAtom, merged)
-            } catch {
-              // A missing event is represented by leaving it absent from the cache.
-              // Consumers can then distinguish "still loading" from "not found"
-              // using the single-fetch freshness marker below.
+          if (eventId) {
+            if (!isSingleFresh(metadata, eventId)) {
+              try {
+                const event = await getEvent(eventId)
+                const merged = mergeAndSortByDate(await snapshot.getPromise(eventsAtom), [event])
+                set(eventsAtom, merged)
+              } catch {
+                // A missing event is represented by leaving it absent from the cache.
+                // Consumers can then distinguish "still loading" from "not found"
+                // using the single-fetch freshness marker below.
+              }
+
+              set(eventMetadataAtom, {
+                ...metadata,
+                singles: { ...metadata.singles, [eventId]: now },
+              })
             }
-
-            set(eventMetadataAtom, {
-              ...metadata,
-              singles: { ...metadata.singles, [eventId]: now },
-            })
+          }
+        } finally {
+          if (start) {
+            set(eventsLoadingAtom, false)
           }
         }
       },

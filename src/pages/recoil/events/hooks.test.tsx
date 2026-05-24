@@ -2,7 +2,7 @@ import type { PublicDogEvent } from '../../../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { RecoilRoot, useRecoilValue } from 'recoil'
 import { getEvents } from '../../../api/event'
-import { eventMetadataAtom, eventsAtom } from './atoms'
+import { eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { useFetchEvents } from './hooks'
 
 jest.mock('../../../api/event', () => ({
@@ -121,6 +121,94 @@ describe('useFetchEvents', () => {
 
     await waitFor(() => {
       expect(result.current.events).toEqual([changed])
+    })
+  })
+
+  it('sets eventsLoadingAtom to true before the API call and false after', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+    const fetched = makeEvent('fetched', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+
+    let resolveGetEvents!: (value: { events: (typeof fetched)[]; unchangedIds: string[] }) => void
+    ;(getEvents as jest.Mock).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveGetEvents = resolve as typeof resolveGetEvents
+        })
+    )
+
+    const loadingStates: boolean[] = []
+
+    const { result } = renderHook(
+      () => ({
+        fetchEvents: useFetchEvents(),
+        loading: useRecoilValue(eventsLoadingAtom),
+      }),
+      { wrapper: wrapperWithState([], {}) }
+    )
+
+    // Start the fetch but don't await it yet
+    let fetchPromise: Promise<void>
+    act(() => {
+      fetchPromise = result.current.fetchEvents(start, end)
+    })
+
+    // After the synchronous set(eventsLoadingAtom, true) fires, loading should be true
+    await waitFor(() => {
+      loadingStates.push(result.current.loading)
+      expect(result.current.loading).toBe(true)
+    })
+
+    // Resolve the API call
+    act(() => {
+      resolveGetEvents({ events: [fetched], unchangedIds: [] })
+    })
+    await act(async () => {
+      await fetchPromise
+    })
+
+    // Loading should be false once the fetch is done
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+  })
+
+  it('does not set eventsLoadingAtom when no start date is provided', async () => {
+    const { result } = renderHook(
+      () => ({
+        fetchEvents: useFetchEvents(),
+        loading: useRecoilValue(eventsLoadingAtom),
+      }),
+      { wrapper: wrapperWithState([], {}) }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(undefined, undefined, 'some-id')
+    })
+
+    expect(result.current.loading).toBe(false)
+  })
+
+  it('sets eventsLoadingAtom to false even when getEvents throws', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+
+    ;(getEvents as jest.Mock).mockRejectedValue(new Error('network error'))
+
+    const { result } = renderHook(
+      () => ({
+        fetchEvents: useFetchEvents(),
+        loading: useRecoilValue(eventsLoadingAtom),
+      }),
+      { wrapper: wrapperWithState([], {}) }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start, end).catch(() => undefined)
+    })
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
     })
   })
 
