@@ -1,7 +1,11 @@
 import type { EventClass, EventState, PublicDogEvent } from '../types'
 import type { AnyObject } from './utils'
 import {
+  applyPatch,
+  applyPatchesById,
+  applyPatchOrInsert,
   clone,
+  getPatchChangedIds,
   hasChanges,
   isDateOnlyString,
   isDateString,
@@ -470,6 +474,85 @@ describe('utils', () => {
 
       expect(result.changed).not.toBe(base.changed)
       expect(result.unchanged).toBe(base.unchanged)
+    })
+  })
+
+  describe('applyPatch', () => {
+    const baseItems = [
+      { id: '1', name: 'Item 1' },
+      { id: '2', name: 'Item 2' },
+    ]
+
+    it('returns original array if item id is not found', () => {
+      expect(applyPatch(baseItems, '3', { name: 'Updated' })).toBe(baseItems)
+    })
+
+    it('returns new array with patched item if item changes', () => {
+      const result = applyPatch(baseItems, '1', { name: 'Updated Item 1' })
+
+      expect(result).not.toBe(baseItems)
+      expect(result.find((item) => item.id === '1')?.name).toBe('Updated Item 1')
+    })
+
+    it('returns original array if patch does not change item', () => {
+      expect(applyPatch(baseItems, '1', { name: 'Item 1' })).toBe(baseItems)
+    })
+  })
+
+  describe('applyPatchOrInsert', () => {
+    const baseItems = [
+      { id: '1', name: 'Item 1' },
+      { id: '2', name: 'Item 2' },
+    ]
+
+    it('patches existing items', () => {
+      const result = applyPatchOrInsert(baseItems, '1', { name: 'Updated Item 1' })
+
+      expect(result).not.toBe(baseItems)
+      expect(result.find((item) => item.id === '1')?.name).toBe('Updated Item 1')
+    })
+
+    it('inserts missing item from patch', () => {
+      expect(applyPatchOrInsert(baseItems, '3', { name: 'Item 3' })).toEqual([
+        ...baseItems,
+        { id: '3', name: 'Item 3' },
+      ])
+    })
+  })
+
+  describe('applyPatchesById', () => {
+    it('returns original array when patch list is empty', () => {
+      const current = [{ id: '1', notes: 'old' }]
+
+      expect(applyPatchesById(current, [])).toBe(current)
+    })
+
+    it('patches matching items by id', () => {
+      const current = [
+        { id: '1', notes: 'old' },
+        { id: '2', notes: 'keep' },
+      ]
+
+      expect(applyPatchesById(current, [{ id: '1', notes: 'new' }])).toEqual([
+        { id: '1', notes: 'new' },
+        { id: '2', notes: 'keep' },
+      ])
+    })
+  })
+
+  describe('getPatchChangedIds', () => {
+    it('returns ids for items that actually change', () => {
+      const current = [
+        { id: '1', notes: 'old' },
+        { id: '2', notes: 'keep' },
+      ]
+
+      expect(
+        getPatchChangedIds(current, [
+          { id: '1', notes: 'new' },
+          { id: '2', notes: 'keep' },
+        ])
+      ).toEqual(['1'])
     })
   })
 })

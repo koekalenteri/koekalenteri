@@ -2,7 +2,7 @@ import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../typ
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { sanitizeDogEvent } from '../lib/event'
-import { parseJSON, patchMerge } from '../lib/utils'
+import { applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
@@ -14,36 +14,6 @@ import { WS_API_URL } from '../routeConfig'
 
 const RECONNECT_INTERVAL = 1000
 
-/**
- * Exported for testing
- */
-export const applyPatch = <T extends { id: string }, P extends DeepPartial<T>>(
-  events: T[],
-  eventId: string,
-  patch: P
-): T[] => {
-  let changed = false
-  const next = events.map((e) => {
-    if (e.id !== eventId) return e
-    const merged: T = patchMerge(e, patch)
-    if (merged !== e) changed = true
-    return merged
-  })
-
-  return changed ? next : events
-}
-
-export const applyPatchOrInsert = <T extends { id: string }, P extends DeepPartial<T>>(
-  events: T[],
-  eventId: string,
-  patch: P
-): T[] => {
-  const next = applyPatch(events, eventId, patch)
-  if (next !== events || events.some((event) => event.id === eventId)) return next
-
-  return [...events, { ...patch, id: eventId } as unknown as T]
-}
-
 export const applyRegistrations = (registrations: Registration[], next: Registration[]) => {
   if (registrations === next) return registrations
   return next
@@ -52,43 +22,12 @@ export const applyRegistrations = (registrations: Registration[], next: Registra
 export const applyRegistrationPatches = (
   registrations: Registration[],
   patch: DeepPartial<Registration>[]
-): Registration[] => {
-  if (!patch.length) return registrations
-
-  const patchesById = new Map(
-    patch.filter((item): item is DeepPartial<Registration> & { id: string } => !!item.id).map((item) => [item.id, item])
-  )
-  let changed = false
-
-  const next = registrations.map((registration) => {
-    const registrationPatch = patchesById.get(registration.id)
-    if (!registrationPatch) return registration
-
-    const merged = patchMerge(registration, registrationPatch)
-    if (merged !== registration) changed = true
-    return merged
-  })
-
-  return changed ? next : registrations
-}
+): Registration[] => applyPatchesById(registrations, patch)
 
 export const getRegistrationPatchChangedIds = (
   registrations: Registration[],
   patch: DeepPartial<Registration>[]
-): string[] => {
-  if (!patch.length) return []
-
-  const patchesById = new Map(
-    patch.filter((item): item is DeepPartial<Registration> & { id: string } => !!item.id).map((item) => [item.id, item])
-  )
-
-  return registrations.flatMap((registration) => {
-    const registrationPatch = patchesById.get(registration.id)
-    if (!registrationPatch) return []
-
-    return patchMerge(registration, registrationPatch) !== registration ? [registration.id] : []
-  })
-}
+): string[] => getPatchChangedIds(registrations, patch)
 
 interface EventViewer {
   userId: string
@@ -161,7 +100,9 @@ export const useWebSocket = () => {
       ? currentUserLoadable.contents
       : undefined
 
-  idTokenRef.current = idTokenLoadable.state === 'hasValue' ? idTokenLoadable.contents : undefined
+  const idToken = idTokenLoadable.state === 'hasValue' ? idTokenLoadable.contents : undefined
+
+  idTokenRef.current = idToken
   adminUsersRef.current = adminUsers
   currentUserRef.current = currentUser
 
@@ -212,16 +153,23 @@ export const useWebSocket = () => {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
   const reconnectAttempts = useRef(0)
+  const previousTokenRef = useRef<string | undefined>(idTokenRef.current)
+  const tokenEffectInitializedRef = useRef(false)
 
   const resolvedViewers = useMemo(
     () => mapEventViewers(rawViewersRef.current, adminUsers, currentUser),
     [adminUsers, currentUser]
   )
 
-  const sendIfOpen = useCallback((msg: object) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(msg))
+  const sendIfOpen = useCallback((msg: object, socket = wsRef.current) => {
+    if (socket?.readyState === WebSocket.OPEN) {
+      const payload = JSON.stringify(msg)
+      console.debug('ws: send', msg)
+      socket.send(payload)
+      return true
     }
+    console.debug('ws: send skipped, socket not open', { message: msg, readyState: socket?.readyState })
+    return false
   }, [])
 
   const subscribeAdmin = useCallback(() => {
@@ -232,22 +180,27 @@ export const useWebSocket = () => {
   const subscribeEvent = useCallback(
     (eventId: string) => {
       const previous = eventIdRef.current
+      console.debug('ws:event subscribe requested', { eventId, previous })
       if (previous && previous !== eventId) {
         rawViewersRef.current = []
         setViewers([])
       }
       eventIdRef.current = eventId
-      sendIfOpen({ action: 'subscribe', channel: 'event', eventId })
+      const sent = sendIfOpen({ action: 'subscribe', channel: 'event', eventId })
+      console.debug('ws:event subscribe state updated', { eventId, sent })
     },
     [sendIfOpen]
   )
 
   const unsubscribeEvent = useCallback(() => {
-    if (!eventIdRef.current) return
-    sendIfOpen({ action: 'unsubscribe', channel: 'event' })
+    const eventId = eventIdRef.current
+    console.debug('ws:event unsubscribe requested', { eventId })
+    if (!eventId) return
+    const sent = sendIfOpen({ action: 'unsubscribe', channel: 'event' })
     eventIdRef.current = undefined
     rawViewersRef.current = []
     setViewers([])
+    console.debug('ws:event unsubscribe state cleared', { eventId, sent })
   }, [sendIfOpen])
 
   const connect = useCallback(() => {
@@ -263,16 +216,16 @@ export const useWebSocket = () => {
       reconnectAttempts.current = 0
 
       if (token) {
-        ws.send(JSON.stringify({ action: 'authenticate', token }))
+        sendIfOpen({ action: 'authenticate', token }, ws)
         return
       }
 
       // Re-send all active subscriptions after reconnect
       if (adminSubscribedRef.current) {
-        ws.send(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
+        sendIfOpen({ action: 'subscribe', channel: 'admin' }, ws)
       }
       if (eventIdRef.current) {
-        ws.send(JSON.stringify({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }))
+        sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, ws)
       }
     }
 
@@ -315,10 +268,10 @@ export const useWebSocket = () => {
         if (data.authenticated === true) {
           authFailedTokenRef.current = undefined
           if (adminSubscribedRef.current) {
-            ws.send(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
+            sendIfOpen({ action: 'subscribe', channel: 'admin' }, ws)
           }
           if (eventIdRef.current) {
-            ws.send(JSON.stringify({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }))
+            sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, ws)
           }
           return
         }
@@ -346,7 +299,7 @@ export const useWebSocket = () => {
         // ignore invalid messages
       }
     }
-  }, [patchRegistrations, setAdminEvents, setPublicEvents])
+  }, [patchRegistrations, sendIfOpen, setAdminEvents, setPublicEvents])
 
   useEffect(() => {
     setViewers((current) => applyViewers(current, resolvedViewers))
@@ -369,6 +322,48 @@ export const useWebSocket = () => {
       wsRef.current = null
     }
   }, [connect])
+
+  useEffect(() => {
+    const previousToken = previousTokenRef.current
+    const nextToken = idToken
+
+    if (!tokenEffectInitializedRef.current) {
+      tokenEffectInitializedRef.current = true
+      previousTokenRef.current = nextToken
+      return
+    }
+
+    if (previousToken === nextToken) return
+
+    console.debug('ws: auth token changed', {
+      hadPreviousToken: Boolean(previousToken),
+      hasNextToken: Boolean(nextToken),
+    })
+
+    previousTokenRef.current = nextToken
+    authFailedTokenRef.current = undefined
+    shouldReconnectRef.current = true
+
+    if (!nextToken) {
+      adminSubscribedRef.current = false
+      eventIdRef.current = undefined
+      rawViewersRef.current = []
+      setViewers([])
+    }
+
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current)
+      reconnectTimeoutRef.current = null
+    }
+
+    const previousSocket = wsRef.current
+    wsRef.current = null
+    previousSocket?.close()
+
+    if (WS_API_URL) {
+      connect()
+    }
+  }, [connect, idToken])
 
   return { adminCount, publicCount, subscribeAdmin, subscribeEvent, unsubscribeEvent, viewers }
 }

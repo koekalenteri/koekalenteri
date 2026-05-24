@@ -16,8 +16,10 @@ export function useEventSubscription(eventId: string) {
   const { subscribeEvent, unsubscribeEvent, viewers } = useWebSocketContext()
 
   useEffect(() => {
+    console.debug('ws:event-subscription mount', { eventId })
     subscribeEvent(eventId)
     return () => {
+      console.debug('ws:event-subscription cleanup', { eventId })
       unsubscribeEvent()
     }
   }, [eventId, subscribeEvent, unsubscribeEvent])

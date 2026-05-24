@@ -3,7 +3,8 @@ import type { MutableSnapshot } from 'recoil'
 import type { PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
-import { RecoilRoot, useRecoilValue, useSetRecoilState } from 'recoil'
+import { RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { applyPatch, applyPatchOrInsert } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
@@ -11,8 +12,6 @@ import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
 import { recentlyUpdatedAtom } from '../pages/recoil/recentUpdates'
 import {
-  applyPatch,
-  applyPatchOrInsert,
   applyRegistrationPatches,
   applyRegistrations,
   applyViewers,
@@ -357,6 +356,28 @@ describe('useWebSocket', () => {
     })
 
     expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'unsubscribe', channel: 'event' }))
+  })
+
+  it('should not re-send event subscription after unsubscribe and reconnect', () => {
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    mockWebSocketInstance.readyState = WebSocket.OPEN
+    act(() => {
+      result.current.subscribeEvent('event-1')
+    })
+    act(() => {
+      result.current.unsubscribeEvent()
+    })
+
+    mockWebSocketInstance.send.mockClear()
+
+    act(() => {
+      mockWebSocketInstance.onopen?.()
+    })
+
+    expect(mockWebSocketInstance.send).not.toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' })
+    )
   })
 
   it('should re-send event subscription after reconnect', () => {
@@ -767,6 +788,95 @@ describe('useWebSocket', () => {
 
     // connect must remain stable – no second WebSocket should be opened
     expect(global.WebSocket).toHaveBeenCalledTimes(1)
+  })
+
+  it('should reconnect and authenticate when token changes after initial connection', async () => {
+    const wsInstances: (typeof mockWebSocketInstance)[] = []
+    global.WebSocket = jest.fn(() => {
+      const instance = {
+        close: jest.fn(),
+        onclose: null as (() => void) | null,
+        onerror: null as (() => void) | null,
+        onmessage: null as ((e: { data: string }) => void) | null,
+        onopen: null as (() => void) | null,
+        readyState: WebSocket.OPEN,
+        send: jest.fn(),
+      }
+      wsInstances.push(instance)
+      return instance
+    }) as unknown as typeof WebSocket
+
+    const { result } = renderHook(
+      () => {
+        const [token, setToken] = useRecoilState(idTokenAtom)
+        useWebSocket()
+        return { setToken, token }
+      },
+      { wrapper: wrapperWithToken(undefined) }
+    )
+
+    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledTimes(1))
+
+    act(() => {
+      result.current.setToken('new-token')
+    })
+
+    expect(wsInstances[0].close).toHaveBeenCalledTimes(1)
+    expect(global.WebSocket).toHaveBeenCalledTimes(2)
+
+    act(() => {
+      wsInstances[1].onopen?.()
+    })
+
+    expect(wsInstances[1].send).toHaveBeenCalledWith(JSON.stringify({ action: 'authenticate', token: 'new-token' }))
+  })
+
+  it('should close authenticated socket and clear subscriptions when token is removed', async () => {
+    const wsInstances: (typeof mockWebSocketInstance)[] = []
+    global.WebSocket = jest.fn(() => {
+      const instance = {
+        close: jest.fn(),
+        onclose: null as (() => void) | null,
+        onerror: null as (() => void) | null,
+        onmessage: null as ((e: { data: string }) => void) | null,
+        onopen: null as (() => void) | null,
+        readyState: WebSocket.OPEN,
+        send: jest.fn(),
+      }
+      wsInstances.push(instance)
+      return instance
+    }) as unknown as typeof WebSocket
+
+    const { result } = renderHook(
+      () => {
+        const [token, setToken] = useRecoilState(idTokenAtom)
+        const websocket = useWebSocket()
+        return { setToken, token, websocket }
+      },
+      { wrapper: wrapperWithToken('id-token') }
+    )
+
+    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledTimes(1))
+
+    act(() => {
+      result.current.websocket.subscribeAdmin()
+      result.current.websocket.subscribeEvent('event-1')
+      result.current.setToken(undefined)
+    })
+
+    expect(wsInstances[0].close).toHaveBeenCalledTimes(1)
+    expect(global.WebSocket).toHaveBeenCalledTimes(2)
+
+    wsInstances[1].send.mockClear()
+
+    act(() => {
+      wsInstances[1].onopen?.()
+    })
+
+    expect(wsInstances[1].send).not.toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
+    expect(wsInstances[1].send).not.toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' })
+    )
   })
 
   it('should not schedule a reconnect when a stale onclose fires after a new connection is already established', () => {

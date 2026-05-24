@@ -183,5 +183,70 @@ export const patchMerge = <T extends AnyObject, P extends DeepPartial<T>>(base: 
   return changed ? result : (base as T & P)
 }
 
+export const applyPatch = <T extends { id: string }, P extends DeepPartial<T>>(
+  items: T[],
+  itemId: string,
+  patch: P
+): T[] => {
+  let changed = false
+  const next = items.map((item) => {
+    if (item.id !== itemId) return item
+    const merged: T = patchMerge(item, patch)
+    if (merged !== item) changed = true
+    return merged
+  })
+
+  return changed ? next : items
+}
+
+export const applyPatchOrInsert = <T extends { id: string }, P extends DeepPartial<T>>(
+  items: T[],
+  itemId: string,
+  patch: P
+): T[] => {
+  const next = applyPatch(items, itemId, patch)
+  if (next !== items || items.some((item) => item.id === itemId)) return next
+
+  return [...items, { ...patch, id: itemId } as unknown as T]
+}
+
+export const applyPatchesById = <T extends { id: string }, P extends DeepPartial<T>>(items: T[], patches: P[]): T[] => {
+  if (!patches.length) return items
+
+  const patchesById = new Map(
+    patches.filter((item): item is P & { id: string } => !!item.id).map((item) => [item.id, item])
+  )
+  let changed = false
+
+  const next = items.map((item) => {
+    const patch = patchesById.get(item.id)
+    if (!patch) return item
+
+    const merged = patchMerge(item, patch)
+    if (merged !== item) changed = true
+    return merged
+  })
+
+  return changed ? next : items
+}
+
+export const getPatchChangedIds = <T extends { id: string }, P extends DeepPartial<T>>(
+  items: T[],
+  patches: P[]
+): string[] => {
+  if (!patches.length) return []
+
+  const patchesById = new Map(
+    patches.filter((item): item is P & { id: string } => !!item.id).map((item) => [item.id, item])
+  )
+
+  return items.flatMap((item) => {
+    const patch = patchesById.get(item.id)
+    if (!patch) return []
+
+    return patchMerge(item, patch) !== item ? [item.id] : []
+  })
+}
+
 export const printContactInfo = (info?: PublicContactInfo) =>
   [info?.name, info?.phone, info?.email].filter(Boolean).join(', ')
