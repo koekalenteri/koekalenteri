@@ -34,7 +34,7 @@ export const authenticateConnection = async ({
       remove: ['eventId'],
       set: {
         ...(typeof admin === 'boolean' ? { admin } : {}),
-        audience: 'auth' as const,
+        audience: 'public' as const,
         ...(typeof expiresAt === 'number' ? { expiresAt } : {}),
         ...(memberOf?.length ? { memberOf } : {}),
         userId,
@@ -44,15 +44,15 @@ export const authenticateConnection = async ({
 }
 
 export const subscribeConnection = async (connectionId: string, eventId: string) => {
-  await dynamoDB.update({ connectionId }, { set: { eventId } })
+  await dynamoDB.update({ connectionId }, { set: { audience: 'admin' as const, eventId } })
 }
 
 export const subscribeAdminChannel = async (connectionId: string) => {
-  await dynamoDB.update({ connectionId }, { set: { adminSubscribed: true } })
+  await dynamoDB.update({ connectionId }, { set: { adminSubscribed: true, audience: 'admin' as const } })
 }
 
 export const unsubscribeAdminChannel = async (connectionId: string) => {
-  await dynamoDB.update({ connectionId }, { remove: ['adminSubscribed'] })
+  await dynamoDB.update({ connectionId }, { remove: ['adminSubscribed'], set: { audience: 'public' as const } })
 }
 
 export const unsubscribeConnection = async (connectionId: string) => {
@@ -73,6 +73,6 @@ const queryConnectionsByAudience = async (audience: NonNullable<WebSocketConnect
     values: { ':audience': audience },
   })) ?? []
 
-export const queryAuthenticatedConnections = async () => queryConnectionsByAudience('auth')
+export const queryAdminConnections = async () => queryConnectionsByAudience('admin')
 
 export const queryPublicConnections = async () => queryConnectionsByAudience('public')

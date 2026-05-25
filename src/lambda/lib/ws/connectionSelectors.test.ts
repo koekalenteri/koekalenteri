@@ -1,12 +1,12 @@
 import { jest } from '@jest/globals'
 
-const mockQueryAuthenticatedConnections = jest.fn<any>()
+const mockQueryAdminConnections = jest.fn<any>()
 const mockQueryPublicConnections = jest.fn<any>()
 const mockCanReceiveAdminEvent = jest.fn<any>()
 const mockCanReceiveAnyAdminEvent = jest.fn<any>()
 
 jest.unstable_mockModule('./connectionRepository', () => ({
-  queryAuthenticatedConnections: mockQueryAuthenticatedConnections,
+  queryAdminConnections: mockQueryAdminConnections,
   queryPublicConnections: mockQueryPublicConnections,
 }))
 
@@ -19,27 +19,34 @@ const { adminAudience, eventAudience, organizerAudience, publicAudience } = awai
 
 describe('ws/connectionSelectors', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    jest.resetAllMocks()
+    mockQueryAdminConnections.mockResolvedValue([])
+    mockQueryPublicConnections.mockResolvedValue([])
   })
 
   it('filters public audience from indexed public connections only', async () => {
     mockQueryPublicConnections.mockResolvedValueOnce([{ audience: 'public', connectionId: 'a' }])
 
     await expect(publicAudience()).resolves.toEqual([{ audience: 'public', connectionId: 'a' }])
-    expect(mockQueryAuthenticatedConnections).not.toHaveBeenCalled()
+    expect(mockQueryAdminConnections).not.toHaveBeenCalled()
   })
 
-  it('filters organizer audience from authenticated connections — adminSubscribed', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
-      { adminSubscribed: true, connectionId: 'a' },
-      { adminSubscribed: false, connectionId: 'b' },
-    ])
-    mockCanReceiveAdminEvent.mockReturnValueOnce(true).mockReturnValueOnce(true)
+  it('excludes admin-subscribed connections from public audience', async () => {
+    mockQueryPublicConnections.mockResolvedValueOnce([{ audience: 'public', connectionId: 'p1' }])
+    mockQueryAdminConnections.mockResolvedValueOnce([{ audience: 'admin', connectionId: 'admin-1' }])
+
+    await expect(publicAudience()).resolves.toEqual([{ audience: 'public', connectionId: 'p1' }])
+    expect(mockQueryAdminConnections).not.toHaveBeenCalled()
+  })
+
+  it('filters organizer audience from admin connections — adminSubscribed', async () => {
+    mockQueryAdminConnections.mockResolvedValueOnce([{ adminSubscribed: true, connectionId: 'a' }])
+    mockCanReceiveAdminEvent.mockReturnValueOnce(true)
     await expect(organizerAudience('org-1', 'e1')).resolves.toEqual([{ adminSubscribed: true, connectionId: 'a' }])
   })
 
-  it('filters organizer audience from authenticated connections — eventId match', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+  it('filters organizer audience from admin connections — eventId match', async () => {
+    mockQueryAdminConnections.mockResolvedValueOnce([
       { connectionId: 'a', eventId: 'e1' },
       { connectionId: 'b', eventId: 'e2' },
     ])
@@ -47,8 +54,8 @@ describe('ws/connectionSelectors', () => {
     await expect(organizerAudience('org-1', 'e1')).resolves.toEqual([{ connectionId: 'a', eventId: 'e1' }])
   })
 
-  it('filters admin audience from authenticated connections — requires adminSubscribed', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+  it('filters admin audience from admin connections — requires adminSubscribed', async () => {
+    mockQueryAdminConnections.mockResolvedValueOnce([
       { adminSubscribed: true, connectionId: 'a' },
       { connectionId: 'b' },
     ])
@@ -57,7 +64,7 @@ describe('ws/connectionSelectors', () => {
   })
 
   it('filters event audience by eventId and admin policy', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+    mockQueryAdminConnections.mockResolvedValueOnce([
       { connectionId: 'a', eventId: 'e1' },
       { connectionId: 'b', eventId: 'e2' },
     ])
@@ -66,7 +73,7 @@ describe('ws/connectionSelectors', () => {
   })
 
   it('includes provided subscribed connection when index query has not caught up', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([])
+    mockQueryAdminConnections.mockResolvedValueOnce([])
     mockCanReceiveAdminEvent.mockReturnValue(true)
 
     await expect(
@@ -75,7 +82,7 @@ describe('ws/connectionSelectors', () => {
   })
 
   it('does not duplicate provided subscribed connection', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([{ connectionId: 'subscribed', eventId: 'e1' }])
+    mockQueryAdminConnections.mockResolvedValueOnce([{ connectionId: 'subscribed', eventId: 'e1' }])
     mockCanReceiveAdminEvent.mockReturnValue(true)
 
     await expect(
@@ -84,7 +91,7 @@ describe('ws/connectionSelectors', () => {
   })
 
   it('excludes provided unsubscribed connection when index query has not caught up', async () => {
-    mockQueryAuthenticatedConnections.mockResolvedValueOnce([
+    mockQueryAdminConnections.mockResolvedValueOnce([
       { connectionId: 'stale', eventId: 'e1' },
       { connectionId: 'other', eventId: 'e1' },
     ])

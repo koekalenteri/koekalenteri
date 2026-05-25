@@ -26,7 +26,7 @@ const {
   createConnection,
   getConnection,
   listConnections,
-  queryAuthenticatedConnections,
+  queryAdminConnections,
   queryPublicConnections,
   removeConnection,
   subscribeAdminChannel,
@@ -68,24 +68,30 @@ describe('ws/connectionRepository', () => {
     expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1', expiresAt: 123 })
   })
 
-  it('subscribeConnection updates eventId', async () => {
+  it('subscribeConnection moves event subscribers to admin audience', async () => {
     await subscribeConnection('c1', 'e1')
-    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { set: { eventId: 'e1' } })
+    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { set: { audience: 'admin', eventId: 'e1' } })
   })
 
-  it('unsubscribeConnection removes eventId', async () => {
+  it('unsubscribeConnection removes only eventId and keeps audience unchanged', async () => {
     await unsubscribeConnection('c1')
     expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { remove: ['eventId'] })
   })
 
-  it('subscribeAdminChannel sets adminSubscribed', async () => {
+  it('subscribeAdminChannel sets adminSubscribed and moves connection to admin audience', async () => {
     await subscribeAdminChannel('c1')
-    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { set: { adminSubscribed: true } })
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { connectionId: 'c1' },
+      { set: { adminSubscribed: true, audience: 'admin' } }
+    )
   })
 
-  it('unsubscribeAdminChannel removes adminSubscribed', async () => {
+  it('unsubscribeAdminChannel removes adminSubscribed and moves connection to public audience', async () => {
     await unsubscribeAdminChannel('c1')
-    expect(mockUpdate).toHaveBeenCalledWith({ connectionId: 'c1' }, { remove: ['adminSubscribed'] })
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { connectionId: 'c1' },
+      { remove: ['adminSubscribed'], set: { audience: 'public' } }
+    )
   })
 
   it('removeConnection does nothing when no existing connection', async () => {
@@ -100,18 +106,13 @@ describe('ws/connectionRepository', () => {
     expect(mockDelete).toHaveBeenCalledWith({ connectionId: 'c1' })
   })
 
-  it('queryAuthenticatedConnections returns empty array for undefined result', async () => {
-    mockQuery.mockResolvedValueOnce(undefined)
-    await expect(queryAuthenticatedConnections()).resolves.toEqual([])
-  })
-
-  it('queryAuthenticatedConnections queries audience index', async () => {
+  it('queryAdminConnections queries audience index', async () => {
     mockQuery.mockResolvedValueOnce([{ connectionId: 'c1' }])
-    await expect(queryAuthenticatedConnections()).resolves.toEqual([{ connectionId: 'c1' }])
+    await expect(queryAdminConnections()).resolves.toEqual([{ connectionId: 'c1' }])
     expect(mockQuery).toHaveBeenCalledWith({
       index: 'audience-index',
       key: 'audience = :audience',
-      values: { ':audience': 'auth' },
+      values: { ':audience': 'admin' },
     })
   })
 

@@ -1,17 +1,17 @@
 import type { WebSocketConnection } from './types'
 import { canReceiveAdminEvent, canReceiveAnyAdminEvent } from './connectionPolicy'
-import { queryAuthenticatedConnections, queryPublicConnections } from './connectionRepository'
+import { queryAdminConnections, queryPublicConnections } from './connectionRepository'
 
 export const publicAudience = async () => queryPublicConnections()
 
 export const organizerAudience = async (organizerId: string, eventId: string) =>
-  (await queryAuthenticatedConnections()).filter(
+  (await queryAdminConnections()).filter(
     (connection) =>
       canReceiveAdminEvent(connection, organizerId) && (connection.adminSubscribed || connection.eventId === eventId)
   )
 
 export const adminAudience = async () =>
-  (await queryAuthenticatedConnections()).filter(
+  (await queryAdminConnections()).filter(
     (connection) => connection.adminSubscribed && canReceiveAnyAdminEvent(connection)
   )
 
@@ -33,7 +33,7 @@ export const eventAudience = async (
 ) =>
   includeConnection(
     excludeConnection(
-      (await queryAuthenticatedConnections()).filter(
+      (await queryAdminConnections()).filter(
         (connection) => connection.eventId === eventId && canReceiveAdminEvent(connection, organizerId)
       ),
       options.excludeConnectionId
