@@ -9,7 +9,7 @@ import { useWebSocket, WebSocketContext } from './useWebSocket'
  * Child components use `useWebSocketContext()`, `useAdminSubscription()`, and
  * `useEventSubscription()` to interact with the shared connection.
  */
-function WebSocketProviderInner({ children }: { children: ReactNode }) {
+function WebSocketProviderInner({ children }: Readonly<{ children: ReactNode }>) {
   const value = useWebSocket()
 
   return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>

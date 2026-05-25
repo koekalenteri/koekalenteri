@@ -35,7 +35,7 @@ const withClaims = (event: APIGatewayEvent, claims: JwtPayload): APIGatewayEvent
   ...event,
   requestContext: {
     ...event.requestContext,
-    authorizer: { ...(event.requestContext.authorizer ?? {}), claims: claims as any },
+    authorizer: { ...event.requestContext.authorizer, claims: claims as any },
   },
 })
 

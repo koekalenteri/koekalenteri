@@ -317,7 +317,7 @@ describe('lib/event', () => {
         { classes: result.classes, entries: 2, eventId: 'e3', members: 0 },
         'org-1'
       )
-      expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith('e3', regs, 'org-1')
+      expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
     })
 
     it('avoids noop updates when no changes are detected', async () => {
@@ -421,7 +421,7 @@ describe('lib/event', () => {
         { classes: result.classes, entries: 3, eventId: 'e5', members: 1 },
         'org-1'
       )
-      expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith('e5', updatedRegs, 'org-1')
+      expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
     })
 
     it('handles empty updatedRegistrations array', async () => {

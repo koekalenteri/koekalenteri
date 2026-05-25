@@ -11,7 +11,7 @@ function dataVersionFromItems(items: VersionRecord[]): DataVersion {
   const modifiedAt = items.reduce<string | undefined>((latest, item) => {
     if (!item.modifiedAt) return latest
     if (!latest) return item.modifiedAt
-    return item.modifiedAt > latest ? item.modifiedAt : latest
+    return new Date(Math.max(new Date(item.modifiedAt).getTime(), new Date(latest).getTime())).toISOString()
   }, undefined)
 
   return { count: items.length, modifiedAt }
