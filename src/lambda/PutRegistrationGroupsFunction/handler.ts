@@ -12,6 +12,7 @@ import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/ev
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda, response } from '../lib/lambda'
 import {
+  createRegistrationPatches,
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
   sendTemplatedEmailToEventRegistrations,
@@ -26,12 +27,6 @@ const classEquals = (a: string | null | undefined, b: string | null | undefined)
 
 const regString = (r: JsonRegistration) =>
   `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
-
-const getChangedRegistrations = (oldItems: JsonRegistration[], updatedItems: JsonRegistration[]) =>
-  updatedItems.filter((reg) => {
-    const oldGroup = oldItems.find((old) => old.id === reg.id)?.group
-    return reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number
-  })
 
 const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegistrationGroupInfo[], user: JsonUser) => {
   // create a new copy of oldItems, so we can update without touching the original ones
@@ -94,7 +89,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   // create a new copy of oldItems, so we can update without touching the original ones
   const updatedItems = await updateItems(oldItems, eventGroups, user)
-  const changedRegistrations = getChangedRegistrations(oldItems, updatedItems)
+  const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
 
   // update event counts
   const confirmedEvent = await updateRegistrations(eventId, updatedItems)

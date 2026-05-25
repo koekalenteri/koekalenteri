@@ -134,8 +134,23 @@ describe('putAdminRegistrationLambda', () => {
     mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
 
     mockGetRegistration.mockResolvedValue({
+      class: 'ALO',
+      dates: [],
+      dog: {
+        breedCode: '111',
+        regNo: 'DOG123',
+      },
       eventId: 'event123',
+      handler: {
+        email: 'handler@example.com',
+      },
       id: 'reg456',
+      language: 'fi',
+      owner: {
+        email: 'owner@example.com',
+      },
+      qualifyingResults: [],
+      reserve: 'ANY',
       state: 'draft',
     })
 
@@ -359,7 +374,12 @@ describe('putAdminRegistrationLambda', () => {
     )
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
-      [expect.objectContaining({ id: 'reg456', state: 'draft' })],
+      [expect.objectContaining({ eventId: 'event123', id: 'reg456', modifiedBy: 'Test User' })],
+      'org-1'
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      expect.not.arrayContaining([expect.objectContaining({ dog: expect.anything() })]),
       'org-1'
     )
 

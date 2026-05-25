@@ -361,7 +361,13 @@ describe('putRegistrationLabmda', () => {
     expect(mockUpdateRegistrations).toHaveBeenCalledWith(eventWithStaticDates.id)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       eventWithStaticDates.id,
-      [expect.objectContaining({ cancelled: true })],
+      [
+        expect.objectContaining({
+          cancelled: true,
+          eventId: eventWithStaticDates.id,
+          id: registrationWithStaticDates.id,
+        }),
+      ],
       'org-1'
     )
 
@@ -621,6 +627,11 @@ describe('putRegistrationLabmda', () => {
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       eventWithStaticDates.id,
       [expect.objectContaining({ id: registrationWithStaticDates.id, notes: 'updated notes' })],
+      'org-1'
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      expect.not.arrayContaining([expect.objectContaining({ dog: expect.anything() })]),
       'org-1'
     )
 

@@ -21,12 +21,7 @@ import {
 } from '../../lib/registration'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
-import {
-  publishAdminEventPatch,
-  publishEventPatch,
-  publishPublicEvent,
-  publishRegistrationPatches,
-} from '../lib/ws/actions'
+import { publishAdminEventPatch, publishEventPatch, publishPublicEvent } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
@@ -218,11 +213,6 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
   await publishPublicEvent({ entries, eventId, members })
   await publishAdminEventPatch({ classes, entries, eventId, members }, confirmedEvent.organizer.id)
-  await publishRegistrationPatches(
-    eventId,
-    (allRegistrations ?? []).map((registration) => ({ ...registration })),
-    confirmedEvent.organizer.id
-  )
 
   return confirmedEvent
 }

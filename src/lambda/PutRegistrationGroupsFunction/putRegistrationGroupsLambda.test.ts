@@ -179,7 +179,19 @@ describe('putRegistrationGroupsLambda', () => {
     expect(resultItem?.group).toEqual(reg.group)
     expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
       event.id,
-      expect.arrayContaining([expect.objectContaining({ group: reg.group, id: reg.id })]),
+      expect.arrayContaining([
+        {
+          cancelled: false,
+          eventId: event.id,
+          group: reg.group,
+          id: reg.id,
+        },
+      ]),
+      event.organizer.id
+    )
+    expect(mockBroadcastEventRegistrations).toHaveBeenLastCalledWith(
+      event.id,
+      expect.not.arrayContaining([expect.objectContaining({ dog: expect.anything() })]),
       event.organizer.id
     )
   })

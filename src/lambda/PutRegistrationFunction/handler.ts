@@ -17,6 +17,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
   clearRegistrationEmailDeliveryStatus,
+  createRegistrationPatch,
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getRegistration,
@@ -186,7 +187,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   if (update || cancel || registration.state === 'ready') {
     const updatedEvent = await updateRegistrations(registration.eventId)
-    await publishRegistrationPatches(registration.eventId, [data], updatedEvent.organizer.id)
+    await publishRegistrationPatches(
+      registration.eventId,
+      [createRegistrationPatch(data, existing)],
+      updatedEvent.organizer.id
+    )
   }
 
   const message = getAuditMessage(cancel, confirm, data, existing)

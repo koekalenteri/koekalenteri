@@ -8,6 +8,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
+import { createPatch } from './patch'
 
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
@@ -60,6 +61,28 @@ export const setReserveNotified = async (registrations: JsonRegistration[]) =>
       .filter((r) => !r.reserveNotified)
       .map(({ eventId, id, group }) => updateRegistrationField(eventId, id, 'reserveNotified', group?.number ?? 999))
   )
+
+export const createRegistrationPatch = (registration: JsonRegistration, existing?: JsonRegistration) => {
+  if (!existing) return { ...registration }
+
+  const { changes } = createPatch(registration, existing)
+  return { eventId: registration.eventId, id: registration.id, ...changes }
+}
+
+export const createRegistrationPatches = (
+  registrations: JsonRegistration[],
+  existingRegistrations: JsonRegistration[]
+) =>
+  registrations.flatMap((registration) => {
+    const patch = createRegistrationPatch(
+      registration,
+      existingRegistrations.find((existing) => existing.id === registration.id)
+    )
+
+    return Object.keys(patch).length > 2 || !existingRegistrations.some((existing) => existing.id === registration.id)
+      ? [patch]
+      : []
+  })
 
 export const updateReserveNotified = async (registrations: JsonRegistration[]) =>
   Promise.all(
