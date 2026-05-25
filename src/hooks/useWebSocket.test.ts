@@ -927,6 +927,62 @@ describe('useWebSocket', () => {
     )
   })
 
+  it('should keep event subscription when token loadable is temporarily loading during token refresh', async () => {
+    const wsInstances: (typeof mockWebSocketInstance)[] = []
+    global.WebSocket = jest.fn(() => {
+      const instance = {
+        close: jest.fn(),
+        onclose: null as (() => void) | null,
+        onerror: null as (() => void) | null,
+        onmessage: null as ((e: { data: string }) => void) | null,
+        onopen: null as (() => void) | null,
+        readyState: WebSocket.OPEN,
+        send: jest.fn(),
+      }
+      wsInstances.push(instance)
+      return instance
+    }) as unknown as typeof WebSocket
+
+    const loadingToken = new Promise<string>(() => undefined)
+
+    const { result } = renderHook(
+      () => {
+        const setToken = useSetRecoilState(idTokenAtom)
+        const websocket = useWebSocket()
+        return { setToken, websocket }
+      },
+      { wrapper: wrapperWithToken('id-token') }
+    )
+
+    await waitFor(() => expect(global.WebSocket).toHaveBeenCalledTimes(1))
+
+    act(() => {
+      result.current.websocket.subscribeEvent('event-1')
+      result.current.setToken(loadingToken as unknown as string)
+    })
+
+    expect(wsInstances[0].close).not.toHaveBeenCalled()
+
+    act(() => {
+      result.current.setToken('new-token')
+    })
+
+    expect(wsInstances[0].close).toHaveBeenCalledTimes(1)
+    expect(global.WebSocket).toHaveBeenCalledTimes(2)
+
+    act(() => {
+      wsInstances[1].onopen?.()
+    })
+    act(() => {
+      wsInstances[1].onmessage?.({ data: JSON.stringify({ authenticated: true }) })
+    })
+
+    expect(wsInstances[1].send).toHaveBeenCalledWith(JSON.stringify({ action: 'authenticate', token: 'new-token' }))
+    expect(wsInstances[1].send).toHaveBeenCalledWith(
+      JSON.stringify({ action: 'subscribe', channel: 'event', eventId: 'event-1' })
+    )
+  })
+
   it('should not schedule a reconnect when a stale onclose fires after a new connection is already established', () => {
     // Regression test for the React StrictMode double-mount race condition.
     //

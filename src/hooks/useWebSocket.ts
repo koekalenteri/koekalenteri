@@ -100,7 +100,8 @@ export const useWebSocket = () => {
       ? currentUserLoadable.contents
       : undefined
 
-  const idToken = idTokenLoadable.state === 'hasValue' ? idTokenLoadable.contents : undefined
+  const idTokenReady = idTokenLoadable.state === 'hasValue' && typeof idTokenLoadable.contents !== 'object'
+  const idToken = idTokenReady ? idTokenLoadable.contents : idTokenRef.current
 
   idTokenRef.current = idToken
   adminUsersRef.current = adminUsers
@@ -172,6 +173,18 @@ export const useWebSocket = () => {
     return false
   }, [])
 
+  const resendActiveSubscriptions = useCallback(
+    (socket = wsRef.current) => {
+      if (adminSubscribedRef.current) {
+        sendIfOpen({ action: 'subscribe', channel: 'admin' }, socket)
+      }
+      if (eventIdRef.current) {
+        sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, socket)
+      }
+    },
+    [sendIfOpen]
+  )
+
   const subscribeAdmin = useCallback(() => {
     adminSubscribedRef.current = true
     sendIfOpen({ action: 'subscribe', channel: 'admin' })
@@ -216,17 +229,15 @@ export const useWebSocket = () => {
       reconnectAttempts.current = 0
 
       if (token) {
+        // Subscriptions are (re)sent after the backend acknowledges authentication,
+        // because the lambda authorizes subscribe based on the persisted connection
+        // record written during authenticate.
         sendIfOpen({ action: 'authenticate', token }, ws)
         return
       }
 
-      // Re-send all active subscriptions after reconnect
-      if (adminSubscribedRef.current) {
-        sendIfOpen({ action: 'subscribe', channel: 'admin' }, ws)
-      }
-      if (eventIdRef.current) {
-        sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, ws)
-      }
+      // Re-send all active subscriptions after reconnect (unauthenticated channels)
+      resendActiveSubscriptions(ws)
     }
 
     ws.onclose = () => {
@@ -267,12 +278,7 @@ export const useWebSocket = () => {
 
         if (data.authenticated === true) {
           authFailedTokenRef.current = undefined
-          if (adminSubscribedRef.current) {
-            sendIfOpen({ action: 'subscribe', channel: 'admin' }, ws)
-          }
-          if (eventIdRef.current) {
-            sendIfOpen({ action: 'subscribe', channel: 'event', eventId: eventIdRef.current }, ws)
-          }
+          resendActiveSubscriptions(ws)
           return
         }
 
@@ -299,7 +305,7 @@ export const useWebSocket = () => {
         // ignore invalid messages
       }
     }
-  }, [patchRegistrations, sendIfOpen, setAdminEvents, setPublicEvents])
+  }, [patchRegistrations, resendActiveSubscriptions, sendIfOpen, setAdminEvents, setPublicEvents])
 
   useEffect(() => {
     setViewers((current) => applyViewers(current, resolvedViewers))
@@ -324,6 +330,8 @@ export const useWebSocket = () => {
   }, [connect])
 
   useEffect(() => {
+    if (!idTokenReady) return
+
     const previousToken = previousTokenRef.current
     const nextToken = idToken
 
@@ -363,7 +371,7 @@ export const useWebSocket = () => {
     if (WS_API_URL) {
       connect()
     }
-  }, [connect, idToken])
+  }, [connect, idToken, idTokenReady])
 
   return { adminCount, publicCount, subscribeAdmin, subscribeEvent, unsubscribeEvent, viewers }
 }
