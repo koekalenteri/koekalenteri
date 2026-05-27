@@ -209,7 +209,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ip' }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
         id: 'participant-1',
       }),
     ])
@@ -248,7 +248,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ip' }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
         id: 'reserve-1',
       }),
     ])

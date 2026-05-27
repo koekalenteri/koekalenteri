@@ -1,4 +1,4 @@
-import type { DogEvent, Registration, RegistrationDate } from '../../../types'
+import type { DogEvent, Registration, RegistrationGroup } from '../../../types'
 import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
@@ -21,7 +21,7 @@ interface Props {
   onClose: () => void
   registration: Registration
   event: DogEvent
-  groups: RegistrationDate[]
+  groups: RegistrationGroup[]
   onMove: (groupKey: string) => Promise<void>
 }
 
@@ -42,18 +42,24 @@ export default function MoveToGroupDialog({
 
   // Check if dog is registered for the selected group's date
   const isRegisteredForGroup = (groupKey: string) => {
-    const group = groups.find((g) => eventRegistrationDateKey(g) === groupKey)
+    const group = groups.find((g) => g.key === groupKey)
     if (!group) return true // If no date specified, allow move
 
-    return registration.dates?.some((d) => eventRegistrationDateKey(d) === groupKey) ?? false
+    if (!group.date) return true
+
+    const dateKey = eventRegistrationDateKey({ ...group, date: group.date })
+    return registration.dates?.some((d) => eventRegistrationDateKey(d) === dateKey) ?? false
   }
 
   const defaultSelectedGroup = useMemo(() => {
-    const firstRegisteredGroup = groups.find((group) =>
-      registration.dates?.some((date) => eventRegistrationDateKey(date) === eventRegistrationDateKey(group))
-    )
+    const firstRegisteredGroup = groups.find((group) => {
+      if (!group.date) return false
 
-    return firstRegisteredGroup ? eventRegistrationDateKey(firstRegisteredGroup) : currentGroupKey
+      const groupKey = eventRegistrationDateKey({ ...group, date: group.date })
+      return registration.dates?.some((date) => eventRegistrationDateKey(date) === groupKey) ?? false
+    })
+
+    return firstRegisteredGroup ? firstRegisteredGroup.key : currentGroupKey
   }, [currentGroupKey, groups, registration.dates])
 
   const [selectedGroup, setSelectedGroup] = useState<string>(defaultSelectedGroup)
@@ -93,7 +99,7 @@ export default function MoveToGroupDialog({
           <FormLabel component="legend">{t('registration.moveToGroupDialog.selectGroup')}</FormLabel>
           <RadioGroup value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
             {groups.map((group) => {
-              const groupKey = eventRegistrationDateKey(group)
+              const groupKey = group.key
               const isCurrentGroup = groupKey === currentGroupKey
               const isRegistered = isRegisteredForGroup(groupKey)
               const dateLabel = t('dateFormat.wdshort', { date: group.date })

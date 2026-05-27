@@ -4,6 +4,7 @@ import { parseISO } from 'date-fns'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 import {
+  buildMoveToGroupChange,
   buildMoveToPositionGroupChange,
   buildMoveToPositionOptions,
   buildRegistrationsByGroup,
@@ -468,6 +469,85 @@ describe('helpers', () => {
         mockGroups,
         registrationsByGroup
       )
+
+      expect(result).toBeUndefined()
+    })
+  })
+
+  describe('buildMoveToGroupChange', () => {
+    const mockGroups: RegistrationGroup[] = [
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+    ]
+
+    it('should move to the end of a non-empty target group', () => {
+      const selectedRegistration = {
+        eventId: 'event1',
+        group: { key: 'group1', number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+        group2: [{ group: { key: 'group2', number: 2 }, id: 'reg2' } as RegistrationWithGroups],
+      }
+
+      const result = buildMoveToGroupChange(selectedRegistration, 'group2', 'event1', mockGroups, registrationsByGroup)
+
+      expect(result).toEqual({
+        cancelled: false,
+        eventId: 'event1',
+        group: { date: mockGroups[1].date, key: 'group2', number: 2.5, time: 'ip' },
+        id: 'reg1',
+      })
+    })
+
+    it('should use position 1 when moving to an empty target group', () => {
+      const selectedRegistration = {
+        eventId: 'event1',
+        group: { key: 'group1', number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToGroupChange(selectedRegistration, 'group2', 'event1', mockGroups, {})
+
+      expect(result).toEqual({
+        cancelled: false,
+        eventId: 'event1',
+        group: { date: mockGroups[1].date, key: 'group2', number: 1, time: 'ip' },
+        id: 'reg1',
+      })
+    })
+
+    it('should ignore the selected registration when finding the target group end', () => {
+      const selectedRegistration = {
+        eventId: 'event1',
+        group: { key: 'group2', number: 2 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+        group2: [
+          { group: { key: 'group2', number: 2 }, id: 'reg1' } as RegistrationWithGroups,
+          { group: { key: 'group2', number: 3 }, id: 'reg2' } as RegistrationWithGroups,
+        ],
+      }
+
+      const result = buildMoveToGroupChange(selectedRegistration, 'group2', 'event1', mockGroups, registrationsByGroup)
+
+      expect(result).toEqual({
+        cancelled: false,
+        eventId: 'event1',
+        group: { date: mockGroups[1].date, key: 'group2', number: 3.5, time: 'ip' },
+        id: 'reg1',
+      })
+    })
+
+    it('should return undefined when target group does not exist', () => {
+      const selectedRegistration = {
+        eventId: 'event1',
+        group: { key: 'group1', number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToGroupChange(selectedRegistration, 'missing', 'event1', mockGroups, {})
 
       expect(result).toBeUndefined()
     })

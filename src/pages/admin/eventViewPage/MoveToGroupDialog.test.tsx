@@ -1,4 +1,4 @@
-import type { DogEvent, Registration, RegistrationDate } from '../../../types'
+import type { DogEvent, Registration, RegistrationGroup } from '../../../types'
 import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { eventWithStaticDates } from '../../../__mockData__/events'
@@ -6,6 +6,8 @@ import { registrationWithStaticDates } from '../../../__mockData__/registrations
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import MoveToGroupDialog from './MoveToGroupDialog'
+
+type TestRegistrationGroup = RegistrationGroup & { date: Date }
 
 jest.mock('notistack', () => ({
   enqueueSnackbar: jest.fn(),
@@ -19,10 +21,15 @@ describe('MoveToGroupDialog', () => {
   })
   afterAll(() => jest.useRealTimers())
 
-  const makeGroup = (date: Date, time: 'ap' | 'ip'): RegistrationDate => ({ date, time })
+  const makeGroup = (date: Date, time: 'ap' | 'ip'): TestRegistrationGroup => ({
+    date,
+    key: eventRegistrationDateKey({ date, time }),
+    number: 0,
+    time,
+  })
 
   it('renders', async () => {
-    const groups: RegistrationDate[] = [
+    const groups: TestRegistrationGroup[] = [
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.startDate, 'ip'),
     ]
@@ -48,7 +55,7 @@ describe('MoveToGroupDialog', () => {
   })
 
   it('prevents moving to a day/time the dog is not registered for', async () => {
-    const groups: RegistrationDate[] = [
+    const groups: TestRegistrationGroup[] = [
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.endDate, 'ip'),
     ]
@@ -88,7 +95,7 @@ describe('MoveToGroupDialog', () => {
   })
 
   it('moves to another registered group and closes on success', async () => {
-    const groups: RegistrationDate[] = [
+    const groups: TestRegistrationGroup[] = [
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.startDate, 'ip'),
     ]
@@ -136,7 +143,7 @@ describe('MoveToGroupDialog', () => {
   it('shows error snackbar when move fails', async () => {
     const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
 
-    const groups: RegistrationDate[] = [
+    const groups: TestRegistrationGroup[] = [
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.startDate, 'ip'),
     ]
@@ -180,7 +187,7 @@ describe('MoveToGroupDialog', () => {
   })
 
   it('defaults selection to a registered group when current group is reserve', async () => {
-    const groups: RegistrationDate[] = [
+    const groups: TestRegistrationGroup[] = [
       makeGroup(eventWithStaticDates.startDate, 'ap'),
       makeGroup(eventWithStaticDates.startDate, 'ip'),
     ]
@@ -209,7 +216,7 @@ describe('MoveToGroupDialog', () => {
   })
 
   it('shows the dog name in the title', async () => {
-    const groups: RegistrationDate[] = [makeGroup(eventWithStaticDates.startDate, 'ap')]
+    const groups: TestRegistrationGroup[] = [makeGroup(eventWithStaticDates.startDate, 'ap')]
     const registration: Registration = {
       ...registrationWithStaticDates,
       group: { date: groups[0].date, key: eventRegistrationDateKey(groups[0]), number: 1, time: groups[0].time } as any,

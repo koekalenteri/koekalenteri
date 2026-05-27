@@ -22,6 +22,7 @@ import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import {
+  buildMoveToGroupChange,
   buildMoveToPositionGroupChange,
   buildMoveToPositionOptions,
   buildRegistrationsByGroup,
@@ -363,25 +364,18 @@ const ClassEntrySelection = ({
             event={event}
             groups={groups}
             onMove={async (groupKey) => {
-              const group = groups.find((g) => eventRegistrationDateKey(g) === groupKey)
-              if (!group) return
-
-              const groupRegs = registrations.filter((r) => getRegistrationGroupKey(r) === groupKey)
               setPendingMoveId(selectedForAction.id)
               try {
-                await actions.saveGroups(event.id, [
-                  {
-                    cancelled: false,
-                    eventId: event.id,
-                    group: {
-                      date: group.date,
-                      key: groupKey,
-                      number: groupRegs.length + 1,
-                      time: group.time,
-                    },
-                    id: selectedForAction.id,
-                  },
-                ])
+                const change = buildMoveToGroupChange(
+                  selectedForAction,
+                  groupKey,
+                  event.id,
+                  groups,
+                  registrationsByGroup
+                )
+                if (!change) return
+
+                await actions.saveGroups(event.id, [change])
               } finally {
                 setPendingMoveId(undefined)
               }

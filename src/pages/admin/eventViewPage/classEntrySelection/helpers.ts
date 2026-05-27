@@ -162,6 +162,37 @@ export const buildMoveToPositionGroupChange = (
   }
 }
 
+export const buildMoveToGroupChange = (
+  selectedForAction: Registration,
+  groupKey: string,
+  eventId: string,
+  groups: RegistrationGroup[],
+  registrationsByGroup: Record<string, RegistrationWithGroups[]>
+): RegistrationGroupInfo | undefined => {
+  const targetGroup = groups.find((group) => group.key === groupKey)
+  if (!targetGroup) return undefined
+
+  const groupRegistrations = (registrationsByGroup[targetGroup.key] ?? registrationsByGroup[groupKey] ?? []).filter(
+    (registration) => registration.id !== selectedForAction.id
+  )
+  const lastNumber = groupRegistrations.reduce((last, registration) => {
+    const number = registration.group?.number
+    return typeof number === 'number' && number > last ? number : last
+  }, 0)
+
+  return {
+    cancelled: false,
+    eventId,
+    group: {
+      date: targetGroup.date,
+      key: groupKey,
+      number: lastNumber ? lastNumber + 0.5 : 1,
+      time: targetGroup.time,
+    },
+    id: selectedForAction.id,
+  }
+}
+
 /** Per-group selected optional costs tally */
 export const buildSelectedAdditionalCostsByGroup = (
   event: DogEvent,
