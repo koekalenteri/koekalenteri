@@ -25,6 +25,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 import { adminEventSelector } from '../recoil'
@@ -67,13 +68,14 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
         enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
       } catch (error) {
         if (error instanceof APIError && error.status === 413) {
-          enqueueSnackbar('Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.', {
-            variant: 'error',
-          })
+          enqueueSnackbar(
+            'Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.',
+            errorSnackbarOptions
+          )
           return
         }
 
-        enqueueSnackbar('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', { variant: 'error' })
+        enqueueSnackbar('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', errorSnackbarOptions)
       } finally {
         input.value = ''
       }

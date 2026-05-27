@@ -179,7 +179,7 @@ describe('MoveToGroupDialog', () => {
     await user.click(screen.getByRole('button', { name: 'registration.moveToGroupDialog.moveToGroup' }))
     await flushPromises()
 
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Virhe siirrossa', { variant: 'error' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Virhe siirrossa', { persist: true, variant: 'error' })
     expect(onClose).toHaveBeenCalledTimes(0)
     expect(mockConsoleError).toHaveBeenCalled()
 

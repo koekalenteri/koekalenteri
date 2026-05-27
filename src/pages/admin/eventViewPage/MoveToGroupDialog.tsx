@@ -15,6 +15,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { getRegistrationGroupKey } from '../../../lib/registration'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 
 interface Props {
   open: boolean
@@ -72,7 +73,7 @@ export default function MoveToGroupDialog({
 
   const handleMove = async () => {
     if (!isRegisteredForGroup(selectedGroup)) {
-      enqueueSnackbar(t('registration.moveToGroupDialog.notRegisteredForDay'), { variant: 'error' })
+      enqueueSnackbar(t('registration.moveToGroupDialog.notRegisteredForDay'), errorSnackbarOptions)
       return
     }
 
@@ -85,7 +86,7 @@ export default function MoveToGroupDialog({
       onClose()
     } catch (error) {
       console.error('Failed to move registration:', error)
-      enqueueSnackbar('Virhe siirrossa', { variant: 'error' })
+      enqueueSnackbar('Virhe siirrossa', errorSnackbarOptions)
     } finally {
       setSaving(false)
     }

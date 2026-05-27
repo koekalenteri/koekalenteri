@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
@@ -138,7 +139,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
       actions.update(updatedRegistrations)
       onClose?.()
     } catch (error) {
-      enqueueSnackbar('Viestin lähetys epäonnistui 💩', { variant: 'error' })
+      enqueueSnackbar('Viestin lähetys epäonnistui 💩', errorSnackbarOptions)
       console.log(error)
     }
   }, [

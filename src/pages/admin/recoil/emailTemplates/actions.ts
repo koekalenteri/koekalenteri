@@ -2,6 +2,7 @@ import type { EmailTemplate } from '../../../../types'
 import { useSnackbar } from 'notistack'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { putEmailTemplate } from '../../../../api/email'
+import { errorSnackbarOptions } from '../../../../lib/snackbar'
 import { idTokenAtom } from '../../../recoil'
 import { adminEmailTemplatesAtom } from './atoms'
 
@@ -21,7 +22,7 @@ export const useAdminEmailTemplatesActions = () => {
         setEmailTemplates(templates)
         return true
       } catch (e: any) {
-        enqueueSnackbar(`Virhe: ${e.result ?? ''}`, { variant: 'error' })
+        enqueueSnackbar(`Virhe: ${e.result ?? ''}`, errorSnackbarOptions)
       }
       return false
     },

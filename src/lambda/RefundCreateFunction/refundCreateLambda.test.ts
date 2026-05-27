@@ -22,6 +22,17 @@ const mockNanoid = jest.fn<any>()
 const mockFormatMoney = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
 
+class MockPaytrailError extends Error {
+  status: number
+  error: string | undefined
+
+  constructor(status: number, error: string | undefined) {
+    super(`${status} ${error}`)
+    this.status = status
+    this.error = error
+  }
+}
+
 jest.unstable_mockModule('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
     status: number
@@ -47,6 +58,7 @@ jest.unstable_mockModule('../utils/proxyEvent', () => ({
 }))
 
 jest.unstable_mockModule('../lib/paytrail', () => ({
+  PaytrailError: MockPaytrailError,
   refundPayment: mockRefundPayment,
 }))
 
@@ -231,6 +243,31 @@ describe('refundCreateLambda', () => {
 
     await expect(refundCreateLambda(event)).rejects.toThrow(/refundPayment did not return a result/)
     expect(mockDynamoWrite).not.toHaveBeenCalled()
+  })
+
+  it('audits and returns Paytrail refund errors', async () => {
+    const paytrailMessage =
+      'API refund failed and provider does not support email refunds. Provider message: Revert failed'
+    const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
+    mockRefundPayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
+
+    await refundCreateLambda(event)
+
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event123:reg456',
+      message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+      user: 'Test User',
+    })
+    expect(mockResponse).toHaveBeenCalledWith(
+      400,
+      {
+        error: paytrailError,
+        message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+      },
+      event
+    )
+    expect(mockDynamoWrite).not.toHaveBeenCalled()
+    expect(mockDynamoUpdate).not.toHaveBeenCalled()
   })
 
   it('creates a refund transaction with items', async () => {

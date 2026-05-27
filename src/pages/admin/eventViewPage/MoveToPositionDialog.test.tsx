@@ -216,7 +216,7 @@ describe('MoveToPositionDialog', () => {
     await user.click(screen.getByRole('button', { name: 'registration.moveToPositionDialog.moveToPosition' }))
     await flushPromises()
 
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Virhe siirrossa', { variant: 'error' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Virhe siirrossa', { persist: true, variant: 'error' })
     expect(onClose).toHaveBeenCalledTimes(0)
     expect(mockConsoleError).toHaveBeenCalled()
   })

@@ -314,6 +314,7 @@ describe('useDnDHandlers', () => {
 
       expect(mockEnqueueSnackbar).toHaveBeenCalledWith({
         message: expect.stringContaining('TestDog ei ole ilmoittautunut tähän ryhmään'),
+        persist: true,
         variant: 'error',
       })
     })

@@ -16,6 +16,7 @@ import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegi
 import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventRegistrationGroups'
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
@@ -181,7 +182,7 @@ const ClassEntrySelection = ({
           enqueueSnackbar(t('registration.movedToReserve', { name: reg.dog.name }), { variant: 'success' })
         } catch (error) {
           console.error('Failed to move to reserve:', error)
-          enqueueSnackbar(t('registration.moveToReserveFailed'), { variant: 'error' })
+          enqueueSnackbar(t('registration.moveToReserveFailed'), errorSnackbarOptions)
         } finally {
           setPendingMoveId(undefined)
         }

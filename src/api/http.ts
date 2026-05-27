@@ -1,6 +1,7 @@
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { reportError } from '../lib/client/error'
+import { errorSnackbarOptions } from '../lib/snackbar'
 import { isObject, parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 
@@ -112,7 +113,7 @@ async function http<T>(
     return result
   } catch (err) {
     if (!(err instanceof APIError)) {
-      enqueueSnackbar(`${err}`, { variant: 'error' })
+      enqueueSnackbar(`${err}`, errorSnackbarOptions)
     } else if (err.status === 401) {
       const msg = getStatusFromBody(err.body, err.message)
       if (msg === 'The incoming token has expired' && init.headers && 'Authorization' in init.headers) {

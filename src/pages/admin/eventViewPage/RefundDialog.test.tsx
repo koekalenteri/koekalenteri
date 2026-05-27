@@ -191,7 +191,7 @@ describe('RefundDialog', () => {
     await waitFor(() => {
       expect(enqueueSnackbarMock).toHaveBeenCalledWith(
         'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-        { variant: 'error' }
+        { persist: true, variant: 'error' }
       )
     })
   })
@@ -211,7 +211,7 @@ describe('RefundDialog', () => {
     await waitFor(() => {
       expect(enqueueSnackbarMock).toHaveBeenCalledWith(
         'Maksutapahtumaa ei löydy. Tapahtuma on todennäköisesti liian vanha palautettavaksi.',
-        { variant: 'error' }
+        { persist: true, variant: 'error' }
       )
     })
   })
@@ -249,7 +249,7 @@ describe('RefundDialog', () => {
 
       // Check the second argument has the correct variant
       const secondArg = enqueueSnackbarMock.mock.calls[0][1]
-      expect(secondArg).toEqual({ variant: 'error' })
+      expect(secondArg).toEqual({ persist: true, variant: 'error' })
     })
   })
 
@@ -268,8 +268,53 @@ describe('RefundDialog', () => {
     await waitFor(() => {
       expect(enqueueSnackbarMock).toHaveBeenCalledWith(
         'Maksun palautus epäonnistui. Tarkista että Paytrailin tilillä on tarpeeksi katetta palautukseen, tai yritä myöhemmin uudelleen.',
-        { variant: 'error' }
+        { persist: true, variant: 'error' }
       )
+    })
+  })
+
+  it('shows Paytrail refund errors from API response', async () => {
+    const paytrailMessage =
+      'API refund failed and provider does not support email refunds. Provider message: Revert failed'
+
+    mockRefundImplementation = jest.fn().mockRejectedValue(
+      new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
+        error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
+        message: `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+      })
+    )
+
+    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    fireEvent.click(screen.getByText('refund'))
+    await waitFor(() => {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(
+        `Maksun palautus epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+        { persist: true, variant: 'error' }
+      )
+    })
+  })
+
+  it('shows parsed Paytrail error when API response has no message', async () => {
+    const paytrailMessage =
+      'API refund failed and provider does not support email refunds. Provider message: Revert failed'
+
+    mockRefundImplementation = jest.fn().mockRejectedValue(
+      new APIError(new Response(null, { status: 400, statusText: 'Bad Request' }), {
+        error: JSON.stringify({ message: paytrailMessage, status: 'error' }),
+      })
+    )
+
+    render(<RefundDialog registration={registrationWithStaticDates} open={true} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    fireEvent.click(screen.getByText('refund'))
+    await waitFor(() => {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(`Maksun palautus epäonnistui Paytrailissa: ${paytrailMessage}`, {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 

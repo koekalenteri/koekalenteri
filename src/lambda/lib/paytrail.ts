@@ -39,7 +39,7 @@ export const calculateHmac = (secret: string, params: Partial<PaytrailHeaders>, 
   return createHmac('sha256', secret).update(hmacPayload).digest('hex')
 }
 
-class PaytrailError extends Error {
+export class PaytrailError extends Error {
   status: number
   error: string | undefined
 

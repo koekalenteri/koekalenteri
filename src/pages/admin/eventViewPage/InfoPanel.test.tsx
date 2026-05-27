@@ -182,7 +182,7 @@ describe('InfoPanel>', () => {
     await waitFor(() => {
       expect(enqueueSnackbar).toHaveBeenCalledWith(
         'Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.',
-        { variant: 'error' }
+        { persist: true, variant: 'error' }
       )
     })
   })
@@ -210,6 +210,7 @@ describe('InfoPanel>', () => {
 
     await waitFor(() => {
       expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', {
+        persist: true,
         variant: 'error',
       })
     })

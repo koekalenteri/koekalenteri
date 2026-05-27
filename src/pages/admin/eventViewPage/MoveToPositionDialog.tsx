@@ -12,6 +12,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isParticipantGroup } from '../../../lib/registration'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 
 interface Props {
   open: boolean
@@ -45,7 +46,7 @@ export default function MoveToPositionDialog({ open, onClose, registration, posi
       onClose()
     } catch (error) {
       console.error('Failed to move registration:', error)
-      enqueueSnackbar('Virhe siirrossa', { variant: 'error' })
+      enqueueSnackbar('Virhe siirrossa', errorSnackbarOptions)
     } finally {
       setSaving(false)
     }

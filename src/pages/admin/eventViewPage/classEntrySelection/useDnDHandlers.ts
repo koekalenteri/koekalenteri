@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { rum } from '../../../../lib/client/rum'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
+import { errorSnackbarOptions } from '../../../../lib/snackbar'
 import { determineChangesFromDrop } from './dnd'
 
 interface UseDnDHandlersArgs {
@@ -102,7 +103,7 @@ export const useDnDHandlers = ({
       sourceGroup: reg.group?.key,
       targetGroup: group.key,
     })
-    enqueueSnackbar({ message: `Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, variant: 'error' })
+    enqueueSnackbar({ message: `Koira ${reg.dog.name} ei ole ilmoittautunut tähän ryhmään`, ...errorSnackbarOptions })
   }
 
   return { handleDrop, handleReject }

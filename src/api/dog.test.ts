@@ -65,6 +65,6 @@ describe('getDog', () => {
     const error = new Error('Failed to fetch')
     fetchMock.mockReject(error)
     await expect(getDog('testReg')).rejects.toThrow(error)
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Error: Failed to fetch', { variant: 'error' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Error: Failed to fetch', { persist: true, variant: 'error' })
   })
 })

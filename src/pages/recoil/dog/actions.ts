@@ -5,6 +5,7 @@ import { useSnackbar } from 'notistack'
 import { useRecoilState } from 'recoil'
 import { getDog } from '../../../api/dog'
 import { emptyDog } from '../../../lib/data'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { hasChanges, merge } from '../../../lib/utils'
 import { useDogCache } from '../../components/registrationForm/hooks/useDogCache'
 import { dogAtom } from './atoms'
@@ -40,7 +41,7 @@ export function useDogActions(regNo: string) {
             return { dog: emptyDog }
           }
         }
-        enqueueSnackbar('Koiran tietojen haku epäonnistui 😞', { variant: 'error' })
+        enqueueSnackbar('Koiran tietojen haku epäonnistui 😞', errorSnackbarOptions)
         throw err
       }
       return { dog: emptyDog }
@@ -60,7 +61,7 @@ export function useDogActions(regNo: string) {
         }
       } catch (err) {
         console.error(err)
-        enqueueSnackbar('Koiran tietojen päivitys epäonnistui 😞', { variant: 'error' })
+        enqueueSnackbar('Koiran tietojen päivitys epäonnistui 😞', errorSnackbarOptions)
         return applyCache(regNo, cache, dog)
       }
     },

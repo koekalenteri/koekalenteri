@@ -15,7 +15,7 @@ import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
-import { refundPayment } from '../lib/paytrail'
+import { PaytrailError, refundPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
@@ -42,6 +42,20 @@ const getData = async (transactionId: string) => {
 
   return { eventId, paymentTransaction, registration, registrationId }
 }
+
+const parsePaytrailError = (error?: string) => {
+  if (!error) return 'Tuntematon virhe'
+
+  try {
+    const details = JSON.parse(error) as { message?: unknown }
+    return typeof details.message === 'string' ? details.message : error
+  } catch {
+    return error
+  }
+}
+
+const getPaytrailErrorMessage = (error: PaytrailError) =>
+  `Maksun palautus epäonnistui Paytrailissa (${error.status}): ${parsePaytrailError(error.error)}`
 
 /**
  * refundCreate is called by client to refund a payment
@@ -81,16 +95,31 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     },
   ]
 
-  const result = await refundPayment(
-    getApiHost(event),
-    transactionId,
-    reference,
-    stamp,
-    items,
-    // if there are no items, this is a full refund and needs amount provided.
-    items ? undefined : amount,
-    registration?.payer?.email
-  )
+  let result: RefundPaymentResponse | undefined
+  try {
+    result = await refundPayment(
+      getApiHost(event),
+      transactionId,
+      reference,
+      stamp,
+      items,
+      // if there are no items, this is a full refund and needs amount provided.
+      items ? undefined : amount,
+      registration?.payer?.email
+    )
+  } catch (error: unknown) {
+    if (error instanceof PaytrailError) {
+      const message = getPaytrailErrorMessage(error)
+      await audit({
+        auditKey: registrationAuditKey(registration),
+        message,
+        user: user.name,
+      })
+      return response(error.status, { error: error.error, message }, event)
+    }
+
+    throw error
+  }
 
   if (!result) {
     throw new LambdaError(500, 'refundPayment did not return a result')

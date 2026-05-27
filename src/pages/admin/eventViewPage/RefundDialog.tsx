@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import { formatMoney } from '../../../lib/money'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { isObject } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
@@ -192,6 +193,27 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     }
   }, [])
 
+  const extractRefundErrorMessage = useCallback((error: APIError): string | null => {
+    if (!isObject(error.body)) return null
+
+    if (typeof error.body.message === 'string' && error.body.message) {
+      return error.body.message
+    }
+
+    if (typeof error.body.error === 'string' && error.body.error) {
+      try {
+        const details = JSON.parse(error.body.error)
+        if (typeof details?.message === 'string' && details.message) {
+          return `Maksun palautus epäonnistui Paytrailissa: ${details.message}`
+        }
+      } catch {
+        return null
+      }
+    }
+
+    return null
+  }, [])
+
   const handleRefundError = useCallback(
     (error: unknown) => {
       // Early return if not an API error
@@ -201,7 +223,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
       switch (error.status) {
         case 404: {
           // Transaction not found error
-          enqueueSnackbar(errorMessages['404'], { variant: 'error' })
+          enqueueSnackbar(errorMessages['404'], errorSnackbarOptions)
           return
         }
 
@@ -209,17 +231,23 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
           // Check for refund balance error
           const remainingAmount = isObject(error.body) ? extractRemainingBalance(error.body?.error) : null
           if (remainingAmount) {
-            enqueueSnackbar(errorMessages.refund_balance(remainingAmount), { variant: 'error' })
+            enqueueSnackbar(errorMessages.refund_balance(remainingAmount), errorSnackbarOptions)
             return
           }
           break
         }
       }
 
+      const message = extractRefundErrorMessage(error)
+      if (message) {
+        enqueueSnackbar(message, errorSnackbarOptions)
+        return
+      }
+
       // Default error message for all other cases
-      enqueueSnackbar(errorMessages.default, { variant: 'error' })
+      enqueueSnackbar(errorMessages.default, errorSnackbarOptions)
     },
-    [enqueueSnackbar, extractRemainingBalance]
+    [enqueueSnackbar, extractRefundErrorMessage, extractRemainingBalance]
   )
 
   const handleRefund = useCallback(async () => {
@@ -232,7 +260,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
       const response = await actions.refund(registration, transaction.transactionId, amount)
       if (!response || response.status === 'fail') {
         // For failed refunds, show the default error message
-        enqueueSnackbar(errorMessages.default, { variant: 'error' })
+        enqueueSnackbar(errorMessages.default, errorSnackbarOptions)
       } else {
         showSuccessMessage(response)
       }
