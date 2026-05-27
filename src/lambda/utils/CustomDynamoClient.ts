@@ -60,7 +60,7 @@ const fromSamLocalTable = (table: string) => table.replaceAll(/([a-zA-Z])(?=[A-Z
  * e.g. "2026-08-22" → "n2026_08_22", "my-field" → "my_field"
  */
 const toSafeExpressionName = (s: string): string => {
-  const safe = s.replaceAll(/[^a-zA-Z0-9_]/g, '_')
+  const safe = s.replaceAll(/\W/g, '_')
   return /^\d/.test(safe) ? `n${safe}` : safe
 }
 
@@ -104,7 +104,7 @@ const processOperations = (
       names[`#${toSafeExpressionName(segment)}`] = segment
     }
 
-    const valueKey = `:${field.replaceAll('.', '_').replaceAll(/[^a-zA-Z0-9_]/g, '_')}`
+    const valueKey = `:${field.replaceAll('.', '_').replaceAll(/\W/g, '_')}`
     values[valueKey] = value
     parts.push(`${path}${operand}${valueKey}`)
   }
