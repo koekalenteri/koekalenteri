@@ -51,8 +51,6 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
       )
     }
 
-    await assertRegistrationEmailsNotSuppressed(registration)
-
     registration.id = nanoid(10)
     registration.createdAt = timestamp
     registration.createdBy = user.name
@@ -65,6 +63,8 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration.modifiedBy = user.name
 
   const data: JsonRegistration = { ...existing, ...registration }
+  await assertRegistrationEmailsNotSuppressed(data)
+
   await saveRegistration(data)
 
   const confirmedEvent = await updateRegistrations(registration.eventId)

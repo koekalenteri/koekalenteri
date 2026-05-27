@@ -255,6 +255,60 @@ describe('putAdminRegistrationLambda', () => {
     expect(errorSpy).toHaveBeenCalled()
   })
 
+  it('rejects an updated registration with suppressed email address', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
+      new LambdaError(
+        409,
+        JSON.stringify({
+          email: 'handler@example.com',
+          error: 'emailSuppressed',
+          reason: 'smtp; 550 user unknown',
+        })
+      )
+    )
+    const updateEvent = {
+      ...event,
+      body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
+        eventId: 'event123',
+        handler: {
+          email: ' Handler@Example.com ',
+        },
+        id: 'reg456',
+        language: 'fi',
+        notes: 'updated notes',
+        owner: {
+          email: 'owner@example.com',
+        },
+        qualifyingResults: [],
+        reserve: 'ANY',
+      }),
+    }
+
+    const result = await putAdminRegistrationLambda(updateEvent)
+
+    expect(mockAssertRegistrationEmailsNotSuppressed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        handler: expect.objectContaining({ email: 'handler@example.com' }),
+        notes: 'updated notes',
+      })
+    )
+    expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual({
+      email: 'handler@example.com',
+      error: 'emailSuppressed',
+      reason: 'smtp; 550 user unknown',
+    })
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(errorSpy).toHaveBeenCalled()
+  })
+
   it('updates an existing registration', async () => {
     const result = await putAdminRegistrationLambda(event)
 

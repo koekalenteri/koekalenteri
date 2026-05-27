@@ -3959,7 +3959,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -8657,7 +8657,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -8971,7 +8971,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -9285,7 +9285,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -9599,7 +9599,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -9913,7 +9913,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -10831,7 +10831,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -14930,7 +14930,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
                           data-testid="MarkEmailUnreadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"

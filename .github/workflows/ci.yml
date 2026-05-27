@@ -31,6 +31,15 @@ jobs:
             if [[ -z "$BEFORE_SHA" || "$BEFORE_SHA" == "0000000000000000000000000000000000000000" ]]; then
               # If this is a new branch, compare with the default branch
               echo "sha=$(git merge-base origin/${{ github.event.repository.default_branch }} ${{ github.sha }})" >> $GITHUB_OUTPUT
+            elif [[ "${{ github.event.forced }}" == "true" ]]; then
+              # Force pushes often rewrite an existing commit. Comparing old tip..new tip
+              # only shows what changed between the two versions of the commit, not the
+              # whole rewritten commit. Use their common ancestor when available.
+              if git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null && BASE_SHA=$(git merge-base "$BEFORE_SHA" "${{ github.sha }}" 2>/dev/null); then
+                echo "sha=$BASE_SHA" >> $GITHUB_OUTPUT
+              else
+                echo "sha=$(git rev-parse ${{ github.sha }}^)" >> $GITHUB_OUTPUT
+              fi
             else
               echo "sha=$BEFORE_SHA" >> $GITHUB_OUTPUT
             fi

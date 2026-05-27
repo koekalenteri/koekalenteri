@@ -185,6 +185,46 @@ describe('putRegistrationLabmda', () => {
     expect(errorSpy).toHaveBeenCalled()
   })
 
+  it('should reject updated registration with suppressed email address', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+    mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
+      new LambdaError(
+        409,
+        JSON.stringify({
+          email: 'handler@example.com',
+          error: 'emailSuppressed',
+          reason: 'smtp; 550 user unknown',
+        })
+      )
+    )
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        handler: { ...registrationWithStaticDates.handler, email: ' Handler@Example.com ' },
+        notes: 'updated notes',
+      })
+    )
+
+    expect(mockAssertRegistrationEmailsNotSuppressed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        handler: expect.objectContaining({ email: 'handler@example.com' }),
+        notes: 'updated notes',
+      })
+    )
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(res.statusCode).toEqual(409)
+    expect(JSON.parse(res.body)).toEqual({
+      email: 'handler@example.com',
+      error: 'emailSuppressed',
+      reason: 'smtp; 550 user unknown',
+    })
+    expect(errorSpy).toHaveBeenCalled()
+  })
+
   it.each([
     [undefined, 'Ilmoittautuminen peruttiin, syy: (ei täytetty)'],
     ['dog-heat', 'Ilmoittautuminen peruttiin, syy: Koiran juoksut'],

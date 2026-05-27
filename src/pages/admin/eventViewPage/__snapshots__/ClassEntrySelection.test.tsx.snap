@@ -5238,7 +5238,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       </svg>
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-n3mc99-MuiSvgIcon-root"
                         data-testid="MarkEmailUnreadOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"
@@ -6150,7 +6150,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                       </svg>
                       <svg
                         aria-hidden="true"
-                        class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                        class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-n3mc99-MuiSvgIcon-root"
                         data-testid="MarkEmailUnreadOutlinedIcon"
                         focusable="false"
                         viewBox="0 0 24 24"

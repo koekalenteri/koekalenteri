@@ -45,7 +45,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   ) : undefined
 
   return (
-    <IconsTooltip placement="right" icons={tooltipIcons}>
+    <IconsTooltip placement="top-end" icons={tooltipIcons} arrow>
       <Stack direction="row" alignItems="center" mt="3px">
         {/* Keep the icons column width in useClassEntrySelectionColumns in sync when adding icons here. */}
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
@@ -56,7 +56,10 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         <PaymentIcon reg={reg} />
         <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
-        <StatusIcon condition={!!reg.emailDeliveryStatus} icon={<MarkEmailUnreadOutlined fontSize="small" />} />
+        <StatusIcon
+          condition={!!reg.emailDeliveryStatus}
+          icon={<MarkEmailUnreadOutlined color="error" fontSize="small" />}
+        />
         <StatusIcon condition={reg.invitationRead} icon={<MarkEmailReadOutlined fontSize="small" />} />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.notes.trim()} icon={<CommentOutlined fontSize="small" />} />

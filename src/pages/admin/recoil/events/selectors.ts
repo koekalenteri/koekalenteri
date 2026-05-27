@@ -1,9 +1,8 @@
 import type { ConfirmedEvent, DogEvent } from '../../../../types'
-import { isPast } from 'date-fns'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
-import { uniqueFn } from '../../../../lib/utils'
+import { isEventOver, uniqueFn } from '../../../../lib/utils'
 import {
   adminEventFilterTextAtom,
   adminEventIdAtom,
@@ -75,7 +74,7 @@ export const adminFilteredEventsSelector = selector({
     return events.filter((event) => {
       return (
         !event.deletedAt &&
-        (showPast || !event.endDate || !isPast(event.endDate)) &&
+        (showPast || !event.endDate || !isEventOver(event)) &&
         (!filter ||
           [event.eventType, event.name, event.location, event.official?.name, event.secretary?.name]
             .join(' ')

@@ -19,7 +19,10 @@ export const TooltipIcon = ({
 
   return (
     <Box display="flex" alignItems="center">
-      {icon}&nbsp;<Typography fontSize="small">{text}</Typography>
+      {icon}&nbsp;
+      <Typography fontSize="small" sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+        {text}
+      </Typography>
     </Box>
   )
 }
@@ -55,6 +58,8 @@ export const IconsTooltip = styled(({ className, icons, children, ...props }: Pr
   )
 })({
   [`& .${tooltipClasses.tooltip}`]: {
-    maxWidth: 'none',
+    maxWidth: 'min(520px, calc(100vw - 32px))',
+    overflowWrap: 'anywhere',
+    whiteSpace: 'normal',
   },
 })

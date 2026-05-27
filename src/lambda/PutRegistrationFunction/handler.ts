@@ -147,8 +147,6 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       )
     }
 
-    await assertRegistrationEmailsNotSuppressed(registration)
-
     registration.id = nanoid(10)
     registration.createdAt = timestamp
     registration.createdBy = username
@@ -169,6 +167,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   if (existing && !hasRegistrationChanges(existing, data)) {
     return response(304, undefined, event)
   }
+
+  await assertRegistrationEmailsNotSuppressed(data)
 
   await saveRegistration(data)
   // Update organizer event stats after registration change
