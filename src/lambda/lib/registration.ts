@@ -2,7 +2,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 import { diff } from 'deep-object-diff'
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, isPredefinedReason } from '../../lib/registration'
+import { GROUP_KEY_RESERVE, isParticipantGroup, isPredefinedReason } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -124,9 +124,6 @@ export const sendTemplatedEmailToEventRegistrations = async (
   }
   return { failed, ok }
 }
-
-export const isParticipantGroup = (group?: string): boolean =>
-  Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
 /**
  * Group registrations by class or eventType

@@ -1,6 +1,6 @@
 import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
 import { nanoid } from 'nanoid'
-import { GROUP_KEY_RESERVE } from '../../lib/registration'
+import { GROUP_KEY_RESERVE, isParticipantGroup } from '../../lib/registration'
 import { isEntryOpen } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -16,7 +16,6 @@ import {
   getRegistration,
   getRegistrationChanges,
   hasRegistrationChanges,
-  isParticipantGroup,
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'

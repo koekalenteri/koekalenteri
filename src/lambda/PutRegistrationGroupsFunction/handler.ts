@@ -1,5 +1,10 @@
 import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../lib/registration'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  getRegistrationGroupKey,
+  isParticipantGroup,
+} from '../../lib/registration'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
@@ -9,7 +14,6 @@ import { getParam, lambda, response } from '../lib/lambda'
 import {
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
-  isParticipantGroup,
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
