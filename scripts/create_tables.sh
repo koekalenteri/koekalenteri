@@ -68,6 +68,12 @@ aws dynamodb create-table \
 aws dynamodb batch-write-item --endpoint-url http://127.0.0.1:8000 --request-items file://emailTemplates.json --no-paginate --color on --output text
 
 aws dynamodb create-table \
+  --table-name email-suppression-table \
+  --attribute-definitions AttributeName=email,AttributeType=S \
+  --key-schema AttributeName=email,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST --endpoint-url http://127.0.0.1:8000
+
+aws dynamodb create-table \
   --table-name user-table \
   --attribute-definitions AttributeName=id,AttributeType=S \
   --key-schema AttributeName=id,KeyType=HASH \

@@ -4,11 +4,13 @@ import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
-import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
+import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
+import { assertRegistrationEmailsNotSuppressed, normalizeRegistrationEmails } from '../lib/emailSuppression'
 import { fixRegistrationGroups, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
+  clearRegistrationEmailDeliveryStatus,
   findExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId,
   getRegistration,
@@ -30,6 +32,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   let existing: JsonRegistration | undefined
   const registration: JsonRegistration = parseJSONWithFallback(event.body)
+  normalizeRegistrationEmails(registration)
   const update = !!registration.id
   if (update) {
     existing = await getRegistration(registration.eventId, registration.id)
@@ -47,6 +50,8 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
         event
       )
     }
+
+    await assertRegistrationEmailsNotSuppressed(registration)
 
     registration.id = nanoid(10)
     registration.createdAt = timestamp
@@ -86,7 +91,15 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     const to = emailTo(registration)
     const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, context)
 
-    await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
+    await clearRegistrationEmailDeliveryStatus(updatedData.eventId, updatedData.id)
+    await sendTemplatedMail(
+      'registration',
+      registration.language,
+      emailFrom,
+      to,
+      templateData,
+      registrationEmailTags(updatedData, 'registration')
+    )
 
     await audit({
       auditKey: registrationAuditKey(registration),

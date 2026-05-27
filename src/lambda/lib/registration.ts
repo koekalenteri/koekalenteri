@@ -6,7 +6,7 @@ import { GROUP_KEY_RESERVE, isParticipantGroup, isPredefinedReason } from '../..
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
-import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from './email'
+import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
 
 const { emailFrom, registrationTable } = CONFIG
@@ -42,6 +42,11 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
       },
     }
   )
+
+export const clearRegistrationEmailDeliveryStatus = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id']
+) => dynamoDB.update({ eventId, id }, { remove: ['emailDeliveryStatus'] })
 
 const setLastEmail = async (reg: JsonRegistration, value: string) => {
   // update the in-memory object too
@@ -96,7 +101,15 @@ export const sendTemplatedEmailToEventRegistrations = async (
     const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, text)
     const auditSubject = context ? data.subject : templateName
     try {
-      await sendTemplatedMail(template, registration.language, emailFrom, to, data)
+      await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
+      await sendTemplatedMail(
+        template,
+        registration.language,
+        emailFrom,
+        to,
+        data,
+        registrationEmailTags(registration, template)
+      )
       ok.push(...to)
       await audit({
         auditKey: registrationAuditKey(registration),
@@ -112,6 +125,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
 
       // Update the in-memory object too
       registration.messagesSent = messagesSent
+      delete registration.emailDeliveryStatus
     } catch (e) {
       failed.push(...to)
       await audit({

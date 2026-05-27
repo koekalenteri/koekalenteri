@@ -25,6 +25,16 @@ export class LambdaError extends Error {
   }
 }
 
+const lambdaErrorBody = (error: string | undefined) => {
+  if (!error) return { error }
+
+  try {
+    return JSON.parse(error)
+  } catch {
+    return { error }
+  }
+}
+
 export const getParam = (
   event: Partial<Pick<APIGatewayProxyEvent, 'pathParameters'>>,
   name: string,
@@ -95,7 +105,7 @@ export const lambda = (service: string, handler: LambdaHandler) =>
       metricsError(metrics, event.requestContext, service)
 
       if (err instanceof LambdaError) {
-        return response(err.status, { error: err.error }, event)
+        return response(err.status, lambdaErrorBody(err.error), event)
       }
 
       if (err instanceof ServiceException) {

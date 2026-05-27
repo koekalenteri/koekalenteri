@@ -6,11 +6,11 @@ import { formatMoney } from '../../lib/money'
 import { getProviderName, getRegistrationPaymentDetails } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
+import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
-import { getRegistration } from '../lib/registration'
+import { clearRegistrationEmailDeliveryStatus, getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -73,17 +73,25 @@ const handleSuccessfulPayment = async (
     const optionalCosts = paymentDetails.optionalCosts
       .map((o) => `${o.description[registration.language] || o.description.fi}${memberPrice} ${formatMoney(o.cost)}`)
       .join(', ')
-    await sendTemplatedMail('receipt', registration.language, emailFrom, receiptTo, {
-      ...templateData,
-      ...transaction,
-      amount: formatMoney(paidAmount),
-      createdAt: t('dateFormat.long', { date: transaction.createdAt }),
-      optionalCosts,
-      previouslyPaid: previouslyPaid ? formatMoney(previouslyPaid) : undefined,
-      registrationCost,
-      registrationCostName,
-      totalPaid: formatMoney(previouslyPaid + paidAmount),
-    })
+    await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
+    await sendTemplatedMail(
+      'receipt',
+      registration.language,
+      emailFrom,
+      receiptTo,
+      {
+        ...templateData,
+        ...transaction,
+        amount: formatMoney(paidAmount),
+        createdAt: t('dateFormat.long', { date: transaction.createdAt }),
+        optionalCosts,
+        previouslyPaid: previouslyPaid ? formatMoney(previouslyPaid) : undefined,
+        registrationCost,
+        registrationCostName,
+        totalPaid: formatMoney(previouslyPaid + paidAmount),
+      },
+      registrationEmailTags(registration, 'receipt')
+    )
 
     await audit({
       auditKey: registrationAuditKey(registration),
@@ -105,7 +113,15 @@ const handleSuccessfulPayment = async (
     // send confirmation message
     const to = emailTo(registration)
     const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
-    await sendTemplatedMail('registration', registration.language, emailFrom, to, data)
+    await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
+    await sendTemplatedMail(
+      'registration',
+      registration.language,
+      emailFrom,
+      to,
+      data,
+      registrationEmailTags(registration, 'registration')
+    )
 
     await audit({
       auditKey: registrationAuditKey(registration),

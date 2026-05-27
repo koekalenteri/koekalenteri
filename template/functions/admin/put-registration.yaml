@@ -9,6 +9,8 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EmailSuppressionTable
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - DynamoDBCrudPolicy:

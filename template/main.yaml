@@ -19,6 +19,7 @@ Globals:
         STAGE_NAME: !Ref StageNameParam
         AUDIT_TABLE_NAME: !Ref AuditTable
         DOG_TABLE_NAME: !Ref DogTable
+        EMAIL_SUPPRESSION_TABLE_NAME: !Ref EmailSuppressionTable
         EMAIL_TEMPLATE_TABLE_NAME: !Ref EmailTemplatesTable
         EVENT_TABLE_NAME: !Ref EventTable
         EVENT_TYPE_TABLE_NAME: !Ref EventTypeTable

@@ -145,6 +145,30 @@ describe('RegistrationIcons component', () => {
     expect(screen.getByTestId('SavingsOutlinedIcon')).toBeInTheDocument()
   })
 
+  it('should render email delivery failure icon', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+    const mockReg = createMockRegistration({
+      emailDeliveryStatus: {
+        at: '2026-05-27T10:00:00.000Z',
+        email: 'handler@example.com',
+        reason: 'smtp; 550 5.1.1 user unknown',
+        status: 'bounce',
+        template: 'invitation',
+      },
+    })
+
+    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+
+    expect(screen.getByTestId('MarkEmailUnreadOutlinedIcon')).toBeInTheDocument()
+
+    await user.hover(screen.getByTestId('MarkEmailUnreadOutlinedIcon').closest('div')!)
+    act(() => {
+      jest.runOnlyPendingTimers()
+    })
+
+    expect(screen.getByText(/Sähköpostin toimitus epäonnistui: handler@example.com/)).toBeInTheDocument()
+  })
+
   it('should correctly calculate manualResultCount', () => {
     // Mock a registration with both manual and official results
     const mockReg = createMockRegistration({

@@ -5,6 +5,7 @@ import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
+import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
@@ -32,6 +33,7 @@ export const hasRegistrationTooltipContent = ({
   if (reg.paidAt) return true
   if ((reg.optionalCosts ?? []).length > 0) return true
   if (reg.confirmed) return true
+  if (reg.emailDeliveryStatus) return true
   if (reg.invitationRead) return true
   if (manualResultCount > 0) return true
   if (reg.notes.trim()) return true
@@ -124,6 +126,12 @@ const RegistrationTooltipContent = ({
         condition={!!reg.confirmed}
         icon={<CheckOutlined fontSize="small" />}
         text="Ilmoittautuja on vahvistanut ottavansa koepaikan vastaan"
+      />
+      <TooltipIcon
+        key="email-delivery-status"
+        condition={!!reg.emailDeliveryStatus}
+        icon={<MarkEmailUnreadOutlined fontSize="small" />}
+        text={`Sähköpostin toimitus epäonnistui: ${reg.emailDeliveryStatus?.email}${reg.emailDeliveryStatus?.reason ? ` (${reg.emailDeliveryStatus.reason})` : ''}`}
       />
       <TooltipIcon
         key="invitation-read"

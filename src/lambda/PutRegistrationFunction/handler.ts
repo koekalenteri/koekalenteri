@@ -6,11 +6,13 @@ import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getUsername } from '../lib/auth'
-import { emailTo, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
+import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
+import { assertRegistrationEmailsNotSuppressed, normalizeRegistrationEmails } from '../lib/emailSuppression'
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
+  clearRegistrationEmailDeliveryStatus,
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getRegistration,
@@ -61,7 +63,15 @@ const sendMessages = async (
   const to = emailTo(registration)
   const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
-  await sendTemplatedMail('registration', registration.language, emailFrom, to, templateData)
+  await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
+  await sendTemplatedMail(
+    'registration',
+    registration.language,
+    emailFrom,
+    to,
+    templateData,
+    registrationEmailTags(registration, 'registration')
+  )
 
   await audit({
     auditKey: registrationAuditKey(registration),
@@ -105,6 +115,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const origin = getOrigin(event)
 
   const registration: JsonRegistration = parseJSONWithFallback(event.body)
+  normalizeRegistrationEmails(registration)
 
   // These data can not be submitted by user
   delete registration.paidAmount
@@ -135,6 +146,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
         event
       )
     }
+
+    await assertRegistrationEmailsNotSuppressed(registration)
 
     registration.id = nanoid(10)
     registration.createdAt = timestamp

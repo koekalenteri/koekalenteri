@@ -1,10 +1,12 @@
 import type { JsonRegistration } from '../../types'
 import { jest } from '@jest/globals'
+import { LambdaError } from '../lib/lambda'
 
 const mockAuthorize = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockSaveRegistration = jest.fn<any>()
+const mockAssertRegistrationEmailsNotSuppressed = jest.fn<any>()
 const mockGetReadyRegistrationsByEventId = jest.fn<any>(async () => [])
 const mockFixRegistrationGroups = jest.fn<any>(async (regs: JsonRegistration[]) => regs)
 const mockUpdateRegistrations = jest.fn<any>(async () => ({
@@ -39,6 +41,16 @@ const libEmail = await import('../lib/email')
 jest.unstable_mockModule('../lib/email', () => ({
   ...libEmail,
   sendTemplatedMail: mockSendTemplatedMail,
+}))
+
+jest.unstable_mockModule('../lib/emailSuppression', () => ({
+  assertRegistrationEmailsNotSuppressed: mockAssertRegistrationEmailsNotSuppressed,
+  normalizeRegistrationEmails: (registration: JsonRegistration) => {
+    if (registration.owner?.email) registration.owner.email = registration.owner.email.trim().toLowerCase()
+    if (registration.handler?.email) registration.handler.email = registration.handler.email.trim().toLowerCase()
+    if (registration.payer?.email) registration.payer.email = registration.payer.email.trim().toLowerCase()
+    return registration
+  },
 }))
 
 const mockfindExistingRegistrationToEventForDog = jest.fn<
@@ -101,6 +113,7 @@ describe('putAdminRegistrationLambda', () => {
       id: 'user123',
       name: 'Test User',
     })
+    mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
 
     mockGetRegistration.mockResolvedValue({
       eventId: 'event123',
@@ -161,11 +174,14 @@ describe('putAdminRegistrationLambda', () => {
         },
         eventId: 'event123',
         handler: {
-          email: 'handler@example.com',
+          email: ' Handler@Example.com ',
         },
         language: 'fi',
         owner: {
-          email: 'owner@example.com',
+          email: ' Owner@Example.com ',
+        },
+        payer: {
+          email: ' Payer@Example.com ',
         },
         qualifyingResults: [],
         reserve: 'ANY',
@@ -180,14 +196,63 @@ describe('putAdminRegistrationLambda', () => {
         createdAt: expect.any(String),
         createdBy: 'Test User',
         eventId: 'event123',
+        handler: expect.objectContaining({ email: 'handler@example.com' }),
         id: expect.any(String), // nanoid generated
         modifiedAt: expect.any(String),
         modifiedBy: 'Test User',
+        owner: expect.objectContaining({ email: 'owner@example.com' }),
+        payer: expect.objectContaining({ email: 'payer@example.com' }),
         state: 'ready',
       })
     )
 
     expect(result.statusCode).toBe(200)
+  })
+
+  it('rejects a new registration with suppressed email address', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
+      new LambdaError(
+        409,
+        JSON.stringify({
+          email: 'owner@example.com',
+          error: 'emailSuppressed',
+          reason: 'smtp; 550 user unknown',
+        })
+      )
+    )
+    const newEvent = {
+      ...event,
+      body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
+        eventId: 'event123',
+        handler: {
+          email: 'handler@example.com',
+        },
+        language: 'fi',
+        owner: {
+          email: 'owner@example.com',
+        },
+        qualifyingResults: [],
+        reserve: 'ANY',
+      }),
+    }
+
+    const result = await putAdminRegistrationLambda(newEvent)
+
+    expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual({
+      email: 'owner@example.com',
+      error: 'emailSuppressed',
+      reason: 'smtp; 550 user unknown',
+    })
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(errorSpy).toHaveBeenCalled()
   })
 
   it('updates an existing registration', async () => {

@@ -1,0 +1,18 @@
+  EmailSuppressionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Join ['-', [email-suppression-table, !Ref AWS::StackName]]
+      KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+      AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+      Tags:
+        - Key: Env
+          Value: !Ref AWS::StackName
+        - Key: Label
+          Value: "koekalenteri"
+      BillingMode: PAY_PER_REQUEST
+      SSESpecification:
+        SSEEnabled: false

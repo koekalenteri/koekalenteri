@@ -5,6 +5,7 @@ const mockResponse = jest.fn<any>()
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockUpdateTransactionStatus = jest.fn<any>()
+const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
@@ -14,6 +15,7 @@ const mockUpdateRegistrations = jest.fn<any>()
 const mockGetFixedT = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockEmailTo = jest.fn<any>()
+const mockRegistrationEmailTags = jest.fn<any>()
 const mockRegistrationEmailTemplateData = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -28,6 +30,7 @@ jest.unstable_mockModule('../lib/payment', () => ({
 }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistration: mockGetRegistration,
 }))
 
@@ -55,6 +58,7 @@ jest.unstable_mockModule('../../i18n/lambda', () => ({
 
 jest.unstable_mockModule('../lib/email', () => ({
   emailTo: mockEmailTo,
+  registrationEmailTags: mockRegistrationEmailTags,
   registrationEmailTemplateData: mockRegistrationEmailTemplateData,
   sendTemplatedMail: mockSendTemplatedMail,
 }))
@@ -109,6 +113,7 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
 
     mockUpdate.mockResolvedValue({})
 
@@ -131,6 +136,11 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockEmailTo.mockReturnValue(['test@example.com'])
+    mockRegistrationEmailTags.mockImplementation((registration: any, template: any) => [
+      { Name: 'eventId', Value: registration.eventId },
+      { Name: 'registrationId', Value: registration.id },
+      { Name: 'template', Value: template },
+    ])
 
     mockSendTemplatedMail.mockResolvedValue(undefined)
   })
@@ -191,7 +201,12 @@ describe('paymentSuccessLambda', () => {
         createdAt: '1.1.2025',
         eventName: 'Test Event',
         registrationId: 'reg456',
-      })
+      }),
+      expect.arrayContaining([
+        { Name: 'eventId', Value: 'event123' },
+        { Name: 'registrationId', Value: 'reg456' },
+        { Name: 'template', Value: 'receipt' },
+      ])
     )
 
     // Verify confirmation email was sent
@@ -203,7 +218,12 @@ describe('paymentSuccessLambda', () => {
       expect.objectContaining({
         eventName: 'Test Event',
         registrationId: 'reg456',
-      })
+      }),
+      expect.arrayContaining([
+        { Name: 'eventId', Value: 'event123' },
+        { Name: 'registrationId', Value: 'reg456' },
+        { Name: 'template', Value: 'registration' },
+      ])
     )
 
     // Verify audit entry was created
@@ -360,7 +380,8 @@ describe('paymentSuccessLambda', () => {
       'fi',
       expect.any(String), // emailFrom
       expect.any(Array), // to
-      expect.any(Object) // data
+      expect.any(Object), // data
+      expect.any(Array) // tags
     )
 
     // Verify response was returned

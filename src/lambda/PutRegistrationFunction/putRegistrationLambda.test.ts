@@ -20,6 +20,7 @@ const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonDogEvent>>()
 const mockUpdateEventStatsForRegistration = jest.fn()
 const mockUpdateRegistrations = jest.fn()
 const mockDynamoDBWrite = jest.fn()
+const mockDynamoDBUpdate = jest.fn()
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
@@ -32,12 +33,14 @@ jest.unstable_mockModule('../lib/stats', () => ({
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
+    update: mockDynamoDBUpdate,
     write: mockDynamoDBWrite,
   })),
 }))
 
 const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
 const mockSaveRegistration = jest.fn()
+const mockAssertRegistrationEmailsNotSuppressed = jest.fn<() => Promise<void>>()
 const mockfindExistingRegistrationToEventForDog = jest.fn<
   (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
 >(async () => undefined)
@@ -51,6 +54,16 @@ jest.unstable_mockModule('../lib/registration', () => ({
   saveRegistration: mockSaveRegistration,
 }))
 
+jest.unstable_mockModule('../lib/emailSuppression', () => ({
+  assertRegistrationEmailsNotSuppressed: mockAssertRegistrationEmailsNotSuppressed,
+  normalizeRegistrationEmails: (registration: JsonRegistration) => {
+    if (registration.owner?.email) registration.owner.email = registration.owner.email.trim().toLowerCase()
+    if (registration.handler?.email) registration.handler.email = registration.handler.email.trim().toLowerCase()
+    if (registration.payer?.email) registration.payer.email = registration.payer.email.trim().toLowerCase()
+    return registration
+  },
+}))
+
 const { default: putRegistrationLabmda } = await import('./handler')
 
 describe('putRegistrationLabmda', () => {
@@ -62,6 +75,7 @@ describe('putRegistrationLabmda', () => {
   })
   afterEach(() => {
     jest.clearAllMocks()
+    mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
   })
   afterAll(() => {
     jest.useRealTimers()
@@ -71,16 +85,27 @@ describe('putRegistrationLabmda', () => {
     jest.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     const { id: _1, paidAmount: _2, paidAt: _3, paymentStatus: _4, ...registration } = registrationWithStaticDates
-    const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, state: 'ready' }))
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registration,
+        handler: { ...registration.handler, email: ' Handler@Example.com ' },
+        owner: { ...registration.owner, email: ' Owner@Example.com ' },
+        payer: { ...registration.payer, email: ' Payer@Example.com ' },
+        state: 'ready',
+      })
+    )
 
     expect(mockSaveRegistration).toHaveBeenCalledWith(
       expect.objectContaining({
         ...JSON.parse(JSON.stringify(registration)),
         createdAt: expect.stringMatching(ISO8601DateTimeRE),
         createdBy: 'anonymous',
+        handler: expect.objectContaining({ email: 'handler@example.com' }),
         id: expect.stringMatching(/^[A-Za-z0-9_-]{10}$/),
         modifiedAt: expect.stringMatching(ISO8601DateTimeRE),
         modifiedBy: 'anonymous',
+        owner: expect.objectContaining({ email: 'owner@example.com' }),
+        payer: expect.objectContaining({ email: 'payer@example.com' }),
       })
     )
     expect(mockSaveRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
@@ -117,12 +142,47 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisen vahvistus"'),
     })
     expect(mockSES.send).toHaveBeenCalledTimes(1)
 
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('should reject new registration with suppressed email address', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockAssertRegistrationEmailsNotSuppressed.mockRejectedValueOnce(
+      new LambdaError(
+        409,
+        JSON.stringify({
+          email: 'owner@example.com',
+          error: 'emailSuppressed',
+          reason: 'smtp; 550 user unknown',
+        })
+      )
+    )
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined, state: 'ready' })
+    )
+
+    expect(mockAssertRegistrationEmailsNotSuppressed).toHaveBeenCalledWith(
+      expect.objectContaining({
+        owner: expect.objectContaining({ email: 'owner@example.com' }),
+      })
+    )
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(res.statusCode).toEqual(409)
+    expect(JSON.parse(res.body)).toEqual({
+      email: 'owner@example.com',
+      error: 'emailSuppressed',
+      reason: 'smtp; 550 user unknown',
+    })
+    expect(errorSpy).toHaveBeenCalled()
   })
 
   it.each([
@@ -174,6 +234,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
     })
@@ -241,6 +302,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
     })
@@ -307,6 +369,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
     })
@@ -374,6 +437,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
     })
@@ -433,6 +497,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi tietoja on muokattu"'),
     })
@@ -482,6 +547,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Vahvistit vastaanottavasi koepaikan"'),
     })
@@ -525,6 +591,7 @@ describe('putRegistrationLabmda', () => {
         ToAddresses: ['handler@example.com', 'owner@example.com'],
       },
       Source: 'koekalenteri@koekalenteri.snj.fi',
+      Tags: expect.any(Array),
       Template: 'registration-local-fi',
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisesi on peruttu"'),
     })

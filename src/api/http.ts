@@ -5,7 +5,7 @@ import { errorSnackbarOptions } from '../lib/snackbar'
 import { isObject, parseJSON } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
 
-type Body = { message?: string; cancelled?: boolean; error?: string } | string
+type Body = { message?: string; cancelled?: boolean; email?: string; error?: string; reason?: string } | string
 
 interface HttpResponse<T> {
   data: T

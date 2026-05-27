@@ -33,3 +33,13 @@ export interface RegistrationMessage {
   registrationIds: string[]
   text: string
 }
+
+export interface JsonEmailSuppression {
+  email: string
+  eventId: string
+  reason?: string
+  registrationId: string
+  status: 'bounce' | 'complaint'
+  template?: EmailTemplateId
+  updatedAt: string
+}

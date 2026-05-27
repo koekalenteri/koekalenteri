@@ -60,6 +60,20 @@ export function Component() {
       }
     } catch (error) {
       if (error instanceof APIError && error.status === 409) {
+        if (isObject(error.body) && error.body.error === 'emailSuppressed') {
+          enqueueSnackbar(
+            t('registration.notifications.emailSuppressed', {
+              email: error.body.email,
+              reason: error.body.reason,
+            }),
+            {
+              persist: true,
+              variant: 'error',
+            }
+          )
+          return
+        }
+
         enqueueSnackbar(
           t('registration.notifications.alreadyRegistered', {
             contact: printContactInfo(event.contactInfo?.secretary),

@@ -1,4 +1,4 @@
-import type { SendTemplatedEmailCommandInput } from '@aws-sdk/client-ses'
+import type { MessageTag, SendTemplatedEmailCommandInput } from '@aws-sdk/client-ses'
 import type {
   EmailTemplateId,
   JsonConfirmedEvent,
@@ -14,12 +14,15 @@ import { CONFIG } from '../config'
 
 const ses = new SESClient()
 
+export const normalizeEmail = (email: string) => email.trim().toLowerCase()
+
 export async function sendTemplatedMail(
   template: EmailTemplateId,
   language: Language,
   from: string,
   to: string[],
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  tags?: MessageTag[]
 ) {
   if (to.length === 0) {
     console.log('sendTemplatedEmail: no recipients')
@@ -34,9 +37,18 @@ export async function sendTemplatedMail(
     Template: `${template}-${CONFIG.stackName}-${language}`,
     TemplateData: JSON.stringify(data),
   }
+  if (tags) params.Tags = tags
 
   console.log(`Sending email ${from} -> ${to} (template=${template}) `)
   return ses.send(new SendTemplatedEmailCommand(params))
+}
+
+export function registrationEmailTags(registration: JsonRegistration, template: EmailTemplateId): MessageTag[] {
+  return [
+    { Name: 'eventId', Value: registration.eventId },
+    { Name: 'registrationId', Value: registration.id },
+    { Name: 'template', Value: template },
+  ]
 }
 
 export function emailTo(registration: JsonRegistration) {

@@ -4,6 +4,7 @@ import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
+import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
@@ -46,6 +47,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   return (
     <IconsTooltip placement="right" icons={tooltipIcons}>
       <Stack direction="row" alignItems="center" mt="3px">
+        {/* Keep the icons column width in useClassEntrySelectionColumns in sync when adding icons here. */}
         <StatusIcon condition={!!priority} icon={<PriorityIcon dim priority={priority} fontSize="small" />} />
         <StatusIcon
           condition={reg.handler?.membership || reg.owner?.membership}
@@ -54,6 +56,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         <PaymentIcon reg={reg} />
         <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
+        <StatusIcon condition={!!reg.emailDeliveryStatus} icon={<MarkEmailUnreadOutlined fontSize="small" />} />
         <StatusIcon condition={reg.invitationRead} icon={<MarkEmailReadOutlined fontSize="small" />} />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.notes.trim()} icon={<CommentOutlined fontSize="small" />} />

@@ -7,7 +7,9 @@ const mockParseParams = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockUpdateTransactionStatus = jest.fn<any>()
+const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
+const mockRegistrationEmailTags = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
@@ -38,6 +40,7 @@ jest.unstable_mockModule('../lib/payment', () => ({
 }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
+  clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
   getRegistration: mockGetRegistration,
 }))
 
@@ -46,6 +49,7 @@ jest.unstable_mockModule('../lib/event', () => ({
 }))
 
 jest.unstable_mockModule('../lib/email', () => ({
+  registrationEmailTags: mockRegistrationEmailTags,
   registrationEmailTemplateData: jest.fn(() => ({})),
   sendTemplatedMail: mockSendTemplatedMail,
 }))
@@ -117,8 +121,14 @@ describe('refundSuccessLambda', () => {
     mockGetRegistration.mockResolvedValue(mockRegistration)
     mockGetEvent.mockResolvedValue(mockConfirmedEvent)
     mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
     mockSendTemplatedMail.mockResolvedValue(undefined)
     mockGetProviderName.mockReturnValue('Paytrail')
+    mockRegistrationEmailTags.mockImplementation((registration: any, template: any) => [
+      { Name: 'eventId', Value: registration.eventId },
+      { Name: 'registrationId', Value: registration.id },
+      { Name: 'template', Value: template },
+    ])
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
   })
 
@@ -196,7 +206,12 @@ describe('refundSuccessLambda', () => {
         transactionId: 'transaction123',
         type: 'refund',
         user: 'Test User',
-      })
+      }),
+      expect.arrayContaining([
+        { Name: 'eventId', Value: 'event123' },
+        { Name: 'registrationId', Value: 'reg456' },
+        { Name: 'template', Value: 'refund' },
+      ])
     )
 
     // Verify audit entry was created

@@ -1,0 +1,63 @@
+  SesNotificationsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Join ['-', [ses-notifications, !Ref AWS::StackName]]
+
+  SesNotificationsTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref SesNotificationsTopic
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowSesPublish
+            Effect: Allow
+            Principal:
+              Service: ses.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref SesNotificationsTopic
+            Condition:
+              StringEquals:
+                AWS:SourceAccount: !Ref AWS::AccountId
+
+  SesConfigurationSetEventDestination:
+    Type: AWS::SES::ConfigurationSetEventDestination
+    Properties:
+      ConfigurationSetName: Koekalenteri
+      EventDestination:
+        Enabled: true
+        MatchingEventTypes:
+          - bounce
+          - complaint
+        Name: !Join ['-', [ses-notifications, !Ref AWS::StackName]]
+        SnsDestination:
+          TopicARN: !Ref SesNotificationsTopic
+
+  SesNotificationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/SesNotificationFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref EmailSuppressionTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        SesNotification:
+          Type: SNS
+          Properties:
+            Topic: !Ref SesNotificationsTopic
+
+  SesNotificationFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SesNotificationFunction]]
+      RetentionInDays: 30

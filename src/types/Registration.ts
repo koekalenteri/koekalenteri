@@ -15,6 +15,14 @@ import type { DogEventCostSegment } from './Cost'
 export type RegistrationClass = 'ALO' | 'AVO' | 'VOI'
 export type RegistrationTemplateContext = '' | 'cancel' | 'confirm' | 'receipt' | 'update' | 'invitation' | 'refund'
 
+export interface JsonEmailDeliveryStatus {
+  at: string
+  email: string
+  reason?: string
+  status: 'bounce' | 'complaint'
+  template?: EmailTemplateId
+}
+
 export interface JsonRegistration extends JsonDbRecord {
   agreeToTerms: boolean
   breeder: RegistrationBreeder
@@ -29,6 +37,7 @@ export interface JsonRegistration extends JsonDbRecord {
   eventType: string
   group?: JsonRegistrationGroup
   handler?: RegistrationPerson
+  emailDeliveryStatus?: JsonEmailDeliveryStatus
   internalNotes?: string
   invitationAttachment?: string
   invitationRead?: boolean

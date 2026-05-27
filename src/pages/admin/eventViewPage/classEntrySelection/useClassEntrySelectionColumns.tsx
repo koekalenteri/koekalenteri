@@ -115,7 +115,7 @@ export function useClassEntrySelectionColumns(
         field: 'icons',
         headerName: '',
         renderCell: (p) => <RegistrationIcons event={event} reg={p.row} />,
-        width: 220, // icons * 20 + 20 for padding
+        width: 240, // icons * 20 + 20 for padding
       },
       {
         cellClassName: 'nopad',
