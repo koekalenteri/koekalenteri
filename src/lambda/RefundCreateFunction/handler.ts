@@ -15,7 +15,7 @@ import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
-import { PaytrailError, refundPayment } from '../lib/paytrail'
+import { PaytrailError, parsePaytrailErrorMessage, refundPayment } from '../lib/paytrail'
 import { getRegistration } from '../lib/registration'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
@@ -43,19 +43,8 @@ const getData = async (transactionId: string) => {
   return { eventId, paymentTransaction, registration, registrationId }
 }
 
-const parsePaytrailError = (error?: string) => {
-  if (!error) return 'Tuntematon virhe'
-
-  try {
-    const details = JSON.parse(error) as { message?: unknown }
-    return typeof details.message === 'string' ? details.message : error
-  } catch {
-    return error
-  }
-}
-
 const getPaytrailErrorMessage = (error: PaytrailError) =>
-  `Maksun palautus epäonnistui Paytrailissa (${error.status}): ${parsePaytrailError(error.error)}`
+  `Maksun palautus epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
 
 /**
  * refundCreate is called by client to refund a payment

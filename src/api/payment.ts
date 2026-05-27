@@ -1,9 +1,30 @@
 import type { CreatePaymentResponse, RefundPaymentResponse, VerifyPaymentResponse } from '../types'
+import { isObject } from '../lib/utils'
 import http, { APIError, withToken } from './http'
 
 interface CreatePaymentResult {
+  errorMessage?: string
   response?: CreatePaymentResponse
   status: number
+}
+
+const getPaymentErrorMessage = (error: APIError) => {
+  if (!isObject(error.body)) return undefined
+
+  if (typeof error.body.message === 'string' && error.body.message) {
+    return error.body.message
+  }
+
+  if (typeof error.body.error === 'string' && error.body.error) {
+    try {
+      const details = JSON.parse(error.body.error)
+      return typeof details?.message === 'string' ? details.message : undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  return undefined
 }
 
 export const createPayment = async (
@@ -25,6 +46,7 @@ export const createPayment = async (
   } catch (err) {
     if (err instanceof APIError) {
       return {
+        errorMessage: getPaymentErrorMessage(err),
         response: undefined,
         status: err.status,
       }

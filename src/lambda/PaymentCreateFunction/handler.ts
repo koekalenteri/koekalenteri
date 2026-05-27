@@ -10,7 +10,7 @@ import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getTransactionsByReference, paymentDescription, updateTransactionStatus } from '../lib/payment'
-import { createPayment } from '../lib/paytrail'
+import { createPayment, PaytrailError, parsePaytrailErrorMessage } from '../lib/paytrail'
 import { getRegistration, updateRegistrationField } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -63,6 +63,9 @@ const inspectExistingTransactions = async (reference: string) => {
 
   return { freshPendingTransaction, reusableNewTransaction }
 }
+
+const getPaytrailErrorMessage = (error: PaytrailError) =>
+  `Maksun luonti epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
 
 /**
  * paymentCreate is called by client to start the payment process
@@ -133,16 +136,25 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
-  const result = await createPayment({
-    amount,
-    apiHost: getApiHost(event),
-    customer,
-    items,
-    language,
-    origin: getOrigin(event),
-    reference,
-    stamp,
-  })
+  let result: CreatePaymentResponse | undefined | null
+  try {
+    result = await createPayment({
+      amount,
+      apiHost: getApiHost(event),
+      customer,
+      items,
+      language,
+      origin: getOrigin(event),
+      reference,
+      stamp,
+    })
+  } catch (error: unknown) {
+    if (error instanceof PaytrailError) {
+      return response(error.status, { error: error.error, message: getPaytrailErrorMessage(error) }, event)
+    }
+
+    throw error
+  }
 
   if (!result) {
     return response<undefined>(500, undefined, event)

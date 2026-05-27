@@ -51,6 +51,17 @@ export class PaytrailError extends Error {
   }
 }
 
+export const parsePaytrailErrorMessage = (error?: string) => {
+  if (!error) return 'Tuntematon virhe'
+
+  try {
+    const details = JSON.parse(error) as { message?: unknown }
+    return typeof details.message === 'string' ? details.message : error
+  } catch {
+    return error
+  }
+}
+
 const paytrailRequest = async <T extends object>(
   method: 'GET' | 'POST',
   path: string,

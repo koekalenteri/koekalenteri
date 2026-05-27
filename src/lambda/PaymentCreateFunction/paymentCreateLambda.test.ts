@@ -12,6 +12,17 @@ const mockRead = jest.fn<() => Promise<JsonRegistration | Organizer | undefined>
 const mockWrite = jest.fn()
 const mockUpdate = jest.fn()
 
+class MockPaytrailError extends Error {
+  status: number
+  error: string | undefined
+
+  constructor(status: number, error: string | undefined) {
+    super(`${status} ${error}`)
+    this.status = status
+    this.error = error
+  }
+}
+
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
 }))
@@ -24,6 +35,16 @@ jest.unstable_mockModule('../lib/paytrail', () => ({
   calculateHmac: jest.fn(),
   createPayment: mockCreatePayment,
   HMAC_KEY_PREFIX: 'checkout-',
+  PaytrailError: MockPaytrailError,
+  parsePaytrailErrorMessage: (error?: string) => {
+    if (!error) return 'Tuntematon virhe'
+    try {
+      const details = JSON.parse(error) as { message?: unknown }
+      return typeof details.message === 'string' ? details.message : error
+    } catch {
+      return error
+    }
+  },
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
@@ -281,6 +302,22 @@ describe('paymentCreateLambda', () => {
 
     expect(result.statusCode).toEqual(500)
     expect(result.body).toBeUndefined()
+    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
+  it('returns Paytrail payment errors with user-visible message', async () => {
+    const paytrailMessage = 'API payment failed. Provider message: Something went wrong'
+    const paytrailError = JSON.stringify({ message: paytrailMessage, status: 'error' })
+    mockCreatePayment.mockRejectedValueOnce(new MockPaytrailError(400, paytrailError))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toEqual(400)
+    expect(JSON.parse(result.body)).toEqual({
+      error: paytrailError,
+      message: `Maksun luonti epäonnistui Paytrailissa (400): ${paytrailMessage}`,
+    })
     expect(mockWrite).not.toHaveBeenCalled()
     expect(mockUpdate).not.toHaveBeenCalled()
   })

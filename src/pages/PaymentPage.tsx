@@ -45,6 +45,7 @@ interface Props {
   readonly event?: PublicConfirmedEvent | null
   readonly registration?: Registration | null
   readonly response?: CreatePaymentResponse
+  readonly responseErrorMessage?: string
   readonly responseStatus?: number
 }
 
@@ -56,7 +57,15 @@ const paymentErrorStatusKey = {
   500: 'paymentPage.error500',
 } as const
 
-export const PaymentPageWithData = ({ id, registrationId, event, registration, response, responseStatus }: Props) => {
+export const PaymentPageWithData = ({
+  id,
+  registrationId,
+  event,
+  registration,
+  response,
+  responseErrorMessage,
+  responseStatus,
+}: Props) => {
   const [language, setLanguage] = useRecoilState(languageAtom)
   const { t } = useTranslation()
 
@@ -94,6 +103,10 @@ export const PaymentPageWithData = ({ id, registrationId, event, registration, r
 
   if (responseStatus === 204) {
     return renderNotice(t('paymentPage.alreadyPaid'))
+  }
+
+  if (responseErrorMessage) {
+    return renderNotice(responseErrorMessage)
   }
 
   if (responseStatus === 501) {
@@ -155,7 +168,8 @@ export function Component() {
   const { id, registrationId } = useParams()
   const event = useConfirmedEvent(id)
   const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
-  const data: { response: Promise<{ response?: CreatePaymentResponse; status: number }> } = useLoaderData()
+  const data: { response: Promise<{ errorMessage?: string; response?: CreatePaymentResponse; status: number }> } =
+    useLoaderData()
   const resetRegistration = useResetRecoilState(newRegistrationAtom)
 
   useEffect(() => {
@@ -179,6 +193,7 @@ export function Component() {
               event={event}
               registration={registration}
               response={response?.response}
+              responseErrorMessage={response?.errorMessage}
               responseStatus={response?.status}
             />
           )}

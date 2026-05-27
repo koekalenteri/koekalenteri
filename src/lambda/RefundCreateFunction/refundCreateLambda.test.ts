@@ -59,6 +59,15 @@ jest.unstable_mockModule('../utils/proxyEvent', () => ({
 
 jest.unstable_mockModule('../lib/paytrail', () => ({
   PaytrailError: MockPaytrailError,
+  parsePaytrailErrorMessage: (error?: string) => {
+    if (!error) return 'Tuntematon virhe'
+    try {
+      const details = JSON.parse(error) as { message?: unknown }
+      return typeof details.message === 'string' ? details.message : error
+    } catch {
+      return error
+    }
+  },
   refundPayment: mockRefundPayment,
 }))
 

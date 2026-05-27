@@ -391,6 +391,52 @@ describe('PaymentPage', () => {
 
       expect(container).toHaveTextContent('paymentPage.error501MerchantInactive contact')
     })
+
+    it('should show payment error message from backend', async () => {
+      const event = {
+        cost: 50,
+        id: 'test-id',
+        paymentTime: 'registration' as const,
+      }
+      const registration = {
+        ...testRegistration,
+        totalAmount: 50,
+      }
+
+      const routes: RouteObject[] = [
+        {
+          element: (
+            <PaymentPageWithData
+              id="test-id"
+              registrationId="test-reg-id"
+              event={event as any}
+              registration={registration as any}
+              response={undefined}
+              responseErrorMessage="Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment"
+              responseStatus={400}
+            />
+          ),
+          path: '/test-path',
+        },
+      ]
+
+      const { container } = render(
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+            <RecoilRoot>
+              <DataMemoryRouter initialEntries={['/test-path']} routes={routes} />
+            </RecoilRoot>
+          </LocalizationProvider>
+        </ThemeProvider>
+      )
+
+      await flushPromises()
+
+      expect(container).toHaveTextContent(
+        'Maksun luonti epäonnistui Paytrailissa (400): Paytrail provider rejected payment'
+      )
+      expect(container).not.toHaveTextContent('paymentPage.choosePaymentMethod')
+    })
   })
 
   it('should reset registration form on mount', async () => {
