@@ -58,12 +58,12 @@ describe('MoveToPositionDialog', () => {
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('moves to selected position (before the selected position)', async () => {
+  it('moves participant from smaller position to after the selected position', async () => {
     const onClose = jest.fn()
     const onMove = jest.fn().mockResolvedValue(undefined)
     const registration: Registration = {
       ...registrationWithStaticDates,
-      group: { key: 'participants', number: 1 } as any,
+      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' } as any,
     }
 
     const { user } = renderWithUserEvents(
@@ -87,10 +87,106 @@ describe('MoveToPositionDialog', () => {
     await flushPromises(false)
 
     expect(onMove).toHaveBeenCalledTimes(1)
-    expect(onMove).toHaveBeenCalledWith(3.5)
+    expect(onMove).toHaveBeenCalledWith(4.5)
     expect(enqueueSnackbar).toHaveBeenCalledWith('registration.moveToPositionDialog.moved name, position', {
       variant: 'success',
     })
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('moves dated participant from position 1 to after position 2', async () => {
+    const onClose = jest.fn()
+    const onMove = jest.fn().mockResolvedValue(undefined)
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 1, time: 'ap' } as any,
+    }
+
+    const { user } = renderWithUserEvents(
+      <MoveToPositionDialog
+        open={true}
+        onClose={onClose}
+        registration={registration}
+        positions={[1, 2, 3]}
+        onMove={onMove}
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
+    await user.click(screen.getByRole('option', { name: '2' }))
+    await flushPromises(false)
+
+    await user.click(screen.getByRole('button', { name: 'registration.moveToPositionDialog.moveToPosition' }))
+    await flushPromises(false)
+
+    expect(onMove).toHaveBeenCalledTimes(1)
+    expect(onMove).toHaveBeenCalledWith(2.5)
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('moves participant from larger position to before the selected position', async () => {
+    const onClose = jest.fn()
+    const onMove = jest.fn().mockResolvedValue(undefined)
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { date: new Date('2026-08-14T21:00:00.000Z'), key: '2026-08-15-ap', number: 3, time: 'ap' } as any,
+    }
+
+    const { user } = renderWithUserEvents(
+      <MoveToPositionDialog
+        open={true}
+        onClose={onClose}
+        registration={registration}
+        positions={[1, 2, 3, 4, 5]}
+        onMove={onMove}
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
+    await user.click(screen.getByRole('option', { name: '1' }))
+    await flushPromises(false)
+
+    await user.click(screen.getByRole('button', { name: 'registration.moveToPositionDialog.moveToPosition' }))
+    await flushPromises(false)
+
+    expect(onMove).toHaveBeenCalledTimes(1)
+    expect(onMove).toHaveBeenCalledWith(0.5)
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('moves non-participant before the selected participant position', async () => {
+    const onClose = jest.fn()
+    const onMove = jest.fn().mockResolvedValue(undefined)
+    const registration: Registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'reserve', number: 1 } as any,
+    }
+
+    const { user } = renderWithUserEvents(
+      <MoveToPositionDialog
+        open={true}
+        onClose={onClose}
+        registration={registration}
+        positions={[1, 2, 3]}
+        onMove={onMove}
+      />,
+      undefined,
+      { advanceTimers: jest.advanceTimersByTime }
+    )
+
+    await user.click(screen.getByRole('combobox', { name: 'registration.moveToPositionDialog.selectPosition' }))
+    await user.click(screen.getByRole('option', { name: '3' }))
+    await flushPromises(false)
+
+    await user.click(screen.getByRole('button', { name: 'registration.moveToPositionDialog.moveToPosition' }))
+    await flushPromises(false)
+
+    expect(onMove).toHaveBeenCalledTimes(1)
+    expect(onMove).toHaveBeenCalledWith(2.5)
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 

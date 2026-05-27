@@ -11,6 +11,7 @@ import Select from '@mui/material/Select'
 import { enqueueSnackbar } from 'notistack'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { isParticipantGroup } from '../../../lib/registration'
 
 interface Props {
   open: boolean
@@ -28,9 +29,13 @@ export default function MoveToPositionDialog({ open, onClose, registration, posi
   const handleMove = async () => {
     setSaving(true)
     try {
-      // Subtract 0.5 so the registration is placed BEFORE the selected position
-      // e.g., selecting position 2 will place it at 1.5 (between 1 and 2)
-      await onMove(selectedPosition - 0.5)
+      const isParticipantMove = isParticipantGroup(registration.group?.key)
+      const currentPosition = registration.group?.number
+      const movePosition =
+        isParticipantMove && typeof currentPosition === 'number' && currentPosition < selectedPosition
+          ? selectedPosition + 0.5
+          : selectedPosition - 0.5
+      await onMove(movePosition)
       enqueueSnackbar(
         t('registration.moveToPositionDialog.moved', { name: registration.dog.name, position: selectedPosition }),
         {

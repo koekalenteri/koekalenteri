@@ -166,8 +166,17 @@ describe('ClassEntrySelection behavior coverage', () => {
     const registrations: Registration[] = [
       {
         ...registrationWithStaticDates,
+        dates: [
+          { date: mockedGroups[0].date, time: 'ap' },
+          { date: mockedGroups[1].date, time: 'ip' },
+        ],
         group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
         id: 'participant-1',
+      },
+      {
+        ...registrationWithStaticDates,
+        group: { date: mockedGroups[1].date, key: '2021-02-10-ip', number: 2, time: 'ip' } as any,
+        id: 'participant-2',
       },
       {
         ...registrationWithStaticDatesCancelled,
@@ -176,6 +185,10 @@ describe('ClassEntrySelection behavior coverage', () => {
       },
       {
         ...registrationWithStaticDates,
+        dates: [
+          { date: mockedGroups[0].date, time: 'ap' },
+          { date: mockedGroups[1].date, time: 'ip' },
+        ],
         group: { key: GROUP_KEY_RESERVE, number: 1 } as any,
         id: 'reserve-1',
       },
@@ -209,7 +222,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ number: 2.5 }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
         id: 'reserve-1',
       }),
     ])
@@ -222,7 +235,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ap', number: 2.5 }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
         id: 'participant-1',
       }),
     ])

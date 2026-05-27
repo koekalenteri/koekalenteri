@@ -22,6 +22,8 @@ import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 import DroppableDataGrid from './classEntrySelection/DroppableDataGrid'
 import GroupHeader from './classEntrySelection/GroupHeader'
 import {
+  buildMoveToPositionGroupChange,
+  buildMoveToPositionOptions,
   buildRegistrationsByGroup,
   buildSelectedAdditionalCostsByGroup,
   buildSelectedAdditionalCostsTotal,
@@ -106,41 +108,10 @@ const ClassEntrySelection = ({
     [groups, selectedAdditionalCostsByGroup]
   )
 
-  const moveToPositionMax = useMemo(() => {
-    if (!selectedForAction) return 1
-
-    const currentGroupKey = getRegistrationGroupKey(selectedForAction)
-
-    if (currentGroupKey === GROUP_KEY_RESERVE) {
-      const targetGroupKey = groups[0]?.key
-      const participantCount = targetGroupKey ? (registrationsByGroup[targetGroupKey]?.length ?? 0) : 0
-      return Math.max(1, participantCount + 1)
-    }
-
-    return Math.max(1, registrationsByGroup[currentGroupKey]?.length ?? 0)
-  }, [groups, registrationsByGroup, selectedForAction])
-
-  const moveToPositionOptions = useMemo(() => {
-    if (!selectedForAction) return [1]
-
-    const currentGroupKey = getRegistrationGroupKey(selectedForAction)
-    if (currentGroupKey === GROUP_KEY_RESERVE) {
-      return Array.from({ length: moveToPositionMax }, (_, i) => i + 1)
-    }
-
-    const allowedGroupKeys = new Set(selectedForAction.dates?.map((date) => eventRegistrationDateKey(date)) ?? [])
-    const allowedParticipantGroups = groups.filter((group) => allowedGroupKeys.has(eventRegistrationDateKey(group)))
-    const positions = allowedParticipantGroups.flatMap((group) =>
-      (registrationsByGroup[group.key] ?? [])
-        .map((reg) => reg.group?.number)
-        .filter((number): number is number => Number.isInteger(number))
-    )
-    const uniqueSortedPositions = [...new Set(positions)]
-      .filter((position) => position !== selectedForAction.group?.number)
-      .sort((a, b) => a - b)
-
-    return uniqueSortedPositions
-  }, [groups, moveToPositionMax, registrationsByGroup, selectedForAction])
+  const moveToPositionOptions = useMemo(
+    () => buildMoveToPositionOptions(selectedForAction, groups, registrationsByGroup),
+    [groups, registrationsByGroup, selectedForAction]
+  )
 
   const canMoveReserveToPosition = useMemo(() => {
     return groups.some((group) => (registrationsByGroup[group.key]?.length ?? 0) > 0)
@@ -423,44 +394,18 @@ const ClassEntrySelection = ({
             registration={selectedForAction}
             positions={moveToPositionOptions}
             onMove={async (position) => {
-              const currentGroupKey = getRegistrationGroupKey(selectedForAction)
               setPendingMoveId(selectedForAction.id)
               try {
-                // If moving from reserve to participants
-                if (currentGroupKey === GROUP_KEY_RESERVE) {
-                  const targetGroup = groups[0] // Use first participant group
-                  if (!targetGroup) return
+                const change = buildMoveToPositionGroupChange(
+                  selectedForAction,
+                  position,
+                  event.id,
+                  groups,
+                  registrationsByGroup
+                )
+                if (!change) return
 
-                  await actions.saveGroups(event.id, [
-                    {
-                      cancelled: false,
-                      eventId: event.id,
-                      group: {
-                        date: targetGroup.date,
-                        key: targetGroup.key,
-                        number: position,
-                        time: targetGroup.time,
-                      },
-                      id: selectedForAction.id,
-                    },
-                  ])
-                } else {
-                  // Moving within current group (participants or cancelled)
-                  const currentGroup = selectedForAction.group
-                  if (!currentGroup) return
-
-                  await actions.saveGroups(event.id, [
-                    {
-                      cancelled: false,
-                      eventId: event.id,
-                      group: {
-                        ...currentGroup,
-                        number: position,
-                      },
-                      id: selectedForAction.id,
-                    },
-                  ])
-                }
+                await actions.saveGroups(event.id, [change])
               } finally {
                 setPendingMoveId(undefined)
               }

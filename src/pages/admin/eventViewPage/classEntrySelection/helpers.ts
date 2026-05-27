@@ -1,8 +1,13 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup } from '../../../../types'
+import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
 import type { RegistrationWithGroups } from './types'
 import { isSameDay } from 'date-fns'
 import { eventRegistrationDateKey } from '../../../../lib/event'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../../lib/registration'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  getRegistrationGroupKey,
+  isParticipantGroup,
+} from '../../../../lib/registration'
 import { uniqueDate } from '../../../../lib/utils'
 
 /**
@@ -51,6 +56,110 @@ export const buildRegistrationsByGroup = (
     regs.sort((a, b) => (a.group?.number || 999) - (b.group?.number || 999))
   }
   return byGroup
+}
+
+const getAllowedParticipantGroups = (registration: Registration, groups: RegistrationGroup[]) => {
+  const allowedGroupKeys = new Set(registration.dates?.map((date) => eventRegistrationDateKey(date)) ?? [])
+
+  if (!allowedGroupKeys.size) return groups
+
+  return groups.filter(
+    (group) => group.date && allowedGroupKeys.has(eventRegistrationDateKey({ ...group, date: group.date }))
+  )
+}
+
+export const buildMoveToPositionOptions = (
+  selectedForAction: Registration | undefined,
+  groups: RegistrationGroup[],
+  registrationsByGroup: Record<string, RegistrationWithGroups[]>
+): number[] => {
+  if (!selectedForAction) return [1]
+
+  const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+  const allowedParticipantGroups = getAllowedParticipantGroups(selectedForAction, groups)
+  const positions = allowedParticipantGroups.flatMap((group) =>
+    (registrationsByGroup[group.key] ?? [])
+      .map((reg) => reg.group?.number)
+      .filter((number): number is number => Number.isInteger(number))
+  )
+
+  if (currentGroupKey === GROUP_KEY_RESERVE) {
+    const participantPositions = [...new Set(positions)].sort((a, b) => a - b)
+    const lastPosition = participantPositions.at(-1) ?? 0
+
+    return [...participantPositions, lastPosition + 1]
+  }
+
+  return [...new Set(positions)]
+    .filter((position) => position !== selectedForAction.group?.number)
+    .sort((a, b) => a - b)
+}
+
+export const findMoveToPositionTargetGroup = (
+  selectedForAction: Registration,
+  position: number,
+  groups: RegistrationGroup[],
+  registrationsByGroup: Record<string, RegistrationWithGroups[]>
+): RegistrationGroup | undefined => {
+  const allowedParticipantGroups = getAllowedParticipantGroups(selectedForAction, groups)
+  const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+  const currentPosition = selectedForAction.group?.number
+  const anchorPositions =
+    isParticipantGroup(currentGroupKey) && typeof currentPosition === 'number'
+      ? currentPosition < position
+        ? [Math.floor(position)]
+        : [Math.ceil(position)]
+      : [Math.ceil(position), Math.floor(position)]
+
+  for (const anchorPosition of [...new Set(anchorPositions)].filter((number) => number > 0)) {
+    const targetGroup = allowedParticipantGroups.find((group) => {
+      const registrations = registrationsByGroup[group.key] ?? []
+      return registrations.some((registration) => registration.group?.number === anchorPosition)
+    })
+    if (targetGroup) return targetGroup
+  }
+
+  return undefined
+}
+
+export const buildMoveToPositionGroupChange = (
+  selectedForAction: Registration,
+  position: number,
+  eventId: string,
+  groups: RegistrationGroup[],
+  registrationsByGroup: Record<string, RegistrationWithGroups[]>
+): RegistrationGroupInfo | undefined => {
+  const currentGroupKey = getRegistrationGroupKey(selectedForAction)
+
+  if (currentGroupKey === GROUP_KEY_RESERVE || isParticipantGroup(currentGroupKey)) {
+    const targetGroup = findMoveToPositionTargetGroup(selectedForAction, position, groups, registrationsByGroup)
+    if (!targetGroup) return undefined
+
+    return {
+      cancelled: false,
+      eventId,
+      group: {
+        date: targetGroup.date,
+        key: targetGroup.key,
+        number: position,
+        time: targetGroup.time,
+      },
+      id: selectedForAction.id,
+    }
+  }
+
+  const currentGroup = selectedForAction.group
+  if (!currentGroup) return undefined
+
+  return {
+    cancelled: false,
+    eventId,
+    group: {
+      ...currentGroup,
+      number: position,
+    },
+    id: selectedForAction.id,
+  }
 }
 
 /** Per-group selected optional costs tally */

@@ -4,9 +4,12 @@ import { parseISO } from 'date-fns'
 import { eventRegistrationDateKey } from '../../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE } from '../../../../lib/registration'
 import {
+  buildMoveToPositionGroupChange,
+  buildMoveToPositionOptions,
   buildRegistrationsByGroup,
   buildSelectedAdditionalCostsByGroup,
   buildSelectedAdditionalCostsTotal,
+  findMoveToPositionTargetGroup,
   listKey,
 } from './helpers'
 
@@ -222,6 +225,251 @@ describe('helpers', () => {
 
       expect(result.group1[0].dropGroups).toContain('group2')
       expect(result.group1[0].dropGroups).toHaveLength(1)
+    })
+  })
+
+  describe('buildMoveToPositionOptions', () => {
+    const mockGroups: RegistrationGroup[] = [
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+    ]
+
+    it('should return position 1 when no registration is selected', () => {
+      const result = buildMoveToPositionOptions(undefined, mockGroups, {})
+
+      expect(result).toEqual([1])
+    })
+
+    it('should include one more than the last participant position for reserve moves', () => {
+      const selectedRegistration = {
+        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+      } as Partial<Registration> as Registration
+      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+        group1: [
+          { group: { key: 'group1', number: 1 } } as RegistrationWithGroups,
+          { group: { key: 'group1', number: 2 } } as RegistrationWithGroups,
+        ],
+      }
+
+      const result = buildMoveToPositionOptions(selectedRegistration, mockGroups, registrationsByGroup)
+
+      expect(result).toEqual([1, 2, 3])
+    })
+
+    it('should include participant positions from all dates allowed by a reserve registration', () => {
+      const selectedRegistration = {
+        dates: [
+          { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
+          { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+        ],
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+      } as Partial<Registration> as Registration
+      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+        group1: [{ group: { key: 'group1', number: 1 } } as RegistrationWithGroups],
+        group2: [{ group: { key: 'group2', number: 2 } } as RegistrationWithGroups],
+      }
+
+      const result = buildMoveToPositionOptions(selectedRegistration, mockGroups, registrationsByGroup)
+
+      expect(result).toEqual([1, 2, 3])
+    })
+
+    it('should offer position 1 for reserve moves when there are no participants', () => {
+      const selectedRegistration = {
+        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToPositionOptions(selectedRegistration, mockGroups, { group1: [] })
+
+      expect(result).toEqual([1])
+    })
+
+    it('should return allowed participant positions except the current position', () => {
+      const selectedRegistration = {
+        dates: [{ date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' }],
+        group: { key: 'group1', number: 2 },
+      } as Partial<Registration> as Registration
+      const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+        group1: [
+          { group: { key: 'group1', number: 1 } } as RegistrationWithGroups,
+          { group: { key: 'group1', number: 2 } } as RegistrationWithGroups,
+          { group: { key: 'group1', number: 3 } } as RegistrationWithGroups,
+        ],
+        group2: [{ group: { key: 'group2', number: 4 } } as RegistrationWithGroups],
+      }
+
+      const result = buildMoveToPositionOptions(selectedRegistration, mockGroups, registrationsByGroup)
+
+      expect(result).toEqual([1, 3])
+    })
+  })
+
+  describe('findMoveToPositionTargetGroup', () => {
+    const mockGroups: RegistrationGroup[] = [
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+    ]
+    const selectedRegistration = {
+      dates: [
+        { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
+        { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+      ],
+      group: { key: GROUP_KEY_RESERVE, number: 1 },
+    } as Partial<Registration> as Registration
+    const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+      group1: [{ group: { key: 'group1', number: 1 } } as RegistrationWithGroups],
+      group2: [{ group: { key: 'group2', number: 2 } } as RegistrationWithGroups],
+    }
+
+    it('should use the selected position group when moving before an existing position', () => {
+      const result = findMoveToPositionTargetGroup(selectedRegistration, 1.5, mockGroups, registrationsByGroup)
+
+      expect(result?.key).toBe('group2')
+    })
+
+    it('should use the previous position group when moving after the last position', () => {
+      const result = findMoveToPositionTargetGroup(selectedRegistration, 2.5, mockGroups, registrationsByGroup)
+
+      expect(result?.key).toBe('group2')
+    })
+
+    it('should return undefined when the position does not match an allowed participant group', () => {
+      const result = findMoveToPositionTargetGroup(selectedRegistration, 3.5, mockGroups, registrationsByGroup)
+
+      expect(result).toBeUndefined()
+    })
+
+    it('should use the selected position group when moving a participant to a greater position', () => {
+      const participantRegistration = {
+        dates: selectedRegistration.dates,
+        group: { key: 'group1', number: 1 },
+      } as Partial<Registration> as Registration
+
+      const result = findMoveToPositionTargetGroup(participantRegistration, 3.5, mockGroups, {
+        ...registrationsByGroup,
+        group2: [{ group: { key: 'group2', number: 3 } } as RegistrationWithGroups],
+      })
+
+      expect(result?.key).toBe('group2')
+    })
+
+    it('should use the selected position group when moving a participant to a smaller position', () => {
+      const participantRegistration = {
+        dates: selectedRegistration.dates,
+        group: { key: 'group2', number: 3 },
+      } as Partial<Registration> as Registration
+
+      const result = findMoveToPositionTargetGroup(participantRegistration, 0.5, mockGroups, registrationsByGroup)
+
+      expect(result?.key).toBe('group1')
+    })
+  })
+
+  describe('buildMoveToPositionGroupChange', () => {
+    const mockGroups: RegistrationGroup[] = [
+      { date: parseISO('2023-01-01T12:00:00Z'), key: 'group1', number: 1, time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), key: 'group2', number: 2, time: 'ip' },
+    ]
+    const registrationsByGroup: Record<string, RegistrationWithGroups[]> = {
+      group1: [{ group: { key: 'group1', number: 1 } } as RegistrationWithGroups],
+      group2: [{ group: { key: 'group2', number: 3 } } as RegistrationWithGroups],
+    }
+    const allowedDates = [
+      { date: parseISO('2023-01-01T12:00:00Z'), time: 'ap' },
+      { date: parseISO('2023-01-02T12:00:00Z'), time: 'ip' },
+    ]
+
+    it('should build a participant move change using the selected position target group', () => {
+      const selectedRegistration = {
+        dates: allowedDates,
+        eventId: 'event1',
+        group: { key: 'group1', number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToPositionGroupChange(
+        selectedRegistration,
+        3.5,
+        'event1',
+        mockGroups,
+        registrationsByGroup
+      )
+
+      expect(result).toEqual({
+        cancelled: false,
+        eventId: 'event1',
+        group: { date: mockGroups[1].date, key: 'group2', number: 3.5, time: 'ip' },
+        id: 'reg1',
+      })
+    })
+
+    it('should build a reserve move change using the target participant group', () => {
+      const selectedRegistration = {
+        dates: allowedDates,
+        eventId: 'event1',
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToPositionGroupChange(
+        selectedRegistration,
+        2.5,
+        'event1',
+        mockGroups,
+        registrationsByGroup
+      )
+
+      expect(result).toEqual({
+        cancelled: false,
+        eventId: 'event1',
+        group: { date: mockGroups[1].date, key: 'group2', number: 2.5, time: 'ip' },
+        id: 'reg1',
+      })
+    })
+
+    it('should build a current group move change for non-participant groups', () => {
+      const selectedRegistration = {
+        dates: allowedDates,
+        eventId: 'event1',
+        group: { key: GROUP_KEY_CANCELLED, number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToPositionGroupChange(
+        selectedRegistration,
+        2.5,
+        'event1',
+        mockGroups,
+        registrationsByGroup
+      )
+
+      expect(result).toEqual({
+        cancelled: false,
+        eventId: 'event1',
+        group: { key: GROUP_KEY_CANCELLED, number: 2.5 },
+        id: 'reg1',
+      })
+    })
+
+    it('should return undefined when a participant target group cannot be found', () => {
+      const selectedRegistration = {
+        dates: allowedDates,
+        eventId: 'event1',
+        group: { key: 'group1', number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+
+      const result = buildMoveToPositionGroupChange(
+        selectedRegistration,
+        4.5,
+        'event1',
+        mockGroups,
+        registrationsByGroup
+      )
+
+      expect(result).toBeUndefined()
     })
   })
 
