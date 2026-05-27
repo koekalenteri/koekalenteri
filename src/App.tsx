@@ -41,6 +41,7 @@ function App() {
           disableWindowBlurListener
           preventDuplicate
           maxSnack={3}
+          autoHideDuration={8000}
           action={closeAction}
         >
           <ConfirmProvider
