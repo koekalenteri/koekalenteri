@@ -5,7 +5,9 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
+import { useSnackbar } from 'notistack'
 import { useCallback, useMemo } from 'react'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { hasChanges } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import RegistrationForm from '../../components/RegistrationForm'
@@ -38,6 +40,7 @@ export default function RegistrationDialogBase({
   setRegistration,
 }: Props) {
   const actions = useAdminRegistrationActions(event.id)
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleChange = useCallback(
     (newState: Registration) => {
@@ -53,13 +56,15 @@ export default function RegistrationDialogBase({
       return
     }
     try {
-      await actions.save(registration)
+      const saved = await actions.save(registration)
+      if (!saved) return
       resetRegistration()
       onClose?.()
     } catch (error) {
+      enqueueSnackbar('Ilmoittautumisen tallennus epäonnistui', errorSnackbarOptions)
       console.error(error)
     }
-  }, [actions, event, onClose, registration, resetRegistration])
+  }, [actions, enqueueSnackbar, event, onClose, registration, resetRegistration])
 
   const handleCancel = useCallback(() => {
     resetRegistration()

@@ -111,6 +111,14 @@ export async function putRegistration(
   return Promise.resolve({ ...registration, id: 'test-registration' })
 }
 
+export async function putAdminRegistration(
+  registration: Registration,
+  _token: string,
+  _signal?: AbortSignal
+): Promise<Registration> {
+  return Promise.resolve({ ...registration })
+}
+
 export async function putRegistrationGroups(
   _groups: RegistrationGroupInfo[],
   _token?: string,

@@ -29,6 +29,16 @@ export const normalizeRegistrationEmails = (registration: JsonRegistration) => {
   return registration
 }
 
+export const shouldClearRegistrationEmailDeliveryStatus = (
+  existing: JsonRegistration | undefined,
+  registration: JsonRegistration
+) => {
+  const failedEmail = existing?.emailDeliveryStatus?.email
+  if (!failedEmail) return false
+
+  return !getRegistrationEmails(registration).includes(normalizeEmail(failedEmail))
+}
+
 const findRegistrationEmailSuppressions = async (registration: JsonRegistration) => {
   const emails = getRegistrationEmails(registration)
   const suppressions = await Promise.all(emails.map((email) => dynamoDB.read<JsonEmailSuppression>({ email })))

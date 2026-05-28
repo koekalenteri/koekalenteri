@@ -1,8 +1,9 @@
-import type { Registration } from '../../../types'
+import type { ConfirmedEvent, Registration } from '../../../types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import { getRegistration, putRegistration } from '../../../api/registration'
+import { showRegistrationSaveConflict } from './registrationSaveError'
 
 export function useRegistrationActions() {
   const { t } = useTranslation()
@@ -48,13 +49,19 @@ export function useRegistrationActions() {
 
       return reg
     },
-    save: async (reg: Registration) => {
+    save: async (reg: Registration, event: ConfirmedEvent) => {
       const regWithOverrides: Registration = {
         ...reg,
         handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
         payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
-      const saved = await putRegistration(regWithOverrides)
+      let saved: Registration
+      try {
+        saved = await putRegistration(regWithOverrides)
+      } catch (error) {
+        if (showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) return undefined
+        throw error
+      }
       const emails = [saved.handler?.email]
       if (saved.owner?.email !== saved.handler?.email) {
         emails.push(saved.owner?.email)

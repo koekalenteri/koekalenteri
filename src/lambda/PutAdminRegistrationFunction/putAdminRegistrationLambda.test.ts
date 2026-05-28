@@ -51,6 +51,18 @@ jest.unstable_mockModule('../lib/emailSuppression', () => ({
     if (registration.payer?.email) registration.payer.email = registration.payer.email.trim().toLowerCase()
     return registration
   },
+  shouldClearRegistrationEmailDeliveryStatus: (
+    existing: JsonRegistration | undefined,
+    registration: JsonRegistration
+  ) => {
+    const failedEmail = existing?.emailDeliveryStatus?.email?.trim().toLowerCase()
+    if (!failedEmail) return false
+
+    return ![registration.owner?.email, registration.handler?.email, registration.payer?.email]
+      .filter(Boolean)
+      .map((email) => email?.trim().toLowerCase())
+      .includes(failedEmail)
+  },
 }))
 
 const mockfindExistingRegistrationToEventForDog = jest.fn<
@@ -337,6 +349,24 @@ describe('putAdminRegistrationLambda', () => {
     expect(result.statusCode).toBe(200)
   })
 
+  it('clears email delivery status from response after sending update email', async () => {
+    mockGetRegistration.mockResolvedValueOnce({
+      emailDeliveryStatus: {
+        at: '2026-05-27T10:00:00.000Z',
+        email: 'handler@example.com',
+        status: 'bounce',
+      },
+      eventId: 'event123',
+      id: 'reg456',
+      state: 'draft',
+    })
+
+    const result = await putAdminRegistrationLambda(event)
+
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).not.toHaveProperty('emailDeliveryStatus')
+  })
+
   it('does not send email if handler or owner email is missing', async () => {
     const eventWithoutEmail = {
       ...event,
@@ -368,6 +398,46 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockSaveRegistration).toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
+  })
+
+  it('clears email delivery status when email changes even if email is not sent', async () => {
+    mockGetRegistration.mockResolvedValueOnce({
+      emailDeliveryStatus: {
+        at: '2026-05-27T10:00:00.000Z',
+        email: 'handler@example.com',
+        status: 'bounce',
+      },
+      eventId: 'event123',
+      handler: { email: 'handler@example.com' },
+      id: 'reg456',
+      state: 'draft',
+    })
+    const eventWithoutHandlerEmail = {
+      ...event,
+      body: JSON.stringify({
+        class: 'ALO',
+        dates: [],
+        dog: {
+          breedCode: '111',
+          regNo: 'DOG123',
+        },
+        eventId: 'event123',
+        handler: {},
+        id: 'reg456',
+        language: 'fi',
+        owner: {
+          email: 'owner@example.com',
+        },
+        qualifyingResults: [],
+        reserve: 'ANY',
+      }),
+    }
+
+    const result = await putAdminRegistrationLambda(eventWithoutHandlerEmail)
+
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(result.statusCode).toBe(200)
+    expect(JSON.parse(result.body)).not.toHaveProperty('emailDeliveryStatus')
   })
 
   it('handles missing dog regNo gracefully', async () => {

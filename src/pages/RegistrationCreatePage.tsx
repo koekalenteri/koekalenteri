@@ -1,12 +1,10 @@
 import type { Registration } from '../types'
-import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
-import { APIError } from '../api/http'
 import { rum } from '../lib/client/rum'
-import { hasChanges, isEntryOpen, isObject, printContactInfo } from '../lib/utils'
+import { hasChanges, isEntryOpen } from '../lib/utils'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -52,44 +50,17 @@ export function Component() {
       return
     }
     try {
-      const saved = await actions.save(registration)
+      const saved = await actions.save(registration, event)
+      if (!saved) return
       if (event.paymentTime === 'confirmation') {
         navigate(Path.registration(saved))
       } else {
         navigate(Path.payment(saved))
       }
     } catch (error) {
-      if (error instanceof APIError && error.status === 409) {
-        if (isObject(error.body) && error.body.error === 'emailSuppressed') {
-          enqueueSnackbar(
-            t('registration.notifications.emailSuppressed', {
-              email: error.body.email,
-              reason: error.body.reason,
-            }),
-            {
-              persist: true,
-              variant: 'error',
-            }
-          )
-          return
-        }
-
-        enqueueSnackbar(
-          t('registration.notifications.alreadyRegistered', {
-            contact: printContactInfo(event.contactInfo?.secretary),
-            context: isObject(error.body) && error.body.cancelled ? 'cancel' : undefined,
-            reg: registration,
-          }),
-          {
-            persist: true,
-            variant: 'info',
-          }
-        )
-        return
-      }
       console.error(error)
     }
-  }, [actions, event, navigate, registration, t])
+  }, [actions, event, navigate, registration])
 
   const handleCancel = useCallback(() => {
     resetRegistration()

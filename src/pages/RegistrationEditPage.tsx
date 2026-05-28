@@ -44,7 +44,8 @@ export default function RegistrationEditPage() {
       return
     }
     try {
-      const saved = await actions.save(registration)
+      const saved = await actions.save(registration, event)
+      if (!saved) return
       setSavedRegistration(saved)
       resetRegistration()
       navigate(-1)

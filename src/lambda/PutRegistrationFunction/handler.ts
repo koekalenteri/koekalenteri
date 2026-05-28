@@ -7,7 +7,11 @@ import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { assertRegistrationEmailsNotSuppressed, normalizeRegistrationEmails } from '../lib/emailSuppression'
+import {
+  assertRegistrationEmailsNotSuppressed,
+  normalizeRegistrationEmails,
+  shouldClearRegistrationEmailDeliveryStatus,
+} from '../lib/emailSuppression'
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
@@ -64,6 +68,7 @@ const sendMessages = async (
   const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
 
   await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
+  delete registration.emailDeliveryStatus
   await sendTemplatedMail(
     'registration',
     registration.language,
@@ -169,6 +174,10 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   }
 
   await assertRegistrationEmailsNotSuppressed(data)
+
+  if (shouldClearRegistrationEmailDeliveryStatus(existing, data)) {
+    delete data.emailDeliveryStatus
+  }
 
   await saveRegistration(data)
   // Update organizer event stats after registration change

@@ -1,5 +1,6 @@
 import type { PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
 import { useSnackbar } from 'notistack'
+import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { createRefund } from '../../../../api/payment'
 import {
@@ -11,6 +12,7 @@ import {
 import { reportError } from '../../../../lib/client/error'
 import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
 import { idTokenAtom } from '../../../recoil'
+import { showRegistrationSaveConflict } from '../../../recoil/registration/registrationSaveError'
 import { adminEventSelector } from '../events'
 import { adminBackgroundActionsRunningAtom } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
@@ -21,6 +23,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
   const setBackgroundActionsRunning = useSetRecoilState(adminBackgroundActionsRunningAtom)
   const token = useRecoilValue(idTokenAtom)
   const { enqueueSnackbar } = useSnackbar()
+  const { t } = useTranslation()
 
   const updateAdminRegistration = (saved: Registration) => {
     const regs = [...eventRegistrations]
@@ -168,7 +171,15 @@ export const useAdminRegistrationActions = (eventId: string) => {
         handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
         payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
-      const saved = await putAdminRegistration(regWithOverrides, token)
+      let saved: Registration
+      try {
+        saved = await putAdminRegistration(regWithOverrides, token)
+      } catch (error) {
+        if (event && showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) {
+          return undefined
+        }
+        throw error
+      }
       updateAdminRegistration(saved)
       return saved
     },

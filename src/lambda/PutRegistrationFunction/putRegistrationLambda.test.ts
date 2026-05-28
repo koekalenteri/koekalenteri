@@ -62,6 +62,18 @@ jest.unstable_mockModule('../lib/emailSuppression', () => ({
     if (registration.payer?.email) registration.payer.email = registration.payer.email.trim().toLowerCase()
     return registration
   },
+  shouldClearRegistrationEmailDeliveryStatus: (
+    existing: JsonRegistration | undefined,
+    registration: JsonRegistration
+  ) => {
+    const failedEmail = existing?.emailDeliveryStatus?.email?.trim().toLowerCase()
+    if (!failedEmail) return false
+
+    return ![registration.owner?.email, registration.handler?.email, registration.payer?.email]
+      .filter(Boolean)
+      .map((email) => email?.trim().toLowerCase())
+      .includes(failedEmail)
+  },
 }))
 
 const { default: putRegistrationLabmda } = await import('./handler')
@@ -223,6 +235,54 @@ describe('putRegistrationLabmda', () => {
       reason: 'smtp; 550 user unknown',
     })
     expect(errorSpy).toHaveBeenCalled()
+  })
+
+  it('should clear email delivery status from response after sending update email', async () => {
+    const existingJson = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      emailDeliveryStatus: {
+        at: '2026-05-27T10:00:00.000Z',
+        email: 'handler@example.com',
+        status: 'bounce',
+      },
+    }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        notes: 'updated notes',
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(JSON.parse(res.body)).not.toHaveProperty('emailDeliveryStatus')
+  })
+
+  it('should clear email delivery status when email changes even if email is not sent', async () => {
+    const existingJson = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      emailDeliveryStatus: {
+        at: '2026-05-27T10:00:00.000Z',
+        email: 'handler@example.com',
+        status: 'bounce',
+      },
+    }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        handler: {},
+        notes: 'updated notes',
+      })
+    )
+
+    expect(mockSES.send).not.toHaveBeenCalled()
+    expect(res.statusCode).toEqual(200)
+    expect(JSON.parse(res.body)).not.toHaveProperty('emailDeliveryStatus')
   })
 
   it.each([

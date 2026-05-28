@@ -5,7 +5,11 @@ import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
-import { assertRegistrationEmailsNotSuppressed, normalizeRegistrationEmails } from '../lib/emailSuppression'
+import {
+  assertRegistrationEmailsNotSuppressed,
+  normalizeRegistrationEmails,
+  shouldClearRegistrationEmailDeliveryStatus,
+} from '../lib/emailSuppression'
 import { fixRegistrationGroups, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
@@ -64,6 +68,10 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   const data: JsonRegistration = { ...existing, ...registration }
   await assertRegistrationEmailsNotSuppressed(data)
+  const clearEmailDeliveryStatus = shouldClearRegistrationEmailDeliveryStatus(existing, data)
+  if (clearEmailDeliveryStatus) {
+    delete data.emailDeliveryStatus
+  }
 
   await saveRegistration(data)
 
@@ -91,7 +99,10 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     const to = emailTo(registration)
     const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, context)
 
-    await clearRegistrationEmailDeliveryStatus(updatedData.eventId, updatedData.id)
+    if (!clearEmailDeliveryStatus) {
+      await clearRegistrationEmailDeliveryStatus(updatedData.eventId, updatedData.id)
+      delete updatedData.emailDeliveryStatus
+    }
     await sendTemplatedMail(
       'registration',
       registration.language,
