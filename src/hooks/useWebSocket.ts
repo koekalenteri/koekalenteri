@@ -5,7 +5,7 @@ import { sanitizeDogEvent } from '../lib/event'
 import { applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
-import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
+import { websocketAdminUsersSelector } from '../pages/admin/recoil/user/selectors'
 import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
 import { useMarkRecentlyUpdated } from '../pages/recoil/recentUpdates'
@@ -78,7 +78,7 @@ export const WebSocketContext = createContext<WebSocketContextValue | null>(null
 
 export const useWebSocket = () => {
   const idTokenLoadable = useRecoilValueLoadable(idTokenAtom)
-  const adminUsersLoadable = useRecoilValueLoadable(adminUsersAtom)
+  const adminUsersLoadable = useRecoilValueLoadable(websocketAdminUsersSelector)
   const currentUserLoadable = useRecoilValueLoadable(userSelector)
   const markRecentlyUpdated = useMarkRecentlyUpdated()
   const shouldReconnectRef = useRef(true)

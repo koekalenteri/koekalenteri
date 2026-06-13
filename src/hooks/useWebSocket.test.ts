@@ -8,6 +8,7 @@ import { applyPatch, applyPatchOrInsert } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user/atoms'
+import { canReadWebsocketAdminUsers } from '../pages/admin/recoil/user/selectors'
 import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
 import { recentlyUpdatedAtom } from '../pages/recoil/recentUpdates'
@@ -48,7 +49,7 @@ jest.mock('../pages/recoil/user/selectors', () => {
   const { selector } = jest.requireActual('recoil')
   return {
     userSelector: selector({
-      get: () => ({ id: 'user-1', name: 'User One' }),
+      get: () => ({ id: 'user-1', name: 'User One', roles: { 'org-1': 'secretary' } }),
       key: 'userSelectorTestWs',
     }),
   }
@@ -85,6 +86,16 @@ describe('applyPatch', () => {
     const patch = { name: 'Event 1' }
     const result = applyPatch(baseEvents, '1', patch)
     expect(result).toBe(baseEvents)
+  })
+})
+
+describe('canReadWebsocketAdminUsers', () => {
+  it('requires a signed-in user with admin access', () => {
+    expect(canReadWebsocketAdminUsers(undefined)).toBe(false)
+    expect(canReadWebsocketAdminUsers(null)).toBe(false)
+    expect(canReadWebsocketAdminUsers({ id: 'user-1' })).toBe(false)
+    expect(canReadWebsocketAdminUsers({ id: 'user-1', roles: { 'org-1': 'secretary' } })).toBe(true)
+    expect(canReadWebsocketAdminUsers({ admin: true, id: 'user-1' })).toBe(true)
   })
 })
 
