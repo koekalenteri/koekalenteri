@@ -90,16 +90,17 @@ export function useClassEntrySelectionColumns(
       {
         field: 'dob.breed',
         headerName: t('dog.breed'),
+        minWidth: 56,
         valueGetter: (_value, row) =>
           row.dog?.breedCode && row.dog?.gender
             ? t(`${row.dog.breedCode}.${row.dog.gender}`, { defaultValue: row.dog.breedCode, ns: 'breedAbbr' })
             : '',
-        width: 150,
+        width: 56,
       },
       {
         field: 'handler',
         flex: 1,
-        headerName: t('registration.handler'),
+        headerName: t('handler'),
         valueGetter: (_value, row) => row.handler?.name,
         width: 150,
       },
@@ -256,9 +257,9 @@ export function useClassEntrySelectionColumns(
           return actions
         },
         headerName: '',
-        minWidth: 30,
+        minWidth: 44,
         type: 'actions',
-        width: 30,
+        width: 44,
       },
     ]
 
@@ -278,6 +279,7 @@ export function useClassEntrySelectionColumns(
     cancelledColumns.splice(-2, 0, {
       field: 'cancelReason',
       headerName: 'Perumisen syy',
+      minWidth: 144,
       sortable: false,
       valueFormatter: (v: string) => (isPredefinedReason(v) ? t(`registration.cancelReason.${v}`) : v),
       width: 144,
