@@ -10,7 +10,7 @@ import type { PaytrailCallbackParams } from '../types/paytrail'
 import { i18n } from '../../i18n/lambda'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
-import { calculateHmac, HMAC_KEY_PREFIX } from './paytrail'
+import { calculateHmac, getPayment, HMAC_KEY_PREFIX } from './paytrail'
 import { getPaytrailConfig } from './secrets'
 
 const { transactionTable } = CONFIG
@@ -104,3 +104,32 @@ export const getTransactionsByReference = async (reference: string) =>
     table: transactionTable,
     values: { ':reference': reference },
   })
+
+const shouldRefreshTransactionStatus = (transaction: JsonPaymentTransaction | JsonRefundTransaction) =>
+  transaction.type === 'refund'
+    ? transaction.status !== 'ok'
+    : ['new', 'pending', 'delayed'].includes(transaction.status)
+
+export const refreshTransactionStatusesFromPaytrail = async (
+  transactions: (JsonPaymentTransaction | JsonRefundTransaction)[] | undefined
+) => {
+  if (!transactions?.length) return transactions
+
+  return Promise.all(
+    transactions.map(async (transaction) => {
+      if (!shouldRefreshTransactionStatus(transaction)) return transaction
+
+      const payment = await getPayment(transaction.transactionId)
+      if (!payment) return transaction
+
+      const updated = await updateTransactionStatus(transaction, payment.status, payment.provider)
+
+      return {
+        ...transaction,
+        provider: payment.provider,
+        status: payment.status,
+        statusAt: updated ? new Date().toISOString() : transaction.statusAt,
+      }
+    })
+  )
+}

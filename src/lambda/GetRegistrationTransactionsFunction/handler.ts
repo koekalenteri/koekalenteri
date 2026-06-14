@@ -1,6 +1,6 @@
 import { authorize } from '../lib/auth'
 import { getParam, lambda, response } from '../lib/lambda'
-import { getTransactionsByReference } from '../lib/payment'
+import { getTransactionsByReference, refreshTransactionStatusesFromPaytrail } from '../lib/payment'
 
 const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', async (event) => {
   const user = await authorize(event)
@@ -11,8 +11,9 @@ const getRegistrationTransactionsLambda = lambda('getRegistrationTransactions', 
   const id = getParam(event, 'id')
   const reference = `${eventId}:${id}`
   const transactions = await getTransactionsByReference(reference)
+  const refreshedTransactions = await refreshTransactionStatusesFromPaytrail(transactions)
 
-  return response(200, transactions, event)
+  return response(200, refreshedTransactions, event)
 })
 
 export default getRegistrationTransactionsLambda
