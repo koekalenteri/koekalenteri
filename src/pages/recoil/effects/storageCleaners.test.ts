@@ -86,9 +86,9 @@ describe('storageCleaners', () => {
       jest.spyOn(envLib, 'isTestEnv').mockReturnValueOnce(false)
       const isEarlierSpy = jest.spyOn(versionLib, 'isEarlierVersionThan').mockReturnValue(false)
       const clearSpy = jest.spyOn(encryptedStoreLib, 'clearEncryptedStore').mockResolvedValue(undefined)
-      getSpy.mockReturnValueOnce('1.9.0')
+      getSpy.mockReturnValueOnce('1.9.1')
       runCleaners()
-      expect(isEarlierSpy).toHaveBeenCalledWith('1.9.0', '1.9.0')
+      expect(isEarlierSpy).toHaveBeenCalledWith('1.9.0', '1.9.1')
       expect(clearSpy).not.toHaveBeenCalled()
     })
 
