@@ -159,4 +159,33 @@ describe('championship ranking rules', () => {
     expect(result.relevant.map((r) => r.rankingPoints)).toEqual([6, 2])
     expect(result.relevant.map((r) => r.official)).toEqual([true, false])
   })
+
+  it('qualifies NOWT championship entry with FI KVA-WT achieved before the ranking period', () => {
+    const entryEndDate = new Date('2025-08-15T12:00:00.000Z')
+
+    const result = NOWT_CH_requirements(
+      [],
+      [
+        manualResult({
+          class: 'VOI',
+          date: new Date('2024-01-15T00:00:00.000Z'),
+          judge: 'Judge KVA',
+          location: 'Loc KVA',
+          result: 'FI KVA-WT',
+          type: 'NOWT',
+        }),
+      ],
+      entryEndDate,
+      undefined
+    )
+
+    expect(result.qualifies).toBe(true)
+    expect(result.relevant).toHaveLength(1)
+    expect(result.relevant[0]).toMatchObject({
+      official: false,
+      qualifying: true,
+      rankingPoints: 6,
+      result: 'FI KVA-WT',
+    })
+  })
 })

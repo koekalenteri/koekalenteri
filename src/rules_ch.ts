@@ -246,7 +246,7 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
     resultPoints,
   })
 
-  const qualifies = relevant.some((r) => r.result === 'VOI1')
+  const qualifies = relevant.some((r) => r.result === 'VOI1' || r.result === 'FI KVA-WT')
 
   return { maxResultDate, minResultDate, qualifies, relevant }
 }
