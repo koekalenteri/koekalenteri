@@ -1,12 +1,24 @@
 import type { PublicDogEvent } from '../../../types'
 import { snapshot_UNSTABLE } from 'recoil'
-import { eventsAtom } from './atoms'
+import { eventFilterAtom, eventsAtom } from './atoms'
 import { filteredEventsSelector, filterOrganizersSelector } from './selectors'
 
 describe('event selectors', () => {
   describe('filterOrganizersSelector', () => {
     it('ignores events without organizer data', () => {
       const snapshot = snapshot_UNSTABLE(({ set }) => {
+        set(eventFilterAtom, {
+          end: null,
+          eventClass: [],
+          eventType: [],
+          judge: [],
+          organizer: [],
+          start: null,
+          withClosingEntry: false,
+          withFreePlaces: false,
+          withOpenEntry: false,
+          withUpcomingEntry: false,
+        })
         set(eventsAtom, [
           {
             classes: [],
