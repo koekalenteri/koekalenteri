@@ -3,7 +3,7 @@ import type { EmailTemplate, EmailTemplateId } from '../../../../types'
 import i18next from 'i18next'
 import { getEmailTemplates } from '../../../../api/email'
 import { exhaustiveStringTuple } from '../../../../lib/typeGuards'
-import { idTokenAtom } from '../../../recoil'
+import { createCachedRemoteCollectionEffect } from '../cached/createCachedRemoteCollection'
 
 const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'access',
@@ -18,29 +18,28 @@ const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'reserve'
 )
 
-export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = ({ getPromise, setSelf, trigger }) => {
-  if (trigger === 'get') {
-    setSelf(
-      getPromise(idTokenAtom).then((token) =>
-        getEmailTemplates(token).then((emailTemplates) => {
-          if (emailTemplates.length < templateIds.length) {
-            for (const id of templateIds) {
-              if (!emailTemplates.some((t) => t.id === id)) {
-                emailTemplates.push({
-                  createdAt: new Date(),
-                  createdBy: '',
-                  en: '',
-                  fi: '',
-                  id: id as EmailTemplateId,
-                  modifiedAt: new Date(),
-                  modifiedBy: '',
-                })
-              }
-            }
-          }
-          return emailTemplates.sort((a, b) => a.id.localeCompare(b.id, i18next.language))
+async function fetchEmailTemplates(token: string): Promise<EmailTemplate[]> {
+  const emailTemplates = await getEmailTemplates(token)
+  if (emailTemplates.length < templateIds.length) {
+    for (const id of templateIds) {
+      if (!emailTemplates.some((t) => t.id === id)) {
+        emailTemplates.push({
+          createdAt: new Date(),
+          createdBy: '',
+          en: '',
+          fi: '',
+          id: id as EmailTemplateId,
+          modifiedAt: new Date(),
+          modifiedBy: '',
         })
-      )
-    )
+      }
+    }
   }
+  return emailTemplates
 }
+
+export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = createCachedRemoteCollectionEffect({
+  cacheKey: 'emailTemplates',
+  fetch: fetchEmailTemplates,
+  sort: (items) => items.sort((a, b) => a.id.localeCompare(b.id, i18next.language)),
+})

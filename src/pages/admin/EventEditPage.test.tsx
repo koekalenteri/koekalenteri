@@ -3,7 +3,7 @@ import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,9 +23,26 @@ jest.mock('../../api/official')
 jest.mock('../../api/organizer')
 jest.mock('../../api/registration')
 
+const mockSubscribeEvent = jest.fn()
+const mockUnsubscribeEvent = jest.fn()
+let mockViewers: Array<{ name: string; userId: string }> = []
+
+jest.mock('../../hooks/useWebSocket', () => ({
+  useWebSocketContext: () => ({
+    subscribeEvent: mockSubscribeEvent,
+    unsubscribeEvent: mockUnsubscribeEvent,
+    viewers: mockViewers,
+  }),
+}))
+
 describe('EventEditPage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+    mockSubscribeEvent.mockClear()
+    mockUnsubscribeEvent.mockClear()
+    mockViewers = []
+  })
   afterAll(() => jest.useRealTimers())
 
   it('renders properly', async () => {
@@ -54,5 +71,40 @@ describe('EventEditPage', () => {
     )
     await flushPromises()
     expect(container).toMatchSnapshot()
+  })
+
+  it('subscribes to event viewers and shows viewer notification', async () => {
+    mockViewers = [{ name: 'Other Admin', userId: 'other-admin' }]
+    const { i18n } = useTranslation()
+    const language = i18n.language as Language
+
+    const routes: RouteObject[] = [
+      {
+        element: <EventEditPage />,
+        path: Path.admin.editEvent(),
+      },
+    ]
+
+    const { unmount } = render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
+          <RecoilRoot>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <DataMemoryRouter initialEntries={[Path.admin.editEvent(eventWithStaticDates.id)]} routes={routes} />
+              </SnackbarProvider>
+            </Suspense>
+          </RecoilRoot>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+    await flushPromises()
+
+    expect(mockSubscribeEvent).toHaveBeenCalledWith(eventWithStaticDates.id)
+    expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
+
+    unmount()
+
+    expect(mockUnsubscribeEvent).toHaveBeenCalledTimes(1)
   })
 })

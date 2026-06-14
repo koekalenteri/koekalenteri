@@ -17,4 +17,6 @@
               - dynamodb:DeleteItem
               - dynamodb:Scan
               - dynamodb:Query
-            Resource: !GetAtt WsConnectionsTable.Arn
+            Resource:
+              - !GetAtt WsConnectionsTable.Arn
+              - !Sub ${WsConnectionsTable.Arn}/index/*

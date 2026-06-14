@@ -11,3 +11,6 @@
       ApiId: !Ref WebSocketApi
       StageName: !Ref StageNameParam
       AutoDeploy: true
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10

@@ -33,6 +33,8 @@ Globals:
         EVENT_STATS_TABLE_NAME: !Ref EventStatsTable
         WS_API_ENDPOINT: !Sub "https://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${StageNameParam}"
         WS_CONNECTIONS_TABLE_NAME: !Ref WsConnectionsTable
+        COGNITO_USER_POOL_ID: !Ref KoekalenteriUserPool
+        COGNITO_APP_CLIENT_ID: !Ref KoekalenteriUserPoolTokenClient
   Api:
     Auth:
       UsagePlan:

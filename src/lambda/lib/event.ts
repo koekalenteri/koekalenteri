@@ -21,10 +21,11 @@ import {
 } from '../../lib/registration'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
+import { publishAdminEventPatch, publishEventPatch, publishPublicEvent } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
-import { broadcastEvent } from './broadcast'
 import { LambdaError } from './lambda'
+import { createPatch } from './patch'
 import { getRegistrationsByEventId } from './registration'
 
 type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
@@ -65,6 +66,32 @@ export const findQualificationStartDate = async (
 }
 
 export const saveEvent = async (data: JsonDogEvent) => dynamoDB.write(data, eventTable)
+
+export const patchEvent = async (
+  eventId: string,
+  existing: JsonDogEvent,
+  next: JsonDogEvent
+): Promise<JsonDogEvent> => {
+  const { changes, remove, set } = createPatch(next, existing)
+  const becomesPublic = existing.state === 'draft' && next.state !== 'draft'
+
+  if (!set && !remove) {
+    return existing
+  }
+
+  await dynamoDB.update(
+    { id: eventId },
+    {
+      ...(set ? { set } : {}),
+      ...(remove ? { remove } : {}),
+    },
+    eventTable
+  )
+
+  await publishEventPatch({ eventId, ...(becomesPublic ? next : changes) }, next.organizer.id)
+
+  return getEvent<JsonDogEvent>(eventId)
+}
 
 /**
  * Map template name to a valid EventClassState
@@ -184,7 +211,8 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   confirmedEvent.entries = entries
   confirmedEvent.members = members
 
-  await broadcastEvent({ classes, entries, eventId, members })
+  await publishPublicEvent({ entries, eventId, members })
+  await publishAdminEventPatch({ classes, entries, eventId, members }, confirmedEvent.organizer.id)
 
   return confirmedEvent
 }

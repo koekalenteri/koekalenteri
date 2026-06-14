@@ -10,10 +10,15 @@ import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import AdminHomePage from './AdminHomePage'
 
 jest.mock('../../api/user')
+jest.mock('../../hooks/useAdminSubscription', () => ({
+  useAdminSubscription: jest.fn(),
+}))
 
 describe('AdminHomePage', () => {
   beforeAll(() => jest.useFakeTimers())
-  afterEach(() => jest.runOnlyPendingTimers())
+  afterEach(() => {
+    jest.runOnlyPendingTimers()
+  })
   afterAll(() => jest.useRealTimers())
 
   it('renders the page when user is logged in', async () => {

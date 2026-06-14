@@ -1,6 +1,7 @@
 import { selector } from 'recoil'
 import { getUser } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
+import { userHasAdminAccess } from '../../../lib/user'
 import { idTokenAtom, userRefreshAtom } from './atoms'
 
 export const userSelector = selector({
@@ -67,7 +68,7 @@ export const hasAdminAccessSelector = selector({
   },
   get: async ({ get }) => {
     const user = get(userSelector)
-    return user?.admin === true || Object.keys(user?.roles ?? {}).length > 0
+    return userHasAdminAccess(user)
   },
   key: 'hasAdminAccess',
 })

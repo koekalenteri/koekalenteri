@@ -42,9 +42,16 @@ const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
 const mockBroadcast = jest.fn()
-jest.unstable_mockModule('../lib/broadcast', () => ({
+const mockBroadcastAdminEvent = jest.fn()
+const mockBroadcastEventRegistrations = jest.fn()
+const mockBroadcastPublicEvent = jest.fn()
+jest.unstable_mockModule('../lib/ws/actions', () => ({
   __esModule: true,
-  broadcastEvent: mockBroadcast,
+  publishAdminEventPatch: mockBroadcastAdminEvent,
+  publishConnectionCounts: mockBroadcast,
+  publishEventPatch: jest.fn(),
+  publishPublicEvent: mockBroadcastPublicEvent,
+  publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
 
 const { default: putRegistrationGroupsLambda } = await import('./handler')
@@ -153,12 +160,40 @@ describe('putRegistrationGroupsLambda', () => {
       },
       'event-table-not-found-in-env'
     )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { id: event.id },
+      expect.objectContaining({
+        set: expect.objectContaining({
+          entries: 7,
+          members: 0,
+        }),
+      }),
+      'event-table-not-found-in-env'
+    )
 
     expect(res.statusCode).toBe(200)
     const resultItems: JsonRegistration[] = JSON.parse(res.body).items
     const resultItem = resultItems.find((r) => r.id === reg.id)
     expect(resultItem?.cancelled).toBe(false)
     expect(resultItem?.group).toEqual(reg.group)
+    expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
+      event.id,
+      expect.arrayContaining([
+        {
+          cancelled: false,
+          eventId: event.id,
+          group: reg.group,
+          id: reg.id,
+        },
+      ]),
+      event.organizer.id
+    )
+    expect(mockBroadcastEventRegistrations).toHaveBeenLastCalledWith(
+      event.id,
+      expect.not.arrayContaining([expect.objectContaining({ dog: expect.anything() })]),
+      event.organizer.id
+    )
   })
 
   it('should move to last place', async () => {
@@ -402,6 +437,17 @@ describe('putRegistrationGroupsLambda', () => {
           members: 0,
         },
       },
+      'event-table-not-found-in-env'
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
+      { id: event.id },
+      expect.objectContaining({
+        set: expect.objectContaining({
+          entries: 5,
+          members: 0,
+        }),
+      }),
       'event-table-not-found-in-env'
     )
 

@@ -12,11 +12,13 @@ import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/ev
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda, response } from '../lib/lambda'
 import {
+  createRegistrationPatches,
   getCancelAuditMessage,
   getReadyRegistrationsByEventId,
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
   Boolean(event.state === state || (cls && event.classes.some((c) => c.class === cls && c.state === state)))
@@ -87,9 +89,11 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   // create a new copy of oldItems, so we can update without touching the original ones
   const updatedItems = await updateItems(oldItems, eventGroups, user)
+  const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
 
   // update event counts
   const confirmedEvent = await updateRegistrations(eventId, updatedItems)
+  await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
   const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
 
   const emails = {

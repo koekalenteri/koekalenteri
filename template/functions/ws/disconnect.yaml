@@ -8,6 +8,8 @@
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref WsConnectionsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
         - !Ref WebSocketPolicy
 
   DisconnectIntegration:

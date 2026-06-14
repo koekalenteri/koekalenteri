@@ -23,6 +23,24 @@ export async function authorize(event?: Partial<APIGatewayProxyEvent>, updateLas
   return user
 }
 
+const getAuthorizerClaims = (event?: Partial<APIGatewayProxyEvent>): Record<string, any> | undefined => {
+  const rawClaims = event?.requestContext?.authorizer?.claims as unknown
+
+  if (!rawClaims) return undefined
+
+  if (typeof rawClaims === 'string') {
+    try {
+      const parsed = JSON.parse(rawClaims)
+      return parsed && typeof parsed === 'object' ? parsed : undefined
+    } catch {
+      console.warn('authorizer.claims was a non-JSON string')
+      return undefined
+    }
+  }
+
+  return typeof rawClaims === 'object' ? rawClaims : undefined
+}
+
 async function updateExistingUser(
   existing: JsonUser,
   props: Omit<Partial<JsonUser>, 'id' | 'email'>,
@@ -49,9 +67,14 @@ async function updateExistingUser(
     ...(updateLastSeen ? { lastSeen: dateString } : {}),
   }
 
-  if (Object.keys(diff(existing, final)).length > 0) {
+  const changedKeys = Object.keys(diff(existing, final))
+  if (changedKeys.length > 0) {
     console.log('updating user', { existing, final, userId: existing.id })
-    await updateUser({ ...final, modifiedAt: dateString, modifiedBy })
+    // Only bump modifiedAt when something meaningful changed (not just lastSeen).
+    // lastSeen updates on every login and must not invalidate dataVersions caches.
+    const onlyLastSeenChanged = changedKeys.every((k) => k === 'lastSeen')
+    const writeModifiedAt = onlyLastSeenChanged ? (existing.modifiedAt ?? dateString) : dateString
+    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy })
   }
 
   return final
@@ -59,22 +82,23 @@ async function updateExistingUser(
 
 async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, updateLastSeen?: boolean) {
   let user: JsonUser | undefined
+  const claims = getAuthorizerClaims(event)
 
-  if (!event?.requestContext?.authorizer?.claims) {
+  if (!claims) {
     console.log('no authorizer in requestContext', event?.requestContext)
     return null
   }
 
-  const cognitoUser = event.requestContext.authorizer?.claims.sub
+  const cognitoUser = claims.sub
   if (!cognitoUser) {
-    console.log('no claims.sub in requestContext.autorizer', event.requestContext.authorizer)
+    console.log('no claims.sub in requestContext.autorizer', event?.requestContext?.authorizer)
     return null
   }
 
-  console.log('claims', event.requestContext.authorizer.claims)
+  console.log('claims', claims)
 
-  const link = await dynamoDB.read<UserLink>({ cognitoUser })
-  const { name, email } = event.requestContext.authorizer.claims
+  const link = await dynamoDB.read<UserLink>({ cognitoUser: String(cognitoUser) })
+  const { name, email } = claims
 
   if (link) {
     // IMPORTANT: When the cognito user is already linked, honor the link.
@@ -163,10 +187,15 @@ export async function getAndUpdateUserByEmail(
       : {}),
     ...(updateLastSeen ? { lastSeen: dateString } : {}),
   }
-  if (Object.keys(diff(existing ?? {}, final)).length > 0) {
+  const changedKeys = Object.keys(diff(existing ?? {}, final))
+  if (changedKeys.length > 0) {
     if (existing) console.log('updating user', { existing, final })
     else console.log('creating user', { ...final })
-    await updateUser({ ...final, modifiedAt: dateString, modifiedBy })
+    // Only bump modifiedAt when something meaningful changed (not just lastSeen).
+    // lastSeen updates on every login and must not invalidate dataVersions caches.
+    const onlyLastSeenChanged = existing !== undefined && changedKeys.every((k) => k === 'lastSeen')
+    const writeModifiedAt = onlyLastSeenChanged ? (existing.modifiedAt ?? dateString) : dateString
+    await updateUser({ ...final, modifiedAt: writeModifiedAt, modifiedBy })
   }
   return final
 }

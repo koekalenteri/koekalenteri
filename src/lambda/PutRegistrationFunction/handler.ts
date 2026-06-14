@@ -17,6 +17,7 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
   clearRegistrationEmailDeliveryStatus,
+  createRegistrationPatch,
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
   getRegistration,
@@ -25,6 +26,7 @@ import {
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const { emailFrom } = CONFIG
 
@@ -183,8 +185,13 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   // Update organizer event stats after registration change
   await updateEventStatsForRegistration(data, existing, confirmedEvent)
 
-  if (cancel || registration.state === 'ready') {
-    await updateRegistrations(registration.eventId)
+  if (update || cancel || registration.state === 'ready') {
+    const updatedEvent = await updateRegistrations(registration.eventId)
+    await publishRegistrationPatches(
+      registration.eventId,
+      [createRegistrationPatch(data, existing)],
+      updatedEvent.organizer.id
+    )
   }
 
   const message = getAuditMessage(cancel, confirm, data, existing)

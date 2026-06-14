@@ -25,9 +25,17 @@ jest.unstable_mockModule('./audit', () => ({
 }))
 
 const mockBroadcast = jest.fn()
-jest.unstable_mockModule('./broadcast', () => ({
+const mockBroadcastAdminEvent = jest.fn()
+const mockBroadcastEventRegistrations = jest.fn()
+const mockBroadcastPublicEvent = jest.fn()
+const mockPublishEventPatch = jest.fn()
+jest.unstable_mockModule('../lib/ws/actions', () => ({
   __esModule: true,
-  broadcastEvent: mockBroadcast,
+  publishAdminEventPatch: mockBroadcastAdminEvent,
+  publishConnectionCounts: mockBroadcast,
+  publishEventPatch: mockPublishEventPatch,
+  publishPublicEvent: mockBroadcastPublicEvent,
+  publishRegistrationPatches: mockBroadcastEventRegistrations,
 }))
 
 // Mock registration module functions
@@ -60,6 +68,7 @@ const {
   getEvent,
   getStateFromTemplate,
   markParticipants,
+  patchEvent,
   saveEvent,
   saveGroup,
   updateRegistrations,
@@ -277,16 +286,24 @@ describe('lib/event', () => {
       mockQuery.mockReset()
       mockRead.mockReset()
       mockBroadcast.mockReset()
+      mockBroadcastAdminEvent.mockReset()
+      mockBroadcastEventRegistrations.mockReset()
+      mockBroadcastPublicEvent.mockReset()
       mockHasPriority.mockReset()
     })
 
     it('updates event entries and members', async () => {
-      const event = { classes: [{ class: 'A' }], id: 'e3', state: 'ready' }
+      const event = {
+        classes: [{ class: 'ALO' }, { class: 'AVO' }],
+        id: 'e3',
+        organizer: { id: 'org-1' },
+        state: 'ready',
+      }
       mockRead.mockResolvedValueOnce(event)
       const regs = [
-        { cancelled: false, class: 'ALO', paidAmount: 1, state: 'ready' },
-        { cancelled: false, class: 'AVO', paidAmount: 0, state: 'ready' },
-      ]
+        { cancelled: false, class: 'ALO', eventId: 'e3', id: 'r1', paidAmount: 1, state: 'ready' },
+        { cancelled: false, class: 'AVO', eventId: 'e3', id: 'r2', paidAmount: 0, state: 'ready' },
+      ] as JsonRegistration[]
       mockQuery.mockResolvedValueOnce(regs)
 
       // Mock hasPriority to return false for all registrations
@@ -295,6 +312,12 @@ describe('lib/event', () => {
       const result = await updateRegistrations('e3')
       expect(result.entries).toBe(2)
       expect(mockUpdate).toHaveBeenCalled()
+      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({ entries: 2, eventId: 'e3', members: 0 })
+      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+        { classes: result.classes, entries: 2, eventId: 'e3', members: 0 },
+        'org-1'
+      )
+      expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
     })
 
     it('avoids noop updates when no changes are detected', async () => {
@@ -338,6 +361,7 @@ describe('lib/event', () => {
           { class: 'AVO', entries: 0, members: 0 },
         ],
         id: 'e5',
+        organizer: { id: 'org-1' },
         state: 'ready',
       }
       mockRead.mockResolvedValueOnce(event)
@@ -392,8 +416,12 @@ describe('lib/event', () => {
         expect.anything()
       )
 
-      // Verify broadcast was called
-      expect(mockBroadcast).toHaveBeenCalled()
+      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({ entries: 3, eventId: 'e5', members: 1 })
+      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+        { classes: result.classes, entries: 3, eventId: 'e5', members: 1 },
+        'org-1'
+      )
+      expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
     })
 
     it('handles empty updatedRegistrations array', async () => {
@@ -405,6 +433,7 @@ describe('lib/event', () => {
         entries: 5,
         id: 'e6',
         members: 2,
+        organizer: { id: 'org-1' },
         state: 'ready',
       }
       mockRead.mockResolvedValueOnce(event)
@@ -807,6 +836,253 @@ describe('lib/event', () => {
       expect(result[1].group?.number).toBe(1)
 
       expect(mockAudit).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('patchEvent', () => {
+    beforeEach(() => {
+      mockUpdate.mockReset()
+      mockPublishEventPatch.mockReset()
+      mockRead.mockReset()
+    })
+
+    it('returns existing event and does nothing for no-op patch', async () => {
+      const existing = { id: 'e1', name: 'Event' } as JsonDogEvent
+
+      const result = await patchEvent(existing.id, existing, { ...existing })
+
+      expect(result).toEqual(existing)
+      expect(mockUpdate).not.toHaveBeenCalled()
+      expect(mockPublishEventPatch).not.toHaveBeenCalled()
+      expect(mockRead).not.toHaveBeenCalled()
+    })
+
+    it('updates set/remove fields and publishes admin patch', async () => {
+      const existing = {
+        id: 'e2',
+        name: 'Old name',
+        organizer: { id: 'org-1', name: 'Org' },
+        qualificationStartDate: '2024-01-01T00:00:00Z',
+      } as JsonDogEvent
+      const next = {
+        ...existing,
+        name: 'New name',
+        qualificationStartDate: undefined,
+      } as JsonDogEvent
+      const persisted = { ...next } as JsonDogEvent
+      mockRead.mockResolvedValueOnce(persisted)
+
+      const result = await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          remove: ['qualificationStartDate'],
+          set: { name: 'New name' },
+        },
+        expect.anything()
+      )
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          eventId: existing.id,
+          name: 'New name',
+          qualificationStartDate: undefined,
+        },
+        'org-1'
+      )
+      expect(result).toEqual(persisted)
+    })
+
+    it('updates nested field changes partially and publishes nested admin patch', async () => {
+      const existing = {
+        contactInfo: {
+          secretary: { email: 'old@example.com', name: 'Secretary' },
+        },
+        id: 'e3',
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        contactInfo: {
+          secretary: { email: 'new@example.com', name: 'Secretary' },
+        },
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          set: {
+            'contactInfo.secretary.email': 'new@example.com',
+          },
+        },
+        expect.anything()
+      )
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          contactInfo: {
+            secretary: { email: 'new@example.com' },
+          },
+          eventId: existing.id,
+        },
+        'org-1'
+      )
+    })
+
+    it('replaces changed arrays instead of persisting sparse array diffs', async () => {
+      const existing = {
+        classes: [
+          { class: 'ALO', entries: 1, members: 0 },
+          { class: 'AVO', entries: 2, members: 0 },
+        ],
+        id: 'e4',
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        classes: [
+          { class: 'ALO', entries: 3, members: 0 },
+          { class: 'AVO', entries: 2, members: 0 },
+        ],
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          set: {
+            classes: next.classes,
+          },
+        },
+        expect.anything()
+      )
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          classes: next.classes,
+          eventId: existing.id,
+        },
+        'org-1'
+      )
+    })
+
+    it('publishes full replacement arrays when array length changes', async () => {
+      const existing = {
+        classes: [{ class: 'ALO', entries: 1, members: 0 }],
+        id: 'e5',
+        judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        classes: [],
+        judges: [
+          { id: 842408, name: 'Fontell Ari-Pekka', official: true },
+          { id: 653323, name: 'Uusimäki Pekka', official: true },
+        ],
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          classes: next.classes,
+          eventId: existing.id,
+          judges: next.judges,
+        },
+        'org-1'
+      )
+    })
+
+    it('publishes full nested replacement arrays', async () => {
+      const existing = {
+        classes: [
+          { class: 'ALO', judge: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }] },
+          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+        ],
+        id: 'e6',
+        organizer: { id: 'org-1', name: 'Org' },
+      } as JsonDogEvent
+
+      const next = {
+        ...existing,
+        classes: [
+          {
+            class: 'ALO',
+            judge: [
+              { id: 842408, name: 'Fontell Ari-Pekka', official: true },
+              { id: 653323, name: 'Uusimäki Pekka', official: true },
+            ],
+          },
+          { class: 'AVO', judge: [{ id: 653323, name: 'Uusimäki Pekka', official: true }] },
+        ],
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          classes: next.classes,
+          eventId: existing.id,
+        },
+        'org-1'
+      )
+    })
+
+    it('publishes full event patch when draft becomes public', async () => {
+      const existing = {
+        classes: [{ class: 'ALO', date: '2026-06-01', entries: 0, members: 0 }],
+        cost: 10,
+        description: 'Description',
+        endDate: '2026-06-01',
+        eventType: 'NOME-B',
+        id: 'e7',
+        judges: [{ id: 842408, name: 'Fontell Ari-Pekka', official: true }],
+        location: 'Helsinki',
+        name: 'Draft event',
+        official: { id: 'official-1', name: 'Official' },
+        organizer: { id: 'org-1', name: 'Org' },
+        places: 10,
+        secretary: { id: 'secretary-1', name: 'Secretary' },
+        startDate: '2026-06-01',
+        state: 'draft',
+      } as JsonDogEvent
+      const next = {
+        ...existing,
+        state: 'tentative',
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: existing.id },
+        {
+          set: { state: 'tentative' },
+        },
+        expect.anything()
+      )
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          eventId: existing.id,
+          ...next,
+        },
+        'org-1'
+      )
     })
   })
 

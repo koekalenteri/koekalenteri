@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
+import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, isRegistrationClass } from '../../lib/registration'
 import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
@@ -25,6 +26,7 @@ import EventNotFound from './components/EventNotFound'
 import ClassEntrySelection from './eventViewPage/ClassEntrySelection'
 import EventDetailsDialog from './eventViewPage/EventDetailsDialog'
 import InfoPanel from './eventViewPage/InfoPanel'
+import OtherViewers from './eventViewPage/OtherViewers'
 import { RefundDailog } from './eventViewPage/RefundDialog'
 import RegistrationCreateDialog from './eventViewPage/RegistrationCreateDialog'
 import RegistrationEditDialog from './eventViewPage/RegistrationEditDialog'
@@ -52,6 +54,7 @@ export default function EventViewPage() {
 
   const params = useParams()
   const eventId = params.id ?? ''
+  const { viewers } = useEventSubscription(eventId)
   const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
   const event = useRecoilValue(adminConfirmedEventSelector(eventId))
   const actions = useAdminRegistrationActions(eventId)
@@ -117,6 +120,10 @@ export default function EventViewPage() {
   }, [eventId, setSelectedEventId])
 
   useEffect(() => {
+    actions.refreshIfStale()
+  }, [actions.refreshIfStale])
+
+  useEffect(() => {
     if (!allClasses.length) {
       return
     }
@@ -138,6 +145,8 @@ export default function EventViewPage() {
 
   return (
     <>
+      <OtherViewers viewers={viewers} />
+
       <Grid container justifyContent="end">
         <Grid flexGrow={1}>
           <Title event={event} />

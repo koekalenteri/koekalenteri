@@ -18,6 +18,7 @@ import { isEventDeletable } from '../../lib/event'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
+import { useRecentUpdateRowClassName } from '../recoil/recentUpdates'
 import FullPageFlex from './components/FullPageFlex'
 import { QuickSearchToolbar } from './components/QuickSearchToolbar'
 import AutoButton from './eventListPage/AutoButton'
@@ -47,6 +48,7 @@ export default function EventListPage() {
   const columns = useEventListColumns()
   const orgs = useRecoilValue(adminUserEventOrganizersSelector)
   const [orgId, setOrgId] = useRecoilState(adminEventOrganizerIdAtom)
+  const getRowClassName = useRecentUpdateRowClassName('admin:event')
   // order matters here, need to use dependencies before this one
   const events = useRecoilValue(adminUserFilteredEventsSelector)
   const options = useMemo(() => [{ id: '', name: 'Kaikki' }, ...orgs], [orgs])
@@ -161,6 +163,7 @@ export default function EventListPage() {
         autoPageSize
         columns={columns}
         columnVisibilityModel={visibilityModel}
+        getRowClassName={getRowClassName}
         onColumnVisibilityModelChange={setVisibilityModel}
         onRowDoubleClick={handleDoubleClick}
         onRowSelectionModelChange={handleSelectionModeChange}

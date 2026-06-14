@@ -9,6 +9,11 @@ export const adminBackgroundActionsRunningAtom = atom<boolean>({
   key: 'adminBackgroundActionsRunningAtom',
 })
 
+export const adminEventRegistrationsFetchedAtAtom = atomFamily<Date | undefined, string>({
+  default: undefined,
+  key: 'adminEventRegistrationsFetchedAt',
+})
+
 export const adminRegistrationIdAtom = atom<string | undefined>({
   default: undefined,
   effects: [logEffect, localStorageEffect],

@@ -18,6 +18,7 @@ jest.unstable_mockModule('../lib/auth', () => ({
 jest.unstable_mockModule('../lib/event', () => ({
   findQualificationStartDate: jest.fn(),
   getEvent: jest.fn(),
+  patchEvent: jest.fn(),
   saveEvent: jest.fn(),
   updateRegistrations: jest.fn(),
 }))
@@ -29,9 +30,12 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
 
-const { findQualificationStartDate, getEvent, saveEvent, updateRegistrations } = await import('../lib/event')
+const { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } = await import(
+  '../lib/event'
+)
 const findQualificationStartDateMock = findQualificationStartDate as jest.Mock<typeof findQualificationStartDate>
 const getEventMock = getEvent as jest.Mock<typeof getEvent>
+const patchEventMock = patchEvent as jest.Mock<typeof patchEvent>
 const saveEventMock = saveEvent as jest.Mock<typeof saveEvent>
 const updateRegistrationsMock = updateRegistrations as jest.Mock<typeof updateRegistrations>
 
@@ -185,7 +189,7 @@ describe('putEventLambda', () => {
 
     expect(getEventMock).toHaveBeenCalledWith('existing')
     expect(updateRegistrationsMock).not.toHaveBeenCalled()
-    expect(saveEventMock).toHaveBeenCalledWith({
+    expect(patchEventMock).toHaveBeenCalledWith('existing', mockEvent, {
       ...mockEvent,
       eventType: 'TEST',
       modifiedAt: '2025-03-22T10:45:33.000Z',
@@ -201,12 +205,16 @@ describe('putEventLambda', () => {
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ entries: 11, id: 'existing' }))
 
     expect(updateRegistrationsMock).toHaveBeenCalledWith('existing')
-    expect(saveEventMock).toHaveBeenCalledWith({
-      ...mockEvent,
-      entries: 11,
-      modifiedAt: '2025-03-22T10:45:33.000Z',
-      modifiedBy: 'Test User',
-    })
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      { ...mockEvent, entries: 10 },
+      {
+        ...mockEvent,
+        entries: 11,
+        modifiedAt: '2025-03-22T10:45:33.000Z',
+        modifiedBy: 'Test User',
+      }
+    )
     expect(res.statusCode).toEqual(200)
   })
 
@@ -223,15 +231,24 @@ describe('putEventLambda', () => {
       constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-04-01T00:00:00Z', id: 'existing' })
     )
 
-    expect(saveEventMock).toHaveBeenCalledWith({
-      ...mockEvent,
-      entryEndDate: '2025-04-01T00:00:00Z',
-      entryOrigEndDate: '2025-03-25T00:00:00Z',
-      entryStartDate: '2025-03-01T00:00:00Z',
-      modifiedAt: '2025-03-22T10:45:33.000Z',
-      modifiedBy: 'Test User',
-      state: 'confirmed',
-    })
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({
+        ...mockEvent,
+        entryEndDate: '2025-03-25T00:00:00Z',
+        entryStartDate: '2025-03-01T00:00:00Z',
+        state: 'confirmed',
+      }),
+      {
+        ...mockEvent,
+        entryEndDate: '2025-04-01T00:00:00Z',
+        entryOrigEndDate: '2025-03-25T00:00:00Z',
+        entryStartDate: '2025-03-01T00:00:00Z',
+        modifiedAt: '2025-03-22T10:45:33.000Z',
+        modifiedBy: 'Test User',
+        state: 'confirmed',
+      }
+    )
     expect(res.statusCode).toEqual(200)
   })
 
@@ -243,13 +260,21 @@ describe('putEventLambda', () => {
       constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-01-01T00:00:00Z', id: 'existing' })
     )
 
-    expect(saveEventMock).toHaveBeenCalledWith({
-      ...mockEvent,
-      entryEndDate: '2025-01-01T00:00:00Z',
-      modifiedAt: '2025-03-22T10:45:33.000Z',
-      modifiedBy: 'Test User',
-      state: 'confirmed',
-    })
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      {
+        ...mockEvent,
+        entryEndDate: '2025-02-02T00:00:00Z',
+        state: 'confirmed',
+      },
+      {
+        ...mockEvent,
+        entryEndDate: '2025-01-01T00:00:00Z',
+        modifiedAt: '2025-03-22T10:45:33.000Z',
+        modifiedBy: 'Test User',
+        state: 'confirmed',
+      }
+    )
     expect(res.statusCode).toEqual(200)
   })
 
@@ -266,14 +291,23 @@ describe('putEventLambda', () => {
       constructAPIGwEvent<Partial<JsonDogEvent>>({ entryEndDate: '2025-02-02T00:00:00Z', id: 'existing' })
     )
 
-    expect(saveEventMock).toHaveBeenCalledWith({
-      ...mockEvent,
-      entryEndDate: '2025-02-02T00:00:00Z',
-      entryOrigEndDate: '2024-06-01T00:00:00Z',
-      modifiedAt: '2025-03-22T10:45:33.000Z',
-      modifiedBy: 'Test User',
-      state: 'confirmed',
-    })
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      {
+        ...mockEvent,
+        entryEndDate: '2025-01-01T00:00:00Z',
+        entryOrigEndDate: '2024-06-01T00:00:00Z',
+        state: 'confirmed',
+      },
+      {
+        ...mockEvent,
+        entryEndDate: '2025-02-02T00:00:00Z',
+        entryOrigEndDate: '2024-06-01T00:00:00Z',
+        modifiedAt: '2025-03-22T10:45:33.000Z',
+        modifiedBy: 'Test User',
+        state: 'confirmed',
+      }
+    )
     expect(res.statusCode).toEqual(200)
   })
 
@@ -285,7 +319,9 @@ describe('putEventLambda', () => {
       constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-08-20T00:00:00.000Z' })
     )
 
-    expect(saveEventMock).toHaveBeenCalledWith(
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' }),
       expect.objectContaining({
         season: '2025',
         startDate: '2025-08-20T00:00:00.000Z',
@@ -302,7 +338,9 @@ describe('putEventLambda', () => {
       constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', location: 'New Location' })
     )
 
-    expect(saveEventMock).toHaveBeenCalledWith(
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' }),
       expect.objectContaining({
         season: '2024',
         startDate: '2024-06-15T00:00:00.000Z',
@@ -324,15 +362,23 @@ describe('putEventLambda', () => {
 
     expect(findQualificationStartDateMock).toHaveBeenCalledWith('NOME-B SM', entryEndDate)
     expect(updateRegistrationsMock).not.toHaveBeenCalled()
-    expect(saveEventMock).toHaveBeenCalledWith({
-      ...mockEvent,
-      description: 'testing',
-      entryEndDate,
-      eventType: 'NOME-B SM',
-      modifiedAt: '2025-03-22T10:45:33.000Z',
-      modifiedBy: 'Test User',
-      qualificationStartDate,
-    })
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({
+        ...mockEvent,
+        entryEndDate,
+        eventType: 'NOME-B SM',
+      }),
+      {
+        ...mockEvent,
+        description: 'testing',
+        entryEndDate,
+        eventType: 'NOME-B SM',
+        modifiedAt: '2025-03-22T10:45:33.000Z',
+        modifiedBy: 'Test User',
+        qualificationStartDate,
+      }
+    )
     expect(res.statusCode).toEqual(200)
   })
 })

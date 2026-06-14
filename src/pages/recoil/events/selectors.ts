@@ -144,10 +144,9 @@ export const filterEventClassesSelector = selector({
 const eventOrganizersSelector = selector({
   get: ({ get }) => {
     const events = get(eventsAtom)
-    return uniqueFn(
-      events.map((event) => event.organizer),
-      (a, b) => a.id === b.id
-    ).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    const organizers = events.map((event) => event.organizer).filter((organizer) => organizer?.id && organizer.name)
+
+    return uniqueFn(organizers, (a, b) => a.id === b.id).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
   key: 'eventOrganizers',
 })
@@ -157,7 +156,10 @@ export const filterOrganizersSelector = selector({
     const events = get(filteredEventsForOrganizerSelector)
     const organizers = get(eventOrganizersSelector)
     const filter = get(eventFilterAtom)
-    const usedOrganizerIds = unique<string>([...filter.organizer, ...events.map((event) => event.organizer.id)])
+    const usedOrganizerIds = unique<string>([
+      ...filter.organizer,
+      ...events.map((event) => event.organizer?.id).filter((id): id is string => !!id),
+    ])
 
     return organizers
       .filter((o) => usedOrganizerIds.includes(o.id))

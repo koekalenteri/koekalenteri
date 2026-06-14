@@ -198,7 +198,9 @@
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"
     },
-    "statusText": ""
+    "statusText": "",
+    "viewerBanner_one": "Myös {{names}} katsoo tätä tapahtumaa.",
+    "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
   },
   "eventInfo": "Tapahtuman tiedot",
   "events": "Tapahtumat",

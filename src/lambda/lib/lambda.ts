@@ -64,9 +64,9 @@ export const response = <T = unknown>(
   body: T,
   event: APIGatewayProxyEvent
 ): APIGatewayProxyResult => {
-  const acceptEncoding = event.headers['Accept-Encoding'] ?? ''
+  const acceptEncoding = event.headers?.['Accept-Encoding'] ?? event.headers?.['accept-encoding'] ?? ''
 
-  const result: APIGatewayProxyResult = {
+  const result: APIGatewayProxyResult & { headers: NonNullable<APIGatewayProxyResult['headers']> } = {
     body: JSON.stringify(body),
     headers: {
       'Access-Control-Allow-Origin': allowOrigin(event),
@@ -78,7 +78,7 @@ export const response = <T = unknown>(
   if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096) {
     result.isBase64Encoded = true
     result.body = gzipSync(result.body).toString('base64')
-    result.headers!['Content-Encoding'] = 'gzip'
+    result.headers['Content-Encoding'] = 'gzip'
   }
 
   return result

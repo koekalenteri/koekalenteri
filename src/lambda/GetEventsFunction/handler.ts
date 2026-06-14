@@ -2,18 +2,11 @@ import type { JsonDogEvent } from '../../types'
 import { formatDate, TIME_ZONE, zonedEndOfDay, zonedParseDate } from '../../i18n/dates'
 import { sanitizeDogEvent } from '../../lib/event'
 import { CONFIG } from '../config'
+import { changedSince, parseDateParam } from '../lib/incremental'
 import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
-
-function parseDateParam(value: string | undefined): Date | undefined {
-  if (!value) return undefined
-
-  const asNumber = Number(value)
-  const d = Number.isFinite(asNumber) ? new Date(asNumber) : new Date(value)
-  return Number.isNaN(d.getTime()) ? undefined : d
-}
 
 function inRequestedRange(item: { startDate: string; endDate?: string }, start?: Date, end?: Date) {
   const eventStart = new Date(item.startDate)
@@ -86,20 +79,7 @@ const getEventsLambda = lambda('getEvents', async (event) => {
 
   if (since) {
     const rangedItems = publicItems.filter((item) => inRequestedRange(item, start, end))
-    const changedEvents = rangedItems.filter((item) => {
-      const modifiedAt = (item as any).modifiedAt
-      if (typeof modifiedAt !== 'string') return true
-      const modifiedAtDate = new Date(modifiedAt)
-      return Number.isNaN(modifiedAtDate.getTime()) || modifiedAtDate >= since
-    })
-    const unchangedIds = rangedItems
-      .filter((item) => {
-        const modifiedAt = (item as any).modifiedAt
-        if (typeof modifiedAt !== 'string') return false
-        const modifiedAtDate = new Date(modifiedAt)
-        return !Number.isNaN(modifiedAtDate.getTime()) && modifiedAtDate < since
-      })
-      .map((item) => item.id)
+    const { changed: changedEvents, unchangedIds } = changedSince(rangedItems, since)
 
     return response(200, { events: changedEvents, unchangedIds }, event)
   }

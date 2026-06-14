@@ -1,10 +1,11 @@
 import type { User, UserWithRoles } from '../../../../types'
 import i18next from 'i18next'
 import { selector, selectorFamily, waitForAll } from 'recoil'
+import { userHasAdminAccess } from '../../../../lib/user'
 import { unique } from '../../../../lib/utils'
 import { adminUserOrgIdsSelector, isAdminSelector, userSelector } from '../../../recoil'
-import { adminEventOrganizersSelector, adminFilteredEventsSelector } from '../events'
-import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers'
+import { adminEventOrganizersSelector, adminFilteredEventsSelector } from '../events/selectors'
+import { adminEventOrganizerIdAtom, adminOrganizersAtom, adminUsersOrganizerIdAtom } from '../organizers/atoms'
 import { adminUserFilterAtom, adminUserIdAtom, adminUsersAtom } from './atoms'
 
 export const adminUsersOrganizersSelector = selector({
@@ -53,6 +54,22 @@ export const adminFilteredUsersSelector = selector({
     return result
   },
   key: 'adminFilteredUsers',
+})
+
+export const canReadWebsocketAdminUsers = (
+  user?: { id?: string; admin?: boolean; roles?: Record<string, unknown> } | null
+) => Boolean(user?.id && userHasAdminAccess(user))
+
+export const websocketAdminUsersSelector = selector({
+  get: ({ get }) => {
+    const currentUser = get(userSelector)
+    if (!canReadWebsocketAdminUsers(currentUser)) {
+      return []
+    }
+
+    return get(adminUsersAtom)
+  },
+  key: 'websocketAdminUsers',
 })
 
 const adminUserSelector = selectorFamily<User | undefined, string | undefined>({

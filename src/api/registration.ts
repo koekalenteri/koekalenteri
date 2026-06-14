@@ -8,8 +8,30 @@ import type {
 } from '../types'
 import http, { withToken } from './http'
 
-export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]> {
-  return http.get<Registration[]>(`/admin/registration/${eventId}`, withToken({ signal }, token))
+export type IncrementalRegistrationsResponse = {
+  registrations: Registration[]
+  unchangedIds: string[]
+}
+
+export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
+export async function getRegistrations(
+  eventId: string,
+  token: string,
+  signal: AbortSignal | undefined,
+  since: Date
+): Promise<IncrementalRegistrationsResponse>
+export async function getRegistrations(
+  eventId: string,
+  token: string,
+  signal?: AbortSignal,
+  since?: Date
+): Promise<Registration[] | IncrementalRegistrationsResponse> {
+  const query = since ? `?since=${since.getTime()}` : ''
+
+  return http.get<Registration[] | IncrementalRegistrationsResponse>(
+    `/admin/registration/${eventId}${query}`,
+    withToken({ signal }, token)
+  )
 }
 
 export async function getRegistration(

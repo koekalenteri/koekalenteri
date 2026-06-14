@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import { HEADER_HEIGHT } from '../../assets/Theme'
+import { useAdminSubscription } from '../../hooks/useAdminSubscription'
 import Header from '../components/Header'
 import LoadingIndicator from '../components/LoadingIndicator'
 import { SideMenu } from '../components/SideMenu'
@@ -16,6 +17,8 @@ export default function AdminHomePage() {
 
   const closeMenu = () => setMenuOpen(false)
   const toggleMenu = () => setMenuOpen(!menuOpen)
+
+  useAdminSubscription()
 
   useEffect(() => {
     if (!hasAccess) actions.login()

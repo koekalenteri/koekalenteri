@@ -2,7 +2,7 @@ import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -15,6 +15,20 @@ import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
 import EventViewPage from './EventViewPage'
 import { adminEventClassAtom, adminEventIdAtom } from './recoil'
 
+jest.mock('../../hooks/useEventSubscription', () => ({
+  useEventSubscription: jest.fn(() => ({ viewers: [] })),
+}))
+
+jest.mock('../recoil/user/selectors', () => {
+  const { selector } = jest.requireActual('recoil')
+  return {
+    userSelector: selector({
+      get: () => ({ id: 'user1', name: 'Current User' }),
+      key: 'userSelectorEventViewPageTest',
+    }),
+  }
+})
+
 jest.mock('../../api/event')
 jest.mock('../../api/eventType')
 jest.mock('../../api/judge')
@@ -25,9 +39,17 @@ jest.mock('../../api/email')
 jest.mock('../../api/user')
 
 describe('EventViewPage', () => {
+  const { useEventSubscription } = jest.requireMock('../../hooks/useEventSubscription') as {
+    useEventSubscription: jest.Mock
+  }
+
   beforeAll(() => jest.useFakeTimers())
   afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
+
+  beforeEach(() => {
+    useEventSubscription.mockReturnValue({ viewers: [] })
+  })
 
   it('renders properly for event without classes', async () => {
     const routes: RouteObject[] = [
@@ -120,5 +142,41 @@ describe('EventViewPage', () => {
 
     await flushPromises()
     expect(container).toMatchSnapshot()
+  })
+
+  it('shows other viewers and hides the current user from the viewer banner', async () => {
+    useEventSubscription.mockReturnValue({
+      viewers: [
+        { name: 'Current User', userId: 'user1' },
+        { name: 'Viewer Two', userId: 'user2' },
+      ],
+    })
+
+    const routes: RouteObject[] = [
+      {
+        element: <EventViewPage />,
+        path: Path.admin.viewEvent(),
+      },
+    ]
+
+    render(
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
+          <RecoilRoot>
+            <Suspense fallback={<div>loading...</div>}>
+              <SnackbarProvider>
+                <ConfirmProvider>
+                  <DataMemoryRouter initialEntries={[Path.admin.viewEvent(eventWithStaticDates.id)]} routes={routes} />
+                </ConfirmProvider>
+              </SnackbarProvider>
+            </Suspense>
+          </RecoilRoot>
+        </LocalizationProvider>
+      </ThemeProvider>
+    )
+
+    await flushPromises()
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
+    expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
   })
 })

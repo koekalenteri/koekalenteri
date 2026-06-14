@@ -2581,7 +2581,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                         class="MuiBox-root css-tjecz8"
                       >
                         <div
-                          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
+                          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-6cjfdi-MuiDataGrid-root"
                           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                         >
                           <div
@@ -5328,7 +5328,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                         class="MuiBox-root css-tjecz8"
                       >
                         <div
-                          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-qwag20-MuiDataGrid-root"
+                          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-6cjfdi-MuiDataGrid-root"
                           style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
                         >
                           <div

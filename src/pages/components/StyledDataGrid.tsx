@@ -3,6 +3,8 @@ import type { DataGridProps } from '@mui/x-data-grid'
 import { styled } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
+import { recentUpdateFlash } from '../../assets/highlight'
+import { RECENTLY_UPDATED_ROW_CLASS_NAME } from '../recoil/recentUpdates'
 
 const DataGridWithDefaults = (props: DataGridProps) => {
   const [page, setPage] = useState(0)
@@ -42,6 +44,15 @@ const StyledDataGrid = styled(DataGridWithDefaults)(({ theme }: { theme: Theme }
     },
     '& .MuiDataGrid-row.Mui-selected:hover': {
       backgroundColor: theme.palette.background.hover,
+    },
+    [`& .MuiDataGrid-row.${RECENTLY_UPDATED_ROW_CLASS_NAME} > .MuiDataGrid-cell`]: {
+      animation: `${recentUpdateFlash} 2s ease-out`,
+    },
+    [`@media (prefers-reduced-motion: reduce)`]: {
+      [`& .MuiDataGrid-row.${RECENTLY_UPDATED_ROW_CLASS_NAME} > .MuiDataGrid-cell`]: {
+        animation: 'none',
+        backgroundColor: theme.palette.background.ok,
+      },
     },
   }
 })
