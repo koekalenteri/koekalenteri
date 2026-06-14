@@ -197,6 +197,8 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
   entryEndDate
 ): QualifyingResults => {
   /**
+   * Noutajien SM-kokeiden karsintaohje, 15.3 NOWT MESTARUUS:
+   *
    * Kokeeseen ovat oikeutettuja ilmoittautumaan Suomessa rekisteröidyt noutajat, jotka ovat saavuttaneet KVA-WT arvon
    * tai vähintään yhden VOI1-tuloksen WT-kokeessa, joka on saatu kokeen ilmoittautumisajan päättymistä
    * edeltävän 12 kuukauden aikana.
@@ -212,19 +214,37 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
    *
    * Tasapistetilanteissa kokeen järjestäjä suorittaa arvonnan.
    *
-   * TODO: Edellisen vuoden WTWmestarilla on oikeus osallistua kokeeseen ilman tulosvaatimuksia.
+   * TODO: Edellisen vuoden WTW-mestarilla on oikeus osallistua kokeeseen ilman tulosvaatimuksia.
+   *
+   * Karsintaohjeen pisteytystaulukossa arvonimi on "KVA-WT", mutta Kennelliiton valionarvosäännöissä arvonimen
+   * virallinen lyhenne on "FI KVA-WT". Sovellus tallentaa arvonimen muodossa "FI KVA-WT".
+   *
+   * Tämä funktio mallintaa ilmoittautumiskelpoisuuden ja karsintapisteet. Vanha FI KVA-WT oikeuttaa
+   * ilmoittautumaan, mutta karsintapisteitä kertyy vain 12 kuukauden jakson tuloksista.
+   *
+   * TODO: Tee käyttöliittymässä selväksi, ketkä ovat oikeutettuja ohittamaan karsinnan:
+   * - KVA-WT koira, jolla on yksi pisteisiin oikeuttava tulos tältä jaksolta.
+   *
+   * TODO: Edellisen vuoden WTW-mestarin osallistumisoikeus tarvitsee erillisen tiedon, koska mestari voi olla
+   * oikeutettu ilmoittautumaan ilman KVA-WT-arvoa tai VOI1-tulosta.
+   *
+   * TODO: Tasapistetilanteen arvonta.
    */
 
   const maxResults = 5
   const { minResultDate, maxResultDate } = getNOWT_CH_RankingPeriod(entryEndDate ?? new Date())
 
+  const isWithinRankingPeriod = (result: TestResult | ManualTestResult) =>
+    result.date >= minResultDate && result.date <= maxResultDate
+
+  const isNOWTChampionTitle = (result: TestResult | ManualTestResult) =>
+    result.type === 'NOWT' && result.class === 'VOI' && result.result === 'FI KVA-WT'
+
   const resultFilter = (result: TestResult | ManualTestResult) =>
     result.type === 'NOWT' &&
     result.class === 'VOI' &&
-    ((result.date >= minResultDate &&
-      result.date <= maxResultDate &&
-      ['VOI1', 'VOI2', 'VOI3'].includes(result.result)) ||
-      result.result === 'FI KVA-WT')
+    isWithinRankingPeriod(result) &&
+    (['VOI1', 'VOI2', 'VOI3'].includes(result.result) || isNOWTChampionTitle(result))
 
   const resultPoints = (result: TestResult | ManualTestResult) => {
     if (result.result === 'FI KVA-WT') return 6
@@ -238,13 +258,22 @@ export const NOWT_CH_requirements: EventResultRequirementFn = (
     return 0
   }
 
-  const relevant = getRelevantRankingResults({
+  const rankingResults = getRelevantRankingResults({
     manualResults,
     maxResults,
     officialResults,
     resultFilter,
     resultPoints,
   })
+  const nonRankingChampionResults = officialResults
+    .filter((result) => isNOWTChampionTitle(result) && !isWithinRankingPeriod(result))
+    .map((result) => toQualifyingResult(result, true, 0))
+    .concat(
+      manualResults
+        .filter((result) => isNOWTChampionTitle(result) && !isWithinRankingPeriod(result))
+        .map((result) => toQualifyingResult(result, false, 0))
+    )
+  const relevant = rankingResults.concat(nonRankingChampionResults)
 
   const qualifies = relevant.some((r) => r.result === 'VOI1' || r.result === 'FI KVA-WT')
 
