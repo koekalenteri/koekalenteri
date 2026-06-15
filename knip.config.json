@@ -7,7 +7,9 @@
         "@aws-amplify/core",
         "@codemirror/lang-html",
         "@emnapi/core",
-        "@emnapi/runtime"
+        "@emnapi/runtime",
+        "cloudflared",
+        "husky"
       ],
       "entry": [
         "src/lambda/BackfillEventStatsFunction/handler.ts",

@@ -53,7 +53,7 @@ export const allowOrigin = (event: APIGatewayProxyEvent) => {
   if (origin?.endsWith('koekalenteri.snj.fi')) {
     return origin
   }
-  if (origin === 'http://localhost:3000' && isDevStage()) {
+  if ((origin === 'http://localhost:3000' || origin === 'https://localhost:3000') && isDevStage()) {
     return origin
   }
   return 'https://koekalenteri.snj.fi'
@@ -75,7 +75,8 @@ export const response = <T = unknown>(
     statusCode: statusCode,
   }
 
-  if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096) {
+  // Not compressing on local dev, as sam local does not work properly
+  if (result.body && acceptEncoding.includes('gzip') && result.body.length > 4096 && CONFIG.stackName !== 'local') {
     result.isBase64Encoded = true
     result.body = gzipSync(result.body).toString('base64')
     result.headers['Content-Encoding'] = 'gzip'

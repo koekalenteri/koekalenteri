@@ -36,6 +36,7 @@ exports[`BasicInfoSection should render 1`] = `
         </p>
         <p
           class="MuiFormHelperText-root css-1snnebk-MuiFormHelperText-root"
+          data-testid="info-message"
         >
           validation.event.effectiveRules date
         </p>

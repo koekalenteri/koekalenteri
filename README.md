@@ -45,7 +45,8 @@ Following commands install dependencies to the project and initialize a docker n
 
 ```bash
 npm ci
-npm run init
+npm run dynamodb:start
+npm run dynamodb:seed
 ```
 
 ### Local development
@@ -66,7 +67,7 @@ Note: SAM local is very slow, because it rebuilds lambda on every access.
 #### Start frontend only
 
 ```bash
-npm start-frontned
+npm start-frontend
 ```
 
 This command starts only the frontend.

@@ -9,10 +9,28 @@ import type {
   RefundRequest,
 } from '../types/paytrail'
 import { createHmac } from 'node:crypto'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { nanoid } from 'nanoid'
 import { currentFinnishTime } from '../../i18n/dates'
 import { keysOf } from '../../lib/typeGuards'
+import { CONFIG } from '../config'
 import { getPaytrailConfig } from './secrets'
+
+// Helper function to read tunnel URLs from files
+function getTunnelUrlFromFile(filename: string): string | null {
+  try {
+    if (process.env.USE_CLOUDFLARED === 'true') {
+      const filePath = join('/opt/nodejs', filename)
+      if (existsSync(filePath)) {
+        return readFileSync(filePath, 'utf8').trim()
+      }
+    }
+  } catch (error) {
+    console.warn(`Failed to read tunnel URL from ${filename}:`, error)
+  }
+  return null
+}
 
 const PAYTRAIL_API_ENDPOINT = 'https://services.paytrail.com'
 
@@ -135,9 +153,26 @@ const createCallbackUrls = (baseUrl: string): CallbackUrl => ({
   success: `${baseUrl}/success`,
 })
 
-export const createPaymentRedirectUrls = (origin: string): CallbackUrl => createCallbackUrls(`${origin}/p`)
+export const createPaymentRedirectUrls = (origin: string): CallbackUrl => {
+  // Check if we're in development mode with tunnel
+  const frontendTunnelUrl = getTunnelUrlFromFile('.frontend-tunnel-url')
+  if (frontendTunnelUrl && CONFIG.stackName !== 'koekalenteri-prod') {
+    console.log(`Using frontend tunnel URL for Paytrail redirects: ${frontendTunnelUrl}`)
+    return createCallbackUrls(`${frontendTunnelUrl}/p`)
+  }
 
-export const createPaymentCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/payment`)
+  return createCallbackUrls(`${origin}/p`)
+}
+
+export const createPaymentCallbackUrls = (host: string): CallbackUrl => {
+  const tunnelUrl = getTunnelUrlFromFile('.backend-tunnel-url')
+  if (tunnelUrl && CONFIG.stackName !== 'koekalenteri-prod') {
+    console.log(`Using tunnel URL for Paytrail callbacks: ${tunnelUrl}`)
+    return createCallbackUrls(`${tunnelUrl}/payment`)
+  }
+
+  return createCallbackUrls(`https://${host}/payment`)
+}
 
 type CreatePaymentParams = {
   apiHost: string
@@ -178,13 +213,19 @@ export const createPayment = async ({
   return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
 }
 
-/**
- * @lintignore
- */
 export const getPayment = async (transactionId: string): Promise<GetPaymentResponse | undefined> =>
   paytrailRequest('GET', `payments/${transactionId}`, undefined, transactionId)
 
-export const createRefundCallbackUrls = (host: string): CallbackUrl => createCallbackUrls(`https://${host}/refund`)
+export const createRefundCallbackUrls = (host: string): CallbackUrl => {
+  // Check if we're in development mode with tunnel
+  const tunnelUrl = getTunnelUrlFromFile('.backend-tunnel-url')
+  if (tunnelUrl && CONFIG.stackName !== 'koekalenteri-prod') {
+    console.log(`Using tunnel URL for Paytrail refund callbacks: ${tunnelUrl}`)
+    return createCallbackUrls(`${tunnelUrl}/refund`)
+  }
+
+  return createCallbackUrls(`https://${host}/refund`)
+}
 
 export const refundPayment = async (
   apiHost: string,

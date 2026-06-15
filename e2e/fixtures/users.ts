@@ -1,0 +1,128 @@
+/**
+ * Test fixtures for users (secretaries)
+ */
+
+import type { JsonUser } from 'src/types/Person'
+
+export const users: JsonUser[] = [
+  // Officials (users with officer property)
+  {
+    id: 'official1',
+    name: 'Toimari 1',
+    email: 'toimari1@sposti.not',
+    phone: '123456781',
+    location: 'Helsinki',
+    officer: ['NOU', 'NOME-B'],
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+  {
+    id: 'official2',
+    name: 'Toimari 2',
+    email: 'toimari2@sposti.not',
+    phone: '123456782',
+    location: 'Tampere',
+    officer: ['NOME-A', 'NOWT'],
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+  {
+    id: 'official3',
+    name: 'Toimari 3',
+    email: 'toimari3@sposti.not',
+    phone: '123456783',
+    location: 'Turku',
+    officer: ['NOU', 'NOME-B', 'NOME-A', 'NOWT'],
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+
+  // Secretaries
+  {
+    id: 'user1',
+    name: 'Secretary One',
+    email: 'secretary1@example.com',
+    phone: '1111111111',
+    location: 'Helsinki',
+    roles: {
+      'test-org-1': 'secretary',
+    },
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+  {
+    id: 'user2',
+    name: 'Secretary Two',
+    email: 'secretary2@example.com',
+    phone: '2222222222',
+    location: 'Tampere',
+    roles: {
+      'test-org-2': 'secretary',
+    },
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+  {
+    id: 'admin1',
+    name: 'Admin User',
+    email: 'admin@example.com',
+    phone: '3333333333',
+    location: 'Turku',
+    admin: true,
+    roles: {
+      'test-org-1': 'admin',
+      'test-org-2': 'admin',
+    },
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+  {
+    id: 'user3',
+    name: 'Secretary Three',
+    email: 'secretary3@example.com',
+    phone: '4444444444',
+    location: 'Oulu',
+    roles: {
+      'test-org-1': 'secretary',
+      'test-org-2': 'secretary',
+    },
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+  {
+    id: 'user4',
+    name: 'Secretary Four',
+    email: 'secretary4@example.com',
+    phone: '5555555555',
+    location: 'Jyväskylä',
+    roles: {
+      'test-org-2': 'secretary',
+    },
+    createdAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    createdBy: 'system',
+    modifiedAt: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString(),
+    modifiedBy: 'system',
+    lastSeen: new Date().toISOString(),
+  },
+]
