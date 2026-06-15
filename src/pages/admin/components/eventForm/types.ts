@@ -4,7 +4,7 @@ import type { DeepPartial, DogEvent, EventState, Patch } from '../../../../types
 export interface PartialEvent
   extends Omit<
     DeepPartial<DogEvent>,
-    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates'
+    'startDate' | 'endDate' | 'classes' | 'judges' | 'official' | 'secretary' | 'dates' | 'kcId'
   > {
   startDate: DogEvent['startDate']
   endDate: DogEvent['endDate']
@@ -13,6 +13,7 @@ export interface PartialEvent
   official?: Partial<DogEvent['official']>
   secretary?: Partial<DogEvent['secretary']>
   dates?: DogEvent['dates']
+  kcId?: DogEvent['kcId'] | null
 
   cost?: DogEvent['cost']
   costMember?: DogEvent['costMember']
@@ -39,7 +40,7 @@ export interface SectionProps {
   readonly helperTexts?: { [Property in keyof DogEvent]?: string }
   readonly errors?: ValidationResult<PartialEvent, 'event'>[]
   readonly open?: boolean
-  readonly onChange?: (event: DeepPartial<DogEvent>) => void
+  readonly onChange?: (event: Patch<DogEvent>) => void
   readonly onOpenChange?: (value: boolean) => void
 }
 

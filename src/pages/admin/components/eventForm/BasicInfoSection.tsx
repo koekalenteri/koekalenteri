@@ -1,22 +1,30 @@
 import type { ChangeEvent, SyntheticEvent } from 'react'
+import type { EventKcIdChoice } from '../../../../api/event'
 import type {
   DeepPartial,
   DogEvent,
   EventClass,
   EventType,
   Organizer,
+  Patch,
   Person,
   RegistrationClass,
   User,
 } from '../../../../types'
 import type { DateValue } from '../../../components/DateRange'
 import type { PartialEvent, SectionProps } from './types'
+import Sync from '@mui/icons-material/Sync'
+import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
 import TextField from '@mui/material/TextField'
 import { add, differenceInDays, eachDayOfInterval, isAfter, isSameDay } from 'date-fns'
+import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { useRecoilValue } from 'recoil'
+import { searchEventKcIdChoices } from '../../../../api/event'
+import { zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../../i18n/dates'
 import {
   defaultEntryEndDate,
   defaultEntryStartDate,
@@ -27,9 +35,10 @@ import {
 import { getRuleDate } from '../../../../rules'
 import CollapsibleSection from '../../../components/CollapsibleSection'
 import DateRange from '../../../components/DateRange'
-import HelpPopover from './basicInfoSection/HelpPopover'
+import { idTokenAtom } from '../../../recoil'
 import EventClasses from './components/EventClasses'
 import EventProperty from './components/EventProperty'
+import KcIdChoiceDialog from './KcIdChoiceDialog'
 
 export interface Props extends Readonly<SectionProps> {
   readonly event: PartialEvent
@@ -63,7 +72,9 @@ export default function BasicInfoSection({
   selectedEventType,
 }: Props) {
   const { t } = useTranslation()
-  const [helpAnchorEl, setHelpAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const token = useRecoilValue(idTokenAtom)
+  const [kcIdRefreshing, setKcIdRefreshing] = useState(false)
+  const [kcIdChoices, setKcIdChoices] = useState<EventKcIdChoice[]>([])
   const typeOptions = eventClassOptions(event, getTypeClasses(event.eventType, eventTypeClasses))
   const error =
     (errorStates &&
@@ -91,6 +102,14 @@ export default function BasicInfoSection({
     [event.eventType, officials, selectedEventType?.official]
   )
   const hasEntries = (event.entries ?? 0) > 0
+  const hasKcId = Boolean(event.kcId)
+  const isOfficialEventType = OFFICIAL_EVENT_TYPES.includes(event.eventType ?? '')
+  const selectedOrganizerId = event.organizer?.id
+  const canEditKcId = Boolean(selectedOrganizerId) && !disabled && isOfficialEventType
+  const handleLookupCriteriaChange = useCallback(
+    (props: Patch<DogEvent>) => onChange?.(hasKcId ? { ...props, kcId: null } : props),
+    [hasKcId, onChange]
+  )
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) => {
       start = zonedStartOfDay(start ?? event.startDate)
@@ -120,11 +139,6 @@ export default function BasicInfoSection({
     },
     [event, onChange]
   )
-  const openHelp = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => setHelpAnchorEl(e.currentTarget),
-    []
-  )
-  const closeHelp = useCallback(() => setHelpAnchorEl(null), [])
   const handleTypeChange = useCallback(
     ({ eventType }: Partial<DogEvent>) => {
       const filterClasses = getTypeClasses(eventType, eventTypeClasses)
@@ -134,18 +148,18 @@ export default function BasicInfoSection({
         official && (event.judges.length === 0 || !event.judges[0].official)
           ? [{ id: 0, name: '', official: true }, ...event.judges]
           : event.judges
-      onChange?.({ classes, eventType, judges })
+      handleLookupCriteriaChange({ classes, eventType, judges })
     },
-    [event.classes, event.judges, eventTypeClasses, onChange]
+    [event.classes, event.judges, eventTypeClasses, handleLookupCriteriaChange]
   )
   const handleClassesChange = useCallback(
     (_e: SyntheticEvent<Element, Event>, values: readonly DeepPartial<EventClass>[]) =>
-      onChange?.({ classes: [...values] }),
-    [onChange]
+      handleLookupCriteriaChange({ classes: [...values] }),
+    [handleLookupCriteriaChange]
   )
   const handleNameChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => onChange?.({ name: e.target.value }),
-    [onChange]
+    (e: ChangeEvent<HTMLInputElement>) => handleLookupCriteriaChange({ name: e.target.value }),
+    [handleLookupCriteriaChange]
   )
   const isEqualId = useCallback((o?: { id?: number | string }, v?: { id?: number | string }) => o?.id === v?.id, [])
   const getId = useCallback((o?: string | { id?: number | string }) => (typeof o === 'string' ? o : (o?.id ?? '')), [])
@@ -154,155 +168,230 @@ export default function BasicInfoSection({
     (o?: string | Partial<Person>) => (typeof o === 'string' ? o : o?.name || o?.email || ''),
     []
   )
+  const handleKcIdRefresh = useCallback(async () => {
+    if (!selectedOrganizerId) return
+
+    setKcIdRefreshing(true)
+    setKcIdChoices([])
+    try {
+      const result = await searchEventKcIdChoices(
+        {
+          classes: event.classes.map(({ class: eventClass, date }) => ({ class: eventClass, date })),
+          endDate: event.endDate,
+          eventType: event.eventType ?? '',
+          location: event.location ?? '',
+          name: event.name ?? '',
+          organizer: { id: selectedOrganizerId },
+          startDate: event.startDate,
+        },
+        token
+      )
+      if (result.choices.length) {
+        setKcIdChoices(result.choices)
+      } else {
+        enqueueSnackbar(t('event.kcIdNotFound'), { variant: 'warning' })
+      }
+    } catch (error) {
+      console.error(error)
+      enqueueSnackbar(t('event.kcIdSearchFailed'), { variant: 'error' })
+    } finally {
+      setKcIdRefreshing(false)
+    }
+  }, [event, selectedOrganizerId, token, t])
+  const handleKcIdChoiceClose = useCallback(() => setKcIdChoices([]), [])
+  const handleKcIdChoice = useCallback(
+    (choice: EventKcIdChoice) => {
+      onChange?.(applyKcChoice(event, choice))
+      setKcIdChoices([])
+      enqueueSnackbar(t('event.kcIdSelected', { id: choice.id }), { variant: 'success' })
+    },
+    [event, onChange, t]
+  )
+  const handleKcIdRemove = useCallback(() => {
+    onChange?.({ kcId: null })
+    enqueueSnackbar(t('event.kcIdRemoved'), { variant: 'success' })
+  }, [onChange, t])
 
   return (
-    <CollapsibleSection
-      title="Tapahtuman perustiedot"
-      open={open}
-      onOpenChange={onOpenChange}
-      error={error}
-      helperText={helperText}
-    >
-      <Grid container spacing={1} maxWidth={1280}>
-        <Grid container spacing={1}>
-          <Grid sx={{ width: 600 }}>
-            <DateRange
-              startLabel={t('event.startDate')}
-              endLabel={t('event.endDate')}
-              start={event.startDate}
-              startDisabled={hasEntries || disabled}
-              startError={errorStates?.startDate}
-              startHelperText={helperTexts?.startDate}
-              end={event.endDate}
-              endDisabled={disabled}
-              endError={errorStates?.endDate}
-              endHelperText={helperTexts?.endDate}
-              required
-              onChange={handleDateChange}
-            />
+    <>
+      <CollapsibleSection
+        title={t('eventInfo')}
+        open={open}
+        onOpenChange={onOpenChange}
+        error={error}
+        helperText={helperText}
+      >
+        <Grid container spacing={1} maxWidth={1280}>
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 600 }}>
+              <DateRange
+                startLabel={t('event.startDate')}
+                endLabel={t('event.endDate')}
+                start={event.startDate}
+                startDisabled={hasEntries || disabled || hasKcId}
+                startError={errorStates?.startDate}
+                startHelperText={helperTexts?.startDate}
+                end={event.endDate}
+                endDisabled={disabled || hasKcId}
+                endError={errorStates?.endDate}
+                endHelperText={helperTexts?.endDate}
+                required
+                onChange={handleDateChange}
+              />
+            </Grid>
+            {isOfficialEventType && (
+              <Grid sx={{ width: 520 }}>
+                <Stack direction="row" spacing={1} alignItems="flex-start">
+                  <EventProperty
+                    id="kcId"
+                    disabled
+                    freeSolo
+                    event={event}
+                    fields={fields}
+                    options={[]}
+                    getOptionLabel={(o) => (o === undefined ? '' : `${o}`)}
+                    onChange={onChange}
+                    sx={{ width: 300 }}
+                  />
+                  {canEditKcId &&
+                    (hasKcId ? (
+                      <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
+                        <Button
+                          variant="contained"
+                          disabled={kcIdRefreshing}
+                          size="small"
+                          startIcon={<Sync fontSize="small" />}
+                          onClick={handleKcIdRefresh}
+                        >
+                          {t('event.kcIdSwitch')}
+                        </Button>
+                        <Button variant="outlined" size="small" onClick={handleKcIdRemove}>
+                          {t('event.kcIdRemove')}
+                        </Button>
+                      </Stack>
+                    ) : (
+                      <Button
+                        variant="contained"
+                        disabled={kcIdRefreshing}
+                        size="small"
+                        startIcon={<Sync fontSize="small" />}
+                        sx={{ mt: 1 }}
+                        onClick={handleKcIdRefresh}
+                      >
+                        {t('event.kcIdLookup')}
+                      </Button>
+                    ))}
+                </Stack>
+              </Grid>
+            )}
           </Grid>
-          <Grid sx={{ display: 'none', /* KOE-451 */ width: 300 }}>
-            <EventProperty
-              id="kcId"
-              disabled={disabled}
-              freeSolo
-              event={event}
-              fields={fields}
-              options={[]}
-              getOptionLabel={(o) => (o === undefined ? '' : `${o}`)}
-              onChange={onChange}
-              helpClick={openHelp}
-            />
-            <HelpPopover anchorEl={helpAnchorEl} onClose={closeHelp}>
-              {t('event.kcId_info')}
-            </HelpPopover>
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 300 }}>
+              <EventProperty
+                id="eventType"
+                disabled={hasEntries || disabled}
+                event={event}
+                fields={fields}
+                options={eventTypes ?? []}
+                onChange={handleTypeChange}
+              />
+            </Grid>
+            <Grid sx={{ width: 600 }}>
+              <EventClasses
+                id="class"
+                disabled={disabled}
+                eventStartDate={event.startDate}
+                eventEndDate={event.endDate}
+                required={fields?.required.classes}
+                errorStates={errorStates}
+                helperTexts={helperTexts}
+                requiredState={fields?.state.classes}
+                value={event.classes}
+                classes={typeOptions}
+                label={t('event.classes')}
+                showCount
+                onChange={handleClassesChange}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 600 }}>
+              <TextField
+                disabled={disabled}
+                label={t('event.name')}
+                fullWidth
+                value={event.name ?? ''}
+                onChange={handleNameChange}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 600 }}>
+              <EventProperty
+                disabled={disabled}
+                event={event}
+                fields={fields}
+                getOptionKey={getId}
+                getOptionLabel={getName}
+                id="organizer"
+                isOptionEqualToValue={isEqualId}
+                mapValue={(v: Organizer) => (v ? { id: v.id, name: v.name } : v)}
+                onChange={handleLookupCriteriaChange}
+                options={organizers ?? []}
+                renderOption={(props, option) => {
+                  if (!option) return null
+                  return (
+                    <li {...props} key={option.id}>
+                      {option.name}
+                    </li>
+                  )
+                }}
+              />
+            </Grid>
+            <Grid sx={{ width: 300 }}>
+              <EventProperty
+                disabled={disabled}
+                event={event}
+                fields={fields}
+                freeSolo
+                id="location"
+                onChange={handleLookupCriteriaChange}
+                options={[]}
+              />
+            </Grid>
+          </Grid>
+          <Grid container spacing={1}>
+            <Grid sx={{ width: 450 }}>
+              <EventProperty
+                disabled={disabled}
+                event={event}
+                fields={fields}
+                getOptionKey={getId}
+                getOptionLabel={getNameOrEmail}
+                id="official"
+                isOptionEqualToValue={isEqualId}
+                onChange={onChange}
+                options={availableOfficials}
+              />
+            </Grid>
+            <Grid sx={{ width: 450 }}>
+              <EventProperty
+                disabled={disabled}
+                event={event}
+                fields={fields}
+                getOptionKey={getId}
+                getOptionLabel={getNameOrEmail}
+                id="secretary"
+                isOptionEqualToValue={isEqualId}
+                onChange={onChange}
+                options={secretaries ?? []}
+              />
+            </Grid>
           </Grid>
         </Grid>
-        <Grid container spacing={1}>
-          <Grid sx={{ width: 300 }}>
-            <EventProperty
-              id="eventType"
-              disabled={hasEntries || disabled}
-              event={event}
-              fields={fields}
-              options={eventTypes ?? []}
-              onChange={handleTypeChange}
-            />
-          </Grid>
-          <Grid sx={{ width: 600 }}>
-            <EventClasses
-              id="class"
-              disabled={disabled}
-              eventStartDate={event.startDate}
-              eventEndDate={event.endDate}
-              required={fields?.required.classes}
-              errorStates={errorStates}
-              helperTexts={helperTexts}
-              requiredState={fields?.state.classes}
-              value={event.classes}
-              classes={typeOptions}
-              label={t('event.classes')}
-              showCount
-              onChange={handleClassesChange}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={1}>
-          <Grid sx={{ width: 600 }}>
-            <TextField
-              disabled={disabled}
-              label="Tapahtuman nimi"
-              fullWidth
-              value={event.name ?? ''}
-              onChange={handleNameChange}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={1}>
-          <Grid sx={{ width: 600 }}>
-            <EventProperty
-              disabled={disabled}
-              event={event}
-              fields={fields}
-              getOptionKey={getId}
-              getOptionLabel={getName}
-              id="organizer"
-              isOptionEqualToValue={isEqualId}
-              mapValue={(v: Organizer) => (v ? { id: v.id, name: v.name } : v)}
-              onChange={onChange}
-              options={organizers ?? []}
-              renderOption={(props, option) => {
-                if (!option) return null
-                return (
-                  <li {...props} key={option.id}>
-                    {option.name}
-                  </li>
-                )
-              }}
-            />
-          </Grid>
-          <Grid sx={{ width: 300 }}>
-            <EventProperty
-              disabled={disabled}
-              event={event}
-              fields={fields}
-              freeSolo
-              id="location"
-              onChange={onChange}
-              options={[]}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={1}>
-          <Grid sx={{ width: 450 }}>
-            <EventProperty
-              disabled={disabled}
-              event={event}
-              fields={fields}
-              getOptionKey={getId}
-              getOptionLabel={getNameOrEmail}
-              id="official"
-              isOptionEqualToValue={isEqualId}
-              onChange={onChange}
-              options={availableOfficials}
-            />
-          </Grid>
-          <Grid sx={{ width: 450 }}>
-            <EventProperty
-              disabled={disabled}
-              event={event}
-              fields={fields}
-              getOptionKey={getId}
-              getOptionLabel={getNameOrEmail}
-              id="secretary"
-              isOptionEqualToValue={isEqualId}
-              onChange={onChange}
-              options={secretaries ?? []}
-            />
-          </Grid>
-        </Grid>
-      </Grid>
-    </CollapsibleSection>
+      </CollapsibleSection>
+      <KcIdChoiceDialog choices={kcIdChoices} onClose={handleKcIdChoiceClose} onSelect={handleKcIdChoice} />
+    </>
   )
 }
 
@@ -335,4 +424,52 @@ function updateClassDates(event: PartialEvent, start: Date, end: Date) {
     }
   }
   return result
+}
+
+function shiftDate(date: Date, oldStartDate: Date, newStartDate: Date) {
+  return zonedStartOfDay(add(newStartDate, { days: differenceInDays(date, oldStartDate) }))
+}
+
+function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogEvent> {
+  const startDate = zonedStartOfDay(choice.startDate)
+  const endDate = zonedEndOfDay(choice.endDate)
+  let { entryEndDate, entryStartDate } = event
+  if (!isSameDay(startDate, event.startDate)) {
+    if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
+      entryStartDate = defaultEntryStartDate(startDate)
+    }
+    if (isDetaultEntryEndDate(entryEndDate, event.startDate)) {
+      entryEndDate = defaultEntryEndDate(startDate)
+    }
+  }
+  const classes = updateClassDates(event, startDate, endDate)
+  const dates = event.dates
+    ?.map((date) => ({
+      ...date,
+      date: shiftDate(date.date, event.startDate, startDate),
+    }))
+    .filter((date) => !isAfter(date.date, endDate))
+  const placesPerDayStartDate = zonedParseDate(zonedDateString(event.startDate))
+  const placesPerDay = event.placesPerDay
+    ? Object.fromEntries(
+        Object.entries(event.placesPerDay)
+          .map(
+            ([date, places]) =>
+              [zonedDateString(shiftDate(zonedParseDate(date), placesPerDayStartDate, startDate)), places] as const
+          )
+          .filter(([date]) => !isAfter(zonedStartOfDay(date), endDate))
+      )
+    : undefined
+
+  return {
+    classes,
+    dates,
+    endDate,
+    entryEndDate,
+    entryStartDate,
+    kcId: choice.id,
+    placesPerDay,
+    season: String(startDate.getFullYear()),
+    startDate,
+  }
 }

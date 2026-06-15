@@ -3,6 +3,9 @@ import type { KLKoetapahtuma } from '../types/KLAPI'
 import { jest } from '@jest/globals'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
+jest.useFakeTimers()
+jest.setSystemTime(new Date('2026-06-30T12:00:00.000Z'))
+
 const mockAuthorizeWithMemberOf = jest.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
 const mockRead = jest.fn<() => Promise<Organizer | undefined>>()
 const mockResponse = jest.fn<(status: number, body: unknown, event: unknown) => unknown>()

@@ -5,16 +5,7 @@ import { emptyEvent } from '../__mockData__/emptyEvent'
 import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
-import {
-  getEvent,
-  getEvent,
-  getEventAuditTrail,
-  getEvents,
-  getEvents,
-  putEvent,
-  putEvent,
-  searchEventKcIdChoices,
-} from './event'
+import { getEvent, getEventAuditTrail, getEvents, putEvent, searchEventKcIdChoices } from './event'
 
 fetchMock.enableMocks()
 
