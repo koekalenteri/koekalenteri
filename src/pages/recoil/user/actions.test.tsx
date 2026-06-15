@@ -4,6 +4,7 @@ import * as auth from 'aws-amplify/auth'
 import { SnackbarProvider } from 'notistack'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { RecoilRoot, useRecoilValue } from 'recoil'
+import * as userAPI from '../../../api/user'
 import { useUserActions } from './actions'
 import { idTokenAtom } from './atoms'
 
@@ -78,5 +79,27 @@ describe('useUserActions', () => {
     })
 
     expect(result.current.token).toBeUndefined()
+  })
+
+  it('loads the signed-in user with the new token instead of the callback snapshot token', async () => {
+    const getUserSpy = jest.spyOn(userAPI, 'getUser').mockResolvedValue({
+      admin: false,
+      email: 'new@example.com',
+      id: 'user-1',
+      name: 'New User',
+      roles: {},
+    })
+
+    const { result } = renderHook(() => ({ actions: useUserActions(), token: useRecoilValue(idTokenAtom) }), {
+      wrapper,
+    })
+
+    await act(async () => {
+      await result.current.actions.signIn('new-id-token')
+    })
+
+    expect(result.current.token).toBe('new-id-token')
+    expect(getUserSpy).toHaveBeenCalledWith('new-id-token')
+    expect(getUserSpy).not.toHaveBeenCalledWith('id-token')
   })
 })

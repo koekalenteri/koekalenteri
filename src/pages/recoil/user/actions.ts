@@ -26,7 +26,8 @@ export const useUserActions = () => {
     ({ snapshot }) =>
       async (idToken: string) => {
         setIdToken(idToken)
-        const user = await snapshot.getPromise(userSelector)
+        const userSnapshot = snapshot.map(({ set }) => set(idTokenAtom, idToken))
+        const user = await userSnapshot.getPromise(userSelector)
         const nameOrEmail = user?.name ?? user?.email
         if (nameOrEmail) {
           enqueueSnackbar(`Tervetuloa, ${nameOrEmail}!`, { variant: 'info' })
