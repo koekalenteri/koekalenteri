@@ -143,6 +143,11 @@ const HTTP = {
   async get<T>(path: string, init?: RequestInit, reviveDates: boolean = true): Promise<T> {
     return http<T>(path, { method: 'get', ...init }, reviveDates) as Promise<T>
   },
+  async patch<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
+    return http<U>(path, { body: JSON.stringify(body), method: 'patch', ...init }, reviveDates, true) as Promise<
+      HttpResponse<U>
+    >
+  },
   async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
     return http<U>(path, { body: JSON.stringify(body), method: 'post', ...init }, reviveDates, true) as Promise<
       HttpResponse<U>
