@@ -11,7 +11,7 @@ type DogEventSortKey = Pick<DogEvent, 'id' | 'startDate' | 'endDate'>
 type DogEventPruneKey = Pick<DogEvent, 'endDate'>
 type DogEventRangeKey = Pick<DogEvent, 'startDate' | 'endDate'>
 
-const RANGE_INCREMENTAL_THROTTLE = 5 * 60 * 1000 // 5 min
+export const RANGE_INCREMENTAL_THROTTLE = 5 * 60 * 1000 // 5 min
 const SINGLE_FRESHNESS = 5 * 60 * 1000 // 5 min
 const RANGE_RETENTION_MS = 180 * 24 * 60 * 60 * 1000 // 180 days
 const DEFAULT_EVENT_METADATA: EventMetadata = { singles: {} }

@@ -293,6 +293,45 @@ describe('useFetchEvents', () => {
     })
   })
 
+  it('keeps a websocket-updated stored event on reload when same-range fetch is throttled', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+    const updatedByWebSocket = {
+      ...makeEvent('event-1', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z'),
+      entries: 12,
+      members: 7,
+      name: 'Updated by websocket',
+    }
+
+    localStorage.setItem('events', JSON.stringify([updatedByWebSocket]))
+    localStorage.setItem(
+      'eventMetadata',
+      JSON.stringify({
+        lastRangeEnd: end.getTime(),
+        lastRangeStart: start.getTime(),
+        lastSyncAt: Date.now() - 60 * 1000,
+        singles: {},
+      })
+    )
+
+    const { result } = renderHook(
+      () => ({
+        events: useRecoilValue(eventsAtom),
+        fetchEvents: useFetchEvents(),
+      }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start, end)
+    })
+
+    await waitFor(() => {
+      expect(getEvents).not.toHaveBeenCalled()
+      expect(result.current.events).toEqual([updatedByWebSocket])
+    })
+  })
+
   it('uses cold-start full fetch when sync watermark is missing', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')

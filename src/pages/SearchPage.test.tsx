@@ -2,15 +2,14 @@ import type { Locale } from 'date-fns'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { createMatchMedia, flushPromises } from '../test-utils/utils'
-import { DateHandler } from './recoil'
+import { createMatchMedia } from '../test-utils/utils'
 import { SearchPage } from './SearchPage'
 
 jest.mock('../api/event')
@@ -28,7 +27,6 @@ const renderPage = (path: string, locale: Locale) =>
           <Suspense fallback={<div>loading...</div>}>
             <SnackbarProvider>
               <MemoryRouter initialEntries={[path]}>
-                <DateHandler />
                 <SearchPage />
               </MemoryRouter>
             </SnackbarProvider>
@@ -37,6 +35,15 @@ const renderPage = (path: string, locale: Locale) =>
       </LocalizationProvider>
     </ThemeProvider>
   )
+
+const flushPage = async () => {
+  for (let i = 0; i <= 7; i++) {
+    await act(async () => {
+      jest.runAllTicks()
+      await Promise.resolve()
+    })
+  }
+}
 
 describe('SearchPage', () => {
   const initialSystemTime = new Date()
@@ -47,20 +54,20 @@ describe('SearchPage', () => {
     jest.setSystemTime(initialSystemTime)
   })
   afterEach(() => {
-    jest.runOnlyPendingTimers()
+    jest.clearAllTimers()
     jest.setSystemTime(initialSystemTime)
   })
   afterAll(() => jest.useRealTimers())
 
   it('renders', async () => {
     renderPage('', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getAllByRole('article').length).toEqual(5)
   })
 
   it('filters by date/start', async () => {
     renderPage('/?s=2021-03-01', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('article').length).toEqual(5)
   })
@@ -68,7 +75,7 @@ describe('SearchPage', () => {
   it('filters by date/end', async () => {
     // start is required for fetching events
     const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('article').length).toEqual(4)
     expect(container).toMatchSnapshot()
@@ -76,7 +83,7 @@ describe('SearchPage', () => {
 
   it('filters by date', async () => {
     const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.01.2021')
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
     expect(screen.getAllByRole('article').length).toEqual(4)
@@ -85,7 +92,7 @@ describe('SearchPage', () => {
 
   it('filters by date - no-results', async () => {
     const { container } = renderPage('/?s=2021-03-01&e=2021-03-02', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('02.03.2021')
     expect(screen.getByText('noResults')).toBeInTheDocument()
@@ -95,7 +102,7 @@ describe('SearchPage', () => {
   it('filters by event type', async () => {
     // start is required for fetching events
     const { container } = renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(5)
     expect(container).toMatchSnapshot()
@@ -104,7 +111,7 @@ describe('SearchPage', () => {
   it('filters by event class', async () => {
     // start is required for fetching events
     const { container } = renderPage('/?s=2021-01-01&c=AVO', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(5)
     expect(container).toMatchSnapshot()
@@ -113,7 +120,7 @@ describe('SearchPage', () => {
   it('filters by organizer', async () => {
     // start is required for fetching events
     const { container } = renderPage('/?s=2021-01-01&o=2', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getByText(/filter.results count/i)).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(1)
@@ -122,14 +129,14 @@ describe('SearchPage', () => {
 
   it('filters by judge', async () => {
     renderPage('/?j=Tuomari%202', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
     expect(screen.getAllByRole('article').length).toEqual(5)
   })
 
   it('filters by entryUpcoming', async () => {
     renderPage('/?b=u', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(1)
   })
@@ -138,7 +145,7 @@ describe('SearchPage', () => {
     const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => undefined)
     try {
       renderPage('/?b=o', locales.fi)
-      await flushPromises()
+      await flushPage()
       expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
 
       // Log which events are shown
@@ -168,7 +175,7 @@ describe('SearchPage', () => {
 
   it('filters by both entryOpen and entryUpcoming', async () => {
     renderPage('/?b=o&b=u', locales.fi)
-    await flushPromises()
+    await flushPage()
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
     expect(screen.getAllByRole('article').length).toEqual(3)
