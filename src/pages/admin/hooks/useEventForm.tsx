@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../../types'
+import type { DogEvent, Patch } from '../../../types'
 import { useSnackbar } from 'notistack'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -32,7 +32,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   const [changes, setChanges] = useState<boolean>(storedEvent ? hasChanges(storedEvent, event) : true)
 
   const handleChange = useCallback(
-    (newState: DogEvent) => {
+    (newState: Patch<DogEvent>) => {
       // Update change tracking if in edit mode
       if (storedEvent) {
         setChanges(hasChanges(storedEvent, newState))
@@ -42,7 +42,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
       newState.modifiedAt = new Date()
 
       // Update state
-      setEvent(newState)
+      setEvent(newState as DogEvent)
     },
     [setEvent, storedEvent]
   )
