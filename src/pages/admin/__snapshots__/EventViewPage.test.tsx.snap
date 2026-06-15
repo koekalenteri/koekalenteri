@@ -234,13 +234,38 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         colspan="3"
                         scope="col"
                       >
-                        Liitteet
+                        Kokeen tiedot
                       </th>
                     </tr>
                   </thead>
                   <tbody
                     class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
                   >
+                    <tr
+                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
+                        >
+                          Koetunnus
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+                        >
+                          123456
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
+                      />
+                    </tr>
                     <tr
                       class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
                     >
@@ -4942,13 +4967,38 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         colspan="3"
                         scope="col"
                       >
-                        Liitteet
+                        Kokeen tiedot
                       </th>
                     </tr>
                   </thead>
                   <tbody
                     class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
                   >
+                    <tr
+                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
+                        >
+                          Koetunnus
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+                        >
+                          123456
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
+                      />
+                    </tr>
                     <tr
                       class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
                     >
@@ -11205,13 +11255,38 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
                         colspan="3"
                         scope="col"
                       >
-                        Liitteet
+                        Kokeen tiedot
                       </th>
                     </tr>
                   </thead>
                   <tbody
                     class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
                   >
+                    <tr
+                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                    >
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
+                        >
+                          Koetunnus
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
+                      >
+                        <span
+                          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
+                        >
+                          123456
+                        </span>
+                      </td>
+                      <td
+                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
+                      />
+                    </tr>
                     <tr
                       class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
                     >
