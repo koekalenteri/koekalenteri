@@ -20,7 +20,7 @@ import {
 } from '../lib/emailSuppression'
 import { getEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
@@ -168,12 +168,12 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const username = await getUsername(event)
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
-  const isPatchRequest = event.httpMethod === 'PATCH'
+  const patchRequest = isPatchRequest(event)
 
   const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
   normalizeRegistrationEmails(registration)
 
-  if (isPatchRequest && (!registration.eventId || !registration.id)) {
+  if (patchRequest && (!registration.eventId || !registration.id)) {
     return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
   }
 
@@ -201,7 +201,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.updatedAt = timestamp
 
   const data: JsonRegistration = existing
-    ? isPatchRequest
+    ? patchRequest
       ? patchMerge(existing, registration)
       : ({ ...existing, ...registration } as JsonRegistration)
     : (registration as JsonRegistration)

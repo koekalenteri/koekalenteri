@@ -48,6 +48,12 @@ export const getParam = (
   return defaultValue
 }
 
+export const isHttpMethod = (event: Partial<Pick<APIGatewayProxyEvent, 'httpMethod'>>, method: string): boolean =>
+  event.httpMethod?.toUpperCase() === method.toUpperCase()
+
+export const isPatchRequest = (event: Partial<Pick<APIGatewayProxyEvent, 'httpMethod'>>): boolean =>
+  isHttpMethod(event, 'PATCH')
+
 export const allowOrigin = (event: APIGatewayProxyEvent) => {
   const origin = getOrigin(event)
   if (origin?.endsWith('koekalenteri.snj.fi')) {
