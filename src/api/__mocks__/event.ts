@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../types'
+import type { DogEvent, Patch } from '../../types'
 import type { PublicEventsResponse } from '../event'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
@@ -66,12 +66,12 @@ export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEv
   })
 }
 
-export async function putEvent(event: DogEvent, _token?: string, _signal?: AbortSignal): Promise<DogEvent> {
+export async function putEvent(event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal): Promise<DogEvent> {
   return new Promise((resolve, reject) => {
-    let existing: DogEvent | undefined = event
+    let existing: DogEvent | undefined
     if (!event.id) {
-      event.id = `test${mockEvents.length + 1}`
-      mockEvents.push(event)
+      existing = { ...event, id: `test${mockEvents.length + 1}` } as DogEvent
+      mockEvents.push(existing)
     } else {
       existing = mockEvents.find((e) => e.id === event.id)
       if (existing) {

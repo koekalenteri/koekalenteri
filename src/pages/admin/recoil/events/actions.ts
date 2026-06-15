@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../../../types'
+import type { DogEvent, Patch } from '../../../../types'
 import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +10,20 @@ import { Path } from '../../../../routeConfig'
 import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 import { adminEventIdAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventSelector } from './selectors'
+
+export const buildEventSavePatch = (event: Patch<DogEvent>, currentAdminEvent?: DogEvent | null): Patch<DogEvent> => {
+  if (!event.id || event.id !== currentAdminEvent?.id) {
+    return event
+  }
+
+  const changedKeys = Object.keys(diff(currentAdminEvent, event))
+  const changes: Patch<DogEvent> = { id: event.id }
+  for (const key of changedKeys) {
+    const value = (event as Record<string, unknown>)[key]
+    ;(changes as Record<string, unknown>)[key] = value === undefined ? null : value
+  }
+  return changes
+}
 
 export const useAdminEventActions = () => {
   const token = useRecoilValue(idTokenAtom)
@@ -68,16 +82,8 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function save(event: Partial<DogEvent>): Promise<DogEvent | undefined> {
-    let changes: Partial<DogEvent> = event
-    if (event.id && event.id === currentAdminEvent?.id) {
-      const changedKeys = Object.keys(diff(currentAdminEvent, event))
-      changes = { id: event.id }
-      for (const key of changedKeys) {
-        //@ts-expect-error typescript is just so stupid sometimes
-        changes[key] = event[key]
-      }
-    }
+  async function save(event: Patch<DogEvent>): Promise<DogEvent | undefined> {
+    const changes = buildEventSavePatch(event, currentAdminEvent)
     const saved = await putEvent(changes, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)

@@ -1,4 +1,4 @@
-import type { DogEvent, PublicDogEvent } from '../types'
+import type { DogEvent, Patch, PublicDogEvent } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import { dedupeInFlight } from './dedupeInFlight'
@@ -53,8 +53,8 @@ export async function getAdminEvent(id: string, token?: string, signal?: AbortSi
   return http.get<DogEvent>(`${ADMIN_PATH}${id}`, withToken({ signal }, token))
 }
 
-export async function putEvent(event: Partial<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
-  return (await http.post<Partial<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))).data
+export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
+  return (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))).data
 }
 
 export async function putInvitationAttachment(

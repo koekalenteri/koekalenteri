@@ -1,4 +1,4 @@
-import type { JsonConfirmedEvent, JsonUser } from '../../types'
+import type { JsonConfirmedEvent, JsonDogEvent, JsonUser } from '../../types'
 import { nanoid } from 'nanoid'
 import { getEventSeason, isEventDeletable } from '../../lib/event'
 import { isEntryOpen } from '../../lib/utils'
@@ -71,13 +71,12 @@ const putEventLambda = lambda('putEvent', async (event) => {
   data.modifiedBy = user.name
   data.updatedAt = timestamp
 
+  let result: JsonDogEvent = data
   if (existing) {
-    await patchEvent(existing.id, existing, data)
+    result = await patchEvent(existing.id, existing, data)
   } else {
     await saveEvent(data)
   }
-
-  let result: JsonConfirmedEvent = data
 
   if (existing && existing.entries !== data.entries) {
     // update registrations in case the secretary version was out of date

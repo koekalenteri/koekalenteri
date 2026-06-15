@@ -1,9 +1,7 @@
+import type { Patch } from '../../types'
 import { diff } from 'deep-object-diff'
 
 type DiffObject = Record<string, unknown>
-type PartialWithUndefined<T> = {
-  [K in keyof T]?: T[K] extends object ? PartialWithUndefined<T[K]> | undefined : T[K] | undefined
-}
 
 type UpdatePatch = {
   changes: Record<string, unknown>
@@ -22,7 +20,7 @@ const addPatchOperations = (
   set: Record<string, unknown>,
   remove: string[]
 ) => {
-  if (value === undefined) {
+  if (value === undefined || value === null) {
     remove.push(path)
     return
   }
@@ -62,7 +60,7 @@ const normalizeChanges = (value: unknown, nextValue: unknown): unknown => {
   return value
 }
 
-export const createPatch = <T extends object>(next: PartialWithUndefined<T>, oldObject: T): UpdatePatch => {
+export const createPatch = <T extends object>(next: Patch<T>, oldObject: T): UpdatePatch => {
   const set: Record<string, unknown> = {}
   const remove: string[] = []
   const rawChanges = diff(oldObject, next) as Record<string, unknown>
