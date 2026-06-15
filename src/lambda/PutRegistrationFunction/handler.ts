@@ -1,7 +1,13 @@
-import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, RegistrationTemplateContext } from '../../types'
+import type {
+  EmailTemplateId,
+  JsonConfirmedEvent,
+  JsonRegistration,
+  Patch,
+  RegistrationTemplateContext,
+} from '../../types'
 import { nanoid } from 'nanoid'
 import { GROUP_KEY_RESERVE, isParticipantGroup } from '../../lib/registration'
-import { isEntryOpen } from '../../lib/utils'
+import { isEntryOpen, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -23,6 +29,7 @@ import {
   getRegistration,
   getRegistrationChanges,
   hasRegistrationChanges,
+  patchRegistration,
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
@@ -30,14 +37,16 @@ import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const { emailFrom } = CONFIG
 
-const getData = async (registration: JsonRegistration) => {
-  const confirmedEvent = await getEvent<JsonConfirmedEvent>(registration.eventId)
-  const existing = registration.id ? await getRegistration(registration.eventId, registration.id) : undefined
+const getData = async (registration: Patch<JsonRegistration>) => {
+  const eventId = registration.eventId as JsonRegistration['eventId']
+  const id = registration.id as JsonRegistration['id'] | undefined
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const existing = id ? await getRegistration(eventId, id) : undefined
 
   return { confirmedEvent, existing }
 }
 
-const removeUserControlledPaymentFields = (registration: JsonRegistration) => {
+const removeUserControlledPaymentFields = (registration: Patch<JsonRegistration>) => {
   delete registration.paidAmount
   delete registration.paidAt
   delete registration.paymentStatus
@@ -65,7 +74,7 @@ const getAuditMessage = (
 }
 
 const prepareNewRegistration = async (
-  registration: JsonRegistration,
+  registration: Patch<JsonRegistration>,
   confirmedEvent: JsonConfirmedEvent,
   timestamp: string,
   username: string,
@@ -75,7 +84,10 @@ const prepareNewRegistration = async (
     return response(410, { message: 'Gone: Entry is not open' }, event)
   }
 
-  const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
+  const alreadyRegistered = await findExistingRegistrationToEventForDog(
+    registration.eventId ?? '',
+    registration.dog?.regNo ?? ''
+  )
 
   if (alreadyRegistered) {
     return response(
@@ -156,9 +168,15 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const username = await getUsername(event)
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
+  const isPatchRequest = event.httpMethod === 'PATCH'
 
-  const registration: JsonRegistration = parseJSONWithFallback(event.body)
+  const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
   normalizeRegistrationEmails(registration)
+
+  if (isPatchRequest && (!registration.eventId || !registration.id)) {
+    return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
+  }
+
   removeUserControlledPaymentFields(registration)
 
   const { confirmedEvent, existing } = await getData(registration)
@@ -182,7 +200,11 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.modifiedBy = username
   registration.updatedAt = timestamp
 
-  const data: JsonRegistration = { ...existing, ...registration }
+  const data: JsonRegistration = existing
+    ? isPatchRequest
+      ? patchMerge(existing, registration)
+      : ({ ...existing, ...registration } as JsonRegistration)
+    : (registration as JsonRegistration)
 
   if (existing && !hasRegistrationChanges(existing, data)) {
     return response(304, undefined, event)
@@ -194,23 +216,28 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     delete data.emailDeliveryStatus
   }
 
-  await saveRegistration(data)
+  let savedData = data
+  if (existing) {
+    savedData = await patchRegistration(data.eventId, data.id, existing, data)
+  } else {
+    await saveRegistration(data)
+  }
   // Update organizer event stats after registration change
-  await updateEventStatsForRegistration(data, existing, confirmedEvent)
+  await updateEventStatsForRegistration(savedData, existing, confirmedEvent)
 
-  if (update || cancel || registration.state === 'ready') {
-    const updatedEvent = await updateRegistrations(registration.eventId)
+  if (update || cancel || savedData.state === 'ready') {
+    const updatedEvent = await updateRegistrations(savedData.eventId)
     await publishRegistrationPatches(
-      registration.eventId,
-      [createRegistrationPatch(data, existing)],
+      savedData.eventId,
+      [createRegistrationPatch(savedData, existing)],
       updatedEvent.organizer.id
     )
   }
 
-  const message = getAuditMessage(cancel, confirm, data, existing)
+  const message = getAuditMessage(cancel, confirm, savedData, existing)
   if (message) {
     await audit({
-      auditKey: registrationAuditKey(registration),
+      auditKey: registrationAuditKey(savedData),
       message,
       user: username,
     })
@@ -219,13 +246,13 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const context = getEmailContext(update, cancel, confirm, invitation)
   if (
     (context || confirmedEvent.paymentTime === 'confirmation') &&
-    registration.handler?.email &&
-    registration.owner?.email
+    savedData.handler?.email &&
+    savedData.owner?.email
   ) {
-    await sendMessages(origin, context, data, confirmedEvent, existing)
+    await sendMessages(origin, context, savedData, confirmedEvent, existing)
   }
 
-  return response(200, data, event)
+  return response(200, savedData, event)
 })
 
 export default putRegistrationLambda

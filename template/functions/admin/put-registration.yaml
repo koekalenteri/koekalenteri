@@ -45,6 +45,14 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+        PatchAdminRegistration:
+          Type: Api
+          Properties:
+            Path: /admin/registration
+            Method: PATCH
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PutAdminRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup
