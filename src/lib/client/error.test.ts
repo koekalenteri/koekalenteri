@@ -14,6 +14,15 @@ describe('error', () => {
       expect(recordError).toHaveBeenCalledWith('test')
     })
 
+    it('should ignore token expired errors', () => {
+      const recordError = jest.fn()
+      jest.spyOn(rum, 'rum').mockImplementationOnce(() => ({ recordError }) as unknown as AwsRum)
+
+      reportError(new Error('401 The incoming token has expired'))
+
+      expect(recordError).not.toHaveBeenCalled()
+    })
+
     it('should log to console, when rum is not available', () => {
       const consoleError = jest.spyOn(console, 'error').mockImplementationOnce(jest.fn())
       jest.spyOn(rum, 'rum').mockImplementationOnce(() => undefined)

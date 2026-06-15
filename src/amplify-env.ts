@@ -42,7 +42,46 @@ export const RUM_CONFIG: AwsRumConfig = {
   guestRoleArn: process.env.REACT_APP_RUM_ROLE_ARN,
   identityPoolId: process.env.REACT_APP_RUM_IDENTITY_POOL_ID,
   sessionSampleRate: 0.25,
-  telemetries: [/*'performance', */ 'errors', 'http'],
+  telemetries: [/*'performance', */ ['errors', { ignore: shouldIgnoreRumError }], 'http'],
+}
+
+const TOKEN_EXPIRED_MESSAGE = '401 The incoming token has expired'
+const EXTERNAL_OBJECT_NOT_FOUND_MESSAGE = 'Object Not Found Matching Id:2, MethodName:update, ParamCount:4'
+
+const getErrorMessage = (error: unknown): string | undefined => {
+  if (error instanceof ErrorEvent) {
+    return error.error instanceof Error ? error.error.message : error.message
+  }
+  if (typeof PromiseRejectionEvent !== 'undefined' && error instanceof PromiseRejectionEvent) {
+    return getErrorMessage(error.reason)
+  }
+  if (error instanceof Error) {
+    return error.message
+  }
+  if (typeof error === 'string') {
+    return error
+  }
+
+  return undefined
+}
+
+export function shouldIgnoreRumError(error: unknown): boolean {
+  const message = getErrorMessage(error)
+  if (message?.includes(TOKEN_EXPIRED_MESSAGE) || message === EXTERNAL_OBJECT_NOT_FOUND_MESSAGE) {
+    return true
+  }
+
+  if (!(error instanceof ErrorEvent)) {
+    return false
+  }
+
+  return (
+    error.filename === 'webkit-masked-url://hidden/' &&
+    error.message === "Can't find variable: observer" &&
+    error.error instanceof Error &&
+    error.error.stack?.includes('observeDOMChanges@webkit-masked-url://hidden/') === true &&
+    error.error.stack.includes('showFloatingViewBasedOnOverlaySettings@webkit-masked-url://hidden/')
+  )
 }
 
 export const RUM_APPLICATION_ID = process.env.REACT_APP_RUM_APPLICATION_ID
