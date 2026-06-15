@@ -1,16 +1,16 @@
-import type { JsonConfirmedEvent, JsonDogEvent, JsonUser } from '../../types'
+import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch } from '../../types'
 import { nanoid } from 'nanoid'
 import { getEventSeason, isEventDeletable } from '../../lib/event'
-import { isEntryOpen } from '../../lib/utils'
+import { isEntryOpen, patchMerge } from '../../lib/utils'
 import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
-import { lambda, response } from '../lib/lambda'
+import { isPatchRequest, lambda, response } from '../lib/lambda'
 
 const isUserForbidden = (
   user: JsonUser,
   existing: Partial<JsonConfirmedEvent> | undefined,
-  item: Partial<JsonConfirmedEvent>
+  item: Patch<JsonConfirmedEvent>
 ): boolean => {
   if (user.admin) return false
   if (existing?.organizer?.id && !user.roles?.[existing.organizer.id]) return true
@@ -26,8 +26,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   const timestamp = new Date().toISOString()
+  const patchRequest = isPatchRequest(event)
 
-  const item: Partial<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
+  const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
+  if (patchRequest && !item.id) {
+    return response(400, { message: 'Bad request: PATCH requires id' }, event)
+  }
+
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
   if (isUserForbidden(user, existing, item)) {
@@ -57,7 +62,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
     item.entryOrigEndDate = existing.entryEndDate
   }
 
-  const data = { ...existing, ...item } as JsonConfirmedEvent
+  const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
   if (data.startDate) {
     data.season = getEventSeason(data.startDate)
   }

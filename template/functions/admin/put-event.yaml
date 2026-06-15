@@ -33,6 +33,14 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+        PatchEvent:
+          Type: Api
+          Properties:
+            Path: /admin/event
+            Method: PATCH
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PutEventFunctionLogGroup:
     Type: AWS::Logs::LogGroup
