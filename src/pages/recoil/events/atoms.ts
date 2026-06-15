@@ -18,16 +18,11 @@ const isStoredPublicDogEvent = (value: unknown): value is PublicDogEvent => {
     typeof event.id === 'string' &&
     !!event.id &&
     typeof event.eventType === 'string' &&
-    typeof event.location === 'string' &&
-    typeof event.name === 'string' &&
     typeof event.state === 'string' &&
     event.state !== 'draft' &&
     isValidDate(event.startDate) &&
     isValidDate(event.endDate) &&
-    Array.isArray(event.classes) &&
-    Array.isArray(event.judges) &&
-    !!event.organizer?.id &&
-    !!event.organizer.name
+    !!event.organizer?.id
   )
 }
 

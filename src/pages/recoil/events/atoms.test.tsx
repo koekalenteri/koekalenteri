@@ -47,6 +47,37 @@ describe('eventsAtom storage', () => {
     expect(JSON.parse(localStorage.getItem('events') ?? '[]')).toHaveLength(1)
   })
 
+  it('keeps stored tentative-compatible public events without optional fields', () => {
+    const metadata = { lastSyncAt: Date.now(), singles: {} }
+    localStorage.setItem(
+      'events',
+      JSON.stringify([
+        {
+          ...validEvent,
+          classes: undefined,
+          judges: undefined,
+          location: undefined,
+          name: undefined,
+          organizer: { id: 'org-1' },
+          state: 'tentative',
+        },
+      ])
+    )
+    localStorage.setItem('eventMetadata', JSON.stringify(metadata))
+
+    const { result } = renderHook(() => useRecoilValue(eventsAtom), { wrapper })
+
+    expect(result.current).toHaveLength(1)
+    expect(result.current[0]?.id).toBe('event-1')
+    expect(result.current[0]?.classes).toBeUndefined()
+    expect(result.current[0]?.judges).toBeUndefined()
+    expect(result.current[0]?.location).toBeUndefined()
+    expect(result.current[0]?.name).toBeUndefined()
+    expect(result.current[0]?.organizer.name).toBeUndefined()
+    expect(JSON.parse(localStorage.getItem('eventMetadata') ?? '{}')).toEqual(metadata)
+    expect(JSON.parse(localStorage.getItem('events') ?? '[]')).toHaveLength(1)
+  })
+
   it('resets malformed stored event payloads', () => {
     localStorage.setItem('events', JSON.stringify({ id: 'event-1' }))
 
