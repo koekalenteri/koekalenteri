@@ -14,7 +14,8 @@ jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: jest.fn(),
 }))
 
-const { allowOrigin, getParam, isDevStage, isProdStage, isTestStage, response } = await import('./lambda')
+const { allowOrigin, getParam, isDevStage, isHttpMethod, isPatchRequest, isProdStage, isTestStage, response } =
+  await import('./lambda')
 const apiGw = await import('../lib/api-gw')
 
 describe('lambda', () => {
@@ -42,6 +43,20 @@ describe('lambda', () => {
       expect(getParam({ pathParameters: { malformed: '%E0%A4%A' } }, 'malformed', 'def')).toEqual('def')
 
       expect(errorSpy).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('HTTP method helpers', () => {
+    it('matches methods case-insensitively', () => {
+      expect(isHttpMethod({ httpMethod: 'PATCH' }, 'patch')).toBe(true)
+      expect(isHttpMethod({ httpMethod: 'post' }, 'POST')).toBe(true)
+      expect(isHttpMethod({ httpMethod: 'GET' }, 'PATCH')).toBe(false)
+      expect(isHttpMethod({}, 'PATCH')).toBe(false)
+    })
+
+    it('detects patch requests', () => {
+      expect(isPatchRequest({ httpMethod: 'PATCH' })).toBe(true)
+      expect(isPatchRequest({ httpMethod: 'POST' })).toBe(false)
     })
   })
 
