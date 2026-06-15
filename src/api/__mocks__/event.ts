@@ -1,5 +1,5 @@
 import type { AuditRecord, DogEvent, InvitationAttachmentVersion, Patch } from '../../types'
-import type { PublicEventsResponse } from '../event'
+import type { PublicEventsResponse, SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse } from '../event'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
 import {
@@ -86,6 +86,14 @@ export async function putEvent(event: Patch<DogEvent>, _token?: string, _signal?
     }
     process.nextTick(() => (existing ? resolve(existing) : reject(new Error('not found'))))
   })
+}
+
+export async function searchEventKcIdChoices(
+  _request: SearchEventKcIdChoicesRequest,
+  _token?: string,
+  _signal?: AbortSignal
+): Promise<SearchEventKcIdChoicesResponse> {
+  return { choices: [] }
 }
 
 export async function putInvitationAttachment(
