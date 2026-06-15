@@ -135,29 +135,35 @@ describe('SearchPage', () => {
   })
 
   it('filters by entryOpen', async () => {
-    renderPage('/?b=o', locales.fi)
-    await flushPromises()
-    expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
+    const consoleLog = jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    try {
+      renderPage('/?b=o', locales.fi)
+      await flushPromises()
+      expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
 
-    // Log which events are shown
-    const articles = screen.getAllByRole('article')
-    if (articles.length !== 2) {
-      console.log('\n=== entryOpen filter test ===')
-      console.log(`Current time: ${new Date().toISOString()}`)
-      console.log(`Helsinki time: ${new Date().toLocaleString('en-US', { timeZone: 'Europe/Helsinki' })}`)
-      console.log(`Found ${articles.length} articles`)
+      // Log which events are shown
+      const articles = screen.getAllByRole('article')
+      if (articles.length !== 2) {
+        console.log('\n=== entryOpen filter test ===')
+        console.log(`Current time: ${new Date().toISOString()}`)
+        console.log(`Helsinki time: ${new Date().toLocaleString('en-US', { timeZone: 'Europe/Helsinki' })}`)
+        console.log(`Found ${articles.length} articles`)
 
-      // Try to extract event IDs from articles
-      articles.forEach((article, index) => {
-        const headings = article.querySelectorAll('h2, h3, h4, h5, h6')
-        const text = Array.from(headings)
-          .map((h) => h.textContent)
-          .join(', ')
-        console.log(`  Article ${index + 1}: ${text || article.textContent?.substring(0, 50)}`)
-      })
+        // Try to extract event IDs from articles
+        articles.forEach((article, index) => {
+          const headings = article.querySelectorAll('h2, h3, h4, h5, h6')
+          const text = Array.from(headings)
+            .map((h) => h.textContent)
+            .join(', ')
+          console.log(`  Article ${index + 1}: ${text || article.textContent?.substring(0, 50)}`)
+        })
+      }
+
+      expect(articles.length).toEqual(2)
+      expect(consoleLog).not.toHaveBeenCalled()
+    } finally {
+      consoleLog.mockRestore()
     }
-
-    expect(articles.length).toEqual(2)
   })
 
   it('filters by both entryOpen and entryUpcoming', async () => {

@@ -3,7 +3,7 @@ import type { Language } from '../../i18n'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -36,9 +36,16 @@ jest.mock('../../hooks/useWebSocket', () => ({
 }))
 
 describe('EventEditPage', () => {
+  let consoleDebug: jest.SpiedFunction<typeof console.debug>
+
   beforeAll(() => jest.useFakeTimers())
+  beforeEach(() => {
+    consoleDebug = jest.spyOn(console, 'debug').mockImplementation(() => undefined)
+  })
   afterEach(() => {
+    cleanup()
     jest.runOnlyPendingTimers()
+    consoleDebug.mockRestore()
     mockSubscribeEvent.mockClear()
     mockUnsubscribeEvent.mockClear()
     mockViewers = []
@@ -56,7 +63,7 @@ describe('EventEditPage', () => {
       },
     ]
 
-    const { container } = render(
+    const { container, unmount } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
           <RecoilRoot>
@@ -71,6 +78,11 @@ describe('EventEditPage', () => {
     )
     await flushPromises()
     expect(container).toMatchSnapshot()
+    unmount()
+    expect(consoleDebug.mock.calls).toEqual([
+      ['ws:event-subscription mount', { eventId: eventWithStaticDates.id }],
+      ['ws:event-subscription cleanup', { eventId: eventWithStaticDates.id }],
+    ])
   })
 
   it('subscribes to event viewers and shows viewer notification', async () => {
@@ -106,5 +118,9 @@ describe('EventEditPage', () => {
     unmount()
 
     expect(mockUnsubscribeEvent).toHaveBeenCalledTimes(1)
+    expect(consoleDebug.mock.calls).toEqual([
+      ['ws:event-subscription mount', { eventId: eventWithStaticDates.id }],
+      ['ws:event-subscription cleanup', { eventId: eventWithStaticDates.id }],
+    ])
   })
 })
