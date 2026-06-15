@@ -5,7 +5,7 @@
       Handler: handler.default
       Layers:
         - !Ref CommonLayer
-      Tracing: Active
+      Tracing: PassThrough
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref EventRegistrationTable

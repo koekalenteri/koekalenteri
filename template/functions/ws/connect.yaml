@@ -5,6 +5,7 @@
       Handler: handler.default
       Layers:
         - !Ref CommonLayer
+      Tracing: PassThrough
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref WsConnectionsTable
