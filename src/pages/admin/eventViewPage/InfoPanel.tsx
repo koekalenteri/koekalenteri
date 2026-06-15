@@ -27,7 +27,7 @@ import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { reportError } from '../../../lib/client/error'
-import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
+import { canPublishStartList, isStartListPublishedForClass, OFFICIAL_EVENT_TYPES } from '../../../lib/event'
 import { getParticipantMessageInfo, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
@@ -367,6 +367,36 @@ const InfoPanel = ({
             </Table>
           </TableContainer>
         </Box>
+
+        {OFFICIAL_EVENT_TYPES.includes(event.eventType) && (
+          <Box sx={sectionSx}>
+            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+              Kokeen tiedot
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell align="left">
+                      <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                        Koetunnus
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      {event.kcId ? (
+                        <Typography variant="caption">{event.kcId}</Typography>
+                      ) : (
+                        <Typography variant="caption" fontStyle="italic">
+                          Ei haettua koetunnusta
+                        </Typography>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        )}
 
         <Box sx={sectionSx}>
           <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
