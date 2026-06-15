@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router'
 import { Navigate } from 'react-router'
+import { reloadOnChunkLoadError } from './lib/lazy'
 import LoadingIndicator from './pages/components/LoadingIndicator'
 import { ErrorPage } from './pages/ErrorPage'
 import { HomePage } from './pages/HomePage'
@@ -21,12 +22,12 @@ const routes: RouteObject[] = [
       },
       ...['event/:eventType/:id/:class/:date', 'event/:eventType/:id/:class', 'event/:eventType/:id'].map<RouteObject>(
         (path) => ({
-          lazy: () => import('./pages/RegistrationCreatePage'),
+          lazy: () => reloadOnChunkLoadError(() => import('./pages/RegistrationCreatePage')),
           path,
         })
       ),
       {
-        lazy: () => import('./pages/PaymentPage'),
+        lazy: () => reloadOnChunkLoadError(() => import('./pages/PaymentPage')),
         path: 'p/:id/:registrationId',
       },
       {
@@ -68,13 +69,13 @@ const routes: RouteObject[] = [
   {
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,
-    lazy: () => import('./pages/RegistrationInvitation'),
+    lazy: () => reloadOnChunkLoadError(() => import('./pages/RegistrationInvitation')),
     path: 'r/:id/:registrationId/invitation',
   },
   {
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,
-    lazy: () => import('./pages/LoginPage'),
+    lazy: () => reloadOnChunkLoadError(() => import('./pages/LoginPage')),
     path: Path.login,
   },
   { element: <Navigate to="/" replace />, errorElement: <ErrorPage />, path: Path.logout },
@@ -85,79 +86,91 @@ const routes: RouteObject[] = [
         index: true,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventListPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventListPage')).default,
+          })),
         path: Path.admin.events,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventCreatePage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventCreatePage')).default,
+          })),
         path: Path.admin.newEvent,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventEditPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventEditPage')).default,
+          })),
         path: Path.admin.editEvent(':id'),
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventViewPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventViewPage')).default,
+          })),
         path: Path.admin.viewEvent(':id'),
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/OrganizerListPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/OrganizerListPage')).default,
+          })),
         path: Path.admin.orgs,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/OfficialListPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/OfficialListPage')).default,
+          })),
         path: Path.admin.officials,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/UsersPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/UsersPage')).default,
+          })),
         path: Path.admin.users,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/JudgeListPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/JudgeListPage')).default,
+          })),
         path: Path.admin.judges,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventTypeListPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EventTypeListPage')).default,
+          })),
         path: Path.admin.eventTypes,
       },
       {
-        lazy: async () => ({
-          Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EmailTemplateListPage')).default,
-        }),
+        lazy: () =>
+          reloadOnChunkLoadError(async () => ({
+            Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/EmailTemplateListPage')).default,
+          })),
         path: Path.admin.emailTemplates,
       },
     ],
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,
-    lazy: async () => ({
-      Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/AdminHomePage')).default,
-    }),
+    lazy: () =>
+      reloadOnChunkLoadError(async () => ({
+        Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/AdminHomePage')).default,
+      })),
     path: Path.admin.root,
   },
   {
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,
-    lazy: async () => ({
-      Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StartListPage')).default,
-    }),
+    lazy: () =>
+      reloadOnChunkLoadError(async () => ({
+        Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StartListPage')).default,
+      })),
     path: Path.admin.startList(':id'),
   },
   {
