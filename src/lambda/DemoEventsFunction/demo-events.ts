@@ -1,7 +1,5 @@
 import type { EventState, JsonDogEvent, JsonEventClass, RegistrationClass } from '../../types'
-
 import { addMonths, addWeeks } from 'date-fns'
-
 import { zonedStartOfDay } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 
@@ -17,11 +15,11 @@ const monthAway = zonedStartOfDay(addMonths(Date.now(), 1)).toISOString()
 const draft: JsonDogEvent = {
   classes: [],
   contactInfo: {
-    secretary: {
-      email: 'secretary@example.com',
-    },
     official: {
       email: 'official@example.com',
+    },
+    secretary: {
+      email: 'secretary@example.com',
     },
   },
   cost: 50,
@@ -56,32 +54,32 @@ const draft: JsonDogEvent = {
 
 const dates: Pick<JsonDogEvent, 'startDate' | 'endDate' | 'entryStartDate' | 'entryEndDate' | 'name'>[] = [
   {
-    startDate: monthAway,
     endDate: monthAway,
-    entryStartDate: oneWeekAway,
     entryEndDate: twoWeeksAway,
+    entryStartDate: oneWeekAway,
     name: '+1kk',
+    startDate: monthAway,
   },
   {
-    startDate: twoWeeksAway,
     endDate: twoWeeksAway,
-    entryStartDate: today,
     entryEndDate: oneWeekAway,
+    entryStartDate: today,
     name: '+2vk (ilmoaika tänään->)',
-  },
-  {
     startDate: twoWeeksAway,
-    endDate: twoWeeksAway,
-    entryStartDate: oneWeekAgo,
-    entryEndDate: today,
-    name: '+2vk (ilmoaika ->tänään',
   },
   {
-    startDate: today,
+    endDate: twoWeeksAway,
+    entryEndDate: today,
+    entryStartDate: oneWeekAgo,
+    name: '+2vk (ilmoaika ->tänään',
+    startDate: twoWeeksAway,
+  },
+  {
     endDate: today,
-    entryStartDate: twoWeeksAgo,
     entryEndDate: oneWeekAgo,
+    entryStartDate: twoWeeksAgo,
     name: 'tänään',
+    startDate: today,
   },
 ]
 
@@ -109,9 +107,9 @@ for (const date of dates) {
         ...date,
         classes: getClasses(eventType, date.startDate),
         eventType,
-        state,
         name: `DEMO: ${eventType} ${date.name} [${stateName}]`,
         places: 30,
+        state,
       })
     }
   }

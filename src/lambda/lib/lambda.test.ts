@@ -5,8 +5,8 @@ import { CONFIG } from '../config'
 // Mock the CONFIG object
 jest.mock('../config', () => ({
   CONFIG: {
-    stageName: '',
     stackName: 'prod',
+    stageName: '',
   },
 }))
 

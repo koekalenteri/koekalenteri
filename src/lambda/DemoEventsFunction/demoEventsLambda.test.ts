@@ -9,9 +9,9 @@ jest.unstable_mockModule('./demo-events', () => ({
 const mockResponse = jest.fn<any>()
 const mockBatchWrite = jest.fn<any>()
 const mockConfig = {
-  stageName: 'dev',
-  stackName: 'prod',
   eventTable: 'events-table',
+  stackName: 'prod',
+  stageName: 'dev',
 }
 
 jest.unstable_mockModule('../config', () => ({
@@ -39,9 +39,9 @@ describe('demoEvents', () => {
 
     // Reset config to default values
     Object.assign(mockConfig, {
-      stageName: 'dev',
-      stackName: 'prod',
       eventTable: 'events-table',
+      stackName: 'prod',
+      stageName: 'dev',
     })
 
     // Spy on console.error
@@ -58,7 +58,7 @@ describe('demoEvents', () => {
     mockConfig.stageName = 'prod'
     mockConfig.stackName = 'prod'
 
-    const event = { headers: {}, body: '' } as any
+    const event = { body: '', headers: {} } as any
 
     await demoEventsHandler(event)
 
@@ -71,7 +71,7 @@ describe('demoEvents', () => {
     mockConfig.stageName = 'dev'
     mockConfig.stackName = 'prod' // Any stack name should work with dev stage
 
-    const event = { headers: {}, body: '' } as any
+    const event = { body: '', headers: {} } as any
     mockBatchWrite.mockResolvedValueOnce({})
 
     await demoEventsHandler(event)
@@ -85,7 +85,7 @@ describe('demoEvents', () => {
     mockConfig.stageName = 'prod'
     mockConfig.stackName = 'local'
 
-    const event = { headers: {}, body: '' } as any
+    const event = { body: '', headers: {} } as any
     mockBatchWrite.mockResolvedValueOnce({})
 
     await demoEventsHandler(event)
@@ -97,13 +97,13 @@ describe('demoEvents', () => {
   it('handles ServiceException errors', async () => {
     // Config is already set to dev in beforeEach
 
-    const event = { headers: {}, body: '' } as any
+    const event = { body: '', headers: {} } as any
     const error = new ServiceException({
-      name: 'TestServiceException',
       $fault: 'client',
       $metadata: {
         httpStatusCode: 400,
       },
+      name: 'TestServiceException',
     } as any)
     error.message = 'Service error'
 
@@ -119,7 +119,7 @@ describe('demoEvents', () => {
   it('handles generic errors', async () => {
     // Config is already set to dev in beforeEach
 
-    const event = { headers: {}, body: '' } as any
+    const event = { body: '', headers: {} } as any
     const error = new Error('Generic error')
 
     mockBatchWrite.mockRejectedValueOnce(error)
@@ -134,11 +134,11 @@ describe('demoEvents', () => {
   it('handles ServiceException without httpStatusCode', async () => {
     // Config is already set to dev in beforeEach
 
-    const event = { headers: {}, body: '' } as any
+    const event = { body: '', headers: {} } as any
     const error = new ServiceException({
-      name: 'TestServiceException',
       $fault: 'client',
       $metadata: {},
+      name: 'TestServiceException',
     } as any)
     error.message = 'Service error without status'
 
