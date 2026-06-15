@@ -2,6 +2,7 @@ import type {
   ConfirmedEvent,
   DogEvent,
   JsonDogEvent,
+  Patch,
   RegistrationClass,
   RegistrationDate,
   RegistrationTime,
@@ -78,10 +79,10 @@ export const eventRegistrationDateKey = (rd: RegistrationDate) => `${zonedDateSt
 export function sanitizeDogEvent(event: JsonDogEvent): SanitizedJsonPublicDogEvent
 export function sanitizeDogEvent(event: ConfirmedEvent): SanitizedPublicConfirmedDogEvent
 export function sanitizeDogEvent(event: DogEvent): SanitizedPublicDogEvent
-export function sanitizeDogEvent(event: Partial<JsonDogEvent>): Partial<SanitizedJsonPublicDogEvent>
+export function sanitizeDogEvent(event: Patch<JsonDogEvent>): Patch<SanitizedJsonPublicDogEvent>
 export function sanitizeDogEvent(
-  event: DogEvent | JsonDogEvent | Partial<JsonDogEvent>
-): SanitizedPublicDogEvent | SanitizedJsonPublicDogEvent | Partial<SanitizedJsonPublicDogEvent> {
+  event: DogEvent | JsonDogEvent | Patch<JsonDogEvent>
+): SanitizedPublicDogEvent | SanitizedJsonPublicDogEvent | Patch<SanitizedJsonPublicDogEvent> {
   const {
     createdBy: _createdBy,
     deletedAt: _deletedAt,
