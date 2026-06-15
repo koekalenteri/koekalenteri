@@ -26,6 +26,10 @@ function getGroupKey(r: Registration, i: number) {
 }
 
 describe('InfoPanel>', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('renders with no registrations', () => {
     const { container } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
@@ -74,8 +78,9 @@ describe('InfoPanel>', () => {
     // Click on the second tab
     await user.click(screen.getByText('Tehtävälista'))
 
-    // Now the second tab should be active and show "Liitteet"
-    expect(screen.getByText('Liitteet')).toBeInTheDocument()
+    // Now the second tab should be active and show event details
+    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
+    expect(screen.getByText('Koetunnus')).toBeInTheDocument()
     expect(screen.getByText('Koekutsu')).toBeInTheDocument()
 
     // Click back on the first tab
