@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
 import { getEvent, getEvents } from '../../../api/event'
 import { isConfirmedEvent } from '../../../lib/typeGuards'
-import { eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
+import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { eventSelector } from './selectors'
 
 type DogEventSortKey = Pick<DogEvent, 'id' | 'startDate' | 'endDate'>
@@ -14,6 +14,7 @@ type DogEventRangeKey = Pick<DogEvent, 'startDate' | 'endDate'>
 const RANGE_INCREMENTAL_THROTTLE = 5 * 60 * 1000 // 5 min
 const SINGLE_FRESHNESS = 5 * 60 * 1000 // 5 min
 const RANGE_RETENTION_MS = 180 * 24 * 60 * 60 * 1000 // 180 days
+const DEFAULT_EVENT_METADATA: EventMetadata = { singles: {} }
 
 type RangeRequest = {
   end: number | null
@@ -147,6 +148,15 @@ function buildRangeMetadata(
   }
 }
 
+function consumeMetadataInvalidation(metadata: EventMetadata): EventMetadata {
+  if (localStorage.getItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY) !== 'true') {
+    return metadata
+  }
+
+  localStorage.removeItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY)
+  return DEFAULT_EVENT_METADATA
+}
+
 export function useFetchEvents() {
   return useRecoilCallback(
     ({ snapshot, set }) =>
@@ -160,29 +170,34 @@ export function useFetchEvents() {
         try {
           const metadata = await snapshot.getPromise(eventMetadataAtom)
           const events = await snapshot.getPromise(eventsAtom)
+          const effectiveMetadata = consumeMetadataInvalidation(metadata)
           const now = Date.now()
           const preparedRange = prepareRangeEvents(events, start, now)
           const preparedEvents = preparedRange.nextEvents
+
+          if (effectiveMetadata !== metadata) {
+            set(eventMetadataAtom, effectiveMetadata)
+          }
 
           if (preparedRange.wasPruned) {
             set(eventsAtom, preparedEvents)
           }
 
           if (start) {
-            const strategy = getRangeStrategy(metadata, preparedEvents.length, start, end, now)
+            const strategy = getRangeStrategy(effectiveMetadata, preparedEvents.length, start, end, now)
 
             if (strategy.kind === 'throttled') {
-              set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, false))
+              set(eventMetadataAtom, buildRangeMetadata(effectiveMetadata, strategy.request, now, false))
             } else {
-              const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
+              const response = await getEvents(start, end, strategy.isCold ? undefined : effectiveMetadata.lastSyncAt)
               const nextEvents = reconcileRange(preparedEvents, response.events, response.unchangedIds, start, end)
               set(eventsAtom, nextEvents)
-              set(eventMetadataAtom, buildRangeMetadata(metadata, strategy.request, now, true))
+              set(eventMetadataAtom, buildRangeMetadata(effectiveMetadata, strategy.request, now, true))
             }
           }
 
           if (eventId) {
-            if (!isSingleFresh(metadata, eventId)) {
+            if (!isSingleFresh(effectiveMetadata, eventId)) {
               try {
                 const event = await getEvent(eventId)
                 const merged = mergeAndSortByDate(await snapshot.getPromise(eventsAtom), [event])
@@ -194,8 +209,8 @@ export function useFetchEvents() {
               }
 
               set(eventMetadataAtom, {
-                ...metadata,
-                singles: { ...metadata.singles, [eventId]: now },
+                ...effectiveMetadata,
+                singles: { ...effectiveMetadata.singles, [eventId]: now },
               })
             }
           }

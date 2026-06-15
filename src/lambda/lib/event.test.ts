@@ -842,6 +842,7 @@ describe('lib/event', () => {
   describe('patchEvent', () => {
     beforeEach(() => {
       mockUpdate.mockReset()
+      mockBroadcastAdminEvent.mockReset()
       mockPublishEventPatch.mockReset()
       mockRead.mockReset()
     })
@@ -1083,6 +1084,58 @@ describe('lib/event', () => {
         },
         'org-1'
       )
+    })
+
+    it('publishes only admin event patch when draft stays draft', async () => {
+      const existing = {
+        id: 'e8',
+        name: 'Draft event',
+        organizer: { id: 'org-1', name: 'Org' },
+        state: 'draft',
+      } as JsonDogEvent
+      const next = {
+        ...existing,
+        name: 'Updated draft event',
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+        {
+          eventId: existing.id,
+          name: 'Updated draft event',
+        },
+        'org-1'
+      )
+      expect(mockPublishEventPatch).not.toHaveBeenCalled()
+    })
+
+    it('publishes event patch when public event becomes draft', async () => {
+      const existing = {
+        id: 'e9',
+        name: 'Public event',
+        organizer: { id: 'org-1', name: 'Org' },
+        state: 'tentative',
+      } as JsonDogEvent
+      const next = {
+        ...existing,
+        state: 'draft',
+      } as JsonDogEvent
+
+      mockRead.mockResolvedValueOnce(next)
+
+      await patchEvent(existing.id, existing, next)
+
+      expect(mockPublishEventPatch).toHaveBeenCalledWith(
+        {
+          eventId: existing.id,
+          state: 'draft',
+        },
+        'org-1'
+      )
+      expect(mockBroadcastAdminEvent).not.toHaveBeenCalled()
     })
   })
 

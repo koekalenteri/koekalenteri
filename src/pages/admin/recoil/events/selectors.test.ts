@@ -2,7 +2,7 @@ import type { DogEvent } from '../../../../types'
 import { snapshot_UNSTABLE } from 'recoil'
 import { emptyEvent } from '../../../../__mockData__/emptyEvent'
 import { adminEventFilterTextAtom, adminEventsAtom, adminShowPastEventsAtom } from './atoms'
-import { adminFilteredEventsSelector } from './selectors'
+import { adminEventOrganizersSelector, adminFilteredEventsSelector } from './selectors'
 
 const event = (id: string, endDate: Date): DogEvent => ({
   ...emptyEvent,
@@ -33,5 +33,22 @@ describe('admin event selectors', () => {
     })
 
     expect(snapshot.getLoadable(adminFilteredEventsSelector).valueOrThrow()).toEqual([today])
+  })
+
+  it('ignores events with missing organizers when listing event organizers', () => {
+    const valid = {
+      ...event('valid', new Date('2026-05-28T00:00:00.000+03:00')),
+      organizer: { id: 'org-1', name: 'Organizer' },
+    }
+    const missingOrganizer = {
+      ...event('missing-organizer', new Date('2026-05-28T00:00:00.000+03:00')),
+      organizer: undefined,
+    } as unknown as DogEvent
+
+    const snapshot = snapshot_UNSTABLE(({ set }) => {
+      set(adminEventsAtom, [missingOrganizer, valid])
+    })
+
+    expect(snapshot.getLoadable(adminEventOrganizersSelector).valueOrThrow()).toEqual([valid.organizer])
   })
 })

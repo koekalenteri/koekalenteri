@@ -2,7 +2,7 @@ import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../typ
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { sanitizeDogEvent } from '../lib/event'
-import { applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
+import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { websocketAdminUsersSelector } from '../pages/admin/recoil/user/selectors'
@@ -23,6 +23,20 @@ export const applyRegistrationPatches = (
   registrations: Registration[],
   patch: DeepPartial<Registration>[]
 ): Registration[] => applyPatchesById(registrations, patch)
+
+const isInsertablePublicEventPatch = (
+  patch: Partial<PublicDogEvent>
+): patch is Partial<PublicDogEvent> & Pick<PublicDogEvent, 'state'> =>
+  patch.state !== undefined &&
+  patch.state !== 'draft' &&
+  !!patch.eventType &&
+  !!patch.location &&
+  !!patch.organizer?.id &&
+  !!patch.organizer.name &&
+  patch.startDate instanceof Date &&
+  patch.endDate instanceof Date &&
+  Array.isArray(patch.classes) &&
+  Array.isArray(patch.judges)
 
 export const getRegistrationPatchChangedIds = (
   registrations: Registration[],
@@ -109,11 +123,22 @@ export const useWebSocket = () => {
 
   const setPublicEvents = useRecoilCallback(
     ({ snapshot, set }) =>
-      (eventId: string, patch: Partial<PublicDogEvent>) => {
+      (eventId: string, patch: Partial<PublicDogEvent>, options: { insert?: boolean } = { insert: true }) => {
         const loadable = snapshot.getLoadable(eventsAtom)
         if (loadable.state !== 'hasValue') return
 
-        const next = applyPatchOrInsert(loadable.contents, eventId, patch)
+        if (patch.state === 'draft') {
+          const next = loadable.contents.filter((event) => event.id !== eventId)
+          if (next.length === loadable.contents.length) return
+
+          markRecentlyUpdated('public:event', eventId)
+          set(eventsAtom, next)
+          return
+        }
+
+        const next = options.insert
+          ? applyPatchOrInsert(loadable.contents, eventId, patch)
+          : applyPatch(loadable.contents, eventId, patch)
         if (next !== loadable.contents) markRecentlyUpdated('public:event', eventId)
         set(eventsAtom, next)
       },
@@ -295,7 +320,7 @@ export const useWebSocket = () => {
             setAdminEvents(eventId, patch)
             const publicPatch = sanitizeDogEvent(patch) as unknown as Partial<PublicDogEvent>
             if (Object.keys(publicPatch).length > 0) {
-              setPublicEvents(eventId, publicPatch)
+              setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
             }
           } else if (scope === 'public:event-patch' || !scope) {
             setPublicEvents(eventId, patch)

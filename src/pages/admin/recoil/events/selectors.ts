@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, DogEvent } from '../../../../types'
+import type { ConfirmedEvent, DogEvent, PublicOrganizer } from '../../../../types'
 import i18next from 'i18next'
 import { DefaultValue, selector, selectorFamily } from 'recoil'
 import { isConfirmedEvent } from '../../../../lib/typeGuards'
@@ -89,10 +89,11 @@ export const adminFilteredEventsSelector = selector({
 export const adminEventOrganizersSelector = selector({
   get: ({ get }) => {
     const events = get(adminEventsAtom)
-    return uniqueFn(
-      events.map((event) => event.organizer),
-      (a, b) => a.id === b.id
-    ).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    const organizers = events
+      .map((event) => event.organizer)
+      .filter((organizer): organizer is PublicOrganizer => !!organizer?.id && !!organizer.name)
+
+    return uniqueFn(organizers, (a, b) => a.id === b.id).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
   },
   key: 'adminEventOrganizers',
 })

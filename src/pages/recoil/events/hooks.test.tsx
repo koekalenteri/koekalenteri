@@ -2,7 +2,7 @@ import type { PublicDogEvent } from '../../../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { RecoilRoot, useRecoilValue } from 'recoil'
 import { getEvents } from '../../../api/event'
-import { eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
+import { EVENT_METADATA_INVALIDATED_STORAGE_KEY, eventMetadataAtom, eventsAtom, eventsLoadingAtom } from './atoms'
 import { useFetchEvents } from './hooks'
 
 jest.mock('../../../api/event', () => ({
@@ -43,6 +43,10 @@ function wrapperWithState(initialEvents: PublicDogEvent[], metadata: Record<stri
       </RecoilRoot>
     )
   }
+}
+
+function wrapper({ children }: { readonly children: React.ReactNode }) {
+  return <RecoilRoot>{children}</RecoilRoot>
 }
 
 describe('useFetchEvents', () => {
@@ -242,6 +246,50 @@ describe('useFetchEvents', () => {
       expect(result.current.metadata.lastRangeStart).toBe(start.getTime())
       expect(result.current.metadata.lastRangeEnd).toBe(end.getTime())
       expect(result.current.metadata.retainedStart).toBe(start.getTime())
+    })
+  })
+
+  it('uses cold-start full fetch when stored events invalidate already-loaded metadata', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+    const cached = makeEvent('cached', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+    const fetched = makeEvent('fetched', '2026-01-04T00:00:00.000Z', '2026-01-04T00:00:00.000Z')
+
+    localStorage.setItem(
+      'eventMetadata',
+      JSON.stringify({
+        lastRangeEnd: end.getTime(),
+        lastRangeStart: start.getTime(),
+        lastSyncAt: Date.now() - 60 * 1000,
+        singles: {},
+      })
+    )
+    localStorage.setItem('events', JSON.stringify([cached, { id: 'broken', name: 'Broken event' }]))
+
+    ;(getEvents as jest.Mock).mockResolvedValue({
+      events: [fetched],
+      unchangedIds: [],
+    })
+
+    const { result } = renderHook(
+      () => ({
+        events: useRecoilValue(eventsAtom),
+        fetchEvents: useFetchEvents(),
+        // Read metadata before events to cover the startup ordering that regressed.
+        metadata: useRecoilValue(eventMetadataAtom),
+      }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start, end)
+    })
+
+    await waitFor(() => {
+      expect(getEvents).toHaveBeenCalledWith(start, end, undefined)
+      expect(result.current.events).toEqual([fetched])
+      expect(result.current.metadata.lastSyncAt).toEqual(expect.any(Number))
+      expect(localStorage.getItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY)).toBeNull()
     })
   })
 

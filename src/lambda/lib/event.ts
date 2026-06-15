@@ -74,6 +74,7 @@ export const patchEvent = async (
 ): Promise<JsonDogEvent> => {
   const { changes, remove, set } = createPatch(next, existing)
   const becomesPublic = existing.state === 'draft' && next.state !== 'draft'
+  const staysDraft = existing.state === 'draft' && next.state === 'draft'
 
   if (!set && !remove) {
     return existing
@@ -88,7 +89,11 @@ export const patchEvent = async (
     eventTable
   )
 
-  await publishEventPatch({ eventId, ...(becomesPublic ? next : changes) }, next.organizer.id)
+  if (staysDraft) {
+    await publishAdminEventPatch({ eventId, ...changes }, next.organizer.id)
+  } else {
+    await publishEventPatch({ eventId, ...(becomesPublic ? next : changes) }, next.organizer.id)
+  }
 
   return getEvent<JsonDogEvent>(eventId)
 }

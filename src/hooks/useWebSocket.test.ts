@@ -648,6 +648,39 @@ describe('useWebSocket', () => {
     })
   })
 
+  it('should remove public events from scoped public draft event patch messages', async () => {
+    const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return {
+          events: useRecoilValue(eventsAtom),
+          recentlyUpdated: useRecoilValue(recentlyUpdatedAtom),
+        }
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', scope: 'public:event-patch', state: 'draft' }),
+      })
+    })
+
+    await waitFor(() => {
+      expect(result.current.events).toEqual([])
+      expect(result.current.recentlyUpdated['public:event:event-1']).toEqual(expect.any(Number))
+    })
+  })
+
   it('should merge public data from scoped admin event patch messages without losing existing fields', async () => {
     const event = {
       entries: 1,
@@ -684,6 +717,104 @@ describe('useWebSocket', () => {
         name: 'Old Public Name',
         organizer: { id: 'org-1', name: 'Organizer' },
       })
+    })
+  })
+
+  it('should not insert partial public data from scoped admin event patch messages', async () => {
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return useRecoilValue(eventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-2', name: 'Draft Name', scope: 'admin:event-patch' }),
+      })
+    })
+
+    expect(result.current).toEqual([])
+  })
+
+  it('should insert public data from full non-draft scoped admin event patch messages', async () => {
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return useRecoilValue(eventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          classes: [],
+          endDate: '2026-01-02',
+          eventId: 'event-2',
+          eventType: 'NOME-A',
+          judges: [],
+          location: 'Helsinki',
+          name: 'New Public Event',
+          organizer: { id: 'org-1', name: 'Organizer' },
+          scope: 'admin:event-patch',
+          startDate: '2026-01-01',
+          state: 'tentative',
+        }),
+      })
+    })
+
+    await waitFor(() => {
+      expect(result.current).toHaveLength(1)
+      expect(result.current[0]).toEqual(
+        expect.objectContaining({ eventType: 'NOME-A', id: 'event-2', name: 'New Public Event', state: 'tentative' })
+      )
+    })
+  })
+
+  it('should remove public events from scoped admin draft event patch messages', async () => {
+    const event = { entries: 1, id: 'event-1', name: 'Old Public Name', state: 'tentative' }
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(eventsAtom, [event as any])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return useRecoilValue(eventsAtom)
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ eventId: 'event-1', scope: 'admin:event-patch', state: 'draft' }),
+      })
+    })
+
+    await waitFor(() => {
+      expect(result.current).toEqual([])
     })
   })
 

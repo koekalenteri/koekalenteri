@@ -4,6 +4,11 @@ import { runCleaners } from './storageCleaners'
 
 runCleaners()
 
+interface StorageEffectOptions<T> {
+  refine?: (value: unknown) => T | undefined
+  onRefined?: () => void
+}
+
 export const parseStorageJSON = (value: string | null) => {
   try {
     if (value !== null) {
@@ -14,13 +19,29 @@ export const parseStorageJSON = (value: string | null) => {
   }
 }
 
+const getRefinedValue = <T>(value: unknown, options?: StorageEffectOptions<T>) =>
+  options?.refine ? options.refine(value) : (value as T | undefined)
+
 export const getStorageEffect =
-  (storage: Storage): AtomEffect<any> =>
+  <T = any>(storage: Storage, options?: StorageEffectOptions<T>): AtomEffect<T> =>
   ({ node, setSelf, onSet, trigger, resetSelf }) => {
     if (trigger === 'get') {
       const savedValue = storage.getItem(node.key)
       if (savedValue !== null) {
-        setSelf(parseStorageJSON(savedValue))
+        const parsed = parseStorageJSON(savedValue)
+        if (parsed !== undefined) {
+          const refined = getRefinedValue(parsed, options)
+          if (refined === undefined) {
+            storage.removeItem(node.key)
+            options?.onRefined?.()
+            return
+          }
+          if (refined !== parsed) {
+            storage.setItem(node.key, JSON.stringify(refined))
+            options?.onRefined?.()
+          }
+          setSelf(refined)
+        }
       }
     }
 
@@ -40,10 +61,19 @@ export const getStorageEffect =
     const handleStorageChange = (e: StorageEvent) => {
       if (e.storageArea === storage && e.key === node.key) {
         const parsed = parseStorageJSON(e.newValue)
-        if (parsed === undefined) {
+        const refined = parsed === undefined ? undefined : getRefinedValue(parsed, options)
+        if (refined === undefined) {
+          if (parsed !== undefined) {
+            storage.removeItem(node.key)
+            options?.onRefined?.()
+          }
           resetSelf()
         } else {
-          setSelf(parsed)
+          if (refined !== parsed) {
+            storage.setItem(node.key, JSON.stringify(refined))
+            options?.onRefined?.()
+          }
+          setSelf(refined)
         }
       }
     }

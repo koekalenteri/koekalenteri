@@ -2,12 +2,53 @@ import type { PublicDogEvent } from '../../../types'
 import type { EventMetadata, FilterProps } from './types'
 import { atom } from 'recoil'
 import { zonedStartOfDay } from '../../../i18n/dates'
-import { localStorageEffect, logEffect } from '../effects'
+import { getStorageEffect, localStorageEffect, logEffect } from '../effects'
 import { urlSyncEffect } from './effects'
+
+export const EVENT_METADATA_INVALIDATED_STORAGE_KEY = 'eventMetadataInvalidated'
+
+const isValidDate = (value: unknown): value is Date => value instanceof Date && !Number.isNaN(value.valueOf())
+
+const isStoredPublicDogEvent = (value: unknown): value is PublicDogEvent => {
+  if (!value || typeof value !== 'object') return false
+
+  const event = value as Partial<PublicDogEvent>
+
+  return (
+    typeof event.id === 'string' &&
+    !!event.id &&
+    typeof event.eventType === 'string' &&
+    typeof event.location === 'string' &&
+    typeof event.name === 'string' &&
+    typeof event.state === 'string' &&
+    event.state !== 'draft' &&
+    isValidDate(event.startDate) &&
+    isValidDate(event.endDate) &&
+    Array.isArray(event.classes) &&
+    Array.isArray(event.judges) &&
+    !!event.organizer?.id &&
+    !!event.organizer.name
+  )
+}
+
+const refineStoredEvents = (value: unknown): PublicDogEvent[] | undefined => {
+  if (!Array.isArray(value)) return undefined
+
+  const events = value.filter(isStoredPublicDogEvent)
+  return events.length === value.length ? value : events
+}
+
+const eventsStorageEffect = getStorageEffect<PublicDogEvent[]>(localStorage, {
+  onRefined: () => {
+    localStorage.removeItem('eventMetadata')
+    localStorage.setItem(EVENT_METADATA_INVALIDATED_STORAGE_KEY, 'true')
+  },
+  refine: refineStoredEvents,
+})
 
 export const eventsAtom = atom<PublicDogEvent[]>({
   default: [],
-  effects: [logEffect, localStorageEffect],
+  effects: [logEffect, eventsStorageEffect],
   key: 'events',
 })
 

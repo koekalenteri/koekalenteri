@@ -55,6 +55,11 @@ describe('storage', () => {
     const resetSelf = jest.fn<void, []>()
     const effect = getStorageEffect(mockStorage)
 
+    beforeEach(() => {
+      onSetCallback = undefined
+      jest.clearAllMocks()
+    })
+
     it('should initialize from storage', () => {
       const testValue = 'test value'
       mockStorage.getItem.mockReturnValueOnce(JSON.stringify(testValue))
@@ -64,6 +69,34 @@ describe('storage', () => {
       expect(mockStorage.getItem).toHaveBeenCalledWith(node.key)
       expect(mockStorage.getItem).toHaveBeenCalledTimes(1)
       expect(setSelf).toHaveBeenCalledWith(testValue)
+    })
+
+    it('should initialize with refined storage value and persist the refined value', () => {
+      const refinedEffect = getStorageEffect(mockStorage, {
+        onRefined: jest.fn(),
+        refine: (value) => (Array.isArray(value) ? value.filter((item) => item?.valid) : undefined),
+      })
+      mockStorage.getItem.mockReturnValueOnce(JSON.stringify([{ valid: true }, { valid: false }]))
+
+      // @ts-expect-error providing only used properties
+      refinedEffect({ node, onSet, resetSelf, setSelf, trigger: 'get' })
+
+      expect(setSelf).toHaveBeenCalledWith([{ valid: true }])
+      expect(mockStorage.setItem).toHaveBeenCalledWith(node.key, JSON.stringify([{ valid: true }]))
+    })
+
+    it('should remove storage value when refinement rejects it', () => {
+      const refinedEffect = getStorageEffect(mockStorage, {
+        onRefined: jest.fn(),
+        refine: (value) => (Array.isArray(value) ? value : undefined),
+      })
+      mockStorage.getItem.mockReturnValueOnce(JSON.stringify({ invalid: true }))
+
+      // @ts-expect-error providing only used properties
+      refinedEffect({ node, onSet, resetSelf, setSelf, trigger: 'get' })
+
+      expect(setSelf).not.toHaveBeenCalled()
+      expect(mockStorage.removeItem).toHaveBeenCalledWith(node.key)
     })
 
     it('should ignore null value from storage on initialization', () => {
