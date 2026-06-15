@@ -143,6 +143,14 @@ describe('ws/actions', () => {
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
   })
 
+  it('publishes null removal markers in admin patches', async () => {
+    await publishEventPatch({ eventId: 'e1', kcId: null }, 'org-1')
+
+    const call = mockBroadcast.mock.calls[0]?.[0] as { buildPayload: () => unknown } | undefined
+    expect(call?.buildPayload()).toEqual({ eventId: 'e1', kcId: null, scope: 'admin:event-patch' })
+    expect(mockBroadcast).toHaveBeenCalledTimes(1)
+  })
+
   it('publishes admin patch and derived public patch when public fields changed', async () => {
     mockOrganizerAudience.mockResolvedValueOnce([{ connectionId: 'a1' }])
     mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'p1' }])

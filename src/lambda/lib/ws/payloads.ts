@@ -1,16 +1,16 @@
-import type { DeepPartial, JsonDogEvent, JsonRegistration } from '../../../types'
+import type { JsonDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { EventPatchPayload, RegistrationPatchPayload, WebSocketConnection } from './types'
 
 type ConnectionCountScope = 'public:connection-count' | 'admin:connection-count'
 
-export const buildEventPatchPayload = (eventId: string, patch: Partial<JsonDogEvent>): EventPatchPayload => ({
+export const buildEventPatchPayload = (eventId: string, patch: Patch<JsonDogEvent>): EventPatchPayload => ({
   eventId,
   ...patch,
 })
 
 export const buildRegistrationPatchPayload = (
   eventId: string,
-  patch: DeepPartial<JsonRegistration>[]
+  patch: Patch<JsonRegistration>[]
 ): RegistrationPatchPayload => ({ eventId, patch })
 
 export const buildEventViewersPayload = (eventId: string, viewers: string[]) => ({

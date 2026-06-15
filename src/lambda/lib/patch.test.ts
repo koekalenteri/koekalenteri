@@ -22,6 +22,18 @@ describe('createPatch', () => {
     })
   })
 
+  it('treats null as a top-level field removal', () => {
+    const existing = { id: '1', kcId: 123456, name: 'Event' }
+    const next = { id: '1', kcId: null, name: 'Event' }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: {
+        kcId: null,
+      },
+      remove: ['kcId'],
+    })
+  })
+
   it('creates partial dotted set operations for nested object changes', () => {
     const existing = {
       contactInfo: {
@@ -64,6 +76,30 @@ describe('createPatch', () => {
       changes: {
         contactInfo: {
           secretary: { email: undefined },
+        },
+      },
+      remove: ['contactInfo.secretary.email'],
+    })
+  })
+
+  it('treats null as a nested field removal', () => {
+    const existing = {
+      contactInfo: {
+        secretary: { email: 'old@example.com', name: 'Secretary' },
+      },
+      id: '1',
+    }
+    const next = {
+      contactInfo: {
+        secretary: { email: null, name: 'Secretary' },
+      },
+      id: '1',
+    }
+
+    expect(createPatch(next, existing)).toEqual({
+      changes: {
+        contactInfo: {
+          secretary: { email: null },
         },
       },
       remove: ['contactInfo.secretary.email'],

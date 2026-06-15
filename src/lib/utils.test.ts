@@ -229,6 +229,11 @@ describe('utils', () => {
       expect(result).toEqual({ arr: [3] })
       expect(result.arr).toBe(b.arr)
     })
+    it('should remove fields with null patch values', () => {
+      const a = { keep: true, nested: { keep: true, remove: 'value' }, remove: 'value' }
+      const result = merge(a, { nested: { remove: null }, remove: null })
+      expect(result).toEqual({ keep: true, nested: { keep: true } })
+    })
     it('should merge with empty object', () => {
       const a = { value: 'string' }
       expect(merge(a, {})).toEqual({ value: 'string' })
@@ -398,6 +403,16 @@ describe('utils', () => {
 
       expect(result).not.toBe(base)
       expect(result.b).not.toBe(base.b)
+    })
+
+    it('should remove fields with null patch values', () => {
+      const base = { keep: true, nested: { keep: true, remove: 'value' }, remove: 'value' }
+      const patch = { nested: { remove: null }, remove: null }
+      const result = patchMerge(base, patch) as { keep: boolean; nested: { keep: boolean } }
+
+      expect(result).toEqual({ keep: true, nested: { keep: true } })
+      expect(result).not.toBe(base)
+      expect(result.nested).not.toBe(base.nested)
     })
 
     it('should handle non-object base values', () => {

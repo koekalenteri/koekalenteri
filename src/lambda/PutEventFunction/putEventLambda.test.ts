@@ -94,7 +94,10 @@ const mockEvent: JsonDogEvent = {
 describe('putEventLambda', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)
 
-  afterEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    patchEventMock.mockImplementation(async (_id, _existing, next) => next)
+  })
 
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)
@@ -185,6 +188,7 @@ describe('putEventLambda', () => {
   it('should update an event', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
+    patchEventMock.mockResolvedValueOnce({ ...mockEvent, eventType: 'TEST', kcId: undefined })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
 
@@ -198,6 +202,7 @@ describe('putEventLambda', () => {
       updatedAt: '2025-03-22T10:45:33.000Z',
     })
     expect(res.statusCode).toEqual(200)
+    expect(JSON.parse(res.body)).toEqual({ ...mockEvent, eventType: 'TEST' })
   })
 
   it('should update registrations if entries differs', async () => {

@@ -1,4 +1,4 @@
-import type { DeepPartial, JsonDogEvent, JsonRegistration } from '../../../types'
+import type { JsonDogEvent, JsonRegistration, Patch } from '../../../types'
 
 export interface WebSocketConnection {
   connectionId: string
@@ -11,11 +11,11 @@ export interface WebSocketConnection {
   userId?: string
 }
 
-export type EventPatchPayload = Partial<JsonDogEvent> & {
+export type EventPatchPayload = Patch<JsonDogEvent> & {
   eventId: string
 }
 
 export type RegistrationPatchPayload = {
   eventId: string
-  patch: DeepPartial<JsonRegistration>[]
+  patch: Patch<JsonRegistration>[]
 }

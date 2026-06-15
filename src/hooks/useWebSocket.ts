@@ -1,4 +1,4 @@
-import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../types'
+import type { DogEvent, JsonDogEvent, Patch, PublicDogEvent, Registration } from '../types'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { sanitizeDogEvent } from '../lib/event'
@@ -19,15 +19,14 @@ export const applyRegistrations = (registrations: Registration[], next: Registra
   return next
 }
 
-export const applyRegistrationPatches = (
-  registrations: Registration[],
-  patch: DeepPartial<Registration>[]
-): Registration[] => applyPatchesById(registrations, patch)
+export const applyRegistrationPatches = (registrations: Registration[], patch: Patch<Registration>[]): Registration[] =>
+  applyPatchesById(registrations, patch)
 
 const isInsertablePublicEventPatch = (
-  patch: Partial<PublicDogEvent>
-): patch is Partial<PublicDogEvent> & Pick<PublicDogEvent, 'state'> =>
+  patch: Patch<PublicDogEvent>
+): patch is Patch<PublicDogEvent> & Pick<PublicDogEvent, 'state'> =>
   patch.state !== undefined &&
+  patch.state !== null &&
   patch.state !== 'draft' &&
   !!patch.eventType &&
   !!patch.location &&
@@ -38,10 +37,8 @@ const isInsertablePublicEventPatch = (
   Array.isArray(patch.classes) &&
   Array.isArray(patch.judges)
 
-export const getRegistrationPatchChangedIds = (
-  registrations: Registration[],
-  patch: DeepPartial<Registration>[]
-): string[] => getPatchChangedIds(registrations, patch)
+export const getRegistrationPatchChangedIds = (registrations: Registration[], patch: Patch<Registration>[]): string[] =>
+  getPatchChangedIds(registrations, patch)
 
 interface EventViewer {
   userId: string
@@ -132,7 +129,7 @@ export const useWebSocket = () => {
 
   const setPublicEvents = useRecoilCallback(
     ({ snapshot, set }) =>
-      (eventId: string, patch: Partial<PublicDogEvent>, options?: { insert?: boolean }) => {
+      (eventId: string, patch: Patch<PublicDogEvent>, options?: { insert?: boolean }) => {
         const loadable = snapshot.getLoadable(eventsAtom)
         if (loadable.state !== 'hasValue') return
 
@@ -156,7 +153,7 @@ export const useWebSocket = () => {
   )
   const setAdminEvents = useRecoilCallback(
     ({ snapshot, set }) =>
-      (eventId: string, patch: Partial<DogEvent>) => {
+      (eventId: string, patch: Patch<DogEvent>) => {
         const loadable = snapshot.getLoadable(adminEventsAtom)
         if (loadable.state !== 'hasValue') return
 
@@ -168,7 +165,7 @@ export const useWebSocket = () => {
   )
   const patchRegistrations = useRecoilCallback(
     ({ snapshot, set }) =>
-      (nextEventId: string, patch: DeepPartial<Registration>[]) => {
+      (nextEventId: string, patch: Patch<Registration>[]) => {
         const loadable = snapshot.getLoadable(adminEventRegistrationsAtom(nextEventId))
         if (loadable.state !== 'hasValue') return
 
@@ -263,8 +260,9 @@ export const useWebSocket = () => {
   const handleEventPatchMessage = useCallback(
     ({ eventId, scope, ...patch }: EventPatchMessage) => {
       if (scope === 'admin:event-patch') {
-        setAdminEvents(eventId, patch)
-        const publicPatch = sanitizeDogEvent(patch) as unknown as Partial<PublicDogEvent>
+        const eventPatch = patch as Patch<JsonDogEvent>
+        setAdminEvents(eventId, eventPatch as unknown as Patch<DogEvent>)
+        const publicPatch = sanitizeDogEvent(eventPatch) as unknown as Patch<PublicDogEvent>
         if (Object.keys(publicPatch).length > 0) {
           setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
         }
@@ -272,7 +270,7 @@ export const useWebSocket = () => {
       }
 
       if (scope === 'public:event-patch' || !scope) {
-        setPublicEvents(eventId, patch)
+        setPublicEvents(eventId, patch as Patch<PublicDogEvent>)
       }
     },
     [setAdminEvents, setPublicEvents]
