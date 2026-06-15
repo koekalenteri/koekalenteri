@@ -10,7 +10,7 @@ import type {
   SanitizedPublicDogEvent,
 } from '../types'
 import { tz } from '@date-fns/tz'
-import { addDays, differenceInDays, eachDayOfInterval, isSameDay, nextSaturday, sub } from 'date-fns'
+import { addDays, differenceInDays, eachDayOfInterval, isSameDay, isValid, nextSaturday, parseISO, sub } from 'date-fns'
 import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
 import { unique } from './utils'
 
@@ -18,6 +18,7 @@ export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NO
 
 const EntryStartWeeks = 6
 const EntryEndWeeks = 3
+const eventSeasonFormatter = new Intl.DateTimeFormat('en', { timeZone: TIME_ZONE, year: 'numeric' })
 
 export const defaultEntryStartDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryStartWeeks })
 export const defaultEntryEndDate = (eventStartDate: Date) => sub(eventStartDate, { weeks: EntryEndWeeks })
@@ -36,8 +37,15 @@ export const isStartListAvailable = ({
 export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
   state === 'draft' || state === 'tentative' || state === 'cancelled'
 
-export const getEventSeason = (startDate?: Date | string): string =>
-  formatDate(startDate ?? '', 'yyyy', { timeZone: TIME_ZONE })
+export const getEventSeason = (startDate?: Date | string): string => {
+  const date = typeof startDate === 'string' ? parseISO(startDate) : startDate
+
+  if (!date || !isValid(date)) {
+    return ''
+  }
+
+  return eventSeasonFormatter.format(date)
+}
 
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
   !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
