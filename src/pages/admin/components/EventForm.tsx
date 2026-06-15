@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { DeepPartial, DogEvent, EventState } from '../../../types'
+import type { DogEvent, EventState, Patch } from '../../../types'
 import type { PartialEvent } from './eventForm/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
@@ -36,7 +36,7 @@ interface Props {
   readonly disabled?: boolean
   readonly onSave?: () => Promise<void>
   readonly onCancel?: () => void
-  readonly onChange?: (event: DogEvent) => void
+  readonly onChange?: (event: Patch<DogEvent>) => void
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
@@ -83,7 +83,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   )
 
   const handleChange = useCallback(
-    (props: DeepPartial<DogEvent>) => {
+    (props: Patch<DogEvent>) => {
       if (!event) {
         return
       }
@@ -100,7 +100,6 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
       if (props.costMember) {
         newState.costMember = props.costMember as DogEvent['costMember']
       }
-
       // Keep season in sync with startDate year
       if (props.startDate) {
         newState.season = String(newState.startDate.getFullYear())
