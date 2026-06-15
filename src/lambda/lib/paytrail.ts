@@ -213,9 +213,6 @@ export const createPayment = async ({
   return paytrailRequest<CreatePaymentResponse>('POST', 'payments', body)
 }
 
-/**
- * @lintignore
- */
 export const getPayment = async (transactionId: string): Promise<GetPaymentResponse | undefined> =>
   paytrailRequest('GET', `payments/${transactionId}`, undefined, transactionId)
 

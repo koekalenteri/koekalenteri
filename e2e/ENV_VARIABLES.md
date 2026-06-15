@@ -4,7 +4,7 @@ This document explains how environment variables are used in the end-to-end (e2e
 
 ## Overview
 
-The e2e tests use environment variables from the `.env` file in the project root when running locally. This includes the API base URL (`REACT_APP_API_BASE_URL`) which is used for mocking API responses.
+The e2e tests use environment variables from the `.env` file in the project root when running locally. This includes the API base URL (`REACT_APP_API_BASE_URL`) used by the application under test.
 
 ## How It Works
 
@@ -17,7 +17,7 @@ if (!process.env.CI && fs.existsSync(path.join(__dirname, '.env'))) {
 }
 ```
 
-2. The `e2e/utils/mocks.ts` file uses these environment variables for mocking API responses:
+2. The Playwright tests and local services use these environment variables when resolving application and API endpoints:
 
 ```typescript
 // API base URL from the application
@@ -43,10 +43,4 @@ This will automatically load the environment variables from the `.env` file in t
 
 ## Debugging
 
-If you're having issues with environment variables, you can check the console output when running the tests. The `e2e/utils/mocks.ts` file logs the API_BASE_URL being used:
-
-```
-- Using API_BASE_URL: [value being used]
-```
-
-This can help you debug any issues with environment variables not being loaded correctly.
+If you're having issues with environment variables, check the console output when running the tests. The Playwright config and local service scripts log the URLs being used.

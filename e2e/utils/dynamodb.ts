@@ -31,7 +31,7 @@ const docClient = DynamoDBDocumentClient.from(client)
  * Clears all items from a DynamoDB table
  * @param tableName - The name of the table to clear
  */
-export const clearTable = async (tableName: string): Promise<void> => {
+const clearTable = async (tableName: string): Promise<void> => {
   console.log(`Clearing table: ${tableName}`)
 
   try {
@@ -93,7 +93,7 @@ export const clearTable = async (tableName: string): Promise<void> => {
  * @param tableName - The name of the table
  * @param items - The items to insert
  */
-export const insertItems = async <T>(tableName: string, items: T[]): Promise<void> => {
+const insertItems = async <T>(tableName: string, items: T[]): Promise<void> => {
   if (!items || items.length === 0) {
     console.log(`No items to insert into ${tableName}`)
     return

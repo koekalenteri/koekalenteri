@@ -25,7 +25,7 @@ export const TABLES_TO_MANAGE = {
  * Configuration for table key attributes
  * This is used when clearing tables to identify the primary key
  */
-export const TABLE_KEYS: Record<string, string[]> = {
+const TABLE_KEYS: Record<string, string[]> = {
   // Format: 'table-name-pattern': ['primaryKeyAttribute', 'sortKeyAttribute?']
   'event-table': ['id'],
   'registration-table': ['eventId', 'id'],
