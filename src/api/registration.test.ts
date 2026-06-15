@@ -1,7 +1,14 @@
 import type { Registration } from '../types'
 import fetchMock from 'jest-fetch-mock'
 import { API_BASE_URL } from '../routeConfig'
-import { getRegistration, getRegistrations, getStartList, putRegistration, putRegistrationGroups } from './registration'
+import {
+  getRegistration,
+  getRegistrations,
+  getStartList,
+  putAdminRegistration,
+  putRegistration,
+  putRegistrationGroups,
+} from './registration'
 
 const mockRegistration: Registration = {
   agreeToTerms: true,
@@ -111,16 +118,60 @@ test('getRegistration', async () => {
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/test-id/test-registration-id`)
 })
 
-test('putRegistration', async () => {
+test('putRegistration creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
       ? Promise.resolve(JSON.stringify(mockRegistration))
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
-  const result = await putRegistration(mockRegistration)
+  const { id: _id, ...registration } = mockRegistration
+  const result = await putRegistration(registration)
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/`)
+  expect(result.id).not.toBeUndefined()
+})
+
+test('putRegistration updates with PATCH', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'PATCH'
+      ? Promise.resolve(JSON.stringify(mockRegistration))
+      : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
+  )
+
+  const result = await putRegistration({ eventId: mockRegistration.eventId, id: mockRegistration.id, notes: 'patched' })
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/`)
+  expect(result.id).not.toBeUndefined()
+})
+
+test('putAdminRegistration creates with POST', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'POST'
+      ? Promise.resolve(JSON.stringify(mockRegistration))
+      : Promise.reject(new Error(`${req.method} !== 'POST'`))
+  )
+
+  const { id: _id, ...registration } = mockRegistration
+  const result = await putAdminRegistration(registration, 'test-token')
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/`)
+  expect(result.id).not.toBeUndefined()
+})
+
+test('putAdminRegistration updates with PATCH', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'PATCH'
+      ? Promise.resolve(JSON.stringify(mockRegistration))
+      : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
+  )
+
+  const result = await putAdminRegistration(
+    { eventId: mockRegistration.eventId, id: mockRegistration.id, notes: 'patched' },
+    'test-token'
+  )
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/`)
   expect(result.id).not.toBeUndefined()
 })
 
