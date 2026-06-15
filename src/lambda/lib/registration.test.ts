@@ -48,6 +48,7 @@ const {
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
   sendTemplatedEmailToEventRegistrations,
+  patchRegistration,
 } = await import('./registration')
 
 describe('registration', () => {
@@ -327,6 +328,61 @@ describe('registration', () => {
       } as JsonRegistration
 
       expect(hasRegistrationChanges(existing, updated)).toBe(true)
+    })
+  })
+
+  describe('patchRegistration', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('updates only changed fields and reloads the registration', async () => {
+      const existing = {
+        dog: { name: 'Old name', regNo: 'REG-1' },
+        emailDeliveryStatus: { status: 'bounce' },
+        eventId: 'event-id',
+        id: 'reg-id',
+        notes: 'old',
+      } as unknown as JsonRegistration
+      const next = {
+        ...existing,
+        dog: { name: 'New name', regNo: 'REG-1' },
+        emailDeliveryStatus: undefined,
+        notes: 'new',
+      } as unknown as JsonRegistration
+      mockDynamoDB.read.mockResolvedValueOnce(next)
+
+      const result = await patchRegistration(existing.eventId, existing.id, existing, next)
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        {
+          remove: ['emailDeliveryStatus'],
+          set: {
+            'dog.name': 'New name',
+            notes: 'new',
+          },
+        },
+        'registration-table-not-found-in-env'
+      )
+      expect(mockDynamoDB.read).toHaveBeenCalledWith(
+        {
+          eventId: 'event-id',
+          id: 'reg-id',
+        },
+        'registration-table-not-found-in-env'
+      )
+      expect(result).toEqual(next)
+    })
+
+    it('does nothing for no-op patches', async () => {
+      const existing = { eventId: 'event-id', id: 'reg-id', notes: 'old' } as unknown as JsonRegistration
+
+      const result = await patchRegistration(existing.eventId, existing.id, existing, { ...existing })
+
+      expect(mockDynamoDB.update).not.toHaveBeenCalled()
+      expect(mockDynamoDB.read).not.toHaveBeenCalled()
+      expect(result).toBe(existing)
     })
   })
 
