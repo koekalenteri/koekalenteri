@@ -1,5 +1,6 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonRegistration, Patch } from '../../types'
 import { nanoid } from 'nanoid'
+import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -20,6 +21,7 @@ import {
   getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationChanges,
+  patchRegistration,
   saveRegistration,
 } from '../lib/registration'
 import { updateEventStatsForRegistration } from '../lib/stats'
@@ -35,16 +37,28 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
+  const isPatchRequest = event.httpMethod === 'PATCH'
 
   let existing: JsonRegistration | undefined
-  const registration: JsonRegistration = parseJSONWithFallback(event.body)
+  const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
   normalizeRegistrationEmails(registration)
+
+  if (isPatchRequest && (!registration.eventId || !registration.id)) {
+    return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
+  }
+
   const update = !!registration.id
   if (update) {
-    existing = await getRegistration(registration.eventId, registration.id)
+    existing = await getRegistration(
+      registration.eventId as JsonRegistration['eventId'],
+      registration.id as JsonRegistration['id']
+    )
   } else {
     // Prevent double registrations when trying to insert new registration
-    const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
+    const alreadyRegistered = await findExistingRegistrationToEventForDog(
+      registration.eventId ?? '',
+      registration.dog?.regNo ?? ''
+    )
 
     if (alreadyRegistered) {
       return response(
@@ -69,23 +83,32 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration.modifiedBy = user.name
   registration.updatedAt = timestamp
 
-  const data: JsonRegistration = { ...existing, ...registration }
+  const data: JsonRegistration = existing
+    ? isPatchRequest
+      ? patchMerge(existing, registration)
+      : ({ ...existing, ...registration } as JsonRegistration)
+    : (registration as JsonRegistration)
   await assertRegistrationEmailsNotSuppressed(data)
   const clearEmailDeliveryStatus = shouldClearRegistrationEmailDeliveryStatus(existing, data)
   if (clearEmailDeliveryStatus) {
     delete data.emailDeliveryStatus
   }
 
-  await saveRegistration(data)
+  let savedData = data
+  if (existing) {
+    savedData = await patchRegistration(data.eventId, data.id, existing, data)
+  } else {
+    await saveRegistration(data)
+  }
 
-  const confirmedEvent = await updateRegistrations(registration.eventId)
+  const confirmedEvent = await updateRegistrations(savedData.eventId)
 
   // Fix group numbers for all registrations in the event (assigns group.number to newly added registrations)
-  const readyRegistrations = await getReadyRegistrationsByEventId(registration.eventId)
+  const readyRegistrations = await getReadyRegistrationsByEventId(savedData.eventId)
   const updatedRegistrations = await fixRegistrationGroups(readyRegistrations, user)
-  const updatedData = updatedRegistrations.find((r) => r.id === data.id) ?? data
+  const updatedData = updatedRegistrations.find((r) => r.id === savedData.id) ?? savedData
   await publishRegistrationPatches(
-    registration.eventId,
+    savedData.eventId,
     [createRegistrationPatch(updatedData, existing)],
     confirmedEvent.organizer.id
   )
@@ -96,15 +119,15 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   const message = getAuditMessage(updatedData, existing)
   if (message) {
     await audit({
-      auditKey: registrationAuditKey(registration),
+      auditKey: registrationAuditKey(updatedData),
       message,
       user: user.name,
     })
   }
 
   const context = update ? 'update' : ''
-  if (registration.handler?.email && registration.owner?.email) {
-    const to = emailTo(registration)
+  if (updatedData.handler?.email && updatedData.owner?.email) {
+    const to = emailTo(updatedData)
     const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, context)
 
     if (!clearEmailDeliveryStatus) {
@@ -113,7 +136,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     }
     await sendTemplatedMail(
       'registration',
-      registration.language,
+      updatedData.language,
       emailFrom,
       to,
       templateData,
@@ -121,7 +144,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     )
 
     await audit({
-      auditKey: registrationAuditKey(registration),
+      auditKey: registrationAuditKey(updatedData),
       message: `Email: ${templateData.subject}, to: ${to.join(', ')}`,
       user: user.name,
     })

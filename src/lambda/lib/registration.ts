@@ -29,6 +29,30 @@ export const getRegistration = async (eventId: string, registrationId: string): 
 
 export const saveRegistration = async (data: JsonRegistration) => dynamoDB.write(data, registrationTable)
 
+export const patchRegistration = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  existing: JsonRegistration,
+  next: JsonRegistration
+): Promise<JsonRegistration> => {
+  const { remove, set } = createPatch(next, existing)
+
+  if (!set && !remove) {
+    return existing
+  }
+
+  await dynamoDB.update(
+    { eventId, id },
+    {
+      ...(set ? { set } : {}),
+      ...(remove ? { remove } : {}),
+    },
+    registrationTable
+  )
+
+  return getRegistration(eventId, id)
+}
+
 export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],

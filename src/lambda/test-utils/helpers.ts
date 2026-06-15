@@ -1,7 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyEventPathParameters } from 'aws-lambda'
 
 interface Options {
-  method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'DELETE'
+  method?: 'OPTIONS' | 'HEAD' | 'GET' | 'PUT' | 'POST' | 'PATCH' | 'DELETE'
   headers?: Record<string, string>
   query?: Record<string, string>
   pathParameters?: APIGatewayProxyEventPathParameters | null

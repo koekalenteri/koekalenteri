@@ -45,6 +45,14 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 const mockGetRegistration = jest.fn<(eventId: string, registrationId: string) => Promise<JsonRegistration>>()
 const mockSaveRegistration = jest.fn()
+const mockPatchRegistration = jest.fn<
+  (
+    eventId: JsonRegistration['eventId'],
+    id: JsonRegistration['id'],
+    existing: JsonRegistration,
+    next: JsonRegistration
+  ) => Promise<JsonRegistration>
+>(async (_eventId, _id, _existing, next) => next)
 const mockAssertRegistrationEmailsNotSuppressed = jest.fn<() => Promise<void>>()
 const mockfindExistingRegistrationToEventForDog = jest.fn<
   (eventId: string, regNo: string) => Promise<JsonRegistration | undefined>
@@ -56,6 +64,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getRegistration: mockGetRegistration,
+  patchRegistration: mockPatchRegistration,
   saveRegistration: mockSaveRegistration,
 }))
 
@@ -308,15 +317,21 @@ describe('putRegistrationLabmda', () => {
       constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true, cancelReason })
     )
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      cancelled: true,
-      ...(cancelReason ? { cancelReason } : {}),
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        cancelled: true,
+        ...(cancelReason ? { cancelReason } : {}),
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -390,14 +405,20 @@ describe('putRegistrationLabmda', () => {
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, cancelled: true }))
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      cancelled: true,
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        cancelled: true,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -459,14 +480,20 @@ describe('putRegistrationLabmda', () => {
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, cancelled: true }))
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      cancelled: true,
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        cancelled: true,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -528,14 +555,20 @@ describe('putRegistrationLabmda', () => {
 
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registration, cancelled: true }))
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      cancelled: true,
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        cancelled: true,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -589,14 +622,20 @@ describe('putRegistrationLabmda', () => {
     const updatedRegistration = { ...registrationWithStaticDates, notes: 'updated notes' }
     const res = await putRegistrationLabmda(constructAPIGwEvent(updatedRegistration))
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      notes: 'updated notes',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        notes: 'updated notes',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -644,20 +683,70 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(200)
   })
 
+  it('should merge partial patch payloads before diffing and saving', async () => {
+    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        {
+          dog: { name: 'Patched dog name' },
+          eventId: eventWithStaticDates.id,
+          id: registrationWithStaticDates.id,
+          notes: 'patched notes',
+        },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({
+        dog: {
+          ...existingJson.dog,
+          name: 'Patched dog name',
+        },
+        notes: 'patched notes',
+      })
+    )
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      [
+        expect.objectContaining({
+          dog: { name: 'Patched dog name' },
+          id: registrationWithStaticDates.id,
+          notes: 'patched notes',
+        }),
+      ],
+      'org-1'
+    )
+    expect(res.statusCode).toEqual(200)
+  })
+
   it('should do happy path for confirming registration', async () => {
     const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      confirmed: true,
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        confirmed: true,
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
@@ -708,6 +797,7 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, confirmed: true }))
 
     expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
     expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockDynamoDBWrite).not.toHaveBeenCalled()
@@ -750,14 +840,20 @@ describe('putRegistrationLabmda', () => {
       constructAPIGwEvent({ ...registrationWithStaticDates, cancelled: true, confirmed: true })
     )
 
-    expect(mockSaveRegistration).toHaveBeenCalledWith({
-      ...existingJson,
-      confirmed: true, // data is merged
-      modifiedAt: new Date().toISOString(),
-      modifiedBy: 'anonymous',
-      updatedAt: new Date().toISOString(),
-    })
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      eventWithStaticDates.id,
+      registrationWithStaticDates.id,
+      existingJson,
+      {
+        ...existingJson,
+        confirmed: true, // data is merged
+        modifiedAt: new Date().toISOString(),
+        modifiedBy: 'anonymous',
+        updatedAt: new Date().toISOString(),
+      }
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
 
     // No audit message for confirmation
     expect(mockDynamoDBWrite).not.toHaveBeenCalledWith(
@@ -821,6 +917,16 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 
     expect(res.statusCode).toEqual(409)
+  })
+
+  it('should return 400 for patch registration without eventId and id', async () => {
+    const res = await putRegistrationLabmda(constructAPIGwEvent({ notes: 'patched' }, { method: 'PATCH' }))
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: 'Bad request: PATCH requires eventId and id' })
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('should return 410 when creating new registration before entry window opens', async () => {
@@ -888,9 +994,10 @@ describe('putRegistrationLabmda', () => {
 
     expect(res.statusCode).toEqual(200)
 
-    // ensure saveRegistration received payment fields preserved from existing, not client-supplied values
-    expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
-    const savedArg = (mockSaveRegistration as jest.Mock).mock.calls[0][0] as JsonRegistration
+    // ensure patchRegistration received payment fields preserved from existing, not client-supplied values
+    expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    const savedArg = (mockPatchRegistration as jest.Mock).mock.calls[0][3] as JsonRegistration
 
     // allowed field updated
     expect(savedArg.notes).toEqual('legit note change')

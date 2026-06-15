@@ -17,7 +17,7 @@
       TracingEnabled: false
       Cors:
         AllowOrigin: "'*'"
-        AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,DELETE'"
+        AllowMethods: "'OPTIONS,HEAD,GET,PUT,POST,PATCH,DELETE'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
       Auth:
         Authorizers:
