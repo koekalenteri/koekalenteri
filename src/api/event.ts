@@ -1,4 +1,4 @@
-import type { DogEvent, Patch, PublicDogEvent } from '../types'
+import type { DogEvent, EventClass, Patch, PublicDogEvent } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import { dedupeInFlight } from './dedupeInFlight'
@@ -13,6 +13,28 @@ export type PublicEventsDeltaResponse = {
 }
 
 export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
+
+export type EventKcIdChoice = {
+  id: number
+  name: string
+  eventType: string
+  startDate: Date
+  endDate: Date
+  organizer: string
+  location: string
+}
+
+export type SearchEventKcIdChoicesResponse = {
+  choices: EventKcIdChoice[]
+}
+
+export type SearchEventKcIdChoicesRequest = Pick<
+  DogEvent,
+  'classes' | 'endDate' | 'eventType' | 'location' | 'name' | 'startDate'
+> & {
+  classes: Pick<EventClass, 'class' | 'date'>[]
+  organizer: Pick<DogEvent['organizer'], 'id'>
+}
 
 function isPublicEventsDeltaResponse(response: PublicEventsResponse): response is PublicEventsDeltaResponse {
   return !Array.isArray(response)
@@ -55,6 +77,20 @@ export async function getAdminEvent(id: string, token?: string, signal?: AbortSi
 
 export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   return (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))).data
+}
+
+export async function searchEventKcIdChoices(
+  request: SearchEventKcIdChoicesRequest,
+  token?: string,
+  signal?: AbortSignal
+): Promise<SearchEventKcIdChoicesResponse> {
+  return (
+    await http.post<SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse>(
+      `${ADMIN_PATH}kcId/choices`,
+      request,
+      withToken({ signal }, token)
+    )
+  ).data
 }
 
 export async function putInvitationAttachment(

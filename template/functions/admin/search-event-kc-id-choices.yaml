@@ -1,0 +1,41 @@
+  SearchEventKcIdChoicesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/SearchEventKcIdChoicesFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuditTable
+        - Statement:
+            - Sid: SSMGetParameterPolicy
+              Effect: Allow
+              Action:
+              - ssm:GetParameters
+              - ssm:GetParameter
+              Resource: '*'
+        - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
+      Events:
+        SearchEventKcIdChoices:
+          Type: Api
+          Properties:
+            Path: /admin/event/kcId/choices
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  SearchEventKcIdChoicesFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SearchEventKcIdChoicesFunction]]
+      RetentionInDays: 30
