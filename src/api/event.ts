@@ -54,7 +54,10 @@ export async function getAdminEvent(id: string, token?: string, signal?: AbortSi
 }
 
 export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
-  return (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))).data
+  const request = withToken({ signal }, token)
+  return event.id
+    ? (await http.patch<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
+    : (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
 }
 
 export async function putInvitationAttachment(

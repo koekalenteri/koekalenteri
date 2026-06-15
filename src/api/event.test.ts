@@ -87,7 +87,7 @@ test('getEvent', async () => {
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/TestEventID`)
 })
 
-test('putEvent', async () => {
+test('putEvent creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
       ? Promise.resolve(JSON.stringify(emptyEvent))
@@ -98,6 +98,19 @@ test('putEvent', async () => {
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
   expect(newEvent.id).not.toBeUndefined()
+})
+
+test('putEvent updates with PATCH', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'PATCH'
+      ? Promise.resolve(JSON.stringify(emptyEvent))
+      : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
+  )
+
+  const updatedEvent = await putEvent({ eventType: 'TestEventType', id: 'TestEventID' })
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
+  expect(updatedEvent.id).not.toBeUndefined()
 })
 
 /**
