@@ -2,7 +2,7 @@ import type { UserEvent } from '@testing-library/user-event/dist/types/setup/set
 import type { AuditRecord, Registration } from '../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
-import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
+import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
 import { getEventAuditTrail } from '../../../api/event'
 import { eventRegistrationDateKey } from '../../../lib/event'
@@ -103,7 +103,7 @@ describe('InfoPanel>', () => {
       (participantRow.lastElementChild as HTMLTableCellElement).cellIndex
     )
     expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
-    expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
+    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
     expect(screen.queryByText('Koko koe')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' }).closest('td')).toHaveClass(
@@ -165,6 +165,18 @@ describe('InfoPanel>', () => {
       screen.getByText('eventManagement.startList.publishing').compareDocumentPosition(publicStartListLink) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
+  })
+
+  it('shows the Kennel Club ID for official events', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={{ ...eventWithStaticDatesAndClass, kcId: 12345 }} registrations={[]} />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
+    expect(screen.getByText('Koetunnus')).toBeInTheDocument()
+    expect(screen.getByText('12345')).toBeInTheDocument()
   })
 
   it('expands and collapses correctly', async () => {

@@ -10,6 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -20,7 +21,7 @@ import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrat
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { errorSnackbarOptions } from '../../../lib/client/snackbar'
-import { hasEntryEnded, isEventOver } from '../../../lib/event'
+import { hasEntryEnded, isEventOver, OFFICIAL_EVENT_TYPES } from '../../../lib/event'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
 import { validIdTokenSelector } from '../../recoil'
 import { AuditTrail } from '../components/AuditTrail'
@@ -29,6 +30,7 @@ import EventActions from './infoPanel/EventActions'
 import InvitationDelivery from './infoPanel/InvitationDelivery'
 import ParticipantSelection from './infoPanel/ParticipantSelection'
 import StartListPublishing from './infoPanel/StartListPublishing'
+import { sectionSx } from './infoPanel/styles'
 
 interface Props {
   readonly event: ConfirmedEvent
@@ -250,6 +252,21 @@ const InfoPanel = ({
             scrollbarGutter: 'stable',
           }}
         >
+          {OFFICIAL_EVENT_TYPES.includes(event.eventType) && (
+            <Box sx={sectionSx}>
+              <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+                Kokeen tiedot
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, px: 2.5, py: 1 }}>
+                <Typography variant="caption" fontWeight="bold">
+                  Koetunnus
+                </Typography>
+                <Typography variant="caption" fontStyle={event.kcId ? undefined : 'italic'}>
+                  {event.kcId ?? 'Ei haettua koetunnusta'}
+                </Typography>
+              </Box>
+            </Box>
+          )}
           <ParticipantSelection
             entryEnded={entryEnded}
             event={event}
