@@ -316,7 +316,7 @@ describe('putEventLambda', () => {
     getEventMock.mockResolvedValueOnce({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' })
 
     const res = await putEventLambda(
-      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2025-08-20T00:00:00.000Z' })
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', startDate: '2024-12-31T22:00:00.000Z' })
     )
 
     expect(patchEventMock).toHaveBeenCalledWith(
@@ -324,7 +324,7 @@ describe('putEventLambda', () => {
       expect.objectContaining({ ...mockEvent, season: '2024', startDate: '2024-06-15T00:00:00.000Z' }),
       expect.objectContaining({
         season: '2025',
-        startDate: '2025-08-20T00:00:00.000Z',
+        startDate: '2024-12-31T22:00:00.000Z',
       })
     )
     expect(res.statusCode).toEqual(200)
@@ -344,6 +344,26 @@ describe('putEventLambda', () => {
       expect.objectContaining({
         season: '2024',
         startDate: '2024-06-15T00:00:00.000Z',
+      })
+    )
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('should add missing season when updating without changing startDate', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, startDate: '2024-12-31T22:00:00.000Z' })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ id: 'existing', location: 'New Location' })
+    )
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({ ...mockEvent, startDate: '2024-12-31T22:00:00.000Z' }),
+      expect.objectContaining({
+        location: 'New Location',
+        season: '2025',
+        startDate: '2024-12-31T22:00:00.000Z',
       })
     )
     expect(res.statusCode).toEqual(200)

@@ -1,6 +1,6 @@
 import type { JsonConfirmedEvent, JsonUser } from '../../types'
 import { nanoid } from 'nanoid'
-import { isEventDeletable } from '../../lib/event'
+import { getEventSeason, isEventDeletable } from '../../lib/event'
 import { isEntryOpen } from '../../lib/utils'
 import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } from '../lib/event'
@@ -45,10 +45,6 @@ const putEventLambda = lambda('putEvent', async (event) => {
     item.createdBy = user.name
   }
 
-  if (item.startDate && item.startDate !== existing?.startDate) {
-    item.season = item.startDate.substring(0, 4)
-  }
-
   if (
     existing &&
     isEntryOpen(existing) &&
@@ -62,6 +58,9 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   const data = { ...existing, ...item } as JsonConfirmedEvent
+  if (data.startDate) {
+    data.season = getEventSeason(data.startDate)
+  }
 
   if (data.eventType === 'NOME-B SM' && !data.qualificationStartDate) {
     data.qualificationStartDate = await findQualificationStartDate(data.eventType, data.entryEndDate)

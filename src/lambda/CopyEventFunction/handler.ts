@@ -1,5 +1,6 @@
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
+import { getEventSeason } from '../../lib/event'
 import { authorize } from '../lib/auth'
 import { getEvent, saveEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -30,7 +31,7 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   const days = differenceInDays(parseISO(startDate), parseISO(item.startDate))
   item.startDate = addDays(parseISO(item.startDate), days).toISOString()
-  item.season = item.startDate.substring(0, 4)
+  item.season = getEventSeason(item.startDate)
   item.endDate = addDays(parseISO(item.endDate), days).toISOString()
   if (item.entryStartDate) item.entryStartDate = addDays(parseISO(item.entryStartDate), days).toISOString()
   if (item.entryEndDate) item.entryEndDate = addDays(parseISO(item.entryEndDate), days).toISOString()

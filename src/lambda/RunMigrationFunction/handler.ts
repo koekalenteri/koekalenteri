@@ -1,14 +1,11 @@
 import type { JsonDogEvent } from '../../types'
-import { formatDate, TIME_ZONE } from '../../i18n/dates'
+import { getEventSeason } from '../../lib/event'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
-
-const getSeasonFromStartDate = (startDate?: string): string =>
-  formatDate(startDate ?? '', 'yyyy', { timeZone: TIME_ZONE })
 
 type EventMigration = {
   name: string
@@ -19,7 +16,7 @@ const migrations: EventMigration[] = [
   {
     name: 'fixSeasonFromStartDate',
     run: (event) => {
-      const season = getSeasonFromStartDate(event.startDate)
+      const season = getEventSeason(event.startDate)
 
       if (!season || event.season === season) {
         return false

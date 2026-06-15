@@ -12,6 +12,7 @@ import {
   eventRegistrationDateKey,
   getEventClassesByDays,
   getEventDays,
+  getEventSeason,
   getUniqueEventClasses,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
@@ -71,6 +72,17 @@ describe('lib/event', () => {
     })
     it('should return false when event is undefined', () => {
       expect(isEventDeletable()).toEqual(false)
+    })
+  })
+
+  describe('getEventSeason', () => {
+    it('returns the year in Finnish timezone', () => {
+      expect(getEventSeason('2024-12-31T22:00:00.000Z')).toEqual('2025')
+    })
+
+    it('returns an empty string when start date is missing or invalid', () => {
+      expect(getEventSeason()).toEqual('')
+      expect(getEventSeason('')).toEqual('')
     })
   })
 

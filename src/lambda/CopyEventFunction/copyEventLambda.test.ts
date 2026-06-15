@@ -112,6 +112,36 @@ describe('copyEventHandler', () => {
     jest.useRealTimers()
   })
 
+  it('sets season using Finnish timezone when copying an event near year boundary', async () => {
+    const user = { name: 'Test User' }
+    const input = { id: 'event123', startDate: '2024-12-31T22:00:00.000Z' }
+    const originalEvent = {
+      classes: [{ date: '2024-12-30T22:00:00.000Z' }],
+      createdAt: '2024-12-01T00:00:00.000Z',
+      createdBy: 'Someone',
+      endDate: '2024-12-30T22:00:00.000Z',
+      id: 'event123',
+      modifiedAt: '2024-12-01T00:00:00.000Z',
+      modifiedBy: 'Someone',
+      name: 'Original Event',
+      startDate: '2024-12-30T22:00:00.000Z',
+      state: 'published',
+    }
+    mockAuthorize.mockResolvedValueOnce(user)
+    mockParseJSONWithFallback.mockReturnValueOnce(input)
+    mockGetEvent.mockResolvedValueOnce({ ...originalEvent })
+    mockNanoid.mockReturnValueOnce('newid123')
+
+    await copyEventHandler(event)
+
+    expect(mockSaveEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        season: '2025',
+        startDate: '2024-12-31T22:00:00.000Z',
+      })
+    )
+  })
+
   it('returns 500 if getEvent throws', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

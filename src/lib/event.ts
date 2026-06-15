@@ -36,6 +36,9 @@ export const isStartListAvailable = ({
 export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
   state === 'draft' || state === 'tentative' || state === 'cancelled'
 
+export const getEventSeason = (startDate?: Date | string): string =>
+  formatDate(startDate ?? '', 'yyyy', { timeZone: TIME_ZONE })
+
 export const isDetaultEntryStartDate = (date: Date | undefined, eventStartDate: Date) =>
   !date || isSameDay(defaultEntryStartDate(eventStartDate), date)
 export const isDetaultEntryEndDate = (date: Date | undefined, eventStartDate: Date) =>
