@@ -25,6 +25,11 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 const { default: runMigrationLambda } = await import('./handler')
 
 describe('runMigrationLambda', () => {
+  const migrationResults = (updatedAt: number, season: number) => [
+    { count: updatedAt, name: 'populateUpdatedAtFromModifiedAt' },
+    { count: season, name: 'fixSeasonFromStartDate' },
+  ]
+
   const event = {
     body: '',
     headers: {},
@@ -113,7 +118,7 @@ describe('runMigrationLambda', () => {
     )
 
     // Verify response was returned with per-migration results
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 2, name: 'fixSeasonFromStartDate' }], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 2), event)
   })
 
   it('does not update events that already have season field', async () => {
@@ -149,7 +154,7 @@ describe('runMigrationLambda', () => {
         startDate: '2025-01-01',
       })
     )
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'fixSeasonFromStartDate' }], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
   })
 
   it('uses zoned date in TIME_ZONE to determine season year', async () => {
@@ -171,7 +176,69 @@ describe('runMigrationLambda', () => {
         startDate: '2024-12-31T22:30:00.000Z',
       })
     )
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 1, name: 'fixSeasonFromStartDate' }], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 1), event)
+  })
+
+  it('populates updatedAt from modifiedAt when missing', async () => {
+    mockReadAll.mockResolvedValueOnce([
+      {
+        id: 'event1',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        season: '2026',
+        startDate: '2026-01-01',
+      },
+    ])
+
+    await runMigrationLambda(event)
+
+    expect(mockWrite).toHaveBeenCalledTimes(1)
+    expect(mockWrite).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'event1',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        updatedAt: '2026-01-01T10:00:00.000Z',
+      })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(1, 0), event)
+  })
+
+  it('does not overwrite existing updatedAt', async () => {
+    mockReadAll.mockResolvedValueOnce([
+      {
+        id: 'event1',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        season: '2026',
+        startDate: '2026-01-01',
+        updatedAt: '2026-01-02T10:00:00.000Z',
+      },
+    ])
+
+    await runMigrationLambda(event)
+
+    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
+  })
+
+  it('does not populate updatedAt from invalid modifiedAt', async () => {
+    mockReadAll.mockResolvedValueOnce([
+      {
+        id: 'event1',
+        modifiedAt: '',
+        season: '2026',
+        startDate: '2026-01-01',
+      },
+      {
+        id: 'event2',
+        modifiedAt: 'not-a-date',
+        season: '2026',
+        startDate: '2026-01-02',
+      },
+    ])
+
+    await runMigrationLambda(event)
+
+    expect(mockWrite).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
   })
 
   it('returns migration results with zero count if no events need updating', async () => {
@@ -197,7 +264,7 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'fixSeasonFromStartDate' }], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
   })
 
   it('returns migration results with zero count if no events are found', async () => {
@@ -212,7 +279,7 @@ describe('runMigrationLambda', () => {
     expect(mockWrite).not.toHaveBeenCalled()
 
     // Verify response was returned with count of 0
-    expect(mockResponse).toHaveBeenCalledWith(200, [{ count: 0, name: 'fixSeasonFromStartDate' }], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, migrationResults(0, 0), event)
   })
 
   // Skip the test for handling invalid startDate as it requires more complex mocking

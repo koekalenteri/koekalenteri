@@ -14,6 +14,22 @@ type EventMigration = {
 
 const migrations: EventMigration[] = [
   {
+    name: 'populateUpdatedAtFromModifiedAt',
+    run: (event) => {
+      if (event.updatedAt) {
+        return false
+      }
+
+      const modifiedAt = event.modifiedAt
+      if (typeof modifiedAt !== 'string' || Number.isNaN(new Date(modifiedAt).getTime())) {
+        return false
+      }
+
+      event.updatedAt = modifiedAt
+      return true
+    },
+  },
+  {
     name: 'fixSeasonFromStartDate',
     run: (event) => {
       const season = getEventSeason(event.startDate)
