@@ -241,6 +241,9 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: npm ci
       - name: Download frontend build
         uses: actions/download-artifact@v8
         with:
@@ -370,6 +373,9 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install packages
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: npm ci
       - name: Download frontend coverage
         uses: actions/cache/restore@v5
         with:
