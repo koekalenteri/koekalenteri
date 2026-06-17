@@ -128,6 +128,55 @@ describe('useFetchEvents', () => {
     })
   })
 
+  it('falls back to a full range fetch when delta unchanged ids are missing locally', async () => {
+    const start = new Date('2026-01-02T00:00:00.000Z')
+    const end = new Date('2026-01-05T00:00:00.000Z')
+    const cached = makeEvent('cached', '2026-01-03T00:00:00.000Z', '2026-01-03T00:00:00.000Z')
+    const outside = makeEvent('outside', '2026-01-10T00:00:00.000Z', '2026-01-10T00:00:00.000Z')
+    const changed = makeEvent('changed', '2026-01-04T00:00:00.000Z', '2026-01-04T00:00:00.000Z')
+    const missingUnchanged = makeEvent('missing-unchanged', '2026-01-05T00:00:00.000Z', '2026-01-05T00:00:00.000Z')
+    const lastSyncAt = Date.now() - 10 * 60 * 1000
+
+    ;(getEvents as jest.Mock)
+      .mockResolvedValueOnce({
+        events: [changed],
+        unchangedIds: ['cached', 'missing-unchanged'],
+      })
+      .mockResolvedValueOnce({
+        events: [cached, changed, missingUnchanged],
+        unchangedIds: [],
+      })
+
+    const { result } = renderHook(
+      () => ({
+        events: useRecoilValue(eventsAtom),
+        fetchEvents: useFetchEvents(),
+      }),
+      {
+        wrapper: wrapperWithState([cached, outside], {
+          lastRangeEnd: end.getTime(),
+          lastRangeStart: start.getTime(),
+          lastSyncAt,
+        }),
+      }
+    )
+
+    await act(async () => {
+      await result.current.fetchEvents(start, end)
+    })
+
+    await waitFor(() => {
+      expect(getEvents).toHaveBeenNthCalledWith(1, start, end, lastSyncAt)
+      expect(getEvents).toHaveBeenNthCalledWith(2, start, end)
+      expect(result.current.events.map((event) => event.id)).toEqual([
+        'cached',
+        'changed',
+        'missing-unchanged',
+        'outside',
+      ])
+    })
+  })
+
   it('sets eventsLoadingAtom to true before the API call and false after', async () => {
     const start = new Date('2026-01-02T00:00:00.000Z')
     const end = new Date('2026-01-05T00:00:00.000Z')

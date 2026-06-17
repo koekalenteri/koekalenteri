@@ -85,6 +85,23 @@ function reconcileRange<T extends DogEventSortKey & DogEventRangeKey>(
   return mergeAndSortByDate(retainedOutsideRange, [...retainedUnchangedInRange, ...changed])
 }
 
+function hasMissingUnchangedEvents<T extends DogEventSortKey & DogEventRangeKey>(
+  existing: T[],
+  changed: T[],
+  unchangedIds: string[],
+  start: Date,
+  end?: Date
+): boolean {
+  if (!unchangedIds.length) return false
+
+  const knownIds = new Set([
+    ...existing.filter((event) => overlapsRange(event, start, end)).map((event) => event.id),
+    ...changed.map((event) => event.id),
+  ])
+
+  return unchangedIds.some((id) => !knownIds.has(id))
+}
+
 function isSingleFresh(metadata: EventMetadata, id: string): boolean {
   const lastFetched = metadata.singles[id]
   return Boolean(lastFetched && Date.now() - lastFetched < SINGLE_FRESHNESS)
@@ -190,7 +207,22 @@ export function useFetchEvents() {
               set(eventMetadataAtom, buildRangeMetadata(effectiveMetadata, strategy.request, now, false))
             } else {
               const response = await getEvents(start, end, strategy.isCold ? undefined : effectiveMetadata.lastSyncAt)
-              const nextEvents = reconcileRange(preparedEvents, response.events, response.unchangedIds, start, end)
+              const completeResponse = hasMissingUnchangedEvents(
+                preparedEvents,
+                response.events,
+                response.unchangedIds,
+                start,
+                end
+              )
+                ? await getEvents(start, end)
+                : response
+              const nextEvents = reconcileRange(
+                preparedEvents,
+                completeResponse.events,
+                completeResponse.unchangedIds,
+                start,
+                end
+              )
               set(eventsAtom, nextEvents)
               set(eventMetadataAtom, buildRangeMetadata(effectiveMetadata, strategy.request, now, true))
             }
