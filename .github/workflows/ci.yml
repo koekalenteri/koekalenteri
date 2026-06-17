@@ -8,12 +8,16 @@ on:
   merge_group:
     branches: [main]
 
+permissions:
+  actions: read
+  contents: read
+
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.filter.outputs.backend }}
-      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.scope.outputs.backend }}
+      frontend: ${{ steps.scope.outputs.frontend }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -73,6 +77,44 @@ jobs:
               - 'package-lock.json'
               - 'package.json'
               - 'tsconfig.json'
+
+      - name: Check previous main CI result
+        id: previous-ci
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const currentRunId = context.runId
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'ci.yml',
+              branch: context.ref.replace('refs/heads/', ''),
+              status: 'completed',
+              per_page: 20,
+            })
+
+            const previousRun = data.workflow_runs.find((run) => run.id !== currentRunId)
+            const previousFailed = Boolean(previousRun && previousRun.conclusion !== 'success')
+
+            core.info(
+              previousRun
+                ? `Previous completed CI run ${previousRun.id} concluded with ${previousRun.conclusion}`
+                : 'No previous completed CI run found'
+            )
+            core.setOutput('failed', String(previousFailed))
+
+      - name: Resolve build scope
+        id: scope
+        run: |
+          if [[ "${{ steps.previous-ci.outputs.failed }}" == "true" ]]; then
+            echo "Previous main CI run was not successful; building both backend and frontend."
+            echo "backend=true" >> $GITHUB_OUTPUT
+            echo "frontend=true" >> $GITHUB_OUTPUT
+          else
+            echo "backend=${{ steps.filter.outputs.backend }}" >> $GITHUB_OUTPUT
+            echo "frontend=${{ steps.filter.outputs.frontend }}" >> $GITHUB_OUTPUT
+          fi
 
       - uses: actions/setup-node@v6
         with:
