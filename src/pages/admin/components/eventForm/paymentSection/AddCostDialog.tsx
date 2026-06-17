@@ -70,13 +70,7 @@ export const AddCostDialog = ({ open, mode, availableKeys, existingBreedCodes, o
       <DialogTitle>{t(mode === 'optional' ? 'costOptionalAdd' : 'costChoose')}</DialogTitle>
       <DialogContent>
         {mode === 'other' ? (
-          <Select
-            size="small"
-            value={key}
-            onChange={(e) => setKey(e.target.value as DogEventCostKey)}
-            displayEmpty
-            fullWidth
-          >
+          <Select size="small" value={key} onChange={(e) => setKey(e.target.value)} displayEmpty fullWidth>
             {availableKeys.map((k) => (
               <MenuItem key={k} value={k}>
                 {t(`costNamesAdd.${k}`)}

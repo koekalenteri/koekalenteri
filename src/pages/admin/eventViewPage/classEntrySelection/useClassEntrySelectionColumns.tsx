@@ -35,6 +35,160 @@ interface RegistrationActionCallbacks {
   canMoveToPosition?: (registration: Registration) => boolean
 }
 
+interface RegistrationActionsOptions {
+  available: RegistrationDate[]
+  callbacks?: RegistrationActionCallbacks
+  event: PublicDogEvent
+  row: Registration
+  t: (key: string) => any
+}
+
+const spinnerOr = (icon: ReactElement, pending: boolean) => (pending ? <CircularProgress size={18} /> : icon)
+
+const getParticipantMovementActions = ({
+  available,
+  callbacks,
+  event,
+  isPendingMove,
+  row,
+  t,
+}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => {
+  const actions: ReactElement[] = []
+
+  if (available.length > 1) {
+    actions.push(
+      <GridActionsCellItem
+        key="moveToGroup"
+        disabled={isPendingMove}
+        icon={spinnerOr(<SwapHorizOutlined fontSize="small" />, isPendingMove)}
+        label={t('registration.actions.moveToGroup')}
+        onClick={() => callbacks?.moveToGroup?.(row.id)}
+        showInMenu
+      />
+    )
+  }
+
+  actions.push(
+    <GridActionsCellItem
+      key="moveToPosition"
+      disabled={isPendingMove || callbacks?.canMoveToPosition?.(row) === false}
+      icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
+      label={t('registration.actions.moveToPosition')}
+      onClick={() => callbacks?.moveToPosition?.(row.id)}
+      showInMenu
+    />,
+    <GridActionsCellItem
+      key="moveToReserve"
+      disabled={isPendingMove || event.state === 'picked' || event.state === 'invited'}
+      icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
+      label={t('registration.actions.moveToReserve')}
+      onClick={() => callbacks?.moveToReserve?.(row.id)}
+      showInMenu
+    />
+  )
+
+  return actions
+}
+
+const getReserveMovementActions = ({
+  callbacks,
+  isPendingMove,
+  row,
+  t,
+}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
+  <GridActionsCellItem
+    key="moveToParticipants"
+    disabled={isPendingMove}
+    icon={spinnerOr(<SwapHorizOutlined fontSize="small" />, isPendingMove)}
+    label={t('registration.actions.moveToParticipants')}
+    onClick={() => callbacks?.moveToParticipants?.(row.id)}
+    showInMenu
+  />,
+  <GridActionsCellItem
+    key="moveToPosition"
+    disabled={isPendingMove || callbacks?.canMoveReserveToPosition === false}
+    icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
+    label={t('registration.actions.moveToPosition')}
+    onClick={() => callbacks?.moveToPosition?.(row.id)}
+    showInMenu
+  />,
+]
+
+const getCancelledMovementActions = ({
+  callbacks,
+  isPendingMove,
+  row,
+  t,
+}: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
+  <GridActionsCellItem
+    key="moveToReserve"
+    disabled={isPendingMove}
+    icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
+    label={t('registration.actions.moveToReserve')}
+    onClick={() => callbacks?.moveToReserve?.(row.id)}
+    showInMenu
+  />,
+]
+
+const getMovementActions = (options: RegistrationActionsOptions & { groupKey: string; isPendingMove: boolean }) => {
+  if (options.groupKey === GROUP_KEY_RESERVE) return getReserveMovementActions(options)
+  if (options.groupKey === GROUP_KEY_CANCELLED) return getCancelledMovementActions(options)
+  return getParticipantMovementActions(options)
+}
+
+const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement[] => {
+  const { callbacks, row, t } = options
+  const groupKey = getRegistrationGroupKey(row)
+  const isPendingMove = callbacks?.pendingMoveId === row.id
+  const actions = getMovementActions({ ...options, groupKey, isPendingMove })
+
+  if (canRefund(row) && (row.refundAmount ?? 0) < (row.paidAmount ?? 0)) {
+    actions.push(
+      <GridActionsCellItem
+        key="refund"
+        icon={<EventBusyOutlined fontSize="small" />}
+        label={t('registration.actions.refundPayment')}
+        onClick={() => callbacks?.refundRegistration?.(row.id)}
+        showInMenu
+      />
+    )
+  }
+
+  actions.push(
+    <GridActionsCellItem
+      key="edit"
+      icon={<EditOutlined fontSize="small" />}
+      label={t('registration.actions.edit')}
+      onClick={() => callbacks?.openEditDialog?.(row.id)}
+      showInMenu
+    />
+  )
+
+  if (groupKey !== GROUP_KEY_CANCELLED) {
+    actions.push(
+      <GridActionsCellItem
+        key="cancel"
+        icon={<EventBusyOutlined fontSize="small" />}
+        label={t('registration.actions.cancel')}
+        onClick={() => callbacks?.cancelRegistration?.(row.id)}
+        showInMenu
+      />
+    )
+  }
+
+  actions.push(
+    <GridActionsCellItem
+      key="sendMessage"
+      icon={<EmailOutlined fontSize="small" />}
+      label={t('registration.actions.sendMessage')}
+      onClick={() => callbacks?.sendMessage?.(row.id)}
+      showInMenu
+    />
+  )
+
+  return actions
+}
+
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
   event: PublicDogEvent,
@@ -121,141 +275,8 @@ export function useClassEntrySelectionColumns(
       {
         cellClassName: 'nopad',
         field: 'actions',
-        getActions: (p) => {
-          const groupKey = getRegistrationGroupKey(p.row)
-          const isParticipant = groupKey !== GROUP_KEY_RESERVE && groupKey !== GROUP_KEY_CANCELLED
-          const isReserve = groupKey === GROUP_KEY_RESERVE
-          const isCancelled = groupKey === GROUP_KEY_CANCELLED
-          const hasGroups = available.length > 1
-          const isPendingMove = callbacks?.pendingMoveId === p.row.id
-          const isReserveMoveToPositionDisabled = isPendingMove || callbacks?.canMoveReserveToPosition === false
-          const isParticipantMoveToPositionDisabled = isPendingMove || callbacks?.canMoveToPosition?.(p.row) === false
-          const isParticipantMoveToReserveDisabled =
-            isPendingMove || event.state === 'picked' || event.state === 'invited'
-          const isCancelledMoveToReserveDisabled = isPendingMove
-
-          const actions: ReactElement[] = []
-
-          // Movement actions for participants
-          if (isParticipant) {
-            if (hasGroups) {
-              actions.push(
-                <GridActionsCellItem
-                  key="moveToGroup"
-                  disabled={isPendingMove}
-                  icon={isPendingMove ? <CircularProgress size={18} /> : <SwapHorizOutlined fontSize="small" />}
-                  label={t('registration.actions.moveToGroup')}
-                  onClick={() => callbacks?.moveToGroup?.(p.row.id)}
-                  showInMenu
-                />
-              )
-            }
-            actions.push(
-              <GridActionsCellItem
-                key="moveToPosition"
-                disabled={isParticipantMoveToPositionDisabled}
-                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
-                label={t('registration.actions.moveToPosition')}
-                onClick={() => callbacks?.moveToPosition?.(p.row.id)}
-                showInMenu
-              />,
-              <GridActionsCellItem
-                key="moveToReserve"
-                disabled={isParticipantMoveToReserveDisabled}
-                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
-                label={t('registration.actions.moveToReserve')}
-                onClick={() => callbacks?.moveToReserve?.(p.row.id)}
-                showInMenu
-              />
-            )
-          }
-
-          // Movement actions for reserve
-          if (isReserve) {
-            // "Siirrä osallistujiin" - moves to end of participants
-            actions.push(
-              <GridActionsCellItem
-                key="moveToParticipants"
-                disabled={isPendingMove}
-                icon={isPendingMove ? <CircularProgress size={18} /> : <SwapHorizOutlined fontSize="small" />}
-                label={t('registration.actions.moveToParticipants')}
-                onClick={() => callbacks?.moveToParticipants?.(p.row.id)}
-                showInMenu
-              />,
-              // "Siirrä tietylle starttipaikalle" - moves from reserve to participants at specific position
-              <GridActionsCellItem
-                key="moveToPosition"
-                disabled={isReserveMoveToPositionDisabled}
-                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
-                label={t('registration.actions.moveToPosition')}
-                onClick={() => callbacks?.moveToPosition?.(p.row.id)}
-                showInMenu
-              />
-            )
-          }
-
-          // Movement actions for cancelled
-          if (isCancelled) {
-            actions.push(
-              <GridActionsCellItem
-                key="moveToReserve"
-                disabled={isCancelledMoveToReserveDisabled}
-                icon={isPendingMove ? <CircularProgress size={18} /> : <LowPriorityOutlined fontSize="small" />}
-                label={t('registration.actions.moveToReserve')}
-                onClick={() => callbacks?.moveToReserve?.(p.row.id)}
-                showInMenu
-              />
-            )
-          }
-
-          // Refund action (available for all states if payment can be refunded)
-          if (canRefund(p.row) && (p.row.refundAmount ?? 0) < (p.row.paidAmount ?? 0)) {
-            actions.push(
-              <GridActionsCellItem
-                key="refund"
-                icon={<EventBusyOutlined fontSize="small" />}
-                label={t('registration.actions.refundPayment')}
-                onClick={() => callbacks?.refundRegistration?.(p.row.id)}
-                showInMenu
-              />
-            )
-          }
-
-          // Common actions
-          actions.push(
-            <GridActionsCellItem
-              key="edit"
-              icon={<EditOutlined fontSize="small" />}
-              label={t('registration.actions.edit')}
-              onClick={() => callbacks?.openEditDialog?.(p.row.id)}
-              showInMenu
-            />
-          )
-
-          if (!isCancelled) {
-            actions.push(
-              <GridActionsCellItem
-                key="cancel"
-                icon={<EventBusyOutlined fontSize="small" />}
-                label={t('registration.actions.cancel')}
-                onClick={() => callbacks?.cancelRegistration?.(p.row.id)}
-                showInMenu
-              />
-            )
-          }
-
-          actions.push(
-            <GridActionsCellItem
-              key="sendMessage"
-              icon={<EmailOutlined fontSize="small" />}
-              label={t('registration.actions.sendMessage')}
-              onClick={() => callbacks?.sendMessage?.(p.row.id)}
-              showInMenu
-            />
-          )
-
-          return actions
-        },
+        getActions: (p) =>
+          createRegistrationActions({ available, callbacks, event, row: p.row, t: t as (key: string) => string }),
         headerName: '',
         minWidth: 44,
         type: 'actions',

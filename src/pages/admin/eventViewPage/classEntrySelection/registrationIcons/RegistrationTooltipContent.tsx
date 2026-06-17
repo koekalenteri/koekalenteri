@@ -16,6 +16,8 @@ import { TooltipIcon } from '../../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../../components/RankingPoints'
 
+const formatEmailDeliveryReason = (reason?: string) => (reason ? ` (${reason})` : '')
+
 export const hasRegistrationTooltipContent = ({
   reg,
   priority,
@@ -131,7 +133,7 @@ const RegistrationTooltipContent = ({
         key="email-delivery-status"
         condition={!!reg.emailDeliveryStatus}
         icon={<MarkEmailUnreadOutlined fontSize="small" />}
-        text={`Sähköpostin toimitus epäonnistui: ${reg.emailDeliveryStatus?.email}${reg.emailDeliveryStatus?.reason ? ` (${reg.emailDeliveryStatus.reason})` : ''}`}
+        text={`Sähköpostin toimitus epäonnistui: ${reg.emailDeliveryStatus?.email}${formatEmailDeliveryReason(reg.emailDeliveryStatus?.reason)}`}
       />
       <TooltipIcon
         key="invitation-read"

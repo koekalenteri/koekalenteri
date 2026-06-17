@@ -7,5 +7,8 @@ import { createCachedRemoteCollectionEffect } from '../cached/createCachedRemote
 export const adminRemoteOfficialsEffect: AtomEffect<Official[]> = createCachedRemoteCollectionEffect({
   cacheKey: 'officials',
   fetch: (token) => getOfficials(token),
-  sort: (officials) => officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language)),
+  sort: (officials) => {
+    officials.sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+    return officials
+  },
 })

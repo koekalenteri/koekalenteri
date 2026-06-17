@@ -205,7 +205,7 @@ describe('useClassEntrySectionColumns', () => {
       expect(refundAction.props.disabled).toBeTruthy()
     } else {
       // If not present, that's also acceptable
-      expect(true).toBe(true) // This will always pass
+      expect(actions.map((action: ReactElement) => action.key)).not.toContain('refund')
     }
   })
 

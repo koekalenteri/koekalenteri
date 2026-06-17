@@ -250,9 +250,11 @@ export const getPatchChangedIds = <T extends { id: string }, P extends DeepParti
 
   return items.flatMap((item) => {
     const patch = patchesById.get(item.id)
-    if (!patch) return []
+    if (patch) {
+      return patchMerge(item, patch) !== item ? [item.id] : []
+    }
 
-    return patchMerge(item, patch) !== item ? [item.id] : []
+    return []
   })
 }
 

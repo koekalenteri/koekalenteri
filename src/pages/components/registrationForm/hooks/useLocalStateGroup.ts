@@ -2,6 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import useDebouncedCallback from '../../../../hooks/useDebouncedCallback'
 import { hasChanges } from '../../../../lib/utils'
 
+const isFieldUpdater = <T>(value: T | ((prev: T) => T)): value is (prev: T) => T => typeof value === 'function'
+
+const getUpdatedFieldValue = <T>(value: T | ((prev: T) => T), previous: T): T => {
+  if (isFieldUpdater(value)) {
+    return value(previous)
+  }
+
+  return value
+}
+
 /**
  * Hook to manage a group of local states with a single debounced update
  * This solves the issue of multiple fields being updated within the debounce period
@@ -49,7 +59,7 @@ export function useLocalStateGroup<T extends Record<string, any>>(
   const updateField = useCallback(
     <K extends keyof T>(field: K, value: T[K] | ((prev: T[K]) => T[K])) => {
       setLocalValues((prev) => {
-        const newValue = typeof value === 'function' ? (value as (prev: T[K]) => T[K])(prev[field]) : value
+        const newValue = typeof value === 'function' ? getUpdatedFieldValue(value, prev[field]) : value
 
         if (newValue === prev[field]) return prev
 

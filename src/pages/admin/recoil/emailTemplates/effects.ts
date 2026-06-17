@@ -28,7 +28,7 @@ async function fetchEmailTemplates(token: string): Promise<EmailTemplate[]> {
           createdBy: '',
           en: '',
           fi: '',
-          id: id as EmailTemplateId,
+          id,
           modifiedAt: new Date(),
           modifiedBy: '',
         })
@@ -41,5 +41,8 @@ async function fetchEmailTemplates(token: string): Promise<EmailTemplate[]> {
 export const adminRemoteEmailTemplatesEffect: AtomEffect<EmailTemplate[]> = createCachedRemoteCollectionEffect({
   cacheKey: 'emailTemplates',
   fetch: fetchEmailTemplates,
-  sort: (items) => items.sort((a, b) => a.id.localeCompare(b.id, i18next.language)),
+  sort: (items) => {
+    items.sort((a, b) => a.id.localeCompare(b.id, i18next.language))
+    return items
+  },
 })

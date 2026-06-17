@@ -112,6 +112,8 @@ describe('AutocompleteSingle', () => {
         <AutocompleteSingle id="test-warn" options={['test-a', 'test-b']} label={'test-label'} />
       )
       rerender(<AutocompleteSingle id="test-warn" options={['test-a', 'test-b']} label={'test-label'} value="test-a" />)
+
+      expect(screen.getByRole('combobox')).toHaveValue('test-a')
     })
 
     it.each([

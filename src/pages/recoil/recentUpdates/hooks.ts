@@ -7,6 +7,23 @@ import { recentlyUpdatedAtom, recentUpdateKey } from './atoms'
 export const HIGHLIGHT_DURATION_MS = 2000
 export const RECENTLY_UPDATED_ROW_CLASS_NAME = 'row-recently-updated'
 
+const removeRecentlyUpdated = (current: Record<string, number>, key: string, updatedAt: number) => {
+  if (current[key] !== updatedAt) return current
+
+  const { [key]: _removed, ...rest } = current
+  return rest
+}
+
+const scheduleRecentUpdateRemoval = (
+  set: (atom: typeof recentlyUpdatedAtom, value: (current: Record<string, number>) => Record<string, number>) => void,
+  key: string,
+  updatedAt: number
+) => {
+  globalThis.setTimeout(() => {
+    set(recentlyUpdatedAtom, (current) => removeRecentlyUpdated(current, key, updatedAt))
+  }, HIGHLIGHT_DURATION_MS)
+}
+
 export const useMarkRecentlyUpdated = () =>
   useRecoilCallback(
     ({ set }) =>
@@ -15,15 +32,7 @@ export const useMarkRecentlyUpdated = () =>
         const updatedAt = Date.now()
 
         set(recentlyUpdatedAtom, (current) => ({ ...current, [key]: updatedAt }))
-
-        globalThis.setTimeout(() => {
-          set(recentlyUpdatedAtom, (current) => {
-            if (current[key] !== updatedAt) return current
-
-            const { [key]: _removed, ...rest } = current
-            return rest
-          })
-        }, HIGHLIGHT_DURATION_MS)
+        scheduleRecentUpdateRemoval(set, key, updatedAt)
       },
     []
   )

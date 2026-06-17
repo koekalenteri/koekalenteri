@@ -37,6 +37,12 @@ const getData = async (registration: JsonRegistration) => {
   return { confirmedEvent, existing }
 }
 
+const removeUserControlledPaymentFields = (registration: JsonRegistration) => {
+  delete registration.paidAmount
+  delete registration.paidAt
+  delete registration.paymentStatus
+}
+
 const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
   if (cancel) return 'cancel'
   if (confirm) return 'confirm'
@@ -56,6 +62,36 @@ const getAuditMessage = (
   if (!existing) return 'Ilmoittautui'
 
   return getRegistrationChanges(existing, data)
+}
+
+const prepareNewRegistration = async (
+  registration: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent,
+  timestamp: string,
+  username: string,
+  event: Parameters<typeof response>[2]
+) => {
+  if (!isEntryOpen(confirmedEvent)) {
+    return response(410, { message: 'Gone: Entry is not open' }, event)
+  }
+
+  const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
+
+  if (alreadyRegistered) {
+    return response(
+      409,
+      {
+        cancelled: Boolean(alreadyRegistered.cancelled),
+        message: 'Conflict: Dog already registered to this event',
+      },
+      event
+    )
+  }
+
+  registration.id = nanoid(10)
+  registration.createdAt = timestamp
+  registration.createdBy = username
+  registration.state = confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
 }
 
 const sendMessages = async (
@@ -123,11 +159,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
 
   const registration: JsonRegistration = parseJSONWithFallback(event.body)
   normalizeRegistrationEmails(registration)
-
-  // These data can not be submitted by user
-  delete registration.paidAmount
-  delete registration.paidAt
-  delete registration.paymentStatus
+  removeUserControlledPaymentFields(registration)
 
   const { confirmedEvent, existing } = await getData(registration)
 
@@ -136,28 +168,8 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   }
 
   if (!existing) {
-    if (!isEntryOpen(confirmedEvent)) {
-      return response(410, { message: 'Gone: Entry is not open' }, event)
-    }
-
-    // Prevent double registrations when trying to insert new registration
-    const alreadyRegistered = await findExistingRegistrationToEventForDog(registration.eventId, registration.dog.regNo)
-
-    if (alreadyRegistered) {
-      return response(
-        409,
-        {
-          cancelled: Boolean(alreadyRegistered.cancelled),
-          message: 'Conflict: Dog already registered to this event',
-        },
-        event
-      )
-    }
-
-    registration.id = nanoid(10)
-    registration.createdAt = timestamp
-    registration.createdBy = username
-    registration.state = confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
+    const errorResponse = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
+    if (errorResponse) return errorResponse
   }
 
   const update = !!existing

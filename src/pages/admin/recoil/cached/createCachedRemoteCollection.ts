@@ -1,5 +1,5 @@
 import type { AtomEffect } from 'recoil'
-import type { DataVersion, DataVersions, User } from '../../../../types'
+import type { DataVersion, DataVersions } from '../../../../types'
 import { DefaultValue } from 'recoil'
 import { readEncryptedDataset, writeEncryptedDataset } from '../../../../lib/client/encryptedStore'
 import { idTokenAtom, userSelector } from '../../../recoil'
@@ -27,13 +27,16 @@ export function createCachedRemoteCollectionEffect<T>({
 
     setSelf(
       Promise.all([getPromise(idTokenAtom), getPromise(userSelector)]).then(async ([token, user]) => {
-        const currentUser = user as User | null
+        const currentUser = user
         if (!token || !currentUser?.id) return new DefaultValue()
 
         const version = currentUser.dataVersions?.[cacheKey]
         const cached = await readEncryptedDataset<T[]>(currentUser.id, cacheKey).catch(() => undefined)
 
-        const sortedCached = cached ? (sort ? sort([...cached.data]) : cached.data) : undefined
+        let sortedCached = cached?.data
+        if (cached && sort) {
+          sortedCached = sort([...cached.data])
+        }
 
         if (sortedCached && isFresh(cached, version)) {
           return sortedCached

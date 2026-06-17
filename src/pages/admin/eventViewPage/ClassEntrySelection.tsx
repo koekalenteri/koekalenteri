@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import { useConfirm } from 'material-ui-confirm'
 import { enqueueSnackbar } from 'notistack'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import withScrolling from 'react-dnd-scrolling'
@@ -115,6 +115,20 @@ const ClassEntrySelection = ({
     [groups, registrationsByGroup, selectedForAction]
   )
 
+  const openActionDialog = useCallback(
+    (
+      id: string,
+      openDialog: Dispatch<SetStateAction<boolean>>,
+      nextSelectedForAction = registrations.find((r) => r.id === id)
+    ) => {
+      if (!nextSelectedForAction) return
+
+      setSelectedForAction(nextSelectedForAction)
+      openDialog(true)
+    },
+    [registrations]
+  )
+
   const canMoveReserveToPosition = useMemo(() => {
     return groups.some((group) => (registrationsByGroup[group.key]?.length ?? 0) > 0)
   }, [groups, registrationsByGroup])
@@ -144,27 +158,9 @@ const ClassEntrySelection = ({
       cancelRegistration: handleCancel,
       canMoveReserveToPosition,
       canMoveToPosition: canMoveParticipantToPosition,
-      moveToGroup: (id: string) => {
-        const reg = registrations.find((r) => r.id === id)
-        if (reg) {
-          setSelectedForAction(reg)
-          setMoveToGroupDialogOpen(true)
-        }
-      },
-      moveToParticipants: (id: string) => {
-        const reg = registrations.find((r) => r.id === id)
-        if (reg) {
-          setSelectedForAction(reg)
-          setMoveToGroupDialogOpen(true)
-        }
-      },
-      moveToPosition: (id: string) => {
-        const reg = registrations.find((r) => r.id === id)
-        if (reg) {
-          setSelectedForAction(reg)
-          setMoveToPositionDialogOpen(true)
-        }
-      },
+      moveToGroup: (id: string) => openActionDialog(id, setMoveToGroupDialogOpen),
+      moveToParticipants: (id: string) => openActionDialog(id, setMoveToGroupDialogOpen),
+      moveToPosition: (id: string) => openActionDialog(id, setMoveToPositionDialogOpen),
       moveToReserve: async (id: string) => {
         const reg = registrations.find((r) => r.id === id)
         if (!reg) return
@@ -190,16 +186,11 @@ const ClassEntrySelection = ({
       openEditDialog: handleOpen,
       pendingMoveId,
       refundRegistration: handleRefund,
-      sendMessage: (id: string) => {
-        const reg = registrations.find((r) => r.id === id)
-        if (reg) {
-          setSelectedForAction(reg)
-          setSendMessageDialogOpen(true)
-        }
-      },
+      sendMessage: (id: string) => openActionDialog(id, setSendMessageDialogOpen),
     }),
     [
       registrations,
+      openActionDialog,
       handleOpen,
       handleCancel,
       handleRefund,

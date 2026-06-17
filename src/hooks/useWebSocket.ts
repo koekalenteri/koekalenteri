@@ -48,6 +48,15 @@ interface EventViewer {
   name: string
 }
 
+interface EventPatchMessage {
+  eventId: string
+  scope?: string
+  [key: string]: unknown
+}
+
+const getViewerUserIds = (viewers: unknown[]): string[] =>
+  viewers.filter((viewer: unknown): viewer is string => typeof viewer === 'string')
+
 const mapEventViewers = (
   viewers: string[],
   adminUsers: Array<{ id: string; name?: string }>,
@@ -123,7 +132,7 @@ export const useWebSocket = () => {
 
   const setPublicEvents = useRecoilCallback(
     ({ snapshot, set }) =>
-      (eventId: string, patch: Partial<PublicDogEvent>, options: { insert?: boolean } = { insert: true }) => {
+      (eventId: string, patch: Partial<PublicDogEvent>, options?: { insert?: boolean }) => {
         const loadable = snapshot.getLoadable(eventsAtom)
         if (loadable.state !== 'hasValue') return
 
@@ -136,7 +145,8 @@ export const useWebSocket = () => {
           return
         }
 
-        const next = options.insert
+        const insert = options?.insert ?? true
+        const next = insert
           ? applyPatchOrInsert(loadable.contents, eventId, patch)
           : applyPatch(loadable.contents, eventId, patch)
         if (next !== loadable.contents) markRecentlyUpdated('public:event', eventId)
@@ -241,6 +251,72 @@ export const useWebSocket = () => {
     console.debug('ws:event unsubscribe state cleared', { eventId, sent })
   }, [sendIfOpen])
 
+  const handleCountMessage = useCallback((data: { count?: unknown; scope?: unknown }) => {
+    if (typeof data.count !== 'number') return false
+
+    if (data.scope === 'public:connection-count') setPublicCount(data.count)
+    else if (data.scope === 'admin:connection-count') setAdminCount(data.count)
+
+    return true
+  }, [])
+
+  const handleEventPatchMessage = useCallback(
+    ({ eventId, scope, ...patch }: EventPatchMessage) => {
+      if (scope === 'admin:event-patch') {
+        setAdminEvents(eventId, patch)
+        const publicPatch = sanitizeDogEvent(patch) as unknown as Partial<PublicDogEvent>
+        if (Object.keys(publicPatch).length > 0) {
+          setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
+        }
+        return
+      }
+
+      if (scope === 'public:event-patch' || !scope) {
+        setPublicEvents(eventId, patch)
+      }
+    },
+    [setAdminEvents, setPublicEvents]
+  )
+
+  const handleMessageData = useCallback(
+    (data: any, token: string | undefined, ws: WebSocket) => {
+      console.debug('ws: ', data)
+
+      if (handleCountMessage(data)) return
+
+      if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
+        patchRegistrations(data.eventId, data.patch)
+        return
+      }
+
+      if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
+        const viewerUserIds = getViewerUserIds(data.viewers)
+        rawViewersRef.current = viewerUserIds
+        const nextViewers = mapEventViewers(viewerUserIds, adminUsersRef.current, currentUserRef.current)
+        setViewers((current) => applyViewers(current, nextViewers))
+        return
+      }
+
+      if (data.authenticated === true) {
+        authFailedTokenRef.current = undefined
+        resendActiveSubscriptions(ws)
+        return
+      }
+
+      if (data.ok === false && (data.status === 401 || data.status === 403)) {
+        if (token) authFailedTokenRef.current = token
+        shouldReconnectRef.current = false
+        ws.close()
+        return
+      }
+
+      if (data.eventId) {
+        handleEventPatchMessage(data)
+      }
+    },
+    [handleCountMessage, handleEventPatchMessage, patchRegistrations, resendActiveSubscriptions]
+  )
+
   const connect = useCallback(() => {
     if (!shouldReconnectRef.current) return
 
@@ -279,58 +355,12 @@ export const useWebSocket = () => {
 
     ws.onmessage = (event) => {
       try {
-        const data = parseJSON(event.data)
-        console.debug('ws: ', data)
-
-        if (typeof data.count === 'number') {
-          if (data.scope === 'public:connection-count') setPublicCount(data.count)
-          else if (data.scope === 'admin:connection-count') setAdminCount(data.count)
-          return
-        }
-
-        if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
-          patchRegistrations(data.eventId, data.patch)
-          return
-        }
-
-        if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
-          const viewerUserIds = data.viewers.filter((viewer: unknown): viewer is string => typeof viewer === 'string')
-          rawViewersRef.current = viewerUserIds
-          const nextViewers = mapEventViewers(viewerUserIds, adminUsersRef.current, currentUserRef.current)
-          setViewers((current) => applyViewers(current, nextViewers))
-          return
-        }
-
-        if (data.authenticated === true) {
-          authFailedTokenRef.current = undefined
-          resendActiveSubscriptions(ws)
-          return
-        }
-
-        if (data.ok === false && (data.status === 401 || data.status === 403)) {
-          if (token) authFailedTokenRef.current = token
-          shouldReconnectRef.current = false
-          ws.close()
-          return
-        }
-
-        if (data.eventId) {
-          const { eventId, scope, ...patch } = data
-          if (scope === 'admin:event-patch') {
-            setAdminEvents(eventId, patch)
-            const publicPatch = sanitizeDogEvent(patch) as unknown as Partial<PublicDogEvent>
-            if (Object.keys(publicPatch).length > 0) {
-              setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
-            }
-          } else if (scope === 'public:event-patch' || !scope) {
-            setPublicEvents(eventId, patch)
-          }
-        }
+        handleMessageData(parseJSON(event.data), token, ws)
       } catch {
         // ignore invalid messages
       }
     }
-  }, [patchRegistrations, resendActiveSubscriptions, sendIfOpen, setAdminEvents, setPublicEvents])
+  }, [handleMessageData, resendActiveSubscriptions, sendIfOpen])
 
   useEffect(() => {
     setViewers((current) => applyViewers(current, resolvedViewers))

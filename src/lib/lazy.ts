@@ -32,7 +32,7 @@ const markChunkLoadReloadAttempted = () => {
 
 export async function reloadOnChunkLoadError<T>(
   load: () => Promise<T>,
-  reload: () => void = () => window.location.reload()
+  reload: () => void = () => globalThis.location.reload()
 ): Promise<T> {
   try {
     const value = await load()
@@ -43,7 +43,7 @@ export async function reloadOnChunkLoadError<T>(
     }
     return value
   } catch (error) {
-    if (typeof window !== 'undefined' && isChunkLoadError(error) && !wasChunkLoadReloadAttempted()) {
+    if (typeof globalThis.window !== 'undefined' && isChunkLoadError(error) && !wasChunkLoadReloadAttempted()) {
       markChunkLoadReloadAttempted()
       reload()
       return new Promise<T>(() => undefined)

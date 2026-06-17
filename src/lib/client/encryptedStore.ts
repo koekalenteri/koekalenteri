@@ -66,7 +66,7 @@ const datasetKey = (userId: string, key: string) => `${userId}:${key}`
 export async function readEncryptedDataset<T>(userId: string, key: string): Promise<CachedDataset<T> | undefined> {
   const cryptoKey = await getKey(userId)
   const stored = await idbGet<EncryptedDataset>(DATASETS, datasetKey(userId, key))
-  if (!stored || stored.userId !== userId) return undefined
+  if (stored?.userId !== userId) return undefined
 
   const plaintext = await crypto.subtle.decrypt({ iv: stored.iv, name: 'AES-GCM' }, cryptoKey, stored.cipherText)
   const data = JSON.parse(decoder.decode(plaintext)) as T
@@ -91,7 +91,7 @@ export async function writeEncryptedDataset<T>(
   await idbSet<EncryptedDataset>(DATASETS, datasetKey(userId, key), {
     cipherText,
     count: meta.count,
-    iv: iv.buffer.slice(0) as ArrayBuffer,
+    iv: iv.buffer.slice(0),
     modifiedAt: meta.modifiedAt,
     storedAt: new Date().toISOString(),
     userId,

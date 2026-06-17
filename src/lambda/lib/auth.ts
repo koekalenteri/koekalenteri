@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
 import { response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { normalizeEmail } from './email'
 import { appendEmailHistory } from './emailHistory'
 import { findUserByEmail, updateUser, userIsMemberOf } from './user'
 
@@ -113,7 +114,7 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
     // Mitigation for email changes (e.g. user changes email in KL while staying logged in):
     // If a user record already exists by email, link this cognito user to that record instead
     // of creating a new user (or failing later due to mismatched identities).
-    const normalizedEmail = typeof email === 'string' ? email.toLocaleLowerCase().trim() : ''
+    const normalizedEmail = typeof email === 'string' ? normalizeEmail(email) : ''
     const existingByEmail = await findUserByEmail(normalizedEmail)
 
     if (existingByEmail) {
@@ -136,6 +137,26 @@ async function getOrCreateUserFromEvent(event?: Partial<APIGatewayProxyEvent>, u
   return user
 }
 
+const shouldSkipNameUpdate = (
+  existing: JsonUser | undefined,
+  changes: Omit<Partial<JsonUser>, 'id' | 'email'>,
+  updateName?: boolean
+) => 'name' in changes && ((existing?.name && !updateName) || typeof changes.name !== 'string')
+
+const applyNameUpdatePolicy = (
+  existing: JsonUser | undefined,
+  changes: Omit<Partial<JsonUser>, 'id' | 'email'>,
+  updateName?: boolean
+) => {
+  if (shouldSkipNameUpdate(existing, changes, updateName)) {
+    delete changes.name
+  }
+
+  if (existing && 'name' in existing && typeof existing.name !== 'string') {
+    existing.name = changes.name ?? ''
+  }
+}
+
 export async function getAndUpdateUserByEmail(
   rawEmail: string,
   props: Omit<Partial<JsonUser>, 'id' | 'email'>,
@@ -144,7 +165,7 @@ export async function getAndUpdateUserByEmail(
 ) {
   const modifiedBy = 'system'
   const dateString = new Date().toISOString()
-  const email = rawEmail.toLocaleLowerCase().trim()
+  const email = normalizeEmail(rawEmail)
   const existing = await findUserByEmail(email)
 
   if (existing && existing.email !== email) {
@@ -165,15 +186,7 @@ export async function getAndUpdateUserByEmail(
   }
 
   const changes = { ...props }
-
-  // lets not change a stored name or use a non-string value as name
-  if ('name' in changes && ((existing?.name && !updateName) || typeof changes.name !== 'string')) {
-    delete changes.name
-  }
-  // if for some reason we have a non-string name in database, replace it
-  if (existing && 'name' in existing && typeof existing.name !== 'string') {
-    existing.name = changes.name ?? ''
-  }
+  applyNameUpdatePolicy(existing, changes, updateName)
 
   const final: JsonUser = {
     ...newUser,

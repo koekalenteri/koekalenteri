@@ -1,4 +1,4 @@
-import type { DogEvent } from '../../../types'
+import type { DogEvent, PublicDogEvent } from '../../../types'
 import type { EventMetadata } from './types'
 import { useEffect } from 'react'
 import { useRecoilCallback, useRecoilValue } from 'recoil'
@@ -174,6 +174,53 @@ function consumeMetadataInvalidation(metadata: EventMetadata): EventMetadata {
   return DEFAULT_EVENT_METADATA
 }
 
+async function getRangeSyncResult(
+  metadata: EventMetadata,
+  preparedEvents: PublicDogEvent[],
+  start: Date,
+  end: Date | undefined,
+  now: number
+): Promise<{ events?: PublicDogEvent[]; metadata: EventMetadata }> {
+  const strategy = getRangeStrategy(metadata, preparedEvents.length, start, end, now)
+
+  if (strategy.kind === 'throttled') {
+    return { metadata: buildRangeMetadata(metadata, strategy.request, now, false) }
+  }
+
+  const response = await getEvents(start, end, strategy.isCold ? undefined : metadata.lastSyncAt)
+  const completeResponse = hasMissingUnchangedEvents(preparedEvents, response.events, response.unchangedIds, start, end)
+    ? await getEvents(start, end)
+    : response
+
+  return {
+    events: reconcileRange(preparedEvents, completeResponse.events, completeResponse.unchangedIds, start, end),
+    metadata: buildRangeMetadata(metadata, strategy.request, now, true),
+  }
+}
+
+async function getSingleSyncResult(
+  events: PublicDogEvent[],
+  metadata: EventMetadata,
+  eventId: string,
+  now: number
+): Promise<{ events?: PublicDogEvent[]; metadata: EventMetadata }> {
+  if (isSingleFresh(metadata, eventId)) {
+    return { metadata }
+  }
+
+  try {
+    const event = await getEvent(eventId)
+    return {
+      events: mergeAndSortByDate(events, [event]),
+      metadata: { ...metadata, singles: { ...metadata.singles, [eventId]: now } },
+    }
+  } catch {
+    // A missing event is represented by leaving it absent from the cache.
+    // Consumers can then distinguish "still loading" from "not found".
+    return { metadata: { ...metadata, singles: { ...metadata.singles, [eventId]: now } } }
+  }
+}
+
 export function useFetchEvents() {
   return useRecoilCallback(
     ({ snapshot, set }) =>
@@ -200,51 +247,19 @@ export function useFetchEvents() {
             set(eventsAtom, preparedEvents)
           }
 
+          let nextMetadata = effectiveMetadata
           if (start) {
-            const strategy = getRangeStrategy(effectiveMetadata, preparedEvents.length, start, end, now)
-
-            if (strategy.kind === 'throttled') {
-              set(eventMetadataAtom, buildRangeMetadata(effectiveMetadata, strategy.request, now, false))
-            } else {
-              const response = await getEvents(start, end, strategy.isCold ? undefined : effectiveMetadata.lastSyncAt)
-              const completeResponse = hasMissingUnchangedEvents(
-                preparedEvents,
-                response.events,
-                response.unchangedIds,
-                start,
-                end
-              )
-                ? await getEvents(start, end)
-                : response
-              const nextEvents = reconcileRange(
-                preparedEvents,
-                completeResponse.events,
-                completeResponse.unchangedIds,
-                start,
-                end
-              )
-              set(eventsAtom, nextEvents)
-              set(eventMetadataAtom, buildRangeMetadata(effectiveMetadata, strategy.request, now, true))
-            }
+            const rangeResult = await getRangeSyncResult(effectiveMetadata, preparedEvents, start, end, now)
+            if (rangeResult.events) set(eventsAtom, rangeResult.events)
+            nextMetadata = rangeResult.metadata
+            set(eventMetadataAtom, nextMetadata)
           }
 
           if (eventId) {
-            if (!isSingleFresh(effectiveMetadata, eventId)) {
-              try {
-                const event = await getEvent(eventId)
-                const merged = mergeAndSortByDate(await snapshot.getPromise(eventsAtom), [event])
-                set(eventsAtom, merged)
-              } catch {
-                // A missing event is represented by leaving it absent from the cache.
-                // Consumers can then distinguish "still loading" from "not found"
-                // using the single-fetch freshness marker below.
-              }
-
-              set(eventMetadataAtom, {
-                ...effectiveMetadata,
-                singles: { ...effectiveMetadata.singles, [eventId]: now },
-              })
-            }
+            const currentEvents = await snapshot.getPromise(eventsAtom)
+            const singleResult = await getSingleSyncResult(currentEvents, nextMetadata, eventId, now)
+            if (singleResult.events) set(eventsAtom, singleResult.events)
+            if (singleResult.metadata !== nextMetadata) set(eventMetadataAtom, singleResult.metadata)
           }
         } finally {
           if (start) {

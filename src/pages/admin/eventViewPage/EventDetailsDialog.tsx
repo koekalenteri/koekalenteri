@@ -1,4 +1,3 @@
-import type { ConfirmedEvent } from '../../../types'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -73,7 +72,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
       <DialogTitle id="reg-dialog-title">{event.name}</DialogTitle>
       <DialogContent dividers sx={{ height: '100%', p: 0 }}>
         <EventForm
-          event={event as ConfirmedEvent}
+          event={event}
           changes={changes}
           onChange={handleChange}
           onCancel={handleCancel}

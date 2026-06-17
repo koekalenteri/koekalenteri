@@ -24,33 +24,61 @@ type ValidWsMessage =
 
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
 
+const parseObjectMessage = (message: WsMessage): ValidWsMessage | undefined => {
+  if (message.action === 'authenticate' && isNonEmptyString(message.token)) {
+    return { action: 'authenticate', token: message.token }
+  }
+
+  if (message.action === 'subscribe' && message.channel === 'admin') {
+    return { action: 'subscribe', channel: 'admin' }
+  }
+
+  if (message.action === 'subscribe' && message.channel === 'event' && isNonEmptyString(message.eventId)) {
+    return { action: 'subscribe', channel: 'event', eventId: message.eventId }
+  }
+
+  if (message.action === 'unsubscribe' && (message.channel === 'admin' || message.channel === 'event')) {
+    return { action: 'unsubscribe', channel: message.channel }
+  }
+}
+
 const parseBody = (body: string | null): ValidWsMessage | undefined => {
   if (!body) return undefined
   try {
     const parsed = JSON.parse(body)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return undefined
-    const message = parsed as WsMessage
-
-    if (message.action === 'authenticate' && isNonEmptyString(message.token)) {
-      return { action: 'authenticate', token: message.token }
-    }
-
-    if (message.action === 'subscribe' && message.channel === 'admin') {
-      return { action: 'subscribe', channel: 'admin' }
-    }
-
-    if (message.action === 'subscribe' && message.channel === 'event' && isNonEmptyString(message.eventId)) {
-      return { action: 'subscribe', channel: 'event', eventId: message.eventId }
-    }
-
-    if (message.action === 'unsubscribe' && (message.channel === 'admin' || message.channel === 'event')) {
-      return { action: 'unsubscribe', channel: message.channel }
-    }
-
-    return undefined
+    return parseObjectMessage(parsed as WsMessage)
   } catch {
     return undefined
   }
+}
+
+const handleSubscribeMessage = async (
+  message: Extract<ValidWsMessage, { action: 'subscribe' }>,
+  connection: NonNullable<Awaited<ReturnType<typeof getWebSocketConnection>>>
+) => {
+  if (message.channel === 'admin') return subscribeWebSocketToAdmin(connection)
+
+  return subscribeWebSocketToEvent(connection, message.eventId)
+}
+
+const handleUnsubscribeMessage = async (
+  message: Extract<ValidWsMessage, { action: 'unsubscribe' }>,
+  connectionId: string,
+  connection: NonNullable<Awaited<ReturnType<typeof getWebSocketConnection>>>,
+  event: APIGatewayEvent
+) => {
+  if (message.channel === 'admin') {
+    const result = await unsubscribeWebSocketFromAdmin(connectionId)
+    return response(200, { connectionId, ...result }, event)
+  }
+
+  if (!connection.eventId) {
+    return response(400, 'Bad request', event)
+  }
+
+  await unsubscribeWebSocketFromEvent(connection)
+  return response(200, { connectionId, unsubscribed: true }, event)
 }
 
 const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
@@ -76,32 +104,11 @@ const wsMessageHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxy
     }
 
     if (message.action === 'subscribe') {
-      if (message.channel === 'admin') {
-        const result = await subscribeWebSocketToAdmin(connection)
-        return response(200, result, event)
-      }
-
-      if (message.channel === 'event') {
-        const result = await subscribeWebSocketToEvent(connection, message.eventId)
-
-        return response(200, result, event)
-      }
+      return response(200, await handleSubscribeMessage(message, connection), event)
     }
 
     if (message.action === 'unsubscribe') {
-      if (message.channel === 'admin') {
-        const result = await unsubscribeWebSocketFromAdmin(connectionId)
-        return response(200, { connectionId, ...result }, event)
-      }
-
-      if (message.channel === 'event') {
-        if (!connection.eventId) {
-          return response(400, 'Bad request', event)
-        }
-        await unsubscribeWebSocketFromEvent(connection)
-
-        return response(200, { connectionId, unsubscribed: true }, event)
-      }
+      return handleUnsubscribeMessage(message, connectionId, connection, event)
     }
   } catch (err) {
     console.error(err)

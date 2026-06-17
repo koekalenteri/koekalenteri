@@ -38,6 +38,13 @@ function zonedYear(date: Date): number {
   return Number(formatDate(date, 'yyyy', { timeZone: TIME_ZONE }))
 }
 
+function getUpperBoundYear(end: Date | undefined, lowerBoundYear: number): number {
+  if (end) return zonedYear(end)
+
+  const currentYear = zonedYear(new Date())
+  return lowerBoundYear === currentYear ? lowerBoundYear + 1 : lowerBoundYear
+}
+
 async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEvent[] | undefined> {
   if (!start && !end) {
     return dynamoDB.readAll<JsonDogEvent>()
@@ -46,9 +53,7 @@ async function queryEventsForRange(start?: Date, end?: Date): Promise<JsonDogEve
   const fallbackLowerBoundYear = zonedYear(end ?? new Date())
   const lowerBound = start ?? zonedStartOfYear(fallbackLowerBoundYear)
   const lowerBoundYear = zonedYear(lowerBound)
-  const currentYear = zonedYear(new Date())
-  const openEndedCurrentSeason = !end && lowerBoundYear === currentYear
-  const upperBoundYear = end ? zonedYear(end) : lowerBoundYear + (openEndedCurrentSeason ? 1 : 0)
+  const upperBoundYear = getUpperBoundYear(end, lowerBoundYear)
   const upperBound = end ?? zonedEndOfYear(upperBoundYear)
   const seasons = seasonsBetween(lowerBoundYear, upperBoundYear)
   const result: JsonDogEvent[] = []

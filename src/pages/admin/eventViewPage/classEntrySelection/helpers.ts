@@ -104,12 +104,10 @@ export const findMoveToPositionTargetGroup = (
   const allowedParticipantGroups = getAllowedParticipantGroups(selectedForAction, groups)
   const currentGroupKey = getRegistrationGroupKey(selectedForAction)
   const currentPosition = selectedForAction.group?.number
-  const anchorPositions =
-    isParticipantGroup(currentGroupKey) && typeof currentPosition === 'number'
-      ? currentPosition < position
-        ? [Math.floor(position)]
-        : [Math.ceil(position)]
-      : [Math.ceil(position), Math.floor(position)]
+  let anchorPositions = [Math.ceil(position), Math.floor(position)]
+  if (isParticipantGroup(currentGroupKey) && typeof currentPosition === 'number') {
+    anchorPositions = currentPosition < position ? [Math.floor(position)] : [Math.ceil(position)]
+  }
 
   for (const anchorPosition of [...new Set(anchorPositions)].filter((number) => number > 0)) {
     const targetGroup = allowedParticipantGroups.find((group) => {

@@ -7,5 +7,8 @@ import { createCachedRemoteCollectionEffect } from '../cached/createCachedRemote
 export const adminRemoteEventTypesEffect: AtomEffect<EventType[]> = createCachedRemoteCollectionEffect({
   cacheKey: 'eventTypes',
   fetch: (token) => getEventTypes(token),
-  sort: (eventTypes) => eventTypes.sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language)),
+  sort: (eventTypes) => {
+    eventTypes.sort((a, b) => a.eventType.localeCompare(b.eventType, i18next.language))
+    return eventTypes
+  },
 })
