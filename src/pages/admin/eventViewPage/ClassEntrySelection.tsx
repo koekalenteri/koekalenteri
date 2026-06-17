@@ -133,8 +133,8 @@ const ClassEntrySelection = ({
     return groups.some((group) => (registrationsByGroup[group.key]?.length ?? 0) > 0)
   }, [groups, registrationsByGroup])
 
-  const canMoveParticipantToPosition = useMemo(
-    () => (registration: Registration) => {
+  const canMoveParticipantToPosition = useCallback(
+    (registration: Registration) => {
       const currentGroupKey = getRegistrationGroupKey(registration)
       if (currentGroupKey === GROUP_KEY_RESERVE || currentGroupKey === GROUP_KEY_CANCELLED) return true
 

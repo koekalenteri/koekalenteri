@@ -43,7 +43,7 @@ export async function reloadOnChunkLoadError<T>(
     }
     return value
   } catch (error) {
-    if (typeof globalThis.window !== 'undefined' && isChunkLoadError(error) && !wasChunkLoadReloadAttempted()) {
+    if (globalThis.window !== undefined && isChunkLoadError(error) && !wasChunkLoadReloadAttempted()) {
       markChunkLoadReloadAttempted()
       reload()
       return new Promise<T>(() => undefined)
