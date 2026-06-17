@@ -341,6 +341,7 @@ describe('refundCreateLambda', () => {
       {
         set: {
           refundStatus: 'SUCCESS',
+          updatedAt: expect.any(String),
         },
       },
       expect.any(String)
@@ -435,6 +436,7 @@ describe('refundCreateLambda', () => {
       {
         set: {
           refundStatus: 'PENDING',
+          updatedAt: expect.any(String),
         },
       },
       expect.any(String)
@@ -477,6 +479,7 @@ describe('refundCreateLambda', () => {
       {
         set: {
           refundStatus: 'PENDING',
+          updatedAt: expect.any(String),
         },
       },
       expect.any(String)

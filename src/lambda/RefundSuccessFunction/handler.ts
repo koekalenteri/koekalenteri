@@ -53,6 +53,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
       refundAt: new Date().toISOString(),
       refundStatus: 'SUCCESS',
     }
+    const updatedAt = changes.refundAt
 
     await dynamoDB.update(
       { eventId, id: registrationId },
@@ -61,14 +62,16 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
           refundAmount: changes.refundAmount,
           refundAt: changes.refundAt,
           refundStatus: changes.refundStatus,
+          updatedAt,
         },
       },
       registrationTable
     )
 
     registration.refundAmount = (registration.refundAmount ?? 0) + amount
-    registration.refundAt = new Date().toISOString()
+    registration.refundAt = changes.refundAt
     registration.refundStatus = 'SUCCESS'
+    registration.updatedAt = updatedAt
 
     const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
 

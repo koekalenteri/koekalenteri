@@ -133,6 +133,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     {
       set: {
         refundStatus: result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+        updatedAt: new Date().toISOString(),
       },
     },
     registrationTable

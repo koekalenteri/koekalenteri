@@ -175,7 +175,15 @@ describe('getAdminRegistrationsLambda', () => {
     const allRegistrations = [
       { class: 'ALO', eventId, id: 'reg1', modifiedAt: '2026-01-01T10:00:00.000Z', state: 'ready' },
       { class: 'AVO', eventId, id: 'reg2', modifiedAt: '2026-01-02T10:00:00.000Z', state: 'ready' },
-      { class: 'VOI', eventId, id: 'reg3', state: 'ready' },
+      {
+        class: 'VOI',
+        eventId,
+        id: 'reg3',
+        modifiedAt: '2026-01-01T10:00:00.000Z',
+        state: 'ready',
+        updatedAt: '2026-01-02T10:00:00.000Z',
+      },
+      { class: 'ALO', eventId, id: 'reg4', state: 'ready' },
     ]
     const registrationsWithGroups = allRegistrations.map((registration) => ({
       ...registration,
@@ -191,7 +199,10 @@ describe('getAdminRegistrationsLambda', () => {
 
     expect(mockResponse).toHaveBeenCalledWith(
       200,
-      { registrations: [registrationsWithGroups[1], registrationsWithGroups[2]], unchangedIds: ['reg1'] },
+      {
+        registrations: [registrationsWithGroups[1], registrationsWithGroups[2], registrationsWithGroups[3]],
+        unchangedIds: ['reg1'],
+      },
       eventWithSince
     )
   })

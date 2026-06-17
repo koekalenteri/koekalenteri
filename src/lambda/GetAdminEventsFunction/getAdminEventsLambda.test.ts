@@ -109,12 +109,12 @@ describe('getAdminEventsLambda', () => {
 
     // Check first query call
     expect(mockQuery).toHaveBeenCalledWith({
-      index: 'gsiSeasonModifiedAt',
-      key: 'season = :season AND modifiedAt > :modifiedAfter',
+      index: 'gsiSeasonUpdatedAt',
+      key: 'season = :season AND updatedAt > :updatedAfter',
       table: expect.any(String),
       values: {
-        ':modifiedAfter': new Date(Number(since)).toISOString(),
         ':season': startSeason.toString(),
+        ':updatedAfter': new Date(Number(since)).toISOString(),
       },
     })
 

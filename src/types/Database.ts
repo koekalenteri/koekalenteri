@@ -6,12 +6,14 @@ export interface JsonDbRecord {
   deletedBy?: string
   modifiedAt: string
   modifiedBy: string
+  updatedAt?: string
 }
 
-export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' | 'deletedAt'> {
+export interface DbRecord extends Omit<JsonDbRecord, 'createdAt' | 'modifiedAt' | 'deletedAt' | 'updatedAt'> {
   createdAt: Date
   modifiedAt: Date
   deletedAt?: Date
+  updatedAt?: Date
 }
 
 export interface JsonAuditRecord {

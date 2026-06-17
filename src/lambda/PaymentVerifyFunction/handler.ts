@@ -39,6 +39,7 @@ const paymentVerifyLambda = lambda('paymentVerify', async (event) => {
           {
             set: {
               paymentStatus: 'CANCEL',
+              updatedAt: new Date().toISOString(),
             },
           },
           CONFIG.registrationTable

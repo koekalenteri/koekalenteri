@@ -168,6 +168,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   // modification info is always updated
   registration.modifiedAt = timestamp
   registration.modifiedBy = username
+  registration.updatedAt = timestamp
 
   const data: JsonRegistration = { ...existing, ...registration }
 

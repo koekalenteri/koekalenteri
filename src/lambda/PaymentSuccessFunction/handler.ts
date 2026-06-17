@@ -33,6 +33,7 @@ const handleSuccessfulPayment = async (
   registration.paidAt = new Date().toISOString()
   registration.paymentStatus = 'SUCCESS'
   registration.state = 'ready'
+  registration.updatedAt = registration.paidAt
 
   // registration is paid after picked to the event, this also confirms the place.
   if (registration.messagesSent?.picked) {
@@ -48,6 +49,7 @@ const handleSuccessfulPayment = async (
         paidAt: registration.paidAt,
         paymentStatus: registration.paymentStatus,
         state: registration.state,
+        updatedAt: registration.updatedAt,
       },
     },
     registrationTable

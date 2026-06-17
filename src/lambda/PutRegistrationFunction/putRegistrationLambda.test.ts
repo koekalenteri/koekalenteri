@@ -124,6 +124,7 @@ describe('putRegistrationLabmda', () => {
         modifiedBy: 'anonymous',
         owner: expect.objectContaining({ email: 'owner@example.com' }),
         payer: expect.objectContaining({ email: 'payer@example.com' }),
+        updatedAt: expect.stringMatching(ISO8601DateTimeRE),
       })
     )
     expect(mockSaveRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
@@ -310,9 +311,10 @@ describe('putRegistrationLabmda', () => {
     expect(mockSaveRegistration).toHaveBeenCalledWith({
       ...existingJson,
       cancelled: true,
-      cancelReason,
+      ...(cancelReason ? { cancelReason } : {}),
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -393,6 +395,7 @@ describe('putRegistrationLabmda', () => {
       cancelled: true,
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -461,6 +464,7 @@ describe('putRegistrationLabmda', () => {
       cancelled: true,
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -529,6 +533,7 @@ describe('putRegistrationLabmda', () => {
       cancelled: true,
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -589,6 +594,7 @@ describe('putRegistrationLabmda', () => {
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
       notes: 'updated notes',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -649,6 +655,7 @@ describe('putRegistrationLabmda', () => {
       confirmed: true,
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
     expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
@@ -748,6 +755,7 @@ describe('putRegistrationLabmda', () => {
       confirmed: true, // data is merged
       modifiedAt: new Date().toISOString(),
       modifiedBy: 'anonymous',
+      updatedAt: new Date().toISOString(),
     })
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
 

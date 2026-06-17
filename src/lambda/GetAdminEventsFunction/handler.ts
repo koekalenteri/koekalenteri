@@ -8,17 +8,17 @@ const dynamoDB = new CustomDynamoClient(CONFIG.eventTable)
 
 const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> => {
   if (since) {
-    const modifiedAfter = new Date(Number(since)).toISOString()
-    const startSeason = Number(modifiedAfter.substring(0, 4))
+    const updatedAfter = new Date(Number(since)).toISOString()
+    const startSeason = Number(updatedAfter.substring(0, 4))
     const endSeason = Number(new Date().toISOString().substring(0, 4))
     const result: JsonDogEvent[] = []
 
     for (let season = startSeason; season <= endSeason; season++) {
       const seasonEvents = await dynamoDB.query<JsonDogEvent>({
-        index: 'gsiSeasonModifiedAt',
-        key: 'season = :season AND modifiedAt > :modifiedAfter',
+        index: 'gsiSeasonUpdatedAt',
+        key: 'season = :season AND updatedAt > :updatedAfter',
         table: CONFIG.eventTable,
-        values: { ':modifiedAfter': modifiedAfter, ':season': season.toString() },
+        values: { ':season': season.toString(), ':updatedAfter': updatedAfter },
       })
       if (seasonEvents) result.push(...seasonEvents)
     }

@@ -34,6 +34,7 @@ const paymentCancelLambda = lambda('paymentCancel', async (event) => {
         {
           set: {
             paymentStatus: 'CANCEL',
+            updatedAt: new Date().toISOString(),
           },
         },
         registrationTable

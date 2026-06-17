@@ -177,6 +177,7 @@ describe('putEventLambda', () => {
       id: 'new-id',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      updatedAt: '2025-03-22T10:45:33.000Z',
     })
     expect(res.statusCode).toEqual(200)
   })
@@ -194,6 +195,7 @@ describe('putEventLambda', () => {
       eventType: 'TEST',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      updatedAt: '2025-03-22T10:45:33.000Z',
     })
     expect(res.statusCode).toEqual(200)
   })
@@ -213,6 +215,7 @@ describe('putEventLambda', () => {
         entries: 11,
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
+        updatedAt: '2025-03-22T10:45:33.000Z',
       }
     )
     expect(res.statusCode).toEqual(200)
@@ -247,6 +250,7 @@ describe('putEventLambda', () => {
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         state: 'confirmed',
+        updatedAt: '2025-03-22T10:45:33.000Z',
       }
     )
     expect(res.statusCode).toEqual(200)
@@ -273,6 +277,7 @@ describe('putEventLambda', () => {
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         state: 'confirmed',
+        updatedAt: '2025-03-22T10:45:33.000Z',
       }
     )
     expect(res.statusCode).toEqual(200)
@@ -306,6 +311,7 @@ describe('putEventLambda', () => {
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         state: 'confirmed',
+        updatedAt: '2025-03-22T10:45:33.000Z',
       }
     )
     expect(res.statusCode).toEqual(200)
@@ -397,6 +403,7 @@ describe('putEventLambda', () => {
         modifiedAt: '2025-03-22T10:45:33.000Z',
         modifiedBy: 'Test User',
         qualificationStartDate,
+        updatedAt: '2025-03-22T10:45:33.000Z',
       }
     )
     expect(res.statusCode).toEqual(200)

@@ -67,6 +67,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   // modification info is always updated
   registration.modifiedAt = timestamp
   registration.modifiedBy = user.name
+  registration.updatedAt = timestamp
 
   const data: JsonRegistration = { ...existing, ...registration }
   await assertRegistrationEmailsNotSuppressed(data)

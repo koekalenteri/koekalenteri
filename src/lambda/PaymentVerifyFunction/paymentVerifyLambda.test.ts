@@ -192,6 +192,7 @@ describe('paymentVerifyLambda', () => {
       {
         set: {
           paymentStatus: 'CANCEL',
+          updatedAt: expect.any(String),
         },
       },
       expect.any(String) // registrationTable

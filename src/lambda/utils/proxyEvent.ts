@@ -23,6 +23,7 @@ export const createDbRecord = <T extends Partial<JsonDbRecord>>(
     ...parseJSONWithFallback(event.body),
     modifiedAt: timestamp,
     modifiedBy: username,
+    updatedAt: timestamp,
   }
   if (!item.id && addId) {
     item.id = nanoid(10)

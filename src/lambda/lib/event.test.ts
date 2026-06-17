@@ -173,6 +173,7 @@ describe('lib/event', () => {
           set: {
             classes: event.classes,
             state: event.state,
+            updatedAt: expect.any(String),
           },
         },
         expect.anything()
@@ -311,10 +312,28 @@ describe('lib/event', () => {
 
       const result = await updateRegistrations('e3')
       expect(result.entries).toBe(2)
-      expect(mockUpdate).toHaveBeenCalled()
-      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({ entries: 2, eventId: 'e3', members: 0 })
+      expect(result.modifiedAt).toBeUndefined()
+      expect(result.updatedAt).toEqual(expect.any(String))
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'e3' },
+        {
+          set: {
+            classes: result.classes,
+            entries: 2,
+            members: 0,
+            updatedAt: result.updatedAt,
+          },
+        },
+        expect.anything()
+      )
+      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({
+        entries: 2,
+        eventId: 'e3',
+        members: 0,
+        updatedAt: result.updatedAt,
+      })
       expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
-        { classes: result.classes, entries: 2, eventId: 'e3', members: 0 },
+        { classes: result.classes, entries: 2, eventId: 'e3', members: 0, updatedAt: result.updatedAt },
         'org-1'
       )
       expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
@@ -411,14 +430,22 @@ describe('lib/event', () => {
             classes: result.classes,
             entries: 3,
             members: 1,
+            updatedAt: result.updatedAt,
           },
         },
         expect.anything()
       )
 
-      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({ entries: 3, eventId: 'e5', members: 1 })
+      expect(result.modifiedAt).toBeUndefined()
+      expect(result.updatedAt).toEqual(expect.any(String))
+      expect(mockBroadcastPublicEvent).toHaveBeenCalledWith({
+        entries: 3,
+        eventId: 'e5',
+        members: 1,
+        updatedAt: result.updatedAt,
+      })
       expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
-        { classes: result.classes, entries: 3, eventId: 'e5', members: 1 },
+        { classes: result.classes, entries: 3, eventId: 'e5', members: 1, updatedAt: result.updatedAt },
         'org-1'
       )
       expect(mockBroadcastEventRegistrations).not.toHaveBeenCalled()
@@ -466,10 +493,12 @@ describe('lib/event', () => {
             classes: result.classes,
             entries: 0,
             members: 0,
+            updatedAt: result.updatedAt,
           },
         },
         expect.anything()
       )
+      expect(result.updatedAt).toEqual(expect.any(String))
     })
 
     it('throws LambdaError when event is not found', async () => {
@@ -499,6 +528,7 @@ describe('lib/event', () => {
             cancelled: true,
             cancelReason: 'cancelled by user',
             group: { key: 'cancelled', number: 1 },
+            updatedAt: expect.any(String),
           },
         },
         expect.anything()
@@ -526,6 +556,7 @@ describe('lib/event', () => {
           set: {
             cancelled: false,
             group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 3, time: 'ip' },
+            updatedAt: expect.any(String),
           },
         },
         expect.anything()
@@ -552,6 +583,7 @@ describe('lib/event', () => {
           set: {
             cancelled: false,
             group: { key: 'reserve', number: 2 },
+            updatedAt: expect.any(String),
           },
         },
         expect.anything()
@@ -579,6 +611,7 @@ describe('lib/event', () => {
           set: {
             cancelled: true,
             group: { key: 'cancelled', number: 5 },
+            updatedAt: expect.any(String),
           },
         },
         expect.anything()

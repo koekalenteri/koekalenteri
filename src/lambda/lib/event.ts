@@ -157,6 +157,7 @@ export const markParticipants = async (
       set: {
         classes: confirmedEvent.classes,
         state: confirmedEvent.state,
+        updatedAt: new Date().toISOString(),
       },
     },
     eventTable
@@ -201,6 +202,8 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
     return confirmedEvent
   }
 
+  const updatedAt = new Date().toISOString()
+
   await dynamoDB.update(
     eventKey,
     {
@@ -208,6 +211,7 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
         classes,
         entries,
         members,
+        updatedAt,
       },
     },
     eventTable
@@ -215,9 +219,10 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
 
   confirmedEvent.entries = entries
   confirmedEvent.members = members
+  confirmedEvent.updatedAt = updatedAt
 
-  await publishPublicEvent({ entries, eventId, members })
-  await publishAdminEventPatch({ classes, entries, eventId, members }, confirmedEvent.organizer.id)
+  await publishPublicEvent({ entries, eventId, members, updatedAt })
+  await publishAdminEventPatch({ classes, entries, eventId, members, updatedAt }, confirmedEvent.organizer.id)
 
   return confirmedEvent
 }
@@ -242,6 +247,7 @@ export const saveGroup = async (
 ) => {
   const registrationKey = { eventId, id }
   const cancelled = group?.key === GROUP_KEY_CANCELLED
+  const updatedAt = new Date().toISOString()
   if (cancelled && cancelReason) {
     await dynamoDB.update(
       registrationKey,
@@ -250,6 +256,7 @@ export const saveGroup = async (
           cancelled,
           cancelReason,
           group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+          updatedAt,
         },
       },
       registrationTable
@@ -261,6 +268,7 @@ export const saveGroup = async (
         set: {
           cancelled,
           group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
+          updatedAt,
         },
       },
       registrationTable

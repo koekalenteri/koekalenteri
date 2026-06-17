@@ -69,6 +69,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   // modification info is always updated
   data.modifiedAt = timestamp
   data.modifiedBy = user.name
+  data.updatedAt = timestamp
 
   if (existing) {
     await patchEvent(existing.id, existing, data)

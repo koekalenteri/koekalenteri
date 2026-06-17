@@ -40,6 +40,7 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
     {
       set: {
         [field]: value,
+        updatedAt: new Date().toISOString(),
       },
     }
   )
@@ -47,7 +48,7 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
 export const clearRegistrationEmailDeliveryStatus = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id']
-) => dynamoDB.update({ eventId, id }, { remove: ['emailDeliveryStatus'] })
+) => dynamoDB.update({ eventId, id }, { remove: ['emailDeliveryStatus'], set: { updatedAt: new Date().toISOString() } })
 
 const setLastEmail = async (reg: JsonRegistration, value: string) => {
   // update the in-memory object too
@@ -278,7 +279,7 @@ export const getRegistrationChanges = (existing: JsonRegistration, data: JsonReg
 }
 
 const omitTechnicalRegistrationFields = (registration: JsonRegistration): Partial<JsonRegistration> => {
-  const { modifiedAt: _modifiedAt, modifiedBy: _modifiedBy, ...comparable } = registration
+  const { modifiedAt: _modifiedAt, modifiedBy: _modifiedBy, updatedAt: _updatedAt, ...comparable } = registration
 
   return comparable
 }

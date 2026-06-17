@@ -184,6 +184,7 @@ describe('refundSuccessLambda', () => {
           refundAmount: 10,
           refundAt: isoDate,
           refundStatus: 'SUCCESS',
+          updatedAt: isoDate,
         },
       },
       expect.any(String)

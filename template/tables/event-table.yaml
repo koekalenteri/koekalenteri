@@ -14,16 +14,28 @@
             AttributeType: S
           - AttributeName: eventType
             AttributeType: S
+          # TODO: remove with gsiSeasonModifiedAt after gsiSeasonUpdatedAt is deployed and consumers have migrated.
           - AttributeName: modifiedAt
+            AttributeType: S
+          - AttributeName: updatedAt
             AttributeType: S
           - AttributeName: entryEndDate
             AttributeType: S
       GlobalSecondaryIndexes:
+        # TODO: remove after gsiSeasonUpdatedAt is deployed and consumers have migrated.
         - IndexName: gsiSeasonModifiedAt
           KeySchema:
             - AttributeName: season
               KeyType: HASH
             - AttributeName: modifiedAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: gsiSeasonUpdatedAt
+          KeySchema:
+            - AttributeName: season
+              KeyType: HASH
+            - AttributeName: updatedAt
               KeyType: RANGE
           Projection:
             ProjectionType: ALL

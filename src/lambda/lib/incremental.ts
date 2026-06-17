@@ -6,19 +6,26 @@ export function parseDateParam(value: string | undefined): Date | undefined {
   return Number.isNaN(d.getTime()) ? undefined : d
 }
 
-export function changedSince<T extends { id: string; modifiedAt?: string }>(items: T[], since: Date) {
+function getUpdatedAt(item: { modifiedAt?: string; updatedAt?: string }) {
+  return item.updatedAt ?? item.modifiedAt
+}
+
+export function changedSince<T extends { id: string; modifiedAt?: string; updatedAt?: string }>(
+  items: T[],
+  since: Date
+) {
   const changed = items.filter((item) => {
-    const modifiedAt = item.modifiedAt
-    if (typeof modifiedAt !== 'string') return true
-    const modifiedAtDate = new Date(modifiedAt)
-    return Number.isNaN(modifiedAtDate.getTime()) || modifiedAtDate >= since
+    const updatedAt = getUpdatedAt(item)
+    if (typeof updatedAt !== 'string') return true
+    const updatedAtDate = new Date(updatedAt)
+    return Number.isNaN(updatedAtDate.getTime()) || updatedAtDate >= since
   })
   const unchangedIds = items
     .filter((item) => {
-      const modifiedAt = item.modifiedAt
-      if (typeof modifiedAt !== 'string') return false
-      const modifiedAtDate = new Date(modifiedAt)
-      return !Number.isNaN(modifiedAtDate.getTime()) && modifiedAtDate < since
+      const updatedAt = getUpdatedAt(item)
+      if (typeof updatedAt !== 'string') return false
+      const updatedAtDate = new Date(updatedAt)
+      return !Number.isNaN(updatedAtDate.getTime()) && updatedAtDate < since
     })
     .map((item) => item.id)
 
