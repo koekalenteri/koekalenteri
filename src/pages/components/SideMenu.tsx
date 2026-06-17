@@ -1,4 +1,5 @@
 import type { Theme } from '@mui/material'
+import type { MigrationResult } from '../../api/migrate'
 import Accessibility from '@mui/icons-material/Accessibility'
 import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined'
 import Event from '@mui/icons-material/Event'
@@ -11,6 +12,8 @@ import Support from '@mui/icons-material/Support'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Divider from '@mui/material/Divider'
+import { useSnackbar } from 'notistack'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router'
 import { useRecoilValue } from 'recoil'
@@ -29,6 +32,9 @@ interface Props {
   readonly onClose: () => void
 }
 
+const formatMigrationResults = (results: MigrationResult[]) =>
+  ['Migrations completed', ...results.map(({ count, name }) => `${name}: ${count}`)].join('\n')
+
 export function SideMenu({ open, onClose }: Props) {
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const lg = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'))
@@ -36,6 +42,13 @@ export function SideMenu({ open, onClose }: Props) {
   const actions = useUserActions()
   const isAdmin = useRecoilValue(isAdminSelector)
   const token = useRecoilValue(idTokenAtom)
+  const { enqueueSnackbar } = useSnackbar()
+
+  const handleRunMigrations = useCallback(async () => {
+    const { data: results } = await runMigrations(token)
+
+    enqueueSnackbar(formatMigrationResults(results), { persist: true, variant: 'success' })
+  }, [enqueueSnackbar, token])
 
   return (
     <MiniDrawer
@@ -79,7 +92,7 @@ export function SideMenu({ open, onClose }: Props) {
             <NavLink to={Path.admin.emailTemplates} onClick={onClose}>
               <DrawerItem text={t('emailTemplates')} icon={<MailOutline />} />
             </NavLink>
-            <AsyncButton onClick={async () => runMigrations(token)} sx={{ p: 0, width: '100%' }}>
+            <AsyncButton onClick={handleRunMigrations} sx={{ p: 0, width: '100%' }}>
               <DrawerItem text="Run migrations" icon={<HandymanOutlined />} />
             </AsyncButton>
           </DrawerList>
