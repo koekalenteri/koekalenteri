@@ -388,6 +388,7 @@ describe('registration', () => {
         {
           set: {
             lastEmail: 'Koekutsu 1.1.2023 14:00',
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -398,6 +399,7 @@ describe('registration', () => {
         {
           set: {
             messagesSent: { invitation: true },
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -466,6 +468,7 @@ describe('registration', () => {
         {
           set: {
             messagesSent: { invitation: true, registration: true },
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -497,6 +500,7 @@ describe('registration', () => {
         {
           set: {
             lastEmail: 'Varasijailmoitus (#1) 1.1.2023 14:00',
+            updatedAt: expect.any(String),
           },
         }
       )
@@ -508,6 +512,7 @@ describe('registration', () => {
             messagesSent: {
               reserve: true,
             },
+            updatedAt: expect.any(String),
           },
         }
       )

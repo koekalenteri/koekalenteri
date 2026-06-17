@@ -218,7 +218,7 @@ describe('paymentCreateLambda', () => {
 
     expect(mockUpdate).toHaveBeenCalledWith(
       { eventId: 'event123', id: 'reg456' },
-      { set: { paymentStatus: 'PENDING' } }
+      { set: { paymentStatus: 'PENDING', updatedAt: expect.any(String) } }
     )
 
     expect(result.statusCode).toEqual(200)

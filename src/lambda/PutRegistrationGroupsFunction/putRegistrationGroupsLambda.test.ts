@@ -141,6 +141,7 @@ describe('putRegistrationGroupsLambda', () => {
         set: {
           cancelled: false,
           group: { key: 'reserve', number: 3 },
+          updatedAt: expect.any(String),
         },
       },
       'registration-table-not-found-in-env'
@@ -156,6 +157,7 @@ describe('putRegistrationGroupsLambda', () => {
           ],
           entries: 7,
           members: 0,
+          updatedAt: expect.any(String),
         },
       },
       'event-table-not-found-in-env'
@@ -228,6 +230,7 @@ describe('putRegistrationGroupsLambda', () => {
         set: {
           cancelled: false,
           group: { key: 'reserve', number: 1 },
+          updatedAt: expect.any(String),
         },
       },
       'registration-table-not-found-in-env'
@@ -239,6 +242,7 @@ describe('putRegistrationGroupsLambda', () => {
         set: {
           cancelled: false,
           group: { key: 'reserve', number: 2 },
+          updatedAt: expect.any(String),
         },
       },
       'registration-table-not-found-in-env'
@@ -254,6 +258,7 @@ describe('putRegistrationGroupsLambda', () => {
           ],
           entries: 6,
           members: 0,
+          updatedAt: expect.any(String),
         },
       },
       'event-table-not-found-in-env'
@@ -420,6 +425,7 @@ describe('putRegistrationGroupsLambda', () => {
           cancelled: true,
           cancelReason: 'test',
           group: { key: 'cancelled', number: 1 },
+          updatedAt: expect.any(String),
         },
       },
       'registration-table-not-found-in-env'
@@ -435,6 +441,7 @@ describe('putRegistrationGroupsLambda', () => {
           ],
           entries: 5,
           members: 0,
+          updatedAt: expect.any(String),
         },
       },
       'event-table-not-found-in-env'
