@@ -148,6 +148,7 @@ describe('judge', () => {
         name: 'name',
         official: false,
         phone: 'phone',
+        updatedAt: 'updatedAt',
       }
       expect(partializeJudge(fullJudge)).toMatchInlineSnapshot(`
         {
