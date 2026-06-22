@@ -110,13 +110,18 @@ export async function searchEventKcIdChoices(
 export async function putInvitationAttachment(
   eventId: string,
   file: File,
+  className?: string,
   token?: string,
   signal?: AbortSignal
 ): Promise<string> {
   const data = new FormData()
   data.append('file', file, file.name)
 
-  return http.postRaw<FormData, string>(`/admin/file/invitation/${eventId}`, data, withToken({ signal }, token))
+  const path = className
+    ? `/admin/file/invitation/${eventId}/${encodeURIComponent(className)}`
+    : `/admin/file/invitation/${eventId}`
+
+  return http.postRaw<FormData, string>(path, data, withToken({ signal }, token))
 }
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {

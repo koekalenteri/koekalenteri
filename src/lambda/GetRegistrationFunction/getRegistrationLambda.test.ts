@@ -4,7 +4,11 @@ import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
-const mockEventWithInvitationAttachment = { ...eventWithParticipantsInvited, invitationAttachment: 'test.pdf' }
+const mockEventWithInvitationAttachment = {
+  ...eventWithParticipantsInvited,
+  invitationAttachment: 'test.pdf',
+  invitationAttachments: { ALO: 'alo.pdf' },
+}
 
 const mockGetRegistration = jest.fn(
   (): Registration => ({
@@ -60,8 +64,23 @@ describe('getRegistration', () => {
 
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.invitationAttachment).toEqual('test.pdf')
+    expect(reg.invitationAttachment).toEqual('alo.pdf')
     expect(reg.shouldPay).toBeFalsy()
+  })
+
+  it('falls back to event invitationAttachment when class attachment is missing', async () => {
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[2],
+      paymentStatus: 'SUCCESS',
+    })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.invitationAttachment).toEqual('test.pdf')
   })
 
   it('should not add invitationAttachment when registration is not in participant group', async () => {

@@ -3,7 +3,7 @@ import type { Registration } from '../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { RecoilRoot } from 'recoil'
-import { eventWithEntryClosed, eventWithStaticDates } from '../../../__mockData__/events'
+import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
 import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
 import * as eventApi from '../../../api/event'
 import { APIError } from '../../../api/http'
@@ -257,5 +257,34 @@ describe('InfoPanel>', () => {
     })
 
     expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu liitetty', { variant: 'success' })
+  })
+
+  it('uploads class-specific invitation attachment', async () => {
+    const putInvitationAttachment = jest.spyOn(eventApi, 'putInvitationAttachment').mockResolvedValueOnce('alo-key')
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithStaticDatesAndClass])}>
+        {children}
+      </RecoilRoot>
+    )
+    const { container, user } = renderWithUserEvents(
+      <InfoPanel event={eventWithStaticDatesAndClass} registrations={[]} />,
+      {
+        wrapper,
+      }
+    )
+    await openInfoPanel(user)
+
+    const input = container.querySelector('#koekutsu-file-ALO') as HTMLInputElement
+    const file = new File(['pdf'], 'alo-kutsu.pdf', { type: 'application/pdf' })
+
+    await user.upload(input, file)
+
+    expect(putInvitationAttachment).toHaveBeenCalledWith(
+      eventWithStaticDatesAndClass.id,
+      file,
+      'ALO',
+      expect.any(String)
+    )
+    expect(enqueueSnackbar).toHaveBeenCalledWith('ALO koekutsu liitetty', { variant: 'success' })
   })
 })
