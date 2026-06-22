@@ -30,7 +30,7 @@ import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrat
 import { OFFICIAL_EVENT_TYPES } from '../../../lib/event'
 import { getInvitationAttachment } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
-import { Path } from '../../../routeConfig'
+import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 import { adminEventSelector } from '../recoil'
 
@@ -79,6 +79,13 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
       try {
         const fileKey = await putInvitationAttachment(event.id, input.files[0], className, token)
         if (className) {
+          const classEvent = event.classes.find((item) => item.class === className)
+          const fileName = invitationAttachmentFileName({
+            ...event,
+            class: className,
+            invitationAttachment: fileKey,
+            startDate: classEvent?.date ?? event.startDate,
+          })
           const invitationAttachments = {
             ...classAttachmentKeys,
             [className]: fileKey,
@@ -86,16 +93,21 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
           setClassAttachmentKeys(invitationAttachments)
           setEvent({ ...event, invitationAttachments })
           enqueueSnackbar(
-            `${className} koekutsu ${event.invitationAttachments?.[className] ? 'päivitetty' : 'liitetty'}`,
+            `${className} koekutsu ${
+              event.invitationAttachments?.[className] ? 'päivitetty' : 'liitetty'
+            }: ${fileName}`,
             {
               variant: 'success',
             }
           )
         } else {
           const update = Boolean(event.invitationAttachment)
+          const fileName = invitationAttachmentFileName({ ...event, invitationAttachment: fileKey })
           setAttachmentKey(fileKey)
           setEvent({ ...event, invitationAttachment: fileKey })
-          enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
+          enqueueSnackbar(`${update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty'}: ${fileName}`, {
+            variant: 'success',
+          })
         }
       } catch (error) {
         if (error instanceof APIError && error.status === 413) {
