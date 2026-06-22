@@ -8,19 +8,17 @@ const ADMIN_ROOT = '/admin'
 const ADMIN_EVENTS = `${ADMIN_ROOT}/event`
 
 type RegistrationIds = Pick<Registration, 'eventId' | 'id'>
+type InvitationAttachmentItem = Pick<ConfirmedEvent | Registration, 'eventType' | 'invitationAttachment'> & {
+  class?: RegistrationClass | null
+  dates?: Array<{ date: Date | string }>
+  startDate?: Date | string
+}
 
-const isRegistration = (item: ConfirmedEvent | Registration): item is Registration => 'eventId' in item
-const getItemDateAndClass = (item: ConfirmedEvent | Registration): string => {
-  let date: Date | undefined
-  let cls: RegistrationClass | null | undefined
-  if (isRegistration(item)) {
-    date = item.dates[0].date
-    cls = item.class
-  } else {
-    date = item.startDate
-  }
-  const c = cls ? `-${cls}` : ''
-  return `${formatDate(date, 'dd.MM.yyyy')}${c}`
+export const invitationAttachmentFileName = (item: InvitationAttachmentItem): string => {
+  const date = item.dates?.[0]?.date ?? item.startDate
+  const parts = ['koekutsu', formatDate(date ?? '', 'yyyyMMdd'), item.eventType, item.class].filter(Boolean)
+
+  return `${parts.join('-')}.pdf`
 }
 
 export const Path = {
@@ -43,8 +41,8 @@ export const Path = {
   },
   home: '/',
   invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
-  invitationAttachment: (item: ConfirmedEvent | Registration) =>
-    `${API_BASE_URL}/file/${item.invitationAttachment}/kutsu-${item.eventType}-${getItemDateAndClass(item)}.pdf`,
+  invitationAttachment: (item: InvitationAttachmentItem) =>
+    `${API_BASE_URL}/file/${item.invitationAttachment}/${invitationAttachmentFileName(item)}`,
   login: '/login',
   logout: '/logout',
   payment: (registration: RegistrationIds) => `/p/${registration.eventId}/${registration.id}`,
