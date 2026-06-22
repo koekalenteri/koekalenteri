@@ -1,6 +1,7 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ParticipantList } from './ParticipantList'
 
 // Mock the child components
@@ -47,6 +48,7 @@ jest.mock('./RegistrationDetails', () => ({
 }))
 
 describe('ParticipantList', () => {
+  const writeText = jest.fn()
   const mockEvent: PublicConfirmedEvent = {
     classes: [
       {
@@ -121,6 +123,21 @@ describe('ParticipantList', () => {
     ownerHandles: false,
   })
 
+  const mockClipboard = () => {
+    writeText.mockClear()
+    writeText.mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText,
+      },
+    })
+  }
+
+  beforeEach(() => {
+    mockClipboard()
+  })
+
   it('renders participants list correctly', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
@@ -158,5 +175,23 @@ describe('ParticipantList', () => {
 
     // Check that regular registration is rendered
     expect(screen.getByTestId('registration-details')).toBeInTheDocument()
+  })
+
+  it('copies a plain text start list', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+      createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
+    ]
+
+    render(<ParticipantList participants={mockParticipants} event={mockEvent} />)
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(writeText).toHaveBeenCalledTimes(1)
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO Judge One'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. PERUTTU'))
   })
 })
