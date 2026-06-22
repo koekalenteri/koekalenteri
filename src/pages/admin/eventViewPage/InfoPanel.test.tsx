@@ -1,3 +1,4 @@
+import type { UserEvent } from '@testing-library/user-event/dist/types/setup/setup'
 import type { Registration } from '../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
@@ -25,7 +26,15 @@ function getGroupKey(r: Registration, i: number) {
   return eventRegistrationDateKey(r.dates[0])
 }
 
+async function openInfoPanel(user: UserEvent) {
+  await user.click(screen.getByRole('button', { name: 'Avaa tilannepaneeli' }))
+}
+
 describe('InfoPanel>', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
   it('renders with no registrations', () => {
     const { container } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
@@ -62,27 +71,48 @@ describe('InfoPanel>', () => {
     expect(container).toMatchSnapshot()
   })
 
-  it('switches between tabs correctly', async () => {
+  it('shows status and task sections when opened', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
+    await openInfoPanel(user)
 
-    // Initially, the first tab should be active and show "Osallistujat"
-    expect(screen.getByText('Tapahtuman tilanne')).toBeInTheDocument()
+    expect(screen.getByText('Tapahtuman hallinta')).toBeInTheDocument()
+    expect(screen.getByText('Toiminnot')).toBeInTheDocument()
     expect(screen.getByText('Osallistujat')).toBeInTheDocument()
-
-    // Click on the second tab
-    await user.click(screen.getByText('Tehtävälista'))
-
-    // Now the second tab should be active and show "Liitteet"
-    expect(screen.getByText('Liitteet')).toBeInTheDocument()
+    expect(screen.getByText('Valmistelu')).toBeInTheDocument()
+    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
     expect(screen.getByText('Koekutsu')).toBeInTheDocument()
+  })
 
-    // Click back on the first tab
-    await user.click(screen.getByText('Tapahtuman tilanne'))
+  it('runs the moved create registration action', async () => {
+    const onCreateRegistration = jest.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={eventWithStaticDates} onCreateRegistration={onCreateRegistration} registrations={[]} />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
 
-    // The first tab content should be visible again
-    expect(screen.getByText('Osallistujat')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /createRegistration/i }))
+
+    expect(onCreateRegistration).toHaveBeenCalledTimes(1)
+  })
+
+  it('runs the moved event details action', async () => {
+    const onOpenDetails = jest.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={eventWithStaticDates} onOpenDetails={onOpenDetails} registrations={[]} />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    await user.click(screen.getByRole('button', { name: /Näytä tapahtuman tiedot/i }))
+
+    expect(onOpenDetails).toHaveBeenCalledTimes(1)
   })
 
   it('expands and collapses correctly', async () => {
@@ -90,52 +120,60 @@ describe('InfoPanel>', () => {
       wrapper: RecoilRoot,
     })
 
-    // Initially, the panel should be expanded
+    // Initially, only the drawer handle should be visible
+    expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
+    expect(screen.queryByText('Osallistujat')).not.toBeInTheDocument()
+
+    await openInfoPanel(user)
+
+    // The opened drawer should show the panel contents
     expect(screen.getByText('Osallistujat')).toBeInTheDocument()
 
-    // Click the collapse button (the KeyboardArrowUp icon)
-    const collapseButton = screen.getByRole('button', { name: '' }) // The icon button doesn't have a name
+    const collapseButton = screen.getByRole('button', { name: 'Sulje tilannepaneeli' })
     await user.click(collapseButton)
 
-    // Now the content should be collapsed and "Osallistujat" should not be visible
-    expect(screen.queryByText('Osallistujat')).not.toBeVisible()
-
-    // Click the expand button again
-    await user.click(collapseButton)
-
-    // The content should be visible again
-    expect(screen.getByText('Osallistujat')).toBeVisible()
+    // The drawer should collapse back to the handle
+    expect(screen.queryByText('Osallistujat')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
   })
 
-  it('disables message buttons when there are no participants', () => {
+  it('disables message buttons when there are no participants', async () => {
     // Create a test scenario with no participants in a class
     const emptyRegistrations: Registration[] = []
 
-    renderWithUserEvents(<InfoPanel event={eventWithEntryClosed} registrations={emptyRegistrations} />, {
-      wrapper: RecoilRoot,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={eventWithEntryClosed} registrations={emptyRegistrations} />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
 
     // All message buttons should be disabled
-    const buttons = screen.getAllByRole('button').filter((button) => button.textContent?.includes('LÄHETÄ'))
+    const buttons = screen.getAllByRole('button').filter((button) => button.textContent?.includes('Lähetä'))
 
     buttons.forEach((button) => {
       expect(button).toBeDisabled()
     })
   })
 
-  it('disables message buttons when participants are not confirmed', () => {
+  it('disables message buttons when participants are not confirmed', async () => {
     // Create a test scenario with participants that are not confirmed
     const unconfirmedRegistrations = registrationsToEventWithEntryClosed.map((r) => ({
       ...r,
       confirmed: false,
     }))
 
-    renderWithUserEvents(<InfoPanel event={eventWithEntryClosed} registrations={unconfirmedRegistrations} />, {
-      wrapper: RecoilRoot,
-    })
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={eventWithEntryClosed} registrations={unconfirmedRegistrations} />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
 
     // The message buttons for participants should be disabled
-    const participantButtons = screen.getAllByText(/LÄHETÄ.*KOEKUTSU|LÄHETÄ.*KOEPAIKKAILMOITUS/i)
+    const participantButtons = screen.getAllByText(/Lähetä.*koekutsu|Lähetä.*koepaikkailmoitus/i)
 
     participantButtons.forEach((button) => {
       expect(button).toBeDisabled()
@@ -152,9 +190,7 @@ describe('InfoPanel>', () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithAttachment} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
-
-    // Switch to the second tab to see the attachment section
-    await user.click(screen.getByText('Tehtävälista'))
+    await openInfoPanel(user)
 
     // It should show a link to the attachment
     expect(screen.getByText('Kutsu.pdf')).toBeInTheDocument()
@@ -171,8 +207,7 @@ describe('InfoPanel>', () => {
     const { container, user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
-
-    await user.click(screen.getByText('Tehtävälista'))
+    await openInfoPanel(user)
 
     const input = container.querySelector('#koekutsu-file') as HTMLInputElement
     const file = new File(['pdf'], 'kutsu.pdf', { type: 'application/pdf' })
@@ -200,8 +235,7 @@ describe('InfoPanel>', () => {
     const { container, user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper,
     })
-
-    await user.click(screen.getByText('Tehtävälista'))
+    await openInfoPanel(user)
 
     const input = container.querySelector('#koekutsu-file') as HTMLInputElement
     const file = new File(['pdf'], 'kutsu.pdf', { type: 'application/pdf' })
