@@ -3,6 +3,7 @@ import type {
   EventState,
   JsonPublicDogEvent,
   JsonValue,
+  Patch,
   PublicContactInfo,
   PublicDogEvent,
   RegistrationDate,
@@ -137,6 +138,7 @@ export type EmptyObject = Record<string, never>
 export type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
+type PatchWithId<T extends { id: string }> = Patch<T> & { id: string }
 
 export const isEmpty = (o: AnyObject): o is EmptyObject => Object.keys(o).length === 0
 
@@ -150,13 +152,15 @@ export const hasChanges = (a: object | undefined | null, b: object | undefined |
 
 export const clone = <T extends AnyObject>(a: T): T => ({ ...a })
 
-export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
+export const merge = <T extends AnyObject>(a: T, b: Patch<T>): T => {
   const result = isObject(a) ? clone(a) : ({} as T)
   if (!isObject(b)) {
     return result
   }
   for (const [key, value] of Object.entries(b) as Entries<T>) {
-    if (isObject(value)) {
+    if (value === null) {
+      delete result[key]
+    } else if (isObject(value)) {
       const old = result[key]
       result[key] = isObject(old) ? merge(old, value) : value
     } else {
@@ -167,12 +171,20 @@ export const merge = <T extends AnyObject>(a: T, b: DeepPartial<T>): T => {
 }
 
 // This function merges a patch object into a base object, but only creates new objects for paths that actually change
-export const patchMerge = <T extends AnyObject, P extends DeepPartial<T>>(base: T, patch: P): T & P => {
+export const patchMerge = <T extends AnyObject, P extends Patch<T>>(base: T, patch: P): T & P => {
   if (!isObject(base) || !isObject(patch)) return patch as T & P
 
   let changed = false
   const result = { ...base } as T & P
   for (const key of Object.keys(patch)) {
+    if ((patch as any)[key] === null) {
+      if (key in result) {
+        delete (result as any)[key]
+        changed = true
+      }
+      continue
+    }
+
     const merged = patchMerge(base[key], (patch as any)[key])
     if (merged !== base[key]) {
       ;(result as any)[key] = merged
@@ -183,11 +195,7 @@ export const patchMerge = <T extends AnyObject, P extends DeepPartial<T>>(base: 
   return changed ? result : (base as T & P)
 }
 
-export const applyPatch = <T extends { id: string }, P extends DeepPartial<T>>(
-  items: T[],
-  itemId: string,
-  patch: P
-): T[] => {
+export const applyPatch = <T extends { id: string }, P extends Patch<T>>(items: T[], itemId: string, patch: P): T[] => {
   let changed = false
   const next = items.map((item) => {
     if (item.id !== itemId) return item
@@ -199,7 +207,7 @@ export const applyPatch = <T extends { id: string }, P extends DeepPartial<T>>(
   return changed ? next : items
 }
 
-export const applyPatchOrInsert = <T extends { id: string }, P extends DeepPartial<T>>(
+export const applyPatchOrInsert = <T extends { id: string }, P extends Patch<T>>(
   items: T[],
   itemId: string,
   patch: P
@@ -210,11 +218,11 @@ export const applyPatchOrInsert = <T extends { id: string }, P extends DeepParti
   return [...items, { ...patch, id: itemId } as unknown as T]
 }
 
-export const applyPatchesById = <T extends { id: string }, P extends DeepPartial<T>>(items: T[], patches: P[]): T[] => {
+export const applyPatchesById = <T extends { id: string }, P extends Patch<T>>(items: T[], patches: P[]): T[] => {
   if (!patches.length) return items
 
-  const patchesById = new Map(
-    patches.filter((item): item is P & { id: string } => !!item.id).map((item) => [item.id, item])
+  const patchesById = new Map<string, P & PatchWithId<T>>(
+    patches.filter((item): item is P & PatchWithId<T> => typeof item.id === 'string').map((item) => [item.id, item])
   )
   const existingIds = new Set(items.map((item) => item.id))
   let changed = false
@@ -238,14 +246,14 @@ export const applyPatchesById = <T extends { id: string }, P extends DeepPartial
   return changed ? next : items
 }
 
-export const getPatchChangedIds = <T extends { id: string }, P extends DeepPartial<T>>(
+export const getPatchChangedIds = <T extends { id: string }, P extends Patch<T>>(
   items: T[],
   patches: P[]
 ): string[] => {
   if (!patches.length) return []
 
-  const patchesById = new Map(
-    patches.filter((item): item is P & { id: string } => !!item.id).map((item) => [item.id, item])
+  const patchesById = new Map<string, P & PatchWithId<T>>(
+    patches.filter((item): item is P & PatchWithId<T> => typeof item.id === 'string').map((item) => [item.id, item])
   )
 
   return items.flatMap((item) => {

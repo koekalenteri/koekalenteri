@@ -39,6 +39,12 @@
             Path: /registration
             Method: POST
             RestApiId: !Ref KoekalenteriApi
+        PatchRegistration:
+          Type: Api
+          Properties:
+            Path: /registration
+            Method: PATCH
+            RestApiId: !Ref KoekalenteriApi
 
   PutRegistrationFunctionLogGroup:
     Type: AWS::Logs::LogGroup

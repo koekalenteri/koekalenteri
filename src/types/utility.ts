@@ -15,6 +15,20 @@ export type DeepPartial<T> = T extends (...arguments_: unknown[]) => unknown
         ? { [P in keyof T]?: DeepPartial<T[P]> }
         : T | undefined
 
+type PatchValue<T> = T extends (...arguments_: unknown[]) => unknown
+  ? T | undefined | null
+  : T extends Date
+    ? T | undefined | null
+    : T extends Array<infer U>
+      ? Array<PatchValue<U>> | undefined | null
+      : T extends object
+        ? Patch<T> | undefined | null
+        : T | undefined | null
+
+export type Patch<T extends object> = {
+  [P in keyof T]?: PatchValue<T[P]>
+}
+
 export type AtLeastOne<T> = [T, ...T[]]
 
 export type KeyofExcluding<T, E extends keyof T> = { [K in keyof T]: K extends E ? never : K }[keyof T]

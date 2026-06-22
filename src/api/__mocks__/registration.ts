@@ -1,4 +1,4 @@
-import type { AuditRecord, ConfirmedEvent, Registration, RegistrationGroupInfo } from '../../types'
+import type { AuditRecord, ConfirmedEvent, Patch, Registration, RegistrationGroupInfo } from '../../types'
 import { parseISO } from 'date-fns'
 import { mockRegistrationData } from '../../__mockData__/registrations'
 import { mockEvents } from './event'
@@ -104,19 +104,19 @@ export const getRegistrationAuditTrail = async (
 }
 
 export async function putRegistration(
-  registration: Registration,
+  registration: Patch<Registration>,
   _token?: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
-  return Promise.resolve({ ...registration, id: 'test-registration' })
+  return Promise.resolve({ ...registration, id: registration.id || 'test-registration' } as Registration)
 }
 
 export async function putAdminRegistration(
-  registration: Registration,
+  registration: Patch<Registration>,
   _token: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
-  return Promise.resolve({ ...registration })
+  return Promise.resolve({ ...registration } as Registration)
 }
 
 export async function putRegistrationGroups(

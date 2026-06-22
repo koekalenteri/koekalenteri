@@ -220,6 +220,32 @@ describe('http', () => {
     })
   })
 
+  describe('patch', () => {
+    it('should specify "PATCH" as method', async () => {
+      fetchMock.mockResponse((req) =>
+        req.method === 'PATCH'
+          ? Promise.resolve(JSON.stringify('ok'))
+          : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
+      )
+
+      const json = await http.patch('/test/', {})
+
+      expect(json).toEqual({ data: 'ok', status: 200 })
+      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+    })
+
+    it('should throw status + statusText', async () => {
+      fetchMock.mockResponse('fail', {
+        status: 500,
+        statusText: 'Shit hit the fan!',
+      })
+
+      await expect(http.patch('/test/', {})).rejects.toThrow('500 Shit hit the fan!')
+      expect(mockConsoleError).toHaveBeenCalled()
+    })
+  })
+
   describe('delete', () => {
     it('should specify "DELETE" as method', async () => {
       fetchMock.mockResponse((req) =>

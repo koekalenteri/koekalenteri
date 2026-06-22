@@ -25,6 +25,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
+import { OFFICIAL_EVENT_TYPES } from '../../../lib/event'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { API_BASE_URL } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
@@ -82,7 +83,6 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
     },
     [event, setEvent, token]
   )
-
   return (
     <Box
       sx={{
@@ -201,10 +201,29 @@ const InfoPanel = ({ event, registrations, onOpenMessageDialog }: Props) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell colSpan={3}>Liitteet</TableCell>
+                <TableCell colSpan={3}>Kokeen tiedot</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
+              {OFFICIAL_EVENT_TYPES.includes(event.eventType) && (
+                <TableRow>
+                  <TableCell align="left">
+                    <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                      Koetunnus
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    {event.kcId ? (
+                      <Typography variant="caption">{event.kcId}</Typography>
+                    ) : (
+                      <Typography variant="caption" fontStyle="italic">
+                        Ei haettua koetunnusta
+                      </Typography>
+                    )}
+                  </TableCell>
+                  <TableCell />
+                </TableRow>
+              )}
               <TableRow>
                 <TableCell align="left">
                   <Typography variant="caption" noWrap fontWeight="bold" ml={2}>

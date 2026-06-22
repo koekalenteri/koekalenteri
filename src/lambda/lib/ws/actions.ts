@@ -1,4 +1,4 @@
-import type { DeepPartial, JsonDogEvent, JsonPublicDogEvent, JsonRegistration } from '../../../types'
+import type { JsonDogEvent, JsonPublicDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { broadcast } from './broadcast'
@@ -13,8 +13,8 @@ import {
 } from './payloads'
 import { subscribeToAdmin, subscribeToEvent, unsubscribeFromAdmin, unsubscribeFromEvent } from './subscriptionService'
 
-type PublicEventPatch = Partial<JsonPublicDogEvent> & { eventId: string }
-type AdminEventPatch = Partial<JsonDogEvent> & { eventId: string }
+type PublicEventPatch = Patch<JsonPublicDogEvent> & { eventId: string }
+type AdminEventPatch = Patch<JsonDogEvent> & { eventId: string }
 
 const send = <T>(args: Omit<Parameters<typeof broadcast<T>>[0], 'onGoneConnection'>) =>
   broadcast<T>({
@@ -47,7 +47,7 @@ export const publishEventPatch = async (patch: AdminEventPatch, organizerId: str
     eventId: _eventId,
     id: _id,
     ...publicPatch
-  } = publicFromSanitized as Partial<JsonPublicDogEvent> & {
+  } = publicFromSanitized as Patch<JsonPublicDogEvent> & {
     eventId?: string
   }
 
@@ -57,11 +57,7 @@ export const publishEventPatch = async (patch: AdminEventPatch, organizerId: str
   }
 }
 
-export const publishRegistrationPatches = (
-  eventId: string,
-  patch: DeepPartial<JsonRegistration>[],
-  organizerId: string
-) =>
+export const publishRegistrationPatches = (eventId: string, patch: Patch<JsonRegistration>[], organizerId: string) =>
   send({
     audience: () => eventAudience(eventId, organizerId),
     buildPayload: () => ({ scope: 'admin:event-registrations', ...buildRegistrationPatchPayload(eventId, patch) }),
