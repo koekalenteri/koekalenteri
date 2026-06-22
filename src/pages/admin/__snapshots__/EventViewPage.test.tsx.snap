@@ -2,403 +2,28 @@
 
 exports[`EventViewPage renders properly for event with classes 1`] = `
 <div>
-  <div
-    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-dgjj9d-MuiGrid-root"
+  <h5
+    class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
   >
-    <div
-      class="MuiGrid-root MuiGrid-direction-xs-row css-izk9z5-MuiGrid-root"
-    >
-      <h5
-        class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
-      >
-        NOME-B
-        , 
-        dateFormat.datespan end, start
-        , 
-        test location
-      </h5>
-      <span
-        class="css-1k3i3n3"
-      >
-        event.states.confirmed_eventOver
-      </span>
-    </div>
-    <div
-      class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
-    >
-      <div
-        class="MuiBox-root css-c41839"
-      >
-        <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
-        >
-          <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
-          >
-            <div
-              class="MuiTabs-root css-12y9vg6-MuiTabs-root"
-            >
-              <div
-                class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
-                style="overflow: hidden; margin-bottom: 0px;"
-              >
-                <div
-                  class="MuiTabs-list MuiTabs-flexContainer css-hzcega-MuiTabs-list"
-                  role="tablist"
-                >
-                  <button
-                    aria-selected="true"
-                    class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-jdc81d-MuiButtonBase-root-MuiTab-root"
-                    role="tab"
-                    tabindex="0"
-                    type="button"
-                  >
-                    Tapahtuman tilanne
-                  </button>
-                  <button
-                    aria-selected="false"
-                    class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth css-jdc81d-MuiButtonBase-root-MuiTab-root"
-                    role="tab"
-                    tabindex="-1"
-                    type="button"
-                  >
-                    Tehtävälista
-                  </button>
-                </div>
-                <span
-                  class="MuiTabs-indicator css-1eceoys-MuiTabs-indicator"
-                  style="left: 0px; width: 100px;"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-              tabindex="0"
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                data-testid="KeyboardArrowUpIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div
-          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
-          style="min-height: 0px;"
-        >
-          <div
-            class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
-          >
-            <div
-              class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
-            >
-              <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-y2ff7i-MuiPaper-root-MuiTableContainer-root"
-                style="--Paper-shadow: none;"
-              >
-                <table
-                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
-                >
-                  <tbody
-                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                        colspan="3"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1lsv4bv-MuiTypography-root"
-                        >
-                          Osallistujat
-                        </span>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          ALO
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1w65d07-MuiTypography-root"
-                        >
-                          0
-                           / 
-                          10
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                          disabled=""
-                          tabindex="-1"
-                          type="button"
-                        >
-                          LÄHETÄ 
-                          KOEPAIKKAILMOITUS
-                        </button>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                        colspan="3"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1lsv4bv-MuiTypography-root"
-                        >
-                          Varasijalla
-                        </span>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          ALO
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1w65d07-MuiTypography-root"
-                        >
-                          1
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                          tabindex="0"
-                          type="button"
-                        >
-                          LÄHETÄ VARASIJAILMOITUS
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-y2ff7i-MuiPaper-root-MuiTableContainer-root"
-                hidden=""
-                style="--Paper-shadow: none;"
-              >
-                <table
-                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
-                >
-                  <thead
-                    class="MuiTableHead-root css-1a7iywq-MuiTableHead-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root MuiTableRow-head css-1fzcg66-MuiTableRow-root"
-                    >
-                      <th
-                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1orzuox-MuiTableCell-root"
-                        colspan="3"
-                        scope="col"
-                      >
-                        Kokeen tiedot
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          Koetunnus
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
-                        >
-                          123456
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      />
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          Koekutsu
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption css-c289yo-MuiTypography-root"
-                        >
-                          Ei liitettyä tiedostoa
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <input
-                          accept="application/pdf"
-                          hidden=""
-                          id="koekutsu-file"
-                          type="file"
-                        />
-                        <label
-                          for="koekutsu-file"
-                        >
-                          <span
-                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                            role="button"
-                            tabindex="0"
-                          >
-                            LIITÄ KOEKUTSU
-                          </span>
-                        </label>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="MuiStack-root css-1hezniw-MuiStack-root"
+    NOME-B
+    , 
+    dateFormat.datespan end, start
+    , 
+    test location
+  </h5>
+  <span
+    class="css-1k3i3n3"
   >
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="FormatListBulletedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5m0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5m0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5M7 19h14v-2H7zm0-6h14v-2H7zm0-8v2h14V5z"
-          />
-        </svg>
-      </span>
-      Näytä tapahtuman tiedot
-    </button>
-    <div
-      aria-orientation="vertical"
-      class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
-      role="separator"
-    />
-    <a
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      href="/admin/event/startlist/test1-b"
-      tabindex="0"
-      target="_blank"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="FormatListNumberedOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2zm1-9h1V4H2v1h1zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2zm5-6v2h14V5zm0 14h14v-2H7zm0-6h14v-2H7z"
-          />
-        </svg>
-      </span>
-      Katso sihteerin starttilista
-    </a>
-    <div
-      aria-orientation="vertical"
-      class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
-      role="separator"
-    />
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="AddCircleOutlineIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
-          />
-        </svg>
-      </span>
-      createRegistration
-    </button>
-  </div>
+    event.states.confirmed_eventOver
+  </span>
+  <button
+    aria-label="Avaa tilannepaneeli"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-554k0q-MuiButtonBase-root-MuiButton-root"
+    tabindex="0"
+    type="button"
+  >
+    Tilanne
+  </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
   >
@@ -4065,7 +3690,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rd4:"
+                          id=":rco:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -4735,403 +4360,28 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
 
 exports[`EventViewPage renders properly for event without classes 1`] = `
 <div>
-  <div
-    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-dgjj9d-MuiGrid-root"
+  <h5
+    class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
   >
-    <div
-      class="MuiGrid-root MuiGrid-direction-xs-row css-izk9z5-MuiGrid-root"
-    >
-      <h5
-        class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
-      >
-        NOU
-        , 
-        dateFormat.datespan end, start
-        , 
-        test location
-      </h5>
-      <span
-        class="css-1k3i3n3"
-      >
-        event.states.confirmed_eventOver
-      </span>
-    </div>
-    <div
-      class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
-    >
-      <div
-        class="MuiBox-root css-c41839"
-      >
-        <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
-        >
-          <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
-          >
-            <div
-              class="MuiTabs-root css-12y9vg6-MuiTabs-root"
-            >
-              <div
-                class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
-                style="overflow: hidden; margin-bottom: 0px;"
-              >
-                <div
-                  class="MuiTabs-list MuiTabs-flexContainer css-hzcega-MuiTabs-list"
-                  role="tablist"
-                >
-                  <button
-                    aria-selected="true"
-                    class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-jdc81d-MuiButtonBase-root-MuiTab-root"
-                    role="tab"
-                    tabindex="0"
-                    type="button"
-                  >
-                    Tapahtuman tilanne
-                  </button>
-                  <button
-                    aria-selected="false"
-                    class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth css-jdc81d-MuiButtonBase-root-MuiTab-root"
-                    role="tab"
-                    tabindex="-1"
-                    type="button"
-                  >
-                    Tehtävälista
-                  </button>
-                </div>
-                <span
-                  class="MuiTabs-indicator css-1eceoys-MuiTabs-indicator"
-                  style="left: 0px; width: 100px;"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-              tabindex="0"
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                data-testid="KeyboardArrowUpIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div
-          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
-          style="min-height: 0px;"
-        >
-          <div
-            class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
-          >
-            <div
-              class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
-            >
-              <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-y2ff7i-MuiPaper-root-MuiTableContainer-root"
-                style="--Paper-shadow: none;"
-              >
-                <table
-                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
-                >
-                  <tbody
-                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                        colspan="3"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1lsv4bv-MuiTypography-root"
-                        >
-                          Osallistujat
-                        </span>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          NOU
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1w65d07-MuiTypography-root"
-                        >
-                          0
-                           / 
-                          10
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                          disabled=""
-                          tabindex="-1"
-                          type="button"
-                        >
-                          LÄHETÄ 
-                          KOEPAIKKAILMOITUS
-                        </button>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                        colspan="3"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1lsv4bv-MuiTypography-root"
-                        >
-                          Varasijalla
-                        </span>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          NOU
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1w65d07-MuiTypography-root"
-                        >
-                          5
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                          tabindex="0"
-                          type="button"
-                        >
-                          LÄHETÄ VARASIJAILMOITUS
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-y2ff7i-MuiPaper-root-MuiTableContainer-root"
-                hidden=""
-                style="--Paper-shadow: none;"
-              >
-                <table
-                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
-                >
-                  <thead
-                    class="MuiTableHead-root css-1a7iywq-MuiTableHead-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root MuiTableRow-head css-1fzcg66-MuiTableRow-root"
-                    >
-                      <th
-                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1orzuox-MuiTableCell-root"
-                        colspan="3"
-                        scope="col"
-                      >
-                        Kokeen tiedot
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          Koetunnus
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
-                        >
-                          123456
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      />
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          Koekutsu
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption css-c289yo-MuiTypography-root"
-                        >
-                          Ei liitettyä tiedostoa
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <input
-                          accept="application/pdf"
-                          hidden=""
-                          id="koekutsu-file"
-                          type="file"
-                        />
-                        <label
-                          for="koekutsu-file"
-                        >
-                          <span
-                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                            role="button"
-                            tabindex="0"
-                          >
-                            LIITÄ KOEKUTSU
-                          </span>
-                        </label>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="MuiStack-root css-1hezniw-MuiStack-root"
+    NOU
+    , 
+    dateFormat.datespan end, start
+    , 
+    test location
+  </h5>
+  <span
+    class="css-1k3i3n3"
   >
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="FormatListBulletedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5m0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5m0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5M7 19h14v-2H7zm0-6h14v-2H7zm0-8v2h14V5z"
-          />
-        </svg>
-      </span>
-      Näytä tapahtuman tiedot
-    </button>
-    <div
-      aria-orientation="vertical"
-      class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
-      role="separator"
-    />
-    <a
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      href="/admin/event/startlist/test1"
-      tabindex="0"
-      target="_blank"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="FormatListNumberedOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2zm1-9h1V4H2v1h1zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2zm5-6v2h14V5zm0 14h14v-2H7zm0-6h14v-2H7z"
-          />
-        </svg>
-      </span>
-      Katso sihteerin starttilista
-    </a>
-    <div
-      aria-orientation="vertical"
-      class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
-      role="separator"
-    />
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="AddCircleOutlineIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
-          />
-        </svg>
-      </span>
-      createRegistration
-    </button>
-  </div>
+    event.states.confirmed_eventOver
+  </span>
+  <button
+    aria-label="Avaa tilannepaneeli"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-554k0q-MuiButtonBase-root-MuiButton-root"
+    tabindex="0"
+    type="button"
+  >
+    Tilanne
+  </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
   >
@@ -8788,7 +8038,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5i:"
+                          id=":r5c:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9102,7 +8352,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5n:"
+                          id=":r5h:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9416,7 +8666,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r5s:"
+                          id=":r5m:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -9730,7 +8980,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r61:"
+                          id=":r5r:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -10044,7 +9294,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r66:"
+                          id=":r60:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -10962,7 +10212,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":r79:"
+                          id=":r73:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
@@ -11023,403 +10273,28 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
 
 exports[`EventViewPage uses the route event id instead of stale admin event selection state 1`] = `
 <div>
-  <div
-    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-dgjj9d-MuiGrid-root"
+  <h5
+    class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
   >
-    <div
-      class="MuiGrid-root MuiGrid-direction-xs-row css-izk9z5-MuiGrid-root"
-    >
-      <h5
-        class="MuiTypography-root MuiTypography-h5 css-ihwieu-MuiTypography-root"
-      >
-        NOME-B
-        , 
-        dateFormat.datespan end, start
-        , 
-        test location
-      </h5>
-      <span
-        class="css-1k3i3n3"
-      >
-        event.states.confirmed_eventOver
-      </span>
-    </div>
-    <div
-      class="MuiGrid-root MuiGrid-direction-xs-row css-17fpwt7-MuiGrid-root"
-    >
-      <div
-        class="MuiBox-root css-c41839"
-      >
-        <div
-          class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-row css-wjsns7-MuiGrid-root"
-        >
-          <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-grow css-1ynczkt-MuiGrid-root"
-          >
-            <div
-              class="MuiTabs-root css-12y9vg6-MuiTabs-root"
-            >
-              <div
-                class="MuiTabs-scroller MuiTabs-fixed css-s2t35c-MuiTabs-scroller"
-                style="overflow: hidden; margin-bottom: 0px;"
-              >
-                <div
-                  class="MuiTabs-list MuiTabs-flexContainer css-hzcega-MuiTabs-list"
-                  role="tablist"
-                >
-                  <button
-                    aria-selected="true"
-                    class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth Mui-selected css-jdc81d-MuiButtonBase-root-MuiTab-root"
-                    role="tab"
-                    tabindex="0"
-                    type="button"
-                  >
-                    Tapahtuman tilanne
-                  </button>
-                  <button
-                    aria-selected="false"
-                    class="MuiButtonBase-root MuiTab-root MuiTab-textColorPrimary MuiTab-fullWidth css-jdc81d-MuiButtonBase-root-MuiTab-root"
-                    role="tab"
-                    tabindex="-1"
-                    type="button"
-                  >
-                    Tehtävälista
-                  </button>
-                </div>
-                <span
-                  class="MuiTabs-indicator css-1eceoys-MuiTabs-indicator"
-                  style="left: 0px; width: 100px;"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            class="MuiGrid-root MuiGrid-direction-xs-row MuiGrid-grid-xs-auto css-1hef13s-MuiGrid-root"
-          >
-            <button
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
-              tabindex="0"
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-                data-testid="KeyboardArrowUpIcon"
-                focusable="false"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M7.41 15.41 12 10.83l4.59 4.58L18 14l-6-6-6 6z"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-        <div
-          class="MuiCollapse-root MuiCollapse-vertical MuiCollapse-entered css-qr6njo-MuiCollapse-root"
-          style="min-height: 0px;"
-        >
-          <div
-            class="MuiCollapse-wrapper MuiCollapse-vertical css-1x6hinx-MuiCollapse-wrapper"
-          >
-            <div
-              class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
-            >
-              <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-y2ff7i-MuiPaper-root-MuiTableContainer-root"
-                style="--Paper-shadow: none;"
-              >
-                <table
-                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
-                >
-                  <tbody
-                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                        colspan="3"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1lsv4bv-MuiTypography-root"
-                        >
-                          Osallistujat
-                        </span>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          ALO
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1w65d07-MuiTypography-root"
-                        >
-                          0
-                           / 
-                          10
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root Mui-disabled MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                          disabled=""
-                          tabindex="-1"
-                          type="button"
-                        >
-                          LÄHETÄ 
-                          KOEPAIKKAILMOITUS
-                        </button>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                        colspan="3"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1lsv4bv-MuiTypography-root"
-                        >
-                          Varasijalla
-                        </span>
-                      </td>
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          ALO
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1w65d07-MuiTypography-root"
-                        >
-                          1
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignRight MuiTableCell-sizeMedium css-3ssuu9-MuiTableCell-root"
-                      >
-                        <button
-                          class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                          tabindex="0"
-                          type="button"
-                        >
-                          LÄHETÄ VARASIJAILMOITUS
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 MuiTableContainer-root css-y2ff7i-MuiPaper-root-MuiTableContainer-root"
-                hidden=""
-                style="--Paper-shadow: none;"
-              >
-                <table
-                  class="MuiTable-root css-1xwxv7r-MuiTable-root"
-                >
-                  <thead
-                    class="MuiTableHead-root css-1a7iywq-MuiTableHead-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root MuiTableRow-head css-1fzcg66-MuiTableRow-root"
-                    >
-                      <th
-                        class="MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1orzuox-MuiTableCell-root"
-                        colspan="3"
-                        scope="col"
-                      >
-                        Kokeen tiedot
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody
-                    class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
-                  >
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          Koetunnus
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption css-mpaqru-MuiTypography-root"
-                        >
-                          123456
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      />
-                    </tr>
-                    <tr
-                      class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
-                    >
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-alignLeft MuiTableCell-sizeMedium css-19syksp-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-1h6c4xn-MuiTypography-root"
-                        >
-                          Koekutsu
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <span
-                          class="MuiTypography-root MuiTypography-caption css-c289yo-MuiTypography-root"
-                        >
-                          Ei liitettyä tiedostoa
-                        </span>
-                      </td>
-                      <td
-                        class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1dc80h3-MuiTableCell-root"
-                      >
-                        <input
-                          accept="application/pdf"
-                          hidden=""
-                          id="koekutsu-file"
-                          type="file"
-                        />
-                        <label
-                          for="koekutsu-file"
-                        >
-                          <span
-                            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeSmall MuiButton-textSizeSmall MuiButton-colorPrimary css-16ymlmh-MuiButtonBase-root-MuiButton-root"
-                            role="button"
-                            tabindex="0"
-                          >
-                            LIITÄ KOEKUTSU
-                          </span>
-                        </label>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div
-    class="MuiStack-root css-1hezniw-MuiStack-root"
+    NOME-B
+    , 
+    dateFormat.datespan end, start
+    , 
+    test location
+  </h5>
+  <span
+    class="css-1k3i3n3"
   >
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="FormatListBulletedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5m0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5m0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5M7 19h14v-2H7zm0-6h14v-2H7zm0-8v2h14V5z"
-          />
-        </svg>
-      </span>
-      Näytä tapahtuman tiedot
-    </button>
-    <div
-      aria-orientation="vertical"
-      class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
-      role="separator"
-    />
-    <a
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      href="/admin/event/startlist/test1-b"
-      tabindex="0"
-      target="_blank"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="FormatListNumberedOutlinedIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2zm1-9h1V4H2v1h1zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2zm5-6v2h14V5zm0 14h14v-2H7zm0-6h14v-2H7z"
-          />
-        </svg>
-      </span>
-      Katso sihteerin starttilista
-    </a>
-    <div
-      aria-orientation="vertical"
-      class="MuiDivider-root MuiDivider-fullWidth MuiDivider-vertical css-aif5q5-MuiDivider-root"
-      role="separator"
-    />
-    <button
-      class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-15u3i2j-MuiButtonBase-root-MuiButton-root"
-      tabindex="0"
-      type="button"
-    >
-      <span
-        class="MuiButton-icon MuiButton-startIcon MuiButton-iconSizeMedium css-1sh91j5-MuiButton-startIcon"
-      >
-        <svg
-          aria-hidden="true"
-          class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1umw9bq-MuiSvgIcon-root"
-          data-testid="AddCircleOutlineIcon"
-          focusable="false"
-          viewBox="0 0 24 24"
-        >
-          <path
-            d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
-          />
-        </svg>
-      </span>
-      createRegistration
-    </button>
-  </div>
+    event.states.confirmed_eventOver
+  </span>
+  <button
+    aria-label="Avaa tilannepaneeli"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-554k0q-MuiButtonBase-root-MuiButton-root"
+    tabindex="0"
+    type="button"
+  >
+    Tilanne
+  </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
   >
@@ -15086,7 +13961,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
                           aria-haspopup="menu"
                           aria-label="more"
                           class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"
-                          id=":rjt:"
+                          id=":rjb:"
                           role="menuitem"
                           tabindex="-1"
                           type="button"
