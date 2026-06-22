@@ -15,6 +15,7 @@
     "phone": "Puhelin"
   },
   "copy": "Kopioi",
+  "copyStartList": "Kopioi lista",
   "copyTest": "Kopioi ilmoineen",
   "cost": "Osallistumismaksu",
   "costAdd": "Lisää osallistumismaksu",
@@ -544,6 +545,7 @@
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
   },
+  "startListCopied": "Lista kopioitu",
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
   "templateId": "Viestin nimi",

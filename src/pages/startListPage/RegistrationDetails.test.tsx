@@ -51,28 +51,28 @@ describe('RegistrationDetails', () => {
   }
 
   it('renders registration details correctly', () => {
-    render(
+    const { container } = render(
       <table>
         <tbody>
           <RegistrationDetails registration={mockRegistration} index={0} />
         </tbody>
       </table>
     )
+    const row = container.querySelector('tr')
 
     // Check that dog information is rendered
-    expect(screen.getByText('123.')).toBeInTheDocument()
-    expect(screen.getByText('111.M')).toBeInTheDocument() // Updated to match actual text
-    expect(screen.getByText('CH')).toBeInTheDocument()
-    expect(screen.getByText('Test Dog')).toBeInTheDocument()
-    expect(screen.getByText('REG123')).toBeInTheDocument()
-    expect(screen.getByText('s. 1.1.2020')).toBeInTheDocument()
+    expect(row).toHaveTextContent('123.')
+    expect(row).toHaveTextContent('111.M')
+    expect(row).toHaveTextContent('CH')
+    expect(row).toHaveTextContent('Test Dog')
+    expect(row).toHaveTextContent('REG123')
+    expect(row).toHaveTextContent('s. 1.1.2020')
 
     // Check that sire and dam information is rendered
     expect(screen.getByText('(i. CH Sire Dog, e. CH Dam Dog)')).toBeInTheDocument()
 
     // Check that owner, handler, and breeder information is rendered
-    expect(screen.getByText('om. Test Owner, ohj. Test Handler')).toBeInTheDocument()
-    expect(screen.getByText('kasv. Test Breeder')).toBeInTheDocument()
+    expect(screen.getByText('om. Test Owner, ohj. Test Handler, kasv. Test Breeder')).toBeInTheDocument()
   })
 
   it('renders owner-handler correctly when owner handles', () => {
@@ -90,7 +90,7 @@ describe('RegistrationDetails', () => {
     )
 
     // Check that owner-handler information is rendered correctly
-    expect(screen.getByText('om. & ohj. Test Owner')).toBeInTheDocument()
+    expect(screen.getByText('om. & ohj. Test Owner, kasv. Test Breeder')).toBeInTheDocument()
   })
 
   it('applies top-border class when index > 0', () => {
