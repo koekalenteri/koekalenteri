@@ -181,6 +181,44 @@ describe('BasicInfoSection', () => {
       })
     })
 
+    it('should treat Kennel Club null end date as a one day event when selected', async () => {
+      jest.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
+        choices: [
+          {
+            endDate: new Date('0001-01-01T00:00:00'),
+            eventType: 'NOWT',
+            id: 453830,
+            location: 'Jyväskylä, Korpilahti',
+            name: '',
+            organizer: 'KESKI-SUOMEN NOUTAJAKOIRAYHDISTYS RY.',
+            startDate: new TZDate('2026-06-28', TIME_ZONE),
+          },
+        ],
+      })
+      const changeHandler = jest.fn()
+      const testEvent: PartialEvent = {
+        classes: [],
+        endDate: new TZDate('2026-06-01', TIME_ZONE),
+        entryEndDate: defaultEntryEndDate(new TZDate('2026-06-01', TIME_ZONE)),
+        entryStartDate: defaultEntryStartDate(new TZDate('2026-06-01', TIME_ZONE)),
+        eventType: 'NOWT',
+        id: 'test',
+        judges: [],
+        organizer: { id: 'org-id', name: 'Organizer' },
+        startDate: new TZDate('2026-06-01', TIME_ZONE),
+      }
+
+      const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
+
+      await user.click(screen.getByText('event.kcIdLookup'))
+      expect(await screen.findByText('2026-06-28')).toBeInTheDocument()
+
+      await user.click(screen.getByText('event.kcIdSelect'))
+
+      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].startDate)).toEqual('2026-06-28')
+      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].endDate)).toEqual('2026-06-28')
+    })
+
     it('should clear an existing Kennel Club ID when lookup criteria changes', async () => {
       const changeHandler = jest.fn()
       const testEvent: PartialEvent = {

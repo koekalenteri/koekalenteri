@@ -36,6 +36,10 @@ export type SearchEventKcIdChoicesRequest = Pick<
   organizer: Pick<DogEvent['organizer'], 'id'>
 }
 
+export function normalizeEventKcIdChoice(choice: EventKcIdChoice): EventKcIdChoice {
+  return choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
+}
+
 function isPublicEventsDeltaResponse(response: PublicEventsResponse): response is PublicEventsDeltaResponse {
   return !Array.isArray(response)
 }
@@ -94,13 +98,15 @@ export async function searchEventKcIdChoices(
   token?: string,
   signal?: AbortSignal
 ): Promise<SearchEventKcIdChoicesResponse> {
-  return (
+  const response = (
     await http.post<SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse>(
       `${ADMIN_PATH}kcId/choices`,
       request,
       withToken({ signal }, token)
     )
   ).data
+
+  return { ...response, choices: response.choices.map(normalizeEventKcIdChoice) }
 }
 
 export async function putInvitationAttachment(
