@@ -478,6 +478,22 @@ describe('useWebSocket', () => {
         data: JSON.stringify({
           eventId: 'event-1',
           scope: 'admin:event-viewers',
+          viewers: [{ name: 'Payload User', userId: 'user-2' }],
+        }),
+      })
+    })
+
+    expect(result.current.viewers).toEqual([{ name: 'Payload User', userId: 'user-2' }])
+  })
+
+  it('should still resolve legacy string event viewer payloads from admin users', async () => {
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          scope: 'admin:event-viewers',
           viewers: ['user-2'],
         }),
       })

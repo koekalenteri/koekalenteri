@@ -23,6 +23,7 @@ jest.unstable_mockModule('../../utils/CustomDynamoClient', () => ({
 }))
 
 const {
+  authenticateConnection,
   createConnection,
   getConnection,
   listConnections,
@@ -66,6 +67,34 @@ describe('ws/connectionRepository', () => {
     } as any)
 
     expect(mockWrite).toHaveBeenCalledWith({ audience: 'public', connectionId: 'c1', expiresAt: 123 })
+  })
+
+  it('authenticateConnection stores user display metadata', async () => {
+    await authenticateConnection({
+      admin: true,
+      connectionId: 'c1',
+      expiresAt: 123,
+      memberOf: ['org-1'],
+      userEmail: 'user@example.com',
+      userId: 'u1',
+      userName: 'User One',
+    })
+
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { connectionId: 'c1' },
+      {
+        remove: ['eventId'],
+        set: {
+          admin: true,
+          audience: 'public',
+          expiresAt: 123,
+          memberOf: ['org-1'],
+          userEmail: 'user@example.com',
+          userId: 'u1',
+          userName: 'User One',
+        },
+      }
+    )
   })
 
   it('subscribeConnection moves event subscribers to admin audience', async () => {

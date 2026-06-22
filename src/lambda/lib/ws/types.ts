@@ -8,7 +8,14 @@ export interface WebSocketConnection {
   eventId?: string
   expiresAt?: number
   memberOf?: string[]
+  userEmail?: string
   userId?: string
+  userName?: string
+}
+
+export interface EventViewerPayload {
+  name: string
+  userId: string
 }
 
 export type EventPatchPayload = Patch<JsonDogEvent> & {

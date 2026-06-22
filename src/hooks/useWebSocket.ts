@@ -51,11 +51,28 @@ interface EventPatchMessage {
   [key: string]: unknown
 }
 
-const getViewerUserIds = (viewers: unknown[]): string[] =>
-  viewers.filter((viewer: unknown): viewer is string => typeof viewer === 'string')
+const getViewerPayloads = (viewers: unknown[]): EventViewer[] =>
+  viewers
+    .map((viewer) => {
+      if (typeof viewer === 'string') {
+        return { name: viewer, userId: viewer }
+      }
+
+      if (!viewer || typeof viewer !== 'object') {
+        return undefined
+      }
+
+      const { name, userId } = viewer as Partial<EventViewer>
+      if (typeof userId !== 'string') {
+        return undefined
+      }
+
+      return { name: typeof name === 'string' && name.trim() ? name : userId, userId }
+    })
+    .filter((viewer): viewer is EventViewer => !!viewer)
 
 const mapEventViewers = (
-  viewers: string[],
+  viewers: EventViewer[],
   adminUsers: Array<{ id: string; name?: string }>,
   currentUser?: { id: string; name?: string }
 ) => {
@@ -64,9 +81,9 @@ const mapEventViewers = (
     usersById.set(currentUser.id, currentUser)
   }
 
-  return viewers.map((userId) => ({
-    name: usersById.get(userId)?.name ?? userId,
-    userId,
+  return viewers.map((viewer) => ({
+    name: viewer.name === viewer.userId ? (usersById.get(viewer.userId)?.name ?? viewer.name) : viewer.name,
+    userId: viewer.userId,
   }))
 }
 
@@ -106,7 +123,7 @@ export const useWebSocket = () => {
   // Subscription state — persisted across reconnects
   const adminSubscribedRef = useRef(false)
   const eventIdRef = useRef<string | undefined>(undefined)
-  const rawViewersRef = useRef<string[]>([])
+  const rawViewersRef = useRef<EventViewer[]>([])
 
   // Mutable refs for values only needed inside callbacks
   const idTokenRef = useRef<string | undefined>(undefined)
@@ -288,9 +305,9 @@ export const useWebSocket = () => {
       }
 
       if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
-        const viewerUserIds = getViewerUserIds(data.viewers)
-        rawViewersRef.current = viewerUserIds
-        const nextViewers = mapEventViewers(viewerUserIds, adminUsersRef.current, currentUserRef.current)
+        const viewerPayloads = getViewerPayloads(data.viewers)
+        rawViewersRef.current = viewerPayloads
+        const nextViewers = mapEventViewers(viewerPayloads, adminUsersRef.current, currentUserRef.current)
         setViewers((current) => applyViewers(current, nextViewers))
         return
       }
