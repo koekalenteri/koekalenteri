@@ -10,7 +10,7 @@ import { eventWithStaticDates } from '../__mockData__/events'
 import { registrationWithStaticDates } from '../__mockData__/registrations'
 import theme from '../assets/Theme'
 import { locales } from '../i18n'
-import { Path } from '../routeConfig'
+import { invitationAttachmentFileName, Path } from '../routeConfig'
 import { DataMemoryRouter, flushPromises } from '../test-utils/utils'
 import { LoadingPage } from './LoadingPage'
 import { Component as RegistrationInvitation } from './RegistrationInvitation'
@@ -146,6 +146,6 @@ describe('RegistrationInvitation', () => {
 
     expect(openButton).toHaveAttribute('href', invitationUrl)
     expect(downloadButton).toHaveAttribute('href', `${invitationUrl}?dl`)
-    expect(downloadButton).toHaveAttribute('download', 'kutsu.pdf')
+    expect(downloadButton).toHaveAttribute('download', invitationAttachmentFileName(registrationWithStaticDates))
   })
 })

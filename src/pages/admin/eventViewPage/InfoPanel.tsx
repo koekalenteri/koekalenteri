@@ -29,7 +29,7 @@ import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { getInvitationAttachment } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
-import { API_BASE_URL, Path } from '../../../routeConfig'
+import { Path } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
 import { adminEventSelector } from '../recoil'
 
@@ -303,7 +303,7 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                       <>
                         <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
                         <Link
-                          href={`${API_BASE_URL}/file/${attachmentKey}/kutsu.pdf`}
+                          href={Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey })}
                           rel="noopener"
                           target="_blank"
                           type="application/pdf"
@@ -335,6 +335,7 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                 </TableRow>
                 {eventClasses.map((eventClass) => {
                   const classAttachmentKey = classAttachmentKeys[eventClass]
+                  const classEvent = event.classes.find((item) => item.class === eventClass)
 
                   return (
                     <TableRow key={`invitation-attachment-${eventClass}`}>
@@ -348,7 +349,12 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                           <>
                             <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
                             <Link
-                              href={`${API_BASE_URL}/file/${classAttachmentKey}/kutsu.pdf`}
+                              href={Path.invitationAttachment({
+                                ...event,
+                                class: eventClass,
+                                invitationAttachment: classAttachmentKey,
+                                startDate: classEvent?.date ?? event.startDate,
+                              })}
                               rel="noopener"
                               target="_blank"
                               type="application/pdf"

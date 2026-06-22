@@ -93,7 +93,7 @@ describe('RegistrationInvitation deferredLoader', () => {
     expect(result).toEqual({
       event: mockEvent,
       registration: mockRegistration,
-      url: '/file/attachment-key/kutsu-test-type-01.01.2021.pdf',
+      url: '/file/attachment-key/koekutsu-20210101-test-type.pdf',
     })
   })
 
