@@ -132,7 +132,16 @@ test('searchEventKcIdChoices', async () => {
           JSON.stringify({
             choices: [
               { endDate: '2026-07-02', id: 123, startDate: '2026-07-01' },
-              { endDate: '0001-01-01T00:00:00', id: 456, startDate: '2026-06-28T00:00:00' },
+              {
+                contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
+                cost: 55,
+                description: 'Osallistumismaksu sisältää keittolounaan.',
+                endDate: '0001-01-01T00:00:00',
+                entryEndDate: '2026-06-07T00:00:00',
+                entryStartDate: '2026-05-17T00:00:00',
+                id: 456,
+                startDate: '2026-06-28T00:00:00',
+              },
             ],
           })
         )
@@ -164,6 +173,15 @@ test('searchEventKcIdChoices', async () => {
   expect(zonedDateString(response.choices[0]!.endDate)).toEqual('2026-07-02')
   expect(zonedDateString(response.choices[1]!.startDate)).toEqual('2026-06-28')
   expect(zonedDateString(response.choices[1]!.endDate)).toEqual('2026-06-28')
+  expect(zonedDateString(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
+  expect(zonedDateString(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
+  expect(response.choices[1]).toEqual(
+    expect.objectContaining({
+      contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
+      cost: 55,
+      description: 'Osallistumismaksu sisältää keittolounaan.',
+    })
+  )
 })
 
 /**

@@ -15,11 +15,16 @@ export type PublicEventsDeltaResponse = {
 export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
 
 export type EventKcIdChoice = {
+  contactInfo?: DogEvent['contactInfo']
+  cost?: DogEvent['cost']
+  description?: DogEvent['description']
   id: number
   name: string
   eventType: string
   startDate: Date
   endDate: Date
+  entryStartDate?: Date
+  entryEndDate?: Date
   organizer: string
   location: string
 }
