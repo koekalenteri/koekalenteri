@@ -90,6 +90,7 @@ export function sanitizeDogEvent(
     headquarters: _headquarters,
     kcId: _kcId,
     invitationAttachment: _invitationAttachment,
+    invitationAttachments: _invitationAttachments,
     modifiedBy: _modifiedBy,
     secretary: _secretary,
     official: _official,

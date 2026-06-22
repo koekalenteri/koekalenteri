@@ -95,6 +95,7 @@ export async function searchEventKcIdChoices(
 export async function putInvitationAttachment(
   _eventId: string,
   _file: File,
+  _className?: string,
   _token?: string,
   _signal?: AbortSignal
 ): Promise<string> {

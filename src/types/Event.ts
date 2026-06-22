@@ -32,6 +32,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   dates?: JsonRegistrationDate[]
   headquarters?: Partial<Headquarters>
   invitationAttachment?: string
+  invitationAttachments?: Record<string, string>
   judges: Array<PublicJudge>
   kcId?: number
   location: string
@@ -78,6 +79,7 @@ type NonPublicDogEventProperties =
   | 'deletedBy'
   | 'headquarters'
   | 'invitationAttachment'
+  | 'invitationAttachments'
   | 'kcId'
   | 'official'
   | 'secretary'
