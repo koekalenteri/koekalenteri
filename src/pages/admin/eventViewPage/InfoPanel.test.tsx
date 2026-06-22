@@ -145,6 +145,23 @@ describe('InfoPanel>', () => {
     expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
   })
 
+  it('collapses when clicking outside the drawer', async () => {
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByText('Osallistujat')).toBeInTheDocument()
+
+    const backdrop = document.querySelector('.MuiBackdrop-root')
+    if (!backdrop) throw new Error('drawer backdrop not found')
+
+    await user.click(backdrop)
+
+    expect(screen.queryByText('Osallistujat')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
+  })
+
   it('disables message buttons when there are no participants', async () => {
     // Create a test scenario with no participants in a class
     const emptyRegistrations: Registration[] = []
@@ -191,7 +208,13 @@ describe('InfoPanel>', () => {
   it('does not allow resending invitations when attachment has not changed', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
-        event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'alo-key' } }}
+        event={{
+          ...eventWithParticipantsInvited,
+          classes: eventWithParticipantsInvited.classes.map((eventClass) =>
+            eventClass.class === 'AVO' ? { ...eventClass, places: 3 } : eventClass
+          ),
+          invitationAttachments: { ALO: 'alo-key' },
+        }}
         registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
           ...registration,
           invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
@@ -204,12 +227,28 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    const invitationButtons = screen.getAllByRole('button', { name: /Lähetä koekutsu/i })
+    expect(screen.queryByRole('button', { name: /Lähetä koekutsu/i })).not.toBeInTheDocument()
+    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
+  })
 
-    expect(invitationButtons.length).toBeGreaterThan(0)
-    invitationButtons.forEach((button) => {
-      expect(button).toBeDisabled()
-    })
+  it('does not allow sending invitations again in picked state when invitations were already sent', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'alo-key' }, state: 'picked' }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.queryByRole('button', { name: /Lähetä koekutsu/i })).not.toBeInTheDocument()
+    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
   })
 
   it('allows resending invitations when attachment has changed', async () => {
@@ -268,12 +307,12 @@ describe('InfoPanel>', () => {
         new APIError(new Response(null, { status: 413, statusText: 'Content Too Large' }), 'Content Too Large')
       )
 
-    const { container, user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
     await openInfoPanel(user)
 
-    const input = container.querySelector('#koekutsu-file') as HTMLInputElement
+    const input = document.querySelector('#koekutsu-file') as HTMLInputElement
     const file = new File(['pdf'], 'kutsu.pdf', { type: 'application/pdf' })
 
     await user.upload(input, file)
@@ -296,12 +335,12 @@ describe('InfoPanel>', () => {
       <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithStaticDates])}>{children}</RecoilRoot>
     )
 
-    const { container, user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper,
     })
     await openInfoPanel(user)
 
-    const input = container.querySelector('#koekutsu-file') as HTMLInputElement
+    const input = document.querySelector('#koekutsu-file') as HTMLInputElement
     const file = new File(['pdf'], 'kutsu.pdf', { type: 'application/pdf' })
 
     await user.upload(input, file)
@@ -331,15 +370,12 @@ describe('InfoPanel>', () => {
         {children}
       </RecoilRoot>
     )
-    const { container, user } = renderWithUserEvents(
-      <InfoPanel event={eventWithStaticDatesAndClass} registrations={[]} />,
-      {
-        wrapper,
-      }
-    )
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDatesAndClass} registrations={[]} />, {
+      wrapper,
+    })
     await openInfoPanel(user)
 
-    const input = container.querySelector('#koekutsu-file-ALO') as HTMLInputElement
+    const input = document.querySelector('#koekutsu-file-ALO') as HTMLInputElement
     const file = new File(['pdf'], 'alo-kutsu.pdf', { type: 'application/pdf' })
 
     await user.upload(input, file)

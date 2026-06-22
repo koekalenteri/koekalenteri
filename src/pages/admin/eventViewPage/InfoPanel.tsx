@@ -27,7 +27,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
-import { getInvitationAttachment } from '../../../lib/registration'
+import { getParticipantMessageInfo } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
@@ -48,6 +48,7 @@ const sectionSx = {
   borderRadius: 1,
   overflow: 'hidden',
 }
+const actionButtonSx = { justifyContent: 'flex-start', textAlign: 'left' }
 
 const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, onOpenMessageDialog }: Props) => {
   const { t } = useTranslation()
@@ -155,9 +156,15 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
   return (
     <Drawer
       anchor="right"
+      onClose={() => setExpanded(false)}
       open={expanded}
-      variant="persistent"
+      variant="temporary"
       slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: 'transparent',
+          },
+        },
         paper: {
           sx: {
             border: '1px solid',
@@ -213,21 +220,13 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                 </TableRow>
                 {Object.entries(numbersByClass).map(([c, nums]) => {
                   const selected = selectedByClass[c] ?? []
-                  const staleInvitationRecipients = selected.filter((registration) => {
-                    const currentAttachment = getInvitationAttachment(eventWithCurrentAttachments, registration)
-                    return (
-                      registration.messagesSent?.invitation &&
-                      currentAttachment &&
-                      registration.invitationAttachmentSent !== currentAttachment
-                    )
-                  })
-                  const recipients = stateByClass[c] === 'invited' ? staleInvitationRecipients : selected
-                  const canSendParticipantsMessage =
-                    stateByClass[c] === 'confirmed' ||
-                    stateByClass[c] === 'picked' ||
-                    (stateByClass[c] === 'invited' && staleInvitationRecipients.length > 0)
-                  const messageTemplate = stateByClass[c] === 'confirmed' ? 'picked' : 'invitation'
-                  const messageLabel = messageTemplate === 'picked' ? 'koepaikkailmoitus' : 'koekutsu'
+                  const { canSend, recipients, templateId } = getParticipantMessageInfo(
+                    eventWithCurrentAttachments,
+                    stateByClass[c],
+                    selected
+                  )
+                  const messageLabel = templateId === 'picked' ? 'koepaikkailmoitus' : 'koekutsu'
+                  const invitationsSent = templateId === 'invitation' && selected.length > 0 && recipients.length === 0
 
                   return (
                     <TableRow key={c}>
@@ -242,14 +241,26 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                         </Typography>
                       </TableCell>
                       <TableCell align="right">
-                        <Button
-                          size="small"
-                          disabled={nums.participants === 0 || nums.invalid || !canSendParticipantsMessage}
-                          onClick={() => onOpenMessageDialog?.(recipients, messageTemplate)}
-                          variant="outlined"
-                        >
-                          Lähetä {messageLabel}
-                        </Button>
+                        <Stack alignItems="flex-end" spacing={0.25}>
+                          {invitationsSent ? (
+                            <Typography
+                              variant="caption"
+                              color="info.main"
+                              sx={{ alignItems: 'center', display: 'flex', minHeight: 30 }}
+                            >
+                              Koekutsut lähetetty
+                            </Typography>
+                          ) : (
+                            <Button
+                              size="small"
+                              disabled={nums.participants === 0 || nums.invalid || !canSend}
+                              onClick={() => onOpenMessageDialog?.(recipients, templateId)}
+                              variant="outlined"
+                            >
+                              Lähetä {messageLabel}
+                            </Button>
+                          )}
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   )
@@ -408,16 +419,29 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
             Toiminnot
           </Typography>
           <Stack spacing={1} sx={{ p: 1 }}>
-            <Button fullWidth onClick={onOpenDetails} startIcon={<FormatListBulleted />} variant="outlined">
+            <Button
+              fullWidth
+              onClick={onOpenDetails}
+              startIcon={<FormatListBulleted />}
+              sx={actionButtonSx}
+              variant="outlined"
+            >
               Näytä tapahtuman tiedot
             </Button>
-            <Button fullWidth onClick={onCreateRegistration} startIcon={<AddCircleOutline />} variant="outlined">
+            <Button
+              fullWidth
+              onClick={onCreateRegistration}
+              startIcon={<AddCircleOutline />}
+              sx={actionButtonSx}
+              variant="outlined"
+            >
               {t('createRegistration')}
             </Button>
             <Button
               fullWidth
               href={Path.admin.startList(event.id)}
               startIcon={<FormatListNumberedOutlined />}
+              sx={actionButtonSx}
               target="_blank"
               variant="outlined"
             >
