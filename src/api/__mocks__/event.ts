@@ -87,6 +87,7 @@ export async function putEvent(event: Patch<DogEvent>, _token?: string, _signal?
 export async function putInvitationAttachment(
   _eventId: string,
   _file: File,
+  _className?: string,
   _token?: string,
   _signal?: AbortSignal
 ): Promise<string> {

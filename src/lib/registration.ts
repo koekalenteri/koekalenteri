@@ -155,6 +155,11 @@ export const getSelectedAdditionalCosts = (
   return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
 }
 
+export const getInvitationAttachment = (
+  event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
+  registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
+) => event.invitationAttachments?.[registration.class ?? registration.eventType] ?? event.invitationAttachment
+
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
   confirmedEvent: JsonConfirmedEvent | ConfirmedEvent,
@@ -196,12 +201,13 @@ export const getRegistrationEmailTemplateData = (
   const selectedServices = selectedAdditionalCosts
     .map((c) => c.description[registration.language] ?? c.description.fi)
     .join(', ')
+  const event = { ...confirmedEvent, invitationAttachment: getInvitationAttachment(confirmedEvent, registration) }
 
   return {
     cancelReason,
     delayedPayment,
     dogBreed,
-    event: confirmedEvent,
+    event,
     eventDate,
     groupDate,
     groupNumber,

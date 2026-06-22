@@ -424,6 +424,8 @@ describe('lib/registration', () => {
 
       const confirmedEvent = {
         endDate: '2024-08-02',
+        invitationAttachment: 'event-attachment',
+        invitationAttachments: { ALO: 'alo-attachment' },
         startDate: '2024-08-01',
       } as any // Type assertion for event
 
@@ -458,11 +460,37 @@ describe('lib/registration', () => {
       expect(result.link).toBe('https://example.com/r/event1/reg1')
       expect(result.paymentLink).toBe('https://example.com/p/event1/reg1')
       expect(result.invitationLink).toBe('https://example.com/r/event1/reg1/invitation')
-      expect(result.event).toBe(confirmedEvent)
+      expect(result.event).toEqual({ ...confirmedEvent, invitationAttachment: 'event-attachment' })
       expect(result.reg).toBe(registration)
       expect(result.text).toBe('Additional text')
       expect(result.origin).toBe('https://example.com')
       expect(result.groupNumber).toBe(5)
+    })
+
+    it('should use class-specific invitation attachment in template event data', () => {
+      const registration = {
+        class: 'ALO',
+        dates: [],
+        dog: {},
+        eventId: 'event1',
+        id: 'reg1',
+        qualifyingResults: [],
+      } as any
+      const confirmedEvent = {
+        invitationAttachment: 'event-attachment',
+        invitationAttachments: { ALO: 'alo-attachment' },
+      } as any
+
+      const result = getRegistrationEmailTemplateData(
+        registration,
+        confirmedEvent,
+        'https://example.com',
+        'invitation' as any,
+        '',
+        t
+      )
+
+      expect(result.event.invitationAttachment).toBe('alo-attachment')
     })
 
     it('should use previous group when provided', () => {

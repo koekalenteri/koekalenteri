@@ -64,11 +64,14 @@ describe('putInvitationAttachmentLambda', () => {
       },
     })
 
-    mockGetParam.mockReturnValue('event123')
+    mockGetParam.mockImplementation((_event: unknown, name: string) => (name === 'eventId' ? 'event123' : ''))
 
     mockGetEvent.mockResolvedValue({
       id: 'event123',
       invitationAttachment: 'old-attachment-key',
+      invitationAttachments: {
+        AVO: 'old-avo-attachment-key',
+      },
       name: 'Test Event',
       organizer: {
         id: 'org789',
@@ -195,6 +198,28 @@ describe('putInvitationAttachmentLambda', () => {
       expect.any(String), // nanoid generated key
       event
     )
+  })
+
+  it('uploads class attachment and deletes old class attachment', async () => {
+    mockGetParam.mockImplementation((_event: unknown, name: string) =>
+      name === 'eventId' ? 'event123' : name === 'className' ? 'AVO' : ''
+    )
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockDeleteFile).toHaveBeenCalledWith('old-avo-attachment-key')
+    expect(mockUploadFile).toHaveBeenCalledWith(expect.any(String), Buffer.from('test-file-content'))
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event123' },
+      {
+        set: {
+          invitationAttachments: {
+            AVO: expect.any(String),
+          },
+        },
+      }
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(String), event)
   })
 
   it('uploads new attachment when no previous attachment exists', async () => {

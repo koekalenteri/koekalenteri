@@ -17,6 +17,7 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
   }
 
   const eventId = getParam(event, 'eventId')
+  const className = getParam(event, 'className')
   const existing = await getEvent<JsonConfirmedEvent>(eventId)
   if (!user.admin && !user.roles?.[existing?.organizer?.id ?? '']) {
     return response(403, 'Forbidden', event)
@@ -33,19 +34,30 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
     return response(400, 'no data', event)
   }
 
-  if (existing?.invitationAttachment) {
-    await deleteFile(existing.invitationAttachment)
+  const existingClassAttachments = existing?.invitationAttachments ?? {}
+  const oldAttachment = className ? existingClassAttachments[className] : existing?.invitationAttachment
+  if (oldAttachment) {
+    await deleteFile(oldAttachment)
   }
 
   const key = nanoid()
   await uploadFile(key, file.data)
 
+  const set = className
+    ? {
+        invitationAttachments: {
+          ...existingClassAttachments,
+          [className]: key,
+        },
+      }
+    : {
+        invitationAttachment: key,
+      }
+
   await dynamoDB.update(
     { id: eventId },
     {
-      set: {
-        invitationAttachment: key,
-      },
+      set,
     }
   )
 

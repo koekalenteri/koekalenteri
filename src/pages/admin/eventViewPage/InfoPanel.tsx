@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import type { ConfirmedEvent, EmailTemplateId, Registration } from '../../../types'
+import type { ConfirmedEvent, EmailTemplateId, Registration, RegistrationClass } from '../../../types'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
@@ -21,7 +21,7 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
@@ -52,15 +52,17 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
   const { t } = useTranslation()
   const token = useRecoilValue(idTokenAtom)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
+  const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
+  const eventClasses = useMemo(() => [...new Set(event.classes.map((c) => c.class))], [event.classes])
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(
     event,
     registrations
   )
   const toggle = useCallback(() => setExpanded((old) => !old), [])
   const handleInvitationUpload = useCallback(
-    async (e: ChangeEvent<HTMLInputElement>) => {
+    (className?: RegistrationClass) => async (e: ChangeEvent<HTMLInputElement>) => {
       const input = e.target
 
       if (!input.files) {
@@ -69,11 +71,26 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
       }
 
       try {
-        const fileKey = await putInvitationAttachment(event.id, input.files[0], token)
-        const update = Boolean(event.invitationAttachment)
-        setAttachmentKey(fileKey)
-        setEvent({ ...event, invitationAttachment: fileKey })
-        enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
+        const fileKey = await putInvitationAttachment(event.id, input.files[0], className, token)
+        if (className) {
+          const invitationAttachments = {
+            ...classAttachmentKeys,
+            [className]: fileKey,
+          }
+          setClassAttachmentKeys(invitationAttachments)
+          setEvent({ ...event, invitationAttachments })
+          enqueueSnackbar(
+            `${className} koekutsu ${event.invitationAttachments?.[className] ? 'päivitetty' : 'liitetty'}`,
+            {
+              variant: 'success',
+            }
+          )
+        } else {
+          const update = Boolean(event.invitationAttachment)
+          setAttachmentKey(fileKey)
+          setEvent({ ...event, invitationAttachment: fileKey })
+          enqueueSnackbar(update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty', { variant: 'success' })
+        }
       } catch (error) {
         if (error instanceof APIError && error.status === 413) {
           enqueueSnackbar(
@@ -88,7 +105,7 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
         input.value = ''
       }
     },
-    [event, setEvent, token]
+    [classAttachmentKeys, event, setEvent, token]
   )
   if (!expanded) {
     return (
@@ -294,15 +311,62 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                       type="file"
                       hidden
                       id="koekutsu-file"
-                      onChange={handleInvitationUpload}
+                      onChange={handleInvitationUpload()}
                     />
                     <label htmlFor="koekutsu-file">
                       <Button component="span" size="small" variant="outlined">
-                        Liitä koekutsu
+                        Liitä yleinen
                       </Button>
                     </label>
                   </TableCell>
                 </TableRow>
+                {eventClasses.map((eventClass) => {
+                  const classAttachmentKey = classAttachmentKeys[eventClass]
+
+                  return (
+                    <TableRow key={`invitation-attachment-${eventClass}`}>
+                      <TableCell align="left">
+                        <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                          {eventClass} koekutsu
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        {classAttachmentKey ? (
+                          <>
+                            <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
+                            <Link
+                              href={`${API_BASE_URL}/file/${classAttachmentKey}/kutsu.pdf`}
+                              rel="noopener"
+                              target="_blank"
+                              type="application/pdf"
+                              variant="caption"
+                            >
+                              Kutsu.pdf
+                            </Link>
+                          </>
+                        ) : (
+                          <Typography variant="caption" fontStyle="italic">
+                            Käyttää yleistä kutsua
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <input
+                          accept="application/pdf"
+                          type="file"
+                          hidden
+                          id={`koekutsu-file-${eventClass}`}
+                          onChange={handleInvitationUpload(eventClass)}
+                        />
+                        <label htmlFor={`koekutsu-file-${eventClass}`}>
+                          <Button component="span" size="small" variant="outlined">
+                            Liitä luokalle
+                          </Button>
+                        </label>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </TableContainer>
