@@ -3,8 +3,16 @@ import type { Registration } from '../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { enqueueSnackbar } from 'notistack'
 import { RecoilRoot } from 'recoil'
-import { eventWithEntryClosed, eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
-import { registrationsToEventWithEntryClosed } from '../../../__mockData__/registrations'
+import {
+  eventWithEntryClosed,
+  eventWithParticipantsInvited,
+  eventWithStaticDates,
+  eventWithStaticDatesAndClass,
+} from '../../../__mockData__/events'
+import {
+  registrationsToEventWithEntryClosed,
+  registrationsToEventWithParticipantsInvited,
+} from '../../../__mockData__/registrations'
 import * as eventApi from '../../../api/event'
 import { APIError } from '../../../api/http'
 import { eventRegistrationDateKey } from '../../../lib/event'
@@ -179,6 +187,62 @@ describe('InfoPanel>', () => {
     participantButtons.forEach((button) => {
       expect(button).toBeDisabled()
     })
+  })
+
+  it('does not allow resending invitations when attachment has not changed', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'alo-key' } }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    const invitationButtons = screen.getAllByRole('button', { name: /Lähetä koekutsu/i })
+
+    expect(invitationButtons.length).toBeGreaterThan(0)
+    invitationButtons.forEach((button) => {
+      expect(button).toBeDisabled()
+    })
+  })
+
+  it('allows resending invitations when attachment has changed', async () => {
+    const onOpenMessageDialog = jest.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, invitationAttachments: { ALO: 'new-alo-key' } }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent:
+            registration.class === 'ALO' && registration.id.endsWith('1') ? 'old-alo-key' : 'new-alo-key',
+          messagesSent: { invitation: true },
+        }))}
+        onOpenMessageDialog={onOpenMessageDialog}
+      />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    const resendButton = screen
+      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .find((button) => !button.hasAttribute('disabled'))
+
+    if (!resendButton) throw new Error('enabled resend button not found')
+    expect(resendButton).toBeEnabled()
+    await user.click(resendButton)
+    expect(onOpenMessageDialog).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
+      'invitation'
+    )
   })
 
   it('renders with event that has an invitation attachment', async () => {

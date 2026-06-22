@@ -408,7 +408,7 @@ describe('registration', () => {
       jest.setSystemTime(new Date('2023-01-01 12:00Z'))
       const result = await sendTemplatedEmailToEventRegistrations(
         'invitation',
-        JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+        { ...JSON.parse(JSON.stringify(eventWithALOClassInvited)), invitationAttachments: { ALO: 'alo-attachment' } },
         [
           { ...jsonRegistrationsToEventWithALOInvited[0] },
           { ...jsonRegistrationsToEventWithALOInvited[1], language: 'en' },
@@ -455,6 +455,15 @@ describe('registration', () => {
         {
           set: {
             messagesSent: { invitation: true },
+            updatedAt: expect.any(String),
+          },
+        }
+      )
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'testALOInvited', id: 'testALOInvited1' },
+        {
+          set: {
+            invitationAttachmentSent: 'alo-attachment',
             updatedAt: expect.any(String),
           },
         }
