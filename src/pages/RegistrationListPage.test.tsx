@@ -494,7 +494,7 @@ describe('RegistrationListPage', () => {
 
     await flushPromises()
 
-    expect(redirectTo).toHaveBeenCalledWith('/file/attachment-file/kutsu-NOU-10.02.2021.pdf')
+    expect(redirectTo).toHaveBeenCalledWith('/file/attachment-file/koekutsu-20210210-NOU.pdf')
   })
 
   it('hides cancel controls when event start is close', async () => {

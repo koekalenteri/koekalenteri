@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, putRegistration } from '../api/registration'
-import { Path } from '../routeConfig'
+import { invitationAttachmentFileName, Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
 
@@ -88,7 +88,11 @@ export const Component = () => {
               </Paper>
               <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
                 <LinkButton target="_blank" to={url} text={t('invitation.open')} />
-                <LinkButton download="kutsu.pdf" to={`${url}?dl`} text={t('invitation.download')} />
+                <LinkButton
+                  download={invitationAttachmentFileName(registration)}
+                  to={`${url}?dl`}
+                  text={t('invitation.download')}
+                />
               </Stack>
             </main>
           )

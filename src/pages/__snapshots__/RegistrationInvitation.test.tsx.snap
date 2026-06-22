@@ -74,7 +74,7 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
         <a
           class="link"
           data-discover="true"
-          download="kutsu.pdf"
+          download="koekutsu-20210210-NOU.pdf"
           href="/test-invitation-url?dl"
         >
           invitation.download
