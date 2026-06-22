@@ -185,7 +185,18 @@ describe('BasicInfoSection', () => {
       jest.spyOn(eventApi, 'searchEventKcIdChoices').mockResolvedValueOnce({
         choices: [
           {
+            contactInfo: {
+              secretary: {
+                email: 'nome.maija@gmail.com',
+                name: 'Parviainen Niina',
+                phone: '358400512651',
+              },
+            },
+            cost: 55,
+            description: 'Osallistumismaksu sisältää keittolounaan.',
             endDate: new Date('0001-01-01T00:00:00'),
+            entryEndDate: new TZDate('2026-06-07', TIME_ZONE),
+            entryStartDate: new TZDate('2026-05-17', TIME_ZONE),
             eventType: 'NOWT',
             id: 453830,
             location: 'Jyväskylä, Korpilahti',
@@ -217,6 +228,21 @@ describe('BasicInfoSection', () => {
 
       expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].startDate)).toEqual('2026-06-28')
       expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].endDate)).toEqual('2026-06-28')
+      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].entryStartDate)).toEqual('2026-05-17')
+      expect(zonedDateString(changeHandler.mock.calls.at(-1)?.[0].entryEndDate)).toEqual('2026-06-07')
+      expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual(
+        expect.objectContaining({
+          contactInfo: {
+            secretary: {
+              email: 'nome.maija@gmail.com',
+              name: 'Parviainen Niina',
+              phone: '358400512651',
+            },
+          },
+          cost: 55,
+          description: 'Osallistumismaksu sisältää keittolounaan.',
+        })
+      )
     })
 
     it('should clear an existing Kennel Club ID when lookup criteria changes', async () => {

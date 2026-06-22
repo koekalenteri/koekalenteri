@@ -434,7 +434,8 @@ function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogE
   choice = normalizeEventKcIdChoice(choice)
   const startDate = zonedStartOfDay(choice.startDate)
   const endDate = zonedEndOfDay(choice.endDate)
-  let { entryEndDate, entryStartDate } = event
+  let entryStartDate = choice.entryStartDate ? zonedStartOfDay(choice.entryStartDate) : event.entryStartDate
+  let entryEndDate = choice.entryEndDate ? zonedEndOfDay(choice.entryEndDate) : event.entryEndDate
   if (!isSameDay(startDate, event.startDate)) {
     if (isDetaultEntryStartDate(entryStartDate, event.startDate)) {
       entryStartDate = defaultEntryStartDate(startDate)
@@ -461,10 +462,24 @@ function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogE
           .filter(([date]) => !isAfter(zonedStartOfDay(date), endDate))
       )
     : undefined
+  const contactInfo = choice.contactInfo
+    ? {
+        ...event.contactInfo,
+        ...(choice.contactInfo.official
+          ? { official: { ...event.contactInfo?.official, ...choice.contactInfo.official } }
+          : undefined),
+        ...(choice.contactInfo.secretary
+          ? { secretary: { ...event.contactInfo?.secretary, ...choice.contactInfo.secretary } }
+          : undefined),
+      }
+    : undefined
 
   return {
     classes,
+    contactInfo,
+    cost: choice.cost,
     dates,
+    description: choice.description,
     endDate,
     entryEndDate,
     entryStartDate,
