@@ -180,6 +180,98 @@ describe('searchEventKcIdChoicesLambda', () => {
     )
   })
 
+  it('expands the search date range when exact search returns no result from Kennel Club', async () => {
+    mockLueKoetapahtumat
+      .mockResolvedValueOnce({ error: '"Ei tulosta: /Koe/Lue/Koetapahtumat"', status: 404 })
+      .mockResolvedValueOnce({
+        json: [
+          {
+            aika: '2026-06-28T00:00:00',
+            id: 453830,
+            ilmoitauttumisLinkki: '',
+            ilmoittautumisenAlku: '',
+            ilmoittautumisenLoppu: '',
+            ilmoittautumiset: '',
+            kennelpiiri: '',
+            koemuoto: 'Noutajien Working Test',
+            koetoimitsija: '',
+            lisatiedot: '',
+            luokat: ['VOI'],
+            lyhenne: 'NOWT',
+            osanottomaksu: '',
+            paikka: 'Korpilahti',
+            paikkakunta: 'Jyväskylä',
+            päättyy: '0001-01-01T00:00:00',
+            rajoitukset: [],
+            tapahtuma: '',
+            tarkenne: '',
+            tininumero: '',
+            tyyppi: '',
+            viitenumero: '',
+            www: '',
+            yhdistys: 'Org',
+            ylituomari: '',
+          },
+        ],
+        status: 200,
+      })
+    const event = constructAPIGwEvent(
+      {
+        ...lookupRequest,
+        endDate: '2026-06-26T20:59:59.999Z',
+        eventType: 'NOWT SM',
+        startDate: '2026-06-26T00:00:00.000Z',
+      },
+      { method: 'POST' }
+    )
+
+    await searchEventKcIdChoicesLambda(event)
+
+    expect(mockLueKoetapahtumat).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        Alku: '2026-06-26',
+        Koemuoto: 'NOWT',
+        Loppu: '2026-06-26',
+      })
+    )
+    expect(mockLueKoetapahtumat).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        Alku: '2026-06-19',
+        Koemuoto: 'NOWT',
+        Loppu: '2026-07-03',
+      })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        choices: [expect.objectContaining({ id: 453830 })],
+      }),
+      event
+    )
+  })
+
+  it('returns empty choices when expanded search also returns no result from Kennel Club', async () => {
+    mockLueKoetapahtumat
+      .mockResolvedValueOnce({ error: '"Ei tulosta: /Koe/Lue/Koetapahtumat"', status: 404 })
+      .mockResolvedValueOnce({ error: '"Ei tulosta: /Koe/Lue/Koetapahtumat"', status: 404 })
+    const event = constructAPIGwEvent(
+      {
+        ...lookupRequest,
+        endDate: '2026-06-26T20:59:59.999Z',
+        eventType: 'NOWT',
+        startDate: '2026-06-26T00:00:00.000Z',
+      },
+      { method: 'POST' }
+    )
+
+    await searchEventKcIdChoicesLambda(event)
+
+    expect(mockLueKoetapahtumat).toHaveBeenCalledTimes(2)
+    expect(mockResponse).toHaveBeenCalledWith(200, { choices: [] }, event)
+  })
+
   it('maps compatible fields from Kennel Club event payload', async () => {
     mockLueKoetapahtumat.mockResolvedValueOnce({
       json: [

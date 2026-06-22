@@ -64,6 +64,8 @@ const toEventType = (klEvent: KLKoetapahtuma) => {
   return OFFICIAL_EVENT_TYPES.includes(eventType) ? eventType : klEvent.lyhenne
 }
 
+const toKcEventType = (eventType: string) => eventType.replace(/ SM$/, '')
+
 const parseCost = (value?: number | string) => {
   if (typeof value === 'number') return value
   const normalized = value?.replace(',', '.').trim()
@@ -124,11 +126,13 @@ const toChoice = (klEvent: KLKoetapahtuma) => {
 const sortChoices = (event: KcIdLookupCriteria, events: KLKoetapahtuma[]) =>
   [...events].sort((a, b) => scoreMatch(event, b) - scoreMatch(event, a))
 
+const isNoResults = (status: number, error?: string) => status === 404 && error?.includes('Ei tulosta')
+
 const findEvents = async (klapi: KLAPI, item: KcIdLookupCriteria, organizerKcId: number, dateMarginDays = 0) =>
   klapi.lueKoetapahtumat({
     Alku: zonedDateString(addDays(item.startDate, -dateMarginDays)),
     Kieli: KLKieli.Suomi,
-    Koemuoto: item.eventType,
+    Koemuoto: toKcEventType(item.eventType),
     Loppu: zonedDateString(addDays(item.endDate, dateMarginDays)),
     Yhdistys: organizerKcId,
   })
@@ -158,7 +162,9 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
   const klapi = new KLAPI(getKLAPIConfig)
   let { error, json, status } = await findEvents(klapi, criteria, organizer.kcId)
 
-  if (status !== 200 || !json) {
+  if (isNoResults(status, error)) {
+    json = []
+  } else if (status !== 200 || !json) {
     throw new LambdaError(status, `Upstream error: ${error ?? 'Kennel Club event search failed'}`)
   }
 
@@ -168,7 +174,9 @@ const searchEventKcIdChoicesLambda = lambda('searchEventKcIdChoices', async (eve
     json = broadResult.json
     status = broadResult.status
 
-    if (status !== 200 || !json) {
+    if (isNoResults(status, error)) {
+      json = []
+    } else if (status !== 200 || !json) {
       throw new LambdaError(status, `Upstream error: ${error ?? 'Kennel Club event search failed'}`)
     }
 
