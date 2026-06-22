@@ -50,15 +50,59 @@ const scoreMatch = (event: KcIdLookupCriteria, klEvent: KLKoetapahtuma) => {
   return score
 }
 
-const toChoice = (klEvent: KLKoetapahtuma) => ({
-  endDate: klEvent.päättyy,
-  eventType: klEvent.lyhenne,
-  id: klEvent.id,
-  location: [klEvent.paikkakunta, klEvent.paikka].filter(Boolean).join(', '),
-  name: klEvent.tapahtuma,
-  organizer: klEvent.yhdistys,
-  startDate: klEvent.aika,
-})
+const clean = (value?: string | null) => value?.trim() || undefined
+
+const parseCost = (value?: number | string) => {
+  if (typeof value === 'number') return value
+  const normalized = value?.replace(',', '.').trim()
+  if (!normalized) return undefined
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
+
+const toDescription = (klEvent: KLKoetapahtuma) =>
+  [
+    clean(klEvent.lisätiedot ?? klEvent.lisatiedot),
+    clean(klEvent.muutLisätiedot),
+    ...(klEvent.rajoitukset ?? []).map((restriction) =>
+      [clean(restriction.tyyppi), clean(restriction.lisätieto)].filter(Boolean).join(': ')
+    ),
+  ]
+    .filter(Boolean)
+    .join('\n\n')
+
+const toContactInfo = (klEvent: KLKoetapahtuma) => {
+  const secretary = {
+    email: clean(klEvent.ilmoittautumiset_Sähköposti),
+    name: clean(klEvent.ilmoittautumiset_Nimi),
+    phone: clean(klEvent.ilmoittautumiset_Puhelin),
+  }
+
+  return Object.values(secretary).some(Boolean) ? { secretary } : undefined
+}
+
+const toChoice = (klEvent: KLKoetapahtuma) => {
+  const contactInfo = toContactInfo(klEvent)
+  const cost = parseCost(klEvent.osallistumismaksu ?? klEvent.osanottomaksu)
+  const description = toDescription(klEvent)
+  const entryEndDate = klEvent.ilmoittautuminenPäättyy ?? klEvent.ilmoittautumisenLoppu
+  const entryStartDate = klEvent.ilmoittautuminenAlkaa ?? klEvent.ilmoittautumisenAlku
+
+  return {
+    ...(contactInfo ? { contactInfo } : undefined),
+    ...(cost !== undefined ? { cost } : undefined),
+    ...(description ? { description } : undefined),
+    ...(entryEndDate ? { entryEndDate } : undefined),
+    ...(entryStartDate ? { entryStartDate } : undefined),
+    endDate: klEvent.päättyy,
+    eventType: klEvent.lyhenne,
+    id: klEvent.id,
+    location: [klEvent.paikkakunta, klEvent.paikka].filter(Boolean).join(', '),
+    name: klEvent.tapahtuma || clean(klEvent.tarkenne) || '',
+    organizer: klEvent.yhdistys,
+    startDate: klEvent.aika,
+  }
+}
 
 const sortChoices = (event: KcIdLookupCriteria, events: KLKoetapahtuma[]) =>
   [...events].sort((a, b) => scoreMatch(event, b) - scoreMatch(event, a))
