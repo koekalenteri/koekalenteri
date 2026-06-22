@@ -169,6 +169,7 @@ describe('BasicInfoSection', () => {
       expect(changeHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           kcId: 222,
+          location: 'Espoo',
           season: '2026',
         })
       )
@@ -242,6 +243,7 @@ describe('BasicInfoSection', () => {
           },
           cost: 55,
           description: 'Osallistumismaksu sisältää keittolounaan.',
+          location: 'Jyväskylä, Korpilahti',
         })
       )
     })

@@ -484,6 +484,7 @@ function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogE
     entryEndDate,
     entryStartDate,
     kcId: choice.id,
+    location: choice.location,
     placesPerDay,
     season: String(startDate.getFullYear()),
     startDate,
