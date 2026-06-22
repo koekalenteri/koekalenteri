@@ -116,7 +116,14 @@ test('putEvent updates with PATCH', async () => {
 test('searchEventKcIdChoices', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
-      ? Promise.resolve(JSON.stringify({ choices: [{ endDate: '2026-07-02', id: 123, startDate: '2026-07-01' }] }))
+      ? Promise.resolve(
+          JSON.stringify({
+            choices: [
+              { endDate: '2026-07-02', id: 123, startDate: '2026-07-01' },
+              { endDate: '0001-01-01T00:00:00', id: 456, startDate: '2026-06-28T00:00:00' },
+            ],
+          })
+        )
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
@@ -143,6 +150,8 @@ test('searchEventKcIdChoices', async () => {
   expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
   expect(zonedDateString(response.choices[0]!.startDate)).toEqual('2026-07-01')
   expect(zonedDateString(response.choices[0]!.endDate)).toEqual('2026-07-02')
+  expect(zonedDateString(response.choices[1]!.startDate)).toEqual('2026-06-28')
+  expect(zonedDateString(response.choices[1]!.endDate)).toEqual('2026-06-28')
 })
 
 /**
