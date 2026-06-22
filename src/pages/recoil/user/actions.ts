@@ -32,9 +32,11 @@ export const useUserActions = () => {
         if (nameOrEmail) {
           enqueueSnackbar(`Tervetuloa, ${nameOrEmail}!`, { variant: 'info' })
         }
-        navigate(loginPath ?? Path.home, { replace: true })
+        const targetPath = loginPath && loginPath !== Path.login && loginPath !== Path.logout ? loginPath : Path.home
+        setLoginPath(undefined)
+        navigate(targetPath, { replace: true })
       },
-    [loginPath, navigate, setIdToken]
+    [loginPath, navigate, setIdToken, setLoginPath]
   )
 
   const signOut = useRecoilCallback(
