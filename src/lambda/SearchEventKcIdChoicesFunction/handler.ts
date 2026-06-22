@@ -35,9 +35,11 @@ const sameDate = (a?: string, b?: string) => Boolean(a && b && a.substring(0, 10
 const isLookupCriteria = (value: Partial<KcIdLookupCriteria>): value is KcIdLookupCriteria =>
   Boolean(value.organizer?.id && value.classes && value.endDate && value.eventType && value.startDate)
 
+const klClass = (value: KLKoetapahtuma['luokat'][number]) => (typeof value === 'string' ? value : value.luokka)
+
 const classOverlap = (event: KcIdLookupCriteria, klEvent: KLKoetapahtuma) => {
   const localClasses = new Set<string>(event.classes.map((c) => c.class))
-  return klEvent.luokat?.some((c) => localClasses.has(c)) ?? false
+  return klEvent.luokat?.some((c) => localClasses.has(klClass(c))) ?? false
 }
 
 const scoreMatch = (event: KcIdLookupCriteria, klEvent: KLKoetapahtuma) => {
@@ -52,6 +54,16 @@ const scoreMatch = (event: KcIdLookupCriteria, klEvent: KLKoetapahtuma) => {
 
 const clean = (value?: string | null) => value?.trim() || undefined
 
+const isChampionship = (klEvent: KLKoetapahtuma) => {
+  const type = normalize(klEvent.tyyppi)
+  return type === 'sm koe tai muu mestaruusottelu'
+}
+
+const toEventType = (klEvent: KLKoetapahtuma) => {
+  const eventType = isChampionship(klEvent) ? `${klEvent.lyhenne} SM` : klEvent.lyhenne
+  return OFFICIAL_EVENT_TYPES.includes(eventType) ? eventType : klEvent.lyhenne
+}
+
 const parseCost = (value?: number | string) => {
   if (typeof value === 'number') return value
   const normalized = value?.replace(',', '.').trim()
@@ -65,7 +77,12 @@ const toDescription = (klEvent: KLKoetapahtuma) =>
     clean(klEvent.lisätiedot ?? klEvent.lisatiedot),
     clean(klEvent.muutLisätiedot),
     ...(klEvent.rajoitukset ?? []).map((restriction) =>
-      [clean(restriction.tyyppi), clean(restriction.lisätieto)].filter(Boolean).join(': ')
+      [
+        clean(restriction.tyyppi ?? restriction.rajoituksenTyyppi),
+        clean(restriction.lisätieto ?? restriction.lisätiedot),
+      ]
+        .filter(Boolean)
+        .join(': ')
     ),
   ]
     .filter(Boolean)
@@ -95,7 +112,7 @@ const toChoice = (klEvent: KLKoetapahtuma) => {
     ...(entryEndDate ? { entryEndDate } : undefined),
     ...(entryStartDate ? { entryStartDate } : undefined),
     endDate: klEvent.päättyy,
-    eventType: klEvent.lyhenne,
+    eventType: toEventType(klEvent),
     id: klEvent.id,
     location: [klEvent.paikkakunta, klEvent.paikka].filter(Boolean).join(', '),
     name: klEvent.tapahtuma || clean(klEvent.tarkenne) || '',
