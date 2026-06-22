@@ -4,25 +4,56 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      env:
+        description: Environment to deploy
+        required: true
+        type: string
+      deploy_backend:
+        description: Deploy backend
+        required: false
+        default: true
+        type: boolean
+      deploy_frontend:
+        description: Deploy frontend
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  actions: read
+  contents: write
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
       env: ${{ steps.setEnv.outputs.env }}
+      deploy_backend: ${{ steps.setScope.outputs.deploy_backend }}
+      deploy_frontend: ${{ steps.setScope.outputs.deploy_frontend }}
     steps:
       - id: setEnv
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ -n "${{ inputs.env }}" ]]; then
+            echo "env=${{ inputs.env }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "env=test" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
             echo "env=test" >> $GITHUB_OUTPUT
           else
             echo "env=prod" >> $GITHUB_OUTPUT
           fi
+      - id: setScope
+        run: |
+          DEPLOY_BACKEND="${{ inputs.deploy_backend }}"
+          DEPLOY_FRONTEND="${{ inputs.deploy_frontend }}"
+          echo "deploy_backend=${DEPLOY_BACKEND:-true}" >> $GITHUB_OUTPUT
+          echo "deploy_frontend=${DEPLOY_FRONTEND:-true}" >> $GITHUB_OUTPUT
 
   deploy-backend:
     needs: [setup]
+    if: ${{ needs.setup.outputs.deploy_backend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
@@ -56,11 +87,16 @@ jobs:
         run: |
           if [[ "${{ needs.setup.outputs.env }}" == "prod" ]]; then
             echo "branch=release/prod" >> $GITHUB_ENV
+          elif [[ "${{ needs.setup.outputs.env }}" == "dev" ]]; then
+            echo "branch=main" >> $GITHUB_ENV
           else
             echo "branch=release/test" >> $GITHUB_ENV
           fi
           echo "environment=koekalenteri-${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
           echo "stage=${{ needs.setup.outputs.env }}" >> $GITHUB_ENV
+      - name: SAM Validate
+        run: |
+          sam validate --lint -t dist/template.yaml
       - name: SAM Build
         run: |
           sam build --base-dir dist -t dist/template.yaml
@@ -86,6 +122,7 @@ jobs:
 
   deploy-frontend:
     needs: [setup, deploy-backend]
+    if: ${{ always() && !failure() && !cancelled() && needs.setup.outputs.deploy_frontend == 'true' }}
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.env }}
     steps:
@@ -119,6 +156,11 @@ jobs:
             echo "Creating and force-pushing branch $TARGET_BRANCH from release tag $TAG"
             git checkout -B $TARGET_BRANCH $TAG
             git push https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }} $TARGET_BRANCH --force
+          elif [[ "$ENV" == "dev" ]]; then
+            # Dev deploys from main directly.
+            TARGET_BRANCH="main"
+            git fetch origin $TARGET_BRANCH
+            git checkout -B $TARGET_BRANCH origin/$TARGET_BRANCH
           else
             # Test release by manual dispatch from any branch to release/test
             SOURCE_BRANCH="${{ github.ref_name }}"
