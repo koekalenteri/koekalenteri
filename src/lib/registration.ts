@@ -2,6 +2,8 @@ import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
   CustomCost,
+  EmailTemplateId,
+  EventState,
   JsonConfirmedEvent,
   JsonPublicDogEvent,
   JsonRegistration,
@@ -159,6 +161,57 @@ export const getInvitationAttachment = (
   event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
   registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
 ) => event.invitationAttachments?.[registration.class ?? registration.eventType] ?? event.invitationAttachment
+
+type InvitationRecipientEvent = Partial<
+  Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>
+>
+type InvitationRecipientRegistration = Pick<
+  JsonRegistration | Registration,
+  'class' | 'eventType' | 'invitationAttachmentSent' | 'messagesSent'
+>
+
+export const shouldSendInvitationToRegistration = (
+  event: InvitationRecipientEvent,
+  registration: InvitationRecipientRegistration
+): boolean => {
+  if (!registration.messagesSent?.invitation) {
+    return true
+  }
+
+  const currentAttachment = getInvitationAttachment(event, registration)
+  return Boolean(
+    registration.invitationAttachmentSent &&
+      currentAttachment &&
+      registration.invitationAttachmentSent !== currentAttachment
+  )
+}
+
+export const getInvitationRecipients = <T extends InvitationRecipientRegistration>(
+  event: InvitationRecipientEvent,
+  registrations: T[]
+): T[] => registrations.filter((registration) => shouldSendInvitationToRegistration(event, registration))
+
+export const getParticipantMessageInfo = <T extends InvitationRecipientRegistration>(
+  event: InvitationRecipientEvent,
+  classState: EventState,
+  selectedRegistrations: T[]
+): { canSend: boolean; recipients: T[]; templateId: EmailTemplateId } => {
+  if (classState === 'confirmed') {
+    return {
+      canSend: selectedRegistrations.length > 0,
+      recipients: selectedRegistrations,
+      templateId: 'picked',
+    }
+  }
+
+  const recipients = getInvitationRecipients(event, selectedRegistrations)
+
+  return {
+    canSend: ['picked', 'invited'].includes(classState) && recipients.length > 0,
+    recipients,
+    templateId: 'invitation',
+  }
+}
 
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
