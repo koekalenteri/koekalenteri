@@ -147,16 +147,27 @@ export type KLKoetapahtuma = {
   paikka: string
   ylituomari: string
   koetoimitsija: string
+  kilpailunjohtaja?: string
   ilmoittautumiset: string
+  ilmoittautumiset_Nimi?: string
+  ilmoittautumiset_Puhelin?: string
+  ilmoittautumiset_Sähköposti?: string
   rajoitukset: Array<{ tyyppi: string; lisätieto: string }>
-  osanottomaksu: string
-  tininumero: string
+  osallistumismaksu?: number | string
+  osanottomaksu?: string
+  tilinumero?: string
+  tininumero?: string
   viitenumero: string
-  lisatiedot: string
-  ilmoittautumisenAlku: string //Date
-  ilmoittautumisenLoppu: string //Date
+  lisatiedot?: string
+  lisätiedot?: string
+  muutLisätiedot?: string
+  ilmoittautuminenAlkaa?: string //Date
+  ilmoittautuminenPäättyy?: string //Date
+  ilmoittautumisenAlku?: string //Date
+  ilmoittautumisenLoppu?: string //Date
   www: string
-  ilmoitauttumisLinkki: string
+  ilmoittautumisLinkki?: string
+  ilmoitauttumisLinkki?: string
 }
 
 export type KLKennelpiiri = {
