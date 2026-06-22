@@ -472,6 +472,35 @@ describe('registration', () => {
       jest.useRealTimers()
     })
 
+    it('records the common invitation attachment when class attachment is not configured', async () => {
+      const registration = { ...jsonRegistrationsToEventWithALOInvited[2] }
+
+      await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        {
+          ...JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+          invitationAttachment: 'common-attachment',
+          invitationAttachments: { ALO: 'alo-attachment' },
+        },
+        [registration],
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        ''
+      )
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        {
+          set: {
+            invitationAttachmentSent: 'common-attachment',
+            updatedAt: expect.any(String),
+          },
+        }
+      )
+      expect(registration.invitationAttachmentSent).toBe('common-attachment')
+    })
+
     it('should handle failed email sending', async () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       // Make the second email fail

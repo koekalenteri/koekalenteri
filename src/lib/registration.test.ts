@@ -6,6 +6,7 @@ import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getNextClass,
+  getParticipantMessageInfo,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
@@ -14,6 +15,7 @@ import {
   isPredefinedReason,
   isRegistrationClass,
   priorityDescriptionKey,
+  shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
 
@@ -542,6 +544,110 @@ describe('lib/registration', () => {
 
       // Verify some default values
       expect(result.groupNumber).toBe('?')
+    })
+  })
+
+  describe('shouldSendInvitationToRegistration', () => {
+    const event = {
+      eventType: 'NOME-B',
+      invitationAttachment: 'common-attachment',
+      invitationAttachments: { ALO: 'alo-attachment' },
+    }
+
+    it('returns true when invitation has not been sent', () => {
+      expect(shouldSendInvitationToRegistration(event, { class: 'ALO', eventType: 'NOME-B' })).toBe(true)
+    })
+
+    it('returns false when invitation has already been sent with the current class attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'alo-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(false)
+    })
+
+    it('returns false when invitation has already been sent with the current common attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'AVO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'common-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(false)
+    })
+
+    it('returns true when invitation was sent with a different known attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'old-alo-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(true)
+    })
+
+    it('does not treat missing sent attachment key as a changed attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(false)
+    })
+  })
+
+  describe('getParticipantMessageInfo', () => {
+    const event = {
+      invitationAttachment: 'common-attachment',
+      invitationAttachments: { ALO: 'alo-attachment' },
+    }
+    const aloSent = {
+      class: 'ALO' as const,
+      eventType: 'NOME-B',
+      id: 'alo',
+      invitationAttachmentSent: 'alo-attachment',
+      messagesSent: { invitation: true },
+    }
+    const avoUnsent = {
+      class: 'AVO' as const,
+      eventType: 'NOME-B',
+      id: 'avo',
+    }
+
+    it('returns picked template with all selected registrations for confirmed state', () => {
+      const result = getParticipantMessageInfo(event, 'confirmed', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: true,
+        recipients: [aloSent, avoUnsent],
+        templateId: 'picked',
+      })
+    })
+
+    it('returns only unsent invitation recipients for partially sent invited classes', () => {
+      const result = getParticipantMessageInfo(event, 'invited', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: true,
+        recipients: [avoUnsent],
+        templateId: 'invitation',
+      })
+    })
+
+    it('disables invitation sending when all selected registrations already received the current invitation', () => {
+      const result = getParticipantMessageInfo(event, 'invited', [aloSent])
+
+      expect(result).toEqual({
+        canSend: false,
+        recipients: [],
+        templateId: 'invitation',
+      })
     })
   })
 
