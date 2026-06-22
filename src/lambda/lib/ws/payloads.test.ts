@@ -26,7 +26,10 @@ describe('ws/payloads', () => {
   })
 
   it('buildEventViewersPayload returns admin scope payload', () => {
-    const viewers = ['u1', 'u2']
+    const viewers = [
+      { name: 'User One', userId: 'u1' },
+      { name: 'User Two', userId: 'u2' },
+    ]
     expect(buildEventViewersPayload('e1', viewers)).toEqual({
       eventId: 'e1',
       scope: 'admin:event-viewers',
@@ -48,15 +51,19 @@ describe('ws/payloads', () => {
     })
   })
 
-  it('toEventViewers returns distinct user ids in connection order', () => {
+  it('toEventViewers returns distinct viewers in connection order', () => {
     const connections = [
-      { connectionId: 'c1', userId: 'matti' },
+      { connectionId: 'c1', userId: 'matti', userName: 'Matti Meikäläinen' },
       { connectionId: 'c2' },
-      { connectionId: 'c3', userId: 'anna' },
-      { connectionId: 'c4', userId: 'matti' },
+      { connectionId: 'c3', userEmail: 'anna@example.com', userId: 'anna' },
+      { connectionId: 'c4', userEmail: 'other@example.com', userId: 'matti', userName: 'Other Matti' },
       { connectionId: 'c5', userId: 'åke' },
     ] as any
 
-    expect(toEventViewers(connections)).toEqual(['matti', 'anna', 'åke'])
+    expect(toEventViewers(connections)).toEqual([
+      { name: 'Matti Meikäläinen', userId: 'matti' },
+      { name: 'anna@example.com', userId: 'anna' },
+      { name: 'åke', userId: 'åke' },
+    ])
   })
 })
