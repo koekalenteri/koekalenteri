@@ -320,7 +320,9 @@ describe('InfoPanel>', () => {
       expect(putInvitationAttachment).toHaveBeenCalledTimes(2)
     })
 
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu liitetty', { variant: 'success' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu liitetty: koekutsu-20210210-NOU.pdf', {
+      variant: 'success',
+    })
   })
 
   it('uploads class-specific invitation attachment', async () => {
@@ -349,6 +351,8 @@ describe('InfoPanel>', () => {
       'ALO',
       expect.any(String)
     )
-    expect(enqueueSnackbar).toHaveBeenCalledWith('ALO koekutsu liitetty', { variant: 'success' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith('ALO koekutsu liitetty: koekutsu-20210210-NOME-B-ALO.pdf', {
+      variant: 'success',
+    })
   })
 })
