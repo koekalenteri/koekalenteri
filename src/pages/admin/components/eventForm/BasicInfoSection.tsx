@@ -483,6 +483,7 @@ function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogE
     endDate,
     entryEndDate,
     entryStartDate,
+    eventType: choice.eventType,
     kcId: choice.id,
     location: choice.location,
     placesPerDay,

@@ -167,6 +167,7 @@ describe('BasicInfoSection', () => {
 
       expect(changeHandler).toHaveBeenCalledWith(
         expect.objectContaining({
+          eventType: 'NOME-B',
           kcId: 222,
           location: 'Espoo',
           season: '2026',
@@ -198,7 +199,7 @@ describe('BasicInfoSection', () => {
             endDate: new Date('0001-01-01T00:00:00'),
             entryEndDate: new TZDate('2026-06-07', TIME_ZONE),
             entryStartDate: new TZDate('2026-05-17', TIME_ZONE),
-            eventType: 'NOWT',
+            eventType: 'NOWT SM',
             id: 453830,
             location: 'Jyväskylä, Korpilahti',
             name: '',
@@ -242,12 +243,13 @@ describe('BasicInfoSection', () => {
           },
           cost: 55,
           description: 'Osallistumismaksu sisältää keittolounaan.',
+          eventType: 'NOWT SM',
           location: 'Jyväskylä, Korpilahti',
         })
       )
     })
 
-    it('should clear an existing Kennel Club ID when lookup criteria changes', async () => {
+    it('should clear an existing Kennel Club ID when remove is selected', async () => {
       const changeHandler = jest.fn()
       const testEvent: PartialEvent = {
         classes: [{ class: 'ALO', date: new TZDate('2026-06-01', TIME_ZONE) }],
@@ -263,12 +265,9 @@ describe('BasicInfoSection', () => {
 
       const { user } = renderComponent({ event: testEvent, onChange: changeHandler, open: true })
 
-      await user.type(screen.getByLabelText('event.name'), '!')
+      await user.click(screen.getByText('event.kcIdRemove'))
 
-      expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual({
-        kcId: null,
-        name: 'Koe!',
-      })
+      expect(changeHandler.mock.calls.at(-1)?.[0]).toEqual({ kcId: null })
     })
 
     it('should report Kennel Club event lookup failures', async () => {
