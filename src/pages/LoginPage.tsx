@@ -12,7 +12,7 @@ import '@aws-amplify/ui-react/styles.css'
 
 export function Component() {
   const { route } = useAuthenticator((context) => [context.route])
-  const actions = useUserActions()
+  const { signIn } = useUserActions()
   const language = useRecoilValue(languageAtom)
 
   useEffect(() => {
@@ -20,11 +20,11 @@ export function Component() {
       fetchAuthSession().then((session) => {
         const token = session.tokens?.idToken?.toString()
         if (token) {
-          actions.signIn(token)
+          signIn(token)
         }
       })
     }
-  }, [actions, route])
+  }, [route, signIn])
 
   useEffect(() => {
     I18n.setLanguage(language)

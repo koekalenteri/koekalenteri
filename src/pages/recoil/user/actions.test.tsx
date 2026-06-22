@@ -2,9 +2,10 @@ import type React from 'react'
 import { act, renderHook } from '@testing-library/react'
 import * as auth from 'aws-amplify/auth'
 import { SnackbarProvider } from 'notistack'
-import { MemoryRouter, Route, Routes } from 'react-router'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { RecoilRoot, useRecoilValue } from 'recoil'
 import * as userAPI from '../../../api/user'
+import { Path } from '../../../routeConfig'
 import { useUserActions } from './actions'
 import { idTokenAtom } from './atoms'
 
@@ -101,5 +102,28 @@ describe('useUserActions', () => {
     expect(result.current.token).toBe('new-id-token')
     expect(getUserSpy).toHaveBeenCalledWith('new-id-token')
     expect(getUserSpy).not.toHaveBeenCalledWith('id-token')
+  })
+
+  it('does not navigate back to the login page after sign in', async () => {
+    jest.spyOn(userAPI, 'getUser').mockResolvedValue({
+      admin: false,
+      email: 'new@example.com',
+      id: 'user-1',
+      name: 'New User',
+      roles: {},
+    })
+    sessionStorage.setItem('loginPath', JSON.stringify(Path.login))
+
+    const { result } = renderHook(
+      () => ({ actions: useUserActions(), location: useLocation(), token: useRecoilValue(idTokenAtom) }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.actions.signIn('new-id-token')
+    })
+
+    expect(result.current.location.pathname).toBe(Path.home)
+    expect(sessionStorage.getItem('loginPath')).toBeNull()
   })
 })
