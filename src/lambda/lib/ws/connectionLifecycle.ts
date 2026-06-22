@@ -37,7 +37,9 @@ export const authenticateWebSocket = async (connection: WebSocketConnection) => 
     connectionId: connection.connectionId,
     expiresAt: connection.expiresAt,
     memberOf: connection.memberOf,
+    userEmail: connection.userEmail,
     userId: connection.userId,
+    userName: connection.userName,
   })
   await authenticateConnection(connection)
 }

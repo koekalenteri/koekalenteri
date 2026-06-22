@@ -114,7 +114,9 @@ describe('wsMessageHandler', () => {
       admin: false,
       expiresAt: 2000000000,
       memberOf: ['org-1'],
+      userEmail: 'viewer@example.com',
       userId: 'user-1',
+      userName: 'Viewer Name',
     })
     mockAuthenticateWebSocket.mockResolvedValueOnce(undefined)
 
@@ -130,10 +132,20 @@ describe('wsMessageHandler', () => {
       connectionId: 'conn-1',
       expiresAt: 2000000000,
       memberOf: ['org-1'],
+      userEmail: 'viewer@example.com',
       userId: 'user-1',
+      userName: 'Viewer Name',
     })
     expect(result).toEqual({
-      body: { admin: false, authenticated: true, expiresAt: 2000000000, memberOf: ['org-1'], userId: 'user-1' },
+      body: {
+        admin: false,
+        authenticated: true,
+        expiresAt: 2000000000,
+        memberOf: ['org-1'],
+        userEmail: 'viewer@example.com',
+        userId: 'user-1',
+        userName: 'Viewer Name',
+      },
       statusCode: 200,
     })
   })

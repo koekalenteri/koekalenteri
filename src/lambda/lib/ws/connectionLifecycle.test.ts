@@ -57,15 +57,29 @@ describe('ws/connectionLifecycle', () => {
   })
 
   it('authenticateWebSocket updates connection auth metadata', async () => {
-    await authenticateWebSocket({ connectionId: 'c1', memberOf: ['org-1'], userId: 'u1' } as any)
+    await authenticateWebSocket({
+      connectionId: 'c1',
+      memberOf: ['org-1'],
+      userEmail: 'user@example.com',
+      userId: 'u1',
+      userName: 'User One',
+    } as any)
 
-    expect(mockAuthenticateConnection).toHaveBeenCalledWith({ connectionId: 'c1', memberOf: ['org-1'], userId: 'u1' })
+    expect(mockAuthenticateConnection).toHaveBeenCalledWith({
+      connectionId: 'c1',
+      memberOf: ['org-1'],
+      userEmail: 'user@example.com',
+      userId: 'u1',
+      userName: 'User One',
+    })
     expect(logSpy).toHaveBeenCalledWith('wsAuthenticate: c1', {
       admin: undefined,
       connectionId: 'c1',
       expiresAt: undefined,
       memberOf: ['org-1'],
+      userEmail: 'user@example.com',
       userId: 'u1',
+      userName: 'User One',
     })
   })
 

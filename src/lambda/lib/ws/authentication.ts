@@ -50,6 +50,8 @@ export const authenticateWebSocketToken = async (event: APIGatewayEvent, token: 
     admin: auth.user.admin,
     expiresAt: getExpiryEpochSeconds(claims),
     memberOf: auth.memberOf,
+    userEmail: auth.user.email,
     userId: auth.user.id,
+    userName: auth.user.name,
   }
 }
