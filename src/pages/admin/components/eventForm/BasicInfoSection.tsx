@@ -23,7 +23,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue } from 'recoil'
-import { searchEventKcIdChoices } from '../../../../api/event'
+import { normalizeEventKcIdChoice, searchEventKcIdChoices } from '../../../../api/event'
 import { zonedDateString, zonedEndOfDay, zonedParseDate, zonedStartOfDay } from '../../../../i18n/dates'
 import {
   defaultEntryEndDate,
@@ -187,7 +187,7 @@ export default function BasicInfoSection({
         token
       )
       if (result.choices.length) {
-        setKcIdChoices(result.choices)
+        setKcIdChoices(result.choices.map(normalizeEventKcIdChoice))
       } else {
         enqueueSnackbar(t('event.kcIdNotFound'), { variant: 'warning' })
       }
@@ -431,6 +431,7 @@ function shiftDate(date: Date, oldStartDate: Date, newStartDate: Date) {
 }
 
 function applyKcChoice(event: PartialEvent, choice: EventKcIdChoice): Patch<DogEvent> {
+  choice = normalizeEventKcIdChoice(choice)
   const startDate = zonedStartOfDay(choice.startDate)
   const endDate = zonedEndOfDay(choice.endDate)
   let { entryEndDate, entryStartDate } = event
