@@ -138,7 +138,7 @@ export type KLKoetapahtuma = {
   koemuoto: string
   tarkenne: string
   tapahtuma: string
-  luokat: Array<string>
+  luokat: Array<string | { id_Tapahtuma?: number; luokka: string }>
   aika: string //Date
   päättyy: string //Date
   tyyppi: string
@@ -152,7 +152,7 @@ export type KLKoetapahtuma = {
   ilmoittautumiset_Nimi?: string
   ilmoittautumiset_Puhelin?: string
   ilmoittautumiset_Sähköposti?: string
-  rajoitukset: Array<{ tyyppi: string; lisätieto: string }>
+  rajoitukset: Array<{ tyyppi?: string; lisätieto?: string; rajoituksenTyyppi?: string; lisätiedot?: string }>
   osallistumismaksu?: number | string
   osanottomaksu?: string
   tilinumero?: string
