@@ -27,6 +27,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
+import { getInvitationAttachment } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { API_BASE_URL, Path } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
@@ -56,6 +57,10 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
   const eventClasses = useMemo(() => [...new Set(event.classes.map((c) => c.class))], [event.classes])
+  const eventWithCurrentAttachments = useMemo(
+    () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
+    [attachmentKey, classAttachmentKeys, event]
+  )
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(
     event,
     registrations
@@ -195,6 +200,23 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                   </TableCell>
                 </TableRow>
                 {Object.entries(numbersByClass).map(([c, nums]) => {
+                  const selected = selectedByClass[c] ?? []
+                  const staleInvitationRecipients = selected.filter((registration) => {
+                    const currentAttachment = getInvitationAttachment(eventWithCurrentAttachments, registration)
+                    return (
+                      registration.messagesSent?.invitation &&
+                      currentAttachment &&
+                      registration.invitationAttachmentSent !== currentAttachment
+                    )
+                  })
+                  const recipients = stateByClass[c] === 'invited' ? staleInvitationRecipients : selected
+                  const canSendParticipantsMessage =
+                    stateByClass[c] === 'confirmed' ||
+                    stateByClass[c] === 'picked' ||
+                    (stateByClass[c] === 'invited' && staleInvitationRecipients.length > 0)
+                  const messageTemplate = stateByClass[c] === 'confirmed' ? 'picked' : 'invitation'
+                  const messageLabel = messageTemplate === 'picked' ? 'koepaikkailmoitus' : 'koekutsu'
+
                   return (
                     <TableRow key={c}>
                       <TableCell align="left">
@@ -210,20 +232,11 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                       <TableCell align="right">
                         <Button
                           size="small"
-                          disabled={
-                            nums.participants === 0 ||
-                            nums.invalid ||
-                            !['confirmed', 'picked'].includes(stateByClass[c])
-                          }
-                          onClick={() =>
-                            onOpenMessageDialog?.(
-                              selectedByClass[c],
-                              stateByClass[c] === 'confirmed' ? 'picked' : 'invitation'
-                            )
-                          }
+                          disabled={nums.participants === 0 || nums.invalid || !canSendParticipantsMessage}
+                          onClick={() => onOpenMessageDialog?.(recipients, messageTemplate)}
                           variant="outlined"
                         >
-                          Lähetä {stateByClass[c] === 'confirmed' ? 'koepaikkailmoitus' : 'koekutsu'}
+                          Lähetä {messageLabel}
                         </Button>
                       </TableCell>
                     </TableRow>

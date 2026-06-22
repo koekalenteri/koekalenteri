@@ -40,6 +40,7 @@ export interface JsonRegistration extends JsonDbRecord {
   emailDeliveryStatus?: JsonEmailDeliveryStatus
   internalNotes?: string
   invitationAttachment?: string
+  invitationAttachmentSent?: string
   invitationRead?: boolean
   language: Language
   lastEmail?: string

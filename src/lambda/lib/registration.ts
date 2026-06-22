@@ -171,6 +171,16 @@ export const sendTemplatedEmailToEventRegistrations = async (
       messagesSent[template] = true
       await updateRegistrationField(registration.eventId, registration.id, 'messagesSent', messagesSent)
 
+      if (template === 'invitation' && data.event.invitationAttachment) {
+        await updateRegistrationField(
+          registration.eventId,
+          registration.id,
+          'invitationAttachmentSent',
+          data.event.invitationAttachment as string
+        )
+        registration.invitationAttachmentSent = data.event.invitationAttachment as string
+      }
+
       // Update the in-memory object too
       registration.messagesSent = messagesSent
       delete registration.emailDeliveryStatus
