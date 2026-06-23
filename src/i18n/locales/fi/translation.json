@@ -520,6 +520,12 @@
       "ap": "aamupäivä",
       "ip": "iltapäivä",
       "kp": "ei ryhmiä"
+    },
+    "tooltip": {
+      "refunded": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, maksoi {{paidAmount}}",
+      "refunded_handlingCost": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}",
+      "refundPending": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, maksoi {{paidAmount}}",
+      "refundPending_handlingCost": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}"
     }
   },
   "registrations": "Ilmoittautumiset",

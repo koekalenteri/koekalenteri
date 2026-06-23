@@ -55,9 +55,14 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     return response(401, 'Unauthorized', event)
   }
 
-  const { transactionId, amount } = parseJSONWithFallback<{
+  const {
+    transactionId,
+    amount,
+    handlingCost = 0,
+  } = parseJSONWithFallback<{
     transactionId: string
     amount: number
+    handlingCost?: number
   }>(event.body)
 
   if (amount <= 0) {
@@ -117,6 +122,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   const transaction: JsonRefundTransaction = {
     amount,
     createdAt: new Date().toISOString(),
+    handlingCost,
     items,
     provider: result.provider,
     reference,
@@ -128,11 +134,14 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   }
   await dynamoDB.write(transaction)
 
+  const refundSucceeded = result.status === 'ok' && result.provider !== 'email refund'
+
   await dynamoDB.update(
     { eventId, id: registrationId },
     {
       set: {
         refundStatus: result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
+        ...(refundSucceeded ? { refundHandlingCost: (registration.refundHandlingCost ?? 0) + handlingCost / 100 } : {}),
         updatedAt: new Date().toISOString(),
       },
     },

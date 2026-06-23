@@ -29,6 +29,7 @@ export interface JsonPaymentTransaction extends JsonTransaction {
 
 export interface JsonRefundTransaction extends JsonTransaction {
   type: 'refund'
+  handlingCost?: number
   items?: RefundItem[]
   user: string
 }

@@ -511,6 +511,12 @@
       "ap": "morning",
       "ip": "afternoon",
       "kp": "no groups"
+    },
+    "tooltip": {
+      "refunded": "The entry fee has been refunded. Refunded {{refundAmount}}, paid {{paidAmount}}",
+      "refunded_handlingCost": "The entry fee has been refunded. Refunded {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}",
+      "refundPending": "The refund is being processed. Refunding {{refundAmount}}, paid {{paidAmount}}",
+      "refundPending_handlingCost": "The refund is being processed. Refunding {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}"
     }
   },
   "registrations": "Registrations",
