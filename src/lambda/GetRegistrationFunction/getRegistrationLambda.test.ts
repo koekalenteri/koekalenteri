@@ -83,6 +83,23 @@ describe('getRegistration', () => {
     expect(reg.invitationAttachment).toEqual('test.pdf')
   })
 
+  it('uses the sent invitation attachment for participant-facing downloads', async () => {
+    mockGetRegistration.mockReturnValueOnce({
+      ...registrationsToEventWithParticipantsInvited[0],
+      invitationAttachmentSent: 'test.pdf',
+      messagesSent: { invitation: true },
+      paymentStatus: 'SUCCESS',
+    })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    const reg: JsonRegistration = JSON.parse(res.body)
+    expect(reg.invitationAttachment).toEqual('test.pdf')
+  })
+
   it('should not add invitationAttachment when registration is not in participant group', async () => {
     mockGetRegistration.mockReturnValueOnce({
       ...registrationsToEventWithParticipantsInvited[0],
