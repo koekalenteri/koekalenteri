@@ -106,6 +106,7 @@ describe('refundCreateLambda', () => {
   const event = {
     body: JSON.stringify({
       amount: 1000,
+      handlingCost: 500,
       transactionId: 'transaction123',
     }),
     headers: {},
@@ -158,6 +159,7 @@ describe('refundCreateLambda', () => {
 
     mockParseJSONWithFallback.mockReturnValue({
       amount: 1000,
+      handlingCost: 500,
       transactionId: 'transaction123',
     })
 
@@ -318,6 +320,7 @@ describe('refundCreateLambda', () => {
     expect(mockDynamoWrite).toHaveBeenCalledWith({
       amount: 1000,
       createdAt: expect.any(String),
+      handlingCost: 500,
       items: [
         {
           amount: 1000,
@@ -340,6 +343,7 @@ describe('refundCreateLambda', () => {
       { eventId: 'event123', id: 'reg456' },
       {
         set: {
+          refundHandlingCost: 5,
           refundStatus: 'SUCCESS',
           updatedAt: expect.any(String),
         },
@@ -389,6 +393,7 @@ describe('refundCreateLambda', () => {
     expect(mockDynamoWrite).toHaveBeenCalledWith({
       amount: 1000,
       createdAt: expect.any(String),
+      handlingCost: 500,
       items: undefined,
       provider: 'paytrail',
       reference: 'event123:reg456',
@@ -513,6 +518,7 @@ describe('refundCreateLambda', () => {
     const partialRefundAmount = 500
     mockParseJSONWithFallback.mockReturnValue({
       amount: partialRefundAmount,
+      handlingCost: 500,
       transactionId: 'transaction123',
     })
 
@@ -538,6 +544,7 @@ describe('refundCreateLambda', () => {
     expect(mockDynamoWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: partialRefundAmount,
+        handlingCost: 500,
       })
     )
   })
