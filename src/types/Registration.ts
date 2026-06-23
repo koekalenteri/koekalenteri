@@ -60,6 +60,7 @@ export interface JsonRegistration extends JsonDbRecord {
   qualifyingResults: JsonQualifyingResult[]
   refundAmount?: number
   refundAt?: string
+  refundHandlingCost?: number
   refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''
   reserveNotified?: number | true // true is only found in old records

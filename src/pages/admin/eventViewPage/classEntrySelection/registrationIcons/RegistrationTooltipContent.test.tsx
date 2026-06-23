@@ -118,6 +118,7 @@ describe('RegistrationTooltipContent', () => {
     const regWithPendingRefund = {
       ...mockRegistration,
       refundAmount: 2500,
+      refundHandlingCost: 5,
       refundStatus: 'PENDING' as const,
     }
 
@@ -133,8 +134,10 @@ describe('RegistrationTooltipContent', () => {
 
     const refundTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text')?.includes('Palautuksen käsittely on kesken'))
+      .find((el) => el.getAttribute('data-text')?.includes('registration.tooltip.refundPending'))
     expect(refundTooltip).toBeInTheDocument()
+    expect(refundTooltip).toHaveAttribute('data-text', expect.stringContaining('context'))
+    expect(refundTooltip).toHaveAttribute('data-text', expect.stringContaining('handlingCost'))
   })
 
   it('should render refunded tooltip when refundAt is set', () => {
@@ -142,6 +145,7 @@ describe('RegistrationTooltipContent', () => {
       ...mockRegistration,
       refundAmount: 2500,
       refundAt: new Date(),
+      refundHandlingCost: 5,
     }
 
     render(
@@ -156,8 +160,10 @@ describe('RegistrationTooltipContent', () => {
 
     const refundTooltip = screen
       .getAllByTestId('tooltip-icon')
-      .find((el) => el.getAttribute('data-text')?.includes('Ilmoittautumismaksua on palautettu'))
+      .find((el) => el.getAttribute('data-text')?.includes('registration.tooltip.refunded'))
     expect(refundTooltip).toBeInTheDocument()
+    expect(refundTooltip).toHaveAttribute('data-text', expect.stringContaining('context'))
+    expect(refundTooltip).toHaveAttribute('data-text', expect.stringContaining('handlingCost'))
   })
 
   it('should render manual results tooltip when manualResultCount > 0', () => {

@@ -139,7 +139,27 @@ describe('RefundDialog', () => {
     await waitFor(() => {
       expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
     })
+    expect(mockRefundImplementation).toHaveBeenCalledWith(registrationWithStaticDates, 'payment-123', 2500, 500)
     expect(onCloseMock).toHaveBeenCalled()
+  })
+
+  it('uses stored handling cost when refund dialog is reopened', async () => {
+    mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
+
+    const registration = {
+      ...registrationWithStaticDates,
+      refundHandlingCost: 7,
+    }
+    render(<RefundDialog registration={registration} open={true} />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    fireEvent.click(screen.getByText('refund'))
+    await waitFor(() => {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
+    })
+    expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 2300, 700)
   })
 
   it('handles successful refund with email provider', async () => {

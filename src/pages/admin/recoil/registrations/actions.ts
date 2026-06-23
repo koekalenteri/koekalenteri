@@ -187,16 +187,19 @@ export const useAdminRegistrationActions = (eventId: string) => {
       setEventRegistrations(merged)
     },
 
-    async refund(reg: Registration, transactionId: string, amount: number) {
+    async refund(reg: Registration, transactionId: string, amount: number, handlingCost: number) {
       if (!token) throw new Error('missing token')
 
-      const result = await createRefund(transactionId, amount, token)
+      const result = await createRefund(transactionId, amount, handlingCost, token)
 
       if (result?.status === 'pending' || result?.status === 'ok') {
+        const refundSucceeded = result.status === 'ok' && result.provider !== 'email refund'
+
         updateAdminRegistration({
           ...reg,
           refundAmount: (reg.refundAmount ?? 0) + amount / 100,
           refundAt: new Date(),
+          ...(refundSucceeded ? { refundHandlingCost: (reg.refundHandlingCost ?? 0) + handlingCost / 100 } : {}),
           refundStatus: result?.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
         })
       }

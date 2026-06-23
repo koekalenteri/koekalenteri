@@ -72,13 +72,14 @@ export const verifyPayment = async (
 export const createRefund = async (
   transactionId: string,
   amount: number,
+  handlingCost: number,
   token: string,
   signal?: AbortSignal
 ): Promise<RefundPaymentResponse | undefined> =>
   (
-    await http.post<{ amount: number; transactionId: string }, RefundPaymentResponse | undefined>(
+    await http.post<{ amount: number; handlingCost: number; transactionId: string }, RefundPaymentResponse | undefined>(
       '/refund/create',
-      { amount, transactionId },
+      { amount, handlingCost, transactionId },
       withToken({ signal }, token)
     )
   ).data

@@ -49,6 +49,7 @@ interface Props {
 }
 
 const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * t.amount : t.amount)
+const DEFAULT_HANDLING_COST = 500
 
 export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const { t } = useTranslation()
@@ -57,7 +58,11 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const [loadedId, setLoadedId] = useState<string>('')
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [selection, setSelection] = useState<GridRowSelectionModel>()
-  const [handlingCost, setHandlingCost] = useState<number>(0)
+  const [handlingCost, setHandlingCost] = useState<number>(
+    registration.refundHandlingCost === undefined
+      ? DEFAULT_HANDLING_COST
+      : Math.round(registration.refundHandlingCost * 100)
+  )
   const [internalNotes, setInternalNotes] = useState(registration.internalNotes ?? '')
   const actions = useAdminRegistrationActions(registration.eventId)
   const columns = useRefundColumns()
@@ -115,6 +120,15 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   useEffect(() => {
     setInternalNotes(registration.internalNotes ?? '')
   }, [registration.internalNotes])
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reset local edits when switching registrations
+  useEffect(() => {
+    setHandlingCost(
+      registration.refundHandlingCost === undefined
+        ? DEFAULT_HANDLING_COST
+        : Math.round(registration.refundHandlingCost * 100)
+    )
+  }, [registration.id, registration.refundHandlingCost])
 
   const dispatchNotesChange = useDebouncedCallback(async (notes: string) => {
     await actions.putInternalNotes(registration.eventId, registration.id, notes)
@@ -257,7 +271,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
     const amount = Math.min(total, transaction.amount) - handlingCost
 
     try {
-      const response = await actions.refund(registration, transaction.transactionId, amount)
+      const response = await actions.refund(registration, transaction.transactionId, amount, handlingCost)
       if (!response || response.status === 'fail') {
         // For failed refunds, show the default error message
         enqueueSnackbar(errorMessages.default, errorSnackbarOptions)

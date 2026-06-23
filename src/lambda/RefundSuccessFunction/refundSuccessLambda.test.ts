@@ -79,6 +79,7 @@ describe('refundSuccessLambda', () => {
 
   const mockTransaction = {
     createdAt: '2023-01-01T12:00:00.000Z',
+    handlingCost: 500,
     status: 'pending',
     transactionId: 'transaction123',
     type: 'refund',
@@ -183,6 +184,7 @@ describe('refundSuccessLambda', () => {
         set: {
           refundAmount: 10,
           refundAt: isoDate,
+          refundHandlingCost: 5,
           refundStatus: 'SUCCESS',
           updatedAt: isoDate,
         },
