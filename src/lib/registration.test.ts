@@ -5,11 +5,13 @@ import {
   canRefund,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getCurrentInvitationAttachment,
   getNextClass,
   getParticipantMessageInfo,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
+  getSentInvitationAttachment,
   hasPriority,
   isMember,
   isPredefinedReason,
@@ -547,6 +549,37 @@ describe('lib/registration', () => {
     })
   })
 
+  describe('invitation attachment helpers', () => {
+    const event = {
+      eventType: 'NOME-B',
+      invitationAttachment: 'common-attachment',
+      invitationAttachments: { ALO: 'alo-attachment' },
+    }
+
+    it('gets current class attachment for sending', () => {
+      expect(getCurrentInvitationAttachment(event, { class: 'ALO', eventType: 'NOME-B' })).toBe('alo-attachment')
+    })
+
+    it('gets current common attachment when class attachment is missing', () => {
+      expect(getCurrentInvitationAttachment(event, { class: 'AVO', eventType: 'NOME-B' })).toBe('common-attachment')
+    })
+
+    it('gets sent attachment for participant-facing invitation downloads', () => {
+      expect(
+        getSentInvitationAttachment(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'common-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe('common-attachment')
+    })
+
+    it('falls back to current attachment when no invitation has been sent', () => {
+      expect(getSentInvitationAttachment(event, { class: 'ALO', eventType: 'NOME-B' })).toBe('alo-attachment')
+    })
+  })
+
   describe('shouldSendInvitationToRegistration', () => {
     const event = {
       eventType: 'NOME-B',
@@ -591,14 +624,35 @@ describe('lib/registration', () => {
       ).toBe(true)
     })
 
-    it('does not treat missing sent attachment key as a changed attachment', () => {
+    it('returns true when a class attachment exists but sent attachment key is missing', () => {
       expect(
         shouldSendInvitationToRegistration(event, {
           class: 'ALO',
           eventType: 'NOME-B',
           messagesSent: { invitation: true },
         })
+      ).toBe(true)
+    })
+
+    it('does not treat missing sent attachment key as changed when only common attachment exists', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'AVO',
+          eventType: 'NOME-B',
+          messagesSent: { invitation: true },
+        })
       ).toBe(false)
+    })
+
+    it('returns true when common attachment was sent and class attachment was added later', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'common-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(true)
     })
   })
 

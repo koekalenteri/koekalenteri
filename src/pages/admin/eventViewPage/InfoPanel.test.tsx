@@ -251,6 +251,49 @@ describe('InfoPanel>', () => {
     expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
   })
 
+  it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
+    const onOpenMessageDialog = jest.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          classes: eventWithParticipantsInvited.classes.map((eventClass) =>
+            eventClass.class === 'AVO' ? { ...eventClass, places: 3 } : eventClass
+          ),
+          invitationAttachment: 'common-key',
+          invitationAttachments: { ALO: 'alo-key' },
+        }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: 'common-key',
+          messagesSent: { invitation: true },
+        }))}
+        onOpenMessageDialog={onOpenMessageDialog}
+      />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    const resendButton = screen
+      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .find((button) => !button.hasAttribute('disabled'))
+
+    if (!resendButton) throw new Error('enabled resend button not found')
+    expect(resendButton).toBeEnabled()
+    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(1)
+
+    await user.click(resendButton)
+    expect(onOpenMessageDialog).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({ class: 'ALO', id: expect.stringMatching(/1$/) }),
+        expect.objectContaining({ class: 'ALO', id: expect.stringMatching(/2$/) }),
+      ],
+      'invitation'
+    )
+  })
+
   it('allows resending invitations when attachment has changed', async () => {
     const onOpenMessageDialog = jest.fn()
     const { user } = renderWithUserEvents(

@@ -157,42 +157,52 @@ export const getSelectedAdditionalCosts = (
   return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
 }
 
-export const getInvitationAttachment = (
-  event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
-  registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
-) => event.invitationAttachments?.[registration.class ?? registration.eventType] ?? event.invitationAttachment
-
-type InvitationRecipientEvent = Partial<
+type InvitationAttachmentEvent = Partial<
   Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>
 >
-type InvitationRecipientRegistration = Pick<
+type InvitationAttachmentRegistration = Pick<
   JsonRegistration | Registration,
   'class' | 'eventType' | 'invitationAttachmentSent' | 'messagesSent'
 >
 
+export const getCurrentInvitationAttachment = (
+  event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
+  registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
+) => event.invitationAttachments?.[registration.class ?? registration.eventType] ?? event.invitationAttachment
+
+export const getSentInvitationAttachment = (
+  event: InvitationAttachmentEvent,
+  registration: InvitationAttachmentRegistration
+) =>
+  registration.messagesSent?.invitation && registration.invitationAttachmentSent
+    ? registration.invitationAttachmentSent
+    : getCurrentInvitationAttachment(event, registration)
+
 export const shouldSendInvitationToRegistration = (
-  event: InvitationRecipientEvent,
-  registration: InvitationRecipientRegistration
+  event: InvitationAttachmentEvent,
+  registration: InvitationAttachmentRegistration
 ): boolean => {
   if (!registration.messagesSent?.invitation) {
     return true
   }
 
-  const currentAttachment = getInvitationAttachment(event, registration)
-  return Boolean(
-    registration.invitationAttachmentSent &&
-      currentAttachment &&
-      registration.invitationAttachmentSent !== currentAttachment
-  )
+  const currentAttachment = getCurrentInvitationAttachment(event, registration)
+  const currentClassAttachment = event.invitationAttachments?.[registration.class ?? registration.eventType]
+
+  if (!registration.invitationAttachmentSent) {
+    return Boolean(currentClassAttachment)
+  }
+
+  return Boolean(currentAttachment && registration.invitationAttachmentSent !== currentAttachment)
 }
 
-export const getInvitationRecipients = <T extends InvitationRecipientRegistration>(
-  event: InvitationRecipientEvent,
+export const getInvitationRecipients = <T extends InvitationAttachmentRegistration>(
+  event: InvitationAttachmentEvent,
   registrations: T[]
 ): T[] => registrations.filter((registration) => shouldSendInvitationToRegistration(event, registration))
 
-export const getParticipantMessageInfo = <T extends InvitationRecipientRegistration>(
-  event: InvitationRecipientEvent,
+export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistration>(
+  event: InvitationAttachmentEvent,
   classState: EventState,
   selectedRegistrations: T[]
 ): { canSend: boolean; recipients: T[]; templateId: EmailTemplateId } => {
@@ -254,7 +264,10 @@ export const getRegistrationEmailTemplateData = (
   const selectedServices = selectedAdditionalCosts
     .map((c) => c.description[registration.language] ?? c.description.fi)
     .join(', ')
-  const event = { ...confirmedEvent, invitationAttachment: getInvitationAttachment(confirmedEvent, registration) }
+  const event = {
+    ...confirmedEvent,
+    invitationAttachment: getCurrentInvitationAttachment(confirmedEvent, registration),
+  }
 
   return {
     cancelReason,
