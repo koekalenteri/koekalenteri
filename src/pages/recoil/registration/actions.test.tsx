@@ -36,7 +36,7 @@ describe('useRegistrationActions', () => {
 
     const { result } = renderHook(() => useRegistrationActions(), { wrapper })
 
-    let saved: Awaited<ReturnType<typeof result.current.cancel>>
+    let saved: Awaited<ReturnType<typeof result.current.cancel>> | undefined
     await act(async () => {
       saved = await result.current.cancel(registrationWithStaticDates, 'dog-heat')
     })
@@ -47,8 +47,30 @@ describe('useRegistrationActions', () => {
       eventId: registrationWithStaticDates.eventId,
       id: registrationWithStaticDates.id,
     })
-    expect(saved!).toBe(savedRegistration)
+    expect(saved).toBe(savedRegistration)
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith('registration.cancelDialog.done', { variant: 'info' })
+  })
+
+  it('saves edited registration with a minimal patch', async () => {
+    const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
+    jest.spyOn(registrationApi, 'putRegistration').mockResolvedValueOnce(editedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    let saved: Awaited<ReturnType<typeof result.current.save>> | undefined
+    await act(async () => {
+      saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
+    })
+
+    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+      eventId: registrationWithStaticDates.eventId,
+      id: registrationWithStaticDates.id,
+      notes: 'changed notes',
+    })
+    expect(registrationApi.putRegistration).not.toHaveBeenCalledWith(
+      expect.objectContaining({ dog: expect.anything() })
+    )
+    expect(saved).toBe(editedRegistration)
   })
 
   it('handles save conflicts and returns undefined', async () => {
