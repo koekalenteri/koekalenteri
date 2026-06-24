@@ -71,8 +71,13 @@ export function useRegistrationActions() {
       try {
         saved = await putRegistration(request)
       } catch (error) {
-        if (showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) return undefined
-        throw error
+        if (error instanceof APIError && error.status === 304) {
+          saved = regWithOverrides
+        } else if (showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) {
+          return undefined
+        } else {
+          throw error
+        }
       }
       const emails = [saved.handler?.email]
       if (saved.owner?.email !== saved.handler?.email) {
