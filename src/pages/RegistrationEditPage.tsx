@@ -44,7 +44,7 @@ export default function RegistrationEditPage() {
       return
     }
     try {
-      const saved = await actions.save(registration, event)
+      const saved = await actions.save(registration, event, savedRegistration)
       if (!saved) return
       setSavedRegistration(saved)
       resetRegistration()
@@ -52,7 +52,7 @@ export default function RegistrationEditPage() {
     } catch (error) {
       console.error(error)
     }
-  }, [actions, disabled, event, navigate, registration, resetRegistration, setSavedRegistration])
+  }, [actions, disabled, event, navigate, registration, resetRegistration, savedRegistration, setSavedRegistration])
 
   const handleCancel = useCallback(() => {
     resetRegistration()
