@@ -140,18 +140,18 @@ async function http<T>(
 
 const HTTP = {
   async delete<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'delete', ...init }, reviveDates) as Promise<U>
+    return http<U>(path, { body: JSON.stringify(body), method: 'DELETE', ...init }, reviveDates) as Promise<U>
   },
   async get<T>(path: string, init?: RequestInit, reviveDates: boolean = true): Promise<T> {
-    return http<T>(path, { method: 'get', ...init }, reviveDates) as Promise<T>
+    return http<T>(path, { method: 'GET', ...init }, reviveDates) as Promise<T>
   },
   async patch<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'patch', ...init }, reviveDates, true) as Promise<
+    return http<U>(path, { body: JSON.stringify(body), method: 'PATCH', ...init }, reviveDates, true) as Promise<
       HttpResponse<U>
     >
   },
   async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'post', ...init }, reviveDates, true) as Promise<
+    return http<U>(path, { body: JSON.stringify(body), method: 'POST', ...init }, reviveDates, true) as Promise<
       HttpResponse<U>
     >
   },
@@ -161,10 +161,10 @@ const HTTP = {
     init?: RequestInit,
     reviveDates: boolean = true
   ): Promise<U> {
-    return http<U>(path, { body, method: 'post', ...init }, reviveDates) as Promise<U>
+    return http<U>(path, { body, method: 'POST', ...init }, reviveDates) as Promise<U>
   },
   async put<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
-    return http<U>(path, { body: JSON.stringify(body), method: 'put', ...init }, reviveDates) as Promise<U>
+    return http<U>(path, { body: JSON.stringify(body), method: 'PUT', ...init }, reviveDates) as Promise<U>
   },
 }
 
