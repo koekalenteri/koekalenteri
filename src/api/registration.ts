@@ -9,7 +9,7 @@ import type {
 } from '../types'
 import http, { withToken } from './http'
 
-export type IncrementalRegistrationsResponse = {
+type IncrementalRegistrationsResponse = {
   registrations: Registration[]
   unchangedIds: string[]
 }
