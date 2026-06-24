@@ -108,7 +108,12 @@ export async function putRegistration(
   _token?: string,
   _signal?: AbortSignal
 ): Promise<Registration> {
-  return Promise.resolve({ ...registration, id: registration.id || 'test-registration' } as Registration)
+  const id = registration.id || 'test-registration'
+  const existing = registration.eventId
+    ? mockRegistrations[registration.eventId]?.find((item) => item.id === id)
+    : undefined
+
+  return Promise.resolve({ ...existing, ...registration, id } as Registration)
 }
 
 export async function putAdminRegistration(

@@ -30,6 +30,27 @@ describe('useRegistrationActions', () => {
     jest.clearAllMocks()
   })
 
+  it('cancels registration with a minimal patch', async () => {
+    const savedRegistration = { ...registrationWithStaticDates, cancelled: true, cancelReason: 'dog-heat' }
+    jest.spyOn(registrationApi, 'putRegistration').mockResolvedValueOnce(savedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    let saved: Awaited<ReturnType<typeof result.current.cancel>>
+    await act(async () => {
+      saved = await result.current.cancel(registrationWithStaticDates, 'dog-heat')
+    })
+
+    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+      cancelled: true,
+      cancelReason: 'dog-heat',
+      eventId: registrationWithStaticDates.eventId,
+      id: registrationWithStaticDates.id,
+    })
+    expect(saved!).toBe(savedRegistration)
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('registration.cancelDialog.done', { variant: 'info' })
+  })
+
   it('handles save conflicts and returns undefined', async () => {
     jest.spyOn(registrationApi, 'putRegistration').mockRejectedValueOnce(
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {
