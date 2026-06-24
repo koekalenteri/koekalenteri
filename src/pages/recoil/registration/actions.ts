@@ -1,9 +1,22 @@
-import type { ConfirmedEvent, Registration } from '../../../types'
+import type { ConfirmedEvent, Patch, Registration } from '../../../types'
+import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import { getRegistration, putRegistration } from '../../../api/registration'
 import { showRegistrationSaveConflict } from './registrationSaveError'
+
+const withRegistrationOverrides = (reg: Registration): Registration => ({
+  ...reg,
+  handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
+  payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
+})
+
+const registrationPatch = (saved: Registration, edited: Registration): Patch<Registration> => ({
+  ...(diff(saved, edited) as Patch<Registration>),
+  eventId: edited.eventId,
+  id: edited.id,
+})
 
 export function useRegistrationActions() {
   const { t } = useTranslation()
@@ -51,15 +64,12 @@ export function useRegistrationActions() {
 
       return reg
     },
-    save: async (reg: Registration, event: ConfirmedEvent) => {
-      const regWithOverrides: Registration = {
-        ...reg,
-        handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
-        payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
-      }
+    save: async (reg: Registration, event: ConfirmedEvent, savedRegistration?: Registration | null) => {
+      const regWithOverrides = withRegistrationOverrides(reg)
+      const request = savedRegistration ? registrationPatch(savedRegistration, regWithOverrides) : regWithOverrides
       let saved: Registration
       try {
-        saved = await putRegistration(regWithOverrides)
+        saved = await putRegistration(request)
       } catch (error) {
         if (showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) return undefined
         throw error
