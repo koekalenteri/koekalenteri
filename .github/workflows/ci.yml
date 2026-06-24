@@ -81,7 +81,7 @@ jobs:
       - name: Check previous main CI result
         id: previous-ci
         if: ${{ github.event_name == 'push' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const currentRunId = context.runId
