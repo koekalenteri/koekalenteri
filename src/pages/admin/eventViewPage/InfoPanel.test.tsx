@@ -90,10 +90,10 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('Tapahtuman hallinta')).toBeInTheDocument()
     expect(screen.getByText('Toiminnot')).toBeInTheDocument()
     expect(screen.getByText('Osallistujat')).toBeInTheDocument()
-    expect(screen.getByText('Valmistelu')).toBeInTheDocument()
-    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
-    expect(screen.getByText('Koetunnus')).toBeInTheDocument()
+    expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
+    expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
     expect(screen.getByText('Koekutsu')).toBeInTheDocument()
+    expect(screen.getByText('Kokeen koekutsun liitetiedosto')).toBeInTheDocument()
   })
 
   it('runs the moved create registration action', async () => {
@@ -609,7 +609,7 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     // It should show a link to the attachment
-    expect(screen.getByText('Kutsu.pdf')).toBeInTheDocument()
+    expect(screen.getByText('koekutsu-20210210-NOU.pdf')).toBeInTheDocument()
     expect(screen.queryByText('Ei liitettyä tiedostoa')).not.toBeInTheDocument()
   })
 
@@ -687,6 +687,8 @@ describe('InfoPanel>', () => {
       wrapper,
     })
     await openInfoPanel(user)
+
+    expect(screen.getByText('ALO-luokan koekutsun liitetiedosto')).toBeInTheDocument()
 
     const input = document.querySelector('#koekutsu-file-ALO') as HTMLInputElement
     const file = new File(['pdf'], 'alo-kutsu.pdf', { type: 'application/pdf' })

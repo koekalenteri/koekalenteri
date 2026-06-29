@@ -18,11 +18,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
   </span>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-554k0q-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-wd9gsa-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
-    Tilanne
+    Tapahtuman hallinta
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
@@ -4376,11 +4376,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
   </span>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-554k0q-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-wd9gsa-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
-    Tilanne
+    Tapahtuman hallinta
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
@@ -10289,11 +10289,11 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
   </span>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-554k0q-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-wd9gsa-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
-    Tilanne
+    Tapahtuman hallinta
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
