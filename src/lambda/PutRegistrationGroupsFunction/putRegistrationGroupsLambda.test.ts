@@ -31,7 +31,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 const libRegistration = await import('../lib/registration')
 
-const mockSend = jest.fn(() => ({ failed: [], ok: [] }))
+const mockSend = jest.fn<any>(() => ({ failed: [], ok: [] }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
@@ -73,6 +73,7 @@ describe('putRegistrationGroupsLambda', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
+    mockSend.mockImplementation(() => ({ failed: [], ok: [] }))
   })
 
   it('should return 401 if authorization fails', async () => {
@@ -393,6 +394,27 @@ describe('putRegistrationGroupsLambda', () => {
   it('should update counts when moved to cancelled', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeMock.mockResolvedValueOnce(mockUser)
+    mockSend.mockImplementation(
+      (
+        template: string,
+        _event: unknown,
+        registrations: JsonRegistration[],
+        _origin: unknown,
+        _text: string,
+        _user: string,
+        context: string
+      ) => {
+        if (template === 'registration' && context === 'cancel') {
+          for (const registration of registrations) {
+            registration.lastEmail = 'Peruutus 1.1.2026 12:00'
+            registration.messagesSent = { ...(registration.messagesSent ?? {}), registration: true }
+          }
+          return { failed: [], ok: ['handler@example.com'] }
+        }
+
+        return { failed: [], ok: [] }
+      }
+    )
 
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
@@ -466,5 +488,30 @@ describe('putRegistrationGroupsLambda', () => {
     expect(resultItem?.group).toEqual(reg.group)
     expect(result.entries).toBe(5)
     expect(result.classes).toEqual([expect.objectContaining({ entries: 4 }), expect.objectContaining({ entries: 1 })])
+    expect(mockBroadcastAdminEvent).toHaveBeenCalledWith(
+      {
+        classes: result.classes,
+        entries: 5,
+        eventId: event.id,
+        members: 0,
+        updatedAt: expect.any(String),
+      },
+      event.organizer.id
+    )
+    expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
+      event.id,
+      expect.arrayContaining([
+        expect.objectContaining({
+          cancelled: true,
+          cancelReason: 'test',
+          eventId: event.id,
+          group: reg.group,
+          id: reg.id,
+          lastEmail: 'Peruutus 1.1.2026 12:00',
+          messagesSent: { registration: true },
+        }),
+      ]),
+      event.organizer.id
+    )
   })
 })
