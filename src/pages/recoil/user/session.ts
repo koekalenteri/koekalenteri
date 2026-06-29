@@ -5,6 +5,15 @@ import { reportError } from '../../../lib/client/error'
 import { idTokenAtom } from './atoms'
 
 const REFRESH_BEFORE_EXPIRY_MS = 60_000
+const AUTH_SESSION_ERROR_NAMES = [
+  'NotAuthorizedException',
+  'TokenRevokedException',
+  'UserNotFoundException',
+  'PasswordResetRequiredException',
+  'UserNotConfirmedException',
+  'RefreshTokenReuseException',
+  'UserUnAuthenticatedException',
+]
 
 export const getJwtExpiresAt = (token: string): number | undefined => {
   const payload = token.split('.')[1]
@@ -19,6 +28,17 @@ export const getJwtExpiresAt = (token: string): number | undefined => {
   } catch {
     return undefined
   }
+}
+
+export const isInvalidAuthSessionError = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') return false
+
+  const { message, name } = error as { message?: unknown; name?: unknown }
+  if (typeof name === 'string' && AUTH_SESSION_ERROR_NAMES.some((errorName) => name.startsWith(errorName))) {
+    return true
+  }
+
+  return typeof message === 'string' && /refresh token|not authenticated|no current user/i.test(message)
 }
 
 export function useAuthSessionRefresh(idToken: string | undefined) {
@@ -37,11 +57,21 @@ export function useAuthSessionRefresh(idToken: string | undefined) {
       try {
         const session = await fetchAuthSession({ forceRefresh: true })
         const nextToken = session.tokens?.idToken?.toString()
-        if (!cancelled && nextToken) {
+        if (cancelled) return
+
+        if (nextToken) {
           setIdToken((current) => (current === nextToken ? current : nextToken))
+        } else {
+          setIdToken(undefined)
         }
       } catch (error) {
-        if (!cancelled) reportError(error)
+        if (cancelled) return
+
+        if (isInvalidAuthSessionError(error)) {
+          setIdToken(undefined)
+        } else {
+          reportError(error)
+        }
       }
     }, refreshDelay)
 

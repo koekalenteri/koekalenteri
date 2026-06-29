@@ -4,14 +4,14 @@ import AppBar from '@mui/material/AppBar'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import { Suspense, useCallback, useEffect } from 'react'
+import { Suspense, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import logo from '../../assets/snj-logo.png'
 import { isDevEnv } from '../../lib/env'
 import { Path } from '../../routeConfig'
-import { hasAdminAccessSelector, idTokenAtom, userSelector, useUserActions } from '../recoil'
+import { hasAdminAccessSelector } from '../recoil'
 import AppBarButton from './header/AppBarButton'
 import HelpMenu from './header/HelpMenu'
 import LanguageMenu from './header/LanguageMenu'
@@ -23,23 +23,13 @@ interface Props {
 
 const Header = ({ toggleMenu }: Props) => {
   const { t } = useTranslation()
-  const actions = useUserActions()
   const navigate = useNavigate()
-  const user = useRecoilValue(userSelector)
-  const idToken = useRecoilValue(idTokenAtom)
   const hasAdminAccess = useRecoilValue(hasAdminAccessSelector)
   const inAdmin = !!toggleMenu
   const headerBackgroundColor = isDevEnv() ? '#08821f' : undefined
 
   const handleHomeClick = useCallback(() => navigate(Path.home), [navigate])
   const handleAdminClick = useCallback(() => navigate(Path.admin.root), [navigate])
-
-  useEffect(() => {
-    if (idToken && !user) {
-      // SignOut if fetching user information has failed for some reason
-      actions.signOut(false)
-    }
-  }, [actions, idToken, user])
 
   return (
     <AppBar position="fixed" elevation={0} sx={{ bgcolor: headerBackgroundColor }}>
