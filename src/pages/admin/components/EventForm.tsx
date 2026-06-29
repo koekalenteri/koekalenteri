@@ -64,7 +64,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
     payment: md,
   })
   const valid = errors.length === 0
-  const allDisabled = disabled || isEventOver(event)
+  const allDisabled = disabled || (isEventOver(event) && !!event.id && event.state !== 'draft')
   const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state ?? 'draft')
   const fields = useMemo(() => requiredFields(event), [event])
   const officials = useMemo(() => users.filter((u) => u.officer), [users])
