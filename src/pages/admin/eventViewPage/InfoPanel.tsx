@@ -159,13 +159,11 @@ const InfoPanel = ({
       <Button
         aria-label="Avaa tilannepaneeli"
         onClick={toggle}
-        size="small"
         sx={{
           alignItems: 'center',
           borderBottomRightRadius: 0,
           borderTopRightRadius: 0,
           boxShadow: 3,
-          fontSize: '0.8rem',
           minWidth: 36,
           position: 'fixed',
           px: 0.75,
