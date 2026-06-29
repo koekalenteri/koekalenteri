@@ -1,9 +1,11 @@
-import type { JsonRegistration } from '../../types'
+import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import { audit, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
+import { getEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { updateRegistrationField } from '../lib/registration'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (event) => {
   const user = await authorize(event)
@@ -17,6 +19,8 @@ const putAdminRegistrationNotesLambda = lambda('putRegistrationNotes', async (ev
   if (!eventId || !id) throw new Error('Event id or registration id missing')
 
   await updateRegistrationField(eventId, id, 'internalNotes', internalNotes)
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  await publishRegistrationPatches(eventId, [{ id, internalNotes }], confirmedEvent.organizer.id)
   await audit({
     auditKey: registrationAuditKey({ eventId, id }),
     message: 'Muutti sisäistä kommenttia',
