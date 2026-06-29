@@ -4,7 +4,7 @@ import { jest } from '@jest/globals'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.useFakeTimers()
-jest.setSystemTime(new Date('2026-06-30T12:00:00.000Z'))
+const TEST_NOW = new Date('2026-06-01T12:00:00.000Z')
 
 const mockAuthorizeWithMemberOf = jest.fn<() => Promise<{ memberOf: string[]; user: JsonUser }>>()
 const mockRead = jest.fn<() => Promise<Organizer | undefined>>()
@@ -89,6 +89,7 @@ const otherOrganizer: Organizer = {
 
 describe('searchEventKcIdChoicesLambda', () => {
   beforeEach(() => {
+    jest.setSystemTime(TEST_NOW)
     jest.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-id'], user })
     mockRead.mockResolvedValue(organizer)
