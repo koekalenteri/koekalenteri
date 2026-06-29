@@ -121,12 +121,44 @@ describe('putUserLambda', () => {
         org123: 'admin', // Admin for this org
       },
     })
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      email: 'test@example.com',
+      name: 'Test User',
+      roles: {
+        org123: 'secretary',
+      },
+    })
 
     await putUserLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
     expect(mockGetAndUpdateUserByEmail).toHaveBeenCalledWith('test@example.com', { name: 'Test User' })
     expect(mockResponse).not.toHaveBeenCalledWith(403, 'Forbidden', event)
+  })
+
+  it('returns 403 if an organization admin tries to set a role for another organization', async () => {
+    mockAuthorize.mockResolvedValueOnce({
+      admin: false,
+      id: 'user123',
+      name: 'Org Admin',
+      roles: {
+        org123: 'admin',
+      },
+    })
+
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      email: 'test@example.com',
+      name: 'Test User',
+      roles: {
+        org456: 'admin',
+      },
+    })
+
+    await putUserLambda(event)
+
+    expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
+    expect(mockSetUserRole).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
   })
 
   it('updates user name and roles successfully', async () => {
