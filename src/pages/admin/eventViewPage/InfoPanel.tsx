@@ -16,12 +16,11 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-import { useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
@@ -166,11 +165,11 @@ const InfoPanel = ({
           borderBottomRightRadius: 0,
           borderTopRightRadius: 0,
           boxShadow: 3,
-          fontSize: '0.65rem',
-          minWidth: 28,
+          fontSize: '0.8rem',
+          minWidth: 36,
           position: 'fixed',
-          px: 0.5,
-          py: 1,
+          px: 0.75,
+          py: 1.25,
           right: 0,
           top: APP_HEADER_HEIGHT + 12,
           writingMode: 'vertical-rl',
@@ -178,7 +177,7 @@ const InfoPanel = ({
         }}
         variant="contained"
       >
-        Tilanne
+        Tapahtuman hallinta
       </Button>
     )
   }
@@ -356,43 +355,18 @@ const InfoPanel = ({
 
         <Box sx={sectionSx}>
           <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-            Valmistelu
+            Koekutsu
           </Typography>
           <TableContainer>
             <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell colSpan={3}>Kokeen tiedot</TableCell>
-                </TableRow>
-              </TableHead>
               <TableBody>
                 <TableRow>
-                  <TableCell align="left">
+                  <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
                     <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                      Koekutsu
+                      Kokeen koekutsun liitetiedosto
                     </Typography>
                   </TableCell>
-                  <TableCell>
-                    {attachmentKey ? (
-                      <>
-                        <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
-                        <Link
-                          href={Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey })}
-                          rel="noopener"
-                          target="_blank"
-                          type="application/pdf"
-                          variant="caption"
-                        >
-                          Kutsu.pdf
-                        </Link>
-                      </>
-                    ) : (
-                      <Typography variant="caption" fontStyle="italic">
-                        Ei liitettyä tiedostoa
-                      </Typography>
-                    )}
-                  </TableCell>
-                  <TableCell>
+                  <TableCell rowSpan={2} sx={{ verticalAlign: 'middle' }}>
                     <input
                       accept="application/pdf"
                       type="file"
@@ -402,62 +376,89 @@ const InfoPanel = ({
                     />
                     <label htmlFor="koekutsu-file">
                       <Button component="span" size="small" variant="outlined">
-                        Liitä yleinen
+                        Liitä liitetiedosto kokeelle
                       </Button>
                     </label>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell colSpan={2} sx={{ pt: 0 }}>
+                    {attachmentKey ? (
+                      <Box ml={2}>
+                        <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
+                        <Link
+                          href={Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey })}
+                          rel="noopener"
+                          target="_blank"
+                          type="application/pdf"
+                          variant="caption"
+                        >
+                          {invitationAttachmentFileName({ ...event, invitationAttachment: attachmentKey })}
+                        </Link>
+                      </Box>
+                    ) : (
+                      <Typography variant="caption" fontStyle="italic" ml={2}>
+                        Ei liitettyä tiedostoa
+                      </Typography>
+                    )}
                   </TableCell>
                 </TableRow>
                 {eventClasses.map((eventClass) => {
                   const classAttachmentKey = classAttachmentKeys[eventClass]
                   const classEvent = event.classes.find((item) => item.class === eventClass)
+                  const classInvitationEvent = {
+                    ...event,
+                    class: eventClass,
+                    invitationAttachment: classAttachmentKey,
+                    startDate: classEvent?.date ?? event.startDate,
+                  }
 
                   return (
-                    <TableRow key={`invitation-attachment-${eventClass}`}>
-                      <TableCell align="left">
-                        <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                          {eventClass} koekutsu
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {classAttachmentKey ? (
-                          <>
-                            <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
-                            <Link
-                              href={Path.invitationAttachment({
-                                ...event,
-                                class: eventClass,
-                                invitationAttachment: classAttachmentKey,
-                                startDate: classEvent?.date ?? event.startDate,
-                              })}
-                              rel="noopener"
-                              target="_blank"
-                              type="application/pdf"
-                              variant="caption"
-                            >
-                              Kutsu.pdf
-                            </Link>
-                          </>
-                        ) : (
-                          <Typography variant="caption" fontStyle="italic">
-                            Käyttää yleistä kutsua
+                    <Fragment key={`invitation-attachment-${eventClass}`}>
+                      <TableRow key={`invitation-attachment-${eventClass}`}>
+                        <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
+                          <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                            {eventClass}-luokan koekutsun liitetiedosto
                           </Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <input
-                          accept="application/pdf"
-                          type="file"
-                          hidden
-                          id={`koekutsu-file-${eventClass}`}
-                          onChange={handleInvitationUpload(eventClass)}
-                        />
-                        <label htmlFor={`koekutsu-file-${eventClass}`}>
-                          <Button component="span" size="small" variant="outlined">
-                            Liitä luokalle
-                          </Button>
-                        </label>
-                      </TableCell>
-                    </TableRow>
+                        </TableCell>
+                        <TableCell rowSpan={2} sx={{ verticalAlign: 'middle' }}>
+                          <input
+                            accept="application/pdf"
+                            type="file"
+                            hidden
+                            id={`koekutsu-file-${eventClass}`}
+                            onChange={handleInvitationUpload(eventClass)}
+                          />
+                          <label htmlFor={`koekutsu-file-${eventClass}`}>
+                            <Button component="span" size="small" variant="outlined">
+                              Liitä liitetiedosto luokalle
+                            </Button>
+                          </label>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow key={`invitation-attachment-file-${eventClass}`}>
+                        <TableCell colSpan={2} sx={{ pt: 0 }}>
+                          {classAttachmentKey ? (
+                            <Box ml={2}>
+                              <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
+                              <Link
+                                href={Path.invitationAttachment(classInvitationEvent)}
+                                rel="noopener"
+                                target="_blank"
+                                type="application/pdf"
+                                variant="caption"
+                              >
+                                {invitationAttachmentFileName(classInvitationEvent)}
+                              </Link>
+                            </Box>
+                          ) : (
+                            <Typography variant="caption" fontStyle="italic" ml={2}>
+                              Ei liitettyä tiedostoa
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </Fragment>
                   )
                 })}
               </TableBody>
