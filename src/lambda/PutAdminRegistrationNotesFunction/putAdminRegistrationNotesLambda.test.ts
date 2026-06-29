@@ -5,8 +5,10 @@ const mockResponse = jest.fn<any>()
 const mockAuthorize = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
+const mockGetEvent = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockUpdateRegistrationField = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   lambda: mockLambda,
@@ -22,12 +24,20 @@ jest.unstable_mockModule('../lib/audit', () => ({
   registrationAuditKey: mockRegistrationAuditKey,
 }))
 
+jest.unstable_mockModule('../lib/event', () => ({
+  getEvent: mockGetEvent,
+}))
+
 jest.unstable_mockModule('../lib/json', () => ({
   parseJSONWithFallback: mockParseJSONWithFallback,
 }))
 
 jest.unstable_mockModule('../lib/registration', () => ({
   updateRegistrationField: mockUpdateRegistrationField,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 const { default: putAdminRegistrationNotesLambda } = await import('./handler')
@@ -59,6 +69,7 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
 
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
     mockUpdateRegistrationField.mockResolvedValue({})
   })
 
@@ -83,6 +94,13 @@ describe('putAdminRegistrationNotesLambda', () => {
       'Test internal notes'
     )
 
+    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [{ id: 'reg456', internalNotes: 'Test internal notes' }],
+      'org-1'
+    )
+
     // Verify audit entry was created
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event123:reg456',
@@ -104,6 +122,7 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     // Verify registration field was not updated
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
 
     // Verify audit entry was not created
     expect(mockAudit).not.toHaveBeenCalled()
@@ -119,6 +138,7 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     // Verify registration field was not updated
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
 
     // Verify audit entry was not created
     expect(mockAudit).not.toHaveBeenCalled()
@@ -132,8 +152,19 @@ describe('putAdminRegistrationNotesLambda', () => {
 
     // Verify registration field update was attempted
     expect(mockUpdateRegistrationField).toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
 
     // Verify audit entry was not created
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  it('passes through errors from publishRegistrationPatches', async () => {
+    const error = new Error('Broadcast error')
+    mockPublishRegistrationPatches.mockRejectedValueOnce(error)
+
+    await expect(putAdminRegistrationNotesLambda(event)).rejects.toThrow(error)
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalled()
     expect(mockAudit).not.toHaveBeenCalled()
   })
 })
