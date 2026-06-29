@@ -102,4 +102,16 @@ describe('ClassHeader', () => {
     // Should show AVO class
     expect(screen.getByText('AVO')).toBeInTheDocument()
   })
+
+  it('renders a not published note', () => {
+    render(
+      <table>
+        <tbody>
+          <ClassHeader classValue="AVO" event={mockEvent} lastDate={mockDate} published={false} />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByText(/startListNotPublished/)).toBeInTheDocument()
+  })
 })

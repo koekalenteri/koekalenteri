@@ -657,9 +657,12 @@ describe('lib/registration', () => {
   })
 
   describe('getParticipantMessageInfo', () => {
+    const now = new Date('2024-01-10T12:00:00.000Z')
     const event = {
+      entryEndDate: new Date('2024-01-05T12:00:00.000Z'),
       invitationAttachment: 'common-attachment',
       invitationAttachments: { ALO: 'alo-attachment' },
+      startDate: new Date('2024-01-20T12:00:00.000Z'),
     }
     const aloSent = {
       class: 'ALO' as const,
@@ -674,7 +677,13 @@ describe('lib/registration', () => {
       id: 'avo',
     }
 
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
     it('returns picked template with all selected registrations for confirmed state', () => {
+      jest.useFakeTimers().setSystemTime(now)
+
       const result = getParticipantMessageInfo(event, 'confirmed', [aloSent, avoUnsent])
 
       expect(result).toEqual({
@@ -685,6 +694,8 @@ describe('lib/registration', () => {
     })
 
     it('returns only unsent invitation recipients for partially sent invited classes', () => {
+      jest.useFakeTimers().setSystemTime(now)
+
       const result = getParticipantMessageInfo(event, 'invited', [aloSent, avoUnsent])
 
       expect(result).toEqual({
@@ -695,11 +706,37 @@ describe('lib/registration', () => {
     })
 
     it('disables invitation sending when all selected registrations already received the current invitation', () => {
+      jest.useFakeTimers().setSystemTime(now)
+
       const result = getParticipantMessageInfo(event, 'invited', [aloSent])
 
       expect(result).toEqual({
         canSend: false,
         recipients: [],
+        templateId: 'invitation',
+      })
+    })
+
+    it('disables picked messages before the registration period is over', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-01-04T12:00:00.000Z'))
+
+      const result = getParticipantMessageInfo(event, 'confirmed', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: false,
+        recipients: [aloSent, avoUnsent],
+        templateId: 'picked',
+      })
+    })
+
+    it('disables invitation messages before the registration period is over', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-01-04T12:00:00.000Z'))
+
+      const result = getParticipantMessageInfo(event, 'invited', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: false,
+        recipients: [avoUnsent],
         templateId: 'invitation',
       })
     })

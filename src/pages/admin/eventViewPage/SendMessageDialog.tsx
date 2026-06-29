@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
+import type { ConfirmedEvent, DogEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -135,7 +135,8 @@ export default function SendMessageDialog({ event, registrations, templateId, op
           variant: 'success',
         })
       }
-      setEvent({ ...event, classes, state })
+      const nextEvent: DogEvent = { ...event, classes, state }
+      setEvent(nextEvent)
       actions.update(updatedRegistrations)
       onClose?.()
     } catch (error) {

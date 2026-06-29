@@ -8,10 +8,12 @@ interface ClassHeaderProps {
   classValue: string
   event: PublicConfirmedEvent
   lastDate?: Date
+  published?: boolean
 }
 
-export const ClassHeader = ({ classValue, event, lastDate }: ClassHeaderProps) => {
+export const ClassHeader = ({ classValue, event, lastDate, published = true }: ClassHeaderProps) => {
   const { t } = useTranslation()
+  const note = published ? '' : ` (${t('startListNotPublished')})`
 
   return (
     <StyledTableRow key={classValue}>
@@ -22,6 +24,7 @@ export const ClassHeader = ({ classValue, event, lastDate }: ClassHeaderProps) =
           .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => judgeName(j, t)).join(', ') : judgeName(c.judge, t)))
           .filter(Boolean)
           .join(', ')}
+        {note}
       </TableCell>
     </StyledTableRow>
   )
