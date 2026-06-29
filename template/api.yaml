@@ -76,5 +76,5 @@
   ApiAccessLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/apigateway/AccessLog-${KoekalenteriApi}
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${StageNameParam}-${KoekalenteriApi}
       RetentionInDays: 365
