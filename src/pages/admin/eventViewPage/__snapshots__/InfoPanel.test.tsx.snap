@@ -4,7 +4,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 <div>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-cuj8vn-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-15vdw6a-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
@@ -17,7 +17,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 <div>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-cuj8vn-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-15vdw6a-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
@@ -30,7 +30,7 @@ exports[`InfoPanel> renders with no registrations 1`] = `
 <div>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-cuj8vn-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-15vdw6a-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >

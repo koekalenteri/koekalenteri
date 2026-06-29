@@ -18,7 +18,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
   </span>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-wd9gsa-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-rhnc13-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
@@ -4376,7 +4376,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
   </span>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-wd9gsa-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-rhnc13-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
@@ -10289,7 +10289,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
   </span>
   <button
     aria-label="Avaa tilannepaneeli"
-    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-colorPrimary css-wd9gsa-MuiButtonBase-root-MuiButton-root"
+    class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-rhnc13-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
   >
