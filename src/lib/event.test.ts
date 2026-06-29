@@ -13,11 +13,13 @@ import {
   getEventClassesByDays,
   getEventDays,
   getEventSeason,
+  getStartListPublishedClassMap,
   getUniqueEventClasses,
   isDetaultEntryEndDate,
   isDetaultEntryStartDate,
   isEventDeletable,
   isStartListAvailable,
+  isStartListPublishedForClass,
   newEventEntryEndDate,
   newEventEntryStartDate,
   newEventStartDate,
@@ -45,6 +47,34 @@ describe('lib/event', () => {
       expect(isStartListAvailable({ startListPublished: false, state })).toEqual(false)
     })
 
+    it('returns true when at least one class start list is published', () => {
+      expect(
+        isStartListAvailable({
+          startListPublished: { ALO: false, AVO: true },
+          state: 'invited',
+        })
+      ).toEqual(true)
+    })
+
+    it('returns false when class-specific publishing is configured but no class is published', () => {
+      expect(
+        isStartListAvailable({
+          startListPublished: { ALO: false, AVO: false },
+          state: 'invited',
+        })
+      ).toEqual(false)
+    })
+
+    it('returns false for a sparse class-specific map when omitted classes are unpublished', () => {
+      expect(
+        isStartListAvailable({
+          classes: [{ class: 'ALO' }, { class: 'AVO' }],
+          startListPublished: { ALO: false },
+          state: 'invited',
+        })
+      ).toEqual(false)
+    })
+
     it.each<EventState>([
       'draft',
       'tentative',
@@ -53,6 +83,74 @@ describe('lib/event', () => {
       'picked',
     ])('Should return false when state is %p', (state) => {
       expect(isStartListAvailable({ state })).toEqual(false)
+    })
+
+    it('uses the event-level value when class-specific publishing is not configured', () => {
+      expect(isStartListPublishedForClass({}, 'ALO')).toEqual(true)
+      expect(isStartListPublishedForClass({ startListPublished: true }, 'ALO')).toEqual(true)
+      expect(isStartListPublishedForClass({ startListPublished: false }, 'ALO')).toEqual(false)
+    })
+
+    it('uses class-specific publishing when configured', () => {
+      expect(
+        isStartListPublishedForClass(
+          {
+            startListPublished: { ALO: true, AVO: false },
+          },
+          'ALO'
+        )
+      ).toEqual(true)
+      expect(
+        isStartListPublishedForClass(
+          {
+            startListPublished: { ALO: false, AVO: true },
+          },
+          'ALO'
+        )
+      ).toEqual(false)
+    })
+
+    it('treats classes omitted from a class-specific map as unpublished', () => {
+      expect(
+        isStartListPublishedForClass(
+          {
+            startListPublished: { ALO: false },
+          },
+          'AVO'
+        )
+      ).toEqual(false)
+      expect(
+        isStartListPublishedForClass(
+          {
+            startListPublished: { ALO: true },
+          },
+          'AVO'
+        )
+      ).toEqual(false)
+    })
+
+    it('builds a full class map with missing classes unpublished', () => {
+      expect(
+        getStartListPublishedClassMap({
+          classes: [{ class: 'ALO' }, { class: 'AVO' }],
+          startListPublished: { ALO: true },
+        })
+      ).toEqual({ ALO: true, AVO: false })
+    })
+
+    it('builds a full class map from legacy event-level publishing values', () => {
+      expect(
+        getStartListPublishedClassMap({
+          classes: [{ class: 'ALO' }, { class: 'AVO' }],
+          startListPublished: true,
+        })
+      ).toEqual({ ALO: true, AVO: true })
+      expect(
+        getStartListPublishedClassMap({
+          classes: [{ class: 'ALO' }, { class: 'AVO' }],
+          startListPublished: false,
+        })
+      ).toEqual({ ALO: false, AVO: false })
     })
   })
 

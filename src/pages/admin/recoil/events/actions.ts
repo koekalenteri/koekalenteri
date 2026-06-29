@@ -1,11 +1,16 @@
-import type { DogEvent, Patch } from '../../../../types'
+import type { DogEvent, Patch, RegistrationClass } from '../../../../types'
 import { diff } from 'deep-object-diff'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { copyEventWithRegistrations, putEvent } from '../../../../api/event'
-import { copyDogEvent, sanitizeDogEvent } from '../../../../lib/event'
+import {
+  copyDogEvent,
+  getStartListPublishedClassMap,
+  isStartListPublishedForClass,
+  sanitizeDogEvent,
+} from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
 import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 import { adminEventIdAtom, adminNewEventAtom } from './atoms'
@@ -25,6 +30,26 @@ export const buildEventSavePatch = (event: Patch<DogEvent>, currentAdminEvent?: 
   return changes
 }
 
+export const buildStartListClassPublishedPatch = (
+  event: DogEvent,
+  eventClass: RegistrationClass,
+  published: boolean
+): Patch<DogEvent> & { id: string } => ({
+  id: event.id,
+  startListPublished: {
+    ...getStartListPublishedClassMap(event),
+    [eventClass]: published,
+  },
+})
+
+export const buildStartListPublishedPatch = (
+  event: DogEvent,
+  published: boolean
+): Patch<DogEvent> & { id: string } => ({
+  id: event.id,
+  startListPublished: published,
+})
+
 export const useAdminEventActions = () => {
   const token = useRecoilValue(idTokenAtom)
   const user = useRecoilValue(userSelector)
@@ -40,7 +65,10 @@ export const useAdminEventActions = () => {
     copyCurrent,
     copyCurrentTest,
     deleteCurrent,
+    publishStartListClass,
     save,
+    setStartListClassPublished,
+    setStartListPublished,
   }
 
   function updatePublicEvents(event: DogEvent, remove?: boolean): void {
@@ -106,5 +134,37 @@ export const useAdminEventActions = () => {
     updatePublicEvents(currentAdminEvent, true)
 
     enqueueSnackbar(t('deleteEventComplete'), { variant: 'info' })
+  }
+
+  async function setStartListClassPublished(
+    event: DogEvent,
+    eventClass: RegistrationClass,
+    published: boolean
+  ): Promise<DogEvent | undefined> {
+    if (!event?.id) return
+    if (isStartListPublishedForClass(event, eventClass) === published) return event
+
+    const saved = await putEvent(buildStartListClassPublishedPatch(event, eventClass, published), token)
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    updatePublicEvents(saved)
+
+    return saved
+  }
+
+  async function setStartListPublished(event: DogEvent, published: boolean): Promise<DogEvent | undefined> {
+    if (!event?.id) return
+    if ((event.startListPublished !== false) === published) return event
+
+    const saved = await putEvent(buildStartListPublishedPatch(event, published), token)
+    setAdminEventId(saved.id)
+    setCurrentAdminEvent(saved)
+    updatePublicEvents(saved)
+
+    return saved
+  }
+
+  async function publishStartListClass(event: DogEvent, eventClass: RegistrationClass): Promise<DogEvent | undefined> {
+    return setStartListClassPublished(event, eventClass, true)
   }
 }

@@ -5,6 +5,7 @@ import { enqueueSnackbar } from 'notistack'
 import { RecoilRoot } from 'recoil'
 import {
   eventWithEntryClosed,
+  eventWithEntryOpen,
   eventWithParticipantsInvited,
   eventWithStaticDates,
   eventWithStaticDatesAndClass,
@@ -12,6 +13,7 @@ import {
 import {
   registrationsToEventWithEntryClosed,
   registrationsToEventWithParticipantsInvited,
+  registrationWithStaticDates,
 } from '../../../__mockData__/registrations'
 import * as eventApi from '../../../api/event'
 import { APIError } from '../../../api/http'
@@ -206,6 +208,52 @@ describe('InfoPanel>', () => {
     })
   })
 
+  it('disables place confirmation before the registration period is over', async () => {
+    const event = {
+      ...eventWithEntryOpen,
+      classes: [{ class: 'VOI' as const, date: eventWithEntryOpen.startDate, places: 3 }],
+      state: 'confirmed' as const,
+    }
+    const registrations = [
+      {
+        ...registrationWithStaticDates,
+        class: 'VOI' as const,
+        eventId: event.id,
+        eventType: event.eventType,
+        group: { date: event.startDate, key: 'VOI', number: 1 },
+      },
+    ]
+    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('button', { name: 'Lähetä koepaikkailmoitus' })).toBeDisabled()
+  })
+
+  it('disables invitations before the registration period is over', async () => {
+    const event = {
+      ...eventWithEntryOpen,
+      classes: [{ class: 'VOI' as const, date: eventWithEntryOpen.startDate, places: 3 }],
+      state: 'picked' as const,
+    }
+    const registrations = [
+      {
+        ...registrationWithStaticDates,
+        class: 'VOI' as const,
+        eventId: event.id,
+        eventType: event.eventType,
+        group: { date: event.startDate, key: 'VOI', number: 1 },
+      },
+    ]
+    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('button', { name: 'Lähetä koekutsu' })).toBeDisabled()
+  })
+
   it('does not allow resending invitations when attachment has not changed', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel
@@ -325,6 +373,227 @@ describe('InfoPanel>', () => {
       [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
       'invitation'
     )
+  })
+
+  it('does not couple start list publishing to sending invitations', async () => {
+    const onOpenMessageDialog = jest.fn()
+    const onSetStartListPublished = jest.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          invitationAttachments: { ALO: 'new-alo-key' },
+          startListPublished: { ALO: false },
+        }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent:
+            registration.class === 'ALO' && registration.id.endsWith('1') ? 'old-alo-key' : 'new-alo-key',
+          messagesSent: { invitation: true },
+        }))}
+        onOpenMessageDialog={onOpenMessageDialog}
+        onSetStartListPublished={onSetStartListPublished}
+      />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.queryByLabelText('Julkaise starttilista samalla')).not.toBeInTheDocument()
+
+    const resendButton = screen
+      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .find((button) => !button.hasAttribute('disabled'))
+
+    if (!resendButton) throw new Error('enabled resend button not found')
+    await user.click(resendButton)
+
+    expect(onOpenMessageDialog).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
+      'invitation'
+    )
+    expect(onSetStartListPublished).not.toHaveBeenCalled()
+  })
+
+  it('does not offer publishing while sending when the event-level start list is already published', async () => {
+    const onOpenMessageDialog = jest.fn()
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          invitationAttachments: { ALO: 'new-alo-key' },
+          startListPublished: true,
+        }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent:
+            registration.class === 'ALO' && registration.id.endsWith('1') ? 'old-alo-key' : 'new-alo-key',
+          messagesSent: { invitation: true },
+        }))}
+        onOpenMessageDialog={onOpenMessageDialog}
+      />,
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.queryByLabelText('Julkaise starttilista samalla')).not.toBeInTheDocument()
+
+    const resendButton = screen
+      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .find((button) => !button.hasAttribute('disabled'))
+
+    if (!resendButton) throw new Error('enabled resend button not found')
+    await user.click(resendButton)
+
+    expect(onOpenMessageDialog).toHaveBeenCalledWith(
+      [expect.objectContaining({ id: expect.stringMatching(/1$/) })],
+      'invitation'
+    )
+  })
+
+  it('shows a publish start list CTA when invitations are sent but the class start list is not published', async () => {
+    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          classes: eventWithParticipantsInvited.classes.map((eventClass) =>
+            eventClass.class === 'AVO' ? { ...eventClass, places: 3 } : eventClass
+          ),
+          invitationAttachments: { ALO: 'alo-key' },
+          startListPublished: { ALO: false, AVO: true },
+        }}
+        onSetStartListPublished={onSetStartListPublished}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
+
+    await waitFor(() => {
+      expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', true)
+    })
+  })
+
+  it('shows an unpublish start list CTA when invitations are sent and the class start list is published', async () => {
+    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          classes: eventWithParticipantsInvited.classes.map((eventClass) =>
+            eventClass.class === 'AVO' ? { ...eventClass, places: 3 } : eventClass
+          ),
+          invitationAttachments: { ALO: 'alo-key' },
+          startListPublished: true,
+        }}
+        onSetStartListPublished={onSetStartListPublished}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0]).toBeEnabled()
+
+    await user.click(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0])
+
+    await waitFor(() => {
+      expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', false)
+    })
+  })
+
+  it('shows a publish start list CTA for an event without classes', async () => {
+    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const event = {
+      ...eventWithStaticDates,
+      startListPublished: false,
+      state: 'invited' as const,
+    }
+    const registrations = [
+      {
+        ...registrationWithStaticDates,
+        group: { date: event.startDate, key: 'NOU', number: 1 },
+        messagesSent: { invitation: true },
+      },
+    ]
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={event} onSetStartListPublished={onSetStartListPublished} registrations={registrations} />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByText('Koekutsut lähetetty')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
+
+    await waitFor(() => {
+      expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, true)
+    })
+  })
+
+  it('shows a hide start list CTA for a published event without classes', async () => {
+    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const event = {
+      ...eventWithStaticDates,
+      startListPublished: true,
+      state: 'invited' as const,
+    }
+    const registrations = [
+      {
+        ...registrationWithStaticDates,
+        group: { date: event.startDate, key: 'NOU', number: 1 },
+        messagesSent: { invitation: true },
+      },
+    ]
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={event} onSetStartListPublished={onSetStartListPublished} registrations={registrations} />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByText('Koekutsut lähetetty')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Piilota starttilista' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Piilota starttilista' }))
+
+    await waitFor(() => {
+      expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, false)
+    })
   })
 
   it('renders with event that has an invitation attachment', async () => {

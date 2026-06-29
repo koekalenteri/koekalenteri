@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { EventState } from '../../../types'
+import type { EventState, RegistrationClass } from '../../../types'
 import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
 import { isStartListAvailable } from '../../../lib/event'
@@ -8,15 +8,16 @@ import LinkButton from '../../components/LinkButton'
 
 interface Props {
   readonly id: string
+  readonly classes?: Array<{ class: RegistrationClass }>
   readonly state: EventState
-  readonly startListPublished?: boolean
+  readonly startListPublished?: boolean | Partial<Record<RegistrationClass, boolean>>
   readonly text?: string | ReactNode | null
 }
 
-export function EventStateInfo({ id, state, startListPublished, text = null }: Props) {
+export function EventStateInfo({ id, classes, state, startListPublished, text = null }: Props) {
   const { t } = useTranslation()
 
-  if (isStartListAvailable({ startListPublished, state })) {
+  if (isStartListAvailable({ classes, startListPublished, state })) {
     return <LinkButton to={Path.startList(id)} text={t('viewStartList')} />
   }
 

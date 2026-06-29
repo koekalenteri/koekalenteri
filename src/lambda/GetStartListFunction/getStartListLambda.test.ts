@@ -6,6 +6,7 @@ const mockResponse = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockIsStartListAvailable = jest.fn<any>()
+const mockIsStartListPublishedForClass = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -27,6 +28,7 @@ jest.unstable_mockModule('../lib/event', () => ({
 
 jest.unstable_mockModule('../../lib/event', () => ({
   isStartListAvailable: mockIsStartListAvailable,
+  isStartListPublishedForClass: mockIsStartListPublishedForClass,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -46,6 +48,7 @@ describe('getStartListLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockIsStartListPublishedForClass.mockReturnValue(true)
   })
 
   it('returns 404 if start list is not available', async () => {
@@ -61,6 +64,7 @@ describe('getStartListLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
+    expect(mockIsStartListPublishedForClass).not.toHaveBeenCalled()
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(404, [], event)
   })
@@ -145,6 +149,7 @@ describe('getStartListLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
+    expect(mockIsStartListPublishedForClass).toHaveBeenCalledWith(confirmedEvent, 'ALO')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
@@ -152,7 +157,60 @@ describe('getStartListLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, expectedPublicRegs, event)
   })
 
-  it('returns 404 if no registrations match the criteria', async () => {
+  it('filters out registrations from classes where the start list is not published', async () => {
+    const eventId = 'event123'
+    const confirmedEvent = {
+      id: eventId,
+      startListPublished: { ALO: true, AVO: false },
+      state: 'invited',
+    }
+    const registrations = [
+      {
+        cancelled: false,
+        class: 'ALO',
+        dog: { name: 'Dog 1', regNo: 'REG1' },
+        eventId,
+        group: { date: '2025-01-01', key: 'ALO', number: 1 },
+        handler: { name: 'Handler 1' },
+        owner: { name: 'Owner 1' },
+      },
+      {
+        cancelled: false,
+        class: 'AVO',
+        dog: { name: 'Dog 2', regNo: 'REG2' },
+        eventId,
+        group: { date: '2025-01-01', key: 'AVO', number: 2 },
+        handler: { name: 'Handler 2' },
+        owner: { name: 'Owner 2' },
+      },
+    ]
+
+    mockGetParam.mockReturnValueOnce(eventId)
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockIsStartListAvailable.mockReturnValueOnce(true)
+    mockIsStartListPublishedForClass.mockImplementation((_event: unknown, eventClass: string) => eventClass === 'ALO')
+    mockQuery.mockResolvedValueOnce(registrations)
+
+    await getStartListLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      [
+        {
+          breeder: undefined,
+          class: 'ALO',
+          dog: { name: 'Dog 1', regNo: 'REG1' },
+          group: { date: '2025-01-01', key: 'ALO', number: 1 },
+          handler: 'Handler 1',
+          owner: 'Owner 1',
+          ownerHandles: undefined,
+        },
+      ],
+      event
+    )
+  })
+
+  it('returns 200 with an empty list if no registrations match the criteria but the start list is available', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
     const registrations = [
@@ -193,10 +251,10 @@ describe('getStartListLambda', () => {
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
-    expect(mockResponse).toHaveBeenCalledWith(404, [], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
-  it('returns 404 if query returns undefined', async () => {
+  it('returns 200 with an empty list if query returns undefined but the start list is available', async () => {
     const eventId = 'event123'
     const confirmedEvent = { id: eventId, startListPublished: true, state: 'invited' }
 
@@ -214,7 +272,7 @@ describe('getStartListLambda', () => {
       key: 'eventId = :eventId',
       values: { ':eventId': eventId },
     })
-    expect(mockResponse).toHaveBeenCalledWith(404, [], event)
+    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
   it('passes through errors from getEvent', async () => {

@@ -8,6 +8,8 @@ const mockRead = jest.fn<() => Promise<Organizer | undefined>>()
 const mockResponse = jest.fn<(status: number, body: unknown, event: unknown) => unknown>()
 const mockLueKoetapahtumat = jest.fn<() => Promise<{ error?: string; json?: KLKoetapahtuma[]; status: number }>>()
 
+const TEST_NOW = new Date('2026-06-01T12:00:00.000Z')
+
 class MockKLAPI {
   constructor() {
     // biome-ignore lint/correctness/noConstructorReturn: its a test
@@ -85,7 +87,12 @@ const otherOrganizer: Organizer = {
 }
 
 describe('searchEventKcIdChoicesLambda', () => {
+  beforeAll(() => {
+    jest.useFakeTimers()
+  })
+
   beforeEach(() => {
+    jest.setSystemTime(TEST_NOW)
     jest.clearAllMocks()
     mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org-id'], user })
     mockRead.mockResolvedValue(organizer)
@@ -121,6 +128,10 @@ describe('searchEventKcIdChoicesLambda', () => {
       ],
       status: 200,
     })
+  })
+
+  afterAll(() => {
+    jest.useRealTimers()
   })
 
   it('uses organizer table kcId for Kennel Club search', async () => {

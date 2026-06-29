@@ -14,9 +14,12 @@ jest.mock('./DateHeader', () => ({
 }))
 
 jest.mock('./ClassHeader', () => ({
-  ClassHeader: ({ classValue }: { classValue: string }) => (
+  ClassHeader: ({ classValue, published = true }: { classValue: string; published?: boolean }) => (
     <tr data-testid="class-header">
-      <td>{classValue}</td>
+      <td>
+        {classValue}
+        {published ? '' : ' unpublished'}
+      </td>
     </tr>
   ),
 }))
@@ -159,6 +162,61 @@ describe('ParticipantList', () => {
 
     // Check that registration details are rendered
     expect(screen.getAllByTestId('registration-details')).toHaveLength(4)
+  })
+
+  it('renders an unpublished class note for event classes missing from the public start list', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: true, VOI: false } }}
+      />
+    )
+
+    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+  })
+
+  it('renders a published event class even when it has no public participants', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: true, VOI: true } }}
+      />
+    )
+
+    expect(screen.getByText('VOI')).toBeInTheDocument()
+    expect(screen.queryByText('VOI unpublished')).not.toBeInTheDocument()
+  })
+
+  it('renders an empty same-class entry on another date', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{
+          ...mockEvent,
+          classes: [
+            { class: 'AVO', date: new Date('2023-01-01') },
+            { class: 'AVO', date: new Date('2023-01-02') },
+          ],
+          endDate: new Date('2023-01-02'),
+          startListPublished: { AVO: true },
+        }}
+      />
+    )
+
+    expect(screen.getAllByTestId('date-header')).toHaveLength(2)
+    expect(screen.getAllByTestId('class-header')).toHaveLength(2)
   })
 
   it('renders cancelled registrations correctly', () => {

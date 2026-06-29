@@ -552,6 +552,7 @@
     "fi": "Koko suomeksi"
   },
   "startListCopied": "Lista kopioitu",
+  "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",
   "templateId": "Viestin nimi",

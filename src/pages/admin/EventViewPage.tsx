@@ -32,6 +32,7 @@ import {
   adminEventIdAtom,
   adminEventRegistrationsSelector,
   adminRegistrationIdAtom,
+  useAdminEventActions,
 } from './recoil'
 import { useAdminRegistrationActions } from './recoil/registrations/actions'
 
@@ -49,6 +50,7 @@ export default function EventViewPage() {
   const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
   const event = useRecoilValue(adminConfirmedEventSelector(eventId))
   const actions = useAdminRegistrationActions(eventId)
+  const eventActions = useAdminEventActions()
 
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
@@ -143,6 +145,11 @@ export default function EventViewPage() {
         event={event}
         onCreateRegistration={() => setCreateOpen(true)}
         onOpenDetails={() => setDetailsOpen(true)}
+        onSetStartListPublished={(eventClass, published) =>
+          eventClass
+            ? eventActions.setStartListClassPublished(event, eventClass, published)
+            : eventActions.setStartListPublished(event, published)
+        }
         registrations={allRegistrations}
         onOpenMessageDialog={handleOpenMsgDialog}
       />
