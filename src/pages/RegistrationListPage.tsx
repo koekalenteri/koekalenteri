@@ -39,7 +39,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   )
   const [language, setLanguage] = useRecoilState(languageAtom)
   const spa = useRecoilValue(spaAtom)
-  const eventNotFound = !event
+  const eventNotFound = event === null
   const { t } = useTranslation()
   const [cancelOpen, setCancelOpen] = useState<boolean | null>(null)
   const [confirmOpen, setConfirmOpen] = useState<boolean | null>(null)

@@ -7,6 +7,7 @@ import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
 import { unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
+import * as eventApi from '../api/event'
 import { APIError } from '../api/http'
 import * as registrationApi from '../api/registration'
 import theme from '../assets/Theme'
@@ -43,6 +44,7 @@ describe('RegistrationListPage', () => {
     jest.runOnlyPendingTimers()
     localStorage.clear()
     sessionStorage.clear()
+    jest.restoreAllMocks()
     jest.clearAllMocks()
   })
 
@@ -159,6 +161,20 @@ describe('RegistrationListPage', () => {
 
     const confirmButton = await screen.findByRole('button', { name: 'registration.confirmDialog.cta' })
     expect(confirmButton).toBeInTheDocument()
+  })
+
+  it('shows loading instead of event not found while confirm route event fetch is pending', async () => {
+    jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
+    jest.spyOn(eventApi, 'getEvent').mockReturnValue(new Promise(() => {}) as never)
+
+    renderWithRouter('/r/test1/nou-registration/confirm')
+
+    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    await flushPromises()
+
+    expect(screen.queryByText('loading...')).not.toBeInTheDocument()
+    expect(screen.queryByText('error.eventNotFound')).not.toBeInTheDocument()
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
   })
 
   it('handles cancel action when cancel dialog is submitted', async () => {
