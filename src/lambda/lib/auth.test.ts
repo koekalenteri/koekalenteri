@@ -263,6 +263,34 @@ describe('auth', () => {
         })
       )
     })
+
+    it('should not update linked user lastSeen when it was recently updated', async () => {
+      const cognitoUser = 'cognito-user'
+      const event = {
+        requestContext: {
+          authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: cognitoUser } },
+        },
+      } as any
+      const link = { cognitoUser, userId: 'test-id' }
+      const existingUser: JsonUser = {
+        createdAt: '2023-11-30T19:00:00.000Z',
+        createdBy: 'system',
+        email: 'test@example.com',
+        id: 'test-id',
+        lastSeen: '2023-11-30T19:55:00.000Z',
+        modifiedAt: '2023-11-30T19:00:00.000Z',
+        modifiedBy: 'system',
+        name: 'test-user',
+      }
+
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(existingUser)
+
+      const result = await authorize(event, true)
+
+      expect(result).toEqual(existingUser)
+      expect(updateUser).not.toHaveBeenCalled()
+    })
   })
 
   describe('getAndUpdateUserByEmail', () => {
@@ -317,6 +345,25 @@ describe('auth', () => {
       }
 
       expect(updateUser).toHaveBeenCalledWith(expectedUser)
+    })
+
+    it('should not update existing user lastSeen when it was recently updated', async () => {
+      const existingUser: JsonUser = {
+        createdAt: '2023-11-30T19:00:00.000Z',
+        createdBy: 'system',
+        email: 'user@example.com',
+        id: 'test-id',
+        lastSeen: '2023-11-30T19:55:00.000Z',
+        modifiedAt: '2023-11-30T19:00:00.000Z',
+        modifiedBy: 'system',
+        name: '',
+      }
+      ;(findUserByEmail as jest.MockedFunction<typeof findUserByEmail>).mockResolvedValueOnce(existingUser)
+
+      const result = await getAndUpdateUserByEmail('user@example.com', {}, false, true)
+
+      expect(result).toEqual(existingUser)
+      expect(updateUser).not.toHaveBeenCalled()
     })
 
     it.each`

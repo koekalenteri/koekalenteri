@@ -15,6 +15,7 @@ export interface UserLink {
 }
 
 const { userTable, userLinkTable } = CONFIG
+const LAST_SEEN_UPDATE_INTERVAL_MS = 15 * 60 * 1000
 
 const dynamoDB = new CustomDynamoClient(userLinkTable)
 
@@ -42,6 +43,16 @@ const getAuthorizerClaims = (event?: Partial<APIGatewayProxyEvent>): Record<stri
   return typeof rawClaims === 'object' ? rawClaims : undefined
 }
 
+const shouldUpdateLastSeen = (existing: JsonUser | undefined, dateString: string, updateLastSeen?: boolean) => {
+  if (!updateLastSeen) return false
+  if (!existing?.lastSeen) return true
+
+  const lastSeen = Date.parse(existing.lastSeen)
+  if (!Number.isFinite(lastSeen)) return true
+
+  return Date.parse(dateString) - lastSeen >= LAST_SEEN_UPDATE_INTERVAL_MS
+}
+
 async function updateExistingUser(
   existing: JsonUser,
   props: Omit<Partial<JsonUser>, 'id' | 'email'>,
@@ -62,10 +73,11 @@ async function updateExistingUser(
     existing.name = changes.name ?? ''
   }
 
+  const writeLastSeen = shouldUpdateLastSeen(existing, dateString, updateLastSeen)
   const final: JsonUser = {
     ...existing,
     ...changes,
-    ...(updateLastSeen ? { lastSeen: dateString } : {}),
+    ...(writeLastSeen ? { lastSeen: dateString } : {}),
   }
 
   const changedKeys = Object.keys(diff(existing, final))
@@ -188,6 +200,7 @@ export async function getAndUpdateUserByEmail(
   const changes = { ...props }
   applyNameUpdatePolicy(existing, changes, updateName)
 
+  const writeLastSeen = shouldUpdateLastSeen(existing, dateString, updateLastSeen)
   const final: JsonUser = {
     ...newUser,
     ...existing,
@@ -198,7 +211,7 @@ export async function getAndUpdateUserByEmail(
     ...(existing?.email && existing.email !== email
       ? { emailHistory: appendEmailHistory(existing, existing.email, email, dateString, 'login') }
       : {}),
-    ...(updateLastSeen ? { lastSeen: dateString } : {}),
+    ...(writeLastSeen ? { lastSeen: dateString } : {}),
   }
   const changedKeys = Object.keys(diff(existing ?? {}, final))
   if (changedKeys.length > 0) {
