@@ -66,6 +66,8 @@ const getMinJudgeCount = (event: PartialEvent) => {
 
 const ZIPCODE_REGEXP = /^\d{5}$/
 
+const allowPastEventDates = (event: PartialEvent) => event.state === 'draft' || !event.id
+
 // Helper functions for costMember validation
 const validateOptionalAdditionalCosts = (cost: DogEventCost, costMember: DogEventCost): string[] => {
   const list: string[] = []
@@ -149,7 +151,8 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     const list = validateComplexCostMember(cost, costMember)
     return list.length ? { key: 'costMemberHigh', opts: { field: 'costMember', list } } : false
   },
-  endDate: (event, required) => (required && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false),
+  endDate: (event, required) =>
+    required && !allowPastEventDates(event) && event.endDate < zonedEndOfDay(new Date()) ? 'endDate' : false,
   headquarters: (event, _required) => {
     const headquarters = event.headquarters
     if (headquarters?.zipCode && !ZIPCODE_REGEXP.exec(headquarters.zipCode)) {
@@ -195,7 +198,8 @@ export const VALIDATORS: Validators<PartialEvent, 'event'> = {
     }
     return list.length ? { key: 'placesClass', opts: { field: 'places', length: list.length, list } } : false
   },
-  startDate: (event, required) => (required && event.startDate < zonedStartOfDay(new Date()) ? 'startDate' : false),
+  startDate: (event, required) =>
+    required && !allowPastEventDates(event) && event.startDate < zonedStartOfDay(new Date()) ? 'startDate' : false,
 }
 
 export function requiredFields(event: PartialEvent): FieldRequirements {
