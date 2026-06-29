@@ -27,7 +27,8 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
-import { getParticipantMessageInfo } from '../../../lib/registration'
+import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
+import { getParticipantMessageInfo, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
@@ -37,6 +38,7 @@ interface Props {
   readonly event: ConfirmedEvent
   readonly onCreateRegistration?: () => void
   readonly onOpenDetails?: () => void
+  readonly onSetStartListPublished?: (eventClass: RegistrationClass | undefined, published: boolean) => Promise<unknown>
   readonly registrations: Registration[]
   readonly onOpenMessageDialog?: (recipients: Registration[], templateId?: EmailTemplateId) => void
 }
@@ -50,7 +52,14 @@ const sectionSx = {
 }
 const actionButtonSx = { justifyContent: 'flex-start', textAlign: 'left' }
 
-const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, onOpenMessageDialog }: Props) => {
+const InfoPanel = ({
+  event,
+  onCreateRegistration,
+  onOpenDetails,
+  onSetStartListPublished,
+  registrations,
+  onOpenMessageDialog,
+}: Props) => {
   const { t } = useTranslation()
   const token = useRecoilValue(idTokenAtom)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
@@ -67,6 +76,27 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
     registrations
   )
   const toggle = useCallback(() => setExpanded((old) => !old), [])
+  const handleSetStartListPublished = useCallback(
+    async (eventClass: RegistrationClass | undefined, published: boolean) => {
+      const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
+      if (!canPublishStartList({ state })) {
+        return
+      }
+      if (!onSetStartListPublished) {
+        return
+      }
+
+      try {
+        await onSetStartListPublished(eventClass, published)
+        enqueueSnackbar(`${eventClass ? `${eventClass} ` : ''}starttilista ${published ? 'julkaistu' : 'piilotettu'}`, {
+          variant: 'success',
+        })
+      } catch {
+        enqueueSnackbar('Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.', errorSnackbarOptions)
+      }
+    },
+    [event, onSetStartListPublished, stateByClass]
+  )
   const handleInvitationUpload = useCallback(
     (className?: RegistrationClass) => async (e: ChangeEvent<HTMLInputElement>) => {
       const input = e.target
@@ -227,6 +257,13 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                   )
                   const messageLabel = templateId === 'picked' ? 'koepaikkailmoitus' : 'koekutsu'
                   const invitationsSent = templateId === 'invitation' && selected.length > 0 && recipients.length === 0
+                  const startListPublished = isStartListPublishedForClass(event, c)
+                  const classlessEventRow = event.classes.length === 0 && c === event.eventType
+                  const startListEventClass = isRegistrationClass(c) ? c : undefined
+                  const startListManageable =
+                    Boolean(onSetStartListPublished) &&
+                    (classlessEventRow || Boolean(startListEventClass)) &&
+                    canPublishStartList({ state: stateByClass[c] ?? event.state })
 
                   return (
                     <TableRow key={c}>
@@ -243,13 +280,27 @@ const InfoPanel = ({ event, onCreateRegistration, onOpenDetails, registrations, 
                       <TableCell align="right">
                         <Stack alignItems="flex-end" spacing={0.25}>
                           {invitationsSent ? (
-                            <Typography
-                              variant="caption"
-                              color="info.main"
-                              sx={{ alignItems: 'center', display: 'flex', minHeight: 30 }}
-                            >
-                              Koekutsut lähetetty
-                            </Typography>
+                            <>
+                              <Typography
+                                variant="caption"
+                                color="info.main"
+                                sx={{ alignItems: 'center', display: 'flex', minHeight: 30 }}
+                              >
+                                Koekutsut lähetetty
+                              </Typography>
+                              <Button
+                                size="small"
+                                disabled={!startListManageable}
+                                onClick={() => {
+                                  if (classlessEventRow || startListEventClass) {
+                                    handleSetStartListPublished(startListEventClass, !startListPublished)
+                                  }
+                                }}
+                                variant="outlined"
+                              >
+                                {startListPublished ? 'Piilota starttilista' : 'Julkaise starttilista'}
+                              </Button>
+                            </>
                           ) : (
                             <Button
                               size="small"

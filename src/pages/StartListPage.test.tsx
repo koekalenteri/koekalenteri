@@ -54,7 +54,8 @@ describe('StartListPage', () => {
     organizer: { id: 'org-1', name: 'Test Organizer' },
     places: 0,
     startDate: new Date('2023-01-01'),
-    state: 'confirmed',
+    startListPublished: true,
+    state: 'invited',
   }
 
   const mockParticipants: PublicRegistration[] = [
@@ -120,9 +121,56 @@ describe('StartListPage', () => {
 
   it('shows error message when participants list is empty', () => {
     mockUseLoaderData.mockReturnValue([])
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+      ...mockEvent,
+      classes: [],
+      startListPublished: false,
+    })
     render(<StartListPage />)
 
     // Check that error message is rendered
     expect(screen.getByText(/Starttilistaa ei ole saatavilla tälle tapahtumalle/)).toBeInTheDocument()
+  })
+
+  it('renders the list when participants are empty but the event has published classes', () => {
+    mockUseLoaderData.mockReturnValue([])
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+      ...mockEvent,
+      classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
+      startListPublished: { AVO: true },
+    })
+
+    render(<StartListPage />)
+
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 0, Event: Test Name')
+  })
+
+  it('shows error message when participants are empty and no class is published', () => {
+    mockUseLoaderData.mockReturnValue([])
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+      ...mockEvent,
+      classes: [{ class: 'AVO', date: new Date('2023-01-01') }],
+      startListPublished: { AVO: false },
+    })
+
+    render(<StartListPage />)
+
+    expect(screen.getByText(/Starttilistaa ei ole saatavilla tälle tapahtumalle/)).toBeInTheDocument()
+  })
+
+  it('renders the list when at least one class is published and another is unpublished', () => {
+    mockUseLoaderData.mockReturnValue([])
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+      ...mockEvent,
+      classes: [
+        { class: 'AVO', date: new Date('2023-01-01') },
+        { class: 'VOI', date: new Date('2023-01-01') },
+      ],
+      startListPublished: { AVO: true, VOI: false },
+    })
+
+    render(<StartListPage />)
+
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 0, Event: Test Name')
   })
 })

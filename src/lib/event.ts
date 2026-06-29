@@ -29,11 +29,51 @@ export const newEventEntryStartDate = defaultEntryStartDate(newEventStartDate)
 export const newEventEntryEndDate = defaultEntryEndDate(newEventStartDate)
 
 export const isStartListAvailable = ({
+  classes,
   state,
   startListPublished,
-}: Pick<JsonDogEvent, 'state' | 'startListPublished'>) =>
-  (state === 'invited' || state === 'started' || state === 'ended' || state === 'completed') &&
-  startListPublished !== false
+}: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
+  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
+}) => {
+  if (!canPublishStartList({ state })) return false
+  if (isStartListPublishedClassMap(startListPublished)) {
+    if (classes?.length) {
+      return classes.some((eventClass) => isStartListPublishedForClass({ startListPublished }, eventClass.class))
+    }
+    return Object.values(startListPublished).some(Boolean)
+  }
+  return startListPublished !== false
+}
+
+export const canPublishStartList = ({ state }: Pick<JsonDogEvent, 'state'>) =>
+  state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
+
+export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
+  isStartListPublishedClassMap(event.startListPublished)
+    ? event.startListPublished[eventClass as RegistrationClass] === true
+    : event.startListPublished !== false
+
+export const isStartListPublishedClassMap = (
+  startListPublished: JsonDogEvent['startListPublished']
+): startListPublished is Partial<Record<RegistrationClass, boolean>> =>
+  typeof startListPublished === 'object' && startListPublished !== null
+
+export const getStartListPublishedClassMap = ({
+  classes,
+  startListPublished,
+}: Pick<JsonDogEvent, 'startListPublished'> & {
+  classes: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
+}): Partial<Record<RegistrationClass, boolean>> => {
+  const existingMap = isStartListPublishedClassMap(startListPublished) ? startListPublished : {}
+  const defaultPublished = isStartListPublishedClassMap(startListPublished) ? false : startListPublished !== false
+  const result: Partial<Record<RegistrationClass, boolean>> = {}
+
+  for (const eventClass of classes) {
+    result[eventClass.class] = existingMap[eventClass.class] ?? defaultPublished
+  }
+
+  return result
+}
 
 export const isEventDeletable = ({ state }: Partial<Pick<JsonDogEvent, 'state'>> | undefined = {}) =>
   state === 'draft' || state === 'tentative' || state === 'cancelled'

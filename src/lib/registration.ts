@@ -19,6 +19,7 @@ import type {
 } from '../types'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
+import { isEntryClosed } from './utils'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
@@ -158,7 +159,10 @@ export const getSelectedAdditionalCosts = (
 }
 
 type InvitationAttachmentEvent = Partial<
-  Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>
+  Pick<
+    ConfirmedEvent | JsonConfirmedEvent,
+    'entryEndDate' | 'invitationAttachment' | 'invitationAttachments' | 'startDate'
+  >
 >
 type InvitationAttachmentRegistration = Pick<
   JsonRegistration | Registration,
@@ -206,9 +210,11 @@ export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistra
   classState: EventState,
   selectedRegistrations: T[]
 ): { canSend: boolean; recipients: T[]; templateId: EmailTemplateId } => {
+  const canSendAfterEntry = isEntryClosed(event)
+
   if (classState === 'confirmed') {
     return {
-      canSend: selectedRegistrations.length > 0,
+      canSend: canSendAfterEntry && selectedRegistrations.length > 0,
       recipients: selectedRegistrations,
       templateId: 'picked',
     }
@@ -217,7 +223,7 @@ export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistra
   const recipients = getInvitationRecipients(event, selectedRegistrations)
 
   return {
-    canSend: ['picked', 'invited'].includes(classState) && recipients.length > 0,
+    canSend: canSendAfterEntry && ['picked', 'invited'].includes(classState) && recipients.length > 0,
     recipients,
     templateId: 'invitation',
   }

@@ -20,14 +20,40 @@ function Wrapper({ children }: { readonly children: ReactNode }) {
 
 describe('EventStateInfo', () => {
   it('should render start list link for invited event', () => {
-    const { container } = render(<EventStateInfo id={'test-id'} state={'invited'} />, { wrapper: Wrapper })
+    const { container } = render(<EventStateInfo id={'test-id'} state={'invited'} startListPublished={true} />, {
+      wrapper: Wrapper,
+    })
 
     expect(screen.getByText('viewStartList')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 
+  it('should render start list link when a class-specific start list is published', () => {
+    render(<EventStateInfo id={'test-id'} state={'invited'} startListPublished={{ ALO: true, AVO: false }} />, {
+      wrapper: Wrapper,
+    })
+
+    expect(screen.getByText('viewStartList')).toBeInTheDocument()
+  })
+
+  it('should not render start list link when a sparse class-specific map omits unpublished classes', () => {
+    render(
+      <EventStateInfo
+        classes={[{ class: 'ALO' }, { class: 'AVO' }]}
+        id={'test-id'}
+        state={'invited'}
+        startListPublished={{ ALO: false }}
+      />,
+      { wrapper: Wrapper }
+    )
+
+    expect(screen.queryByText('viewStartList')).not.toBeInTheDocument()
+  })
+
   it('should render start list link for started event', () => {
-    const { container } = render(<EventStateInfo id={'test-id'} state={'started'} />, { wrapper: Wrapper })
+    const { container } = render(<EventStateInfo id={'test-id'} state={'started'} startListPublished={true} />, {
+      wrapper: Wrapper,
+    })
 
     expect(screen.getByText('viewStartList')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
