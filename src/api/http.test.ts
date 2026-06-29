@@ -1,4 +1,3 @@
-import * as awsAuth from 'aws-amplify/auth'
 import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
 import { API_BASE_URL } from '../routeConfig'
@@ -93,47 +92,11 @@ describe('http', () => {
       jest.useRealTimers()
     })
 
-    it('should refresh token with 401 / The incoming token has expired', async () => {
+    it('should throw 401 / The incoming token has expired', async () => {
       fetchMock.mockResponseOnce('The incoming token has expired', {
         status: 401,
         statusText: 'access denied',
       })
-
-      fetchMock.mockResponseOnce(JSON.stringify('success!'), {
-        status: 200,
-        statusText: 'ok',
-      })
-
-      jest
-        .spyOn(awsAuth, 'fetchAuthSession')
-        .mockResolvedValueOnce({ tokens: { idToken: { toString: () => 'fresh token' } } } as any)
-
-      const response = await http.get('/secure', { headers: { Authorization: 'asdf' } })
-
-      expect(response).toEqual('success!')
-    })
-
-    it('should throw if refreshing tokens throws', async () => {
-      fetchMock.mockResponseOnce('The incoming token has expired', {
-        status: 401,
-        statusText: 'access denied',
-      })
-
-      const err = new Error('auth err')
-      jest.spyOn(awsAuth, 'fetchAuthSession').mockRejectedValueOnce(err)
-
-      const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
-
-      expect(response).rejects.toEqual(err)
-    })
-
-    it('should throw if refreshing tokens fail', async () => {
-      fetchMock.mockResponseOnce('The incoming token has expired', {
-        status: 401,
-        statusText: 'access denied',
-      })
-
-      jest.spyOn(awsAuth, 'fetchAuthSession').mockResolvedValueOnce({})
 
       const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
 

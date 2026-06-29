@@ -1,4 +1,3 @@
-import { fetchAuthSession } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { reportError } from '../lib/client/error'
 import { errorSnackbarOptions } from '../lib/snackbar'
@@ -16,6 +15,22 @@ const getStatusFromBody = (body: Body | undefined, fallback: string = ''): strin
   if (isObject(body)) return body.message ?? fallback
 
   return body ?? fallback
+}
+
+const setAuthorizationHeader = (headers: HeadersInit | undefined, token: string): HeadersInit => {
+  const authorization = `Bearer ${token}`
+
+  if (headers instanceof Headers) {
+    const next = new Headers(headers)
+    next.set('Authorization', authorization)
+    return next
+  }
+
+  if (Array.isArray(headers)) {
+    return [...headers.filter(([key]) => key.toLowerCase() !== 'authorization'), ['Authorization', authorization]]
+  }
+
+  return { ...headers, Authorization: authorization }
 }
 
 export class APIError extends Error {
@@ -114,23 +129,6 @@ async function http<T>(
   } catch (err) {
     if (!(err instanceof APIError)) {
       enqueueSnackbar(`${err}`, errorSnackbarOptions)
-    } else if (err.status === 401) {
-      const msg = getStatusFromBody(err.body, err.message)
-      if (msg === 'The incoming token has expired' && init.headers && 'Authorization' in init.headers) {
-        // token expired, try to refresh
-        const session = await fetchAuthSession({ forceRefresh: true })
-        const idToken = session.tokens?.idToken?.toString()
-        if (idToken) {
-          const key = 'idToken'
-          const newValue = JSON.stringify(idToken)
-          localStorage.setItem(key, newValue)
-          dispatchEvent(new StorageEvent('storage', { key, newValue, storageArea: localStorage }))
-          // retry with new token after a little delay
-          await new Promise((resolve) => setTimeout(resolve, 50))
-          init = withToken(init, idToken)
-          return http<T>(path, init, reviveDates, returnStatus)
-        }
-      }
     }
 
     reportError(err)
@@ -170,10 +168,7 @@ const HTTP = {
 
 export const withToken = (init: RequestInit, token?: string): RequestInit => ({
   ...init,
-  headers: {
-    ...init.headers,
-    ...(token ? { Authorization: `Bearer ${token}` } : undefined),
-  },
+  headers: token ? setAuthorizationHeader(init.headers, token) : init.headers,
 })
 
 export default HTTP

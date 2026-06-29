@@ -15,7 +15,8 @@ import { locales, muiLocales } from './i18n'
 import { reportError } from './lib/client/error'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
-import { languageAtom } from './pages/recoil'
+import { idTokenAtom, languageAtom } from './pages/recoil'
+import { useAuthSessionRefresh } from './pages/recoil/user/session'
 import routes from './routes'
 
 try {
@@ -28,7 +29,9 @@ const router = createBrowserRouter(routes)
 
 function App() {
   const language = useRecoilValue(languageAtom)
+  const idToken = useRecoilValue(idTokenAtom)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
+  useAuthSessionRefresh(idToken)
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
