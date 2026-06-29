@@ -8,6 +8,8 @@ import { setUserRole } from '../lib/user'
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] === 'admin')
 
+const canSetRoleFor = (user: JsonUser, orgId: string) => user.admin || user.roles?.[orgId] === 'admin'
+
 const putUserLambda = lambda('putUser', async (event) => {
   const user = await authorize(event)
   if (!user) {
@@ -18,6 +20,13 @@ const putUserLambda = lambda('putUser', async (event) => {
     return response(403, 'Forbidden', event)
   }
   const item: JsonUser = parseJSONWithFallback(event.body)
+
+  for (const orgId of Object.keys(item.roles ?? [])) {
+    if (!canSetRoleFor(user, orgId)) {
+      console.warn('User does not have right to set role', { item, orgId, user })
+      return response(403, 'Forbidden', event)
+    }
+  }
 
   let newUser = await getAndUpdateUserByEmail(item.email, { name: item.name })
 
