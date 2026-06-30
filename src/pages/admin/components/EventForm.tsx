@@ -32,7 +32,8 @@ import { requiredFields, validateEvent } from './eventForm/validation'
 
 interface Props {
   readonly event: DogEvent
-  readonly changes?: boolean
+  readonly changes?: Patch<DogEvent>
+  readonly canSave?: boolean
   readonly disabled?: boolean
   readonly onSave?: () => Promise<void>
   readonly onCancel?: () => void
@@ -41,7 +42,7 @@ interface Props {
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
 
-export default function EventForm({ event, changes, disabled, onSave, onCancel, onChange }: Props) {
+export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers] = useRecoilValue(
@@ -225,6 +226,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         />
         <EntrySection
           disabled={allDisabled}
+          changes={changes}
           errorStates={errorStates}
           event={event}
           eventTypeClasses={selectedEventTypeClasses}
@@ -285,7 +287,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
       >
         <AsyncButton
           color="primary"
-          disabled={!changes || !valid || allDisabled}
+          disabled={!canSave || !valid || allDisabled}
           startIcon={<Save />}
           variant="contained"
           onClick={onSave}

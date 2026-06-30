@@ -5,6 +5,7 @@ import {
   applyPatchesById,
   applyPatchOrInsert,
   clone,
+  getChanges,
   getPatchChangedIds,
   hasChanges,
   isDateOnlyString,
@@ -198,6 +199,16 @@ describe('utils', () => {
     it('should return false when objects are equal', () => {
       expect(hasChanges({}, {})).toEqual(false)
       expect(hasChanges({ a: 'same' }, { a: 'same' })).toEqual(false)
+    })
+  })
+
+  describe('getChanges', () => {
+    it('should return changed properties', () => {
+      expect(getChanges({ a: 'same', b: 'old' }, { a: 'same', b: 'new' })).toEqual({ b: 'new' })
+    })
+
+    it('should return an empty object when objects are equal', () => {
+      expect(getChanges({ a: 'same' }, { a: 'same' })).toEqual({})
     })
   })
 
