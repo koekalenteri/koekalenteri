@@ -34,6 +34,7 @@ export type FieldRequirements = {
 export interface SectionProps {
   readonly event: PartialEvent
   readonly disabled?: boolean
+  readonly changes?: Patch<DogEvent>
   readonly fields?: FieldRequirements
   readonly errorStates?: { [Property in keyof DogEvent]?: boolean }
   readonly helperTexts?: { [Property in keyof DogEvent]?: string }

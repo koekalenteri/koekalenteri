@@ -147,8 +147,11 @@ export const isObject = (o: unknown): o is AnyObject =>
 
 export const isEmptyObject = (o: unknown): o is EmptyObject => isObject(o) && isEmpty(o)
 
+export const getChanges = <T extends object>(a: T | undefined | null, b: T | undefined | null): Partial<T> =>
+  diff(a ?? {}, b ?? {}) as Partial<T>
+
 export const hasChanges = (a: object | undefined | null, b: object | undefined | null): boolean =>
-  !isEmptyObject(diff(a ?? {}, b ?? {}))
+  !isEmptyObject(getChanges(a, b))
 
 export const clone = <T extends AnyObject>(a: T): T => ({ ...a })
 
@@ -177,9 +180,9 @@ export const patchMerge = <T extends AnyObject, P extends Patch<T>>(base: T, pat
   let changed = false
   const result = { ...base } as T & P
   for (const key of Object.keys(patch)) {
-    if ((patch as any)[key] === null) {
+    if (patch[key] === null) {
       if (key in result) {
-        delete (result as any)[key]
+        delete result[key]
         changed = true
       }
       continue

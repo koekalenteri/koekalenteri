@@ -20,6 +20,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
   const {
     event,
     changes,
+    canSave,
     handleChange,
     handleSave: originalHandleSave,
     handleCancel: originalHandleCancel,
@@ -74,6 +75,7 @@ export default function EventDetailsDialog({ eventId, onClose, open }: Props) {
         <EventForm
           event={event}
           changes={changes}
+          canSave={canSave}
           onChange={handleChange}
           onCancel={handleCancel}
           onSave={handleSave}
