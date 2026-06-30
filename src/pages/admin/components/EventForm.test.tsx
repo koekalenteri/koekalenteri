@@ -25,7 +25,7 @@ const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <RecoilRoot>
           <Suspense fallback={<div>loading?...</div>}>
-            <EventForm event={event} changes onSave={onSave} onCancel={onCancel} onChange={onChange} />
+            <EventForm event={event} canSave onSave={onSave} onCancel={onCancel} onChange={onChange} />
           </Suspense>
         </RecoilRoot>
       </LocalizationProvider>
