@@ -3,7 +3,7 @@ import type { MutableSnapshot } from 'recoil'
 import type { PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
-import { RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { RecoilRoot, useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { applyPatch, applyPatchOrInsert } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
@@ -933,6 +933,52 @@ describe('useWebSocket', () => {
     await waitFor(() => {
       expect(result.current.registrations[0]?.notes).toBe('updated')
       expect(result.current.recentlyUpdated['admin:registration:reg-1']).toEqual(expect.any(Number))
+    })
+  })
+
+  it('should apply registration patches that arrive while registrations are loading', async () => {
+    const registration = { confirmed: false, id: 'reg-1', notes: 'old' } as Registration
+    let resolveRegistrations: (value: Registration[]) => void = () => undefined
+    const registrationsPromise = new Promise<Registration[]>((resolve) => {
+      resolveRegistrations = resolve
+    })
+    const wrapper = function Wrapper({ children }: { readonly children: ReactNode }) {
+      return createElement(RecoilRoot, {
+        children,
+        initializeState: ({ set }: MutableSnapshot) => {
+          set(idTokenAtom, 'id-token')
+          set(adminEventRegistrationsAtom('event-1'), registrationsPromise as unknown as Registration[])
+        },
+      })
+    }
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return {
+          registrations: useRecoilValueLoadable(adminEventRegistrationsAtom('event-1')),
+        }
+      },
+      { wrapper }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          patch: [{ confirmed: true, id: 'reg-1' }],
+          scope: 'admin:event-registrations',
+        }),
+      })
+    })
+
+    await act(async () => {
+      resolveRegistrations([registration])
+      await registrationsPromise
+    })
+
+    await waitFor(() => {
+      expect(result.current.registrations.state).toBe('hasValue')
+      expect(result.current.registrations.contents[0]?.confirmed).toBe(true)
     })
   })
 

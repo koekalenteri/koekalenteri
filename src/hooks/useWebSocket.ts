@@ -182,16 +182,21 @@ export const useWebSocket = () => {
   )
   const patchRegistrations = useRecoilCallback(
     ({ snapshot, set }) =>
-      (nextEventId: string, patch: Patch<Registration>[]) => {
-        const loadable = snapshot.getLoadable(adminEventRegistrationsAtom(nextEventId))
-        if (loadable.state !== 'hasValue') return
+      async (nextEventId: string, patch: Patch<Registration>[]) => {
+        let registrations: Registration[]
+        try {
+          registrations = await snapshot.getPromise(adminEventRegistrationsAtom(nextEventId))
+        } catch {
+          return
+        }
 
-        const next = applyRegistrationPatches(loadable.contents, patch)
-        if (next !== loadable.contents) {
-          for (const registrationId of getRegistrationPatchChangedIds(loadable.contents, patch)) {
+        const next = applyRegistrationPatches(registrations, patch)
+        if (next !== registrations) {
+          for (const registrationId of getRegistrationPatchChangedIds(registrations, patch)) {
             markRecentlyUpdated('admin:registration', registrationId)
           }
         }
+
         set(adminEventRegistrationsAtom(nextEventId), next)
       },
     [markRecentlyUpdated]

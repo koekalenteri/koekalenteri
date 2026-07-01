@@ -10,7 +10,8 @@ import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemp
 import { updateRegistrations } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
-import { clearRegistrationEmailDeliveryStatus, getRegistration } from '../lib/registration'
+import { clearRegistrationEmailDeliveryStatus, createRegistrationPatch, getRegistration } from '../lib/registration'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -24,6 +25,7 @@ const handleSuccessfulPayment = async (
   provider: string | undefined
 ) => {
   const registration = await getRegistration(eventId, registrationId)
+  const existingRegistration = { ...registration }
 
   const t = i18n.getFixedT(registration.language)
   const paidAmount = Number.parseInt(params['checkout-amount'] ?? '0', 10) / 100
@@ -56,6 +58,9 @@ const handleSuccessfulPayment = async (
   )
 
   const confirmedEvent = await updateRegistrations(registration.eventId)
+  const registrationPatch =
+    existingRegistration.state === 'ready' ? createRegistrationPatch(registration, existingRegistration) : registration
+  await publishRegistrationPatches(registration.eventId, [registrationPatch], confirmedEvent.organizer.id)
 
   // send receipt
   try {
