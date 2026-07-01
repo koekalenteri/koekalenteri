@@ -1,10 +1,11 @@
 import { render, waitFor } from '@testing-library/react'
+import { fetchAuthSession } from 'aws-amplify/auth'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
+import { reportError } from '../lib/client/error'
 import { Component as LoginPage } from './LoginPage'
 import { idTokenAtom } from './recoil'
 
-const mockFetchAuthSession = jest.fn()
 const mockSignIn = jest.fn()
 
 jest.mock('@aws-amplify/core', () => ({
@@ -19,7 +20,11 @@ jest.mock('@aws-amplify/ui-react', () => ({
 }))
 
 jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: () => mockFetchAuthSession(),
+  fetchAuthSession: jest.fn(() => Promise.resolve({})),
+}))
+
+jest.mock('../lib/client/error', () => ({
+  reportError: jest.fn(),
 }))
 
 jest.mock('./components/Header', () => () => <div>HEADER</div>)
@@ -30,13 +35,14 @@ jest.mock('./recoil/user/actions', () => ({
   }),
 }))
 
-const authSession = (token: string) => ({
-  tokens: {
-    idToken: {
-      toString: () => token,
+const authSession = (token: string) =>
+  ({
+    tokens: {
+      idToken: {
+        toString: () => token,
+      },
     },
-  },
-})
+  }) as Awaited<ReturnType<typeof fetchAuthSession>>
 
 const renderLoginPage = (idToken?: string) =>
   render(
@@ -48,6 +54,9 @@ const renderLoginPage = (idToken?: string) =>
   )
 
 describe('LoginPage', () => {
+  const mockFetchAuthSession = fetchAuthSession as jest.MockedFunction<typeof fetchAuthSession>
+  const mockReportError = reportError as jest.MockedFunction<typeof reportError>
+
   beforeEach(() => {
     jest.clearAllMocks()
     localStorage.clear()
@@ -80,6 +89,16 @@ describe('LoginPage', () => {
 
     await waitFor(() => expect(mockFetchAuthSession).toHaveBeenCalledTimes(1))
 
+    expect(mockSignIn).not.toHaveBeenCalled()
+  })
+
+  it('reports auth session lookup failures', async () => {
+    const error = new Error('temporary auth session failure')
+    mockFetchAuthSession.mockRejectedValueOnce(error)
+
+    renderLoginPage()
+
+    await waitFor(() => expect(mockReportError).toHaveBeenCalledWith(error))
     expect(mockSignIn).not.toHaveBeenCalled()
   })
 })

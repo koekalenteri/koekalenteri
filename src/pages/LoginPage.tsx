@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import { fetchAuthSession } from 'aws-amplify/auth'
 import { useEffect, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
+import { reportError } from '../lib/client/error'
 import Header from './components/Header'
 import { idTokenAtom, languageAtom } from './recoil'
 import { useUserActions } from './recoil/user/actions'
@@ -28,14 +29,18 @@ export function Component() {
     authenticatedHandledRef.current = true
     let cancelled = false
 
-    fetchAuthSession().then((session) => {
-      if (cancelled) return
+    fetchAuthSession()
+      .then((session) => {
+        if (cancelled) return
 
-      const token = session.tokens?.idToken?.toString()
-      if (token && token !== idToken) {
-        signIn(token)
-      }
-    })
+        const token = session.tokens?.idToken?.toString()
+        if (token && token !== idToken) {
+          signIn(token)
+        }
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) reportError(error)
+      })
 
     return () => {
       cancelled = true

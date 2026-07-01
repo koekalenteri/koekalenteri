@@ -7,7 +7,7 @@ import { idTokenAtom } from './atoms'
 import { getJwtExpiresAt, isInvalidAuthSessionError, useAuthSessionRefresh } from './session'
 
 jest.mock('aws-amplify/auth', () => ({
-  fetchAuthSession: jest.fn(),
+  fetchAuthSession: jest.fn(() => Promise.resolve({})),
 }))
 
 jest.mock('../../../lib/client/error', () => ({
@@ -19,6 +19,8 @@ const encodeBase64Url = (value: string) => btoa(value).replace(/\+/g, '-').repla
 const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(payload))}.signature`
 
 describe('auth session refresh', () => {
+  const mockReportError = reportError as jest.MockedFunction<typeof reportError>
+
   beforeEach(() => {
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2026-06-29T12:00:00.000Z'))
@@ -103,7 +105,7 @@ describe('auth session refresh', () => {
     })
 
     await waitFor(() => expect(result.current).toBeUndefined())
-    expect(reportError).not.toHaveBeenCalled()
+    expect(mockReportError).not.toHaveBeenCalled()
   })
 
   it('keeps the id token when refresh fails transiently', async () => {
@@ -130,7 +132,7 @@ describe('auth session refresh', () => {
     })
 
     await waitFor(() => expect(result.current).toBe(currentToken))
-    expect(reportError).toHaveBeenCalledWith(error)
+    expect(mockReportError).toHaveBeenCalledWith(error)
   })
 
   it('clears the id token when forced refresh returns no id token', async () => {

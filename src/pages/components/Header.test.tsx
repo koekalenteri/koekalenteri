@@ -24,19 +24,26 @@ describe('Header', () => {
   })
 
   it('does not sign out when user lookup temporarily fails', async () => {
-    ;(getUser as jest.Mock).mockRejectedValueOnce(new Error('temporary user lookup failure'))
+    const error = new Error('temporary user lookup failure')
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    ;(getUser as jest.Mock).mockRejectedValueOnce(error)
 
-    render(
-      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
-        <MemoryRouter>
-          <Suspense fallback={null}>
-            <Header />
-          </Suspense>
-        </MemoryRouter>
-      </RecoilRoot>
-    )
+    try {
+      render(
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+          <MemoryRouter>
+            <Suspense fallback={null}>
+              <Header />
+            </Suspense>
+          </MemoryRouter>
+        </RecoilRoot>
+      )
 
-    await waitFor(() => expect(getUser).toHaveBeenCalledWith('id-token'))
-    expect(mockSignOut).not.toHaveBeenCalled()
+      await waitFor(() => expect(getUser).toHaveBeenCalledWith('id-token'))
+      expect(consoleErrorSpy).toHaveBeenCalledWith('reportError', error)
+      expect(mockSignOut).not.toHaveBeenCalled()
+    } finally {
+      consoleErrorSpy.mockRestore()
+    }
   })
 })
