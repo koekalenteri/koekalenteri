@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import DroppableDataGrid from './DroppableDataGrid'
+import DroppableDataGrid, { canDropInGroup } from './DroppableDataGrid'
 
 jest.mock('../../../components/StyledDataGrid', () => ({
   __esModule: true,
@@ -92,5 +92,9 @@ describe('DroppableDataGrid', () => {
     // We can't easily test the actual drop behavior in a unit test,
     // but we can verify that the canDrop function is passed correctly
     expect(canDropMock).not.toHaveBeenCalled() // It's only called during drag operations
+  })
+
+  it('should reject grouped drops for drag items without groups', () => {
+    expect(canDropInGroup('group1', {})).toBe(false)
   })
 })

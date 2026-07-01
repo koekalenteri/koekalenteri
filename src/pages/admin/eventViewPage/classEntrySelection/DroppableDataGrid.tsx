@@ -20,9 +20,11 @@ interface DragCollect {
   isDragging: boolean
 }
 
+export const canDropInGroup = (group: string | undefined, item?: Partial<DragItem>) =>
+  !group || (item?.groups ?? []).includes(group)
+
 const DroppableDataGrid = (props: Props) => {
-  const getCanDrop = (item?: DragItem) =>
-    (!props.group || !!item?.groups.includes(props.group)) && props.canDrop?.(item) !== false
+  const getCanDrop = (item?: DragItem) => canDropInGroup(props.group, item) && props.canDrop?.(item) !== false
   const [{ canDrop, isOver, isDragging }, ref] = useDrop<DragItem, void, DragCollect>(
     () => ({
       accept: 'row',
