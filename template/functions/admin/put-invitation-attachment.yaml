@@ -30,6 +30,14 @@
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
+        PutClass:
+          Type: Api
+          Properties:
+            Path: /admin/file/invitation/{eventId}/{className}
+            Method: POST
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   PutInvitationAttachmentFunctionLogGroup:
     Type: AWS::Logs::LogGroup

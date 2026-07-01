@@ -15,6 +15,7 @@ import type {
 import type { DogEventCost } from './Cost'
 
 export type PaymentTime = 'registration' | 'confirmation'
+export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
 export interface JsonDogEvent extends JsonDbRecord {
   paymentTime?: PaymentTime
@@ -32,6 +33,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   dates?: JsonRegistrationDate[]
   headquarters?: Partial<Headquarters>
   invitationAttachment?: string
+  invitationAttachments?: Record<string, string>
   judges: Array<PublicJudge>
   kcId?: number
   location: string
@@ -50,7 +52,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   secretary: Partial<User>
   startDate: string
   state: EventState
-  startListPublished?: boolean
+  startListPublished?: StartListPublishedState
 }
 
 type EventRequiredDates = 'startDate' | 'endDate'
@@ -78,6 +80,7 @@ type NonPublicDogEventProperties =
   | 'deletedBy'
   | 'headquarters'
   | 'invitationAttachment'
+  | 'invitationAttachments'
   | 'kcId'
   | 'official'
   | 'secretary'

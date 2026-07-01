@@ -1,4 +1,4 @@
-import type { DogEvent, PublicDogEvent } from '../types'
+import type { DogEvent, EventClass, Patch, PublicDogEvent } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import { dedupeInFlight } from './dedupeInFlight'
@@ -13,6 +13,37 @@ export type PublicEventsDeltaResponse = {
 }
 
 export type PublicEventsResponse = PublicDogEvent[] | PublicEventsDeltaResponse
+
+export type EventKcIdChoice = {
+  contactInfo?: DogEvent['contactInfo']
+  cost?: DogEvent['cost']
+  description?: DogEvent['description']
+  id: number
+  name: string
+  eventType: string
+  startDate: Date
+  endDate: Date
+  entryStartDate?: Date
+  entryEndDate?: Date
+  organizer: string
+  location: string
+}
+
+export type SearchEventKcIdChoicesResponse = {
+  choices: EventKcIdChoice[]
+}
+
+export type SearchEventKcIdChoicesRequest = Pick<
+  DogEvent,
+  'classes' | 'endDate' | 'eventType' | 'location' | 'name' | 'startDate'
+> & {
+  classes: Pick<EventClass, 'class' | 'date'>[]
+  organizer: Pick<DogEvent['organizer'], 'id'>
+}
+
+export function normalizeEventKcIdChoice(choice: EventKcIdChoice): EventKcIdChoice {
+  return choice.endDate.getFullYear() <= 1 ? { ...choice, endDate: choice.startDate } : choice
+}
 
 function isPublicEventsDeltaResponse(response: PublicEventsResponse): response is PublicEventsDeltaResponse {
   return !Array.isArray(response)
@@ -53,20 +84,44 @@ export async function getAdminEvent(id: string, token?: string, signal?: AbortSi
   return http.get<DogEvent>(`${ADMIN_PATH}${id}`, withToken({ signal }, token))
 }
 
-export async function putEvent(event: Partial<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
-  return (await http.post<Partial<DogEvent>, DogEvent>(ADMIN_PATH, event, withToken({ signal }, token))).data
+export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
+  const request = withToken({ signal }, token)
+  return event.id
+    ? (await http.patch<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
+    : (await http.post<Patch<DogEvent>, DogEvent>(ADMIN_PATH, event, request)).data
+}
+
+export async function searchEventKcIdChoices(
+  request: SearchEventKcIdChoicesRequest,
+  token?: string,
+  signal?: AbortSignal
+): Promise<SearchEventKcIdChoicesResponse> {
+  const response = (
+    await http.post<SearchEventKcIdChoicesRequest, SearchEventKcIdChoicesResponse>(
+      `${ADMIN_PATH}kcId/choices`,
+      request,
+      withToken({ signal }, token)
+    )
+  ).data
+
+  return { ...response, choices: response.choices.map(normalizeEventKcIdChoice) }
 }
 
 export async function putInvitationAttachment(
   eventId: string,
   file: File,
+  className?: string,
   token?: string,
   signal?: AbortSignal
 ): Promise<string> {
   const data = new FormData()
   data.append('file', file, file.name)
 
-  return http.postRaw<FormData, string>(`/admin/file/invitation/${eventId}`, data, withToken({ signal }, token))
+  const path = className
+    ? `/admin/file/invitation/${eventId}/${encodeURIComponent(className)}`
+    : `/admin/file/invitation/${eventId}`
+
+  return http.postRaw<FormData, string>(path, data, withToken({ signal }, token))
 }
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {

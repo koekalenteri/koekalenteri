@@ -1,5 +1,5 @@
 import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
-import { isStartListAvailable } from '../../lib/event'
+import { isStartListAvailable, isStartListPublishedForClass } from '../../lib/event'
 import { getEvent } from '../lib/event'
 import { getParam, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
@@ -7,15 +7,17 @@ import { getRegistrationsByEventId } from '../lib/registration'
 const getStartListLambda = lambda('getStartList', async (event) => {
   const eventId = getParam(event, 'eventId')
   const confirmedEvent = await getEvent(eventId)
+  const startListAvailable = isStartListAvailable(confirmedEvent)
   let publicRegs: JsonPublicRegistration[] = []
 
-  if (isStartListAvailable(confirmedEvent)) {
+  if (startListAvailable) {
     const items = await getRegistrationsByEventId(eventId)
 
     publicRegs =
       items
         ?.filter<JsonRegistrationWithGroup>((reg): reg is JsonRegistrationWithGroup => !!reg.group)
         .filter((reg) => reg.group.date && !reg.cancelled)
+        .filter((reg) => isStartListPublishedForClass(confirmedEvent, reg.class ?? ''))
         .map<JsonPublicRegistration>((reg) => ({
           breeder: reg.breeder?.name,
           class: reg.class,
@@ -28,7 +30,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         .sort((a, b) => a.group.number - b.group.number) ?? []
   }
 
-  return response(publicRegs.length > 0 ? 200 : 404, publicRegs, event)
+  return response(startListAvailable ? 200 : 404, publicRegs, event)
 })
 
 export default getStartListLambda

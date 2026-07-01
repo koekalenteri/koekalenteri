@@ -25,7 +25,7 @@ const renderComponent = (event: DogEvent, onSave?: () => Promise<void>, onCancel
       <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
         <RecoilRoot>
           <Suspense fallback={<div>loading?...</div>}>
-            <EventForm event={event} changes onSave={onSave} onCancel={onCancel} onChange={onChange} />
+            <EventForm event={event} canSave onSave={onSave} onCancel={onCancel} onChange={onChange} />
           </Suspense>
         </RecoilRoot>
       </LocalizationProvider>
@@ -70,5 +70,35 @@ describe('EventForm', () => {
     await user.click(cancelButton as HTMLElement)
     await flushPromises()
     expect(cancelHandler).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps an unsaved past event editable', async () => {
+    const saveHandler = jest.fn()
+
+    renderComponent({ ...eventWithStaticDates, id: '' }, saveHandler)
+    await flushPromises()
+
+    const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
+    expect(saveButton).toBeEnabled()
+  })
+
+  it('keeps a past draft editable', async () => {
+    const saveHandler = jest.fn()
+
+    renderComponent({ ...eventWithStaticDates, state: 'draft' }, saveHandler)
+    await flushPromises()
+
+    const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
+    expect(saveButton).toBeEnabled()
+  })
+
+  it('locks a saved non-draft past event', async () => {
+    const saveHandler = jest.fn()
+
+    renderComponent(eventWithStaticDates, saveHandler)
+    await flushPromises()
+
+    const saveButton = screen.getAllByRole('button').find((button) => button.querySelector('[data-testid="SaveIcon"]'))
+    expect(saveButton).toBeDisabled()
   })
 })

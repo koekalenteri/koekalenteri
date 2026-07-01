@@ -2,6 +2,8 @@ import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
   CustomCost,
+  EmailTemplateId,
+  EventState,
   JsonConfirmedEvent,
   JsonPublicDogEvent,
   JsonRegistration,
@@ -17,6 +19,7 @@ import type {
 } from '../types'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
+import { isEntryClosed } from './utils'
 
 export const GROUP_KEY_CANCELLED = 'cancelled'
 export const GROUP_KEY_RESERVE = 'reserve'
@@ -155,6 +158,77 @@ export const getSelectedAdditionalCosts = (
   return registration.optionalCosts?.map((n) => cost.optionalAdditionalCosts?.[n]).filter(isDefined) ?? []
 }
 
+type InvitationAttachmentEvent = Partial<
+  Pick<
+    ConfirmedEvent | JsonConfirmedEvent,
+    'entryEndDate' | 'invitationAttachment' | 'invitationAttachments' | 'startDate'
+  >
+>
+type InvitationAttachmentRegistration = Pick<
+  JsonRegistration | Registration,
+  'class' | 'eventType' | 'invitationAttachmentSent' | 'messagesSent'
+>
+
+export const getCurrentInvitationAttachment = (
+  event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
+  registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
+) => event.invitationAttachments?.[registration.class ?? registration.eventType] ?? event.invitationAttachment
+
+export const getSentInvitationAttachment = (
+  event: InvitationAttachmentEvent,
+  registration: InvitationAttachmentRegistration
+) =>
+  registration.messagesSent?.invitation && registration.invitationAttachmentSent
+    ? registration.invitationAttachmentSent
+    : getCurrentInvitationAttachment(event, registration)
+
+export const shouldSendInvitationToRegistration = (
+  event: InvitationAttachmentEvent,
+  registration: InvitationAttachmentRegistration
+): boolean => {
+  if (!registration.messagesSent?.invitation) {
+    return true
+  }
+
+  const currentAttachment = getCurrentInvitationAttachment(event, registration)
+  const currentClassAttachment = event.invitationAttachments?.[registration.class ?? registration.eventType]
+
+  if (!registration.invitationAttachmentSent) {
+    return Boolean(currentClassAttachment)
+  }
+
+  return Boolean(currentAttachment && registration.invitationAttachmentSent !== currentAttachment)
+}
+
+export const getInvitationRecipients = <T extends InvitationAttachmentRegistration>(
+  event: InvitationAttachmentEvent,
+  registrations: T[]
+): T[] => registrations.filter((registration) => shouldSendInvitationToRegistration(event, registration))
+
+export const getParticipantMessageInfo = <T extends InvitationAttachmentRegistration>(
+  event: InvitationAttachmentEvent,
+  classState: EventState,
+  selectedRegistrations: T[]
+): { canSend: boolean; recipients: T[]; templateId: EmailTemplateId } => {
+  const canSendAfterEntry = isEntryClosed(event)
+
+  if (classState === 'confirmed') {
+    return {
+      canSend: canSendAfterEntry && selectedRegistrations.length > 0,
+      recipients: selectedRegistrations,
+      templateId: 'picked',
+    }
+  }
+
+  const recipients = getInvitationRecipients(event, selectedRegistrations)
+
+  return {
+    canSend: canSendAfterEntry && ['picked', 'invited'].includes(classState) && recipients.length > 0,
+    recipients,
+    templateId: 'invitation',
+  }
+}
+
 export const getRegistrationEmailTemplateData = (
   registration: JsonRegistration | Registration,
   confirmedEvent: JsonConfirmedEvent | ConfirmedEvent,
@@ -196,12 +270,16 @@ export const getRegistrationEmailTemplateData = (
   const selectedServices = selectedAdditionalCosts
     .map((c) => c.description[registration.language] ?? c.description.fi)
     .join(', ')
+  const event = {
+    ...confirmedEvent,
+    invitationAttachment: getCurrentInvitationAttachment(confirmedEvent, registration),
+  }
 
   return {
     cancelReason,
     delayedPayment,
     dogBreed,
-    event: confirmedEvent,
+    event,
     eventDate,
     groupDate,
     groupNumber,

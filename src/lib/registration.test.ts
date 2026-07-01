@@ -5,15 +5,19 @@ import {
   canRefund,
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
+  getCurrentInvitationAttachment,
   getNextClass,
+  getParticipantMessageInfo,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
+  getSentInvitationAttachment,
   hasPriority,
   isMember,
   isPredefinedReason,
   isRegistrationClass,
   priorityDescriptionKey,
+  shouldSendInvitationToRegistration,
   sortRegistrationsByDateClassTimeAndNumber,
 } from './registration'
 
@@ -424,6 +428,8 @@ describe('lib/registration', () => {
 
       const confirmedEvent = {
         endDate: '2024-08-02',
+        invitationAttachment: 'event-attachment',
+        invitationAttachments: { ALO: 'alo-attachment' },
         startDate: '2024-08-01',
       } as any // Type assertion for event
 
@@ -458,11 +464,37 @@ describe('lib/registration', () => {
       expect(result.link).toBe('https://example.com/r/event1/reg1')
       expect(result.paymentLink).toBe('https://example.com/p/event1/reg1')
       expect(result.invitationLink).toBe('https://example.com/r/event1/reg1/invitation')
-      expect(result.event).toBe(confirmedEvent)
+      expect(result.event).toEqual({ ...confirmedEvent, invitationAttachment: 'event-attachment' })
       expect(result.reg).toBe(registration)
       expect(result.text).toBe('Additional text')
       expect(result.origin).toBe('https://example.com')
       expect(result.groupNumber).toBe(5)
+    })
+
+    it('should use class-specific invitation attachment in template event data', () => {
+      const registration = {
+        class: 'ALO',
+        dates: [],
+        dog: {},
+        eventId: 'event1',
+        id: 'reg1',
+        qualifyingResults: [],
+      } as any
+      const confirmedEvent = {
+        invitationAttachment: 'event-attachment',
+        invitationAttachments: { ALO: 'alo-attachment' },
+      } as any
+
+      const result = getRegistrationEmailTemplateData(
+        registration,
+        confirmedEvent,
+        'https://example.com',
+        'invitation' as any,
+        '',
+        t
+      )
+
+      expect(result.event.invitationAttachment).toBe('alo-attachment')
     })
 
     it('should use previous group when provided', () => {
@@ -514,6 +546,199 @@ describe('lib/registration', () => {
 
       // Verify some default values
       expect(result.groupNumber).toBe('?')
+    })
+  })
+
+  describe('invitation attachment helpers', () => {
+    const event = {
+      eventType: 'NOME-B',
+      invitationAttachment: 'common-attachment',
+      invitationAttachments: { ALO: 'alo-attachment' },
+    }
+
+    it('gets current class attachment for sending', () => {
+      expect(getCurrentInvitationAttachment(event, { class: 'ALO', eventType: 'NOME-B' })).toBe('alo-attachment')
+    })
+
+    it('gets current common attachment when class attachment is missing', () => {
+      expect(getCurrentInvitationAttachment(event, { class: 'AVO', eventType: 'NOME-B' })).toBe('common-attachment')
+    })
+
+    it('gets sent attachment for participant-facing invitation downloads', () => {
+      expect(
+        getSentInvitationAttachment(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'common-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe('common-attachment')
+    })
+
+    it('falls back to current attachment when no invitation has been sent', () => {
+      expect(getSentInvitationAttachment(event, { class: 'ALO', eventType: 'NOME-B' })).toBe('alo-attachment')
+    })
+  })
+
+  describe('shouldSendInvitationToRegistration', () => {
+    const event = {
+      eventType: 'NOME-B',
+      invitationAttachment: 'common-attachment',
+      invitationAttachments: { ALO: 'alo-attachment' },
+    }
+
+    it('returns true when invitation has not been sent', () => {
+      expect(shouldSendInvitationToRegistration(event, { class: 'ALO', eventType: 'NOME-B' })).toBe(true)
+    })
+
+    it('returns false when invitation has already been sent with the current class attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'alo-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(false)
+    })
+
+    it('returns false when invitation has already been sent with the current common attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'AVO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'common-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(false)
+    })
+
+    it('returns true when invitation was sent with a different known attachment', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'old-alo-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(true)
+    })
+
+    it('returns true when a class attachment exists but sent attachment key is missing', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(true)
+    })
+
+    it('does not treat missing sent attachment key as changed when only common attachment exists', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'AVO',
+          eventType: 'NOME-B',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(false)
+    })
+
+    it('returns true when common attachment was sent and class attachment was added later', () => {
+      expect(
+        shouldSendInvitationToRegistration(event, {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          invitationAttachmentSent: 'common-attachment',
+          messagesSent: { invitation: true },
+        })
+      ).toBe(true)
+    })
+  })
+
+  describe('getParticipantMessageInfo', () => {
+    const now = new Date('2024-01-10T12:00:00.000Z')
+    const event = {
+      entryEndDate: new Date('2024-01-05T12:00:00.000Z'),
+      invitationAttachment: 'common-attachment',
+      invitationAttachments: { ALO: 'alo-attachment' },
+      startDate: new Date('2024-01-20T12:00:00.000Z'),
+    }
+    const aloSent = {
+      class: 'ALO' as const,
+      eventType: 'NOME-B',
+      id: 'alo',
+      invitationAttachmentSent: 'alo-attachment',
+      messagesSent: { invitation: true },
+    }
+    const avoUnsent = {
+      class: 'AVO' as const,
+      eventType: 'NOME-B',
+      id: 'avo',
+    }
+
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it('returns picked template with all selected registrations for confirmed state', () => {
+      jest.useFakeTimers().setSystemTime(now)
+
+      const result = getParticipantMessageInfo(event, 'confirmed', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: true,
+        recipients: [aloSent, avoUnsent],
+        templateId: 'picked',
+      })
+    })
+
+    it('returns only unsent invitation recipients for partially sent invited classes', () => {
+      jest.useFakeTimers().setSystemTime(now)
+
+      const result = getParticipantMessageInfo(event, 'invited', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: true,
+        recipients: [avoUnsent],
+        templateId: 'invitation',
+      })
+    })
+
+    it('disables invitation sending when all selected registrations already received the current invitation', () => {
+      jest.useFakeTimers().setSystemTime(now)
+
+      const result = getParticipantMessageInfo(event, 'invited', [aloSent])
+
+      expect(result).toEqual({
+        canSend: false,
+        recipients: [],
+        templateId: 'invitation',
+      })
+    })
+
+    it('disables picked messages before the registration period is over', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-01-04T12:00:00.000Z'))
+
+      const result = getParticipantMessageInfo(event, 'confirmed', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: false,
+        recipients: [aloSent, avoUnsent],
+        templateId: 'picked',
+      })
+    })
+
+    it('disables invitation messages before the registration period is over', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2024-01-04T12:00:00.000Z'))
+
+      const result = getParticipantMessageInfo(event, 'invited', [aloSent, avoUnsent])
+
+      expect(result).toEqual({
+        canSend: false,
+        recipients: [avoUnsent],
+        templateId: 'invitation',
+      })
     })
   })
 

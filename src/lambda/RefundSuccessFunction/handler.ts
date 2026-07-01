@@ -48,9 +48,12 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     const provider = params['checkout-provider']
     const providerName = getProviderName(provider)
 
-    const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> = {
+    const handlingCost = (transaction.handlingCost ?? 0) / 100
+    const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> &
+      Pick<JsonRegistration, 'refundHandlingCost'> = {
       refundAmount: (registration.refundAmount ?? 0) + amount,
       refundAt: new Date().toISOString(),
+      refundHandlingCost: (registration.refundHandlingCost ?? 0) + handlingCost,
       refundStatus: 'SUCCESS',
     }
     const updatedAt = changes.refundAt
@@ -61,6 +64,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
         set: {
           refundAmount: changes.refundAmount,
           refundAt: changes.refundAt,
+          refundHandlingCost: changes.refundHandlingCost,
           refundStatus: changes.refundStatus,
           updatedAt,
         },
@@ -70,6 +74,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
 
     registration.refundAmount = (registration.refundAmount ?? 0) + amount
     registration.refundAt = changes.refundAt
+    registration.refundHandlingCost = changes.refundHandlingCost
     registration.refundStatus = 'SUCCESS'
     registration.updatedAt = updatedAt
 

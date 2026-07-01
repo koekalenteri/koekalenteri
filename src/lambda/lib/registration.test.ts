@@ -48,6 +48,7 @@ const {
   groupRegistrationsByClass,
   groupRegistrationsByClassAndGroup,
   sendTemplatedEmailToEventRegistrations,
+  patchRegistration,
 } = await import('./registration')
 
 describe('registration', () => {
@@ -330,6 +331,61 @@ describe('registration', () => {
     })
   })
 
+  describe('patchRegistration', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+    })
+
+    it('updates only changed fields and reloads the registration', async () => {
+      const existing = {
+        dog: { name: 'Old name', regNo: 'REG-1' },
+        emailDeliveryStatus: { status: 'bounce' },
+        eventId: 'event-id',
+        id: 'reg-id',
+        notes: 'old',
+      } as unknown as JsonRegistration
+      const next = {
+        ...existing,
+        dog: { name: 'New name', regNo: 'REG-1' },
+        emailDeliveryStatus: undefined,
+        notes: 'new',
+      } as unknown as JsonRegistration
+      mockDynamoDB.read.mockResolvedValueOnce(next)
+
+      const result = await patchRegistration(existing.eventId, existing.id, existing, next)
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'event-id', id: 'reg-id' },
+        {
+          remove: ['emailDeliveryStatus'],
+          set: {
+            'dog.name': 'New name',
+            notes: 'new',
+          },
+        },
+        'registration-table-not-found-in-env'
+      )
+      expect(mockDynamoDB.read).toHaveBeenCalledWith(
+        {
+          eventId: 'event-id',
+          id: 'reg-id',
+        },
+        'registration-table-not-found-in-env'
+      )
+      expect(result).toEqual(next)
+    })
+
+    it('does nothing for no-op patches', async () => {
+      const existing = { eventId: 'event-id', id: 'reg-id', notes: 'old' } as unknown as JsonRegistration
+
+      const result = await patchRegistration(existing.eventId, existing.id, existing, { ...existing })
+
+      expect(mockDynamoDB.update).not.toHaveBeenCalled()
+      expect(mockDynamoDB.read).not.toHaveBeenCalled()
+      expect(result).toBe(existing)
+    })
+  })
+
   describe('sendTemplatedEmailToEventRegistrations', () => {
     beforeEach(() => {
       jest.clearAllMocks()
@@ -352,7 +408,7 @@ describe('registration', () => {
       jest.setSystemTime(new Date('2023-01-01 12:00Z'))
       const result = await sendTemplatedEmailToEventRegistrations(
         'invitation',
-        JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+        { ...JSON.parse(JSON.stringify(eventWithALOClassInvited)), invitationAttachments: { ALO: 'alo-attachment' } },
         [
           { ...jsonRegistrationsToEventWithALOInvited[0] },
           { ...jsonRegistrationsToEventWithALOInvited[1], language: 'en' },
@@ -403,8 +459,46 @@ describe('registration', () => {
           },
         }
       )
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: 'testALOInvited', id: 'testALOInvited1' },
+        {
+          set: {
+            invitationAttachmentSent: 'alo-attachment',
+            updatedAt: expect.any(String),
+          },
+        }
+      )
 
       jest.useRealTimers()
+    })
+
+    it('records the common invitation attachment when class attachment is not configured', async () => {
+      const registration = { ...jsonRegistrationsToEventWithALOInvited[2] }
+
+      await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        {
+          ...JSON.parse(JSON.stringify(eventWithALOClassInvited)),
+          invitationAttachment: 'common-attachment',
+          invitationAttachments: { ALO: 'alo-attachment' },
+        },
+        [registration],
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        ''
+      )
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        {
+          set: {
+            invitationAttachmentSent: 'common-attachment',
+            updatedAt: expect.any(String),
+          },
+        }
+      )
+      expect(registration.invitationAttachmentSent).toBe('common-attachment')
     })
 
     it('should handle failed email sending', async () => {

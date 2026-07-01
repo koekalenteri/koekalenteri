@@ -1,6 +1,7 @@
 import type {
   AuditRecord,
   ConfirmedEvent,
+  Patch,
   PublicRegistration,
   Registration,
   RegistrationGroupInfo,
@@ -8,7 +9,7 @@ import type {
 } from '../types'
 import http, { withToken } from './http'
 
-export type IncrementalRegistrationsResponse = {
+type IncrementalRegistrationsResponse = {
   registrations: Registration[]
   unchangedIds: string[]
 }
@@ -52,22 +53,25 @@ export const getRegistrationAuditTrail = async (
   http.get<AuditRecord[]>(`/admin/registration/audit/${eventId}/${id}`, withToken({ signal }, token))
 
 export async function putRegistration(
-  registration: Registration,
+  registration: Patch<Registration>,
   token?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return (await http.post<Registration, Registration>('/registration/', registration, withToken({ signal }, token)))
-    .data
+  const request = withToken({ signal }, token)
+  return registration.id
+    ? (await http.patch<Patch<Registration>, Registration>('/registration/', registration, request)).data
+    : (await http.post<Patch<Registration>, Registration>('/registration/', registration, request)).data
 }
 
 export async function putAdminRegistration(
-  registration: Registration,
+  registration: Patch<Registration>,
   token: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  return (
-    await http.post<Registration, Registration>('/admin/registration/', registration, withToken({ signal }, token))
-  ).data
+  const request = withToken({ signal }, token)
+  return registration.id
+    ? (await http.patch<Patch<Registration>, Registration>('/admin/registration/', registration, request)).data
+    : (await http.post<Patch<Registration>, Registration>('/admin/registration/', registration, request)).data
 }
 
 type RegistrationInternalNotes = Pick<Registration, 'eventId' | 'id' | 'internalNotes'>

@@ -15,6 +15,7 @@
     "phone": "Phone"
   },
   "copy": "Copy",
+  "copyStartList": "Copy list",
   "copyTest": "Copy with entries",
   "cost": "Cost",
   "costAdd": "Add cost",
@@ -153,7 +154,20 @@
     "invitationAttachment": "Invitation attachment",
     "judges": "Judges",
     "kcId": "Kennel Club ID",
-    "kcId_info": "Kennel Klub ID is received from Omakoira, when the test application is sent and approved. The ID is needed for submitting results.",
+    "kcIdChoiceId": "Kennel Club ID",
+    "kcIdChoiceLocation": "Location",
+    "kcIdChoiceOrganizer": "Organizer",
+    "kcIdChoiceTime": "Time",
+    "kcIdChoiceTitle": "Select Kennel Club event",
+    "kcIdChoiceType": "Event",
+    "kcIdLookup": "Search from Kennel Club",
+    "kcIdNotFound": "No Kennel Club ID was found.",
+    "kcIdRemove": "Remove",
+    "kcIdRemoved": "Kennel Club ID removed",
+    "kcIdSearchFailed": "Failed to fetch Kennel Club ID. Check event details and try again.",
+    "kcIdSelect": "Select",
+    "kcIdSelected": "Kennel Club ID selected: {{id}}",
+    "kcIdSwitch": "Replace",
     "location": "Location",
     "modifiedAt": "Modified at",
     "modifiedBy": "Modified by",
@@ -510,6 +524,12 @@
       "ap": "morning",
       "ip": "afternoon",
       "kp": "no groups"
+    },
+    "tooltip": {
+      "refunded": "The entry fee has been refunded. Refunded {{refundAmount}}, paid {{paidAmount}}",
+      "refunded_handlingCost": "The entry fee has been refunded. Refunded {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}",
+      "refundPending": "The refund is being processed. Refunding {{refundAmount}}, paid {{paidAmount}}",
+      "refundPending_handlingCost": "The refund is being processed. Refunding {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}"
     }
   },
   "registrations": "Registrations",
@@ -522,6 +542,8 @@
     "en": "Koko englanniksi",
     "fi": "Koko suomeksi"
   },
+  "startListCopied": "List copied",
+  "startListNotPublished": "start list is not published yet",
   "support": "Support",
   "supportContact": "Send feedback",
   "templateId": "Message name",

@@ -1,18 +1,18 @@
-  PutEventFunction:
+  SearchEventKcIdChoicesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: lambda/PutEventFunction
+      CodeUri: lambda/SearchEventKcIdChoicesFunction
       Handler: handler.default
       Layers:
         - !Ref CommonLayer
       Tracing: Active
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref EventTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizerTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - Statement:
@@ -25,25 +25,17 @@
         - CloudWatchPutMetricPolicy: {}
         - !Ref WebSocketPolicy
       Events:
-        PutEvent:
+        SearchEventKcIdChoices:
           Type: Api
           Properties:
-            Path: /admin/event
+            Path: /admin/event/kcId/choices
             Method: POST
             RestApiId: !Ref KoekalenteriApi
             Auth:
               Authorizer: CognitoAuthorizer
-        PatchEvent:
-          Type: Api
-          Properties:
-            Path: /admin/event
-            Method: PATCH
-            RestApiId: !Ref KoekalenteriApi
-            Auth:
-              Authorizer: CognitoAuthorizer
 
-  PutEventFunctionLogGroup:
+  SearchEventKcIdChoicesFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutEventFunction]]
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref SearchEventKcIdChoicesFunction]]
       RetentionInDays: 30

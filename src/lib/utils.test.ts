@@ -5,6 +5,7 @@ import {
   applyPatchesById,
   applyPatchOrInsert,
   clone,
+  getChanges,
   getPatchChangedIds,
   hasChanges,
   isDateOnlyString,
@@ -201,6 +202,16 @@ describe('utils', () => {
     })
   })
 
+  describe('getChanges', () => {
+    it('should return changed properties', () => {
+      expect(getChanges({ a: 'same', b: 'old' }, { a: 'same', b: 'new' })).toEqual({ b: 'new' })
+    })
+
+    it('should return an empty object when objects are equal', () => {
+      expect(getChanges({ a: 'same' }, { a: 'same' })).toEqual({})
+    })
+  })
+
   describe('clone', () => {
     it('should create a shallow copy of the object', () => {
       const obj = { a: 1, b: { value: 2 } }
@@ -228,6 +239,11 @@ describe('utils', () => {
       expect(result).not.toBe(b)
       expect(result).toEqual({ arr: [3] })
       expect(result.arr).toBe(b.arr)
+    })
+    it('should remove fields with null patch values', () => {
+      const a = { keep: true, nested: { keep: true, remove: 'value' }, remove: 'value' }
+      const result = merge(a, { nested: { remove: null }, remove: null })
+      expect(result).toEqual({ keep: true, nested: { keep: true } })
     })
     it('should merge with empty object', () => {
       const a = { value: 'string' }
@@ -398,6 +414,16 @@ describe('utils', () => {
 
       expect(result).not.toBe(base)
       expect(result.b).not.toBe(base.b)
+    })
+
+    it('should remove fields with null patch values', () => {
+      const base = { keep: true, nested: { keep: true, remove: 'value' }, remove: 'value' }
+      const patch = { nested: { remove: null }, remove: null }
+      const result = patchMerge(base, patch) as { keep: boolean; nested: { keep: boolean } }
+
+      expect(result).toEqual({ keep: true, nested: { keep: true } })
+      expect(result).not.toBe(base)
+      expect(result.nested).not.toBe(base.nested)
     })
 
     it('should handle non-object base values', () => {

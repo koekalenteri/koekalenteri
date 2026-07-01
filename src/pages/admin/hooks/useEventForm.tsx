@@ -1,10 +1,10 @@
-import type { DogEvent } from '../../../types'
+import type { DogEvent, Patch } from '../../../types'
 import { useSnackbar } from 'notistack'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilState, useResetRecoilState } from 'recoil'
-import { hasChanges } from '../../../lib/utils'
+import { getChanges, isEmptyObject } from '../../../lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
 
 type EventFormOptions = {
@@ -21,28 +21,28 @@ export default function useEventForm(options: EventFormOptions = {}) {
 
   const [event, setEvent] = useRecoilState(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
   const resetEvent = useResetRecoilState(eventId ? adminEditableEventByIdAtom(eventId) : adminNewEventAtom)
+  const initialEvent = useRef(event)
 
   const { t } = useTranslation()
   const { enqueueSnackbar } = useSnackbar()
   const navigate = useNavigate()
   const actions = useAdminEventActions()
 
-  // In create mode, always show as changed
-  // In edit mode, compare with original event
-  const [changes, setChanges] = useState<boolean>(storedEvent ? hasChanges(storedEvent, event) : true)
+  const createMode = !storedEvent
+  const [changes, setChanges] = useState<Patch<DogEvent>>(getChanges(storedEvent ?? initialEvent.current, event))
+  const [canSave, setCanSave] = useState<boolean>(createMode || !isEmptyObject(changes))
 
   const handleChange = useCallback(
-    (newState: DogEvent) => {
-      // Update change tracking if in edit mode
-      if (storedEvent) {
-        setChanges(hasChanges(storedEvent, newState))
-      }
+    (newState: Patch<DogEvent>) => {
+      const newChanges = getChanges(storedEvent ?? initialEvent.current, newState as DogEvent)
+      setChanges(newChanges)
+      setCanSave(!storedEvent || !isEmptyObject(newChanges))
 
       // Always update modification timestamp
       newState.modifiedAt = new Date()
 
       // Update state
-      setEvent(newState)
+      setEvent(newState as DogEvent)
     },
     [setEvent, storedEvent]
   )
@@ -74,6 +74,7 @@ export default function useEventForm(options: EventFormOptions = {}) {
   }, [navigate, resetEvent, onDoneRedirect])
 
   return {
+    canSave,
     changes,
     event,
     handleCancel,

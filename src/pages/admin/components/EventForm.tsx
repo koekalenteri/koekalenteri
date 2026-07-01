@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { DeepPartial, DogEvent, EventState } from '../../../types'
+import type { DogEvent, EventState, Patch } from '../../../types'
 import type { PartialEvent } from './eventForm/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'
@@ -32,16 +32,17 @@ import { requiredFields, validateEvent } from './eventForm/validation'
 
 interface Props {
   readonly event: DogEvent
-  readonly changes?: boolean
+  readonly changes?: Patch<DogEvent>
+  readonly canSave?: boolean
   readonly disabled?: boolean
   readonly onSave?: () => Promise<void>
   readonly onCancel?: () => void
-  readonly onChange?: (event: DogEvent) => void
+  readonly onChange?: (event: Patch<DogEvent>) => void
 }
 
 const SELECTABLE_EVENT_STATES: EventState[] = ['draft', 'tentative', 'confirmed', 'cancelled']
 
-export default function EventForm({ event, changes, disabled, onSave, onCancel, onChange }: Props) {
+export default function EventForm({ event, changes, canSave, disabled, onSave, onCancel, onChange }: Props) {
   const { t } = useTranslation()
   const md = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
   const [activeEventTypes, activeJudges, eventTypeClasses, users, organizers] = useRecoilValue(
@@ -64,7 +65,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
     payment: md,
   })
   const valid = errors.length === 0
-  const allDisabled = disabled || isEventOver(event)
+  const allDisabled = disabled || (isEventOver(event) && !!event.id && event.state !== 'draft')
   const stateDisabled = allDisabled || !SELECTABLE_EVENT_STATES.includes(event.state ?? 'draft')
   const fields = useMemo(() => requiredFields(event), [event])
   const officials = useMemo(() => users.filter((u) => u.officer), [users])
@@ -83,7 +84,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
   )
 
   const handleChange = useCallback(
-    (props: DeepPartial<DogEvent>) => {
+    (props: Patch<DogEvent>) => {
       if (!event) {
         return
       }
@@ -100,7 +101,6 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
       if (props.costMember) {
         newState.costMember = props.costMember as DogEvent['costMember']
       }
-
       // Keep season in sync with startDate year
       if (props.startDate) {
         newState.season = String(newState.startDate.getFullYear())
@@ -225,6 +225,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
         />
         <EntrySection
           disabled={allDisabled}
+          changes={changes}
           errorStates={errorStates}
           event={event}
           eventTypeClasses={selectedEventTypeClasses}
@@ -285,7 +286,7 @@ export default function EventForm({ event, changes, disabled, onSave, onCancel, 
       >
         <AsyncButton
           color="primary"
-          disabled={!changes || !valid || allDisabled}
+          disabled={!canSave || !valid || allDisabled}
           startIcon={<Save />}
           variant="contained"
           onClick={onSave}

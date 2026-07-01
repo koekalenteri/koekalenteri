@@ -434,6 +434,20 @@ describe('validation', () => {
       expect(VALIDATORS.endDate?.(emptyEvent as any, true)).toBe('endDate')
     })
 
+    it('allows past dates for drafts', () => {
+      const event = { ...emptyEvent, state: 'draft' as const }
+
+      expect(VALIDATORS.startDate?.(event as any, true)).toBe(false)
+      expect(VALIDATORS.endDate?.(event as any, true)).toBe(false)
+    })
+
+    it('allows past dates for unsaved events', () => {
+      const event = { ...emptyEvent, id: '' }
+
+      expect(VALIDATORS.startDate?.(event as any, true)).toBe(false)
+      expect(VALIDATORS.endDate?.(event as any, true)).toBe(false)
+    })
+
     it('return false for past dates when not required', () => {
       expect(VALIDATORS.startDate?.(emptyEvent as any, false)).toBe(false)
       expect(VALIDATORS.endDate?.(emptyEvent as any, false)).toBe(false)

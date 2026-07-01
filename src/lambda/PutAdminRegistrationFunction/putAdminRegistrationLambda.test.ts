@@ -6,6 +6,14 @@ const mockAuthorize = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockSaveRegistration = jest.fn<any>()
+const mockPatchRegistration = jest.fn<
+  (
+    eventId: JsonRegistration['eventId'],
+    id: JsonRegistration['id'],
+    existing: JsonRegistration,
+    next: JsonRegistration
+  ) => Promise<JsonRegistration>
+>(async (_eventId, _id, _existing, next) => next)
 const mockAssertRegistrationEmailsNotSuppressed = jest.fn<any>()
 const mockGetReadyRegistrationsByEventId = jest.fn<any>(async () => [])
 const mockFixRegistrationGroups = jest.fn<any>(async (regs: JsonRegistration[]) => regs)
@@ -78,6 +86,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
   getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
+  patchRegistration: mockPatchRegistration,
   saveRegistration: mockSaveRegistration,
 }))
 
@@ -354,8 +363,11 @@ describe('putAdminRegistrationLambda', () => {
     // Verify existing registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // Verify registration was saved with updated data
-    expect(mockSaveRegistration).toHaveBeenCalledWith(
+    // Verify existing registration was patched with merged updated data.
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ eventId: 'event123', id: 'reg456', state: 'draft' }),
       expect.objectContaining({
         class: 'ALO',
         eventId: 'event123',
@@ -372,6 +384,7 @@ describe('putAdminRegistrationLambda', () => {
         state: 'draft', // Preserved from existing
       })
     )
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [expect.objectContaining({ eventId: 'event123', id: 'reg456', modifiedBy: 'Test User' })],
@@ -383,6 +396,42 @@ describe('putAdminRegistrationLambda', () => {
       'org-1'
     )
 
+    expect(result.statusCode).toBe(200)
+  })
+
+  it('merges partial patch payloads before saving existing registrations', async () => {
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        dog: { name: 'Patched dog name' },
+        eventId: 'event123',
+        id: 'reg456',
+        notes: 'patched notes',
+      }),
+      httpMethod: 'PATCH',
+    })
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ dog: { breedCode: '111', regNo: 'DOG123' }, eventId: 'event123', id: 'reg456' }),
+      expect.objectContaining({
+        dog: { breedCode: '111', name: 'Patched dog name', regNo: 'DOG123' },
+        notes: 'patched notes',
+      })
+    )
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [
+        expect.objectContaining({
+          dog: { name: 'Patched dog name' },
+          id: 'reg456',
+          notes: 'patched notes',
+        }),
+      ],
+      'org-1'
+    )
     expect(result.statusCode).toBe(200)
   })
 
@@ -431,8 +480,9 @@ describe('putAdminRegistrationLambda', () => {
     // Verify email was not sent
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
 
-    // Verify registration was still saved
-    expect(mockSaveRegistration).toHaveBeenCalled()
+    // Verify registration was still patched.
+    expect(mockPatchRegistration).toHaveBeenCalled()
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
   })
@@ -569,6 +619,20 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockSaveRegistration).not.toHaveBeenCalled()
   })
 
+  it('returns 400 for patch registration without eventId and id', async () => {
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({ notes: 'patched' }),
+      httpMethod: 'PATCH',
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({ message: 'Bad request: PATCH requires eventId and id' })
+    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
   it('should return 409 with cancelled flag when dog is already registered with cancelled registration', async () => {
     const newEventWithCancelledDog = {
       ...event,
@@ -653,8 +717,9 @@ describe('putAdminRegistrationLambda', () => {
     // Verify email was not sent
     expect(mockSendTemplatedMail).not.toHaveBeenCalled()
 
-    // Verify registration was still saved
-    expect(mockSaveRegistration).toHaveBeenCalled()
+    // Verify registration was still patched.
+    expect(mockPatchRegistration).toHaveBeenCalled()
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
   })

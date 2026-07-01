@@ -1,6 +1,7 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { ParticipantList } from './ParticipantList'
 
 // Mock the child components
@@ -13,9 +14,12 @@ jest.mock('./DateHeader', () => ({
 }))
 
 jest.mock('./ClassHeader', () => ({
-  ClassHeader: ({ classValue }: { classValue: string }) => (
+  ClassHeader: ({ classValue, published = true }: { classValue: string; published?: boolean }) => (
     <tr data-testid="class-header">
-      <td>{classValue}</td>
+      <td>
+        {classValue}
+        {published ? '' : ' unpublished'}
+      </td>
     </tr>
   ),
 }))
@@ -47,6 +51,7 @@ jest.mock('./RegistrationDetails', () => ({
 }))
 
 describe('ParticipantList', () => {
+  const writeText = jest.fn()
   const mockEvent: PublicConfirmedEvent = {
     classes: [
       {
@@ -121,6 +126,21 @@ describe('ParticipantList', () => {
     ownerHandles: false,
   })
 
+  const mockClipboard = () => {
+    writeText.mockClear()
+    writeText.mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        writeText,
+      },
+    })
+  }
+
+  beforeEach(() => {
+    mockClipboard()
+  })
+
   it('renders participants list correctly', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
@@ -144,6 +164,61 @@ describe('ParticipantList', () => {
     expect(screen.getAllByTestId('registration-details')).toHaveLength(4)
   })
 
+  it('renders an unpublished class note for event classes missing from the public start list', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: true, VOI: false } }}
+      />
+    )
+
+    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+  })
+
+  it('renders a published event class even when it has no public participants', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: true, VOI: true } }}
+      />
+    )
+
+    expect(screen.getByText('VOI')).toBeInTheDocument()
+    expect(screen.queryByText('VOI unpublished')).not.toBeInTheDocument()
+  })
+
+  it('renders an empty same-class entry on another date', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{
+          ...mockEvent,
+          classes: [
+            { class: 'AVO', date: new Date('2023-01-01') },
+            { class: 'AVO', date: new Date('2023-01-02') },
+          ],
+          endDate: new Date('2023-01-02'),
+          startListPublished: { AVO: true },
+        }}
+      />
+    )
+
+    expect(screen.getAllByTestId('date-header')).toHaveLength(2)
+    expect(screen.getAllByTestId('class-header')).toHaveLength(2)
+  })
+
   it('renders cancelled registrations correctly', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
@@ -158,5 +233,23 @@ describe('ParticipantList', () => {
 
     // Check that regular registration is rendered
     expect(screen.getByTestId('registration-details')).toBeInTheDocument()
+  })
+
+  it('copies a plain text start list', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+      createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
+    ]
+
+    render(<ParticipantList participants={mockParticipants} event={mockEvent} />)
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(writeText).toHaveBeenCalledTimes(1)
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO Judge One'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. PERUTTU'))
   })
 })

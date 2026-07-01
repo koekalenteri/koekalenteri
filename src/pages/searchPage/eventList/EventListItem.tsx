@@ -126,6 +126,7 @@ const EventHeader = ({ event }: Props) => {
               <LinkButton to={Path.register(event)} text={t('register')} sx={{ pr: 0 }} />
             ) : (
               <EventStateInfo
+                classes={event.classes}
                 id={event.id}
                 state={event.state}
                 startListPublished={event.startListPublished}

@@ -30,6 +30,70 @@ describe('useRegistrationActions', () => {
     jest.clearAllMocks()
   })
 
+  it('cancels registration with a minimal patch', async () => {
+    const savedRegistration = { ...registrationWithStaticDates, cancelled: true, cancelReason: 'dog-heat' }
+    jest.spyOn(registrationApi, 'putRegistration').mockResolvedValueOnce(savedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    let saved: Awaited<ReturnType<typeof result.current.cancel>> | undefined
+    await act(async () => {
+      saved = await result.current.cancel(registrationWithStaticDates, 'dog-heat')
+    })
+
+    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+      cancelled: true,
+      cancelReason: 'dog-heat',
+      eventId: registrationWithStaticDates.eventId,
+      id: registrationWithStaticDates.id,
+    })
+    expect(saved).toBe(savedRegistration)
+    expect(mockEnqueueSnackbar).toHaveBeenCalledWith('registration.cancelDialog.done', { variant: 'info' })
+  })
+
+  it('saves edited registration with a minimal patch', async () => {
+    const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
+    jest.spyOn(registrationApi, 'putRegistration').mockResolvedValueOnce(editedRegistration)
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    let saved: Awaited<ReturnType<typeof result.current.save>> | undefined
+    await act(async () => {
+      saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
+    })
+
+    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+      eventId: registrationWithStaticDates.eventId,
+      id: registrationWithStaticDates.id,
+      notes: 'changed notes',
+    })
+    expect(registrationApi.putRegistration).not.toHaveBeenCalledWith(
+      expect.objectContaining({ dog: expect.anything() })
+    )
+    expect(saved).toBe(editedRegistration)
+  })
+
+  it('handles 304 from save action as a successful no-op', async () => {
+    const editedRegistration = { ...registrationWithStaticDates, notes: 'changed notes' }
+    jest
+      .spyOn(registrationApi, 'putRegistration')
+      .mockRejectedValueOnce(new APIError(new Response(null, { status: 304, statusText: 'Not Modified' }), ''))
+
+    const { result } = renderHook(() => useRegistrationActions(), { wrapper })
+
+    let saved: Awaited<ReturnType<typeof result.current.save>> | undefined
+    await act(async () => {
+      saved = await result.current.save(editedRegistration, eventWithStaticDates, registrationWithStaticDates)
+    })
+
+    expect(registrationApi.putRegistration).toHaveBeenCalledWith({
+      eventId: registrationWithStaticDates.eventId,
+      id: registrationWithStaticDates.id,
+      notes: 'changed notes',
+    })
+    expect(saved).toEqual(editedRegistration)
+  })
+
   it('handles save conflicts and returns undefined', async () => {
     jest.spyOn(registrationApi, 'putRegistration').mockRejectedValueOnce(
       new APIError(new Response(null, { status: 409, statusText: 'Conflict' }), {

@@ -1,4 +1,4 @@
-import { isParticipantGroup } from '../../lib/registration'
+import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'
@@ -15,7 +15,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const dogEvent = await getEvent(eventId)
 
   if (isParticipantGroup(registration.group?.key)) {
-    registration.invitationAttachment = dogEvent?.invitationAttachment
+    registration.invitationAttachment = getSentInvitationAttachment(dogEvent, registration)
   }
 
   if (registration.paymentStatus === 'PENDING') {

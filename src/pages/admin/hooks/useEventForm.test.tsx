@@ -3,7 +3,6 @@ import { act, renderHook } from '@testing-library/react'
 import { useSnackbar } from 'notistack'
 import { useNavigate } from 'react-router'
 import { RecoilRoot, useRecoilState, useResetRecoilState } from 'recoil'
-import { hasChanges } from '../../../lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
 import useEventForm from './useEventForm'
 
@@ -17,7 +16,8 @@ jest.mock('notistack', () => ({
 }))
 
 jest.mock('../../../lib/utils', () => ({
-  hasChanges: jest.fn(),
+  getChanges: jest.requireActual('../../../lib/utils').getChanges,
+  isEmptyObject: jest.requireActual('../../../lib/utils').isEmptyObject,
 }))
 
 jest.mock('../recoil/events/actions', () => ({
@@ -81,7 +81,6 @@ describe('useEventForm', () => {
     ;(useAdminEventActions as jest.Mock).mockReturnValue({
       save: mockSave,
     })
-    ;(hasChanges as jest.Mock).mockReturnValue(false)
   })
 
   it('should initialize with correct state in create mode', () => {
@@ -90,20 +89,19 @@ describe('useEventForm', () => {
     })
 
     expect(result.current.event).toBe(mockEvent)
-    expect(result.current.changes).toBe(true) // In create mode, always true
+    expect(result.current.changes).toEqual({})
+    expect(result.current.canSave).toBe(true) // In create mode, always true
     expect(typeof result.current.handleChange).toBe('function')
     expect(typeof result.current.handleSave).toBe('function')
     expect(typeof result.current.handleCancel).toBe('function')
   })
 
   it('should initialize with correct state in edit mode', () => {
-    ;(hasChanges as jest.Mock).mockReturnValue(false)
-
     const { result } = renderHook(
       () =>
         useEventForm({
           eventId: 'test-event-id',
-          storedEvent: mockStoredEvent,
+          storedEvent: mockEvent,
         }),
       {
         wrapper: RecoilRoot,
@@ -111,7 +109,8 @@ describe('useEventForm', () => {
     )
 
     expect(result.current.event).toBe(mockEvent)
-    expect(result.current.changes).toBe(false) // In edit mode, based on hasChanges
+    expect(result.current.changes).toEqual({})
+    expect(result.current.canSave).toBe(false)
     expect(useRecoilState).toHaveBeenCalledWith(adminEditableEventByIdAtom('test-event-id'))
   })
 
@@ -146,13 +145,55 @@ describe('useEventForm', () => {
         modifiedAt: expect.any(Date),
       })
     )
-    expect(hasChanges).toHaveBeenCalledWith(
-      mockStoredEvent,
-      expect.objectContaining({
-        ...updatedEvent,
-        modifiedAt: expect.any(Date),
-      })
+    expect(result.current.changes).toEqual({ name: updatedEvent.name })
+    expect(result.current.canSave).toBe(true)
+  })
+
+  it('tracks entry date changes from actual value differences', () => {
+    const { result } = renderHook(
+      () =>
+        useEventForm({
+          storedEvent: mockEvent,
+        }),
+      {
+        wrapper: RecoilRoot,
+      }
     )
+
+    expect(result.current.changes).toEqual({})
+    expect(result.current.canSave).toBe(false)
+
+    act(() => {
+      result.current.handleChange({ ...mockEvent, entryStartDate: new Date('2022-11-30') })
+    })
+
+    expect(result.current.changes).toEqual({ entryStartDate: new Date('2022-11-30') })
+    expect(result.current.canSave).toBe(true)
+  })
+
+  it('clears entry date changes when values match the stored event again', () => {
+    const { result } = renderHook(
+      () =>
+        useEventForm({
+          storedEvent: mockEvent,
+        }),
+      {
+        wrapper: RecoilRoot,
+      }
+    )
+
+    act(() => {
+      result.current.handleChange({ ...mockEvent, entryStartDate: new Date('2022-11-30') })
+    })
+    expect(result.current.changes).toEqual({ entryStartDate: new Date('2022-11-30') })
+    expect(result.current.canSave).toBe(true)
+
+    act(() => {
+      result.current.handleChange(mockEvent)
+    })
+
+    expect(result.current.changes).toEqual({})
+    expect(result.current.canSave).toBe(false)
   })
 
   it('should not track changes in create mode', () => {
@@ -172,7 +213,8 @@ describe('useEventForm', () => {
         modifiedAt: expect.any(Date),
       })
     )
-    expect(hasChanges).not.toHaveBeenCalled()
+    expect(result.current.changes).toEqual({ name: updatedEvent.name })
+    expect(result.current.canSave).toBe(true)
   })
 
   it('should save event and navigate when handleSave is called', async () => {

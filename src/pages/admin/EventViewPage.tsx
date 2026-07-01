@@ -1,25 +1,17 @@
 import type { EmailTemplateId, Registration } from '../../types'
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
-import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
-import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
-import Divider from '@mui/material/Divider'
-import Grid from '@mui/material/Grid'
 import Modal from '@mui/material/Modal'
 import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, isRegistrationClass } from '../../lib/registration'
-import { Path } from '../../routeConfig'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 import EventNotFound from './components/EventNotFound'
@@ -40,11 +32,11 @@ import {
   adminEventIdAtom,
   adminEventRegistrationsSelector,
   adminRegistrationIdAtom,
+  useAdminEventActions,
 } from './recoil'
 import { useAdminRegistrationActions } from './recoil/registrations/actions'
 
 export default function EventViewPage() {
-  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
@@ -58,6 +50,7 @@ export default function EventViewPage() {
   const [, setSelectedEventId] = useRecoilState(adminEventIdAtom)
   const event = useRecoilValue(adminConfirmedEventSelector(eventId))
   const actions = useAdminRegistrationActions(eventId)
+  const eventActions = useAdminEventActions()
 
   const [selectedEventClass, setSelectedEventClass] = useRecoilState(adminEventClassAtom)
   const [selectedRegistrationId, setSelectedRegistrationId] = useRecoilState(adminRegistrationIdAtom)
@@ -147,33 +140,19 @@ export default function EventViewPage() {
     <>
       <OtherViewers viewers={viewers} />
 
-      <Grid container justifyContent="end">
-        <Grid flexGrow={1}>
-          <Title event={event} />
-        </Grid>
-        <Grid>
-          <InfoPanel event={event} registrations={allRegistrations} onOpenMessageDialog={handleOpenMsgDialog} />
-        </Grid>
-      </Grid>
-
-      <Stack direction="row" spacing={2}>
-        <Button startIcon={<FormatListBulleted />} onClick={() => setDetailsOpen(true)}>
-          Näytä tapahtuman tiedot
-        </Button>
-        <Divider orientation="vertical"></Divider>
-        <Button startIcon={<FormatListNumberedOutlined />} href={Path.admin.startList(eventId)} target="_blank">
-          Katso sihteerin starttilista
-        </Button>
-        <Divider orientation="vertical"></Divider>
-        <Button
-          startIcon={<AddCircleOutline />}
-          onClick={() => {
-            setCreateOpen(true)
-          }}
-        >
-          {t('createRegistration')}
-        </Button>
-      </Stack>
+      <Title event={event} />
+      <InfoPanel
+        event={event}
+        onCreateRegistration={() => setCreateOpen(true)}
+        onOpenDetails={() => setDetailsOpen(true)}
+        onSetStartListPublished={(eventClass, published) =>
+          eventClass
+            ? eventActions.setStartListClassPublished(event, eventClass, published)
+            : eventActions.setStartListPublished(event, published)
+        }
+        registrations={allRegistrations}
+        onOpenMessageDialog={handleOpenMsgDialog}
+      />
 
       <Stack direction="row" alignItems="center" justifyContent="space-between">
         <Tabs value={activeTab} onChange={handleTabChange}>

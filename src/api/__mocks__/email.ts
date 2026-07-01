@@ -17,6 +17,12 @@ export async function putEmailTemplate(_template: EmailTemplate, _token?: string
   throw new Error('not implemented')
 }
 
-export async function sendTemplatedEmail(_message: RegistrationMessage, _token?: string, _signal?: AbortSignal) {
-  throw new Error('not implemented')
-}
+export const sendTemplatedEmail = jest.fn(
+  async (_message: RegistrationMessage, _token?: string, _signal?: AbortSignal) => ({
+    classes: [],
+    failed: [],
+    ok: [],
+    registrations: [],
+    state: 'confirmed' as const,
+  })
+)

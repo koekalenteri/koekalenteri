@@ -1,4 +1,4 @@
-import type { JsonEmailSuppression, JsonRegistration } from '../../types'
+import type { JsonEmailSuppression, JsonRegistration, Patch } from '../../types'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { normalizeEmail } from './email'
@@ -15,7 +15,7 @@ const getRegistrationEmails = (registration: JsonRegistration) =>
     )
   )
 
-export const normalizeRegistrationEmails = (registration: JsonRegistration) => {
+export const normalizeRegistrationEmails = <T extends Patch<JsonRegistration>>(registration: T): T => {
   if (registration.owner?.email) {
     registration.owner.email = normalizeEmail(registration.owner.email)
   }

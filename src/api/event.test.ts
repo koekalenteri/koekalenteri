@@ -2,10 +2,10 @@ import type { DogEvent } from '../types'
 import { parseISO } from 'date-fns'
 import fetchMock from 'jest-fetch-mock'
 import { emptyEvent } from '../__mockData__/emptyEvent'
-import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
+import { zonedDateString, zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
-import { getEvent, getEvents, putEvent } from './event'
+import { getEvent, getEvents, putEvent, searchEventKcIdChoices } from './event'
 
 fetchMock.enableMocks()
 
@@ -87,7 +87,7 @@ test('getEvent', async () => {
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/TestEventID`)
 })
 
-test('putEvent', async () => {
+test('putEvent creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
       ? Promise.resolve(JSON.stringify(emptyEvent))
@@ -98,6 +98,78 @@ test('putEvent', async () => {
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
   expect(newEvent.id).not.toBeUndefined()
+})
+
+test('putEvent updates with PATCH', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'PATCH'
+      ? Promise.resolve(JSON.stringify(emptyEvent))
+      : Promise.reject(new Error(`${req.method} !== 'PATCH'`))
+  )
+
+  const updatedEvent = await putEvent({ eventType: 'TestEventType', id: 'TestEventID' })
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
+  expect(updatedEvent.id).not.toBeUndefined()
+})
+
+test('searchEventKcIdChoices', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'POST'
+      ? Promise.resolve(
+          JSON.stringify({
+            choices: [
+              { endDate: '2026-07-02', id: 123, startDate: '2026-07-01' },
+              {
+                contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
+                cost: 55,
+                description: 'Osallistumismaksu sisältää keittolounaan.',
+                endDate: '0001-01-01T00:00:00',
+                entryEndDate: '2026-06-07T00:00:00',
+                entryStartDate: '2026-05-17T00:00:00',
+                id: 456,
+                startDate: '2026-06-28T00:00:00',
+              },
+            ],
+          })
+        )
+      : Promise.reject(new Error(`${req.method} !== 'POST'`))
+  )
+
+  const request = {
+    classes: emptyEvent.classes,
+    endDate: emptyEvent.endDate,
+    eventType: emptyEvent.eventType,
+    location: emptyEvent.location,
+    name: emptyEvent.name,
+    organizer: { id: emptyEvent.organizer.id },
+    startDate: emptyEvent.startDate,
+  }
+  const response = await searchEventKcIdChoices(request)
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/kcId/choices`)
+  expect(JSON.parse(fetchMock.mock.calls[0][1]?.body as string)).toEqual({
+    ...request,
+    classes: request.classes.map((c) => ({ ...c, date: c.date.toISOString() })),
+    endDate: emptyEvent.endDate.toISOString(),
+    startDate: emptyEvent.startDate.toISOString(),
+  })
+  expect(response.choices[0]?.id).toEqual(123)
+  expect(response.choices[0]?.startDate).toBeInstanceOf(Date)
+  expect(response.choices[0]?.endDate).toBeInstanceOf(Date)
+  expect(zonedDateString(response.choices[0]!.startDate)).toEqual('2026-07-01')
+  expect(zonedDateString(response.choices[0]!.endDate)).toEqual('2026-07-02')
+  expect(zonedDateString(response.choices[1]!.startDate)).toEqual('2026-06-28')
+  expect(zonedDateString(response.choices[1]!.endDate)).toEqual('2026-06-28')
+  expect(zonedDateString(response.choices[1]!.entryStartDate!)).toEqual('2026-05-17')
+  expect(zonedDateString(response.choices[1]!.entryEndDate!)).toEqual('2026-06-07')
+  expect(response.choices[1]).toEqual(
+    expect.objectContaining({
+      contactInfo: { secretary: { email: 'nome.maija@gmail.com', name: 'Parviainen Niina' } },
+      cost: 55,
+      description: 'Osallistumismaksu sisältää keittolounaan.',
+    })
+  )
 })
 
 /**

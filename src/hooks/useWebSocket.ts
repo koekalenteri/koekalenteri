@@ -1,4 +1,4 @@
-import type { DeepPartial, DogEvent, PublicDogEvent, Registration } from '../types'
+import type { DogEvent, JsonDogEvent, Patch, PublicDogEvent, Registration } from '../types'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { sanitizeDogEvent } from '../lib/event'
@@ -19,15 +19,14 @@ export const applyRegistrations = (registrations: Registration[], next: Registra
   return next
 }
 
-export const applyRegistrationPatches = (
-  registrations: Registration[],
-  patch: DeepPartial<Registration>[]
-): Registration[] => applyPatchesById(registrations, patch)
+export const applyRegistrationPatches = (registrations: Registration[], patch: Patch<Registration>[]): Registration[] =>
+  applyPatchesById(registrations, patch)
 
 const isInsertablePublicEventPatch = (
-  patch: Partial<PublicDogEvent>
-): patch is Partial<PublicDogEvent> & Pick<PublicDogEvent, 'state'> =>
+  patch: Patch<PublicDogEvent>
+): patch is Patch<PublicDogEvent> & Pick<PublicDogEvent, 'state'> =>
   patch.state !== undefined &&
+  patch.state !== null &&
   patch.state !== 'draft' &&
   !!patch.eventType &&
   !!patch.location &&
@@ -38,10 +37,8 @@ const isInsertablePublicEventPatch = (
   Array.isArray(patch.classes) &&
   Array.isArray(patch.judges)
 
-export const getRegistrationPatchChangedIds = (
-  registrations: Registration[],
-  patch: DeepPartial<Registration>[]
-): string[] => getPatchChangedIds(registrations, patch)
+export const getRegistrationPatchChangedIds = (registrations: Registration[], patch: Patch<Registration>[]): string[] =>
+  getPatchChangedIds(registrations, patch)
 
 interface EventViewer {
   userId: string
@@ -54,11 +51,28 @@ interface EventPatchMessage {
   [key: string]: unknown
 }
 
-const getViewerUserIds = (viewers: unknown[]): string[] =>
-  viewers.filter((viewer: unknown): viewer is string => typeof viewer === 'string')
+const getViewerPayloads = (viewers: unknown[]): EventViewer[] =>
+  viewers
+    .map((viewer) => {
+      if (typeof viewer === 'string') {
+        return { name: viewer, userId: viewer }
+      }
+
+      if (!viewer || typeof viewer !== 'object') {
+        return undefined
+      }
+
+      const { name, userId } = viewer as Partial<EventViewer>
+      if (typeof userId !== 'string') {
+        return undefined
+      }
+
+      return { name: typeof name === 'string' && name.trim() ? name : userId, userId }
+    })
+    .filter((viewer): viewer is EventViewer => !!viewer)
 
 const mapEventViewers = (
-  viewers: string[],
+  viewers: EventViewer[],
   adminUsers: Array<{ id: string; name?: string }>,
   currentUser?: { id: string; name?: string }
 ) => {
@@ -67,9 +81,9 @@ const mapEventViewers = (
     usersById.set(currentUser.id, currentUser)
   }
 
-  return viewers.map((userId) => ({
-    name: usersById.get(userId)?.name ?? userId,
-    userId,
+  return viewers.map((viewer) => ({
+    name: viewer.name === viewer.userId ? (usersById.get(viewer.userId)?.name ?? viewer.name) : viewer.name,
+    userId: viewer.userId,
   }))
 }
 
@@ -109,7 +123,7 @@ export const useWebSocket = () => {
   // Subscription state — persisted across reconnects
   const adminSubscribedRef = useRef(false)
   const eventIdRef = useRef<string | undefined>(undefined)
-  const rawViewersRef = useRef<string[]>([])
+  const rawViewersRef = useRef<EventViewer[]>([])
 
   // Mutable refs for values only needed inside callbacks
   const idTokenRef = useRef<string | undefined>(undefined)
@@ -132,7 +146,7 @@ export const useWebSocket = () => {
 
   const setPublicEvents = useRecoilCallback(
     ({ snapshot, set }) =>
-      (eventId: string, patch: Partial<PublicDogEvent>, options?: { insert?: boolean }) => {
+      (eventId: string, patch: Patch<PublicDogEvent>, options?: { insert?: boolean }) => {
         const loadable = snapshot.getLoadable(eventsAtom)
         if (loadable.state !== 'hasValue') return
 
@@ -156,7 +170,7 @@ export const useWebSocket = () => {
   )
   const setAdminEvents = useRecoilCallback(
     ({ snapshot, set }) =>
-      (eventId: string, patch: Partial<DogEvent>) => {
+      (eventId: string, patch: Patch<DogEvent>) => {
         const loadable = snapshot.getLoadable(adminEventsAtom)
         if (loadable.state !== 'hasValue') return
 
@@ -168,16 +182,21 @@ export const useWebSocket = () => {
   )
   const patchRegistrations = useRecoilCallback(
     ({ snapshot, set }) =>
-      (nextEventId: string, patch: DeepPartial<Registration>[]) => {
-        const loadable = snapshot.getLoadable(adminEventRegistrationsAtom(nextEventId))
-        if (loadable.state !== 'hasValue') return
+      async (nextEventId: string, patch: Patch<Registration>[]) => {
+        let registrations: Registration[]
+        try {
+          registrations = await snapshot.getPromise(adminEventRegistrationsAtom(nextEventId))
+        } catch {
+          return
+        }
 
-        const next = applyRegistrationPatches(loadable.contents, patch)
-        if (next !== loadable.contents) {
-          for (const registrationId of getRegistrationPatchChangedIds(loadable.contents, patch)) {
+        const next = applyRegistrationPatches(registrations, patch)
+        if (next !== registrations) {
+          for (const registrationId of getRegistrationPatchChangedIds(registrations, patch)) {
             markRecentlyUpdated('admin:registration', registrationId)
           }
         }
+
         set(adminEventRegistrationsAtom(nextEventId), next)
       },
     [markRecentlyUpdated]
@@ -263,8 +282,9 @@ export const useWebSocket = () => {
   const handleEventPatchMessage = useCallback(
     ({ eventId, scope, ...patch }: EventPatchMessage) => {
       if (scope === 'admin:event-patch') {
-        setAdminEvents(eventId, patch)
-        const publicPatch = sanitizeDogEvent(patch) as unknown as Partial<PublicDogEvent>
+        const eventPatch = patch as Patch<JsonDogEvent>
+        setAdminEvents(eventId, eventPatch as unknown as Patch<DogEvent>)
+        const publicPatch = sanitizeDogEvent(eventPatch) as unknown as Patch<PublicDogEvent>
         if (Object.keys(publicPatch).length > 0) {
           setPublicEvents(eventId, publicPatch, { insert: isInsertablePublicEventPatch(publicPatch) })
         }
@@ -272,7 +292,7 @@ export const useWebSocket = () => {
       }
 
       if (scope === 'public:event-patch' || !scope) {
-        setPublicEvents(eventId, patch)
+        setPublicEvents(eventId, patch as Patch<PublicDogEvent>)
       }
     },
     [setAdminEvents, setPublicEvents]
@@ -290,9 +310,9 @@ export const useWebSocket = () => {
       }
 
       if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
-        const viewerUserIds = getViewerUserIds(data.viewers)
-        rawViewersRef.current = viewerUserIds
-        const nextViewers = mapEventViewers(viewerUserIds, adminUsersRef.current, currentUserRef.current)
+        const viewerPayloads = getViewerPayloads(data.viewers)
+        rawViewersRef.current = viewerPayloads
+        const nextViewers = mapEventViewers(viewerPayloads, adminUsersRef.current, currentUserRef.current)
         setViewers((current) => applyViewers(current, nextViewers))
         return
       }

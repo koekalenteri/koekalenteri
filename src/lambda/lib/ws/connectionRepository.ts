@@ -24,7 +24,9 @@ export const authenticateConnection = async ({
   connectionId,
   expiresAt,
   memberOf,
+  userEmail,
   userId,
+  userName,
 }: WebSocketConnection) => {
   if (!userId) throw new Error('Cannot authenticate websocket connection without userId')
 
@@ -37,7 +39,9 @@ export const authenticateConnection = async ({
         audience: 'public' as const,
         ...(typeof expiresAt === 'number' ? { expiresAt } : {}),
         ...(memberOf?.length ? { memberOf } : {}),
+        ...(userEmail ? { userEmail } : {}),
         userId,
+        ...(userName ? { userName } : {}),
       },
     }
   )

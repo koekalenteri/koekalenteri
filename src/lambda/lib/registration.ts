@@ -29,6 +29,30 @@ export const getRegistration = async (eventId: string, registrationId: string): 
 
 export const saveRegistration = async (data: JsonRegistration) => dynamoDB.write(data, registrationTable)
 
+export const patchRegistration = async (
+  eventId: JsonRegistration['eventId'],
+  id: JsonRegistration['id'],
+  existing: JsonRegistration,
+  next: JsonRegistration
+): Promise<JsonRegistration> => {
+  const { remove, set } = createPatch(next, existing)
+
+  if (!set && !remove) {
+    return existing
+  }
+
+  await dynamoDB.update(
+    { eventId, id },
+    {
+      ...(set ? { set } : {}),
+      ...(remove ? { remove } : {}),
+    },
+    registrationTable
+  )
+
+  return getRegistration(eventId, id)
+}
+
 export const updateRegistrationField = async <F extends keyof JsonRegistration>(
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id'],
@@ -146,6 +170,16 @@ export const sendTemplatedEmailToEventRegistrations = async (
       const messagesSent = registration.messagesSent || {}
       messagesSent[template] = true
       await updateRegistrationField(registration.eventId, registration.id, 'messagesSent', messagesSent)
+
+      if (template === 'invitation' && data.event.invitationAttachment) {
+        await updateRegistrationField(
+          registration.eventId,
+          registration.id,
+          'invitationAttachmentSent',
+          data.event.invitationAttachment as string
+        )
+        registration.invitationAttachmentSent = data.event.invitationAttachment as string
+      }
 
       // Update the in-memory object too
       registration.messagesSent = messagesSent

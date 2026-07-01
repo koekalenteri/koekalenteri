@@ -10,6 +10,7 @@ import { enqueueSnackbar } from 'notistack'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedEndOfDay, zonedStartOfDay } from '../../../../i18n/dates'
+import { isDevEnv } from '../../../../lib/env'
 import { getPrioritySort, PRIORITY, priorityValuesToPriority } from '../../../../lib/priority'
 import AutocompleteMulti from '../../../components/AutocompleteMulti'
 import CollapsibleSection from '../../../components/CollapsibleSection'
@@ -23,7 +24,7 @@ interface Props extends Readonly<SectionProps> {
 
 export default function EntrySection(props: Props) {
   const { t } = useTranslation(['translation', 'breed'])
-  const { disabled, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } = props
+  const { changes, disabled, event, eventTypeClasses, fields, helperTexts, onChange, onOpenChange, open } = props
   const prioritySort = getPrioritySort(t)
   const error = helperTexts?.entryStartDate ?? helperTexts?.entryEndDate ?? helperTexts?.places
   const helperText = error ? t('validation.event.errors') : ''
@@ -32,6 +33,26 @@ export default function EntrySection(props: Props) {
     [event.priority, prioritySort]
   )
   const sortedPriorities = useMemo(() => PRIORITY.slice().sort(prioritySort), [prioritySort])
+  const allowPastRegistrationDates = isDevEnv()
+  const registrationDateRange = useMemo(
+    () => ({
+      end: zonedEndOfDay(event.startDate),
+      start: allowPastRegistrationDates
+        ? undefined
+        : event.createdAt
+          ? zonedStartOfDay(event.createdAt)
+          : zonedStartOfDay(new Date()),
+    }),
+    [allowPastRegistrationDates, event.createdAt, event.startDate]
+  )
+  const hasPastRegistrationDate = useMemo(() => {
+    const today = zonedStartOfDay(new Date())
+    return (
+      (!!event.entryStartDate && zonedStartOfDay(event.entryStartDate) < today) ||
+      (!!event.entryEndDate && zonedEndOfDay(event.entryEndDate) < today)
+    )
+  }, [event.entryEndDate, event.entryStartDate])
+  const entryDatesChanged = changes && ('entryStartDate' in changes || 'entryEndDate' in changes)
 
   const handleDateChange = useCallback(
     (start: DateValue, end: DateValue) =>
@@ -87,14 +108,16 @@ export default function EntrySection(props: Props) {
             end={event.entryEndDate ?? null}
             endDisabled={disabled}
             defaultEnd={sub(event.startDate, { weeks: 3 })}
-            range={{
-              end: zonedEndOfDay(event.startDate),
-              start: event.createdAt ? zonedStartOfDay(event.createdAt) : zonedStartOfDay(new Date()),
-            }}
+            range={registrationDateRange}
             required={fields?.required.entryStartDate ?? fields?.required.entryEndDate}
             onChange={handleDateChange}
           />
           <FormHelperText error>{helperTexts?.entryStartDate ?? helperTexts?.entryEndDate}</FormHelperText>
+          {allowPastRegistrationDates && entryDatesChanged && hasPastRegistrationDate && (
+            <FormHelperText>
+              Ilmoittautumisaika on menneisyydessä. Tämä on sallittu vain kehitysympäristössä.
+            </FormHelperText>
+          )}
         </Grid>
         <Grid width="100%">
           <EventDates disabled={disabled} event={event} eventTypeClasses={eventTypeClasses} onChange={onChange} />

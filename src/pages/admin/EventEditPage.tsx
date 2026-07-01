@@ -12,7 +12,7 @@ export default function EventEditPage() {
   const { id: eventId = '' } = useParams()
   const { viewers } = useEventSubscription(eventId)
   const storedEvent = useRecoilValue(adminEventSelector(eventId))
-  const { event, changes, handleChange, handleSave, handleCancel } = useEventForm({
+  const { event, changes, canSave, handleChange, handleSave, handleCancel } = useEventForm({
     eventId,
     onDoneRedirect: Path.admin.events,
     storedEvent,
@@ -25,7 +25,14 @@ export default function EventEditPage() {
   return (
     <>
       <OtherViewers viewers={viewers} />
-      <EventForm event={event} changes={changes} onChange={handleChange} onSave={handleSave} onCancel={handleCancel} />
+      <EventForm
+        event={event}
+        changes={changes}
+        canSave={canSave}
+        onChange={handleChange}
+        onSave={handleSave}
+        onCancel={handleCancel}
+      />
     </>
   )
 }

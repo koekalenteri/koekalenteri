@@ -143,6 +143,14 @@ describe('ws/actions', () => {
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
   })
 
+  it('publishes null removal markers in admin patches', async () => {
+    await publishEventPatch({ eventId: 'e1', kcId: null }, 'org-1')
+
+    const call = mockBroadcast.mock.calls[0]?.[0] as { buildPayload: () => unknown } | undefined
+    expect(call?.buildPayload()).toEqual({ eventId: 'e1', kcId: null, scope: 'admin:event-patch' })
+    expect(mockBroadcast).toHaveBeenCalledTimes(1)
+  })
+
   it('publishes admin patch and derived public patch when public fields changed', async () => {
     mockOrganizerAudience.mockResolvedValueOnce([{ connectionId: 'a1' }])
     mockPublicAudience.mockResolvedValueOnce([{ connectionId: 'a1' }, { connectionId: 'p1' }])
@@ -191,7 +199,7 @@ describe('ws/actions', () => {
       { connectionId: 'c2', userId: 'u2' },
     ])
     mockToEventViewers.mockImplementationOnce((audience: unknown[]) =>
-      (audience as Array<{ userId: string }>).map(({ userId }) => userId)
+      (audience as Array<{ userId: string }>).map(({ userId }) => ({ name: userId, userId }))
     )
 
     await publishEventViewers('e1', 'org-1')
@@ -211,7 +219,10 @@ describe('ws/actions', () => {
 
     expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1', {})
     expect(mockToEventViewers).toHaveBeenCalled()
-    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', ['u1', 'u2'])
+    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', [
+      { name: 'u1', userId: 'u1' },
+      { name: 'u2', userId: 'u2' },
+    ])
   })
 
   it('publishEventViewers includes the same user only once when same user has multiple windows open', async () => {
@@ -219,9 +230,12 @@ describe('ws/actions', () => {
       { connectionId: 'c1', userId: 'u1' },
       { connectionId: 'c2', userId: 'u1' },
     ])
-    mockToEventViewers.mockImplementationOnce((audience: unknown[]) => [
-      ...new Set((audience as Array<{ userId: string }>).map(({ userId }) => userId)),
-    ])
+    mockToEventViewers.mockImplementationOnce((audience: unknown[]) =>
+      [...new Set((audience as Array<{ userId: string }>).map(({ userId }) => userId))].map((userId) => ({
+        name: userId,
+        userId,
+      }))
+    )
 
     await publishEventViewers('e1', 'org-1')
 
@@ -241,7 +255,7 @@ describe('ws/actions', () => {
       { connectionId: 'c1', userId: 'u1' },
       { connectionId: 'c2', userId: 'u1' },
     ])
-    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', ['u1'])
+    expect(mockBuildEventViewersPayload).toHaveBeenCalledWith('e1', [{ name: 'u1', userId: 'u1' }])
   })
 
   it('publishPublicConnectionCount builds public scoped payload from public audience size', async () => {

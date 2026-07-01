@@ -78,6 +78,12 @@ const RegistrationTooltipContent = ({
       ?.map((i) => additionalCosts[i]?.description.fi)
       .filter(Boolean)
       .join(', ') ?? []
+  const refundTextValues = {
+    context: reg.refundHandlingCost === undefined ? undefined : 'handlingCost',
+    handlingCost: formatMoney(reg.refundHandlingCost ?? 0),
+    paidAmount: formatMoney(reg.paidAmount ?? 0),
+    refundAmount: formatMoney(reg.refundAmount ?? 0),
+  }
 
   return (
     <>
@@ -103,13 +109,13 @@ const RegistrationTooltipContent = ({
         key="payment-refund-pending"
         condition={!!reg.paidAt && reg.refundStatus === 'PENDING'}
         icon={<SavingsOutlined fontSize="small" />}
-        text={`Palautuksen käsittely on kesken. Palautetaan ${formatMoney(reg.refundAmount ?? 0)}, maksoi ${formatMoney(reg.paidAmount ?? 0)}`}
+        text={t('registration.tooltip.refundPending', refundTextValues)}
       />
       <TooltipIcon
         key="payment-refunded"
         condition={!!reg.paidAt && !!reg.refundAt && reg.refundStatus !== 'PENDING'}
         icon={<SavingsOutlined fontSize="small" />}
-        text={`Ilmoittautumismaksua on palautettu. Palautettu ${formatMoney(reg.refundAmount ?? 0)}, maksoi ${formatMoney(reg.paidAmount ?? 0)}`}
+        text={t('registration.tooltip.refunded', refundTextValues)}
       />
       <TooltipIcon
         key="payment-paid"

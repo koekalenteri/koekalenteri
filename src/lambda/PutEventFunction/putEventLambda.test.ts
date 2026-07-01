@@ -94,7 +94,10 @@ const mockEvent: JsonDogEvent = {
 describe('putEventLambda', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)
 
-  afterEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    jest.clearAllMocks()
+    patchEventMock.mockImplementation(async (_id, _existing, next) => next)
+  })
 
   it('should return 401 if authorization fails', async () => {
     authorizeMock.mockResolvedValueOnce(null)
@@ -185,6 +188,7 @@ describe('putEventLambda', () => {
   it('should update an event', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce(mockEvent)
+    patchEventMock.mockResolvedValueOnce({ ...mockEvent, eventType: 'TEST', kcId: undefined })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST', id: 'existing' }))
 
@@ -195,6 +199,46 @@ describe('putEventLambda', () => {
       eventType: 'TEST',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      updatedAt: '2025-03-22T10:45:33.000Z',
+    })
+    expect(res.statusCode).toEqual(200)
+    expect(JSON.parse(res.body)).toEqual({ ...mockEvent, eventType: 'TEST' })
+  })
+
+  it('should return 400 for patch event without id', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({ eventType: 'TEST' }, { method: 'PATCH' })
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: 'Bad request: PATCH requires id' })
+    expect(getEventMock).not.toHaveBeenCalled()
+    expect(saveEventMock).not.toHaveBeenCalled()
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
+  it('should merge partial patch payloads before diffing and saving', async () => {
+    const existing = {
+      ...mockEvent,
+      official: { id: 'official-id', name: 'Old Official' },
+    }
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(existing)
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>(
+        { id: 'existing', official: { name: 'New Official' } },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(patchEventMock).toHaveBeenCalledWith('existing', existing, {
+      ...existing,
+      modifiedAt: '2025-03-22T10:45:33.000Z',
+      modifiedBy: 'Test User',
+      official: { id: 'official-id', name: 'New Official' },
       updatedAt: '2025-03-22T10:45:33.000Z',
     })
     expect(res.statusCode).toEqual(200)

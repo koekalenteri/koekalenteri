@@ -89,11 +89,9 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   // create a new copy of oldItems, so we can update without touching the original ones
   const updatedItems = await updateItems(oldItems, eventGroups, user)
-  const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
 
   // update event counts
   const confirmedEvent = await updateRegistrations(eventId, updatedItems)
-  await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
   const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
 
   const emails = {
@@ -222,6 +220,9 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   }
 
   Object.assign(emails, { cancelledFailed, cancelledOk })
+
+  const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
+  await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
 
   return response(
     200,

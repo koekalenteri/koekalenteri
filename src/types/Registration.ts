@@ -40,6 +40,7 @@ export interface JsonRegistration extends JsonDbRecord {
   emailDeliveryStatus?: JsonEmailDeliveryStatus
   internalNotes?: string
   invitationAttachment?: string
+  invitationAttachmentSent?: string
   invitationRead?: boolean
   language: Language
   lastEmail?: string
@@ -59,6 +60,7 @@ export interface JsonRegistration extends JsonDbRecord {
   qualifyingResults: JsonQualifyingResult[]
   refundAmount?: number
   refundAt?: string
+  refundHandlingCost?: number
   refundStatus?: PaymentStatus
   reserve: ReserveChoise | ''
   reserveNotified?: number | true // true is only found in old records
