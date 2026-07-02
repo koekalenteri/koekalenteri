@@ -2,6 +2,26 @@
   "active": "Käytössä",
   "admin": "Ylläpito",
   "all": "Kaikki",
+  "audit": {
+    "after": "jälkeen",
+    "before": "ennen",
+    "changed": "Muutti",
+    "details": {
+      "failedRecipients": "Epäonnistuneet vastaanottajat:\n{{recipients}}"
+    },
+    "empty": "(tyhjä)",
+    "messages": {
+      "classStartListHidden": "{{eventClass}} starttilista piilotettu",
+      "classStartListPublished": "{{eventClass}} starttilista julkaistu",
+      "emailSent": "{{template}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",
+      "eventCreated": "Tapahtuma luotu",
+      "eventDeleted": "Tapahtuma poistettu",
+      "eventSaved": "Tapahtuma tallennettu",
+      "startListHidden": "Starttilista piilotettu",
+      "startListPublished": "Starttilista julkaistu"
+    },
+    "removed": "(poistettu)"
+  },
   "backToEventsList": "Takaisin tapahtumalistaan",
   "cancel": "Peruuta",
   "clear": "Tyhjennä",

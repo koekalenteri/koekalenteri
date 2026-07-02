@@ -2578,133 +2578,50 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-1xs22px"
                     >
                       <div
-                        class="MuiBox-root css-tjecz8"
+                        class="MuiTableContainer-root MuiBox-root css-7sle2w-MuiTableContainer-root"
                       >
-                        <div
-                          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-6cjfdi-MuiDataGrid-root"
-                          style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                        <table
+                          class="MuiTable-root css-1xwxv7r-MuiTable-root"
                         >
-                          <div
-                            aria-colcount="3"
-                            aria-multiselectable="false"
-                            aria-rowcount="2"
-                            class="MuiDataGrid-main css-1bgckiu-MuiDataGrid-main"
-                            role="grid"
-                            tabindex="-1"
+                          <tbody
+                            class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
                           >
-                            <div
-                              class="css-18l11qw"
-                              data-id="gridPanelAnchor"
-                              role="presentation"
-                            />
-                            <div
-                              class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
-                              role="presentation"
-                              style=""
+                            <tr
+                              class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
                             >
-                              <div
-                                class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
-                                role="presentation"
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-2vv58u-MuiTableCell-root"
                               />
-                              <div
-                                class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
-                                role="presentation"
-                                style="width: 370px; flex-basis: 28px; flex-shrink: 0;"
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
                               >
-                                <div
-                                  class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
-                                  role="rowgroup"
-                                  style="transform: translate3d(0, 0px, 0);"
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
                                 >
-                                  <div
-                                    aria-rowindex="2"
-                                    aria-selected="false"
-                                    class="MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible"
-                                    data-id="2024-03-20T12:42:00.475Z"
-                                    data-rowindex="0"
-                                    role="row"
-                                    style="max-height: 28px; min-height: 28px; --height: 28px;"
-                                  >
-                                    <div
-                                      class="MuiDataGrid-cellOffsetLeft"
-                                      role="presentation"
-                                      style="width: 0px;"
-                                    />
-                                    <div
-                                      aria-colindex="1"
-                                      aria-colspan="1"
-                                      aria-rowspan="1"
-                                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                                      data-colindex="0"
-                                      data-field="timestamp"
-                                      role="gridcell"
-                                      style="--width: 160px;"
-                                      tabindex="-1"
-                                      title="20.03.2024 14:42:00"
-                                    >
-                                      20.03.2024 14:42:00
-                                    </div>
-                                    <div
-                                      aria-colindex="2"
-                                      aria-colspan="1"
-                                      aria-rowspan="1"
-                                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                                      data-colindex="1"
-                                      data-field="user"
-                                      role="gridcell"
-                                      style="--width: 160px;"
-                                      tabindex="-1"
-                                      title="test user"
-                                    >
-                                      test user
-                                    </div>
-                                    <div
-                                      aria-colindex="3"
-                                      aria-colspan="1"
-                                      aria-rowspan="1"
-                                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                                      data-colindex="2"
-                                      data-field="message"
-                                      role="gridcell"
-                                      style="--width: 50px;"
-                                      tabindex="-1"
-                                      title="example audit record"
-                                    >
-                                      example audit record
-                                    </div>
-                                    <div
-                                      class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
-                                      role="presentation"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiDataGrid-filler css-xv98vr"
-                                role="presentation"
-                                style="height: 0px; --rowBorderColor: var(--DataGrid-rowBorderColor);"
+                                  20.03.2024 14:42:00
+                                </p>
+                              </td>
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
                               >
-                                <div
-                                  class="css-1tdeh38"
-                                />
-                              </div>
-                              <div
-                                class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
-                                role="presentation"
-                              />
-                            </div>
-                            <div
-                              aria-hidden="true"
-                              class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-2n9dey"
-                              tabindex="-1"
-                            >
-                              <div
-                                class="MuiDataGrid-scrollbarContent"
-                                style="width: 370px;"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
+                                >
+                                  test user
+                                </p>
+                              </td>
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1cbhj8b-MuiTableCell-root"
+                              >
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2 css-7ctihp-MuiTypography-root"
+                                >
+                                  example audit record
+                                </p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
@@ -5325,133 +5242,50 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                       class="MuiBox-root css-1xs22px"
                     >
                       <div
-                        class="MuiBox-root css-tjecz8"
+                        class="MuiTableContainer-root MuiBox-root css-7sle2w-MuiTableContainer-root"
                       >
-                        <div
-                          class="MuiDataGrid-root MuiDataGrid-root--densityCompact MuiDataGrid-root--noToolbar MuiDataGrid-withBorderColor css-6cjfdi-MuiDataGrid-root"
-                          style="--DataGrid-hasScrollX: 1; --DataGrid-hasScrollY: 0; --DataGrid-scrollbarSize: 0px; --DataGrid-rowWidth: 370px; --DataGrid-columnsTotalWidth: 370px; --DataGrid-leftPinnedWidth: 0px; --DataGrid-rightPinnedWidth: 0px; --DataGrid-headerHeight: 0px; --DataGrid-headersTotalHeight: 0px; --DataGrid-topContainerHeight: 0px; --DataGrid-bottomContainerHeight: 0px; --height: 28px;"
+                        <table
+                          class="MuiTable-root css-1xwxv7r-MuiTable-root"
                         >
-                          <div
-                            aria-colcount="3"
-                            aria-multiselectable="false"
-                            aria-rowcount="2"
-                            class="MuiDataGrid-main css-1bgckiu-MuiDataGrid-main"
-                            role="grid"
-                            tabindex="-1"
+                          <tbody
+                            class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
                           >
-                            <div
-                              class="css-18l11qw"
-                              data-id="gridPanelAnchor"
-                              role="presentation"
-                            />
-                            <div
-                              class="MuiDataGrid-virtualScroller MuiDataGrid-virtualScroller--hasScrollX css-1vigakz-MuiDataGrid-virtualScroller"
-                              role="presentation"
-                              style=""
+                            <tr
+                              class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
                             >
-                              <div
-                                class="MuiDataGrid-topContainer MuiDataGrid-container--top css-b1wygl"
-                                role="presentation"
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-2vv58u-MuiTableCell-root"
                               />
-                              <div
-                                class="MuiDataGrid-virtualScrollerContent css-aymtem-MuiDataGrid-virtualScrollerContent"
-                                role="presentation"
-                                style="width: 370px; flex-basis: 28px; flex-shrink: 0;"
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
                               >
-                                <div
-                                  class="MuiDataGrid-virtualScrollerRenderZone css-11dqcl8-MuiDataGrid-virtualScrollerRenderZone"
-                                  role="rowgroup"
-                                  style="transform: translate3d(0, 0px, 0);"
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
                                 >
-                                  <div
-                                    aria-rowindex="2"
-                                    aria-selected="false"
-                                    class="MuiDataGrid-row MuiDataGrid-row--firstVisible MuiDataGrid-row--lastVisible"
-                                    data-id="2024-03-20T12:38:00.000Z"
-                                    data-rowindex="0"
-                                    role="row"
-                                    style="max-height: 28px; min-height: 28px; --height: 28px;"
-                                  >
-                                    <div
-                                      class="MuiDataGrid-cellOffsetLeft"
-                                      role="presentation"
-                                      style="width: 0px;"
-                                    />
-                                    <div
-                                      aria-colindex="1"
-                                      aria-colspan="1"
-                                      aria-rowspan="1"
-                                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                                      data-colindex="0"
-                                      data-field="timestamp"
-                                      role="gridcell"
-                                      style="--width: 160px;"
-                                      tabindex="-1"
-                                      title="20.03.2024 14:38:00"
-                                    >
-                                      20.03.2024 14:38:00
-                                    </div>
-                                    <div
-                                      aria-colindex="2"
-                                      aria-colspan="1"
-                                      aria-rowspan="1"
-                                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                                      data-colindex="1"
-                                      data-field="user"
-                                      role="gridcell"
-                                      style="--width: 160px;"
-                                      tabindex="-1"
-                                      title="test user"
-                                    >
-                                      test user
-                                    </div>
-                                    <div
-                                      aria-colindex="3"
-                                      aria-colspan="1"
-                                      aria-rowspan="1"
-                                      class="MuiDataGrid-cell MuiDataGrid-cell--textLeft"
-                                      data-colindex="2"
-                                      data-field="message"
-                                      role="gridcell"
-                                      style="--width: 50px;"
-                                      tabindex="-1"
-                                      title="example audit record"
-                                    >
-                                      example audit record
-                                    </div>
-                                    <div
-                                      class="MuiDataGrid-cell MuiDataGrid-cellEmpty"
-                                      role="presentation"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                              <div
-                                class="MuiDataGrid-filler css-xv98vr"
-                                role="presentation"
-                                style="height: 0px; --rowBorderColor: var(--DataGrid-rowBorderColor);"
+                                  20.03.2024 14:38:00
+                                </p>
+                              </td>
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
                               >
-                                <div
-                                  class="css-1tdeh38"
-                                />
-                              </div>
-                              <div
-                                class="MuiDataGrid-bottomContainer MuiDataGrid-container--bottom css-gzxaox"
-                                role="presentation"
-                              />
-                            </div>
-                            <div
-                              aria-hidden="true"
-                              class="MuiDataGrid-scrollbar MuiDataGrid-scrollbar--horizontal css-2n9dey"
-                              tabindex="-1"
-                            >
-                              <div
-                                class="MuiDataGrid-scrollbarContent"
-                                style="width: 370px;"
-                              />
-                            </div>
-                          </div>
-                        </div>
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
+                                >
+                                  test user
+                                </p>
+                              </td>
+                              <td
+                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1cbhj8b-MuiTableCell-root"
+                              >
+                                <p
+                                  class="MuiTypography-root MuiTypography-body2 css-7ctihp-MuiTypography-root"
+                                >
+                                  example audit record
+                                </p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>

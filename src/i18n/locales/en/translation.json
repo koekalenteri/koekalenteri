@@ -2,6 +2,26 @@
   "active": "Active",
   "admin": "Administration",
   "all": "All",
+  "audit": {
+    "after": "after",
+    "before": "before",
+    "changed": "Changed",
+    "details": {
+      "failedRecipients": "Failed recipients:\n{{recipients}}"
+    },
+    "empty": "(empty)",
+    "messages": {
+      "classStartListHidden": "{{eventClass}} start list hidden",
+      "classStartListPublished": "{{eventClass}} start list published",
+      "emailSent": "{{template}} sent: succeeded {{ok}}, failed {{failed}}",
+      "eventCreated": "Event created",
+      "eventDeleted": "Event deleted",
+      "eventSaved": "Event saved",
+      "startListHidden": "Start list hidden",
+      "startListPublished": "Start list published"
+    },
+    "removed": "(removed)"
+  },
   "backToEventsList": "Back to events list",
   "cancel": "Cancel",
   "clear": "Clear",
