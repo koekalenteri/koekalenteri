@@ -1,4 +1,4 @@
-import type { AuditRecord, JsonAuditRecord } from '../../types'
+import type { AuditRecord, JsonAuditRecord, JsonConfirmedEvent } from '../../types'
 import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
@@ -13,7 +13,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 process.env.AUDIT_TABLE_NAME = 'audit-table-name'
 
-const { registrationAuditKey, audit, auditTrail } = await import('./audit')
+const { eventAuditKey, registrationAuditKey, getEventAuditMessages, audit, auditTrail } = await import('./audit')
 
 describe('audit', () => {
   afterEach(() => jest.clearAllMocks())
@@ -21,6 +21,79 @@ describe('audit', () => {
   describe('registrationAuditKey', () => {
     it('combines eventId and registration id', () => {
       expect(registrationAuditKey({ eventId: 'event-id', id: 'registration-id' })).toEqual('event-id:registration-id')
+    })
+  })
+
+  describe('eventAuditKey', () => {
+    it('prefixes event id', () => {
+      expect(eventAuditKey({ id: 'event-id' })).toEqual('event:event-id')
+    })
+  })
+
+  describe('getEventAuditMessages', () => {
+    const event: JsonConfirmedEvent = {
+      classes: [],
+      cost: 0,
+      createdAt: '',
+      createdBy: '',
+      description: '',
+      endDate: '',
+      entryEndDate: '',
+      entryStartDate: '',
+      eventType: '',
+      id: 'event-id',
+      judges: [],
+      location: '',
+      modifiedAt: '',
+      modifiedBy: '',
+      name: '',
+      official: {},
+      organizer: { id: 'org-id', name: 'Org' },
+      places: 0,
+      secretary: {},
+      startDate: '',
+      state: 'confirmed',
+    }
+
+    it('stores event field translation keys for generic changes', () => {
+      const messages = getEventAuditMessages(event, { eventType: 'NOME-B', id: 'event-id' })
+
+      expect(messages).toEqual([
+        {
+          changes: [
+            {
+              field: 'eventType',
+              labelKey: 'event.eventType',
+              next: { text: 'NOME-B' },
+              previous: { state: 'empty' },
+            },
+          ],
+          message: 'Muutti: eventType',
+          messageKey: 'audit.changed',
+        },
+      ])
+    })
+
+    it('preserves omitted class start-list states when auditing partial class publish patches', () => {
+      const messages = getEventAuditMessages(
+        {
+          ...event,
+          classes: [
+            { class: 'ALO', date: '' },
+            { class: 'AVO', date: '' },
+          ],
+          startListPublished: { ALO: false, AVO: true },
+        },
+        { id: 'event-id', startListPublished: { ALO: true } }
+      )
+
+      expect(messages).toEqual([
+        {
+          message: 'ALO starttilista julkaistu',
+          messageKey: 'audit.messages.classStartListPublished',
+          messageParams: { eventClass: 'ALO' },
+        },
+      ])
     })
   })
 

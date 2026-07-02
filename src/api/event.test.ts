@@ -5,7 +5,7 @@ import { emptyEvent } from '../__mockData__/emptyEvent'
 import { zonedEndOfDay, zonedStartOfDay } from '../i18n/dates'
 import { isEntryClosing, isEntryOpen, isEntryUpcoming } from '../lib/utils'
 import { API_BASE_URL } from '../routeConfig'
-import { getEvent, getEvents, putEvent } from './event'
+import { getEvent, getEventAuditTrail, getEvents, putEvent } from './event'
 
 fetchMock.enableMocks()
 
@@ -85,6 +85,18 @@ test('getEvent', async () => {
   expect(testEvent).toMatchObject(emptyEvent)
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/TestEventID`)
+})
+
+test('getEventAuditTrail', async () => {
+  fetchMock.mockResponse((req) =>
+    req.method === 'GET' ? Promise.resolve(JSON.stringify([])) : Promise.reject(new Error(`${req.method} !== 'GET'`))
+  )
+
+  const auditTrail = await getEventAuditTrail('TestEventID', 'token')
+
+  expect(auditTrail).toEqual([])
+  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/audit/TestEventID`)
 })
 
 test('putEvent creates with POST', async () => {

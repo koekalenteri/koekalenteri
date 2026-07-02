@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import type { ConfirmedEvent, EmailTemplateId, Registration, RegistrationClass } from '../../../types'
+import type { AuditRecord, ConfirmedEvent, EmailTemplateId, Registration, RegistrationClass } from '../../../types'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
@@ -20,17 +20,19 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-import { Fragment, useCallback, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { putInvitationAttachment } from '../../../api/event'
+import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
+import { reportError } from '../../../lib/client/error'
 import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
 import { getParticipantMessageInfo, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { idTokenAtom } from '../../recoil'
+import { AuditTrail } from '../components/AuditTrail'
 import { adminEventSelector } from '../recoil'
 
 interface Props {
@@ -63,6 +65,7 @@ const InfoPanel = ({
   const token = useRecoilValue(idTokenAtom)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
+  const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
   const eventClasses = useMemo(() => [...new Set(event.classes.map((c) => c.class))], [event.classes])
@@ -154,6 +157,18 @@ const InfoPanel = ({
     },
     [classAttachmentKeys, event, setEvent, token]
   )
+
+  useEffect(() => {
+    if (!expanded || !token) return
+
+    getEventAuditTrail(event.id, token)
+      .then((at) => setAuditTrail(at ?? []))
+      .catch((e) => {
+        reportError(e)
+        setAuditTrail([])
+      })
+  }, [event.id, expanded, token])
+
   if (!expanded) {
     return (
       <Button
@@ -499,6 +514,8 @@ const InfoPanel = ({
             </Button>
           </Stack>
         </Box>
+
+        <AuditTrail auditTrail={auditTrail} />
       </Box>
     </Drawer>
   )

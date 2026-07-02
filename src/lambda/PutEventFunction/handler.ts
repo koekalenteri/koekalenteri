@@ -2,6 +2,7 @@ import type { JsonConfirmedEvent, JsonDogEvent, JsonUser, Patch } from '../../ty
 import { nanoid } from 'nanoid'
 import { getEventSeason, isEventDeletable } from '../../lib/event'
 import { isEntryOpen, patchMerge } from '../../lib/utils'
+import { audit, eventAuditKey, getEventAuditMessages } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -86,6 +87,15 @@ const putEventLambda = lambda('putEvent', async (event) => {
   if (existing && existing.entries !== data.entries) {
     // update registrations in case the secretary version was out of date
     result = await updateRegistrations(data.id)
+  }
+
+  const auditKey = eventAuditKey(result)
+  for (const auditMessage of getEventAuditMessages(existing, item)) {
+    await audit({
+      auditKey,
+      ...auditMessage,
+      user: user.name,
+    })
   }
 
   return response(200, result, event)

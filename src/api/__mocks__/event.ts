@@ -1,4 +1,4 @@
-import type { DogEvent, Patch } from '../../types'
+import type { AuditRecord, DogEvent, Patch } from '../../types'
 import type { PublicEventsResponse } from '../event'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
@@ -64,6 +64,14 @@ export async function getEvent(id: string, _signal?: AbortSignal): Promise<DogEv
     const event = mockEvents.find((item) => item.id === id)
     process.nextTick(() => (event ? resolve(event) : reject(new Error('not found'))))
   })
+}
+
+export async function getEventAuditTrail(
+  _id: string,
+  _token: string,
+  _signal?: AbortSignal
+): Promise<AuditRecord[] | undefined> {
+  return []
 }
 
 export async function putEvent(event: Patch<DogEvent>, _token?: string, _signal?: AbortSignal): Promise<DogEvent> {

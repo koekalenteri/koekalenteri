@@ -15,6 +15,13 @@ jest.unstable_mockModule('../lib/auth', () => ({
   authorize: jest.fn(),
 }))
 
+const mockGetEventAuditMessages = jest.fn<any>()
+jest.unstable_mockModule('../lib/audit', () => ({
+  audit: jest.fn(),
+  eventAuditKey: jest.fn((event: Pick<JsonDogEvent, 'id'>) => `event:${event.id}`),
+  getEventAuditMessages: mockGetEventAuditMessages,
+}))
+
 jest.unstable_mockModule('../lib/event', () => ({
   findQualificationStartDate: jest.fn(),
   getEvent: jest.fn(),
@@ -29,6 +36,10 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 const { authorize } = await import('../lib/auth')
 const authorizeMock = authorize as jest.Mock<typeof authorize>
+
+const { audit, eventAuditKey } = await import('../lib/audit')
+const auditMock = audit as jest.Mock<typeof audit>
+const eventAuditKeyMock = eventAuditKey as jest.Mock<typeof eventAuditKey>
 
 const { findQualificationStartDate, getEvent, patchEvent, saveEvent, updateRegistrations } = await import(
   '../lib/event'
@@ -97,6 +108,26 @@ describe('putEventLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     patchEventMock.mockImplementation(async (_id, _existing, next) => next)
+    mockGetEventAuditMessages.mockImplementation((_existing: unknown, item: Partial<JsonDogEvent>) => {
+      if (!_existing) return [{ message: 'Tapahtuma luotu' }]
+      if (item.startListPublished) return [{ message: 'ALO starttilista julkaistu' }]
+      if (item.eventType) {
+        return [
+          {
+            changes: [
+              {
+                field: 'eventType',
+                labelKey: 'event.eventType',
+                next: { text: 'TEST' },
+                previous: { state: 'empty' },
+              },
+            ],
+            message: 'Muutti: eventType',
+          },
+        ]
+      }
+      return [{ message: 'Tapahtuma tallennettu' }]
+    })
   })
 
   it('should return 401 if authorization fails', async () => {
@@ -182,6 +213,11 @@ describe('putEventLambda', () => {
       modifiedBy: 'Test User',
       updatedAt: '2025-03-22T10:45:33.000Z',
     })
+    expect(auditMock).toHaveBeenCalledWith({
+      auditKey: 'event:new-id',
+      message: 'Tapahtuma luotu',
+      user: 'Test User',
+    })
     expect(res.statusCode).toEqual(200)
   })
 
@@ -201,8 +237,47 @@ describe('putEventLambda', () => {
       modifiedBy: 'Test User',
       updatedAt: '2025-03-22T10:45:33.000Z',
     })
+    expect(eventAuditKeyMock).toHaveBeenCalledWith({ ...mockEvent, eventType: 'TEST', kcId: undefined })
+    expect(auditMock).toHaveBeenCalledWith({
+      auditKey: 'event:existing',
+      changes: [
+        {
+          field: 'eventType',
+          labelKey: 'event.eventType',
+          next: { text: 'TEST' },
+          previous: { state: 'empty' },
+        },
+      ],
+      message: 'Muutti: eventType',
+      user: 'Test User',
+    })
     expect(res.statusCode).toEqual(200)
     expect(JSON.parse(res.body)).toEqual({ ...mockEvent, eventType: 'TEST' })
+  })
+
+  it('should audit start list class publishing without a generic change message', async () => {
+    const existing = {
+      ...mockEvent,
+      classes: [{ class: 'ALO' }, { class: 'AVO' }],
+      startListPublished: { ALO: false, AVO: false },
+    } as JsonDogEvent
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(existing)
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>(
+        { id: 'existing', startListPublished: { ALO: true, AVO: false } },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(auditMock).toHaveBeenCalledWith({
+      auditKey: 'event:existing',
+      message: 'ALO starttilista julkaistu',
+      user: 'Test User',
+    })
+    expect(auditMock).not.toHaveBeenCalledWith(expect.objectContaining({ message: 'Muutti: startListPublished' }))
   })
 
   it('should return 400 for patch event without id', async () => {
@@ -247,6 +322,13 @@ describe('putEventLambda', () => {
   it('should update registrations if entries differs', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, entries: 10 })
+    updateRegistrationsMock.mockResolvedValueOnce({
+      ...mockEvent,
+      entries: 11,
+      entryEndDate: '',
+      entryStartDate: '',
+      state: 'confirmed',
+    })
 
     const res = await putEventLambda(constructAPIGwEvent<Partial<JsonDogEvent>>({ entries: 11, id: 'existing' }))
 

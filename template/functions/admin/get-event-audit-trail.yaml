@@ -1,0 +1,33 @@
+  GetEventAuditTrailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/GetEventAuditTrailFunction
+      Handler: handler.default
+      Layers:
+        - !Ref CommonLayer
+      Tracing: Active
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref EventTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref UserLinkTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref AuditTable
+        - CloudWatchPutMetricPolicy: {}
+      Events:
+        GetEventAuditTrail:
+          Type: Api
+          Properties:
+            Path: /admin/event/audit/{id}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetEventAuditTrailFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Join ['/', ['/aws/lambda', !Ref GetEventAuditTrailFunction]]
+      RetentionInDays: 30

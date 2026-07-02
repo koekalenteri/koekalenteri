@@ -1,4 +1,4 @@
-import type { DogEvent, Patch, PublicDogEvent } from '../types'
+import type { AuditRecord, DogEvent, Patch, PublicDogEvent } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import { dedupeInFlight } from './dedupeInFlight'
@@ -52,6 +52,13 @@ export async function getAdminEvents(token?: string, lastModified?: number, sign
 export async function getAdminEvent(id: string, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   return http.get<DogEvent>(`${ADMIN_PATH}${id}`, withToken({ signal }, token))
 }
+
+export const getEventAuditTrail = async (
+  id: string,
+  token: string,
+  signal?: AbortSignal
+): Promise<AuditRecord[] | undefined> =>
+  http.get<AuditRecord[]>(`${ADMIN_PATH}audit/${id}`, withToken({ signal }, token))
 
 export async function putEvent(event: Patch<DogEvent>, token?: string, signal?: AbortSignal): Promise<DogEvent> {
   const request = withToken({ signal }, token)

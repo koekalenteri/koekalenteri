@@ -5,8 +5,10 @@ const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockQuery = jest.fn<any>()
+const mockGetStartListPublishedClassMap = jest.fn<any>()
 const mockIsStartListAvailable = jest.fn<any>()
 const mockIsStartListAvailableForClass = jest.fn<any>()
+const mockIsStartListPublishedClassMap = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -27,8 +29,10 @@ jest.unstable_mockModule('../lib/event', () => ({
 }))
 
 jest.unstable_mockModule('../../lib/event', () => ({
+  getStartListPublishedClassMap: mockGetStartListPublishedClassMap,
   isStartListAvailable: mockIsStartListAvailable,
   isStartListAvailableForClass: mockIsStartListAvailableForClass,
+  isStartListPublishedClassMap: mockIsStartListPublishedClassMap,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
