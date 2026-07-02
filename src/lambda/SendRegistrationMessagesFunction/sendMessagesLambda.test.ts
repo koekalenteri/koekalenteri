@@ -12,6 +12,8 @@ const mockGetReadyRegistrationsByEventId = jest.fn<any>()
 const mockMarkParticipants = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
+const mockAudit = jest.fn<any>()
+const mockEventAuditKey = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
@@ -32,6 +34,11 @@ jest.unstable_mockModule('../lib/auth', () => ({
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: mockGetOrigin,
+}))
+
+jest.unstable_mockModule('../lib/audit', () => ({
+  audit: mockAudit,
+  eventAuditKey: mockEventAuditKey,
 }))
 
 jest.unstable_mockModule('../lib/json', () => ({
@@ -133,6 +140,7 @@ describe('sendMessagesLambda', () => {
     })
 
     mockMarkParticipants.mockImplementation((event: any) => event)
+    mockEventAuditKey.mockImplementation((event: { id: string }) => `event:${event.id}`)
   })
 
   it('returns 401 if not authorized', async () => {
@@ -195,6 +203,18 @@ describe('sendMessagesLambda', () => {
       },
       event
     )
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event:event123',
+      message: 'Koekutsu lähetetty: onnistui 1, epäonnistui 0',
+      messageKey: 'audit.messages.emailSent',
+      messageParams: {
+        failed: 0,
+        ok: 1,
+        template: 'Koekutsu',
+        templateKey: 'emailTemplate.invitation',
+      },
+      user: 'Test User',
+    })
   })
 
   it('sends picked emails and marks participants as picked', async () => {
@@ -221,6 +241,18 @@ describe('sendMessagesLambda', () => {
 
     // Verify participants were marked
     expect(mockMarkParticipants).toHaveBeenCalledWith(mockEvent, 'picked', 'ALO')
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event:event123',
+      message: 'Koepaikkailmoitus lähetetty: onnistui 1, epäonnistui 0',
+      messageKey: 'audit.messages.emailSent',
+      messageParams: {
+        failed: 0,
+        ok: 1,
+        template: 'Koepaikkailmoitus',
+        templateKey: 'emailTemplate.picked',
+      },
+      user: 'Test User',
+    })
   })
 
   it('sends reserve emails and marks registrations as notified', async () => {
@@ -301,6 +333,24 @@ describe('sendMessagesLambda', () => {
       },
       event
     )
+    expect(mockAudit).toHaveBeenCalledWith({
+      auditKey: 'event:event123',
+      details: [
+        {
+          detailKey: 'audit.details.failedRecipients',
+          detailParams: { recipients: 'recipient@example.com' },
+        },
+      ],
+      message: 'Koekutsu lähetetty: onnistui 0, epäonnistui 1',
+      messageKey: 'audit.messages.emailSent',
+      messageParams: {
+        failed: 1,
+        ok: 0,
+        template: 'Koekutsu',
+        templateKey: 'emailTemplate.invitation',
+      },
+      user: 'Test User',
+    })
   })
 
   it('does not mark participants when only one registration ID is provided with invitation template', async () => {

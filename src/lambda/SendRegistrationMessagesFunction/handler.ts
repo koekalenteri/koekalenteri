@@ -2,6 +2,7 @@ import type { JsonConfirmedEvent, RegistrationMessage } from '../../types'
 import { isRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
+import { audit, eventAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { getStateFromTemplate, markParticipants } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -18,6 +19,20 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTable, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
+
+const templateAuditLabels: Partial<Record<RegistrationMessage['template'], string>> = {
+  invitation: 'Koekutsu',
+  picked: 'Koepaikkailmoitus',
+  registration: 'Vahvistusviesti',
+  reserve: 'Varasijailmoitus',
+}
+
+const templateAuditLabelKeys: Partial<Record<RegistrationMessage['template'], string>> = {
+  invitation: 'emailTemplate.invitation',
+  picked: 'emailTemplate.picked',
+  registration: 'emailTemplate.registration',
+  reserve: 'emailTemplate.reserve',
+}
 
 /**
  * Mark classes as having received the specified template
@@ -86,6 +101,29 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
 
     confirmedEvent = await markClassesAsReceived(confirmedEvent, classesToMark, template)
   }
+
+  await audit({
+    auditKey: eventAuditKey(confirmedEvent),
+    ...(failed.length
+      ? {
+          details: [
+            {
+              detailKey: 'audit.details.failedRecipients',
+              detailParams: { recipients: failed.join('\n') },
+            },
+          ],
+        }
+      : {}),
+    message: `${templateAuditLabels[template] ?? template} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    messageKey: 'audit.messages.emailSent',
+    messageParams: {
+      failed: failed.length,
+      ok: ok.length,
+      template: templateAuditLabels[template] ?? template,
+      templateKey: templateAuditLabelKeys[template] ?? '',
+    },
+    user: user.name,
+  })
 
   const { state, classes } = confirmedEvent
   return response(200, { classes, failed, ok, registrations, state }, event)

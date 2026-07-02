@@ -6,7 +6,7 @@ import {
   isParticipantGroup,
 } from '../../lib/registration'
 import { getOrigin } from '../lib/api-gw'
-import { audit, registrationAuditKey } from '../lib/audit'
+import { audit, eventAuditKey, registrationAuditKey } from '../lib/audit'
 import { authorize } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
@@ -27,6 +27,35 @@ const classEquals = (a: string | null | undefined, b: string | null | undefined)
 
 const regString = (r: JsonRegistration) =>
   `${r.group?.key}/${r.group?.number} ${r.id} ${r.dog.regNo}  ${r.dog.name} ${r.handler?.name} [${r.reserveNotified}]`
+
+const auditSentMessages = async (
+  confirmedEvent: JsonConfirmedEvent,
+  label: string,
+  labelKey: string,
+  ok: string[],
+  failed: string[],
+  user: JsonUser
+) => {
+  if (!ok.length && !failed.length) return
+
+  await audit({
+    auditKey: eventAuditKey(confirmedEvent),
+    ...(failed.length
+      ? {
+          details: [
+            {
+              detailKey: 'audit.details.failedRecipients',
+              detailParams: { recipients: failed.join('\n') },
+            },
+          ],
+        }
+      : {}),
+    message: `${label} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    messageKey: 'audit.messages.emailSent',
+    messageParams: { failed: failed.length, ok: ok.length, template: label, templateKey: labelKey },
+    user: user.name,
+  })
+}
 
 const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegistrationGroupInfo[], user: JsonUser) => {
   // create a new copy of oldItems, so we can update without touching the original ones
@@ -134,6 +163,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user.name,
       ''
     )
+    await auditSentMessages(confirmedEvent, 'Koepaikkailmoitus', 'emailTemplate.picked', pickedOk, pickedFailed, user)
 
     const { ok: invitedOk, failed: invitedFailed } = invited
       ? await sendTemplatedEmailToEventRegistrations(
@@ -146,6 +176,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
           ''
         )
       : { failed: [], ok: [] }
+    await auditSentMessages(confirmedEvent, 'Koekutsu', 'emailTemplate.invitation', invitedOk, invitedFailed, user)
 
     /**
      * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email
@@ -174,6 +205,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user.name,
       ''
     )
+    await auditSentMessages(confirmedEvent, 'Varasijailmoitus', 'emailTemplate.reserve', reserveOk, reserveFailed, user)
 
     await updateReserveNotified(movedReserve)
 
@@ -207,6 +239,14 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     '',
     user.name,
     'cancel'
+  )
+  await auditSentMessages(
+    confirmedEvent,
+    'Peruutusilmoitus',
+    'emailTemplate.cancel-early',
+    cancelledOk,
+    cancelledFailed,
+    user
   )
 
   // audit cancellations
