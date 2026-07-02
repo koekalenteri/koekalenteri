@@ -21,3 +21,15 @@ Read `LLM_CONTEXT.md` for the project overview and architecture notes.
 
 - Use Biome for formatting files:
   `npm run lint-biome -- --write`
+
+## Commit Messages
+
+- Use Conventional Commits: `<type>(optional-scope): <brief description>`.
+- Keep the subject concise and descriptive of the actual change, for example:
+  `fix(registrations): broadcast admin note patches`.
+- Prefer common types such as `fix`, `feat`, `test`, `refactor`, `docs`, and `chore`.
+
+## Sandbox Notes
+
+- `git commit` requires escalated permissions and does not work in the sandbox.
+- Network access is restricted. Dependency installs and commands that fetch remote resources require approval when no matching approval is already active.
