@@ -492,6 +492,44 @@ describe('InfoPanel>', () => {
     })
   })
 
+  it('allows publishing an invited class start list even when the event is only confirmed', async () => {
+    const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
+    const event = {
+      ...eventWithParticipantsInvited,
+      classes: eventWithParticipantsInvited.classes.map((eventClass) => ({
+        ...eventClass,
+        state: eventClass.class === 'ALO' ? ('invited' as const) : ('picked' as const),
+      })),
+      invitationAttachments: { ALO: 'alo-key' },
+      startListPublished: { ALO: false, AVO: true },
+      state: 'confirmed' as const,
+    }
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [event])}>{children}</RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={event}
+        onSetStartListPublished={onSetStartListPublished}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          invitationAttachmentSent: registration.class === 'ALO' ? 'alo-key' : undefined,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
+
+    await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
+
+    await waitFor(() => {
+      expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', true)
+    })
+  })
+
   it('shows an unpublish start list CTA when invitations are sent and the class start list is published', async () => {
     const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
     const wrapper = ({ children }: { children: React.ReactNode }) => (

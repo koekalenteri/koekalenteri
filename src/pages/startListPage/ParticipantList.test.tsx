@@ -58,6 +58,7 @@ describe('ParticipantList', () => {
         class: 'AVO',
         date: new Date('2023-01-01'),
         judge: { id: 1, name: 'Judge One' },
+        state: 'invited',
       },
       {
         class: 'VOI',
@@ -66,6 +67,7 @@ describe('ParticipantList', () => {
           { id: 2, name: 'Judge Two' },
           { id: 3, name: 'Judge Three' },
         ],
+        state: 'invited',
       },
     ],
     cost: 0,
@@ -164,7 +166,7 @@ describe('ParticipantList', () => {
     expect(screen.getAllByTestId('registration-details')).toHaveLength(4)
   })
 
-  it('renders an unpublished class note for event classes missing from the public start list', () => {
+  it('does not render unpublished event classes missing from the public start list', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
     ]
@@ -176,7 +178,7 @@ describe('ParticipantList', () => {
       />
     )
 
-    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+    expect(screen.queryByText('VOI unpublished')).not.toBeInTheDocument()
   })
 
   it('renders a published event class even when it has no public participants', () => {
@@ -206,8 +208,8 @@ describe('ParticipantList', () => {
         event={{
           ...mockEvent,
           classes: [
-            { class: 'AVO', date: new Date('2023-01-01') },
-            { class: 'AVO', date: new Date('2023-01-02') },
+            { class: 'AVO', date: new Date('2023-01-01'), state: 'invited' },
+            { class: 'AVO', date: new Date('2023-01-02'), state: 'invited' },
           ],
           endDate: new Date('2023-01-02'),
           startListPublished: { AVO: true },

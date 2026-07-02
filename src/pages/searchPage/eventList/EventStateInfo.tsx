@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { EventState, RegistrationClass } from '../../../types'
+import type { EventClassState, EventState, RegistrationClass } from '../../../types'
 import Box from '@mui/material/Box'
 import { useTranslation } from 'react-i18next'
 import { isStartListAvailable } from '../../../lib/event'
@@ -8,7 +8,7 @@ import LinkButton from '../../components/LinkButton'
 
 interface Props {
   readonly id: string
-  readonly classes?: Array<{ class: RegistrationClass }>
+  readonly classes?: Array<{ class: RegistrationClass; state?: EventClassState }>
   readonly state: EventState
   readonly startListPublished?: boolean | Partial<Record<RegistrationClass, boolean>>
   readonly text?: string | ReactNode | null

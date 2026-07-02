@@ -8,7 +8,7 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isStartListPublishedForClass } from '../../lib/event'
+import { isStartListAvailableForClass, isStartListPublishedForClass } from '../../lib/event'
 import { judgeName } from '../../lib/judge'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
@@ -191,7 +191,11 @@ function getStartListItems(participants: PublicRegistration[], event: PublicConf
   const emptyClasses = event.classes.flatMap<StartListItem>((eventClass, order) => {
     const date = eventClass.date ?? event.startDate
     const key = classDateKey(eventClass.class, date)
-    if (includedClasses.has(key) || participantClassDates.has(key)) {
+    if (
+      includedClasses.has(key) ||
+      participantClassDates.has(key) ||
+      !isStartListAvailableForClass(event, eventClass)
+    ) {
       return []
     }
     includedClasses.add(key)

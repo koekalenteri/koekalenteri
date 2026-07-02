@@ -173,4 +173,21 @@ describe('StartListPage', () => {
 
     expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 0, Event: Test Name')
   })
+
+  it('renders the list when a class is invited and published even if the event is only confirmed', () => {
+    mockUseLoaderData.mockReturnValue([])
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue({
+      ...mockEvent,
+      classes: [
+        { class: 'AVO', date: new Date('2023-01-01'), state: 'invited' },
+        { class: 'VOI', date: new Date('2023-01-01'), state: 'picked' },
+      ],
+      startListPublished: { AVO: true, VOI: true },
+      state: 'confirmed',
+    })
+
+    render(<StartListPage />)
+
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 0, Event: Test Name')
+  })
 })

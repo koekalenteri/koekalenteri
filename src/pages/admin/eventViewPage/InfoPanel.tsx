@@ -78,7 +78,7 @@ const InfoPanel = ({
   const handleSetStartListPublished = useCallback(
     async (eventClass: RegistrationClass | undefined, published: boolean) => {
       const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
-      if (!canPublishStartList({ state })) {
+      if (!canPublishStartList(state)) {
         return
       }
       if (!onSetStartListPublished) {
@@ -260,7 +260,7 @@ const InfoPanel = ({
                   const startListManageable =
                     Boolean(onSetStartListPublished) &&
                     (classlessEventRow || Boolean(startListEventClass)) &&
-                    canPublishStartList({ state: stateByClass[c] ?? event.state })
+                    canPublishStartList(stateByClass[c] ?? event.state)
 
                   return (
                     <TableRow key={c}>

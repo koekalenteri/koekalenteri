@@ -33,20 +33,26 @@ export const isStartListAvailable = ({
   state,
   startListPublished,
 }: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
-  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class'>>
+  classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
 }) => {
-  if (!canPublishStartList({ state })) return false
+  if (classes?.length) {
+    return classes.some((eventClass) => isStartListAvailableForClass({ startListPublished, state }, eventClass))
+  }
+
+  if (!canPublishStartList(state)) return false
   if (isStartListPublishedClassMap(startListPublished)) {
-    if (classes?.length) {
-      return classes.some((eventClass) => isStartListPublishedForClass({ startListPublished }, eventClass.class))
-    }
     return Object.values(startListPublished).some(Boolean)
   }
   return startListPublished !== false
 }
 
-export const canPublishStartList = ({ state }: Pick<JsonDogEvent, 'state'>) =>
+export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
+
+export const isStartListAvailableForClass = (
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'>,
+  eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
+) => canPublishStartList(eventClass.state ?? event.state) && isStartListPublishedForClass(event, eventClass.class)
 
 export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
   isStartListPublishedClassMap(event.startListPublished)

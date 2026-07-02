@@ -36,6 +36,23 @@ describe('EventStateInfo', () => {
     expect(screen.getByText('viewStartList')).toBeInTheDocument()
   })
 
+  it('should render start list link when a published class is invited even if event is confirmed', () => {
+    render(
+      <EventStateInfo
+        classes={[
+          { class: 'ALO', state: 'invited' },
+          { class: 'AVO', state: 'picked' },
+        ]}
+        id={'test-id'}
+        state={'confirmed'}
+        startListPublished={{ ALO: true, AVO: true }}
+      />,
+      { wrapper: Wrapper }
+    )
+
+    expect(screen.getByText('viewStartList')).toBeInTheDocument()
+  })
+
   it('should not render start list link when a sparse class-specific map omits unpublished classes', () => {
     render(
       <EventStateInfo

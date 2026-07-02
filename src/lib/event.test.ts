@@ -19,6 +19,7 @@ import {
   isDetaultEntryStartDate,
   isEventDeletable,
   isStartListAvailable,
+  isStartListAvailableForClass,
   isStartListPublishedForClass,
   newEventEntryEndDate,
   newEventEntryStartDate,
@@ -56,6 +57,32 @@ describe('lib/event', () => {
       ).toEqual(true)
     })
 
+    it('returns true when an invited class start list is published even if the event is only confirmed', () => {
+      expect(
+        isStartListAvailable({
+          classes: [
+            { class: 'ALO', state: 'picked' },
+            { class: 'AVO', state: 'invited' },
+          ],
+          startListPublished: { ALO: true, AVO: true },
+          state: 'confirmed',
+        })
+      ).toEqual(true)
+    })
+
+    it('returns false when the only published class is not yet invited', () => {
+      expect(
+        isStartListAvailable({
+          classes: [
+            { class: 'ALO', state: 'picked' },
+            { class: 'AVO', state: 'picked' },
+          ],
+          startListPublished: { ALO: true, AVO: false },
+          state: 'confirmed',
+        })
+      ).toEqual(false)
+    })
+
     it('returns false when class-specific publishing is configured but no class is published', () => {
       expect(
         isStartListAvailable({
@@ -83,6 +110,21 @@ describe('lib/event', () => {
       'picked',
     ])('Should return false when state is %p', (state) => {
       expect(isStartListAvailable({ state })).toEqual(false)
+    })
+
+    it('checks class state and publication together', () => {
+      expect(
+        isStartListAvailableForClass(
+          { startListPublished: { ALO: true, AVO: true }, state: 'confirmed' },
+          { class: 'ALO', state: 'invited' }
+        )
+      ).toEqual(true)
+      expect(
+        isStartListAvailableForClass(
+          { startListPublished: { ALO: true, AVO: true }, state: 'confirmed' },
+          { class: 'AVO', state: 'picked' }
+        )
+      ).toEqual(false)
     })
 
     it('uses the event-level value when class-specific publishing is not configured', () => {
