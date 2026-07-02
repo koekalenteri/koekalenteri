@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material'
-import type { DeepPartial, DogEvent, EventState } from '../../../types'
+import type { DeepPartial, DogEvent, EventState, Patch } from '../../../types'
 import type { PartialEvent } from './eventForm/types'
 import Cancel from '@mui/icons-material/Cancel'
 import Save from '@mui/icons-material/Save'

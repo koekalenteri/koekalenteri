@@ -1,5 +1,5 @@
 import type { ValidationResult } from '../../../../i18n/validation'
-import type { DeepPartial, DogEvent, EventState } from '../../../../types'
+import type { DeepPartial, DogEvent, EventState, Patch } from '../../../../types'
 
 export interface PartialEvent
   extends Omit<
