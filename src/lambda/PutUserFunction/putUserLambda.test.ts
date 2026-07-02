@@ -48,6 +48,9 @@ describe('putUserLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
+    // Spy on console methods to prevent logs from being displayed
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
+
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
       admin: true,
@@ -158,6 +161,7 @@ describe('putUserLambda', () => {
 
     expect(mockGetAndUpdateUserByEmail).not.toHaveBeenCalled()
     expect(mockSetUserRole).not.toHaveBeenCalled()
+    expect(console.warn).toHaveBeenCalledWith('User does not have right to set role', expect.any(Object))
     expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
   })
 
