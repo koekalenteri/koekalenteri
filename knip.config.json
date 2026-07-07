@@ -1,7 +1,7 @@
 {
   "workspaces": {
     ".": {
-      "ignore": ["aws/split.js", "scripts/marshall.cjs"],
+      "ignore": ["aws/split.js", "scripts/marshall.cjs", "scripts/precommit.js"],
       "ignoreBinaries": ["sam", "scripts/prebuild-backend.sh"],
       "ignoreDependencies": [
         "@aws-amplify/core",
