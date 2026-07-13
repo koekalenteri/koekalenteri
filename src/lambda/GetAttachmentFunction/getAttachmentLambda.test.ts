@@ -52,20 +52,43 @@ describe('getAttachmentLambda', () => {
     })
   })
 
-  it('returns 404 when file is not found', async () => {
+  it('returns an understandable 404 when the file has no content', async () => {
     const fileKey = 'nonexistent-file.pdf'
     mockGetParam.mockReturnValueOnce(fileKey)
     mockDownloadFile.mockResolvedValueOnce({ Body: null })
+    mockAllowOrigin.mockReturnValueOnce('*')
 
-    await expect(getAttachmentLambda(event)).rejects.toEqual(
-      expect.objectContaining({
-        message: 'not found',
-        statusCode: 404,
-      })
-    )
+    await expect(getAttachmentLambda(event)).resolves.toEqual({
+      body: expect.stringContaining('Koekutsun liitetiedostoa ei enää löydy'),
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+      statusCode: 404,
+    })
 
     expect(mockGetParam).toHaveBeenCalledWith(event, 'key')
     expect(mockDownloadFile).toHaveBeenCalledWith(fileKey)
+  })
+
+  it('returns an understandable 404 when S3 no longer contains the file', async () => {
+    const fileKey = 'deleted-file.pdf'
+    mockGetParam.mockReturnValueOnce(fileKey)
+    mockDownloadFile.mockRejectedValueOnce({
+      $metadata: { httpStatusCode: 404 },
+      message: 'The specified key does not exist.',
+      name: 'NoSuchKey',
+    })
+    mockAllowOrigin.mockReturnValueOnce('*')
+
+    await expect(getAttachmentLambda(event)).resolves.toEqual({
+      body: 'Koekutsun liitetiedostoa ei enää löydy. Kokeen järjestäjä on saattanut päivittää tiedoston kutsun lähettämisen jälkeen. Pyydä tarvittaessa järjestäjältä uusi kutsu.',
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+      statusCode: 404,
+    })
   })
 
   it('returns file with inline disposition by default', async () => {

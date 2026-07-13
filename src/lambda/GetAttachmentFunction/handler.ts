@@ -1,7 +1,24 @@
 import type { Readable } from 'node:stream'
 import type { StreamingBlobTypes } from '@smithy/types'
 import { downloadFile } from '../lib/file'
-import { allowOrigin, getParam, LambdaError, lambda } from '../lib/lambda'
+import { allowOrigin, getParam, lambda } from '../lib/lambda'
+
+const ATTACHMENT_NOT_FOUND_MESSAGE =
+  'Koekutsun liitetiedostoa ei enää löydy. Kokeen järjestäjä on saattanut päivittää tiedoston kutsun lähettämisen jälkeen. Pyydä tarvittaessa järjestäjältä uusi kutsu.'
+
+const isNotFoundError = (error: unknown): boolean => {
+  const fileError = error as { $metadata?: { httpStatusCode?: number }; name?: string }
+  return fileError?.name === 'NoSuchKey' || fileError?.$metadata?.httpStatusCode === 404
+}
+
+const notFoundResponse = (event: Parameters<typeof allowOrigin>[0]) => ({
+  body: ATTACHMENT_NOT_FOUND_MESSAGE,
+  headers: {
+    'Access-Control-Allow-Origin': allowOrigin(event),
+    'Content-Type': 'text/plain; charset=utf-8',
+  },
+  statusCode: 404,
+})
 
 const streamToBase64 = async (stream: StreamingBlobTypes): Promise<string> => {
   // In Node.js environment, StreamingBlobTypes is a Readable stream
@@ -14,10 +31,18 @@ const streamToBase64 = async (stream: StreamingBlobTypes): Promise<string> => {
 }
 
 const getAttachmentLambda = lambda('getAttachment', async (event) => {
-  const data = await downloadFile(getParam(event, 'key'))
+  let data: Awaited<ReturnType<typeof downloadFile>>
+  try {
+    data = await downloadFile(getParam(event, 'key'))
+  } catch (error) {
+    if (isNotFoundError(error)) {
+      return notFoundResponse(event)
+    }
+    throw error
+  }
 
   if (!data.Body) {
-    throw new LambdaError(404, 'not found')
+    return notFoundResponse(event)
   }
   const base64Body = await streamToBase64(data.Body)
 
