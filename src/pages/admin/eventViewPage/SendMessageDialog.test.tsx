@@ -8,8 +8,12 @@ import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-import { eventWithStaticDates } from '../../../__mockData__/events'
-import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
+import { eventWithStaticDates, eventWithStaticDatesAndClass } from '../../../__mockData__/events'
+import {
+  registrationWithStaticDates,
+  registrationWithStaticDatesAndClass,
+  registrationWithStaticDatesCancelled,
+} from '../../../__mockData__/registrations'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
 import { flushPromises } from '../../../test-utils/utils'
@@ -49,6 +53,11 @@ const registrationTemplate: EmailTemplate = {
       TextPart: '',
     },
   },
+}
+
+const invitationTemplate: EmailTemplate = {
+  ...registrationTemplate,
+  id: 'invitation',
 }
 
 const createWrapper =
@@ -134,5 +143,61 @@ describe('SendMessageDialog', () => {
     expect(screen.getByRole('button', { name: 'Lähetä' })).toBeEnabled()
     expect(baseElement).toHaveTextContent(/Aihe:\s*Ilmoittautuminen NOU/)
     expect(screen.getByRole('heading', { name: registrationWithStaticDates.dog.name })).toBeInTheDocument()
+  })
+
+  it('shows the event invitation attachment when sending invitations', async () => {
+    render(
+      <SendMessageDialog
+        registrations={[registrationWithStaticDates]}
+        open={true}
+        event={{ ...eventWithStaticDates, invitationAttachment: 'common-attachment' }}
+        templateId="invitation"
+      />,
+      { wrapper: createWrapper({ emailTemplates: [invitationTemplate] }) }
+    )
+    await flushPromises()
+
+    expect(screen.getByRole('heading', { name: 'Liitetiedosto' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'koekutsu-20210210-NOU.pdf' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/file/common-attachment/koekutsu-20210210-NOU.pdf')
+    )
+  })
+
+  it('shows the class-specific invitation attachment instead of the common attachment', async () => {
+    render(
+      <SendMessageDialog
+        registrations={[registrationWithStaticDatesAndClass]}
+        open={true}
+        event={{
+          ...eventWithStaticDatesAndClass,
+          invitationAttachment: 'common-attachment',
+          invitationAttachments: { ALO: 'alo-attachment' },
+        }}
+        templateId="invitation"
+      />,
+      { wrapper: createWrapper({ emailTemplates: [invitationTemplate] }) }
+    )
+    await flushPromises()
+
+    expect(screen.getByRole('link', { name: 'koekutsu-20210210-NOME-B-ALO.pdf' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/file/alo-attachment/koekutsu-20210210-NOME-B-ALO.pdf')
+    )
+  })
+
+  it('shows when an invitation has no attachment', async () => {
+    render(
+      <SendMessageDialog
+        registrations={[registrationWithStaticDates]}
+        open={true}
+        event={eventWithStaticDates}
+        templateId="invitation"
+      />,
+      { wrapper: createWrapper({ emailTemplates: [invitationTemplate] }) }
+    )
+    await flushPromises()
+
+    expect(screen.getByText('Ei liitettyä tiedostoa')).toBeInTheDocument()
   })
 })

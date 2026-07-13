@@ -1,5 +1,6 @@
 import type { ConfirmedEvent, DogEvent, EmailTemplate, EmailTemplateId, Language, Registration } from '../../../types'
 import ArrowForwardIosSharp from '@mui/icons-material/ArrowForwardIosSharp'
+import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Accordion from '@mui/material/Accordion'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -12,6 +13,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import FormControl from '@mui/material/FormControl'
 import FormGroup from '@mui/material/FormGroup'
 import FormLabel from '@mui/material/FormLabel'
+import Link from '@mui/material/Link'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
@@ -29,6 +31,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
+import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
 import { idTokenAtom } from '../../recoil'
@@ -45,6 +48,30 @@ interface Props {
 }
 
 const CONTACT_INFO_GROUPS = ['secretary', 'official'] as const
+
+const getInvitationAttachments = (event: ConfirmedEvent, registrations: Registration[]) => {
+  const attachments = new Map<string, { fileName: string; href: string }>()
+
+  for (const registration of registrations) {
+    const eventClass = registration.class ?? registration.eventType
+    const classAttachment = event.invitationAttachments?.[eventClass]
+    const invitationAttachment = classAttachment ?? event.invitationAttachment
+    if (!invitationAttachment) continue
+
+    const classEvent = event.classes.find(({ class: className }) => className === registration.class)
+    const attachmentEvent = {
+      ...event,
+      class: classAttachment ? registration.class : undefined,
+      invitationAttachment,
+      startDate: classAttachment ? (classEvent?.date ?? event.startDate) : event.startDate,
+    }
+    const fileName = invitationAttachmentFileName(attachmentEvent)
+    const href = Path.invitationAttachment(attachmentEvent)
+    attachments.set(href, { fileName, href })
+  }
+
+  return [...attachments.values()]
+}
 
 export default function SendMessageDialog({ event, registrations, templateId, open, onClose }: Props) {
   const confirm = useConfirm()
@@ -67,6 +94,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
     return [Handlebars.compile(ses.HtmlPart), Handlebars.compile(ses.SubjectPart)]
   }, [i18n.language, selectedTemplate?.ses])
   const previewData = useRegistrationEmailTemplateData(registrations[0], { ...event, contactInfo }, '', text)
+  const invitationAttachments = useMemo(() => getInvitationAttachments(event, registrations), [event, registrations])
 
   useEffect(() => {
     if (templateId && templates?.length) {
@@ -232,6 +260,27 @@ export default function SendMessageDialog({ event, registrations, templateId, op
                 </FormGroup>
               </FormControl>
             </Paper>
+            {selectedTemplate?.id === 'invitation' && (
+              <>
+                <Typography variant="h6">Liitetiedosto</Typography>
+                <Paper sx={{ bgcolor: 'background.form', p: 1, width: '100%' }}>
+                  {invitationAttachments.length ? (
+                    <Stack spacing={0.5}>
+                      {invitationAttachments.map(({ fileName, href }) => (
+                        <Box key={href}>
+                          <PictureAsPdfOutlined fontSize="small" sx={{ mr: 0.5, verticalAlign: 'middle' }} />
+                          <Link href={href} rel="noopener" target="_blank" type="application/pdf">
+                            {fileName}
+                          </Link>
+                        </Box>
+                      ))}
+                    </Stack>
+                  ) : (
+                    <Typography fontStyle="italic">Ei liitettyä tiedostoa</Typography>
+                  )}
+                </Paper>
+              </>
+            )}
           </Box>
           <Box sx={{ width: '60%' }}>
             <Typography variant="h6">Esikatselu</Typography>
