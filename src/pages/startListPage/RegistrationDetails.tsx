@@ -2,6 +2,7 @@ import type { PublicRegistration } from '../../types/Registration'
 import Box from '@mui/material/Box'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
+import { formatDogName } from '../../lib/dog'
 import { StyledTableRow } from './StyledTableRow'
 
 interface RegistrationDetailsProps {
@@ -19,14 +20,8 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
         })
       : ''
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
-  const sire = [reg.dog.sire?.titles, reg.dog.sire?.name]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(' ')
-  const dam = [reg.dog.dam?.titles, reg.dog.dam?.name]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(' ')
+  const sire = formatDogName(reg.dog.sire)
+  const dam = formatDogName(reg.dog.dam)
 
   return (
     <StyledTableRow key={`${reg.group.number}-a`} className={index > 0 ? 'top-border' : ''}>

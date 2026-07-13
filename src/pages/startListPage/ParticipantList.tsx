@@ -9,6 +9,7 @@ import TableBody from '@mui/material/TableBody'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
+import { formatDogName } from '../../lib/dog'
 import { eventRegistrationDateKey, isStartListAvailableForClass, isStartListPublishedForClass } from '../../lib/event'
 import { judgeName } from '../../lib/judge'
 import { CancelledRegistration } from './CancelledRegistration'
@@ -264,14 +265,8 @@ function formatRegistration(reg: PublicRegistration, t: TFunction) {
       : ''
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
   const dog = [breed, reg.dog.titles, reg.dog.name, reg.dog.regNo].filter(Boolean).join(' ')
-  const sire = [reg.dog.sire?.titles, reg.dog.sire?.name]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(' ')
-  const dam = [reg.dog.dam?.titles, reg.dog.dam?.name]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(' ')
+  const sire = formatDogName(reg.dog.sire)
+  const dam = formatDogName(reg.dog.dam)
 
   return [
     `${reg.group.number}. ${dog} s. ${reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}`,

@@ -30,6 +30,13 @@ export function isValidDob(dob?: Date): boolean {
   return dob.getFullYear() > 1
 }
 
+export function formatDogName(dog?: Pick<Dog, 'name' | 'titles'>): string {
+  return [dog?.titles, dog?.name]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ')
+}
+
 /**
  * Creates a dog update object from form values
  * @param values Form values

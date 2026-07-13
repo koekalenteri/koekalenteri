@@ -1,5 +1,5 @@
 import { subMinutes } from 'date-fns'
-import { createDogUpdateFromFormValues, isValidDob, shouldAllowRefresh } from './dog'
+import { createDogUpdateFromFormValues, formatDogName, isValidDob, shouldAllowRefresh } from './dog'
 
 describe('dog utility functions', () => {
   describe('shouldAllowRefresh', () => {
@@ -42,6 +42,16 @@ describe('dog utility functions', () => {
     it('should return true for very old but valid dates (year > 1)', () => {
       expect(isValidDob(new Date('1990-01-01'))).toBe(true)
       expect(isValidDob(new Date('0002-01-01'))).toBe(true)
+    })
+  })
+
+  describe('formatDogName', () => {
+    it('joins trimmed titles and name', () => {
+      expect(formatDogName({ name: ' Dog Name ', titles: ' CH ' })).toBe('CH Dog Name')
+    })
+
+    it('ignores a whitespace-only title', () => {
+      expect(formatDogName({ name: 'Dog Name', titles: '  ' })).toBe('Dog Name')
     })
   })
 
