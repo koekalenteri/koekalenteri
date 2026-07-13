@@ -33,6 +33,11 @@ jest.mock('./startListPage/ParticipantList', () => ({
   ),
 }))
 
+jest.mock('./components/LoadingIndicator', () => ({
+  __esModule: true,
+  default: () => <div role="progressbar" />,
+}))
+
 describe('StartListPage', () => {
   const mockUseLoaderData = require('react-router').useLoaderData as jest.Mock
   const mockUseParams = require('react-router').useParams as jest.Mock
@@ -117,6 +122,15 @@ describe('StartListPage', () => {
 
     // Check that error message is rendered
     expect(screen.getByText(/Tapahtumaa event-1 ei löydy/)).toBeInTheDocument()
+  })
+
+  it('shows loading indicator while event is loading', () => {
+    ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(undefined)
+
+    render(<StartListPage />)
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument()
+    expect(screen.queryByText(/Tapahtumaa event-1 ei löydy/)).not.toBeInTheDocument()
   })
 
   it('shows error message when participants list is empty', () => {

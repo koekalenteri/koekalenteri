@@ -3,6 +3,7 @@ import Box from '@mui/material/Box'
 import { type Params, useLoaderData, useParams } from 'react-router'
 import { getStartList } from '../api/registration'
 import { isStartListAvailable } from '../lib/event'
+import LoadingIndicator from './components/LoadingIndicator'
 import { useConfirmedEvent } from './recoil'
 import { EventHeader } from './startListPage/EventHeader'
 import { ParticipantList } from './startListPage/ParticipantList'
@@ -16,7 +17,11 @@ export const StartListPage = () => {
   const participants: PublicRegistration[] = useLoaderData()
   const now = new Date()
 
-  if (!event) {
+  if (event === undefined) {
+    return <LoadingIndicator />
+  }
+
+  if (event === null) {
     return <>Tapahtumaa {id} ei löydy.</>
   }
 
