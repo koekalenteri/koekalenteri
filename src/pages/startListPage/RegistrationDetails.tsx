@@ -19,8 +19,14 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
         })
       : ''
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
-  const sire = [reg.dog.sire?.titles, reg.dog.sire?.name].filter(Boolean).join(' ')
-  const dam = [reg.dog.dam?.titles, reg.dog.dam?.name].filter(Boolean).join(' ')
+  const sire = [reg.dog.sire?.titles, reg.dog.sire?.name]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ')
+  const dam = [reg.dog.dam?.titles, reg.dog.dam?.name]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ')
 
   return (
     <StyledTableRow key={`${reg.group.number}-a`} className={index > 0 ? 'top-border' : ''}>

@@ -98,8 +98,8 @@ describe('RegistrationDetails', () => {
       ...mockRegistration,
       dog: {
         ...mockRegistration.dog,
-        dam: { name: 'Dam Dog' },
-        sire: { name: 'Sire Dog' },
+        dam: { name: 'Dam Dog', titles: '  ' },
+        sire: { name: 'Sire Dog', titles: ' ' },
       },
     }
 

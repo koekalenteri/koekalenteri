@@ -279,8 +279,8 @@ describe('ParticipantList', () => {
     const user = userEvent.setup()
     mockClipboard()
     const participantWithoutParentTitles = createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
-    participantWithoutParentTitles.dog.sire = { name: 'Sire Dog', titles: '' }
-    participantWithoutParentTitles.dog.dam = { name: 'Dam Dog', titles: '' }
+    participantWithoutParentTitles.dog.sire = { name: 'Sire Dog', titles: ' ' }
+    participantWithoutParentTitles.dog.dam = { name: 'Dam Dog', titles: '  ' }
     const mockParticipants: PublicRegistration[] = [
       participantWithoutParentTitles,
       createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
