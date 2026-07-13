@@ -204,11 +204,29 @@ function getStartListItems(participants: PublicRegistration[], event: PublicConf
 
   return registrations.concat(emptyClasses).sort((a, b) => {
     const dateDiff = a.date.valueOf() - b.date.valueOf()
-    if (dateDiff) {
-      return dateDiff
-    }
-    return a.order - b.order
+    if (dateDiff) return dateDiff
+
+    const classDiff = startListItemClass(a).localeCompare(startListItemClass(b))
+    if (classDiff) return classDiff
+
+    const timeDiff = startListItemTime(a).localeCompare(startListItemTime(b))
+    if (timeDiff) return timeDiff
+
+    const numberDiff = startListItemNumber(a) - startListItemNumber(b)
+    return numberDiff || a.order - b.order
   })
+}
+
+function startListItemClass(item: StartListItem): string {
+  return item.type === 'emptyClass' ? item.eventClass.class : (item.registration.class ?? '')
+}
+
+function startListItemTime(item: StartListItem): string {
+  return item.type === 'registration' ? (item.registration.group.time ?? '') : ''
+}
+
+function startListItemNumber(item: StartListItem): number {
+  return item.type === 'registration' ? item.registration.group.number : Number.MAX_SAFE_INTEGER
 }
 
 function classDateKey(classValue: string | null | undefined, date: Date | undefined): string {

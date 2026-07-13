@@ -94,7 +94,7 @@ describe('ParticipantList', () => {
     dogName: string,
     groupNumber: number,
     date: Date,
-    time: 'ap' | 'ip' | 'kp',
+    time?: 'ap' | 'ip' | 'kp',
     cancelled = false
   ): PublicRegistration => ({
     breeder: 'Test Breeder',
@@ -164,6 +164,27 @@ describe('ParticipantList', () => {
 
     // Check that registration details are rendered
     expect(screen.getAllByTestId('registration-details')).toHaveLength(4)
+  })
+
+  it('does not repeat class headers when an event has no time groups', () => {
+    const date = new Date('2023-01-01')
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'AVO Dog 1', 1, date),
+      createMockRegistration('VOI', 'VOI Dog 1', 1, date),
+      createMockRegistration('AVO', 'AVO Dog 2', 2, date),
+      createMockRegistration('VOI', 'VOI Dog 2', 2, date),
+    ]
+
+    render(<ParticipantList participants={mockParticipants} event={mockEvent} />)
+
+    expect(screen.getAllByTestId('class-header').map((header) => header.textContent)).toEqual(['AVO', 'VOI'])
+    expect(screen.queryByTestId('time-header')).not.toBeInTheDocument()
+    expect(screen.getAllByTestId('registration-details').map((row) => row.textContent)).toEqual([
+      'AVO Dog 1 (index: 0)',
+      'AVO Dog 2 (index: 1)',
+      'VOI Dog 1 (index: 0)',
+      'VOI Dog 2 (index: 1)',
+    ])
   })
 
   it('does not render unpublished event classes missing from the public start list', () => {
