@@ -1,6 +1,7 @@
 import type { PublicConfirmedEvent } from '../../types/Event'
 import TableCell from '@mui/material/TableCell'
 import { useTranslation } from 'react-i18next'
+import { zonedDateString } from '../../i18n/dates'
 import { judgeName } from '../../lib/judge'
 import { StyledTableRow } from './StyledTableRow'
 
@@ -20,7 +21,10 @@ export const ClassHeader = ({ classValue, event, lastDate, published = true }: C
       <TableCell colSpan={6} sx={{ fontWeight: 'bold' }}>
         {classValue}{' '}
         {event.classes
-          .filter((c) => c.class === classValue && c.date?.valueOf() === lastDate?.valueOf())
+          .filter(
+            (c) =>
+              c.class === classValue && !!c.date && !!lastDate && zonedDateString(c.date) === zonedDateString(lastDate)
+          )
           .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => judgeName(j, t)).join(', ') : judgeName(c.judge, t)))
           .filter(Boolean)
           .join(', ')}

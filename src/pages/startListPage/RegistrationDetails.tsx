@@ -19,6 +19,8 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
         })
       : ''
   const ownerHandler = reg.ownerHandles ? `om. & ohj. ${reg.owner}` : `om. ${reg.owner}, ohj. ${reg.handler}`
+  const sire = [reg.dog.sire?.titles, reg.dog.sire?.name].filter(Boolean).join(' ')
+  const dam = [reg.dog.dam?.titles, reg.dog.dam?.name].filter(Boolean).join(' ')
 
   return (
     <StyledTableRow key={`${reg.group.number}-a`} className={index > 0 ? 'top-border' : ''}>
@@ -43,7 +45,7 @@ export const RegistrationDetails = ({ registration: reg, index }: RegistrationDe
             {reg.dog.dob ? t('dateFormat.date', { date: reg.dog.dob }) : '?'}
           </Box>
           <Box>
-            (i. {reg.dog.sire?.titles} {reg.dog.sire?.name}, e. {reg.dog.dam?.titles} {reg.dog.dam?.name})
+            (i. {sire}, e. {dam})
           </Box>
           <Box>
             {ownerHandler}, kasv. {reg.breeder}

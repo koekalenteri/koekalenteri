@@ -8,7 +8,8 @@ import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isStartListAvailableForClass, isStartListPublishedForClass } from '../../lib/event'
+import { zonedDateString } from '../../i18n/dates'
+import { eventRegistrationDateKey, isStartListAvailableForClass, isStartListPublishedForClass } from '../../lib/event'
 import { judgeName } from '../../lib/judge'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
@@ -32,7 +33,7 @@ export const ParticipantList = ({ participants, event }: ParticipantListProps) =
   const startListItems = useMemo(() => getStartListItems(participants, event), [event, participants])
   let lastDate: Date | undefined
   let lastClass: PublicRegistration['class']
-  let lastTime: string | undefined
+  let lastGroup: string | undefined
   let index = 0
 
   return (
@@ -56,11 +57,11 @@ export const ParticipantList = ({ participants, event }: ParticipantListProps) =
             const date = item.date
 
             // Add date header if date changed
-            if (date.valueOf() !== lastDate?.valueOf()) {
+            if (startListDateKey(date) !== startListDateKey(lastDate)) {
               result.push(<DateHeader key={date.toISOString()} date={date} />)
               lastDate = date
               lastClass = undefined
-              lastTime = undefined
+              lastGroup = undefined
               index = 0
             }
 
@@ -75,7 +76,7 @@ export const ParticipantList = ({ participants, event }: ParticipantListProps) =
                 />
               )
               lastClass = item.eventClass.class
-              lastTime = undefined
+              lastGroup = undefined
               index = 0
               return result
             }
@@ -99,7 +100,8 @@ export const ParticipantList = ({ participants, event }: ParticipantListProps) =
             }
 
             // Add time header if time changed
-            if (lastTime !== reg.group.time) {
+            const group = startListGroupKey(date, reg.group.time)
+            if (lastGroup !== group) {
               if (reg.group.time) {
                 result.push(
                   <TimeHeader
@@ -109,7 +111,7 @@ export const ParticipantList = ({ participants, event }: ParticipantListProps) =
                   />
                 )
               }
-              lastTime = reg.group.time
+              lastGroup = group
               index = 0
             }
 
@@ -134,17 +136,17 @@ export const ParticipantList = ({ participants, event }: ParticipantListProps) =
 function formatStartList(participants: PublicRegistration[], event: PublicConfirmedEvent, t: TFunction) {
   let lastDate: Date | undefined
   let lastClass: PublicRegistration['class']
-  let lastTime: string | undefined
+  let lastGroup: string | undefined
   const lines: string[] = []
 
   getStartListItems(participants, event).forEach((item) => {
     const date = item.date
-    if (date.valueOf() !== lastDate?.valueOf()) {
+    if (startListDateKey(date) !== startListDateKey(lastDate)) {
       if (lines.length) lines.push('')
       lines.push(`${t('dateFormat.weekday', { date })} ${t('dateFormat.date', { date })}`)
       lastDate = date
       lastClass = undefined
-      lastTime = undefined
+      lastGroup = undefined
     }
 
     if (item.type === 'emptyClass') {
@@ -152,7 +154,7 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
       const note = isStartListPublishedForClass(event, item.eventClass.class) ? '' : `(${t('startListNotPublished')})`
       lines.push([item.eventClass.class, judges, note].filter(Boolean).join(' '))
       lastClass = item.eventClass.class
-      lastTime = undefined
+      lastGroup = undefined
       return
     }
 
@@ -166,9 +168,10 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
       lastClass = reg.class
     }
 
-    if (lastTime !== reg.group.time) {
+    const group = startListGroupKey(date, reg.group.time)
+    if (lastGroup !== group) {
       if (reg.group.time) lines.push(t(`registration.timeLong.${reg.group.time}`))
-      lastTime = reg.group.time
+      lastGroup = group
     }
 
     lines.push(formatRegistration(reg, t))
@@ -203,7 +206,7 @@ function getStartListItems(participants: PublicRegistration[], event: PublicConf
   })
 
   return registrations.concat(emptyClasses).sort((a, b) => {
-    const dateDiff = a.date.valueOf() - b.date.valueOf()
+    const dateDiff = startListDateKey(a.date).localeCompare(startListDateKey(b.date))
     if (dateDiff) return dateDiff
 
     const classDiff = startListItemClass(a).localeCompare(startListItemClass(b))
@@ -222,7 +225,7 @@ function startListItemClass(item: StartListItem): string {
 }
 
 function startListItemTime(item: StartListItem): string {
-  return item.type === 'registration' ? (item.registration.group.time ?? '') : ''
+  return item.type === 'registration' ? startListGroupKey(item.date, item.registration.group.time) : ''
 }
 
 function startListItemNumber(item: StartListItem): number {
@@ -230,12 +233,20 @@ function startListItemNumber(item: StartListItem): number {
 }
 
 function classDateKey(classValue: string | null | undefined, date: Date | undefined): string {
-  return `${classValue ?? ''}:${date?.valueOf() ?? ''}`
+  return `${classValue ?? ''}:${startListDateKey(date)}`
+}
+
+function startListDateKey(date: Date | undefined): string {
+  return date ? zonedDateString(date) : ''
+}
+
+function startListGroupKey(date: Date, time: PublicRegistration['group']['time']): string {
+  return time ? eventRegistrationDateKey({ date, time }) : startListDateKey(date)
 }
 
 function formatClassJudges(event: PublicConfirmedEvent, eventClass: string, date: Date | undefined, t: TFunction) {
   return event.classes
-    .filter((c) => c.class === eventClass && c.date?.valueOf() === date?.valueOf())
+    .filter((c) => c.class === eventClass && startListDateKey(c.date) === startListDateKey(date))
     .map((c) => (Array.isArray(c.judge) ? c.judge.map((j) => judgeName(j, t)).join(', ') : judgeName(c.judge, t)))
     .filter(Boolean)
     .join(', ')

@@ -187,6 +187,23 @@ describe('ParticipantList', () => {
     ])
   })
 
+  it('uses one date header for different instants on the same local event date', () => {
+    const firstInstant = new Date('2026-10-01T21:00:00.000Z')
+    const secondInstant = new Date('2026-10-01T22:00:00.000Z')
+    const first = createMockRegistration('', 'Dog 1', 1, firstInstant, 'ap')
+    const second = createMockRegistration('', 'Dog 2', 2, secondInstant, 'ap')
+    first.class = undefined
+    second.class = undefined
+    first.group.key = '2026-10-02-ap'
+    second.group.key = '2026-10-01-ap'
+
+    render(<ParticipantList participants={[first, second]} event={{ ...mockEvent, classes: [] }} />)
+
+    expect(screen.getAllByTestId('date-header')).toHaveLength(1)
+    expect(screen.getAllByTestId('time-header')).toHaveLength(1)
+    expect(screen.getAllByTestId('registration-details')).toHaveLength(2)
+  })
+
   it('does not render unpublished event classes missing from the public start list', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),

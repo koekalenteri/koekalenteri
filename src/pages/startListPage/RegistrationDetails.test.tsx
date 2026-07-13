@@ -93,6 +93,27 @@ describe('RegistrationDetails', () => {
     expect(screen.getByText('om. & ohj. Test Owner, kasv. Test Breeder')).toBeInTheDocument()
   })
 
+  it('does not add extra spaces when parent titles are missing', () => {
+    const registrationWithoutParentTitles = {
+      ...mockRegistration,
+      dog: {
+        ...mockRegistration.dog,
+        dam: { name: 'Dam Dog' },
+        sire: { name: 'Sire Dog' },
+      },
+    }
+
+    render(
+      <table>
+        <tbody>
+          <RegistrationDetails registration={registrationWithoutParentTitles} index={0} />
+        </tbody>
+      </table>
+    )
+
+    expect(screen.getByText('(i. Sire Dog, e. Dam Dog)')).toBeInTheDocument()
+  })
+
   it('applies top-border class when index > 0', () => {
     const { container } = render(
       <table>
