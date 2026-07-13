@@ -213,9 +213,11 @@ const InfoPanel = ({
             borderColor: 'divider',
             boxShadow: 6,
             height: `calc(100% - ${APP_HEADER_HEIGHT}px)`,
+            maxWidth: 'calc(100vw - 16px)',
+            minWidth: { sm: 480 },
             overflow: 'auto',
             top: APP_HEADER_HEIGHT,
-            width: { sm: 420, xs: 'calc(100vw - 16px)' },
+            width: { sm: 'max-content', xs: 'calc(100vw - 16px)' },
           },
         },
       }}
@@ -389,7 +391,7 @@ const InfoPanel = ({
                     />
                     <label htmlFor="koekutsu-file">
                       <Button component="span" size="small" variant="outlined">
-                        Liitä liitetiedosto kokeelle
+                        Liitä kokeelle
                       </Button>
                     </label>
                   </TableCell>
@@ -444,7 +446,7 @@ const InfoPanel = ({
                           />
                           <label htmlFor={`koekutsu-file-${eventClass}`}>
                             <Button component="span" size="small" variant="outlined">
-                              Liitä liitetiedosto luokalle
+                              Liitä luokalle
                             </Button>
                           </label>
                         </TableCell>

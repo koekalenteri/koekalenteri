@@ -94,6 +94,7 @@ describe('InfoPanel>', () => {
     expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
     expect(screen.getByText('Koekutsu')).toBeInTheDocument()
     expect(screen.getByText('Kokeen koekutsun liitetiedosto')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Liitä kokeelle' })).toBeInTheDocument()
   })
 
   it('runs the moved create registration action', async () => {
@@ -727,6 +728,7 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     expect(screen.getByText('ALO-luokan koekutsun liitetiedosto')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Liitä luokalle' })).toBeInTheDocument()
 
     const input = document.querySelector('#koekutsu-file-ALO') as HTMLInputElement
     const file = new File(['pdf'], 'alo-kutsu.pdf', { type: 'application/pdf' })
