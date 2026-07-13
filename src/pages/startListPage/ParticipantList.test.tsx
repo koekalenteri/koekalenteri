@@ -261,8 +261,11 @@ describe('ParticipantList', () => {
   it('copies a plain text start list', async () => {
     const user = userEvent.setup()
     mockClipboard()
+    const participantWithoutParentTitles = createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+    participantWithoutParentTitles.dog.sire = { name: 'Sire Dog', titles: '' }
+    participantWithoutParentTitles.dog.dam = { name: 'Dam Dog', titles: '' }
     const mockParticipants: PublicRegistration[] = [
-      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+      participantWithoutParentTitles,
       createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
     ]
 
@@ -273,6 +276,7 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledTimes(1)
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('AVO Judge One'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(i. Sire Dog, e. Dam Dog)'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. PERUTTU'))
   })
 })
