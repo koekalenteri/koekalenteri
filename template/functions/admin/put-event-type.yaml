@@ -20,6 +20,7 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
       Events:
         PutEventType:
           Type: Api

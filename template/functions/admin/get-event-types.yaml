@@ -23,6 +23,7 @@
             TableName: !Ref UserLinkTable
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
+        - !Ref WebSocketPolicy
       Events:
         GetEventTypes:
           Type: Api

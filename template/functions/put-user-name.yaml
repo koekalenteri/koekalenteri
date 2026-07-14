@@ -12,6 +12,7 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
       Events:
         PutUserName:
           Type: Api
@@ -27,4 +28,3 @@
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutUserNameFunction]]
       RetentionInDays: 30
-
