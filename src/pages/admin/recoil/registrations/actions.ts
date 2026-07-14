@@ -11,6 +11,7 @@ import {
   putRegistrationGroups,
 } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/error'
+import { reconcileCollection } from '../../../../lib/incremental'
 import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
 import { idTokenAtom } from '../../../recoil'
 import { showRegistrationSaveConflict } from '../../../recoil/registration/registrationSaveError'
@@ -165,26 +166,15 @@ export const useAdminRegistrationActions = (eventId: string) => {
       if (now.getTime() - eventRegistrationsFetchedAt.getTime() < REGISTRATIONS_REFRESH_GRACE_MS) return
 
       const response = await getRegistrations(eventId, token, undefined, eventRegistrationsFetchedAt)
-      setEventRegistrationsFetchedAt(now)
 
       if (Array.isArray(response)) {
         setEventRegistrations(response)
+        setEventRegistrationsFetchedAt(now)
         return
       }
 
-      const unchanged = new Set(response.unchangedIds)
-      const changed = new Map(response.registrations.map((registration) => [registration.id, registration]))
-      const merged = eventRegistrations
-        .filter((registration) => unchanged.has(registration.id) || changed.has(registration.id))
-        .map((registration) => changed.get(registration.id) ?? registration)
-
-      for (const registration of response.registrations) {
-        if (!eventRegistrations.some((existing) => existing.id === registration.id)) {
-          merged.push(registration)
-        }
-      }
-
-      setEventRegistrations(merged)
+      setEventRegistrationsFetchedAt(new Date(response.cursor))
+      setEventRegistrations(reconcileCollection(eventRegistrations, response))
     },
 
     async refund(reg: Registration, transactionId: string, amount: number, handlingCost: number) {

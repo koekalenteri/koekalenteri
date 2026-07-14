@@ -1,6 +1,8 @@
 import type {
   AuditRecord,
+  CollectionResponse,
   ConfirmedEvent,
+  IncrementalCollectionResponse,
   Patch,
   PublicRegistration,
   Registration,
@@ -9,27 +11,22 @@ import type {
 } from '../types'
 import http, { withToken } from './http'
 
-type IncrementalRegistrationsResponse = {
-  registrations: Registration[]
-  unchangedIds: string[]
-}
-
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
 export async function getRegistrations(
   eventId: string,
   token: string,
   signal: AbortSignal | undefined,
   since: Date
-): Promise<IncrementalRegistrationsResponse>
+): Promise<IncrementalCollectionResponse<Registration>>
 export async function getRegistrations(
   eventId: string,
   token: string,
   signal?: AbortSignal,
   since?: Date
-): Promise<Registration[] | IncrementalRegistrationsResponse> {
+): Promise<CollectionResponse<Registration>> {
   const query = since ? `?since=${since.getTime()}` : ''
 
-  return http.get<Registration[] | IncrementalRegistrationsResponse>(
+  return http.get<CollectionResponse<Registration>>(
     `/admin/registration/${eventId}${query}`,
     withToken({ signal }, token)
   )

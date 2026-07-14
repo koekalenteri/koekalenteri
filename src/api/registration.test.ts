@@ -91,15 +91,16 @@ test('getRegistrations', async () => {
 test('getRegistrations with since', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'GET'
-      ? Promise.resolve(JSON.stringify({ registrations: [mockRegistration], unchangedIds: ['unchanged-id'] }))
+      ? Promise.resolve(JSON.stringify({ cursor: 456, deletedIds: ['deleted-id'], items: [mockRegistration] }))
       : Promise.reject(new Error(`${req.method} !== 'GET'`))
   )
 
   const since = new Date('2026-01-02T00:00:00.000Z')
   const result = await getRegistrations('test-id', 'test-token', undefined, since)
 
-  expect(result.registrations.length).toEqual(1)
-  expect(result.unchangedIds).toEqual(['unchanged-id'])
+  expect(result.items).toEqual([mockRegistration])
+  expect(result.deletedIds).toEqual(['deleted-id'])
+  expect(result.cursor).toEqual(456)
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/test-id?since=${since.getTime()}`)
 })

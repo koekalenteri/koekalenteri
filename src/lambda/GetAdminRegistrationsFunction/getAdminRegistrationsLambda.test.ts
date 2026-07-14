@@ -165,7 +165,7 @@ describe('getAdminRegistrationsLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, filteredRegistrations, event)
   })
 
-  it('filters registrations by since and returns unchanged ids', async () => {
+  it('returns changed registrations and deletion tombstones since the requested time', async () => {
     const user = { id: 'user1', name: 'Test User' }
     const eventId = 'event123'
     const eventWithSince = {
@@ -184,24 +184,27 @@ describe('getAdminRegistrationsLambda', () => {
         updatedAt: '2026-01-02T10:00:00.000Z',
       },
       { class: 'ALO', eventId, id: 'reg4', state: 'ready' },
+      { class: 'ALO', eventId, id: 'reg5', modifiedAt: '2026-01-02T10:00:00.000Z', state: 'cancelled' },
     ]
-    const registrationsWithGroups = allRegistrations.map((registration) => ({
+    const registrationsWithGroups = allRegistrations.slice(0, 4).map((registration) => ({
       ...registration,
       group: { key: registration.class, number: 1 },
     }))
+    const changedRegistrationsWithGroups = registrationsWithGroups.slice(1)
 
     mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(allRegistrations)
-    mockFixRegistrationGroups.mockResolvedValueOnce(registrationsWithGroups)
+    mockFixRegistrationGroups.mockResolvedValueOnce(changedRegistrationsWithGroups)
 
     await getAdminRegistrationsLambda(eventWithSince)
 
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       {
-        registrations: [registrationsWithGroups[1], registrationsWithGroups[2], registrationsWithGroups[3]],
-        unchangedIds: ['reg1'],
+        cursor: Date.parse('2026-01-02T10:00:00.000Z'),
+        deletedIds: ['reg5'],
+        items: changedRegistrationsWithGroups,
       },
       eventWithSince
     )
