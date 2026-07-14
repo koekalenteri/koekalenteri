@@ -1,7 +1,9 @@
 import type { SNSEvent } from 'aws-lambda'
-import type { EmailTemplateId, JsonEmailDeliveryStatus, JsonEmailSuppression } from '../../types'
+import type { EmailTemplateId, JsonConfirmedEvent, JsonEmailDeliveryStatus, JsonEmailSuppression } from '../../types'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
+import { getEvent } from '../lib/event'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { emailSuppressionTable, registrationTable } = CONFIG
@@ -112,6 +114,12 @@ const handleNotification = async (notification: SesNotification) => {
     }
   )
   await writeEmailSuppression(eventId, registrationId, status)
+  const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  await publishRegistrationPatches(
+    eventId,
+    [{ emailDeliveryStatus: status, eventId, id: registrationId }],
+    confirmedEvent.organizer.id
+  )
 
   await audit({
     auditKey: registrationAuditKey({ eventId, id: registrationId }),

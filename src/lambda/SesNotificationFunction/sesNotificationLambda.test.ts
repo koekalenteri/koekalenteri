@@ -8,6 +8,8 @@ const mockDynamoClient = jest.fn(() => ({
   update: mockDynamoUpdate,
   write: mockDynamoWrite,
 }))
+const mockGetEvent = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/audit', () => ({
   audit: mockAudit,
@@ -18,12 +20,21 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
 }))
 
+jest.unstable_mockModule('../lib/event', () => ({
+  getEvent: mockGetEvent,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
+
 const { default: sesNotificationLambda } = await import('./handler')
 
 describe('sesNotificationLambda', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockRegistrationAuditKey.mockReturnValue('event123:reg456')
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
   })
 
   it('stores bounce details for the tagged registration', async () => {
@@ -68,6 +79,17 @@ describe('sesNotificationLambda', () => {
           },
         },
       }
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [
+        expect.objectContaining({
+          emailDeliveryStatus: expect.objectContaining({ status: 'bounce' }),
+          eventId: 'event123',
+          id: 'reg456',
+        }),
+      ],
+      'org-1'
     )
     expect(mockDynamoWrite).toHaveBeenCalledWith({
       email: 'handler@example.com',

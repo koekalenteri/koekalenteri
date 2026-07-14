@@ -12,6 +12,8 @@ const mockFormatMoney = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
+const mockGetEvent = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
@@ -35,6 +37,14 @@ jest.unstable_mockModule('../lib/payment', () => ({
 
 jest.unstable_mockModule('../lib/registration', () => ({
   getRegistration: mockGetRegistration,
+}))
+
+jest.unstable_mockModule('../lib/event', () => ({
+  getEvent: mockGetEvent,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({
@@ -87,6 +97,7 @@ describe('paymentCancelLambda', () => {
     })
 
     mockVerifyParams.mockResolvedValue(undefined)
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
 
     mockRead.mockResolvedValue({
       amount: 5000,
@@ -159,6 +170,11 @@ describe('paymentCancelLambda', () => {
       message: 'Maksu epäonnistui (Paytrail), 50,00 €',
       user: 'user123',
     })
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [expect.objectContaining({ eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL' })],
+      'org-1'
+    )
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)

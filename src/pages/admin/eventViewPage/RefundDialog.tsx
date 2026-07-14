@@ -84,9 +84,12 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   )
 
   const canHaveHandlingCosts = selectedTransactions.some((t) => !!t.items)
+  const registrationVersion = registration
+    ? `${registration.id}:${registration.updatedAt?.getTime() ?? ''}:${registration.paymentStatus ?? ''}:${registration.refundStatus ?? ''}`
+    : ''
 
   useEffect(() => {
-    if (!open || !registration || registration.id === loadedId || loading) return
+    if (!open || !registration || registrationVersion === loadedId || loading) return
 
     setLoading(true)
 
@@ -95,14 +98,14 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
       .then((loaded) => {
         setTransactions((loaded ?? []).filter((t) => t.status !== 'fail' && t.status !== 'new'))
         setLoading(false)
-        setLoadedId(registration.id)
+        setLoadedId(registrationVersion)
       })
       .catch(() => {
         setTransactions([])
         setLoading(false)
-        setLoadedId(registration.id)
+        setLoadedId(registrationVersion)
       })
-  }, [actions, loadedId, loading, open, registration])
+  }, [actions, loadedId, loading, open, registration, registrationVersion])
 
   useEffect(() => {
     const payments = okTransactions.filter((t) => t.type === 'payment')

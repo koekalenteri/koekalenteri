@@ -16,10 +16,21 @@ const mockGetProviderName = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
+const mockGetEvent = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
+  LambdaError: class LambdaError extends Error {},
   lambda: mockLambda,
   response: mockResponse,
+}))
+
+jest.unstable_mockModule('../lib/event', () => ({
+  getEvent: mockGetEvent,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
@@ -90,6 +101,7 @@ describe('paymentVerifyLambda', () => {
     })
 
     mockVerifyParams.mockResolvedValue(undefined)
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
 
     mockRead.mockResolvedValue({
       amount: 5000,
@@ -196,6 +208,11 @@ describe('paymentVerifyLambda', () => {
         },
       },
       expect.any(String) // registrationTable
+    )
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [expect.objectContaining({ eventId: 'event123', id: 'reg456', paymentStatus: 'CANCEL' })],
+      'org-1'
     )
 
     // Verify audit entry was created

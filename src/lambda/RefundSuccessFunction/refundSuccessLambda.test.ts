@@ -15,6 +15,7 @@ const mockRegistrationAuditKey = jest.fn<any>()
 const mockGetProviderName = jest.fn<any>()
 const mockDynamoRead = jest.fn<any>()
 const mockDynamoUpdate = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 const mockDynamoClient = jest.fn(() => ({
   read: mockDynamoRead,
   update: mockDynamoUpdate,
@@ -63,6 +64,10 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: mockDynamoClient,
 }))
 
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishRegistrationPatches: mockPublishRegistrationPatches,
+}))
+
 const { default: refundSuccessLambda } = await import('./handler')
 
 describe('refundSuccessLambda', () => {
@@ -99,6 +104,7 @@ describe('refundSuccessLambda', () => {
   const mockConfirmedEvent = {
     id: 'event123',
     name: 'Test Event',
+    organizer: { id: 'org-1' },
   }
 
   beforeEach(() => {
@@ -176,6 +182,19 @@ describe('refundSuccessLambda', () => {
 
     // Verify transaction status was updated
     expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(mockTransaction, 'ok')
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [
+        expect.objectContaining({
+          emailDeliveryStatus: null,
+          eventId: 'event123',
+          id: 'reg456',
+          refundStatus: 'SUCCESS',
+          updatedAt: expect.any(String),
+        }),
+      ],
+      'org-1'
+    )
 
     // Verify registration was updated
     expect(mockDynamoUpdate).toHaveBeenCalledWith(

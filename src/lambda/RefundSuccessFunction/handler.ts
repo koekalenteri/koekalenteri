@@ -10,6 +10,7 @@ import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration } from '../lib/registration'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
@@ -121,6 +122,11 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
       message: `Palautus (${providerName}), ${formatMoney(amount)}`,
       user: transaction.user,
     })
+    await publishRegistrationPatches(
+      eventId,
+      [{ emailDeliveryStatus: null, eventId, id: registrationId, ...changes, updatedAt }],
+      confirmedEvent.organizer.id
+    )
   }
 
   return response(200, undefined, event)

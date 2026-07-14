@@ -1,11 +1,13 @@
-import type { JsonRefundTransaction } from '../../types'
+import type { JsonConfirmedEvent, JsonRefundTransaction } from '../../types'
 import type { PaytrailCallbackParams } from '../types/paytrail'
 import { formatMoney } from '../../lib/money'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
+import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
+import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { registrationTable, transactionTable } = CONFIG
@@ -37,14 +39,22 @@ const refundCancelLambda = lambda('refundCancel', async (event) => {
   const updated = await updateTransactionStatus(transaction, 'fail')
   if (updated) {
     if (registration.refundStatus === 'PENDING') {
+      const updatedAt = new Date().toISOString()
       await dynamoDB.update(
         { eventId, id: registrationId },
         {
           set: {
             refundStatus: 'CANCEL',
+            updatedAt,
           },
         },
         registrationTable
+      )
+      const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
+      await publishRegistrationPatches(
+        eventId,
+        [{ eventId, id: registrationId, refundStatus: 'CANCEL', updatedAt }],
+        confirmedEvent.organizer.id
       )
     }
 
