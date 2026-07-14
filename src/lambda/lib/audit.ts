@@ -14,6 +14,7 @@ import type {
 import { getStartListPublishedClassMap, isStartListPublishedClassMap } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
+import { publishAuditRecord } from './ws/auditPublisher'
 
 const { auditTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(auditTable)
@@ -165,7 +166,9 @@ export const getEventAuditMessages = (
 
 export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   try {
-    await dynamoDB.write({ ...item, timestamp: new Date().toISOString() }, auditTable)
+    const record = { ...item, timestamp: new Date().toISOString() }
+    await dynamoDB.write(record, auditTable)
+    await publishAuditRecord(record)
   } catch (e) {
     console.error(e)
   }

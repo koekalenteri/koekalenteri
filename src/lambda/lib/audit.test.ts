@@ -3,6 +3,7 @@ import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
 const mockWrite = jest.fn<any>()
+const mockPublishAuditRecord = jest.fn<any>()
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   __esModule: true,
   default: jest.fn(() => ({
@@ -10,6 +11,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
     write: mockWrite,
   })),
 }))
+jest.unstable_mockModule('./ws/auditPublisher', () => ({ publishAuditRecord: mockPublishAuditRecord }))
 
 process.env.AUDIT_TABLE_NAME = 'audit-table-name'
 
@@ -108,6 +110,7 @@ describe('audit', () => {
         'audit-table-name'
       )
       expect(mockWrite).toHaveBeenCalledTimes(1)
+      expect(mockPublishAuditRecord).toHaveBeenCalledWith(expect.objectContaining(record))
     })
 
     it('logs database error to console', async () => {

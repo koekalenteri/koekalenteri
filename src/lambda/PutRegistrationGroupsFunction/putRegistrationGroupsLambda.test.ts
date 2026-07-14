@@ -10,6 +10,7 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: jest.fn(),
+  isAwsServiceError: jest.fn(),
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({

@@ -2,6 +2,7 @@ import type { AuditRecord, DogEvent } from '../../../types'
 import { useEffect, useMemo, useState } from 'react'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { getRegistrationAuditTrail } from '../../../api/registration'
+import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { hasChanges } from '../../../lib/utils'
 import { idTokenAtom } from '../../recoil'
@@ -26,12 +27,13 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
     [registration, savedRegistration]
   )
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
+  useAuditTrailSubscription(`${event.id}:${registrationId}`, open, setAuditTrail)
 
   useEffect(() => {
     if (!open || !token) return
     resetRegistration()
     getRegistrationAuditTrail(event.id, registrationId, token)
-      .then((at) => setAuditTrail(at ?? []))
+      .then((at) => setAuditTrail((current) => mergeAuditTrail(at ?? [], current)))
       .catch((e) => {
         reportError(e)
         setAuditTrail([])

@@ -26,6 +26,7 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
 import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
+import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
 import { getParticipantMessageInfo, isRegistrationClass } from '../../../lib/registration'
@@ -68,6 +69,7 @@ const InfoPanel = ({
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
+  useAuditTrailSubscription(`event:${event.id}`, expanded, setAuditTrail)
   const eventClasses = useMemo(() => [...new Set(event.classes.map((c) => c.class))], [event.classes])
   const eventWithCurrentAttachments = useMemo(
     () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
@@ -162,7 +164,7 @@ const InfoPanel = ({
     if (!expanded || !token) return
 
     getEventAuditTrail(event.id, token)
-      .then((at) => setAuditTrail(at ?? []))
+      .then((at) => setAuditTrail((current) => mergeAuditTrail(at ?? [], current)))
       .catch((e) => {
         reportError(e)
         setAuditTrail([])

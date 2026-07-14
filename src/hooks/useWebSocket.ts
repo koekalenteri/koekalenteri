@@ -1,4 +1,4 @@
-import type { DogEvent, JsonDogEvent, Patch, PublicDogEvent, Registration } from '../types'
+import type { AuditRecord, DogEvent, JsonDogEvent, Patch, PublicDogEvent, Registration } from '../types'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
 import { sanitizeDogEvent } from '../lib/event'
@@ -107,6 +107,7 @@ interface WebSocketContextValue {
   subscribeAdmin: () => void
   subscribeEvent: (eventId: string) => void
   unsubscribeEvent: () => void
+  subscribeAuditRecords: (listener: (record: AuditRecord) => void) => () => void
 }
 
 export const WebSocketContext = createContext<WebSocketContextValue | null>(null)
@@ -124,6 +125,7 @@ export const useWebSocket = () => {
   const adminSubscribedRef = useRef(false)
   const eventIdRef = useRef<string | undefined>(undefined)
   const rawViewersRef = useRef<EventViewer[]>([])
+  const auditRecordListenersRef = useRef(new Set<(record: AuditRecord) => void>())
 
   // Mutable refs for values only needed inside callbacks
   const idTokenRef = useRef<string | undefined>(undefined)
@@ -270,6 +272,11 @@ export const useWebSocket = () => {
     console.debug('ws:event unsubscribe state cleared', { eventId, sent })
   }, [sendIfOpen])
 
+  const subscribeAuditRecords = useCallback((listener: (record: AuditRecord) => void) => {
+    auditRecordListenersRef.current.add(listener)
+    return () => auditRecordListenersRef.current.delete(listener)
+  }, [])
+
   const handleCountMessage = useCallback((data: { count?: unknown; scope?: unknown }) => {
     if (typeof data.count !== 'number') return false
 
@@ -306,6 +313,11 @@ export const useWebSocket = () => {
 
       if (data.scope === 'admin:event-registrations' && data.eventId && Array.isArray(data.patch)) {
         patchRegistrations(data.eventId, data.patch)
+        return
+      }
+
+      if (data.scope === 'admin:audit-record' && data.record?.auditKey && data.record.timestamp instanceof Date) {
+        for (const listener of auditRecordListenersRef.current) listener(data.record)
         return
       }
 
@@ -448,7 +460,15 @@ export const useWebSocket = () => {
     }
   }, [connect, idToken, idTokenReady])
 
-  return { adminCount, publicCount, subscribeAdmin, subscribeEvent, unsubscribeEvent, viewers }
+  return {
+    adminCount,
+    publicCount,
+    subscribeAdmin,
+    subscribeAuditRecords,
+    subscribeEvent,
+    unsubscribeEvent,
+    viewers,
+  }
 }
 
 export const useWebSocketContext = (): WebSocketContextValue => {

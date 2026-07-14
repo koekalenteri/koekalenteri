@@ -363,6 +363,31 @@ describe('useWebSocket', () => {
     expect(mockWebSocketInstance.send).toHaveBeenCalledWith(JSON.stringify({ action: 'subscribe', channel: 'admin' }))
   })
 
+  it('should notify audit record subscribers', () => {
+    const listener = jest.fn()
+    const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })
+    result.current.subscribeAuditRecords(listener)
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({
+          eventId: 'event-1',
+          record: {
+            auditKey: 'event:event-1',
+            message: 'changed',
+            timestamp: '2026-07-14T12:00:00.000Z',
+            user: 'admin',
+          },
+          scope: 'admin:audit-record',
+        }),
+      })
+    })
+
+    expect(listener).toHaveBeenCalledWith(
+      expect.objectContaining({ auditKey: 'event:event-1', timestamp: new Date('2026-07-14T12:00:00.000Z') })
+    )
+  })
+
   it('should send unsubscribe on unsubscribeEvent call', () => {
     mockWebSocketInstance.readyState = WebSocket.OPEN
     const { result } = renderHook(() => useWebSocket(), { wrapper: wrapperWithToken('id-token') })

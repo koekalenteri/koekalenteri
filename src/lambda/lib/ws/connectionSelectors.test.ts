@@ -4,6 +4,7 @@ const mockQueryAdminConnections = jest.fn<any>()
 const mockQueryPublicConnections = jest.fn<any>()
 const mockCanReceiveAdminEvent = jest.fn<any>()
 const mockCanReceiveAnyAdminEvent = jest.fn<any>()
+const mockIsConnectionExpired = jest.fn<any>()
 
 jest.unstable_mockModule('./connectionRepository', () => ({
   queryAdminConnections: mockQueryAdminConnections,
@@ -13,15 +14,19 @@ jest.unstable_mockModule('./connectionRepository', () => ({
 jest.unstable_mockModule('./connectionPolicy', () => ({
   canReceiveAdminEvent: mockCanReceiveAdminEvent,
   canReceiveAnyAdminEvent: mockCanReceiveAnyAdminEvent,
+  isConnectionExpired: mockIsConnectionExpired,
 }))
 
-const { adminAudience, eventAudience, organizerAudience, publicAudience } = await import('./connectionSelectors')
+const { adminAudience, eventAudience, eventSubscriberAudience, organizerAudience, publicAudience } = await import(
+  './connectionSelectors'
+)
 
 describe('ws/connectionSelectors', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     mockQueryAdminConnections.mockResolvedValue([])
     mockQueryPublicConnections.mockResolvedValue([])
+    mockIsConnectionExpired.mockReturnValue(false)
   })
 
   it('filters public audience from indexed public connections only', async () => {
@@ -70,6 +75,19 @@ describe('ws/connectionSelectors', () => {
     ])
     mockCanReceiveAdminEvent.mockReturnValue(true)
     await expect(eventAudience('e1', 'org-1')).resolves.toEqual([{ connectionId: 'a', eventId: 'e1' }])
+  })
+
+  it('filters audit audience by active event subscription', async () => {
+    mockQueryAdminConnections.mockResolvedValueOnce([
+      { connectionId: 'a', eventId: 'e1' },
+      { connectionId: 'b', eventId: 'e2' },
+      { connectionId: 'expired', eventId: 'e1' },
+    ])
+    mockIsConnectionExpired.mockImplementation(
+      (connection: { connectionId: string }) => connection.connectionId === 'expired'
+    )
+
+    await expect(eventSubscriberAudience('e1')).resolves.toEqual([{ connectionId: 'a', eventId: 'e1' }])
   })
 
   it('includes provided subscribed connection when index query has not caught up', async () => {

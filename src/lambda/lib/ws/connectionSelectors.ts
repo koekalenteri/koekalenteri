@@ -1,5 +1,5 @@
 import type { WebSocketConnection } from './types'
-import { canReceiveAdminEvent, canReceiveAnyAdminEvent } from './connectionPolicy'
+import { canReceiveAdminEvent, canReceiveAnyAdminEvent, isConnectionExpired } from './connectionPolicy'
 import { queryAdminConnections, queryPublicConnections } from './connectionRepository'
 
 export const publicAudience = async () => queryPublicConnections()
@@ -13,6 +13,11 @@ export const organizerAudience = async (organizerId: string, eventId: string) =>
 export const adminAudience = async () =>
   (await queryAdminConnections()).filter(
     (connection) => connection.adminSubscribed && canReceiveAnyAdminEvent(connection)
+  )
+
+export const eventSubscriberAudience = async (eventId: string) =>
+  (await queryAdminConnections()).filter(
+    (connection) => connection.eventId === eventId && !isConnectionExpired(connection)
   )
 
 const includeConnection = (connections: WebSocketConnection[], connection?: WebSocketConnection) => {
