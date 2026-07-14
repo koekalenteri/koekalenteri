@@ -1,5 +1,5 @@
 import type { Resetter, SetterOrUpdater } from 'recoil'
-import type { AuditRecord, ConfirmedEvent, DogEvent, Registration } from '../../../types'
+import type { AuditRecord, ConfirmedEvent, DogEvent, Patch, Registration } from '../../../types'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -23,6 +23,7 @@ interface Props {
   readonly open: boolean
   readonly registration?: Registration
   readonly savedRegistration?: Registration
+  readonly savePatch?: Patch<Registration>
   readonly resetRegistration: Resetter
   readonly setRegistration: SetterOrUpdater<Registration | undefined>
 }
@@ -36,6 +37,7 @@ export default function RegistrationDialogBase({
   open,
   registration,
   savedRegistration,
+  savePatch,
   resetRegistration,
   setRegistration,
 }: Props) {
@@ -56,7 +58,7 @@ export default function RegistrationDialogBase({
       return
     }
     try {
-      const saved = await actions.save(registration)
+      const saved = savePatch ? await actions.save(registration, savePatch) : await actions.save(registration)
       if (!saved) return
       resetRegistration()
       onClose?.()
@@ -64,7 +66,7 @@ export default function RegistrationDialogBase({
       enqueueSnackbar('Ilmoittautumisen tallennus epäonnistui', errorSnackbarOptions)
       console.error(error)
     }
-  }, [actions, enqueueSnackbar, event, onClose, registration, resetRegistration])
+  }, [actions, enqueueSnackbar, event, onClose, registration, resetRegistration, savePatch])
 
   const handleCancel = useCallback(() => {
     resetRegistration()

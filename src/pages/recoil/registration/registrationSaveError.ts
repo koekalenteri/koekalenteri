@@ -29,6 +29,11 @@ export const showRegistrationSaveConflict = (
     return true
   }
 
+  if (isObject(error.body) && error.body.error === 'staleData') {
+    enqueueSnackbar(t('registration.notifications.staleData'), errorSnackbarOptions)
+    return true
+  }
+
   enqueueSnackbar(
     t('registration.notifications.alreadyRegistered', {
       contact: printContactInfo(event.contactInfo?.secretary),

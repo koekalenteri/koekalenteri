@@ -633,6 +633,28 @@ describe('putAdminRegistrationLambda', () => {
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
+  it('rejects an update based on stale modification data', async () => {
+    mockGetRegistration.mockResolvedValueOnce({
+      ...JSON.parse(event.body),
+      modifiedAt: '2025-03-22T09:00:00.000Z',
+    })
+
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        ...JSON.parse(event.body),
+        modifiedAt: '2025-03-22T08:00:00.000Z',
+      }),
+    })
+
+    expect(result.statusCode).toBe(409)
+    expect(JSON.parse(result.body)).toEqual({
+      error: 'staleData',
+      message: 'Registration has been modified since it was loaded',
+    })
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
   it('should return 409 with cancelled flag when dog is already registered with cancelled registration', async () => {
     const newEventWithCancelledDog = {
       ...event,

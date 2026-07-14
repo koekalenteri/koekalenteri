@@ -194,6 +194,7 @@
     "priority": "Etusijat",
     "saved": "Muutokset tallennettu",
     "secretary": "Koesihteeri",
+    "staleData": "Tapahtumaa on muokattu muualla sen avaamisen jälkeen. Lataa sivu uudelleen ja tee muutokset uudestaan.",
     "startDate": "Tapahtuman alkamispäivä",
     "state": "Tila",
     "states": {
@@ -466,7 +467,8 @@
       "alreadyRegistered_cancel": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan, ja ilmoittautuminen on peruttu. Ota yhteyttä koesihteeriin {{contact}}, jos haluat ilmoittaa koiran uudelleen tapahtumaan.",
       "emailSuppressed": "Sähköpostiosoitetta {{email}} ei voi käyttää ilmoittautumiseen, koska aiempi viesti ei ole mennyt perille. Tarkista osoite tai käytä toista sähköpostiosoitetta.",
       "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen",
-      "paymentVerifying": "Maksu vastaanotettu, vahvistetaan vielä. Tila päivittyy hetken kuluttua."
+      "paymentVerifying": "Maksu vastaanotettu, vahvistetaan vielä. Tila päivittyy hetken kuluttua.",
+      "staleData": "Ilmoittautumista on muokattu muualla sen avaamisen jälkeen. Lataa sivu uudelleen ja tee muutokset uudestaan."
     },
     "owner": "Omistajan tiedot",
     "ownerHandles": "Omistaja ohjaa",

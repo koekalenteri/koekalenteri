@@ -240,6 +240,25 @@ describe('useEventForm', () => {
     expect(mockEnqueueSnackbar).toHaveBeenCalledWith(expect.any(String), { variant: 'info' })
   })
 
+  it('should save only locally edited fields with the original modification timestamp in edit mode', async () => {
+    mockSave.mockResolvedValue({ ...mockEvent, name: 'Updated Event Name' })
+    const { result } = renderHook(() => useEventForm({ eventId: mockEvent.id, storedEvent: mockStoredEvent }), {
+      wrapper: RecoilRoot,
+    })
+
+    act(() => {
+      result.current.handleChange({ ...mockEvent, name: 'Updated Event Name' })
+    })
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Test Event' }), {
+      modifiedAt: mockEvent.modifiedAt,
+      name: 'Updated Event Name',
+    })
+  })
+
   it('should handle errors during save', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
     const error = new Error('Save failed')

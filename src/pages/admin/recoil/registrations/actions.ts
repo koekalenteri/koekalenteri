@@ -1,4 +1,4 @@
-import type { PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
+import type { Patch, PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
 import { useSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
@@ -206,16 +206,25 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
       return result
     },
-    async save(reg: Registration) {
+    async save(reg: Registration, formChanges?: Patch<Registration>) {
       if (!token) throw new Error('missing token')
       const regWithOverrides = {
         ...reg,
         handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
         payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
+      const request = formChanges
+        ? {
+            ...formChanges,
+            eventId: reg.eventId,
+            id: reg.id,
+            ...('owner' in formChanges || 'ownerHandles' in formChanges ? { handler: regWithOverrides.handler } : {}),
+            ...('owner' in formChanges || 'ownerPays' in formChanges ? { payer: regWithOverrides.payer } : {}),
+          }
+        : regWithOverrides
       let saved: Registration
       try {
-        saved = await putAdminRegistration(regWithOverrides, token)
+        saved = await putAdminRegistration(request, token)
       } catch (error) {
         if (event && showRegistrationSaveConflict(error, { enqueueSnackbar, event, registration: reg, t })) {
           return undefined

@@ -68,6 +68,22 @@ describe('showRegistrationSaveConflict', () => {
     })
   })
 
+  it('shows an edit conflict instead of a duplicate registration message for stale data', () => {
+    const handled = showRegistrationSaveConflict(conflict({ error: 'staleData' }), {
+      enqueueSnackbar,
+      event: {},
+      registration,
+      t: translate,
+    })
+
+    expect(handled).toBe(true)
+    expect(t).toHaveBeenCalledWith('registration.notifications.staleData')
+    expect(enqueueSnackbar).toHaveBeenCalledWith(expect.stringContaining('staleData'), {
+      persist: true,
+      variant: 'error',
+    })
+  })
+
   it('returns false for non-conflict errors', () => {
     const handled = showRegistrationSaveConflict(new Error('boom'), {
       enqueueSnackbar,

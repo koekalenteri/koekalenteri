@@ -80,4 +80,29 @@ describe('useAdminRegistrationActions', () => {
     )
     expect(result.current.registrations).toEqual([registrationWithStaticDates])
   })
+
+  it('sends only locally edited registration fields when given a form patch', async () => {
+    jest.spyOn(registrationApi, 'putAdminRegistration').mockResolvedValueOnce({
+      ...registrationWithStaticDates,
+      notes: 'changed notes',
+    })
+    const { result } = renderHook(() => useAdminRegistrationActions(eventWithStaticDates.id), { wrapper })
+
+    await act(async () => {
+      await result.current.save(registrationWithStaticDates, {
+        modifiedAt: registrationWithStaticDates.modifiedAt,
+        notes: 'changed notes',
+      })
+    })
+
+    expect(registrationApi.putAdminRegistration).toHaveBeenCalledWith(
+      {
+        eventId: registrationWithStaticDates.eventId,
+        id: registrationWithStaticDates.id,
+        modifiedAt: registrationWithStaticDates.modifiedAt,
+        notes: 'changed notes',
+      },
+      'id-token'
+    )
+  })
 })

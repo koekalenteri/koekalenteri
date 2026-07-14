@@ -185,6 +185,7 @@
     "priority": "Priorities",
     "saved": "Changes saved",
     "secretary": "Secretary",
+    "staleData": "This event was edited elsewhere after you opened it. Reload the page and apply your changes again.",
     "startDate": "Starting date",
     "state": "State",
     "states": {
@@ -457,7 +458,8 @@
       "alreadyRegistered_cancel": "The dog {{reg.dog.regNo}} {{reg.dog.name}} has already been registered for this event, and the registration has been canceled. Please contact the test secretary {{contact}} if you wish to re-register the dog for the event.",
       "emailSuppressed": "Email address {{email}} cannot be used for registration because an earlier message could not be delivered. Check the address or use another email address.",
       "paymentFailed": "Payment failed, please try again",
-      "paymentVerifying": "Payment received, still confirming it. The status will update shortly."
+      "paymentVerifying": "Payment received, still confirming it. The status will update shortly.",
+      "staleData": "This registration was edited elsewhere after you opened it. Reload the page and apply your changes again."
     },
     "owner": "Owner information",
     "ownerHandles": "Owner handles",

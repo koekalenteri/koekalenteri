@@ -41,6 +41,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   let existing: JsonRegistration | undefined
   const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
+  const clientModifiedAt = registration.modifiedAt
   normalizeRegistrationEmails(registration)
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
@@ -53,6 +54,9 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
       registration.eventId as JsonRegistration['eventId'],
       registration.id as JsonRegistration['id']
     )
+    if (existing?.modifiedAt && clientModifiedAt && existing.modifiedAt !== clientModifiedAt) {
+      return response(409, { error: 'staleData', message: 'Registration has been modified since it was loaded' }, event)
+    }
   } else {
     // Prevent double registrations when trying to insert new registration
     const alreadyRegistered = await findExistingRegistrationToEventForDog(

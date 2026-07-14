@@ -110,8 +110,8 @@ export const useAdminEventActions = () => {
     return saved
   }
 
-  async function save(event: Patch<DogEvent>): Promise<DogEvent | undefined> {
-    const changes = buildEventSavePatch(event, currentAdminEvent)
+  async function save(event: Patch<DogEvent>, formChanges?: Patch<DogEvent>): Promise<DogEvent | undefined> {
+    const changes = formChanges ? { id: event.id, ...formChanges } : buildEventSavePatch(event, currentAdminEvent)
     const saved = await putEvent(changes, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)

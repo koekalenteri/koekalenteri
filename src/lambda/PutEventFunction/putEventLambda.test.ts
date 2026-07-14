@@ -255,6 +255,26 @@ describe('putEventLambda', () => {
     expect(JSON.parse(res.body)).toEqual({ ...mockEvent, eventType: 'TEST' })
   })
 
+  it('should reject an event edit based on stale modification data', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, modifiedAt: '2025-03-22T09:00:00.000Z' })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        eventType: 'TEST',
+        id: 'existing',
+        modifiedAt: '2025-03-22T08:00:00.000Z',
+      })
+    )
+
+    expect(res.statusCode).toEqual(409)
+    expect(JSON.parse(res.body)).toEqual({
+      error: 'staleData',
+      message: 'Event has been modified since it was loaded',
+    })
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
   it('should audit start list class publishing without a generic change message', async () => {
     const existing = {
       ...mockEvent,

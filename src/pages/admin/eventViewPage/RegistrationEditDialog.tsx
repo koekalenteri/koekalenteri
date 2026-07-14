@@ -1,10 +1,10 @@
 import type { AuditRecord, DogEvent } from '../../../types'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { getRegistrationAuditTrail } from '../../../api/registration'
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
-import { hasChanges } from '../../../lib/utils'
+import { getChanges, isEmptyObject } from '../../../lib/utils'
 import { idTokenAtom } from '../../recoil'
 import { adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistrationSelector } from '../recoil'
 import RegistrationDialogBase from './RegistrationDialogBase'
@@ -22,10 +22,11 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
   const [registration, setRegistration] = useRecoilState(adminEditableEventRegistrationByEventIdAndIdAtom(key))
   const resetRegistration = useResetRecoilState(adminEditableEventRegistrationByEventIdAndIdAtom(key))
   const token = useRecoilValue(idTokenAtom)
-  const changes = useMemo(
-    () => !!registration && !!savedRegistration && hasChanges(savedRegistration, registration),
-    [registration, savedRegistration]
-  )
+  const initialRegistration = useRef(savedRegistration)
+  if (!open) initialRegistration.current = savedRegistration
+  if (!initialRegistration.current && savedRegistration) initialRegistration.current = savedRegistration
+  const registrationChanges = useMemo(() => getChanges(initialRegistration.current, registration), [registration])
+  const changes = !isEmptyObject(registrationChanges)
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   useAuditTrailSubscription(`${event.id}:${registrationId}`, open, setAuditTrail)
 
@@ -59,6 +60,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
       open={open}
       registration={registration}
       savedRegistration={savedRegistration}
+      savePatch={{ ...registrationChanges, modifiedAt: initialRegistration.current?.modifiedAt }}
       resetRegistration={resetRegistration}
       setRegistration={setRegistration}
       auditTrail={auditTrail}

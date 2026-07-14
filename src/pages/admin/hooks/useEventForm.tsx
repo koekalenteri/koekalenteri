@@ -4,7 +4,9 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useRecoilState, useResetRecoilState } from 'recoil'
-import { getChanges, isEmptyObject } from '../../../lib/utils'
+import { APIError } from '../../../api/http'
+import { errorSnackbarOptions } from '../../../lib/snackbar'
+import { getChanges, isEmptyObject, isObject } from '../../../lib/utils'
 import { adminEditableEventByIdAtom, adminNewEventAtom, useAdminEventActions } from '../recoil'
 
 type EventFormOptions = {
@@ -38,9 +40,6 @@ export default function useEventForm(options: EventFormOptions = {}) {
       setChanges(newChanges)
       setCanSave(!storedEvent || !isEmptyObject(newChanges))
 
-      // Always update modification timestamp
-      newState.modifiedAt = new Date()
-
       // Update state
       setEvent(newState as DogEvent)
     },
@@ -53,7 +52,9 @@ export default function useEventForm(options: EventFormOptions = {}) {
     }
 
     try {
-      const saved = await actions.save(event)
+      const saved = storedEvent
+        ? await actions.save(event, { ...changes, modifiedAt: initialEvent.current.modifiedAt })
+        : await actions.save(event)
       resetEvent()
       if (onDoneRedirect) {
         navigate(onDoneRedirect)
@@ -62,9 +63,18 @@ export default function useEventForm(options: EventFormOptions = {}) {
         variant: 'info',
       })
     } catch (error) {
+      if (
+        error instanceof APIError &&
+        error.status === 409 &&
+        isObject(error.body) &&
+        error.body.error === 'staleData'
+      ) {
+        enqueueSnackbar(t('event.staleData'), errorSnackbarOptions)
+        return
+      }
       console.error(error)
     }
-  }, [actions, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, t])
+  }, [actions, changes, enqueueSnackbar, event, navigate, onDoneRedirect, resetEvent, storedEvent, t])
 
   const handleCancel = useCallback(() => {
     resetEvent()

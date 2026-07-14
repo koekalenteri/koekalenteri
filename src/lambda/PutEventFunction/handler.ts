@@ -30,6 +30,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
   const patchRequest = isPatchRequest(event)
 
   const item: Patch<JsonConfirmedEvent> = parseJSONWithFallback(event.body)
+  const clientModifiedAt = item.modifiedAt
   if (patchRequest && !item.id) {
     return response(400, { message: 'Bad request: PATCH requires id' }, event)
   }
@@ -38,6 +39,10 @@ const putEventLambda = lambda('putEvent', async (event) => {
 
   if (isUserForbidden(user, existing, item)) {
     return response(403, 'Forbidden', event)
+  }
+
+  if (existing?.modifiedAt && clientModifiedAt && existing.modifiedAt !== clientModifiedAt) {
+    return response(409, { error: 'staleData', message: 'Event has been modified since it was loaded' }, event)
   }
 
   if (item.deletedAt && !isEventDeletable(existing)) {
