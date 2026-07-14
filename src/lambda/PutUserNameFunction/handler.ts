@@ -2,6 +2,7 @@ import type { JsonUser } from '../../types'
 import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 
 const putUserNameLambda = lambda('putUserName', async (event) => {
   const user = await authorize(event)
@@ -20,6 +21,7 @@ const putUserNameLambda = lambda('putUserName', async (event) => {
   }
 
   const updated = await getAndUpdateUserByEmail(user.email, { name }, true)
+  await publishAdminDataInvalidation(['users'])
 
   return response(200, updated, event)
 })

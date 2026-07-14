@@ -4,6 +4,7 @@ import { authorize, getAndUpdateUserByEmail } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 
 const userIsAdminFor = (user: JsonUser) =>
   Object.keys(user?.roles ?? {}).filter((orgId) => user?.roles?.[orgId] === 'admin')
@@ -34,6 +35,8 @@ const putUserLambda = lambda('putUser', async (event) => {
   for (const orgId of Object.keys(item.roles ?? [])) {
     newUser = await setUserRole(newUser, orgId, item.roles?.[orgId] ?? 'none', user.name, origin)
   }
+
+  await publishAdminDataInvalidation(['users'])
 
   return response(200, newUser, event)
 })

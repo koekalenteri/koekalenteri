@@ -51,6 +51,7 @@ const {
   publishAdminEventPatch,
   publishEventPatch,
   publishRegistrationPatches,
+  publishAdminDataInvalidation,
   publishEventViewers,
   publishAdminConnectionCount,
   publishConnectionCounts,
@@ -191,6 +192,23 @@ describe('ws/actions', () => {
 
     expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1', 'e1')
     expect(mockBuildRegistrationPatchPayload).toHaveBeenCalledWith('e1', patch)
+  })
+
+  it('publishAdminDataInvalidation sends collection names to the admin audience', async () => {
+    await publishAdminDataInvalidation(['users', 'organizers'])
+
+    const call = mockBroadcast.mock.calls[0]?.[0] as
+      | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
+      | undefined
+    expect(call).toBeTruthy()
+    if (!call) throw new Error('missing broadcast call')
+
+    await call.audience()
+    expect(mockAdminAudience).toHaveBeenCalledTimes(1)
+    expect(call.buildPayload()).toEqual({
+      collections: ['users', 'organizers'],
+      scope: 'admin:data-invalidation',
+    })
   })
 
   it('publishEventViewers builds viewers payload with all viewers', async () => {

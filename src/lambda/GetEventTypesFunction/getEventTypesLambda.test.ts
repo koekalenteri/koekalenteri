@@ -2,6 +2,12 @@ import type { JsonUser } from '../../types'
 import type KLAPI from '../lib/KLAPI'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { jest } from '@jest/globals'
+
+const mockPublishAdminDataInvalidation = jest.fn<any>()
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
+}))
+
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 // @ts-expect-error partial mock

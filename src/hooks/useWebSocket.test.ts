@@ -4,6 +4,7 @@ import type { PublicDogEvent, Registration, User } from '../types'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { createElement } from 'react'
 import { RecoilRoot, useRecoilState, useRecoilValue, useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { getUsers } from '../api/user'
 import { applyPatch, applyPatchOrInsert } from '../lib/utils'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
@@ -22,6 +23,10 @@ import {
 
 jest.mock('../routeConfig', () => ({
   WS_API_URL: 'wss://example.invalid/ws',
+}))
+
+jest.mock('../api/user', () => ({
+  getUsers: jest.fn(),
 }))
 
 jest.mock('../pages/admin/recoil/events', () => {
@@ -253,6 +258,28 @@ describe('useWebSocket', () => {
         mockWebSocketInstance.onmessage?.({ data: JSON.stringify({ scope: 'admin:event-viewers' }) })
       })
     }).not.toThrow()
+  })
+
+  it('refetches invalidated admin reference data with the authenticated API', async () => {
+    const freshUsers = [{ id: 'user-3', name: 'Fresh User' }] as User[]
+    jest.mocked(getUsers).mockResolvedValueOnce(freshUsers)
+
+    const { result } = renderHook(
+      () => {
+        useWebSocket()
+        return useRecoilValue(adminUsersAtom)
+      },
+      { wrapper: wrapperWithToken('token-1') }
+    )
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ collections: ['users', 'unknown'], scope: 'admin:data-invalidation' }),
+      })
+    })
+
+    await waitFor(() => expect(result.current).toEqual(freshUsers))
+    expect(getUsers).toHaveBeenCalledWith('token-1')
   })
 
   it('should expose public connection count from public scoped messages', () => {

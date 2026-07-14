@@ -1,5 +1,11 @@
 import type { JsonUser } from '../../types'
 import { jest } from '@jest/globals'
+
+const mockPublishAdminDataInvalidation = jest.fn<any>()
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
+}))
+
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 jest.unstable_mockModule('../lib/KLAPI', () => ({

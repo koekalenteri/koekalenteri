@@ -2,6 +2,7 @@ import type { EventType, JsonEventType, JsonJudge, JsonOfficial } from '../../ty
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/proxyEvent'
 
@@ -54,6 +55,8 @@ const putEventTypeLambda = lambda('putEventType', async (event) => {
       )
     }
   }
+
+  await publishAdminDataInvalidation(['eventTypes', 'judges', 'officials'])
 
   return response(200, item, event)
 })

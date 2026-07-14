@@ -1,5 +1,10 @@
 import { jest } from '@jest/globals'
 
+const mockPublishAdminDataInvalidation = jest.fn<any>()
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishAdminDataInvalidation: mockPublishAdminDataInvalidation,
+}))
+
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()

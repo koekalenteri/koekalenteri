@@ -5,6 +5,7 @@ import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import { KLYhdistysRajaus } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -42,6 +43,7 @@ const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
       await dynamoDB.batchWrite(insert)
     }
   }
+  await publishAdminDataInvalidation(['organizers'])
   const items = await dynamoDB.readAll<Organizer>()
 
   return response(200, items, event)

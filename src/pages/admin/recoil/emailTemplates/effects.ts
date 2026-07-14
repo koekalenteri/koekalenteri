@@ -18,7 +18,7 @@ const templateIds = exhaustiveStringTuple<EmailTemplateId>()(
   'reserve'
 )
 
-async function fetchEmailTemplates(token: string): Promise<EmailTemplate[]> {
+export async function fetchEmailTemplates(token: string): Promise<EmailTemplate[]> {
   const emailTemplates = await getEmailTemplates(token)
   if (emailTemplates.length < templateIds.length) {
     for (const id of templateIds) {

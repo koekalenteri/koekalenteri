@@ -34,6 +34,7 @@ Outbound messages include a `scope` field so clients can route updates.
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
 | `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
 | `admin:audit-record` | Authenticated subscribers of the specific event | `{ eventId, record }` newly written audit record. |
+| `admin:data-invalidation` | Admin channel subscribers | `{ collections }` names the reference-data collections clients must refetch through their authorized HTTP APIs. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
 | `public:connection-count` | Public connections | `{ count, scope }` for the current public audience. |
 | `admin:connection-count` | Admin-channel subscribers allowed to receive admin updates | `{ count, scope }` for the current admin audience. |

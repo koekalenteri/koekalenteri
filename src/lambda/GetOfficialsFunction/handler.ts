@@ -6,6 +6,7 @@ import { lambda, response } from '../lib/lambda'
 import { fetchOfficialsForEventTypes, updateOfficials } from '../lib/official'
 import { getKLAPIConfig } from '../lib/secrets'
 import { updateUsersFromOfficialsOrJudges } from '../lib/user'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTypeTable, officialTable } = CONFIG
@@ -35,6 +36,7 @@ const getOfficialsLambda = lambda('getOfficials', async (event) => {
       await updateOfficials(dynamoDB, officials)
       await updateUsersFromOfficialsOrJudges(dynamoDB, officials, 'officer')
     }
+    await publishAdminDataInvalidation(['officials', 'users'])
   }
 
   const items = (await dynamoDB.readAll<JsonOfficial>())?.filter((o) => !o.deletedAt) ?? []

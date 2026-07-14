@@ -5,6 +5,7 @@ import { authorize } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import { KLKieli, KLKieliToLang } from '../types/KLAPI'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -85,6 +86,7 @@ const getEventTypesLambda = lambda('getEventTypes', async (event) => {
       return response(401, 'Unauthorized', event)
     }
     await refreshEventTypes(user)
+    await publishAdminDataInvalidation(['eventTypes'])
   }
 
   const items = await dynamoDB.readAll<JsonEventType>()

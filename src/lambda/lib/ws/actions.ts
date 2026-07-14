@@ -1,4 +1,4 @@
-import type { JsonDogEvent, JsonPublicDogEvent, JsonRegistration, Patch } from '../../../types'
+import type { AdminDataCollection, JsonDogEvent, JsonPublicDogEvent, JsonRegistration, Patch } from '../../../types'
 import type { WebSocketConnection } from './types'
 import { sanitizeDogEvent } from '../../../lib/event'
 import { broadcast } from './broadcast'
@@ -61,6 +61,12 @@ export const publishRegistrationPatches = (eventId: string, patch: Patch<JsonReg
   send({
     audience: () => organizerAudience(organizerId, eventId),
     buildPayload: () => ({ scope: 'admin:event-registrations', ...buildRegistrationPatchPayload(eventId, patch) }),
+  })
+
+export const publishAdminDataInvalidation = (collections: AdminDataCollection[]) =>
+  send({
+    audience: adminAudience,
+    buildPayload: () => ({ collections, scope: 'admin:data-invalidation' }),
   })
 
 export const publishEventViewers = (

@@ -14,5 +14,6 @@ export * from './rules'
 export * from './Stats'
 export * from './Transaction'
 export * from './utility'
+export * from './WebSocket'
 
 export type Language = 'fi' | 'en'

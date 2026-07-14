@@ -1,6 +1,7 @@
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { createDbRecord } from '../utils/proxyEvent'
 
@@ -15,6 +16,7 @@ const putJudgeLambda = lambda('putJudge', async (event) => {
 
   const item = createDbRecord(event, timestamp, user.name)
   await dynamoDB.write(item)
+  await publishAdminDataInvalidation(['judges'])
 
   return response(200, item, event)
 })

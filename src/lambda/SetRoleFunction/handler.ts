@@ -5,6 +5,7 @@ import { authorize } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { setUserRole } from '../lib/user'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const dynamoDB = new CustomDynamoClient(CONFIG.userTable)
@@ -39,6 +40,7 @@ const setRoleLambda = lambda('setRole', async (event) => {
   }
 
   const saved = await setUserRole(existing, item.orgId, item.role, user.name || user.email, origin)
+  await publishAdminDataInvalidation(['users'])
 
   return response(200, saved, event)
 })

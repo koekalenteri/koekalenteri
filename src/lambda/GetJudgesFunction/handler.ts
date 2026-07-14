@@ -6,6 +6,7 @@ import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
 import { updateUsersFromOfficialsOrJudges } from '../lib/user'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTypeTable, judgeTable } = CONFIG
@@ -35,6 +36,7 @@ const getJudgesLambda = lambda('getJudges', async (event) => {
       await updateJudges(dynamoDB, judges)
       await updateUsersFromOfficialsOrJudges(dynamoDB, judges, 'judge')
     }
+    await publishAdminDataInvalidation(['judges', 'users'])
   }
 
   const items = (await dynamoDB.readAll<JsonJudge>())?.filter((j) => !j.deletedAt) ?? []

@@ -10,6 +10,7 @@ import { CONFIG } from '../config'
 import { authorize, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
+import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { markdownToTemplate } from '../utils/email/markdown'
 
@@ -70,6 +71,7 @@ const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
   }
 
   await dynamoDB.write(data)
+  await publishAdminDataInvalidation(['emailTemplates'])
 
   return response(200, data, event)
 })

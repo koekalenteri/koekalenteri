@@ -1,10 +1,30 @@
-import type { AuditRecord, DogEvent, JsonDogEvent, Patch, PublicDogEvent, Registration } from '../types'
+import type {
+  AdminDataCollection,
+  AuditRecord,
+  DogEvent,
+  JsonDogEvent,
+  Patch,
+  PublicDogEvent,
+  Registration,
+} from '../types'
+import i18next from 'i18next'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
+import { getEventTypes } from '../api/eventType'
+import { getJudges } from '../api/judge'
+import { getOfficials } from '../api/official'
+import { getAdminOrganizers } from '../api/organizer'
+import { getUsers } from '../api/user'
 import { sanitizeDogEvent } from '../lib/event'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
+import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/recoil/emailTemplates'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
+import { adminEventTypesAtom } from '../pages/admin/recoil/eventTypes'
+import { adminJudgesAtom } from '../pages/admin/recoil/judges'
+import { adminOfficialsAtom } from '../pages/admin/recoil/officials'
+import { adminOrganizersAtom } from '../pages/admin/recoil/organizers'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
+import { adminUsersAtom } from '../pages/admin/recoil/user'
 import { websocketAdminUsersSelector } from '../pages/admin/recoil/user/selectors'
 import { idTokenAtom } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
@@ -13,6 +33,14 @@ import { userSelector } from '../pages/recoil/user/selectors'
 import { WS_API_URL } from '../routeConfig'
 
 const RECONNECT_INTERVAL = 1000
+
+const isAdminDataCollection = (value: unknown): value is AdminDataCollection =>
+  value === 'emailTemplates' ||
+  value === 'eventTypes' ||
+  value === 'judges' ||
+  value === 'officials' ||
+  value === 'organizers' ||
+  value === 'users'
 
 export const applyRegistrations = (registrations: Registration[], next: Registration[]) => {
   if (registrations === next) return registrations
@@ -203,6 +231,53 @@ export const useWebSocket = () => {
       },
     [markRecentlyUpdated]
   )
+  const refreshAdminData = useRecoilCallback(
+    ({ set }) =>
+      async (collections: AdminDataCollection[], token: string) => {
+        await Promise.all(
+          collections.map(async (collection) => {
+            switch (collection) {
+              case 'users':
+                set(adminUsersAtom, await getUsers(token))
+                break
+              case 'organizers':
+                set(
+                  adminOrganizersAtom,
+                  [...(await getAdminOrganizers(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+                )
+                break
+              case 'judges':
+                set(
+                  adminJudgesAtom,
+                  [...(await getJudges(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+                )
+                break
+              case 'officials':
+                set(
+                  adminOfficialsAtom,
+                  [...(await getOfficials(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+                )
+                break
+              case 'eventTypes':
+                set(
+                  adminEventTypesAtom,
+                  [...(await getEventTypes(token))].sort((a, b) =>
+                    a.eventType.localeCompare(b.eventType, i18next.language)
+                  )
+                )
+                break
+              case 'emailTemplates':
+                set(
+                  adminEmailTemplatesAtom,
+                  [...(await fetchEmailTemplates(token))].sort((a, b) => a.id.localeCompare(b.id, i18next.language))
+                )
+                break
+            }
+          })
+        )
+      },
+    []
+  )
 
   const [publicCount, setPublicCount] = useState(0)
   const [adminCount, setAdminCount] = useState(0)
@@ -321,6 +396,12 @@ export const useWebSocket = () => {
         return
       }
 
+      if (data.scope === 'admin:data-invalidation' && Array.isArray(data.collections) && token) {
+        const collections = data.collections.filter(isAdminDataCollection)
+        if (collections.length) void refreshAdminData(collections, token).catch(console.error)
+        return
+      }
+
       if (data.scope === 'admin:event-viewers' && data.eventId && Array.isArray(data.viewers)) {
         const viewerPayloads = getViewerPayloads(data.viewers)
         rawViewersRef.current = viewerPayloads
@@ -346,7 +427,7 @@ export const useWebSocket = () => {
         handleEventPatchMessage(data)
       }
     },
-    [handleCountMessage, handleEventPatchMessage, patchRegistrations, resendActiveSubscriptions]
+    [handleCountMessage, handleEventPatchMessage, patchRegistrations, refreshAdminData, resendActiveSubscriptions]
   )
 
   const connect = useCallback(() => {
