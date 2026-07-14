@@ -11,7 +11,12 @@ import { useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
-import { GROUP_KEY_CANCELLED, getRegistrationGroupKey, isRegistrationClass } from '../../lib/registration'
+import {
+  GROUP_KEY_CANCELLED,
+  getRegistrationClass,
+  getRegistrationGroupKey,
+  isRegistrationClass,
+} from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 import EventNotFound from './components/EventNotFound'
@@ -187,9 +192,7 @@ export default function EventViewPage() {
           <ClassEntrySelection
             event={event}
             eventClass={eventClass}
-            registrations={allRegistrations.filter(
-              (r) => (r.class ?? undefined) === eventClass || (!r.class && r.eventType === eventClass)
-            )}
+            registrations={allRegistrations.filter((registration) => getRegistrationClass(registration) === eventClass)}
             setOpen={setOpen}
             setCancelOpen={setCancelOpen}
             setRefundOpen={setRefundOpen}

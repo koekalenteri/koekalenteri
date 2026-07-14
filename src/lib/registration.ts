@@ -28,6 +28,16 @@ export const NOME_B_CH_qualificationStartDate2023 = new Date('2023-08-17T21:00:0
 
 const REG_CLASSES = new Set<RegistrationClass>(['ALO', 'AVO', 'VOI'])
 
+export function getRegistrationClass(registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>): string
+export function getRegistrationClass(
+  registration: Partial<Pick<JsonRegistration | Registration, 'class' | 'eventType'>>
+): string | undefined
+export function getRegistrationClass(
+  registration: Partial<Pick<JsonRegistration | Registration, 'class' | 'eventType'>>
+) {
+  return registration.class ?? registration.eventType
+}
+
 export const isRegistrationClass = (cls?: string | null): cls is RegistrationClass =>
   !!(cls && REG_CLASSES.has(cls as RegistrationClass))
 
@@ -121,7 +131,7 @@ export const sortRegistrationsByDateClassTimeAndNumber = <T extends SortableRegi
 export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'class' | 'eventType' | 'group'>
 ) => {
-  const classOrType = reg.class ?? reg.eventType
+  const classOrType = getRegistrationClass(reg)
   if (reg.cancelled) {
     return `${GROUP_KEY_CANCELLED}-${classOrType}`
   }
@@ -172,7 +182,7 @@ type InvitationAttachmentRegistration = Pick<
 export const getCurrentInvitationAttachment = (
   event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,
   registration: Pick<JsonRegistration | Registration, 'class' | 'eventType'>
-) => event.invitationAttachments?.[registration.class ?? registration.eventType] ?? event.invitationAttachment
+) => event.invitationAttachments?.[getRegistrationClass(registration)] ?? event.invitationAttachment
 
 export const getSentInvitationAttachment = (
   event: InvitationAttachmentEvent,
@@ -191,7 +201,7 @@ export const shouldSendInvitationToRegistration = (
   }
 
   const currentAttachment = getCurrentInvitationAttachment(event, registration)
-  const currentClassAttachment = event.invitationAttachments?.[registration.class ?? registration.eventType]
+  const currentClassAttachment = event.invitationAttachments?.[getRegistrationClass(registration)]
 
   if (!registration.invitationAttachmentSent) {
     return Boolean(currentClassAttachment)

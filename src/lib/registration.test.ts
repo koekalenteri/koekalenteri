@@ -8,6 +8,7 @@ import {
   getCurrentInvitationAttachment,
   getNextClass,
   getParticipantMessageInfo,
+  getRegistrationClass,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
   getRegistrationNumberingGroupKey,
@@ -22,6 +23,14 @@ import {
 } from './registration'
 
 describe('lib/registration', () => {
+  describe('getRegistrationClass', () => {
+    it('prefers class and falls back to event type', () => {
+      expect(getRegistrationClass({ class: 'ALO', eventType: 'NOME-B' })).toBe('ALO')
+      expect(getRegistrationClass({ eventType: 'NOU' })).toBe('NOU')
+      expect(getRegistrationClass({})).toBeUndefined()
+    })
+  })
+
   describe('hasPriority', () => {
     it('should return false when nobody is priorized', () => {
       expect(

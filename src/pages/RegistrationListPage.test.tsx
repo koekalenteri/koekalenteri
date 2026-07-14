@@ -6,7 +6,8 @@ import { render, screen } from '@testing-library/react'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
-import { unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
+import { eventWithParticipantsInvited } from '../__mockData__/events'
+import { registrationWithStaticDates, unpaidRegistrationWithStaticDates } from '../__mockData__/registrations'
 import * as eventApi from '../api/event'
 import { APIError } from '../api/http'
 import * as registrationApi from '../api/registration'
@@ -495,6 +496,33 @@ describe('RegistrationListPage', () => {
     await flushPromises()
 
     expect(redirectTo).toHaveBeenCalledWith('/file/attachment-file/koekutsu-20210210-NOU.pdf')
+  })
+
+  it('redirects to a class invitation attachment when only that class is invited', async () => {
+    const event = {
+      ...eventWithParticipantsInvited,
+      classes: eventWithParticipantsInvited.classes.map((item) => ({
+        ...item,
+        state: item.class === 'ALO' ? ('invited' as const) : undefined,
+      })),
+      state: 'confirmed' as const,
+    }
+    const registration = {
+      ...registrationWithStaticDates,
+      class: 'ALO' as const,
+      eventId: event.id,
+      eventType: event.eventType,
+      id: 'class-invitation-registration',
+      invitationAttachment: 'alo-attachment',
+    }
+    jest.spyOn(eventApi, 'getEvent').mockResolvedValueOnce(event)
+    jest.spyOn(registrationApi, 'getRegistration').mockResolvedValueOnce(registration)
+
+    renderWithRouter(`/r/${event.id}/${registration.id}/invitation`)
+    await flushPromises()
+    await flushPromises()
+
+    expect(redirectTo).toHaveBeenCalledWith(expect.stringContaining('/file/alo-attachment/'))
   })
 
   it('hides cancel controls when event start is close', async () => {

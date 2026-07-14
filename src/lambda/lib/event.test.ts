@@ -50,6 +50,8 @@ jest.unstable_mockModule('../../lib/registration', () => ({
   __esModule: true,
   GROUP_KEY_CANCELLED: mockGroupKeyCancelled,
   GROUP_KEY_RESERVE: mockGroupKeyReserve,
+  getRegistrationClass: (registration: { class?: string; eventType?: string }) =>
+    registration.class ?? registration.eventType,
   getRegistrationEmailTemplateData: jest.fn(),
   getRegistrationGroupKey: mockGetRegistrationGroupKey,
   getRegistrationNumberingGroupKey: mockGetRegistrationNumberingGroupKey,

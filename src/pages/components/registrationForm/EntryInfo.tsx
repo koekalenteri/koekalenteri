@@ -12,7 +12,7 @@ import { format, isSameDay } from 'date-fns'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useAdminEventRegistrationDates } from '../../../hooks/useAdminEventRegistrationDates'
-import { isRegistrationClass } from '../../../lib/registration'
+import { getRegistrationClass, isRegistrationClass } from '../../../lib/registration'
 import { registrationDates, unique, uniqueClasses, uniqueDate } from '../../../lib/utils'
 import AutocompleteMulti from '../AutocompleteMulti'
 import AutocompleteSingle from '../AutocompleteSingle'
@@ -130,7 +130,7 @@ export function EntryInfo({
   const error = errorStates.class ?? errorStates.dates ?? errorStates.reserve
   const datesText = showDatesFilter ? reg.dates?.map(getRegDateTimeLabel).join(' / ') : ''
   const reserveText = reg.reserve ? t(`registration.reserveChoises.${reg.reserve}`) : ''
-  const infoText = [reg.class ?? reg.eventType, datesText, reserveText].filter(Boolean).join(', ')
+  const infoText = [getRegistrationClass(reg), datesText, reserveText].filter(Boolean).join(', ')
   const helperText = error ? t('validation.registration.required', { field: 'classesDetails' }) : infoText
 
   // Update filter dates when dates change

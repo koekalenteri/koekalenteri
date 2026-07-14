@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { getRegistrationClass } from '../lib/registration'
 import { hasChanges, isEntryClosed, isEventOngoing, isEventOver } from '../lib/utils'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
@@ -75,7 +76,11 @@ export default function RegistrationEditPage() {
   return (
     <>
       <LinkButton sx={{ mb: 1 }} to="/" back={spa} text={spa ? t('goBack') : t('goHome')} />
-      <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} />
+      <RegistrationEventInfo
+        event={event}
+        eventClass={getRegistrationClass(registration)}
+        invitationAttachment={registration.invitationAttachment}
+      />
       {registration.cancelled ? (
         <Typography variant="h5" align="center" color="info.main">
           {t('registration.state.cancelled')}

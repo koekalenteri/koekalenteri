@@ -5,6 +5,7 @@ import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { getEventStateForClass } from '../../lib/event'
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
 import { Path } from '../../routeConfig'
@@ -16,6 +17,7 @@ import { PriorityChips } from './PriorityChips'
 
 interface Props {
   readonly event: PublicDogEvent
+  readonly eventClass?: string
   readonly hideCostInfo?: boolean
   readonly invitationAttachment?: string
 }
@@ -52,7 +54,7 @@ const Header = ({ event }: HeaderProps) => {
   )
 }
 
-export default function RegistrationEventInfo({ event, hideCostInfo, invitationAttachment }: Props) {
+export default function RegistrationEventInfo({ event, eventClass, hideCostInfo, invitationAttachment }: Props) {
   const { t } = useTranslation()
   const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges, t])
 
@@ -86,7 +88,7 @@ export default function RegistrationEventInfo({ event, hideCostInfo, invitationA
         {event.description ? (
           <ItemWithCaption label={t('event.description')}>{event.description}</ItemWithCaption>
         ) : null}
-        {invitationAttachment && event.state === 'invited' ? (
+        {invitationAttachment && getEventStateForClass(event, eventClass) === 'invited' ? (
           <ItemWithCaption label={t('event.attachments')}>
             <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
             <Link

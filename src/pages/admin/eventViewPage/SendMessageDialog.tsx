@@ -30,6 +30,7 @@ import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { sendTemplatedEmail } from '../../../api/email'
 import { useRegistrationEmailTemplateData } from '../../../hooks/useRegistrationEmailTemplateData'
+import { getRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
@@ -53,7 +54,7 @@ const getInvitationAttachments = (event: ConfirmedEvent, registrations: Registra
   const attachments = new Map<string, { fileName: string; href: string }>()
 
   for (const registration of registrations) {
-    const eventClass = registration.class ?? registration.eventType
+    const eventClass = getRegistrationClass(registration)
     const classAttachment = event.invitationAttachments?.[eventClass]
     const invitationAttachment = classAttachment ?? event.invitationAttachment
     if (!invitationAttachment) continue

@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useRecoilValue } from 'recoil'
+import { getRegistrationClass } from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
 import { hasAdminAccessSelector, useUserActions } from '../recoil'
 import { adminEventRegistrationsAtom } from './recoil'
@@ -29,7 +30,7 @@ export default function StartListPage() {
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
     const date = reg.group?.date ? `${reg.group.date.valueOf()}` : 'varalla'
-    const eventClass = reg.class ?? reg.eventType ?? ''
+    const eventClass = getRegistrationClass(reg)
     const time: RegistrationTime = reg.group?.time ?? 'kp'
     acc[date] = acc[date] ?? {}
     acc[date][eventClass] = acc[date][eventClass] ?? {}

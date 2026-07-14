@@ -49,6 +49,13 @@ export const isStartListAvailable = ({
 export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
 
+export const getEventStateForClass = (
+  event: Pick<JsonDogEvent, 'state'> & {
+    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'>>
+  },
+  eventClass?: string
+) => event.classes?.find((item) => item.class === eventClass)?.state ?? event.state
+
 export const isStartListAvailableForClass = (
   event: Pick<JsonDogEvent, 'state' | 'startListPublished'>,
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>

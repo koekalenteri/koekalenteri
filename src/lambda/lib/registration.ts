@@ -2,7 +2,7 @@ import type { EmailTemplateId, JsonConfirmedEvent, JsonRegistration, Registratio
 import { diff } from 'deep-object-diff'
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
-import { GROUP_KEY_RESERVE, isParticipantGroup, isPredefinedReason } from '../../lib/registration'
+import { GROUP_KEY_RESERVE, getRegistrationClass, isParticipantGroup, isPredefinedReason } from '../../lib/registration'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -204,7 +204,7 @@ export const groupRegistrationsByClass = (registrations: JsonRegistration[]): Re
   const result: Record<string, JsonRegistration[]> = {}
 
   for (const reg of registrations) {
-    const classKey = reg.class ?? reg.eventType
+    const classKey = getRegistrationClass(reg)
     result[classKey] = result[classKey] || []
     result[classKey].push(reg)
   }

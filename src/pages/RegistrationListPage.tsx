@@ -8,7 +8,9 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { calculateCost } from '../lib/cost'
+import { getEventStateForClass } from '../lib/event'
 import { redirectTo } from '../lib/navigation'
+import { getRegistrationClass } from '../lib/registration'
 import { isConfirmedEvent } from '../lib/typeGuards'
 import { Path } from '../routeConfig'
 import CancelDialog from './components/CancelDialog'
@@ -115,7 +117,10 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           if (saved !== registration) {
             setRegistration(saved)
           }
-          if (registration.invitationAttachment && event.state === 'invited') {
+          if (
+            registration.invitationAttachment &&
+            getEventStateForClass(event, getRegistrationClass(registration)) === 'invited'
+          ) {
             redirectTo(Path.invitationAttachment(registration))
           } else {
             navigate(Path.registration(registration))
@@ -258,7 +263,12 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             />
           </Grid>
         </Grid>
-        <RegistrationEventInfo event={event} invitationAttachment={registration.invitationAttachment} hideCostInfo />
+        <RegistrationEventInfo
+          event={event}
+          eventClass={getRegistrationClass(registration)}
+          invitationAttachment={registration.invitationAttachment}
+          hideCostInfo
+        />
         <RegistrationList
           disabled={allDisabled}
           event={event}

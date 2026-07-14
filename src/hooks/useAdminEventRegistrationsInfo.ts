@@ -1,6 +1,12 @@
 import type { ConfirmedEvent, EventState, Registration } from '../types'
 import { useMemo } from 'react'
-import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../lib/registration'
+import { getEventStateForClass } from '../lib/event'
+import {
+  GROUP_KEY_CANCELLED,
+  GROUP_KEY_RESERVE,
+  getRegistrationClass,
+  getRegistrationGroupKey,
+} from '../lib/registration'
 import { eventDates, placesForClass, unique, uniqueClasses } from '../lib/utils'
 
 interface EventClassInfoNumbers {
@@ -18,13 +24,13 @@ export default function useAdminEventRegistrationInfo(
 ) {
   const dates = useMemo(() => eventDates(event), [event])
 
-  const registrationClasses = unique(registrations.map((r) => r.class ?? r.eventType))
+  const registrationClasses = unique(registrations.map((registration) => getRegistrationClass(registration)))
 
   const reserveByClass: Record<string, Registration[]> = useMemo(() => {
     const byClass: Record<string, Registration[]> = {}
     const allReserve = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_RESERVE)
     for (const reg of allReserve) {
-      const c = reg.class ?? reg.eventType
+      const c = getRegistrationClass(reg)
       if (!(c in byClass)) {
         byClass[c] = []
       }
@@ -50,7 +56,7 @@ export default function useAdminEventRegistrationInfo(
     const result: { [key: string]: EventClassInfoNumbers } = {}
     for (const c of eventClasses) {
       const places = placesForClass(event, c)
-      const classRegs = registrations.filter((r) => (r.class ?? r.eventType) === c)
+      const classRegs = registrations.filter((r) => getRegistrationClass(r) === c)
       const regs = classRegs.filter((r) => r.group && !r.cancelled && r.group.key !== GROUP_KEY_RESERVE).length
       const reserve = classRegs.filter((r) => !r.cancelled && (!r.group || r.group.key === GROUP_KEY_RESERVE)).length
       const cancelled = classRegs.filter((r) => r.cancelled).length
@@ -72,7 +78,7 @@ export default function useAdminEventRegistrationInfo(
       (r) => !r.cancelled && r.group && r.group.key !== GROUP_KEY_RESERVE && r.group.key !== GROUP_KEY_CANCELLED
     )
     for (const reg of allSelected) {
-      const c = reg.class ?? reg.eventType
+      const c = getRegistrationClass(reg)
       if (!(c in byClass)) {
         byClass[c] = []
       }
@@ -87,7 +93,7 @@ export default function useAdminEventRegistrationInfo(
     }
     const byClass: Record<string, EventState> = { [event.eventType]: event.state }
     for (const c of event.classes) {
-      byClass[c.class] = c.state ?? event.state
+      byClass[c.class] = getEventStateForClass(event, c.class)
     }
     return byClass
   }, [event])

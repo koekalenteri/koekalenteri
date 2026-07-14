@@ -60,4 +60,22 @@ describe('RegistrationEventInfo', () => {
     expect(screen.queryByText('event.secretary:')).toBeNull()
     expect(container).toMatchSnapshot()
   })
+
+  it('shows the invitation attachment when the registration class is invited', async () => {
+    const event: PublicConfirmedEvent = {
+      ...eventWithStaticDates,
+      classes: [{ class: 'ALO', date: eventWithStaticDates.startDate, state: 'invited' }],
+      state: 'confirmed',
+    }
+
+    render(<RegistrationEventInfo event={event} eventClass="ALO" invitationAttachment="alo-attachment" />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    expect(screen.getByText('Kutsu.pdf').closest('a')).toHaveAttribute(
+      'href',
+      expect.stringContaining('/file/alo-attachment/')
+    )
+  })
 })

@@ -13,6 +13,7 @@ import {
   getEventClassesByDays,
   getEventDays,
   getEventSeason,
+  getEventStateForClass,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
   isDetaultEntryEndDate,
@@ -28,6 +29,28 @@ import {
 } from './event'
 
 describe('lib/event', () => {
+  describe('getEventStateForClass', () => {
+    it('uses the class state when it is set', () => {
+      expect(
+        getEventStateForClass(
+          {
+            classes: [
+              { class: 'ALO', state: 'invited' },
+              { class: 'AVO', state: 'picked' },
+            ],
+            state: 'confirmed',
+          },
+          'ALO'
+        )
+      ).toBe('invited')
+    })
+
+    it('falls back to the event state', () => {
+      expect(getEventStateForClass({ classes: [{ class: 'ALO' }], state: 'confirmed' }, 'ALO')).toBe('confirmed')
+      expect(getEventStateForClass({ classes: [], state: 'invited' }, 'ALO')).toBe('invited')
+    })
+  })
+
   describe('isStartListPublished', () => {
     it.each<EventState>([
       'invited',
