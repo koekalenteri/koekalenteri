@@ -11,7 +11,7 @@ interface HttpResponse<T> {
   status: number
 }
 
-export interface HttpRequestInit extends RequestInit {
+interface HttpRequestInit extends RequestInit {
   timeoutMs?: number
 }
 
