@@ -2,6 +2,7 @@ import type { EmailTemplate, EventClass, EventState, Registration, RegistrationM
 import http, { withToken } from './http'
 
 const PATH = '/admin/email-templates'
+const EMAIL_SEND_TIMEOUT_MS = 30_000
 
 export async function getEmailTemplates(token?: string, signal?: AbortSignal) {
   return http.get<Array<EmailTemplate>>(PATH, withToken({ signal }, token))
@@ -16,6 +17,6 @@ export async function sendTemplatedEmail(message: RegistrationMessage, token?: s
     await http.post<
       RegistrationMessage,
       { ok: string[]; failed: string[]; state: EventState; classes: EventClass[]; registrations: Registration[] }
-    >('/admin/email-send', message, withToken({ signal }, token))
+    >('/admin/email-send', message, withToken({ signal, timeoutMs: EMAIL_SEND_TIMEOUT_MS }, token))
   ).data
 }

@@ -11,6 +11,10 @@ interface HttpResponse<T> {
   status: number
 }
 
+export interface HttpRequestInit extends RequestInit {
+  timeoutMs?: number
+}
+
 const getStatusFromBody = (body: Body | undefined, fallback: string = ''): string => {
   if (isObject(body)) return body.message ?? fallback
 
@@ -68,21 +72,22 @@ function anySignal(signals: AbortSignal[]): AbortSignal {
 
 async function httpWithTimeout<T>(
   path: string,
-  init: RequestInit,
+  init: HttpRequestInit,
   reviveDates: boolean = true,
   returnStatus: boolean = false
 ): Promise<T | HttpResponse<T>> {
   const url = API_BASE_URL + path
+  const { timeoutMs = 10_000, ...requestInit } = init
 
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort('timeout'), 10_000)
-  const signal = init.signal ? anySignal([controller.signal, init.signal]) : controller.signal
+  const timer = setTimeout(() => controller.abort('timeout'), timeoutMs)
+  const signal = requestInit.signal ? anySignal([controller.signal, requestInit.signal]) : controller.signal
 
   try {
     const response = await fetch(url, {
-      ...init,
+      ...requestInit,
       headers: {
-        ...init.headers,
+        ...requestInit.headers,
         Accept: 'application/json',
       },
       signal,
@@ -118,7 +123,7 @@ async function httpWithTimeout<T>(
 
 async function http<T>(
   path: string,
-  init: RequestInit,
+  init: HttpRequestInit,
   reviveDates: boolean = true,
   returnStatus: boolean = false
 ): Promise<T | HttpResponse<T>> {
@@ -137,18 +142,28 @@ async function http<T>(
 }
 
 const HTTP = {
-  async delete<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
+  async delete<T, U>(path: string, body: T, init?: HttpRequestInit, reviveDates: boolean = true): Promise<U> {
     return http<U>(path, { body: JSON.stringify(body), method: 'DELETE', ...init }, reviveDates) as Promise<U>
   },
-  async get<T>(path: string, init?: RequestInit, reviveDates: boolean = true): Promise<T> {
+  async get<T>(path: string, init?: HttpRequestInit, reviveDates: boolean = true): Promise<T> {
     return http<T>(path, { method: 'GET', ...init }, reviveDates) as Promise<T>
   },
-  async patch<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
+  async patch<T, U>(
+    path: string,
+    body: T,
+    init?: HttpRequestInit,
+    reviveDates: boolean = true
+  ): Promise<HttpResponse<U>> {
     return http<U>(path, { body: JSON.stringify(body), method: 'PATCH', ...init }, reviveDates, true) as Promise<
       HttpResponse<U>
     >
   },
-  async post<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<HttpResponse<U>> {
+  async post<T, U>(
+    path: string,
+    body: T,
+    init?: HttpRequestInit,
+    reviveDates: boolean = true
+  ): Promise<HttpResponse<U>> {
     return http<U>(path, { body: JSON.stringify(body), method: 'POST', ...init }, reviveDates, true) as Promise<
       HttpResponse<U>
     >
@@ -156,17 +171,17 @@ const HTTP = {
   async postRaw<T extends BodyInit, U>(
     path: string,
     body: T,
-    init?: RequestInit,
+    init?: HttpRequestInit,
     reviveDates: boolean = true
   ): Promise<U> {
     return http<U>(path, { body, method: 'POST', ...init }, reviveDates) as Promise<U>
   },
-  async put<T, U>(path: string, body: T, init?: RequestInit, reviveDates: boolean = true): Promise<U> {
+  async put<T, U>(path: string, body: T, init?: HttpRequestInit, reviveDates: boolean = true): Promise<U> {
     return http<U>(path, { body: JSON.stringify(body), method: 'PUT', ...init }, reviveDates) as Promise<U>
   },
 }
 
-export const withToken = (init: RequestInit, token?: string): RequestInit => ({
+export const withToken = (init: HttpRequestInit, token?: string): HttpRequestInit => ({
   ...init,
   headers: token ? setAuthorizationHeader(init.headers, token) : init.headers,
 })

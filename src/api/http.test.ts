@@ -92,6 +92,22 @@ describe('http', () => {
       jest.useRealTimers()
     })
 
+    it('should support a longer timeout for slow requests', async () => {
+      jest.useFakeTimers()
+
+      fetchMock.mockImplementationOnce(
+        () => new Promise((resolve) => setTimeout(() => resolve(new Response(JSON.stringify('ok'))), 20_000))
+      )
+
+      const promise = http.get('/slow', { timeoutMs: 30_000 })
+
+      await jest.advanceTimersByTimeAsync(20_000)
+      await expect(promise).resolves.toEqual('ok')
+
+      jest.runOnlyPendingTimers()
+      jest.useRealTimers()
+    })
+
     it('should throw 401 / The incoming token has expired', async () => {
       fetchMock.mockResponseOnce('The incoming token has expired', {
         status: 401,
