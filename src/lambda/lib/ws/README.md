@@ -32,7 +32,7 @@ Outbound messages include a `scope` field so clients can route updates.
 | --- | --- | --- |
 | `public:event-patch` | Public connections, excluding admin recipients that already received the admin patch | Sanitized public event patch with `eventId`. |
 | `admin:event-patch` | Admin channel subscribers and event subscribers allowed to see the organizer's event | Admin event patch with `eventId`. |
-| `admin:event-registrations` | Event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
+| `admin:event-registrations` | Admin channel subscribers and event subscribers allowed to see the organizer's event | `{ eventId, patch }` registration patch list. |
 | `admin:event-viewers` | Event subscribers allowed to see the organizer's event | `{ eventId, viewers }`, where `viewers` contains distinct subscribed user IDs. |
 | `public:connection-count` | Public connections | `{ count, scope }` for the current public audience. |
 | `admin:connection-count` | Admin-channel subscribers allowed to receive admin updates | `{ count, scope }` for the current admin audience. |

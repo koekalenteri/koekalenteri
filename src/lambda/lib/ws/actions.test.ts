@@ -174,7 +174,7 @@ describe('ws/actions', () => {
     })
   })
 
-  it('publishRegistrationPatches sends admin:event-registrations payload to event audience', async () => {
+  it('publishRegistrationPatches sends admin:event-registrations payload to organizer audience', async () => {
     const patch = [{ id: 'r1', state: 'invited' }]
 
     await publishRegistrationPatches('e1', patch as any, 'org-1')
@@ -189,7 +189,7 @@ describe('ws/actions', () => {
     await call.audience()
     call.buildPayload()
 
-    expect(mockEventAudience).toHaveBeenCalledWith('e1', 'org-1')
+    expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1', 'e1')
     expect(mockBuildRegistrationPatchPayload).toHaveBeenCalledWith('e1', patch)
   })
 

@@ -59,7 +59,7 @@ export const publishEventPatch = async (patch: AdminEventPatch, organizerId: str
 
 export const publishRegistrationPatches = (eventId: string, patch: Patch<JsonRegistration>[], organizerId: string) =>
   send({
-    audience: () => eventAudience(eventId, organizerId),
+    audience: () => organizerAudience(organizerId, eventId),
     buildPayload: () => ({ scope: 'admin:event-registrations', ...buildRegistrationPatchPayload(eventId, patch) }),
   })
 
