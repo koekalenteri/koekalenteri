@@ -18,6 +18,7 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref AuditTable
         - CloudWatchPutMetricPolicy: {}
+        - !Ref WebSocketPolicy
       Environment:
         Variables:
           BUCKET: !Ref EventAttachmentBucket
