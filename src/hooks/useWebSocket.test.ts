@@ -201,7 +201,9 @@ describe('useWebSocket', () => {
         children,
         initializeState: ({ set }: MutableSnapshot) => {
           set(idTokenAtom, token)
-          set(adminUsersAtom, [{ id: 'user-2', name: 'User Two' }] as User[])
+          set(adminUsersAtom, [
+            { id: 'user-2', modifiedAt: new Date('2024-01-02T00:00:00.000Z'), name: 'User Two' },
+          ] as User[])
         },
       })
     }
@@ -262,7 +264,18 @@ describe('useWebSocket', () => {
 
   it('refetches invalidated admin reference data with the authenticated API', async () => {
     const freshUsers = [{ id: 'user-3', name: 'Fresh User' }] as User[]
-    jest.mocked(getUsers).mockResolvedValueOnce(freshUsers)
+    jest
+      .mocked(getUsers)
+      .mockResolvedValueOnce({
+        cursor: Date.parse('2024-01-03T00:00:00.000Z'),
+        deletedIds: ['user-2'],
+        items: freshUsers,
+      })
+      .mockResolvedValueOnce({
+        cursor: Date.parse('2024-01-03T00:00:00.000Z'),
+        deletedIds: [],
+        items: [],
+      })
 
     const { result } = renderHook(
       () => {
@@ -279,7 +292,16 @@ describe('useWebSocket', () => {
     })
 
     await waitFor(() => expect(result.current).toEqual(freshUsers))
-    expect(getUsers).toHaveBeenCalledWith('token-1')
+    expect(getUsers).toHaveBeenCalledWith('token-1', undefined, new Date('2024-01-02T00:00:00.000Z'))
+
+    act(() => {
+      mockWebSocketInstance.onmessage?.({
+        data: JSON.stringify({ collections: ['users'], scope: 'admin:data-invalidation' }),
+      })
+    })
+
+    await waitFor(() => expect(getUsers).toHaveBeenCalledTimes(2))
+    expect(getUsers).toHaveBeenLastCalledWith('token-1', undefined, new Date('2024-01-03T00:00:00.000Z'))
   })
 
   it('should expose public connection count from public scoped messages', () => {

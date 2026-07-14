@@ -10,12 +10,14 @@ import type {
 import i18next from 'i18next'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRecoilCallback, useRecoilValueLoadable } from 'recoil'
+import { getEmailTemplates } from '../api/email'
 import { getEventTypes } from '../api/eventType'
 import { getJudges } from '../api/judge'
 import { getOfficials } from '../api/official'
 import { getAdminOrganizers } from '../api/organizer'
 import { getUsers } from '../api/user'
 import { sanitizeDogEvent } from '../lib/event'
+import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
 import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/recoil/emailTemplates'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
@@ -154,6 +156,7 @@ export const useWebSocket = () => {
   const eventIdRef = useRef<string | undefined>(undefined)
   const rawViewersRef = useRef<EventViewer[]>([])
   const auditRecordListenersRef = useRef(new Set<(record: AuditRecord) => void>())
+  const adminDataCursorsRef = useRef<Partial<Record<AdminDataCollection, number | null>>>({})
 
   // Mutable refs for values only needed inside callbacks
   const idTokenRef = useRef<string | undefined>(undefined)
@@ -232,46 +235,73 @@ export const useWebSocket = () => {
     [markRecentlyUpdated]
   )
   const refreshAdminData = useRecoilCallback(
-    ({ set }) =>
+    ({ snapshot, set }) =>
       async (collections: AdminDataCollection[], token: string) => {
         await Promise.all(
           collections.map(async (collection) => {
             switch (collection) {
-              case 'users':
-                set(adminUsersAtom, await getUsers(token))
+              case 'users': {
+                const current = await snapshot.getPromise(adminUsersAtom)
+                const since = collectionSince(current, adminDataCursorsRef.current.users)
+                const response = since ? await getUsers(token, undefined, since) : await getUsers(token)
+                adminDataCursorsRef.current.users = collectionResponseCursor(response)
+                set(adminUsersAtom, (latest) => reconcileCollection(latest, response))
                 break
+              }
               case 'organizers':
                 set(
                   adminOrganizersAtom,
                   [...(await getAdminOrganizers(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
                 )
                 break
-              case 'judges':
-                set(
-                  adminJudgesAtom,
-                  [...(await getJudges(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+              case 'judges': {
+                const current = await snapshot.getPromise(adminJudgesAtom)
+                const since = collectionSince(current, adminDataCursorsRef.current.judges)
+                const response = since ? await getJudges(token, undefined, undefined, since) : await getJudges(token)
+                adminDataCursorsRef.current.judges = collectionResponseCursor(response)
+                set(adminJudgesAtom, (latest) =>
+                  reconcileCollection(latest, response).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
                 )
                 break
-              case 'officials':
-                set(
-                  adminOfficialsAtom,
-                  [...(await getOfficials(token))].sort((a, b) => a.name.localeCompare(b.name, i18next.language))
+              }
+              case 'officials': {
+                const current = await snapshot.getPromise(adminOfficialsAtom)
+                const since = collectionSince(current, adminDataCursorsRef.current.officials)
+                const response = since
+                  ? await getOfficials(token, undefined, undefined, since)
+                  : await getOfficials(token)
+                adminDataCursorsRef.current.officials = collectionResponseCursor(response)
+                set(adminOfficialsAtom, (latest) =>
+                  reconcileCollection(latest, response).sort((a, b) => a.name.localeCompare(b.name, i18next.language))
                 )
                 break
-              case 'eventTypes':
-                set(
-                  adminEventTypesAtom,
-                  [...(await getEventTypes(token))].sort((a, b) =>
+              }
+              case 'eventTypes': {
+                const current = await snapshot.getPromise(adminEventTypesAtom)
+                const since = collectionSince(current, adminDataCursorsRef.current.eventTypes)
+                const response = since
+                  ? await getEventTypes(token, undefined, undefined, since)
+                  : await getEventTypes(token)
+                adminDataCursorsRef.current.eventTypes = collectionResponseCursor(response)
+                set(adminEventTypesAtom, (latest) =>
+                  reconcileCollection(latest, response, (item) => item.eventType).sort((a, b) =>
                     a.eventType.localeCompare(b.eventType, i18next.language)
                   )
                 )
                 break
-              case 'emailTemplates':
-                set(
-                  adminEmailTemplatesAtom,
-                  [...(await fetchEmailTemplates(token))].sort((a, b) => a.id.localeCompare(b.id, i18next.language))
+              }
+              case 'emailTemplates': {
+                const current = await snapshot.getPromise(adminEmailTemplatesAtom)
+                const since = collectionSince(current, adminDataCursorsRef.current.emailTemplates)
+                const response = since
+                  ? await getEmailTemplates(token, undefined, since)
+                  : await fetchEmailTemplates(token)
+                adminDataCursorsRef.current.emailTemplates = collectionResponseCursor(response)
+                set(adminEmailTemplatesAtom, (latest) =>
+                  reconcileCollection(latest, response).sort((a, b) => a.id.localeCompare(b.id, i18next.language))
                 )
                 break
+              }
             }
           })
         )
@@ -517,6 +547,13 @@ export const useWebSocket = () => {
     })
 
     previousTokenRef.current = nextToken
+    adminDataCursorsRef.current = {
+      emailTemplates: null,
+      eventTypes: null,
+      judges: null,
+      officials: null,
+      users: null,
+    }
     authFailedTokenRef.current = undefined
     shouldReconnectRef.current = true
 
