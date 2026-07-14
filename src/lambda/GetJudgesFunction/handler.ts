@@ -1,6 +1,7 @@
 import type { EventType, JsonJudge } from '../../types'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
+import { collectionChangesSince, parseDateParam } from '../lib/incremental'
 import { fetchJudgesForEventTypes, updateJudges } from '../lib/judge'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
@@ -39,9 +40,10 @@ const getJudgesLambda = lambda('getJudges', async (event) => {
     await publishAdminDataInvalidation(['judges', 'users'])
   }
 
-  const items = (await dynamoDB.readAll<JsonJudge>())?.filter((j) => !j.deletedAt) ?? []
+  const items = (await dynamoDB.readAll<JsonJudge>()) ?? []
+  const since = parseDateParam(event.queryStringParameters?.since)
 
-  return response(200, items, event)
+  return response(200, since ? collectionChangesSince(items, since) : items.filter((j) => !j.deletedAt), event)
 })
 
 export default getJudgesLambda

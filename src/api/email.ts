@@ -1,11 +1,32 @@
-import type { EmailTemplate, EventClass, EventState, Registration, RegistrationMessage } from '../types'
+import type {
+  CollectionResponse,
+  EmailTemplate,
+  EventClass,
+  EventState,
+  IncrementalCollectionResponse,
+  Registration,
+  RegistrationMessage,
+} from '../types'
 import http, { withToken } from './http'
 
 const PATH = '/admin/email-templates'
 const EMAIL_SEND_TIMEOUT_MS = 30_000
 
-export async function getEmailTemplates(token?: string, signal?: AbortSignal) {
-  return http.get<Array<EmailTemplate>>(PATH, withToken({ signal }, token))
+export function getEmailTemplates(token?: string, signal?: AbortSignal): Promise<EmailTemplate[]>
+export function getEmailTemplates(
+  token: string | undefined,
+  signal: AbortSignal | undefined,
+  since: Date
+): Promise<IncrementalCollectionResponse<EmailTemplate>>
+export async function getEmailTemplates(
+  token?: string,
+  signal?: AbortSignal,
+  since?: Date
+): Promise<CollectionResponse<EmailTemplate>> {
+  return http.get<CollectionResponse<EmailTemplate>>(
+    PATH + (since ? `?since=${since.getTime()}` : ''),
+    withToken({ signal }, token)
+  )
 }
 
 export async function putEmailTemplate(template: EmailTemplate, token?: string, signal?: AbortSignal) {

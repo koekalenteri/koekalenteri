@@ -73,6 +73,28 @@ describe('getEmailTemplatesLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
   })
 
+  it('returns only email templates changed since the requested time', async () => {
+    const incrementalEvent = { ...event, queryStringParameters: { since: '1704153600000' } }
+    const templates = [
+      { id: 'old', modifiedAt: '2024-01-01T00:00:00.000Z' },
+      { id: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' },
+    ]
+    mockAuthorize.mockResolvedValueOnce({ id: 'user1' })
+    mockReadAll.mockResolvedValueOnce(templates)
+
+    await getEmailTemplatesLambda(incrementalEvent)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      {
+        cursor: Date.parse('2024-01-03T00:00:00.000Z'),
+        deletedIds: [],
+        items: [{ id: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' }],
+      },
+      incrementalEvent
+    )
+  })
+
   it('returns undefined if readAll returns undefined', async () => {
     const user = { id: 'user1', name: 'Test User' }
 

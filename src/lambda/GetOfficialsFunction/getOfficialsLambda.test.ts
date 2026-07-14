@@ -66,4 +66,23 @@ describe('getOfficialsLambda', () => {
     expect(res.statusCode).toEqual(200)
     expect(res.body).toMatchInlineSnapshot('"[{"name":"not deleted"}]"')
   })
+
+  it('returns changed officials and deletion tombstones since the requested time', async () => {
+    authorizeMock.mockResolvedValueOnce(mockUser)
+    mockDynamoDB.readAll.mockResolvedValue([
+      { id: 1, modifiedAt: '2024-01-01T00:00:00.000Z', name: 'unchanged' },
+      { id: 2, modifiedAt: '2024-01-03T00:00:00.000Z', name: 'changed' },
+      { deletedAt: '2024-01-04T00:00:00.000Z', id: 3, modifiedAt: '2024-01-01T00:00:00.000Z' },
+    ])
+
+    const res = await getOfficialsLambda(
+      constructAPIGwEvent({}, { query: { since: String(new Date('2024-01-02T00:00:00.000Z').getTime()) } })
+    )
+
+    expect(JSON.parse(res.body)).toEqual({
+      cursor: Date.parse('2024-01-04T00:00:00.000Z'),
+      deletedIds: ['3'],
+      items: [{ id: 2, modifiedAt: '2024-01-03T00:00:00.000Z', name: 'changed' }],
+    })
+  })
 })

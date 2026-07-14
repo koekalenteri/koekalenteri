@@ -157,4 +157,22 @@ describe('getEventTypesLambda', () => {
     expect(res.statusCode).toEqual(200)
     expect(res.body).toMatchInlineSnapshot('"[{"eventType":"a"},{"eventType":"b"}]"')
   })
+
+  it('returns only event types changed since the requested time', async () => {
+    authorizeMock.mockResolvedValueOnce(mockUser)
+    mockDynamoDB.readAll.mockResolvedValue([
+      { eventType: 'old', modifiedAt: '2024-01-01T00:00:00.000Z' },
+      { eventType: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' },
+    ])
+
+    const res = await getEventTypesLambda(
+      constructAPIGwEvent({}, { query: { since: String(new Date('2024-01-02T00:00:00.000Z').getTime()) } })
+    )
+
+    expect(JSON.parse(res.body)).toEqual({
+      cursor: Date.parse('2024-01-03T00:00:00.000Z'),
+      deletedIds: [],
+      items: [{ eventType: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' }],
+    })
+  })
 })

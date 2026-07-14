@@ -2,6 +2,7 @@ import type { JsonEventType, JsonUser } from '../../types'
 import { diff } from 'deep-object-diff'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
+import { collectionChangesSince, parseDateParam } from '../lib/incremental'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
@@ -90,7 +91,8 @@ const getEventTypesLambda = lambda('getEventTypes', async (event) => {
   }
 
   const items = await dynamoDB.readAll<JsonEventType>()
-  return response(200, items, event)
+  const since = parseDateParam(event.queryStringParameters?.since)
+  return response(200, since ? collectionChangesSince(items ?? [], since, (item) => item.eventType) : items, event)
 })
 
 export default getEventTypesLambda

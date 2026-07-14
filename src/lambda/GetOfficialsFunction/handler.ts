@@ -1,6 +1,7 @@
 import type { EventType, JsonOfficial } from '../../types'
 import { CONFIG } from '../config'
 import { authorize } from '../lib/auth'
+import { collectionChangesSince, parseDateParam } from '../lib/incremental'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { fetchOfficialsForEventTypes, updateOfficials } from '../lib/official'
@@ -39,9 +40,10 @@ const getOfficialsLambda = lambda('getOfficials', async (event) => {
     await publishAdminDataInvalidation(['officials', 'users'])
   }
 
-  const items = (await dynamoDB.readAll<JsonOfficial>())?.filter((o) => !o.deletedAt) ?? []
+  const items = (await dynamoDB.readAll<JsonOfficial>()) ?? []
+  const since = parseDateParam(event.queryStringParameters?.since)
 
-  return response(200, items, event)
+  return response(200, since ? collectionChangesSince(items, since) : items.filter((o) => !o.deletedAt), event)
 })
 
 export default getOfficialsLambda

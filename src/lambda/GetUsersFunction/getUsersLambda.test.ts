@@ -80,4 +80,25 @@ describe('getUsersHandler', () => {
     await getUsersHandler(event)
     expect(mockResponse).toHaveBeenCalledWith(200, filtered, event)
   })
+
+  it('returns changed relevant users and tombstones since the requested time', async () => {
+    const incrementalEvent = { ...event, queryStringParameters: { since: '1704153600000' } }
+    const users = [
+      { id: 'unchanged', modifiedAt: '2024-01-01T00:00:00.000Z' },
+      { id: 'changed', modifiedAt: '2024-01-03T00:00:00.000Z' },
+      { id: 'removed', modifiedAt: '2024-01-03T00:00:00.000Z' },
+    ]
+    mockAuthorize.mockResolvedValueOnce({ admin: true, id: 'admin' })
+    mockUserIsMemberOf.mockReturnValueOnce([])
+    mockGetAllUsers.mockResolvedValueOnce(users)
+    mockFilterRelevantUsers.mockReturnValueOnce([users[0], users[1]])
+
+    await getUsersHandler(incrementalEvent)
+
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      { cursor: Date.parse('2024-01-03T00:00:00.000Z'), deletedIds: ['removed'], items: [users[1]] },
+      incrementalEvent
+    )
+  })
 })
