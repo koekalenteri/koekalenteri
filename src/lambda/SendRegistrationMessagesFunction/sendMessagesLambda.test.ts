@@ -14,6 +14,8 @@ const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockEventAuditKey = jest.fn<any>()
+const mockPublishEventPatch = jest.fn<any>()
+const mockPublishRegistrationPatches = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   LambdaError: class LambdaError extends Error {
@@ -39,6 +41,11 @@ jest.unstable_mockModule('../lib/api-gw', () => ({
 jest.unstable_mockModule('../lib/audit', () => ({
   audit: mockAudit,
   eventAuditKey: mockEventAuditKey,
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishEventPatch: mockPublishEventPatch,
+  publishRegistrationPatches: mockPublishRegistrationPatches,
 }))
 
 jest.unstable_mockModule('../lib/json', () => ({
@@ -102,6 +109,7 @@ describe('sendMessagesLambda', () => {
       { class: 'AVO', state: 'draft' },
     ],
     id: 'event123',
+    organizer: { id: 'org-1' },
     state: 'draft',
   }
 
@@ -215,6 +223,11 @@ describe('sendMessagesLambda', () => {
       },
       user: 'Test User',
     })
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith('event123', mockRegistrations, 'org-1')
+    expect(mockPublishEventPatch).toHaveBeenCalledWith(
+      { classes: mockEvent.classes, eventId: 'event123', state: mockEvent.state },
+      'org-1'
+    )
   })
 
   it('sends picked emails and marks participants as picked', async () => {
@@ -505,6 +518,7 @@ describe('sendMessagesLambda', () => {
         { class: 'AVO', state: 'draft' },
       ],
       id: 'event123',
+      organizer: { id: 'org-1' },
       state: 'draft',
     }
     mockRead.mockResolvedValueOnce(testEvent)

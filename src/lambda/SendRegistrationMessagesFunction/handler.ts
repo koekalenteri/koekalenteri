@@ -15,6 +15,7 @@ import {
   sendTemplatedEmailToEventRegistrations,
   setReserveNotified,
 } from '../lib/registration'
+import { publishEventPatch, publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTable, registrationTable } = CONFIG
@@ -91,6 +92,9 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
 
   if (template === 'reserve') {
     await setReserveNotified(registrations)
+    for (const registration of registrations) {
+      registration.reserveNotified = registration.group?.number ?? 999
+    }
   }
 
   if (template === 'picked' || template === 'invitation') {
@@ -124,6 +128,14 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     },
     user: user.name,
   })
+
+  await publishRegistrationPatches(eventId, registrations, confirmedEvent.organizer.id)
+  if (template === 'picked' || template === 'invitation') {
+    await publishEventPatch(
+      { classes: confirmedEvent.classes, eventId, state: confirmedEvent.state },
+      confirmedEvent.organizer.id
+    )
+  }
 
   const { state, classes } = confirmedEvent
   return response(200, { classes, failed, ok, registrations, state }, event)
