@@ -1178,9 +1178,10 @@ describe('lib/event', () => {
       mockWrite.mockReset()
     })
     it('calls write with event data', async () => {
-      const event = { id: 'e6', name: 'Event' } as JsonDogEvent
+      const event = { id: 'e6', name: 'Event', organizer: { id: 'org-1' }, state: 'draft' } as JsonDogEvent
       await saveEvent(event)
       expect(mockWrite).toHaveBeenCalledWith(event, expect.anything())
+      expect(mockBroadcastAdminEvent).toHaveBeenCalledWith({ ...event, eventId: event.id }, 'org-1')
     })
   })
 

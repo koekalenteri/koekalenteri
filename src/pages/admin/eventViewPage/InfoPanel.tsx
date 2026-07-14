@@ -161,6 +161,11 @@ const InfoPanel = ({
   )
 
   useEffect(() => {
+    setAttachmentKey(event.invitationAttachment)
+    setClassAttachmentKeys(event.invitationAttachments ?? {})
+  }, [event.invitationAttachment, event.invitationAttachments])
+
+  useEffect(() => {
     if (!expanded || !token) return
 
     getEventAuditTrail(event.id, token)

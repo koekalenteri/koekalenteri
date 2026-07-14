@@ -65,7 +65,16 @@ export const findQualificationStartDate = async (
   }
 }
 
-export const saveEvent = async (data: JsonDogEvent) => dynamoDB.write(data, eventTable)
+export const saveEvent = async (data: JsonDogEvent) => {
+  await dynamoDB.write(data, eventTable)
+
+  const patch = { ...data, eventId: data.id }
+  if (data.state === 'draft') {
+    await publishAdminEventPatch(patch, data.organizer.id)
+  } else {
+    await publishEventPatch(patch, data.organizer.id)
+  }
+}
 
 export const patchEvent = async (
   eventId: string,

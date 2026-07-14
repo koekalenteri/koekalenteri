@@ -5,6 +5,7 @@ import { authorize } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { deleteFile, parsePostFile, uploadFile } from '../lib/file'
 import { getParam, lambda, response } from '../lib/lambda'
+import { publishAdminEventPatch } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 const { eventTable } = CONFIG
@@ -60,6 +61,7 @@ const putInvitationAttachmentLambda = lambda('putInvitationAttachment', async (e
       set,
     }
   )
+  await publishAdminEventPatch({ eventId, ...set }, existing.organizer.id)
 
   return response(200, key, event)
 })

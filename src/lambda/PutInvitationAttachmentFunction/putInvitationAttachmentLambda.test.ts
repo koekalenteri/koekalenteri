@@ -9,6 +9,7 @@ const mockParsePostFile = jest.fn<any>()
 const mockDeleteFile = jest.fn<any>()
 const mockUploadFile = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
+const mockPublishAdminEventPatch = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
@@ -34,6 +35,10 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     update: mockUpdate,
   })),
+}))
+
+jest.unstable_mockModule('../lib/ws/actions', () => ({
+  publishAdminEventPatch: mockPublishAdminEventPatch,
 }))
 
 const { default: putInvitationAttachmentLambda } = await import('./handler')
@@ -190,6 +195,10 @@ describe('putInvitationAttachmentLambda', () => {
           invitationAttachment: expect.any(String),
         },
       }
+    )
+    expect(mockPublishAdminEventPatch).toHaveBeenCalledWith(
+      { eventId: 'event123', invitationAttachment: expect.any(String) },
+      'org789'
     )
 
     // Verify response
