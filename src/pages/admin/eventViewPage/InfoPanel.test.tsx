@@ -91,10 +91,22 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('Toiminnot')).toBeInTheDocument()
     expect(screen.getByText('Osallistujat')).toBeInTheDocument()
     expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
-    expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
+    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
     expect(screen.getByText('Koekutsu')).toBeInTheDocument()
     expect(screen.getByText('Kokeen koekutsun liitetiedosto')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Liitä kokeelle' })).toBeInTheDocument()
+  })
+
+  it('shows the Kennel Club ID for official events', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel event={{ ...eventWithStaticDatesAndClass, kcId: 12345 }} registrations={[]} />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByText('Kokeen tiedot')).toBeInTheDocument()
+    expect(screen.getByText('Koetunnus')).toBeInTheDocument()
+    expect(screen.getByText('12345')).toBeInTheDocument()
   })
 
   it('runs the moved create registration action', async () => {
