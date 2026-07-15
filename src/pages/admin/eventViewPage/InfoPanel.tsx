@@ -220,11 +220,9 @@ const InfoPanel = ({
             borderColor: 'divider',
             boxShadow: 6,
             height: `calc(100% - ${APP_HEADER_HEIGHT}px)`,
-            maxWidth: 'calc(100vw - 16px)',
-            minWidth: { sm: 480 },
             overflow: 'auto',
             top: APP_HEADER_HEIGHT,
-            width: { sm: 'max-content', xs: 'calc(100vw - 16px)' },
+            width: 'min(480px, calc(100vw - 16px))',
           },
         },
       }}
@@ -380,11 +378,11 @@ const InfoPanel = ({
             Koekutsu
           </Typography>
           <TableContainer>
-            <Table>
+            <Table sx={{ '& .MuiTableCell-root': { overflowWrap: 'anywhere' }, tableLayout: 'fixed' }}>
               <TableBody>
                 <TableRow>
                   <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
-                    <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                    <Typography variant="caption" fontWeight="bold" ml={2}>
                       Kokeen koekutsun liitetiedosto
                     </Typography>
                   </TableCell>
@@ -439,7 +437,7 @@ const InfoPanel = ({
                     <Fragment key={`invitation-attachment-${eventClass}`}>
                       <TableRow key={`invitation-attachment-${eventClass}`}>
                         <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
-                          <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                          <Typography variant="caption" fontWeight="bold" ml={2}>
                             {eventClass}-luokan koekutsun liitetiedosto
                           </Typography>
                         </TableCell>
