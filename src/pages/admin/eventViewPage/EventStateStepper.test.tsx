@@ -4,18 +4,16 @@ import { eventWithEntryOpen, eventWithStaticDates, eventWithStaticDatesAnd3Class
 import EventStateStepper from './EventStateStepper'
 
 describe('EventStateStepper', () => {
-  it.each<Exclude<ConfirmedEventStates, 'confirmed' | 'completed'>>([
-    'picked',
-    'invited',
-    'started',
-    'ended',
-  ])('marks %s as completed when the event has reached it', (state) => {
-    render(<EventStateStepper event={{ ...eventWithEntryOpen, state }} />)
+  it.each<Exclude<ConfirmedEventStates, 'confirmed' | 'completed'>>(['picked', 'invited', 'started', 'ended'])(
+    'marks %s as completed when the event has reached it',
+    (state) => {
+      render(<EventStateStepper event={{ ...eventWithEntryOpen, state }} />)
 
-    expect(screen.getByRole('list', { name: 'event.phase' })).toBeInTheDocument()
-    expect(screen.getByText(`event.states.${state}`).closest('.Mui-completed')).toBeInTheDocument()
-    expect(screen.queryByRole('listitem', { current: 'step' })).not.toBeInTheDocument()
-  })
+      expect(screen.getByRole('list', { name: 'event.phase' })).toBeInTheDocument()
+      expect(screen.getByText(`event.states.${state}`).closest('.Mui-completed')).toBeInTheDocument()
+      expect(screen.queryByRole('listitem', { current: 'step' })).not.toBeInTheDocument()
+    }
+  )
 
   it('shows a legacy completed state as ended', () => {
     render(<EventStateStepper event={{ ...eventWithEntryOpen, state: 'completed' }} />)

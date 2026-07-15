@@ -142,21 +142,24 @@ describe('getRegistration', () => {
     [false, 'registration', 'PENDING'],
     [false, 'registration', 'SUCCESS'],
     [true, 'registration', 'CANCEL'],
-  ])('should set shouldPay: %p when paymentTime is %p and paymentStatus is %p', async (expected, paymentTime, paymentStatus) => {
-    mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
-    mockGetRegistration.mockReturnValueOnce({
-      ...registrationsToEventWithParticipantsInvited[0],
-      paymentStatus,
-    })
+  ])(
+    'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p',
+    async (expected, paymentTime, paymentStatus) => {
+      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      mockGetRegistration.mockReturnValueOnce({
+        ...registrationsToEventWithParticipantsInvited[0],
+        paymentStatus,
+      })
 
-    const res = await getRegistrationLambda(
-      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
-    )
+      const res = await getRegistrationLambda(
+        constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+      )
 
-    expect(res.statusCode).toEqual(200)
-    const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.shouldPay).toBe(expected)
-  })
+      expect(res.statusCode).toEqual(200)
+      const reg: JsonRegistration = JSON.parse(res.body)
+      expect(reg.shouldPay).toBe(expected)
+    }
+  )
 
   it.each<[boolean, PaymentTime | undefined, PaymentStatus | undefined]>([
     [false, 'confirmation', undefined],
@@ -167,20 +170,23 @@ describe('getRegistration', () => {
     [false, 'registration', 'PENDING'],
     [false, 'registration', 'SUCCESS'],
     [true, 'registration', 'CANCEL'],
-  ])('should set shouldPay: %p when paymentTime is %p and paymentStatus is %p and not picked', async (expected, paymentTime, paymentStatus) => {
-    mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
-    mockGetRegistration.mockReturnValueOnce({
-      ...registrationsToEventWithParticipantsInvited[0],
-      group: undefined,
-      paymentStatus,
-    })
+  ])(
+    'should set shouldPay: %p when paymentTime is %p and paymentStatus is %p and not picked',
+    async (expected, paymentTime, paymentStatus) => {
+      mockGetEvent.mockReturnValueOnce({ ...mockEventWithInvitationAttachment, paymentTime })
+      mockGetRegistration.mockReturnValueOnce({
+        ...registrationsToEventWithParticipantsInvited[0],
+        group: undefined,
+        paymentStatus,
+      })
 
-    const res = await getRegistrationLambda(
-      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
-    )
+      const res = await getRegistrationLambda(
+        constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+      )
 
-    expect(res.statusCode).toEqual(200)
-    const reg: JsonRegistration = JSON.parse(res.body)
-    expect(reg.shouldPay).toBe(expected)
-  })
+      expect(res.statusCode).toEqual(200)
+      const reg: JsonRegistration = JSON.parse(res.body)
+      expect(reg.shouldPay).toBe(expected)
+    }
+  )
 })

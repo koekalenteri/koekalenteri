@@ -12,14 +12,12 @@ describe('isChunkLoadError', () => {
     expect(isChunkLoadError(error)).toBe(true)
   })
 
-  it.each([
-    undefined,
-    null,
-    'Loading chunk 123 failed.',
-    new Error('regular app error'),
-  ])('returns false for non chunk load error %#', (error) => {
-    expect(isChunkLoadError(error)).toBe(false)
-  })
+  it.each([undefined, null, 'Loading chunk 123 failed.', new Error('regular app error')])(
+    'returns false for non chunk load error %#',
+    (error) => {
+      expect(isChunkLoadError(error)).toBe(false)
+    }
+  )
 })
 
 describe('reloadOnChunkLoadError', () => {

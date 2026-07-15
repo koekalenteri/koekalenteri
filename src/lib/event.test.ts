@@ -52,24 +52,20 @@ describe('lib/event', () => {
   })
 
   describe('isStartListPublished', () => {
-    it.each<EventState>([
-      'invited',
-      'started',
-      'ended',
-      'completed',
-    ])('Should return true when state is %p and startListPublished is undefined or true', (state) => {
-      expect(isStartListAvailable({ state })).toEqual(true)
-      expect(isStartListAvailable({ startListPublished: true, state })).toEqual(true)
-    })
+    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
+      'Should return true when state is %p and startListPublished is undefined or true',
+      (state) => {
+        expect(isStartListAvailable({ state })).toEqual(true)
+        expect(isStartListAvailable({ startListPublished: true, state })).toEqual(true)
+      }
+    )
 
-    it.each<EventState>([
-      'invited',
-      'started',
-      'ended',
-      'completed',
-    ])('Should return false when state is %p and startListPublished is false', (state) => {
-      expect(isStartListAvailable({ startListPublished: false, state })).toEqual(false)
-    })
+    it.each<EventState>(['invited', 'started', 'ended', 'completed'])(
+      'Should return false when state is %p and startListPublished is false',
+      (state) => {
+        expect(isStartListAvailable({ startListPublished: false, state })).toEqual(false)
+      }
+    )
 
     it('returns true when at least one class start list is published', () => {
       expect(
@@ -125,15 +121,12 @@ describe('lib/event', () => {
       ).toEqual(false)
     })
 
-    it.each<EventState>([
-      'draft',
-      'tentative',
-      'cancelled',
-      'confirmed',
-      'picked',
-    ])('Should return false when state is %p', (state) => {
-      expect(isStartListAvailable({ state })).toEqual(false)
-    })
+    it.each<EventState>(['draft', 'tentative', 'cancelled', 'confirmed', 'picked'])(
+      'Should return false when state is %p',
+      (state) => {
+        expect(isStartListAvailable({ state })).toEqual(false)
+      }
+    )
 
     it('checks class state and publication together', () => {
       expect(
@@ -223,16 +216,12 @@ describe('lib/event', () => {
     it.each<EventState>(['draft', 'tentative', 'cancelled'])('Should return true when event state is %p', (state) => {
       expect(isEventDeletable({ state })).toEqual(true)
     })
-    it.each<EventState>([
-      'completed',
-      'confirmed',
-      'ended',
-      'invited',
-      'picked',
-      'started',
-    ])('Should return false when event state is %p', (state) => {
-      expect(isEventDeletable({ state })).toEqual(false)
-    })
+    it.each<EventState>(['completed', 'confirmed', 'ended', 'invited', 'picked', 'started'])(
+      'Should return false when event state is %p',
+      (state) => {
+        expect(isEventDeletable({ state })).toEqual(false)
+      }
+    )
     it('should return false when event is undefined', () => {
       expect(isEventDeletable()).toEqual(false)
     })

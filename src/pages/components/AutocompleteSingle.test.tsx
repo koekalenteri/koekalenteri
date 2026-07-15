@@ -116,27 +116,23 @@ describe('AutocompleteSingle', () => {
       expect(screen.getByRole('combobox')).toHaveValue('test-a')
     })
 
-    it.each([
-      undefined,
-      null,
-      '',
-      'test-a',
-      'test-b',
-      'test-c',
-    ])('should not call onChange on initial render when value=%p', async (value) => {
-      const onChange = jest.fn()
-      render(
-        <AutocompleteSingle
-          id="test-warn"
-          options={['test-a', 'test-b']}
-          label={'test-label'}
-          value={value}
-          onChange={onChange}
-        />
-      )
-      await flushPromises()
-      expect(onChange).not.toHaveBeenCalled()
-    })
+    it.each([undefined, null, '', 'test-a', 'test-b', 'test-c'])(
+      'should not call onChange on initial render when value=%p',
+      async (value) => {
+        const onChange = jest.fn()
+        render(
+          <AutocompleteSingle
+            id="test-warn"
+            options={['test-a', 'test-b']}
+            label={'test-label'}
+            value={value}
+            onChange={onChange}
+          />
+        )
+        await flushPromises()
+        expect(onChange).not.toHaveBeenCalled()
+      }
+    )
   })
 
   describe('when options are objects', () => {

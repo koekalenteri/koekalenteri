@@ -145,16 +145,14 @@ test.each([
   { closing: true, date: '2021-01-13T00:00+02:00', open: true, upcoming: false },
   { closing: true, date: '2021-01-13T23:59+02:00', open: true, upcoming: false },
   { closing: false, date: '2021-01-14T00:00+02:00', open: false, upcoming: false },
-])(`When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing, isEntryUpcoming: $upcoming`, ({
-  date,
-  open,
-  closing,
-  upcoming,
-}) => {
-  expect(isEntryOpen(event, parseISO(date))).toEqual(open)
-  expect(isEntryClosing(event, parseISO(date))).toEqual(closing)
-  expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
-})
+])(
+  `When entry is 2021-01-02 to 2021-01-13, @$date: isEntryOpen: $open, isEntryClosing: $closing, isEntryUpcoming: $upcoming`,
+  ({ date, open, closing, upcoming }) => {
+    expect(isEntryOpen(event, parseISO(date))).toEqual(open)
+    expect(isEntryClosing(event, parseISO(date))).toEqual(closing)
+    expect(isEntryUpcoming(event, parseISO(date))).toEqual(upcoming)
+  }
+)
 
 test('isEntryOpen with mocked date', () => {
   jest.useFakeTimers()

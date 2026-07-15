@@ -38,13 +38,12 @@ describe('auth session refresh', () => {
     expect(getJwtExpiresAt(token)).toBe(1_782_733_200_000)
   })
 
-  it.each([
-    'NotAuthorizedException',
-    'UserUnAuthenticatedException',
-    'RefreshTokenReuseException',
-  ])('treats %s as an invalid auth session', (name) => {
-    expect(isInvalidAuthSessionError({ name })).toBe(true)
-  })
+  it.each(['NotAuthorizedException', 'UserUnAuthenticatedException', 'RefreshTokenReuseException'])(
+    'treats %s as an invalid auth session',
+    (name) => {
+      expect(isInvalidAuthSessionError({ name })).toBe(true)
+    }
+  )
 
   it('does not treat transient errors as invalid auth sessions', () => {
     expect(isInvalidAuthSessionError(new TypeError('Failed to fetch'))).toBe(false)
