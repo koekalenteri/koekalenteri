@@ -15,6 +15,8 @@ const run = (command, args, options = {}) => {
 
 run(npmCommand, ['run', 'lint-biome'])
 
+run(npmCommand, ['run', 'knip'])
+
 run(npmCommand, ['test', '--', '--onlyChanged'], {
   env: { CI: '1' },
 })

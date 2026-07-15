@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
   DogEvent,
@@ -13,7 +14,8 @@ import type {
 import { tz } from '@date-fns/tz'
 import { addDays, differenceInDays, eachDayOfInterval, isSameDay, isValid, nextSaturday, parseISO, sub } from 'date-fns'
 import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
-import { unique } from './utils'
+import { isConfirmedEvent } from './typeGuards'
+import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver, unique } from './utils'
 
 export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 
@@ -48,6 +50,25 @@ export const isStartListAvailable = ({
 
 export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
+
+export function getEventTitle(event: DogEvent, t: TFunction<'translation'>): string {
+  if (isConfirmedEvent(event)) {
+    if (isEventOver(event)) {
+      return t('event.states.confirmed_eventOver')
+    }
+    if (isEntryOpen(event)) {
+      return t('event.states.confirmed_entryOpen')
+    }
+    if (isEntryClosed(event)) {
+      return t('event.states.confirmed_entryClosed')
+    }
+    if (isEventOngoing(event)) {
+      return t('event.states.confirmed_eventOngoing')
+    }
+  }
+
+  return t(`event.states.${event.state || 'draft'}`)
+}
 
 export const getEventStateForClass = (
   event: Pick<JsonDogEvent, 'state'> & {

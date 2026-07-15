@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import type { DogEvent, EventClass, EventState, RegistrationDate, RegistrationTime } from '../types'
 import { TZDate } from '@date-fns/tz'
 import { addDays, differenceInDays } from 'date-fns'
@@ -14,6 +15,7 @@ import {
   getEventDays,
   getEventSeason,
   getEventStateForClass,
+  getEventTitle,
   getStartListPublishedClassMap,
   getUniqueEventClasses,
   isDetaultEntryEndDate,
@@ -29,6 +31,66 @@ import {
 } from './event'
 
 describe('lib/event', () => {
+  describe('getEventTitle', () => {
+    const t = ((key: string) => key) as unknown as TFunction<'translation'>
+    const now = new Date()
+    const event = (overrides: Partial<DogEvent>): DogEvent => ({ ...eventWithEntryClosing, ...overrides })
+
+    it.each([
+      {
+        expected: 'event.states.confirmed_eventOver',
+        overrides: { endDate: addDays(now, -1), state: 'confirmed' as const },
+      },
+      {
+        expected: 'event.states.confirmed_entryOpen',
+        overrides: {
+          endDate: addDays(now, 3),
+          entryEndDate: addDays(now, 1),
+          entryStartDate: addDays(now, -1),
+          startDate: addDays(now, 2),
+          state: 'confirmed' as const,
+        },
+      },
+      {
+        expected: 'event.states.confirmed_entryClosed',
+        overrides: {
+          endDate: addDays(now, 3),
+          entryEndDate: addDays(now, -1),
+          entryStartDate: addDays(now, -3),
+          startDate: addDays(now, 2),
+          state: 'confirmed' as const,
+        },
+      },
+      {
+        expected: 'event.states.confirmed_eventOngoing',
+        overrides: {
+          endDate: addDays(now, 1),
+          entryEndDate: addDays(now, -2),
+          entryStartDate: addDays(now, -3),
+          startDate: addDays(now, -1),
+          state: 'started' as const,
+        },
+      },
+    ])('returns $expected for the matching event phase', ({ expected, overrides }) => {
+      expect(getEventTitle(event(overrides), t)).toBe(expected)
+    })
+
+    it.each<EventState>(['draft', 'confirmed'])('falls back to the %s state title', (state) => {
+      expect(
+        getEventTitle(
+          event({
+            endDate: addDays(now, 3),
+            entryEndDate: addDays(now, 2),
+            entryStartDate: addDays(now, 1),
+            startDate: addDays(now, 2),
+            state,
+          }),
+          t
+        )
+      ).toBe(`event.states.${state}`)
+    })
+  })
+
   describe('getEventStateForClass', () => {
     it('uses the class state when it is set', () => {
       expect(
