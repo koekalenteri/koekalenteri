@@ -157,6 +157,7 @@
       "name": "luokka",
       "places": "paikkoja"
     },
+    "classProgress": "{{completed}}/{{total}}{{classes}}",
     "contactInfo": "Yhteystiedot",
     "cost": "Maksutiedot",
     "costMember": "jäsenille",
@@ -190,6 +191,7 @@
     "name": "Nimi",
     "official": "Vastaava koetoimitsija",
     "organizer": "Järjestäjä",
+    "phase": "Kokeen vaihe",
     "places": "Paikkoja",
     "priority": "Etusijat",
     "saved": "Muutokset tallennettu",

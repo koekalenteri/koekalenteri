@@ -10,12 +10,251 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
     dateFormat.datespan end, start
     , 
     test location
+     (test)
   </h5>
-  <span
-    class="css-1k3i3n3"
+  <div
+    class="MuiBox-root css-g2hg04"
   >
-    event.states.confirmed_eventOver
-  </span>
+    <div
+      aria-label="event.phase"
+      class="MuiStepper-root MuiStepper-horizontal MuiStepper-alternativeLabel css-tnwqfp-MuiStepper-root"
+      role="list"
+    >
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.confirmed
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.confirmed_entryOpen
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.picked
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.invited
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.started
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.ended
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
   <button
     aria-label="Avaa tilannepaneeli"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-rhnc13-MuiButtonBase-root-MuiButton-root"
@@ -4368,12 +4607,251 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
     dateFormat.datespan end, start
     , 
     test location
+     (test)
   </h5>
-  <span
-    class="css-1k3i3n3"
+  <div
+    class="MuiBox-root css-g2hg04"
   >
-    event.states.confirmed_eventOver
-  </span>
+    <div
+      aria-label="event.phase"
+      class="MuiStepper-root MuiStepper-horizontal MuiStepper-alternativeLabel css-tnwqfp-MuiStepper-root"
+      role="list"
+    >
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.confirmed
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.confirmed_entryOpen
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.picked
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.invited
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.started
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.ended
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
   <button
     aria-label="Avaa tilannepaneeli"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-rhnc13-MuiButtonBase-root-MuiButton-root"
@@ -10281,12 +10759,251 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
     dateFormat.datespan end, start
     , 
     test location
+     (test)
   </h5>
-  <span
-    class="css-1k3i3n3"
+  <div
+    class="MuiBox-root css-g2hg04"
   >
-    event.states.confirmed_eventOver
-  </span>
+    <div
+      aria-label="event.phase"
+      class="MuiStepper-root MuiStepper-horizontal MuiStepper-alternativeLabel css-tnwqfp-MuiStepper-root"
+      role="list"
+    >
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.confirmed
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.confirmed_entryOpen
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.picked
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.invited
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.started
+            </span>
+          </span>
+        </span>
+      </div>
+      <div
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
+        role="listitem"
+      >
+        <div
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
+        >
+          <span
+            class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
+          />
+        </div>
+        <span
+          class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
+        >
+          <span
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-kjq3l5-MuiSvgIcon-root-MuiStepIcon-root"
+              data-testid="CheckCircleIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-2 17l-5-5 1.4-1.4 3.6 3.6 7.6-7.6L19 8l-9 9z"
+              />
+            </svg>
+          </span>
+          <span
+            class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
+          >
+            <span
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+            >
+              event.states.ended
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </div>
   <button
     aria-label="Avaa tilannepaneeli"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-rhnc13-MuiButtonBase-root-MuiButton-root"

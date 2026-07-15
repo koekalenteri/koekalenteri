@@ -1,24 +1,18 @@
-import type { DogEvent } from '../../../types'
-import { styled } from '@mui/material'
+import type { ConfirmedEvent } from '../../../types'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
-import useEventTitle from '../../../hooks/useEventTitle'
+import EventStateStepper from './EventStateStepper'
 
-const StateText = styled('span')({
-  color: '#018786',
-  marginLeft: '8px',
-})
-
-export default function Title({ event }: { readonly event: DogEvent }) {
+export default function Title({ event }: { readonly event: ConfirmedEvent }) {
   const { t } = useTranslation()
-  const title = useEventTitle(event)
 
   return (
     <>
       <Typography variant="h5">
         {event.eventType}, {t('dateFormat.datespan', { end: event.endDate, start: event.startDate })}, {event.location}
+        {event.name ? ` (${event.name})` : ''}
       </Typography>
-      <StateText>{title}</StateText>
+      <EventStateStepper event={event} />
     </>
   )
 }

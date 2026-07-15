@@ -148,6 +148,7 @@
       "name": "class",
       "places": "places"
     },
+    "classProgress": "{{completed}}/{{total}}{{classes}}",
     "contactInfo": "Contact information",
     "cost": "Fee",
     "costMember": "members",
@@ -181,6 +182,7 @@
     "name": "Name",
     "official": "Chief officer",
     "organizer": "Organizer",
+    "phase": "Event phase",
     "places": "Places",
     "priority": "Priorities",
     "saved": "Changes saved",
