@@ -96,6 +96,10 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   }, [i18n.language, selectedTemplate?.ses])
   const previewData = useRegistrationEmailTemplateData(registrations[0], { ...event, contactInfo }, '', text)
   const invitationAttachments = useMemo(() => getInvitationAttachments(event, registrations), [event, registrations])
+  const recipientClasses = useMemo(
+    () => [...new Set(registrations.map((registration) => getRegistrationClass(registration)))],
+    [registrations]
+  )
 
   useEffect(() => {
     if (templateId && templates?.length) {
@@ -189,7 +193,14 @@ export default function SendMessageDialog({ event, registrations, templateId, op
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg">
-      <DialogTitle>Viestin lähettäminen</DialogTitle>
+      <DialogTitle>
+        Viestin lähettäminen
+        {recipientClasses.length > 0 && (
+          <Typography component="div" variant="subtitle1">
+            {`${recipientClasses.length === 1 ? 'Luokka' : 'Luokat'}: ${recipientClasses.join(', ')}`}
+          </Typography>
+        )}
+      </DialogTitle>
       <DialogContent>
         <Stack direction="row" justifyContent="space-between" spacing={2}>
           <Box sx={{ width: '40%' }}>

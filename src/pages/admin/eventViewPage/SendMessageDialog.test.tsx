@@ -128,6 +128,20 @@ describe('SendMessageDialog', () => {
     expect(baseElement).toMatchSnapshot()
   })
 
+  it('shows the recipient class explicitly', async () => {
+    render(
+      <SendMessageDialog
+        registrations={[registrationWithStaticDatesAndClass]}
+        open={true}
+        event={eventWithStaticDatesAndClass}
+      />,
+      { wrapper: createWrapper() }
+    )
+    await flushPromises()
+
+    expect(screen.getByText('Luokka: ALO')).toBeInTheDocument()
+  })
+
   it('renders a selected template preview when templates are loaded', async () => {
     const { baseElement } = render(
       <SendMessageDialog
