@@ -88,6 +88,30 @@ describe('table.ts', () => {
       expect(result.tagName).toBe('table')
     })
 
+    it('should omit alignment when a column has no alignment', () => {
+      const table = {
+        align: [null],
+        children: [
+          {
+            children: [{ children: [{ type: 'text', value: 'Header' }], type: 'tableCell' }],
+            type: 'tableRow',
+          },
+          {
+            children: [{ children: [{ type: 'text', value: 'Cell' }], type: 'tableCell' }],
+            type: 'tableRow',
+          },
+        ],
+        type: 'table',
+      }
+
+      const result = tableHandler(mockState, table, undefined) as any
+      const tbody = result.children.find((child: any) => child.type === 'element' && child.tagName === 'tbody')
+      const row = tbody.children.find((child: any) => child.type === 'element' && child.tagName === 'tr')
+      const cell = row.children.find((child: any) => child.type === 'element')
+
+      expect(cell.properties.align).toBeUndefined()
+    })
+
     it('should handle empty cells', () => {
       // Create a table with empty cells
       const table = {

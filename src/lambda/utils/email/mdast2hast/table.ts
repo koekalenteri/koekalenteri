@@ -22,7 +22,7 @@ export const tableHandler: Handler = (state, node: Table, _parent) => {
       const name = cellIndex === 0 ? 'th' : 'td'
       out.push({
         children: cell ? all(state, cell) : [],
-        properties: { align: align[cellIndex] },
+        properties: { align: align[cellIndex] ?? undefined },
         tagName: name,
         type: 'element',
       })
