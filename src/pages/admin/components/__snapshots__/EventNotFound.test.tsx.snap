@@ -29,12 +29,12 @@ exports[`EventNotFound renders with error message 1`] = `
           <h1
             class="MuiTypography-root MuiTypography-h4 MuiTypography-gutterBottom css-kyi0tw-MuiTypography-root"
           >
-            Tapahtumaa ei löydy
+            Tapahtumaa ei löydy.
           </h1>
           <p
             class="MuiTypography-root MuiTypography-body1 css-1gawtjx-MuiTypography-root"
           >
-            Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia
+            Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia.
           </p>
           <a
             class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1l4qv32-MuiButtonBase-root-MuiButton-root"

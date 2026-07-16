@@ -39,7 +39,7 @@ exports[`ErrorPage should render 500 1`] = `
     <h1
       class="MuiTypography-root MuiTypography-h1 css-sbeosn-MuiTypography-root"
     >
-      Oops
+      error.somethingWentWrong
     </h1>
     <div
       class="MuiBox-root css-mro3c9"

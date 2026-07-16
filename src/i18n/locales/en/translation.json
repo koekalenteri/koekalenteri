@@ -132,10 +132,11 @@
   "entryUpcoming": "Upcoming registration",
   "error": {
     "entryNotOpen": "Entry is not open",
-    "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied",
-    "eventNotFound": "Event not found",
-    "eventWithIdNotFound": "Event with ID {{id}} not found",
-    "registrationNotFound": "Registration not found"
+    "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied.",
+    "eventNotFound": "Event not found.",
+    "registrationNotFound": "Registration not found.",
+    "somethingWentWrong": "Something went wrong.",
+    "startListNotAvailable": "The start list is not available for this event."
   },
   "event": {
     "attachments": "Attachments",
@@ -304,9 +305,7 @@
     "error412": "Payment provider is not configured for this event",
     "error500": "Payment could not be created, please try again later",
     "error501MerchantInactive": "The association's payment service contract is not active. The registration could not be received. Please contact the trial secretary {{contact}}",
-    "eventNotFound": "Event {{id}} not found.",
-    "registrationNotFound": "Registration {{registrationId}} not found.",
-    "somethingWentWrong": "Something went wrong"
+    "registrationNotFound": "Registration {{registrationId}} not found."
   },
   "paymentStatus": {
     "missing": "Test payment is still missing",

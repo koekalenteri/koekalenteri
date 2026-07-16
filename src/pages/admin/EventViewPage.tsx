@@ -138,7 +138,7 @@ export default function EventViewPage() {
   }, [allClasses, currentEventClass, selectedEventClass, setSelectedEventClass, setSelectedRegistrationId])
 
   if (!event?.id) {
-    return <EventNotFound eventId={eventId} />
+    return <EventNotFound />
   }
 
   return (

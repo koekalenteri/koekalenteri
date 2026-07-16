@@ -19,7 +19,7 @@ export default function EventEditPage() {
   })
 
   if (!event?.id) {
-    return <EventNotFound eventId={eventId} />
+    return <EventNotFound />
   }
 
   return (

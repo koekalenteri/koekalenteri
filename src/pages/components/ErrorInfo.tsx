@@ -27,7 +27,7 @@ export const ErrorInfo = () => {
   }
   return (
     <>
-      <Typography variant="h1">Oops</Typography>
+      <Typography variant="h1">{t('error.somethingWentWrong')}</Typography>
       <LinkButton to="/" text={t('goHome')}></LinkButton>
     </>
   )

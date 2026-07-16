@@ -1,5 +1,6 @@
 import type { PublicRegistration } from '../types/Registration'
 import Box from '@mui/material/Box'
+import { useTranslation } from 'react-i18next'
 import { type Params, useLoaderData, useParams } from 'react-router'
 import { getStartList } from '../api/registration'
 import { isStartListAvailable } from '../lib/event'
@@ -12,6 +13,7 @@ export const startListLoader = async ({ params }: { params: Params<string> }) =>
   params.id ? getStartList(params.id) : []
 
 export const StartListPage = () => {
+  const { t } = useTranslation()
   const { id } = useParams()
   const event = useConfirmedEvent(id)
   const participants: PublicRegistration[] = useLoaderData()
@@ -22,11 +24,11 @@ export const StartListPage = () => {
   }
 
   if (event === null) {
-    return <>Tapahtumaa {id} ei löydy.</>
+    return <>{t('error.eventNotFound')}</>
   }
 
   if (!isStartListAvailable(event)) {
-    return <>Starttilistaa ei ole saatavilla tälle tapahtumalle</>
+    return <>{t('error.startListNotAvailable')}</>
   }
 
   return (

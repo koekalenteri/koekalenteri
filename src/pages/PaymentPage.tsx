@@ -58,7 +58,6 @@ const paymentErrorStatusKey = {
 } as const
 
 export const PaymentPageWithData = ({
-  id,
   registrationId,
   event,
   registration,
@@ -76,7 +75,7 @@ export const PaymentPageWithData = ({
   }, [language, registration?.language, registration, setLanguage])
 
   if (!event) {
-    return <>{t('paymentPage.eventNotFound', { id })}</>
+    return <>{t('error.eventNotFound')}</>
   }
 
   if (!registration) {
@@ -122,7 +121,7 @@ export const PaymentPageWithData = ({
   }
 
   if (!response?.groups) {
-    return <>{t('paymentPage.somethingWentWrong')}</>
+    return <>{t('error.somethingWentWrong')}</>
   }
 
   return (

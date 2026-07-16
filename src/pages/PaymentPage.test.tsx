@@ -128,7 +128,7 @@ describe('PaymentPage', () => {
 
       await flushPromises()
 
-      expect(container).toHaveTextContent('paymentPage.eventNotFound id')
+      expect(container).toHaveTextContent('error.eventNotFound')
     })
 
     it('should show error message when registration is not found', async () => {
@@ -202,7 +202,7 @@ describe('PaymentPage', () => {
 
       await flushPromises()
 
-      expect(container).toHaveTextContent('paymentPage.somethingWentWrong')
+      expect(container).toHaveTextContent('error.somethingWentWrong')
     })
 
     it('should show waiting message when payment is after confirmation but registration not confirmed', async () => {

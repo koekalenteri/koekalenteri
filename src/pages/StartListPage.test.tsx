@@ -121,7 +121,7 @@ describe('StartListPage', () => {
     render(<StartListPage />)
 
     // Check that error message is rendered
-    expect(screen.getByText(/Tapahtumaa event-1 ei löydy/)).toBeInTheDocument()
+    expect(screen.getByText('error.eventNotFound')).toBeInTheDocument()
   })
 
   it('shows loading indicator while event is loading', () => {
@@ -130,7 +130,7 @@ describe('StartListPage', () => {
     render(<StartListPage />)
 
     expect(screen.getByRole('progressbar')).toBeInTheDocument()
-    expect(screen.queryByText(/Tapahtumaa event-1 ei löydy/)).not.toBeInTheDocument()
+    expect(screen.queryByText('error.eventNotFound')).not.toBeInTheDocument()
   })
 
   it('shows error message when participants list is empty', () => {
@@ -143,7 +143,7 @@ describe('StartListPage', () => {
     render(<StartListPage />)
 
     // Check that error message is rendered
-    expect(screen.getByText(/Starttilistaa ei ole saatavilla tälle tapahtumalle/)).toBeInTheDocument()
+    expect(screen.getByText('error.startListNotAvailable')).toBeInTheDocument()
   })
 
   it('renders the list when participants are empty but the event has published classes', () => {
@@ -169,7 +169,7 @@ describe('StartListPage', () => {
 
     render(<StartListPage />)
 
-    expect(screen.getByText(/Starttilistaa ei ole saatavilla tälle tapahtumalle/)).toBeInTheDocument()
+    expect(screen.getByText('error.startListNotAvailable')).toBeInTheDocument()
   })
 
   it('renders the list when at least one class is published and another is unpublished', () => {

@@ -9,11 +9,7 @@ import { Link } from 'react-router'
 import { Path } from '../../../routeConfig'
 import FullPageFlex from './FullPageFlex'
 
-interface EventNotFoundProps {
-  eventId?: string
-}
-
-const EventNotFound = ({ eventId }: EventNotFoundProps) => {
+const EventNotFound = () => {
   const { t } = useTranslation()
 
   return (
@@ -39,12 +35,6 @@ const EventNotFound = ({ eventId }: EventNotFoundProps) => {
           <Typography variant="h4" component="h1" gutterBottom>
             {t('error.eventNotFound')}
           </Typography>
-
-          {eventId && (
-            <Typography variant="body1" color="text.secondary" gutterBottom>
-              {t('error.eventWithIdNotFound', { id: eventId })}
-            </Typography>
-          )}
 
           <Typography variant="body1" sx={{ mb: 4, mt: 2 }}>
             {t('error.eventMayHaveBeenDeleted')}
