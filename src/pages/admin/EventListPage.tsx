@@ -1,4 +1,5 @@
 import type { GridRowSelectionModel } from '@mui/x-data-grid'
+import type { DogEvent } from '../../types'
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
 import DeleteOutline from '@mui/icons-material/DeleteOutline'
@@ -15,6 +16,7 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { formatDistance } from '../../i18n/dates'
 import { isDevEnv } from '../../lib/env'
 import { isEventDeletable } from '../../lib/event'
+import { hasEntryStarted } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
 import StyledDataGrid from '../components/StyledDataGrid'
@@ -34,6 +36,9 @@ import {
   useAdminEventActions,
 } from './recoil'
 import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
+
+export const getEventDoubleClickPath = (event: Pick<DogEvent, 'entryStartDate' | 'id'>, now = new Date()): string =>
+  hasEntryStarted(event, now) ? Path.admin.viewEvent(event.id) : Path.admin.editEvent(event.id)
 
 export default function EventListPage() {
   const confirm = useConfirm()
@@ -93,12 +98,8 @@ export default function EventListPage() {
 
   const handleDoubleClick = useCallback(() => {
     if (!selectedEvent) return
-    if (selectedEvent.entries) {
-      viewAction()
-    } else {
-      editAction()
-    }
-  }, [editAction, selectedEvent, viewAction])
+    navigate(getEventDoubleClickPath(selectedEvent))
+  }, [navigate, selectedEvent])
 
   const handleSelectionModeChange = useCallback(
     (selection: GridRowSelectionModel) => {

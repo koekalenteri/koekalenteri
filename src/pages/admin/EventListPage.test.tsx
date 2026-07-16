@@ -5,9 +5,14 @@ import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
+import {
+  eventWithEntryClosed,
+  eventWithEntryNotYetOpen,
+  eventWithEntryOpenButNoEntries,
+} from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { flushPromises, RecoilObserver, renderWithUserEvents } from '../../test-utils/utils'
-import EventListPage from './EventListPage'
+import EventListPage, { getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 
 jest.mock('../../api/event')
@@ -53,5 +58,15 @@ describe('EventListPage', () => {
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(onChange).toHaveBeenCalledWith(undefined)
     expect(onChange).toHaveBeenCalledWith('testEntryClosed')
+  })
+
+  it('selects the double-click destination based on the entry start date', () => {
+    expect(getEventDoubleClickPath(eventWithEntryOpenButNoEntries, eventWithEntryOpenButNoEntries.entryStartDate)).toBe(
+      '/admin/event/view/test3'
+    )
+    expect(getEventDoubleClickPath(eventWithEntryClosed)).toBe('/admin/event/view/testEntryClosed')
+
+    const justBeforeEntryStarts = new Date(eventWithEntryNotYetOpen.entryStartDate.valueOf() - 1)
+    expect(getEventDoubleClickPath(eventWithEntryNotYetOpen, justBeforeEntryStarts)).toBe('/admin/event/edit/test4')
   })
 })
