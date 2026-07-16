@@ -5,6 +5,7 @@ import {
   getRegistration,
   getRegistrations,
   getStartList,
+  getStartListPreview,
   putAdminRegistration,
   putRegistration,
   putRegistrationGroups,
@@ -194,5 +195,12 @@ describe('getStartList', () => {
     await getStartList('test-id')
     expect(fetchMock.mock.calls.length).toEqual(1)
     expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/startlist/test-id`)
+  })
+
+  it('should call authenticated preview endpoint', async () => {
+    await getStartListPreview('test-id', 'test-token')
+    expect(fetchMock.mock.calls.length).toEqual(1)
+    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/startlist/test-id`)
+    expect(fetchMock.mock.calls[0][1]?.headers).toEqual(expect.objectContaining({ Authorization: 'Bearer test-token' }))
   })
 })

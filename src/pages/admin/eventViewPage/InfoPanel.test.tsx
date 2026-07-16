@@ -127,6 +127,18 @@ describe('InfoPanel>', () => {
     expect(onOpenDetails).toHaveBeenCalledTimes(1)
   })
 
+  it('links to the authenticated public start list preview', async () => {
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('link', { name: 'Katso julkinen starttilista' })).toHaveAttribute(
+      'href',
+      `/admin/event/startlist-preview/${eventWithStaticDates.id}`
+    )
+  })
+
   it('expands and collapses correctly', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,

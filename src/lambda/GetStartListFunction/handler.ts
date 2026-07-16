@@ -1,13 +1,24 @@
 import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
 import { isStartListAvailable, isStartListAvailableForClass } from '../../lib/event'
+import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
-import { getParam, lambda, response } from '../lib/lambda'
+import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId } from '../lib/registration'
 
 const getStartListLambda = lambda('getStartList', async (event) => {
+  const preview = event.resource === '/admin/startlist/{eventId}'
+  const auth = preview ? await authorizeWithMemberOf(event) : undefined
+  if (auth?.res) {
+    return auth.res
+  }
+
   const eventId = getParam(event, 'eventId')
   const confirmedEvent = await getEvent(eventId)
-  const startListAvailable = isStartListAvailable(confirmedEvent)
+  if (auth?.user && !auth.user.admin && !auth.memberOf?.includes(confirmedEvent.organizer.id)) {
+    throw new LambdaError(403, 'Forbidden')
+  }
+
+  const startListAvailable = preview || isStartListAvailable(confirmedEvent)
   let publicRegs: JsonPublicRegistration[] = []
 
   if (startListAvailable) {
@@ -20,6 +31,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         .filter((reg) => {
           const eventClasses = confirmedEvent.classes?.filter((eventClass) => eventClass.class === reg.class) ?? []
           if (!eventClasses.length) return !confirmedEvent.classes?.length && startListAvailable
+          if (preview) return true
 
           return eventClasses.some((eventClass) => isStartListAvailableForClass(confirmedEvent, eventClass))
         })

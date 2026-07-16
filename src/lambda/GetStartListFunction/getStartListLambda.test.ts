@@ -3,6 +3,7 @@ import { jest } from '@jest/globals'
 const mockGetParam = jest.fn<any>()
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockGetStartListPublishedClassMap = jest.fn<any>()
@@ -26,6 +27,10 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
+}))
+
+jest.unstable_mockModule('../lib/auth', () => ({
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../../lib/event', () => ({
@@ -52,7 +57,85 @@ describe('getStartListLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org123'],
+      user: { id: 'user123', roles: { org123: 'secretary' } },
+    })
     mockIsStartListAvailableForClass.mockReturnValue(true)
+  })
+
+  it('returns unpublished registrations through the authenticated preview route', async () => {
+    const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
+    const confirmedEvent = {
+      classes: [{ class: 'ALO', state: 'confirmed' }],
+      id: 'event123',
+      organizer: { id: 'org123' },
+      startListPublished: { ALO: false },
+      state: 'confirmed',
+    }
+    const registration = {
+      cancelled: false,
+      class: 'ALO',
+      dog: { name: 'Dog 1', regNo: 'REG1' },
+      eventId: 'event123',
+      group: { date: '2025-01-01', key: 'ALO', number: 1 },
+      handler: { name: 'Handler 1' },
+      owner: { name: 'Owner 1' },
+    }
+
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
+    mockQuery.mockResolvedValueOnce([
+      registration,
+      {
+        ...registration,
+        class: 'AVO',
+        dog: { name: 'Old class dog', regNo: 'REG2' },
+        group: { ...registration.group, number: 2 },
+      },
+    ])
+
+    await getStartListLambda(previewEvent)
+
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(previewEvent)
+    expect(mockIsStartListAvailable).not.toHaveBeenCalled()
+    expect(mockIsStartListAvailableForClass).not.toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      [
+        {
+          breeder: undefined,
+          class: 'ALO',
+          dog: { name: 'Dog 1', regNo: 'REG1' },
+          group: { date: '2025-01-01', key: 'ALO', number: 1 },
+          handler: 'Handler 1',
+          owner: 'Owner 1',
+          ownerHandles: undefined,
+        },
+      ],
+      previewEvent
+    )
+  })
+
+  it('rejects an unauthenticated preview request', async () => {
+    const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
+    const unauthorizedResponse = { statusCode: 401 }
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: unauthorizedResponse })
+
+    await expect(getStartListLambda(previewEvent)).resolves.toBe(unauthorizedResponse)
+
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockQuery).not.toHaveBeenCalled()
+  })
+
+  it("forbids previewing another organizer's event", async () => {
+    const previewEvent = { ...event, resource: '/admin/startlist/{eventId}' }
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce({ id: 'event123', organizer: { id: 'another-org' } })
+
+    await expect(getStartListLambda(previewEvent)).rejects.toThrow('Forbidden')
+
+    expect(mockQuery).not.toHaveBeenCalled()
   })
 
   it('returns 404 if start list is not available', async () => {

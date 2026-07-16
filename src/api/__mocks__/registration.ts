@@ -142,3 +142,7 @@ export async function getStartList(eventId: string, _token?: string, _signal?: A
     }
   })
 }
+
+export const getStartListPreview = jest.fn(
+  async (eventId: string, _token: string, _signal?: AbortSignal): Promise<Registration[]> => getStartList(eventId)
+)

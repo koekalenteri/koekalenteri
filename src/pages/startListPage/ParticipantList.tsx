@@ -21,17 +21,21 @@ import { TimeHeader } from './TimeHeader'
 interface ParticipantListProps {
   participants: PublicRegistration[]
   event: PublicConfirmedEvent
+  includeUnpublished?: boolean
 }
 
 type StartListItem =
   | { date: Date; order: number; registration: PublicRegistration; type: 'registration' }
   | { date: Date; eventClass: EventClass; order: number; type: 'emptyClass' }
 
-export const ParticipantList = ({ participants, event }: ParticipantListProps) => {
+export const ParticipantList = ({ participants, event, includeUnpublished = false }: ParticipantListProps) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copyText = useMemo(() => formatStartList(participants, event, t), [event, participants, t])
-  const startListItems = useMemo(() => getStartListItems(participants, event), [event, participants])
+  const startListItems = useMemo(
+    () => getStartListItems(participants, event, includeUnpublished),
+    [event, includeUnpublished, participants]
+  )
   let lastDate: Date | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
@@ -181,7 +185,11 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
   return lines.join('\n')
 }
 
-function getStartListItems(participants: PublicRegistration[], event: PublicConfirmedEvent): StartListItem[] {
+function getStartListItems(
+  participants: PublicRegistration[],
+  event: PublicConfirmedEvent,
+  includeUnpublished: boolean = false
+): StartListItem[] {
   const participantClassDates = new Set(
     participants.map((reg) => classDateKey(reg.class, reg.group.date ?? event.startDate))
   )
@@ -198,7 +206,7 @@ function getStartListItems(participants: PublicRegistration[], event: PublicConf
     if (
       includedClasses.has(key) ||
       participantClassDates.has(key) ||
-      !isStartListAvailableForClass(event, eventClass)
+      (!includeUnpublished && !isStartListAvailableForClass(event, eventClass))
     ) {
       return []
     }

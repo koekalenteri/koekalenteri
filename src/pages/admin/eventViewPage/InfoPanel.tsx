@@ -519,6 +519,16 @@ const InfoPanel = ({
             >
               Sihteerin starttilista
             </Button>
+            <Button
+              fullWidth
+              href={Path.admin.startListPreview(event.id)}
+              startIcon={<FormatListNumberedOutlined />}
+              sx={actionButtonSx}
+              target="_blank"
+              variant="outlined"
+            >
+              Katso julkinen starttilista
+            </Button>
           </Stack>
         </Box>
 

@@ -150,6 +150,12 @@ exports[`routes should match a snapshot 1`] = `
     "path": "/admin/event/startlist/:id",
   },
   {
+    "errorElement": <ErrorPage />,
+    "hydrateFallbackElement": <ForwardRef />,
+    "lazy": [Function],
+    "path": "/admin/event/startlist-preview/:id",
+  },
+  {
     "element": <StartListPage />,
     "errorElement": <ErrorPage />,
     "hydrateFallbackElement": <ForwardRef />,

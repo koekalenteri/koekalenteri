@@ -36,6 +36,7 @@ export const Path = {
     orgs: `${ADMIN_ROOT}/organizations`,
     root: ADMIN_ROOT,
     startList: (id: string = ':id') => `${ADMIN_EVENTS}/startlist/${id}`,
+    startListPreview: (id: string = ':id') => `${ADMIN_EVENTS}/startlist-preview/${id}`,
     users: `${ADMIN_ROOT}/users`,
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
   },

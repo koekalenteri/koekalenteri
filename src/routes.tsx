@@ -174,6 +174,15 @@ const routes: RouteObject[] = [
     path: Path.admin.startList(':id'),
   },
   {
+    errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingIndicator />,
+    lazy: () =>
+      reloadOnChunkLoadError(async () => ({
+        Component: (await import(/* webpackChunkName: "admin" */ './pages/admin/StartListPreviewPage')).default,
+      })),
+    path: Path.admin.startListPreview(':id'),
+  },
+  {
     element: <StartListPage />,
     errorElement: <ErrorPage />,
     hydrateFallbackElement: <LoadingIndicator />,

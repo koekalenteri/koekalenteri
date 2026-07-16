@@ -11,6 +11,10 @@
             TableName: !Ref EventRegistrationTable
         - DynamoDBReadPolicy:
             TableName: !Ref EventTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UserLinkTable
         - CloudWatchPutMetricPolicy: {}
       Events:
         GetRegistration:
@@ -19,6 +23,14 @@
             Path: /startlist/{eventId}
             Method: GET
             RestApiId: !Ref KoekalenteriApi
+        PreviewStartList:
+          Type: Api
+          Properties:
+            Path: /admin/startlist/{eventId}
+            Method: GET
+            RestApiId: !Ref KoekalenteriApi
+            Auth:
+              Authorizer: CognitoAuthorizer
 
   GetStartListFunctionLogGroup:
     Type: AWS::Logs::LogGroup

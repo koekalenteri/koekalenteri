@@ -219,6 +219,22 @@ describe('ParticipantList', () => {
     expect(screen.queryByText('VOI unpublished')).not.toBeInTheDocument()
   })
 
+  it('renders unpublished empty classes in preview mode', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: false, VOI: false } }}
+        includeUnpublished
+      />
+    )
+
+    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+  })
+
   it('renders a published event class even when it has no public participants', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),

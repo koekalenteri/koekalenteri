@@ -121,6 +121,14 @@ export async function getStartList(
   return http.get<PublicRegistration[]>(`/startlist/${eventId}`, withToken({ signal }, token))
 }
 
+export async function getStartListPreview(
+  eventId: string,
+  token: string,
+  signal?: AbortSignal
+): Promise<PublicRegistration[]> {
+  return http.get<PublicRegistration[]>(`/admin/startlist/${eventId}`, withToken({ signal }, token))
+}
+
 export const getRegistrationTransactions = async (
   eventId: string,
   id: string,
