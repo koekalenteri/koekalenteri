@@ -314,6 +314,23 @@ describe('putEventLambda', () => {
     expect(patchEventMock).not.toHaveBeenCalled()
   })
 
+  it.each(['classes', 'judges'] as const)('should return 400 when %s is not an array', async (field) => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+
+    const res = await putEventLambda(
+      constructAPIGwEvent(
+        { id: 'existing', [field]: { 0: { name: 'Invalid sparse array' } } } as unknown as Partial<JsonDogEvent>,
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toEqual(400)
+    expect(JSON.parse(res.body)).toEqual({ message: `Bad request: ${field} must be an array` })
+    expect(getEventMock).not.toHaveBeenCalled()
+    expect(saveEventMock).not.toHaveBeenCalled()
+    expect(patchEventMock).not.toHaveBeenCalled()
+  })
+
   it('should merge partial patch payloads before diffing and saving', async () => {
     const existing = {
       ...mockEvent,

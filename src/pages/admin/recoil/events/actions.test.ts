@@ -11,6 +11,22 @@ describe('buildEventSavePatch', () => {
       kcId: null,
     })
   })
+
+  it('materializes arrays from sparse form diffs', () => {
+    const current = {
+      ...eventWithStaticDates,
+      classes: [{ class: 'ALO' as const, date: eventWithStaticDates.startDate, places: 1 }],
+    }
+    const event = {
+      ...current,
+      classes: [{ class: 'ALO' as const, date: eventWithStaticDates.startDate, places: 2 }],
+    }
+
+    expect(buildEventSavePatch(event, current, { classes: { 0: { places: 2 } } } as any)).toEqual({
+      classes: event.classes,
+      id: current.id,
+    })
+  })
 })
 
 describe('buildStartListClassPublishedPatch', () => {

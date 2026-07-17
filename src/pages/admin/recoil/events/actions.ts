@@ -16,15 +16,22 @@ import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
 import { adminEventIdAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventSelector } from './selectors'
 
-export const buildEventSavePatch = (event: Patch<DogEvent>, currentAdminEvent?: DogEvent | null): Patch<DogEvent> => {
+export const buildEventSavePatch = (
+  event: Patch<DogEvent>,
+  currentAdminEvent?: DogEvent | null,
+  formChanges?: Patch<DogEvent>
+): Patch<DogEvent> => {
   if (!event.id || event.id !== currentAdminEvent?.id) {
     return event
   }
 
-  const changedKeys = Object.keys(diff(currentAdminEvent, event))
+  const changedKeys = Object.keys(formChanges ?? diff(currentAdminEvent, event))
   const changes: Patch<DogEvent> = { id: event.id }
   for (const key of changedKeys) {
-    const value = (event as Record<string, unknown>)[key]
+    const value =
+      key === 'modifiedAt' && formChanges
+        ? (formChanges as Record<string, unknown>)[key]
+        : (event as Record<string, unknown>)[key]
     ;(changes as Record<string, unknown>)[key] = value === undefined ? null : value
   }
   return changes
@@ -111,7 +118,7 @@ export const useAdminEventActions = () => {
   }
 
   async function save(event: Patch<DogEvent>, formChanges?: Patch<DogEvent>): Promise<DogEvent | undefined> {
-    const changes = formChanges ? { id: event.id, ...formChanges } : buildEventSavePatch(event, currentAdminEvent)
+    const changes = buildEventSavePatch(event, currentAdminEvent, formChanges)
     const saved = await putEvent(changes, token)
     setAdminEventId(saved.id)
     setCurrentAdminEvent(saved)

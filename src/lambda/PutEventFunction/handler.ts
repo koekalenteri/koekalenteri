@@ -35,6 +35,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
     return response(400, { message: 'Bad request: PATCH requires id' }, event)
   }
 
+  const invalidArrayField = (['classes', 'judges'] as const).find(
+    (field) => Object.hasOwn(item, field) && !Array.isArray(item[field])
+  )
+  if (invalidArrayField) {
+    return response(400, { message: `Bad request: ${invalidArrayField} must be an array` }, event)
+  }
+
   const existing = item.id ? await getEvent<JsonConfirmedEvent>(item.id) : undefined
 
   if (isUserForbidden(user, existing, item)) {

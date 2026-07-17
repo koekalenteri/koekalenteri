@@ -55,13 +55,16 @@ export const isEventOver = ({ endDate }: EventVitals, now = new Date()) => !!end
 
 export const eventDates = (event?: Pick<PublicDogEvent, 'classes' | 'startDate' | 'endDate'> | null) => {
   if (!event) return []
-  return event.classes.length
-    ? uniqueDate(event.classes.map((c) => c.date ?? event.startDate))
+  const classes = Array.isArray(event.classes) ? event.classes : []
+  return classes.length
+    ? uniqueDate(classes.map((c) => c.date ?? event.startDate))
     : eachDayOfInterval({ end: event.endDate, start: event.startDate })
 }
 
-export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'> | null) =>
-  unique((event?.classes ?? []).map((c) => c.class))
+export const uniqueClasses = (event?: Pick<PublicDogEvent, 'classes'> | null) => {
+  const classes = event?.classes
+  return Array.isArray(classes) ? unique(classes.map((c) => c.class)) : []
+}
 
 export const placesForClass = (
   event: DeepPartial<Pick<PublicDogEvent, 'places' | 'classes'>> | undefined | null,
@@ -71,17 +74,19 @@ export const placesForClass = (
     return 0
   }
 
+  const classes = Array.isArray(event.classes) ? event.classes : []
   return (
-    (event.classes ?? []).filter((c) => c.class === cls).reduce((acc, cur) => acc + (Number(cur.places) || 0), 0) ||
+    classes.filter((c) => c.class === cls).reduce((acc, cur) => acc + (Number(cur.places) || 0), 0) ||
     Number(event.places) ||
     0
   )
 }
 
-export const uniqueClassDates = (event: PublicDogEvent, cls: string) =>
-  cls === event.eventType
-    ? eventDates(event)
-    : uniqueDate(event.classes.filter((c) => c.class === cls).map((c) => c.date ?? event.startDate))
+export const uniqueClassDates = (event: PublicDogEvent, cls: string) => {
+  if (cls === event.eventType) return eventDates(event)
+  const classes = Array.isArray(event.classes) ? event.classes : []
+  return uniqueDate(classes.filter((c) => c.class === cls).map((c) => c.date ?? event.startDate))
+}
 
 export const registrationDates = (event: PublicDogEvent, times: RegistrationTime[], cls?: string | null) =>
   (cls ? uniqueClassDates(event, cls) : eventDates(event)).flatMap<RegistrationDate>((date) =>

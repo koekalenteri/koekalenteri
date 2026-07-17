@@ -22,9 +22,22 @@ import {
   patchMerge,
   placesForClass,
   registrationDates,
+  uniqueClasses,
 } from './utils'
 
 describe('utils', () => {
+  describe('uniqueClasses', () => {
+    it('returns each class once', () => {
+      expect(
+        uniqueClasses({ classes: [{ class: 'ALO' }, { class: 'AVO' }, { class: 'ALO' }] } as PublicDogEvent)
+      ).toEqual(['ALO', 'AVO'])
+    })
+
+    it('returns an empty array for malformed classes', () => {
+      expect(uniqueClasses({ classes: {} } as unknown as PublicDogEvent)).toEqual([])
+    })
+  })
+
   describe('isDateString', () => {
     it.each(['2016-09-18T17:34:02.666Z', '2021-05-10T09:05:12.000Z', '2016-12-31T23:59:60+00:00', '2018-06-19T04:06Z'])(
       'should return true for valid date string: %p',
@@ -332,6 +345,7 @@ describe('utils', () => {
       ${null}
       ${undefined}
       ${{}}
+      ${{ classes: {} }}
     `('should return 0 when event is $event', ({ event }) => {
       expect(placesForClass(event, 'ALO')).toEqual(0)
     })
