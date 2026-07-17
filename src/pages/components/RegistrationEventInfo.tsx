@@ -1,4 +1,4 @@
-import type { ConfirmedEvent, PublicDogEvent } from '../../types'
+import type { PublicDogEvent } from '../../types'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Grid from '@mui/material/Grid'
 import Link from '@mui/material/Link'
@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { getEventStateForClass } from '../../lib/event'
 import { judgeName } from '../../lib/judge'
 import { printContactInfo } from '../../lib/utils'
-import { Path } from '../../routeConfig'
+import { invitationAttachmentFileName, Path } from '../../routeConfig'
 import { CollapsibleEvent } from './CollapsibleEvent'
 import CostInfo from './CostInfo'
 import { EntryStatus } from './EntryStatus'
@@ -57,6 +57,15 @@ const Header = ({ event }: HeaderProps) => {
 export default function RegistrationEventInfo({ event, eventClass, hideCostInfo, invitationAttachment }: Props) {
   const { t } = useTranslation()
   const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges, t])
+  const attachmentEvent = invitationAttachment
+    ? {
+        class: event.classes.find((item) => item.class === eventClass)?.class,
+        dates: event.dates,
+        eventType: event.eventType,
+        invitationAttachment,
+        startDate: event.startDate,
+      }
+    : undefined
 
   return (
     <CollapsibleEvent eventId={event.id} header={<Header event={event} />}>
@@ -88,17 +97,17 @@ export default function RegistrationEventInfo({ event, eventClass, hideCostInfo,
         {event.description ? (
           <ItemWithCaption label={t('event.description')}>{event.description}</ItemWithCaption>
         ) : null}
-        {invitationAttachment && getEventStateForClass(event, eventClass) === 'invited' ? (
+        {attachmentEvent && getEventStateForClass(event, eventClass) === 'invited' ? (
           <ItemWithCaption label={t('event.attachments')}>
             <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
             <Link
-              href={Path.invitationAttachment({ ...event, invitationAttachment } as ConfirmedEvent)}
+              href={Path.invitationAttachment(attachmentEvent)}
               rel="noopener"
               target="_blank"
               type="application/pdf"
               variant="caption"
             >
-              Kutsu.pdf
+              {invitationAttachmentFileName(attachmentEvent)}
             </Link>
           </ItemWithCaption>
         ) : null}

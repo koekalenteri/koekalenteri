@@ -73,9 +73,9 @@ describe('RegistrationEventInfo', () => {
     })
     await flushPromises()
 
-    expect(screen.getByText('Kutsu.pdf').closest('a')).toHaveAttribute(
+    expect(screen.getByText('koekutsu-20210210-NOU-ALO.pdf').closest('a')).toHaveAttribute(
       'href',
-      expect.stringContaining('/file/alo-attachment/')
+      expect.stringContaining('/file/alo-attachment/koekutsu-20210210-NOU-ALO.pdf')
     )
   })
 })
