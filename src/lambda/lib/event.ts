@@ -147,6 +147,13 @@ export const markParticipants = async (
   eventClass?: Registration['class']
 ) => {
   const eventKey = { id: confirmedEvent.id }
+
+  // Sending invitations must not implicitly publish the start list. Keep any
+  // publication choice already made by the secretary.
+  if (state === 'invited' && confirmedEvent.startListPublished === undefined) {
+    confirmedEvent.startListPublished = false
+  }
+
   let allInvited = true
   if (eventClass) {
     for (const c of confirmedEvent.classes) {
@@ -166,6 +173,7 @@ export const markParticipants = async (
       set: {
         classes: confirmedEvent.classes,
         state: confirmedEvent.state,
+        ...(state === 'invited' ? { startListPublished: confirmedEvent.startListPublished } : {}),
         updatedAt: new Date().toISOString(),
       },
     },

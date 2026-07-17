@@ -20,6 +20,7 @@ const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonDogEvent>>()
 const mockUpdateEventStatsForRegistration = jest.fn()
 const mockUpdateRegistrations = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn()
+const mockDynamoDBQuery = jest.fn<any>().mockResolvedValue([])
 const mockDynamoDBWrite = jest.fn()
 const mockDynamoDBUpdate = jest.fn()
 
@@ -38,6 +39,7 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
+    query: mockDynamoDBQuery,
     update: mockDynamoDBUpdate,
     write: mockDynamoDBWrite,
   })),

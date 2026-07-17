@@ -174,6 +174,7 @@ describe('lib/event', () => {
         {
           set: {
             classes: event.classes,
+            startListPublished: false,
             state: event.state,
             updatedAt: expect.any(String),
           },
@@ -194,6 +195,74 @@ describe('lib/event', () => {
       await markParticipants(event, 'invited', 'ALO')
       expect(event.classes.find((c) => c.class === 'ALO')?.state).toBe('invited')
       expect(event.classes.find((c) => c.class === 'VOI')?.state).toBe('pending')
+    })
+
+    it('keeps new class start lists unpublished when invitations advance their state', async () => {
+      const event = {
+        classes: [
+          { class: 'ALO', state: 'picked' },
+          { class: 'AVO', state: 'picked' },
+        ],
+        id: 'new-event',
+        state: 'confirmed',
+      } as JsonConfirmedEvent
+
+      await markParticipants(event, 'invited', 'ALO')
+
+      expect(event.startListPublished).toBe(false)
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { id: 'new-event' },
+        {
+          set: {
+            classes: event.classes,
+            startListPublished: false,
+            state: event.state,
+            updatedAt: expect.any(String),
+          },
+        },
+        expect.anything()
+      )
+    })
+
+    it('sets a missing publication value to false even when another class is already invited', async () => {
+      const event = {
+        classes: [
+          { class: 'ALO', state: 'invited' },
+          { class: 'AVO', state: 'picked' },
+        ],
+        id: 'legacy-event',
+        state: 'confirmed',
+      } as JsonConfirmedEvent
+
+      await markParticipants(event, 'invited', 'AVO')
+
+      expect(event.startListPublished).toBe(false)
+    })
+
+    it('keeps a new classless event start list unpublished when invitations are sent', async () => {
+      const event = {
+        classes: [],
+        id: 'classless-event',
+        state: 'confirmed',
+      } as unknown as JsonConfirmedEvent
+
+      await markParticipants(event, 'invited')
+
+      expect(event.state).toBe('invited')
+      expect(event.startListPublished).toBe(false)
+    })
+
+    it('does not overwrite an explicit start list publication state', async () => {
+      const event = {
+        classes: [{ class: 'ALO', state: 'picked' }],
+        id: 'published-event',
+        startListPublished: { ALO: true },
+        state: 'confirmed',
+      } as JsonConfirmedEvent
+
+      await markParticipants(event, 'invited', 'ALO')
+
+      expect(event.startListPublished).toEqual({ ALO: true })
     })
 
     it('does not update event state if not all classes have the same state', async () => {

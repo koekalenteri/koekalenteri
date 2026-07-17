@@ -1,4 +1,4 @@
-import type { Registration } from '../../types'
+import type { JsonConfirmedEvent, Registration } from '../../types'
 import { jest } from '@jest/globals'
 
 const mockLambda = jest.fn((_name, fn) => fn)
@@ -12,6 +12,7 @@ const mockGetReadyRegistrationsByEventId = jest.fn<any>()
 const mockMarkParticipants = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
+const mockUpdate = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockEventAuditKey = jest.fn<any>()
 const mockPublishEventPatch = jest.fn<any>()
@@ -71,6 +72,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     query: mockQuery,
     read: mockRead,
+    update: mockUpdate,
   })),
 }))
 
@@ -115,6 +117,7 @@ describe('sendMessagesLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    delete (mockEvent as Partial<JsonConfirmedEvent>).startListPublished
 
     // Default mock implementations
     mockAuthorize.mockResolvedValue({
@@ -133,7 +136,7 @@ describe('sendMessagesLambda', () => {
     })
 
     mockGetReadyRegistrationsByEventId.mockResolvedValue(mockRegistrations)
-    mockRead.mockResolvedValue(mockEvent)
+    mockRead.mockResolvedValue({ ...mockEvent })
 
     // Set up the messagesSent property for the mock registrations
     mockRegistrations.forEach((reg) => {
@@ -147,7 +150,9 @@ describe('sendMessagesLambda', () => {
       ok: ['recipient@example.com'],
     })
 
-    mockMarkParticipants.mockImplementation((event: any) => event)
+    mockMarkParticipants.mockImplementation((event: JsonConfirmedEvent, state: string) =>
+      state === 'invited' ? { ...event, startListPublished: event.startListPublished ?? false } : event
+    )
     mockEventAuditKey.mockImplementation((event: { id: string }) => `event:${event.id}`)
   })
 
@@ -197,7 +202,7 @@ describe('sendMessagesLambda', () => {
     )
 
     // Verify participants were marked
-    expect(mockMarkParticipants).toHaveBeenCalledWith(mockEvent, 'invited', 'ALO')
+    expect(mockMarkParticipants).toHaveBeenCalledWith(expect.objectContaining(mockEvent), 'invited', 'ALO')
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(
@@ -207,6 +212,7 @@ describe('sendMessagesLambda', () => {
         failed: [],
         ok: ['recipient@example.com'],
         registrations: mockRegistrations,
+        startListPublished: false,
         state: mockEvent.state,
       },
       event
@@ -224,8 +230,18 @@ describe('sendMessagesLambda', () => {
       user: 'Test User',
     })
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith('event123', mockRegistrations, 'org-1')
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event123' },
+      { set: { startListPublished: false } },
+      expect.any(String)
+    )
     expect(mockPublishEventPatch).toHaveBeenCalledWith(
-      { classes: mockEvent.classes, eventId: 'event123', state: mockEvent.state },
+      {
+        classes: mockEvent.classes,
+        eventId: 'event123',
+        startListPublished: false,
+        state: mockEvent.state,
+      },
       'org-1'
     )
   })
@@ -254,6 +270,7 @@ describe('sendMessagesLambda', () => {
 
     // Verify participants were marked
     expect(mockMarkParticipants).toHaveBeenCalledWith(mockEvent, 'picked', 'ALO')
+    expect(mockUpdate).not.toHaveBeenCalled()
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:event123',
       message: 'Koepaikkailmoitus lähetetty: onnistui 1, epäonnistui 0',
@@ -266,6 +283,15 @@ describe('sendMessagesLambda', () => {
       },
       user: 'Test User',
     })
+  })
+
+  it('preserves an existing start list publication value when sending invitations', async () => {
+    mockRead.mockResolvedValueOnce({ ...mockEvent, startListPublished: true })
+
+    await sendMessagesLambda(event)
+
+    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockPublishEventPatch).toHaveBeenCalledWith(expect.objectContaining({ startListPublished: true }), 'org-1')
   })
 
   it('sends reserve emails and marks registrations as notified', async () => {
@@ -342,6 +368,7 @@ describe('sendMessagesLambda', () => {
         failed: ['recipient@example.com'],
         ok: [],
         registrations: mockRegistrations,
+        startListPublished: false,
         state: mockEvent.state,
       },
       event

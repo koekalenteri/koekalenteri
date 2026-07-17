@@ -90,6 +90,17 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     ''
   )
 
+  if (template === 'invitation' && confirmedEvent.startListPublished === undefined) {
+    confirmedEvent.startListPublished = false
+    await dynamoDB.update(
+      { id: eventId },
+      {
+        set: { startListPublished: false },
+      },
+      eventTable
+    )
+  }
+
   if (template === 'reserve') {
     await setReserveNotified(registrations)
     for (const registration of registrations) {
@@ -132,13 +143,18 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   await publishRegistrationPatches(eventId, registrations, confirmedEvent.organizer.id)
   if (template === 'picked' || template === 'invitation') {
     await publishEventPatch(
-      { classes: confirmedEvent.classes, eventId, state: confirmedEvent.state },
+      {
+        classes: confirmedEvent.classes,
+        eventId,
+        state: confirmedEvent.state,
+        ...(template === 'invitation' ? { startListPublished: confirmedEvent.startListPublished } : {}),
+      },
       confirmedEvent.organizer.id
     )
   }
 
-  const { state, classes } = confirmedEvent
-  return response(200, { classes, failed, ok, registrations, state }, event)
+  const { state, classes, startListPublished } = confirmedEvent
+  return response(200, { classes, failed, ok, registrations, startListPublished, state }, event)
 })
 
 export default sendMessagesLambda
