@@ -532,16 +532,7 @@ const InfoPanel = ({
           </Stack>
         </Box>
 
-        <Box
-          sx={{
-            '& .MuiTable-root': { tableLayout: 'fixed' },
-            '& .MuiTableCell-root': { overflowWrap: 'anywhere' },
-            minWidth: 0,
-            width: '100%',
-          }}
-        >
-          <AuditTrail auditTrail={auditTrail} />
-        </Box>
+        <AuditTrail auditTrail={auditTrail} />
       </Box>
     </Drawer>
   )
