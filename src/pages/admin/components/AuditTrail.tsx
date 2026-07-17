@@ -5,11 +5,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import Box from '@mui/material/Box'
 import Collapse from '@mui/material/Collapse'
 import IconButton from '@mui/material/IconButton'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableRow from '@mui/material/TableRow'
+import { alpha } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -19,6 +15,10 @@ import CollapsibleSection from '../../components/CollapsibleSection'
 interface Props {
   auditTrail?: AuditRecord[]
 }
+
+type AuditChange = NonNullable<AuditRecord['changes']>[number]
+type AuditChangeValueData = AuditChange['previous']
+type AuditDetail = NonNullable<AuditRecord['details']>[number]
 
 const auditMessageKeys: Partial<Record<string, ParseKeys<'translation'>>> = {
   'audit.changed': 'audit.changed',
@@ -44,29 +44,32 @@ const auditDetailKeys: Partial<Record<string, ParseKeys<'translation'>>> = {
   'audit.details.failedRecipients': 'audit.details.failedRecipients',
 }
 
-export const AuditTrail = ({ auditTrail }: Props) => {
+const useAuditFormatter = () => {
   const { t } = useTranslation()
-  const [openRow, setOpenRow] = useState<string>()
 
-  if (!auditTrail) return null
-
-  const toggleRow = (id: string) => {
-    setOpenRow((current) => (current === id ? undefined : id))
-  }
-
-  const getChangeLabel = (change: NonNullable<AuditRecord['changes']>[number]) => {
+  const changeLabel = (change: AuditChange) => {
     if (!change.labelKey) return change.field
 
-    return t(change.labelKey as ParseKeys<'translation'>, { defaultValue: change.field })
+    const eventDate = change.labelParams?.eventDate
+    const labelParams = {
+      ...change.labelParams,
+      ...(eventDate ? { eventDate: formatDate(new Date(String(eventDate)), 'd.M.yyyy') } : {}),
+    }
+    return t(change.labelKey as ParseKeys<'translation'>, { ...labelParams, defaultValue: change.field })
   }
 
-  const getChangeValue = (value: NonNullable<AuditRecord['changes']>[number]['previous']) => {
+  const changeValue = (value: AuditChangeValueData) => {
     if (value.state === 'empty') return t('audit.empty')
     if (value.state === 'removed') return t('audit.removed')
     return value.text ?? ''
   }
 
-  const getMessageParams = (row: AuditRecord) => {
+  const changeLine = (sign: string, label: string, value: AuditChangeValueData) => {
+    const text = changeValue(value)
+    return `${sign} ${label}:${text.includes('\n') ? '\n' : ' '}${text}`
+  }
+
+  const messageParams = (row: AuditRecord) => {
     const templateKey = typeof row.messageParams?.templateKey === 'string' ? row.messageParams.templateKey : undefined
     const templateTranslationKey = templateKey ? auditMessageParamKeys[templateKey] : undefined
 
@@ -76,88 +79,165 @@ export const AuditTrail = ({ auditTrail }: Props) => {
     }
   }
 
-  const getMessage = (row: AuditRecord) => {
-    if (row.changes?.length) return `${t('audit.changed')}: ${row.changes.map(getChangeLabel).join(', ')}`
+  const message = (row: AuditRecord) => {
+    if (row.changes?.length) return `${t('audit.changed')}: ${row.changes.map(changeLabel).join(', ')}`
 
     const messageKey = row.messageKey ? auditMessageKeys[row.messageKey] : undefined
-    if (messageKey) return t(messageKey, getMessageParams(row))
+    if (messageKey) return t(messageKey, messageParams(row))
 
     return row.message
   }
 
-  const getDetail = (detail: NonNullable<AuditRecord['details']>[number]) => {
-    const detailKey = auditDetailKeys[detail.detailKey]
-    if (detailKey) return t(detailKey, detail.detailParams)
+  const detail = (item: AuditDetail) => {
+    const detailKey = auditDetailKeys[item.detailKey]
+    if (detailKey) return t(detailKey, item.detailParams)
 
     return ''
   }
 
+  return { changeLabel, changeLine, detail, message, t }
+}
+
+type AuditFormatter = ReturnType<typeof useAuditFormatter>
+
+interface AuditChangeValueProps {
+  readonly mt?: number
+  readonly text: string
+  readonly tone: 'error' | 'success'
+}
+
+const AuditChangeValue = ({ mt = 0, text, tone }: AuditChangeValueProps) => (
+  <Typography
+    color={`${tone}.main`}
+    component="div"
+    variant="caption"
+    sx={{
+      backgroundColor: (theme) => alpha(theme.palette[tone].main, 0.1),
+      borderRadius: 0.5,
+      mt,
+      overflowWrap: 'anywhere',
+      px: 0.5,
+      py: 0.25,
+      whiteSpace: 'pre-wrap',
+    }}
+  >
+    {text}
+  </Typography>
+)
+
+interface AuditChangeItemProps {
+  readonly change: AuditChange
+  readonly formatter: AuditFormatter
+  readonly first: boolean
+}
+
+const AuditChangeItem = ({ change, first, formatter }: AuditChangeItemProps) => (
+  <Box sx={{ mt: first ? 0 : 0.75 }}>
+    <Typography color="text.secondary" component="div" variant="caption">
+      {formatter.changeLabel(change)}:
+    </Typography>
+    <AuditChangeValue text={formatter.changeLine('−', formatter.t('audit.before'), change.previous)} tone="error" />
+    <AuditChangeValue
+      mt={0.25}
+      text={formatter.changeLine('+', formatter.t('audit.after'), change.next)}
+      tone="success"
+    />
+  </Box>
+)
+
+interface AuditDetailItemProps {
+  readonly detail: AuditDetail
+  readonly formatter: AuditFormatter
+}
+
+const AuditDetailItem = ({ detail, formatter }: AuditDetailItemProps) => {
+  const text = formatter.detail(detail)
+  if (!text) return null
+
   return (
-    <CollapsibleSection title={`Audit trail (${auditTrail.length})`} initOpen={false}>
-      <TableContainer component={Box} sx={{ maxHeight: 8 * 36 + 160 }}>
-        <Table size="small">
-          <TableBody>
-            {auditTrail.map((row) => {
-              const id = row.timestamp.toISOString()
-              const open = openRow === id
-              const hasDetails = Boolean(row.details?.length || row.changes?.length)
-              return (
-                <TableRow key={id}>
-                  <TableCell sx={{ width: 36 }}>
-                    {hasDetails ? (
-                      <IconButton
-                        aria-label={open ? 'Piilota audit-lisätiedot' : 'Näytä audit-lisätiedot'}
-                        onClick={() => toggleRow(id)}
-                        size="small"
-                      >
-                        {open ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
-                      </IconButton>
-                    ) : null}
-                  </TableCell>
-                  <TableCell sx={{ verticalAlign: 'top', width: 160 }}>
-                    <Typography variant="body2" noWrap>
-                      {formatDate(row.timestamp, 'dd.MM.yyyy HH:mm:ss')}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ verticalAlign: 'top', width: 160 }}>
-                    <Typography variant="body2" noWrap>
-                      {row.user}
-                    </Typography>
-                  </TableCell>
-                  <TableCell sx={{ verticalAlign: 'top' }}>
-                    <Typography variant="body2">{getMessage(row)}</Typography>
-                    {hasDetails ? (
-                      <Collapse in={open} timeout="auto" unmountOnExit>
-                        <Typography
-                          color="text.secondary"
-                          component="pre"
-                          variant="caption"
-                          sx={{
-                            fontFamily: 'inherit',
-                            m: 0,
-                            mt: 0.5,
-                            whiteSpace: 'pre-wrap',
-                          }}
-                        >
-                          {[
-                            ...(row.changes ?? []).map(
-                              (change) =>
-                                `${getChangeLabel(change)}:\n- ${t('audit.before')}: ${getChangeValue(change.previous)}\n- ${t('audit.after')}: ${getChangeValue(change.next)}`
-                            ),
-                            ...(row.details ?? []).map(getDetail),
-                          ]
-                            .filter(Boolean)
-                            .join('\n\n')}
-                        </Typography>
-                      </Collapse>
-                    ) : null}
-                  </TableCell>
-                </TableRow>
-              )
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+    <Typography
+      color="text.secondary"
+      component="div"
+      variant="caption"
+      sx={{ mt: 0.75, overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}
+    >
+      {text}
+    </Typography>
+  )
+}
+
+interface AuditTrailRowProps {
+  readonly formatter: AuditFormatter
+  readonly onToggle: () => void
+  readonly open: boolean
+  readonly row: AuditRecord
+}
+
+const AuditTrailRow = ({ formatter, onToggle, open, row }: AuditTrailRowProps) => {
+  const hasDetails = Boolean(row.details?.length || row.changes?.length)
+
+  return (
+    <Box sx={{ borderBottom: '1px solid', borderBottomColor: 'divider', py: 0.75 }}>
+      <Typography color="text.secondary" variant="caption" noWrap>
+        {`${formatDate(row.timestamp, 'dd.MM.yyyy HH:mm:ss')} ${row.user}`}
+      </Typography>
+      <Box sx={{ alignItems: 'flex-start', display: 'flex', mt: 0.25 }}>
+        {hasDetails ? (
+          <IconButton
+            aria-label={formatter.t(open ? 'audit.hideDetails' : 'audit.showDetails')}
+            onClick={onToggle}
+            size="small"
+            sx={{ flex: '0 0 24px', p: 0 }}
+          >
+            {open ? <KeyboardArrowDown fontSize="small" /> : <KeyboardArrowRight fontSize="small" />}
+          </IconButton>
+        ) : null}
+        <Box sx={{ flex: 1, minWidth: 0, pl: hasDetails ? 0.5 : 0 }}>
+          <Typography variant="body2">{formatter.message(row)}</Typography>
+          {hasDetails ? (
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <Box sx={{ mt: 0.5 }}>
+                {(row.changes ?? []).map((change, index) => (
+                  <AuditChangeItem key={change.field} change={change} first={index === 0} formatter={formatter} />
+                ))}
+                {(row.details ?? []).map((detail) => (
+                  <AuditDetailItem
+                    key={`${detail.detailKey}-${JSON.stringify(detail.detailParams)}`}
+                    detail={detail}
+                    formatter={formatter}
+                  />
+                ))}
+              </Box>
+            </Collapse>
+          ) : null}
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+export const AuditTrail = ({ auditTrail }: Props) => {
+  const formatter = useAuditFormatter()
+  const [openRow, setOpenRow] = useState<string>()
+
+  if (!auditTrail) return null
+
+  return (
+    <CollapsibleSection title={formatter.t('audit.title', { count: auditTrail.length })} compact initOpen={false}>
+      <Box sx={{ maxHeight: 8 * 36 + 160, overflowY: 'auto' }}>
+        {auditTrail.map((row) => {
+          const rowId = `${row.timestamp.toISOString()}-${row.user}-${row.message}`
+          return (
+            <AuditTrailRow
+              key={rowId}
+              formatter={formatter}
+              onToggle={() => setOpenRow((current) => (current === rowId ? undefined : rowId))}
+              open={openRow === rowId}
+              row={row}
+            />
+          )
+        })}
+      </Box>
     </CollapsibleSection>
   )
 }

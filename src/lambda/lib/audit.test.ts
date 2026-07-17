@@ -97,6 +97,46 @@ describe('audit', () => {
         },
       ])
     })
+
+    it('records class place changes without derived or no-op fields', () => {
+      const existing = {
+        ...event,
+        classes: [{ class: 'VOI' as const, date: '2026-09-18T21:00:00.000Z', places: 5 }],
+        places: 5,
+      }
+
+      const messages = getEventAuditMessages(existing, {
+        classes: [{ class: 'VOI', date: '2026-09-18T21:00:00.000Z', places: 6 }],
+        id: event.id,
+        places: 6,
+        placesPerDay: null,
+      })
+
+      expect(messages).toEqual([
+        {
+          changes: [
+            {
+              field: 'classes.0.places',
+              labelKey: 'audit.fields.classPlaces',
+              labelParams: {
+                eventClass: 'VOI',
+                eventDate: '2026-09-18T21:00:00.000Z',
+              },
+              next: { text: '6' },
+              previous: { text: '5' },
+            },
+          ],
+          message: 'Muutti: classes.0.places',
+          messageKey: 'audit.changed',
+        },
+      ])
+    })
+
+    it('omits patch fields that do not change the stored event', () => {
+      expect(getEventAuditMessages(event, { id: event.id, placesPerDay: null })).toEqual([
+        { message: 'Tapahtuma tallennettu', messageKey: 'audit.messages.eventSaved' },
+      ])
+    })
   })
 
   describe('audit', () => {

@@ -10,6 +10,10 @@
       "failedRecipients": "Epäonnistuneet vastaanottajat:\n{{recipients}}"
     },
     "empty": "(tyhjä)",
+    "fields": {
+      "classPlaces": "{{eventClass}} {{eventDate}} – paikkoja"
+    },
+    "hideDetails": "Piilota audit-lisätiedot",
     "messages": {
       "classStartListHidden": "{{eventClass}} starttilista piilotettu",
       "classStartListPublished": "{{eventClass}} starttilista julkaistu",
@@ -20,7 +24,9 @@
       "startListHidden": "Starttilista piilotettu",
       "startListPublished": "Starttilista julkaistu"
     },
-    "removed": "(poistettu)"
+    "removed": "(poistettu)",
+    "showDetails": "Näytä audit-lisätiedot",
+    "title": "Muutoshistoria ({{count}})"
   },
   "backToEventsList": "Takaisin tapahtumalistaan",
   "cancel": "Peruuta",

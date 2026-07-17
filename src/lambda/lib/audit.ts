@@ -12,6 +12,7 @@ import type {
   RegistrationClass,
 } from '../../types'
 import { getStartListPublishedClassMap, isStartListPublishedClassMap } from '../../lib/event'
+import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { publishAuditRecord } from './ws/auditPublisher'
@@ -132,13 +133,52 @@ const formatAuditValue = (value: unknown): JsonAuditChangeValue => {
   return { text: JSON.stringify(value, null, 2) }
 }
 
-const getEventChanges = (existing: JsonConfirmedEvent, item: Patch<JsonConfirmedEvent>, fields: EventField[]) =>
+const getEventChanges = (
+  existing: JsonConfirmedEvent,
+  item: Patch<JsonConfirmedEvent>,
+  next: JsonConfirmedEvent,
+  fields: EventField[]
+) =>
   fields.map((field) => ({
     field,
     labelKey: eventFieldTranslationKeys[field],
-    next: formatAuditValue(item[field]),
+    next: formatAuditValue(item[field] === null ? null : next[field]),
     previous: formatAuditValue(existing[field]),
   }))
+
+const valuesEqual = (left: unknown, right: unknown) => JSON.stringify(left) === JSON.stringify(right)
+
+const getClassPlaceChanges = (
+  existing: JsonConfirmedEvent['classes'],
+  next: JsonConfirmedEvent['classes']
+): JsonAuditChange[] | undefined => {
+  if (!Array.isArray(existing) || !Array.isArray(next) || existing.length !== next.length) return undefined
+
+  const changes: JsonAuditChange[] = []
+  for (const [index, nextClass] of next.entries()) {
+    const existingClass = existing[index]
+    const { places: previousPlaces, ...existingIdentity } = existingClass
+    const { places: nextPlaces, ...nextIdentity } = nextClass
+    if (!valuesEqual(existingIdentity, nextIdentity)) return undefined
+    if (previousPlaces === nextPlaces) continue
+
+    changes.push({
+      field: `classes.${index}.places`,
+      labelKey: 'audit.fields.classPlaces',
+      labelParams: {
+        eventClass: nextClass.class,
+        eventDate: nextClass.date,
+      },
+      next: formatAuditValue(nextPlaces),
+      previous: formatAuditValue(previousPlaces),
+    })
+  }
+
+  return changes
+}
+
+const totalClassPlaces = (classes: JsonConfirmedEvent['classes']) =>
+  classes.reduce((total, eventClass) => total + (eventClass.places ?? 0), 0)
 
 export const getEventAuditMessages = (
   existing: JsonConfirmedEvent | undefined,
@@ -150,13 +190,30 @@ export const getEventAuditMessages = (
   }
 
   const messages: EventAuditMessage[] = getStartListAuditMessages(existing, item)
-  const fields = Object.keys(item).filter((key): key is EventField => !eventAuditExcludedFields.has(key))
+  const next = patchMerge(existing, item)
+  let fields = Object.keys(item)
+    .filter((key): key is EventField => !eventAuditExcludedFields.has(key))
+    .filter((field) => !valuesEqual(existing[field], next[field]))
 
-  if (fields.length) {
-    const changes = getEventChanges(existing, item, fields)
+  const classPlaceChanges = fields.includes('classes')
+    ? getClassPlaceChanges(existing.classes, next.classes)
+    : undefined
+  if (classPlaceChanges?.length) {
+    fields = fields.filter((field) => field !== 'classes')
+    if (
+      fields.includes('places') &&
+      existing.places === totalClassPlaces(existing.classes) &&
+      next.places === totalClassPlaces(next.classes)
+    ) {
+      fields = fields.filter((field) => field !== 'places')
+    }
+  }
+
+  const changes = [...(classPlaceChanges ?? []), ...getEventChanges(existing, item, next, fields)]
+  if (changes.length) {
     messages.push({
       changes,
-      message: `Muutti: ${fields.join(', ')}`,
+      message: `Muutti: ${changes.map((change) => change.field).join(', ')}`,
       messageKey: 'audit.changed',
     })
   }

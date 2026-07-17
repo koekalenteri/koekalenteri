@@ -6,7 +6,7 @@ exports[`MembershipInfo should render when owner handles and is member 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"
@@ -133,7 +133,7 @@ exports[`MembershipInfo should render with minimal info 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"

@@ -75,7 +75,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-1igggo6"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -502,7 +502,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -1080,7 +1080,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -1220,7 +1220,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -1564,7 +1564,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
                       >
@@ -1843,7 +1843,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
                       >
@@ -2070,7 +2070,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -2180,7 +2180,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -2280,7 +2280,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
                   tabindex="-1"
                   type="button"
@@ -2533,7 +2533,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
             class="MuiBox-root css-qxc3vx"
           >
             <button
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-8u2zc2-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
@@ -2550,7 +2550,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
               </svg>
             </button>
             <div
-              class="MuiBox-root css-d5pwdd"
+              class="MuiBox-root css-ja1ds5"
             >
               <div
                 class="MuiBox-root css-14pnx07"
@@ -2558,7 +2558,7 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                 <p
                   class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
                 >
-                  Audit trail (1)
+                  audit.title count
                 </p>
                 <p
                   class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
@@ -2575,53 +2575,33 @@ exports[`RegistrationEditDialog renders when registration is cancelled 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-1xs22px"
+                      class="MuiBox-root css-old1by"
                     >
                       <div
-                        class="MuiTableContainer-root MuiBox-root css-7sle2w-MuiTableContainer-root"
+                        class="MuiBox-root css-qgyoe9"
                       >
-                        <table
-                          class="MuiTable-root css-1xwxv7r-MuiTable-root"
+                        <div
+                          class="MuiBox-root css-ylya7l"
                         >
-                          <tbody
-                            class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
+                          <span
+                            class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-fgvunj-MuiTypography-root"
                           >
-                            <tr
-                              class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                            20.03.2024 14:42:00 test user
+                          </span>
+                          <div
+                            class="MuiBox-root css-edbksj"
+                          >
+                            <div
+                              class="MuiBox-root css-130vbsa"
                             >
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-2vv58u-MuiTableCell-root"
-                              />
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
+                              <p
+                                class="MuiTypography-root MuiTypography-body2 css-7ctihp-MuiTypography-root"
                               >
-                                <p
-                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
-                                >
-                                  20.03.2024 14:42:00
-                                </p>
-                              </td>
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
-                              >
-                                <p
-                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
-                                >
-                                  test user
-                                </p>
-                              </td>
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1cbhj8b-MuiTableCell-root"
-                              >
-                                <p
-                                  class="MuiTypography-root MuiTypography-body2 css-7ctihp-MuiTypography-root"
-                                >
-                                  example audit record
-                                </p>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                                example audit record
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2713,7 +2693,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-1igggo6"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -3170,7 +3150,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -3766,7 +3746,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -3904,7 +3884,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -4241,7 +4221,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
                       >
@@ -4515,7 +4495,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                       class="MuiBox-root css-qxc3vx"
                     >
                       <button
-                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                        class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                         tabindex="0"
                         type="button"
                       >
@@ -4738,7 +4718,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -4848,7 +4828,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   tabindex="0"
                   type="button"
                 >
@@ -4947,7 +4927,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 class="MuiBox-root css-qxc3vx"
               >
                 <button
-                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-cj2ay2-MuiButtonBase-root-MuiIconButton-root"
                   disabled=""
                   tabindex="-1"
                   type="button"
@@ -5197,7 +5177,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
             class="MuiBox-root css-qxc3vx"
           >
             <button
-              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-14su50-MuiButtonBase-root-MuiIconButton-root"
+              class="MuiButtonBase-root MuiIconButton-root MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-8u2zc2-MuiButtonBase-root-MuiIconButton-root"
               tabindex="0"
               type="button"
             >
@@ -5214,7 +5194,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
               </svg>
             </button>
             <div
-              class="MuiBox-root css-d5pwdd"
+              class="MuiBox-root css-ja1ds5"
             >
               <div
                 class="MuiBox-root css-14pnx07"
@@ -5222,7 +5202,7 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                 <p
                   class="MuiTypography-root MuiTypography-body1 css-rizt0-MuiTypography-root"
                 >
-                  Audit trail (1)
+                  audit.title count
                 </p>
                 <p
                   class="MuiFormHelperText-root css-1wycq23-MuiFormHelperText-root"
@@ -5239,53 +5219,33 @@ exports[`RegistrationEditDialog renders with minimal parameters 1`] = `
                     class="MuiCollapse-wrapperInner MuiCollapse-vertical css-1i4ywhz-MuiCollapse-wrapperInner"
                   >
                     <div
-                      class="MuiBox-root css-1xs22px"
+                      class="MuiBox-root css-old1by"
                     >
                       <div
-                        class="MuiTableContainer-root MuiBox-root css-7sle2w-MuiTableContainer-root"
+                        class="MuiBox-root css-qgyoe9"
                       >
-                        <table
-                          class="MuiTable-root css-1xwxv7r-MuiTable-root"
+                        <div
+                          class="MuiBox-root css-ylya7l"
                         >
-                          <tbody
-                            class="MuiTableBody-root css-gmh7jj-MuiTableBody-root"
+                          <span
+                            class="MuiTypography-root MuiTypography-caption MuiTypography-noWrap css-fgvunj-MuiTypography-root"
                           >
-                            <tr
-                              class="MuiTableRow-root css-1fzcg66-MuiTableRow-root"
+                            20.03.2024 14:38:00 test user
+                          </span>
+                          <div
+                            class="MuiBox-root css-edbksj"
+                          >
+                            <div
+                              class="MuiBox-root css-130vbsa"
                             >
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-2vv58u-MuiTableCell-root"
-                              />
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
+                              <p
+                                class="MuiTypography-root MuiTypography-body2 css-7ctihp-MuiTypography-root"
                               >
-                                <p
-                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
-                                >
-                                  20.03.2024 14:38:00
-                                </p>
-                              </td>
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1biqslq-MuiTableCell-root"
-                              >
-                                <p
-                                  class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-3grywy-MuiTypography-root"
-                                >
-                                  test user
-                                </p>
-                              </td>
-                              <td
-                                class="MuiTableCell-root MuiTableCell-body MuiTableCell-sizeSmall css-1cbhj8b-MuiTableCell-root"
-                              >
-                                <p
-                                  class="MuiTypography-root MuiTypography-body2 css-7ctihp-MuiTypography-root"
-                                >
-                                  example audit record
-                                </p>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                                example audit record
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

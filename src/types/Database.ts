@@ -39,6 +39,7 @@ export interface JsonAuditChangeValue {
 export interface JsonAuditChange {
   field: string
   labelKey?: string
+  labelParams?: Record<string, string | number | boolean>
   next: JsonAuditChangeValue
   previous: JsonAuditChangeValue
 }

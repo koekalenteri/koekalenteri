@@ -6,7 +6,7 @@ exports[`BasicInfoSection should render 1`] = `
     class="MuiBox-root css-137nj4n"
   >
     <button
-      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-10rc6rd-MuiButtonBase-root-MuiIconButton-root"
+      class="MuiButtonBase-root Mui-disabled MuiIconButton-root Mui-disabled MuiIconButton-colorPrimary MuiIconButton-sizeSmall css-1xeclc1-MuiButtonBase-root-MuiIconButton-root"
       disabled=""
       tabindex="-1"
       type="button"

@@ -11,6 +11,7 @@ import { useState } from 'react'
 interface Props {
   readonly border?: boolean
   readonly children?: ReactNode
+  readonly compact?: boolean
   readonly error?: boolean
   readonly helperText?: string
   readonly initOpen?: boolean
@@ -22,6 +23,7 @@ interface Props {
 export default function CollapsibleSection({
   border = true,
   children,
+  compact = false,
   error,
   helperText,
   initOpen,
@@ -30,6 +32,7 @@ export default function CollapsibleSection({
   title,
 }: Props) {
   const [state, setState] = useState(initOpen !== false)
+  const toggleWidth = compact ? 24 : 34
   const controlled = open !== undefined
   const isOpen = controlled ? open : state
   const toggle = () => {
@@ -51,10 +54,16 @@ export default function CollapsibleSection({
         pr: { sm: 1, xs: 0.5 },
       }}
     >
-      <IconButton size="small" color={'primary'} onClick={toggle} disabled={controlled && !onOpenChange}>
+      <IconButton
+        size="small"
+        color={'primary'}
+        disabled={controlled && !onOpenChange}
+        onClick={toggle}
+        sx={{ flex: `0 0 ${toggleWidth}px`, mt: compact ? '5px' : undefined, p: compact ? 0 : undefined }}
+      >
         {isOpen ? <KeyboardArrowDown /> : <KeyboardArrowRight />}
       </IconButton>
-      <Box sx={{ overflowX: 'auto', pt: '5px', width: 'calc(100% - 34px)' }}>
+      <Box sx={{ overflowX: 'auto', pt: '5px', width: `calc(100% - ${toggleWidth}px)` }}>
         <Box sx={{ mb: '2px', userSelect: 'none' }} onClick={toggle}>
           <Typography>{title}</Typography>
           <FormHelperText error={error} sx={{ color: 'success.main', display: helperText ? 'block' : 'none' }}>
@@ -62,7 +71,7 @@ export default function CollapsibleSection({
           </FormHelperText>
         </Box>
         <Collapse in={isOpen} timeout="auto">
-          <Box sx={{ p: { sm: 1, xs: 0.5 } }}>{children}</Box>
+          <Box sx={{ p: compact ? 0 : { sm: 1, xs: 0.5 } }}>{children}</Box>
         </Collapse>
       </Box>
     </Box>

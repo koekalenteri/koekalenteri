@@ -10,6 +10,10 @@
       "failedRecipients": "Failed recipients:\n{{recipients}}"
     },
     "empty": "(empty)",
+    "fields": {
+      "classPlaces": "{{eventClass}} {{eventDate}} – places"
+    },
+    "hideDetails": "Hide audit details",
     "messages": {
       "classStartListHidden": "{{eventClass}} start list hidden",
       "classStartListPublished": "{{eventClass}} start list published",
@@ -20,7 +24,9 @@
       "startListHidden": "Start list hidden",
       "startListPublished": "Start list published"
     },
-    "removed": "(removed)"
+    "removed": "(removed)",
+    "showDetails": "Show audit details",
+    "title": "Audit trail ({{count}})"
   },
   "backToEventsList": "Back to events list",
   "cancel": "Cancel",
