@@ -55,6 +55,11 @@ export default function useEventForm(options: EventFormOptions = {}) {
       const saved = storedEvent
         ? await actions.save(event, { ...changes, modifiedAt: initialEvent.current.modifiedAt })
         : await actions.save(event)
+      if (saved) {
+        initialEvent.current = saved
+        setChanges({})
+        setCanSave(false)
+      }
       resetEvent()
       if (onDoneRedirect) {
         navigate(onDoneRedirect)

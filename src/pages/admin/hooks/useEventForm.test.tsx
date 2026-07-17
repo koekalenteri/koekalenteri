@@ -259,6 +259,38 @@ describe('useEventForm', () => {
     })
   })
 
+  it('uses the latest modification timestamp for consecutive saves', async () => {
+    const savedModifiedAt = new Date('2025-01-02T12:00:00Z')
+    mockSave
+      .mockResolvedValueOnce({ ...mockEvent, modifiedAt: savedModifiedAt, name: 'First change' })
+      .mockResolvedValueOnce({ ...mockEvent, modifiedAt: new Date('2025-01-02T13:00:00Z'), name: 'Second change' })
+    const { result } = renderHook(() => useEventForm({ eventId: mockEvent.id, storedEvent: mockStoredEvent }), {
+      wrapper: RecoilRoot,
+    })
+
+    act(() => {
+      result.current.handleChange({ ...mockEvent, name: 'First change' })
+    })
+    await act(async () => {
+      await result.current.handleSave()
+    })
+    act(() => {
+      result.current.handleChange({ ...mockEvent, name: 'Second change' })
+    })
+    await act(async () => {
+      await result.current.handleSave()
+    })
+
+    expect(mockSave).toHaveBeenNthCalledWith(1, expect.anything(), {
+      modifiedAt: mockEvent.modifiedAt,
+      name: 'First change',
+    })
+    expect(mockSave).toHaveBeenNthCalledWith(2, expect.anything(), {
+      modifiedAt: savedModifiedAt,
+      name: 'Second change',
+    })
+  })
+
   it('should handle errors during save', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
     const error = new Error('Save failed')
