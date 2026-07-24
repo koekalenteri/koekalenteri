@@ -7,7 +7,7 @@ import { RecoilRoot } from 'recoil'
 import { runMigrations } from '../../api/migrate'
 import { getUser } from '../../api/user'
 import theme from '../../assets/Theme'
-import { createMatchMedia } from '../../test-utils/utils'
+import { createMatchMedia, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
 import { SideMenu } from './SideMenu'
 
@@ -45,7 +45,7 @@ describe('SideMenu', () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<>loading...</>}>
               <SideMenu open onClose={jest.fn()} />
@@ -57,7 +57,7 @@ describe('SideMenu', () => {
 
     await userEvent.click(await screen.findByText('Run migrations'))
 
-    await waitFor(() => expect(runMigrations).toHaveBeenCalledWith('id-token'))
+    await waitFor(() => expect(runMigrations).toHaveBeenCalledWith(TEST_ID_TOKEN))
     await waitFor(() =>
       expect(mockEnqueueSnackbar).toHaveBeenCalledWith(
         'Migrations completed\npopulateUpdatedAtFromModifiedAt: 3\nfixSeasonFromStartDate: 0',

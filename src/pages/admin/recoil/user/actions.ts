@@ -4,12 +4,12 @@ import { useCallback } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import { getUsers, putAdmin, putRole, putUser } from '../../../../api/user'
 import { reportError } from '../../../../lib/client/error'
-import { idTokenAtom } from '../../../recoil'
+import { validIdTokenSelector } from '../../../recoil'
 import { adminOrganizersAtom } from '../organizers'
 import { adminUsersAtom } from './atoms'
 
 export const useAdminUserActions = () => {
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
   const { enqueueSnackbar } = useSnackbar()
   const [users, setUsers] = useRecoilState(adminUsersAtom)
   const orgs = useRecoilValue(adminOrganizersAtom)

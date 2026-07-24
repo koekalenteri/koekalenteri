@@ -9,7 +9,7 @@ jest.mock('../../../../lib/client/encryptedStore', () => ({
   writeEncryptedDataset: mockWriteEncryptedDataset,
 }))
 
-let idTokenAtom: typeof import('../../../recoil').idTokenAtom
+let validIdTokenSelector: typeof import('../../../recoil').validIdTokenSelector
 let userSelector: typeof import('../../../recoil').userSelector
 let createCachedRemoteCollectionEffect: typeof import('./createCachedRemoteCollection').createCachedRemoteCollectionEffect
 
@@ -20,7 +20,7 @@ beforeAll(async () => {
     writeEncryptedDataset: mockWriteEncryptedDataset,
   }))
   const recoil = await import('../../../recoil')
-  idTokenAtom = recoil.idTokenAtom
+  validIdTokenSelector = recoil.validIdTokenSelector
   userSelector = recoil.userSelector
   createCachedRemoteCollectionEffect = (await import('./createCachedRemoteCollection'))
     .createCachedRemoteCollectionEffect
@@ -33,7 +33,7 @@ const makeEffect = (fetch = jest.fn<any>()) => {
   })
   const setSelf = jest.fn<any>()
   const getPromise = jest.fn<any>((recoilValue: unknown) => {
-    if (recoilValue === idTokenAtom) return Promise.resolve('token')
+    if (recoilValue === validIdTokenSelector) return Promise.resolve('token')
     if (recoilValue === userSelector) {
       return Promise.resolve({
         dataVersions: {

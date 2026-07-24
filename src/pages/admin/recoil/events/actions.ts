@@ -12,7 +12,7 @@ import {
   sanitizeDogEvent,
 } from '../../../../lib/event'
 import { Path } from '../../../../routeConfig'
-import { eventsAtom, idTokenAtom, userSelector } from '../../../recoil'
+import { eventsAtom, userSelector, validIdTokenSelector } from '../../../recoil'
 import { adminEventIdAtom, adminNewEventAtom } from './atoms'
 import { adminCurrentEventSelector } from './selectors'
 
@@ -58,7 +58,7 @@ export const buildStartListPublishedPatch = (
 })
 
 export const useAdminEventActions = () => {
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
   const user = useRecoilValue(userSelector)
   const setAdminEventId = useSetRecoilState(adminEventIdAtom)
   const [currentAdminEvent, setCurrentAdminEvent] = useRecoilState(adminCurrentEventSelector)

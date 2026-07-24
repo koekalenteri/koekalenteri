@@ -2,7 +2,7 @@ import type { AtomEffect } from 'recoil'
 import type { DataVersion, DataVersions } from '../../../../types'
 import { DefaultValue } from 'recoil'
 import { readEncryptedDataset, writeEncryptedDataset } from '../../../../lib/client/encryptedStore'
-import { idTokenAtom, userSelector } from '../../../recoil'
+import { userSelector, validIdTokenSelector } from '../../../recoil'
 
 interface CachedCollectionOptions<T> {
   cacheKey: keyof DataVersions
@@ -26,7 +26,7 @@ export function createCachedRemoteCollectionEffect<T>({
     if (trigger !== 'get') return
 
     setSelf(
-      Promise.all([getPromise(idTokenAtom), getPromise(userSelector)]).then(async ([token, user]) => {
+      Promise.all([getPromise(validIdTokenSelector), getPromise(userSelector)]).then(async ([token, user]) => {
         const currentUser = user
         if (!token || !currentUser?.id) return new DefaultValue()
 

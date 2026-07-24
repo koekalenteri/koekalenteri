@@ -7,7 +7,7 @@ import { putUserName } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
 import { idTokenAtom, loginPathAtom, userRefreshAtom } from './atoms'
-import { userSelector } from './selectors'
+import { userSelector, validIdTokenSelector } from './selectors'
 
 export const useUserActions = () => {
   const location = useLocation()
@@ -62,7 +62,7 @@ export const useUserActions = () => {
     ({ snapshot }) =>
       async (name: string) => {
         try {
-          const token = await snapshot.getPromise(idTokenAtom)
+          const token = await snapshot.getPromise(validIdTokenSelector)
           if (!token) return
 
           const cleaned = String(name ?? '').trim()

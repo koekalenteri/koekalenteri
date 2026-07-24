@@ -32,7 +32,7 @@ import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/
 import { getParticipantMessageInfo, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
-import { idTokenAtom } from '../../recoil'
+import { validIdTokenSelector } from '../../recoil'
 import { AuditTrail } from '../components/AuditTrail'
 import { adminEventSelector } from '../recoil'
 
@@ -109,7 +109,7 @@ const InfoPanel = ({
   onOpenMessageDialog,
 }: Props) => {
   const { t } = useTranslation()
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])

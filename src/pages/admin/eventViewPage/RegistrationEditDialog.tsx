@@ -5,7 +5,7 @@ import { getRegistrationAuditTrail } from '../../../api/registration'
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
 import { getChanges, isEmptyObject } from '../../../lib/utils'
-import { idTokenAtom } from '../../recoil'
+import { validIdTokenSelector } from '../../recoil'
 import { adminEditableEventRegistrationByEventIdAndIdAtom, adminEventRegistrationSelector } from '../recoil'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
@@ -21,7 +21,7 @@ export default function RegistrationEditDialog({ event, registrationId, open, on
   const key = { eventId: event.id, id: registrationId }
   const [registration, setRegistration] = useRecoilState(adminEditableEventRegistrationByEventIdAndIdAtom(key))
   const resetRegistration = useResetRecoilState(adminEditableEventRegistrationByEventIdAndIdAtom(key))
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
   const initialRegistration = useRef(savedRegistration)
   if (!open) initialRegistration.current = savedRegistration
   if (!initialRegistration.current && savedRegistration) initialRegistration.current = savedRegistration

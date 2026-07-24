@@ -6,7 +6,7 @@ import { useParams } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import { getStartListPreview } from '../../api/registration'
 import LoadingIndicator from '../components/LoadingIndicator'
-import { hasAdminAccessSelector, idTokenAtom, useConfirmedEvent, useUserActions } from '../recoil'
+import { hasAdminAccessSelector, useConfirmedEvent, useUserActions, validIdTokenSelector } from '../recoil'
 import { EventHeader } from '../startListPage/EventHeader'
 import { ParticipantList } from '../startListPage/ParticipantList'
 
@@ -16,7 +16,7 @@ export default function StartListPreviewPage() {
   const actions = useUserActions()
   const event = useConfirmedEvent(id)
   const hasAccess = useRecoilValue(hasAdminAccessSelector)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
   const [error, setError] = useState<unknown>()
   const [participants, setParticipants] = useState<PublicRegistration[]>()
 

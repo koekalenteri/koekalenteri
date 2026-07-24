@@ -35,7 +35,7 @@ import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { AsyncButton } from '../../components/AsyncButton'
 import AutocompleteSingle from '../../components/AutocompleteSingle'
-import { idTokenAtom } from '../../recoil'
+import { validIdTokenSelector } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventSelector } from '../recoil'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
 import ContactInfoGroup from './sendMessageDialog/ContactInfoGroup'
@@ -80,7 +80,7 @@ export default function SendMessageDialog({ event, registrations, templateId, op
   const { enqueueSnackbar } = useSnackbar()
   const [contactInfo, setContactInfo] = useState(event.contactInfo)
   const [text, setText] = useState('')
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
   const templates = useRecoilValue(adminEmailTemplatesAtom)
   const actions = useAdminRegistrationActions(event.id)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))

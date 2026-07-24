@@ -26,6 +26,10 @@ jest.mock('../recoil/user/selectors', () => {
       get: () => ({ id: 'user1', name: 'Current User' }),
       key: 'userSelectorEventViewPageTest',
     }),
+    validIdTokenSelector: selector({
+      get: () => 'id-token',
+      key: 'validIdTokenSelectorEventViewPageTest',
+    }),
   }
 })
 
