@@ -52,10 +52,15 @@ jest.mock('../pages/admin/recoil/user/atoms', () => {
 
 jest.mock('../pages/recoil/user/selectors', () => {
   const { selector } = jest.requireActual('recoil')
+  const { idTokenAtom } = jest.requireActual('../pages/recoil/user/atoms')
   return {
     userSelector: selector({
       get: () => ({ id: 'user-1', name: 'User One', roles: { 'org-1': 'secretary' } }),
       key: 'userSelectorTestWs',
+    }),
+    validIdTokenSelector: selector({
+      get: ({ get }: { get: (value: unknown) => string | undefined }) => get(idTokenAtom),
+      key: 'validIdTokenSelectorTestWs',
     }),
   }
 })
@@ -212,6 +217,7 @@ describe('useWebSocket', () => {
   beforeEach(() => {
     jest.useRealTimers()
     consoleDebugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {})
+    jest.spyOn(console, 'warn').mockImplementation(() => {})
     // Create mock WebSocket instance
     mockWebSocketInstance = {
       close: jest.fn(),
@@ -1155,6 +1161,54 @@ describe('useWebSocket', () => {
     })
 
     expect(wsInstances[1].send).toHaveBeenCalledWith(JSON.stringify({ action: 'authenticate', token: 'new-token' }))
+  })
+
+  it('ignores a late authentication failure from the socket that used the previous token', async () => {
+    const wsInstances: (typeof mockWebSocketInstance)[] = []
+    global.WebSocket = jest.fn(() => {
+      const instance = {
+        close: jest.fn(),
+        onclose: null as (() => void) | null,
+        onerror: null as (() => void) | null,
+        onmessage: null as ((e: { data: string }) => void) | null,
+        onopen: null as (() => void) | null,
+        readyState: WebSocket.OPEN,
+        send: jest.fn(),
+      }
+      wsInstances.push(instance)
+      return instance
+    }) as unknown as typeof WebSocket
+
+    const { result } = renderHook(
+      () => {
+        const [, setToken] = useRecoilState(idTokenAtom)
+        useWebSocket()
+        return { setToken }
+      },
+      { wrapper: wrapperWithToken(undefined) }
+    )
+
+    expect(wsInstances).toHaveLength(1)
+    const staleOnMessage = wsInstances[0].onmessage
+
+    act(() => {
+      result.current.setToken('new-token-stale-test')
+    })
+    await waitFor(() => expect(wsInstances).toHaveLength(2))
+
+    act(() => {
+      staleOnMessage?.({ data: JSON.stringify({ ok: false, status: 401 }) })
+    })
+
+    expect(wsInstances[1].close).not.toHaveBeenCalled()
+
+    jest.useFakeTimers()
+    act(() => {
+      wsInstances[1].onclose?.()
+      jest.advanceTimersByTime(1000)
+    })
+
+    expect(wsInstances).toHaveLength(3)
   })
 
   it('should close authenticated socket and clear subscriptions when token is removed', async () => {

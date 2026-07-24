@@ -18,6 +18,7 @@ import { getAdminOrganizers } from '../api/organizer'
 import { getUsers } from '../api/user'
 import { sanitizeDogEvent } from '../lib/event'
 import { collectionResponseCursor, collectionSince, reconcileCollection } from '../lib/incremental'
+import { getIdTokenDiagnostics } from '../lib/token'
 import { applyPatch, applyPatchesById, applyPatchOrInsert, getPatchChangedIds, parseJSON } from '../lib/utils'
 import { adminEmailTemplatesAtom, fetchEmailTemplates } from '../pages/admin/recoil/emailTemplates'
 import { adminEventsAtom } from '../pages/admin/recoil/events'
@@ -28,13 +29,18 @@ import { adminOrganizersAtom } from '../pages/admin/recoil/organizers'
 import { adminEventRegistrationsAtom } from '../pages/admin/recoil/registrations/atoms'
 import { adminUsersAtom } from '../pages/admin/recoil/user'
 import { websocketAdminUsersSelector } from '../pages/admin/recoil/user/selectors'
-import { idTokenAtom } from '../pages/recoil'
+import { validIdTokenSelector } from '../pages/recoil'
 import { eventsAtom } from '../pages/recoil/events/atoms'
 import { useMarkRecentlyUpdated } from '../pages/recoil/recentUpdates'
 import { userSelector } from '../pages/recoil/user/selectors'
 import { WS_API_URL } from '../routeConfig'
 
 const RECONNECT_INTERVAL = 1000
+
+const websocketMessageDiagnostics = (message: object) =>
+  'action' in message && message.action === 'authenticate' && 'token' in message && typeof message.token === 'string'
+    ? { ...message, token: getIdTokenDiagnostics(message.token) }
+    : message
 
 const isAdminDataCollection = (value: unknown): value is AdminDataCollection =>
   value === 'emailTemplates' ||
@@ -145,7 +151,7 @@ export const WebSocketContext = createContext<WebSocketContextValue | null>(null
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export const useWebSocket = () => {
-  const idTokenLoadable = useRecoilValueLoadable(idTokenAtom)
+  const idTokenLoadable = useRecoilValueLoadable(validIdTokenSelector)
   const adminUsersLoadable = useRecoilValueLoadable(websocketAdminUsersSelector)
   const currentUserLoadable = useRecoilValueLoadable(userSelector)
   const markRecentlyUpdated = useMarkRecentlyUpdated()
@@ -315,6 +321,7 @@ export const useWebSocket = () => {
   const wsRef = useRef<WebSocket | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof globalThis.setTimeout> | null>(null)
   const reconnectAttempts = useRef(0)
+  const connectionSequenceRef = useRef(0)
   const previousTokenRef = useRef<string | undefined>(idTokenRef.current)
   const tokenEffectInitializedRef = useRef(false)
 
@@ -326,11 +333,14 @@ export const useWebSocket = () => {
   const sendIfOpen = useCallback((msg: object, socket = wsRef.current) => {
     if (socket?.readyState === WebSocket.OPEN) {
       const payload = JSON.stringify(msg)
-      console.debug('ws: send', msg)
+      console.debug('ws: send', websocketMessageDiagnostics(msg))
       socket.send(payload)
       return true
     }
-    console.debug('ws: send skipped, socket not open', { message: msg, readyState: socket?.readyState })
+    console.debug('ws: send skipped, socket not open', {
+      message: websocketMessageDiagnostics(msg),
+      readyState: socket?.readyState,
+    })
     return false
   }, [])
 
@@ -411,7 +421,7 @@ export const useWebSocket = () => {
   )
 
   const handleMessageData = useCallback(
-    (data: any, token: string | undefined, ws: WebSocket) => {
+    (data: any, token: string | undefined, ws: WebSocket, connectionId: number) => {
       console.debug('ws: ', data)
 
       if (handleCountMessage(data)) return
@@ -441,12 +451,21 @@ export const useWebSocket = () => {
       }
 
       if (data.authenticated === true) {
+        console.debug('ws: authentication succeeded', {
+          connectionId,
+          token: token ? getIdTokenDiagnostics(token) : undefined,
+        })
         authFailedTokenRef.current = undefined
         resendActiveSubscriptions(ws)
         return
       }
 
       if (data.ok === false && (data.status === 401 || data.status === 403)) {
+        console.warn('ws: authentication failed', {
+          connectionId,
+          status: data.status,
+          token: token ? getIdTokenDiagnostics(token) : undefined,
+        })
         if (token) authFailedTokenRef.current = token
         shouldReconnectRef.current = false
         ws.close()
@@ -466,10 +485,21 @@ export const useWebSocket = () => {
     const token = idTokenRef.current
     if (token && authFailedTokenRef.current === token) return
 
+    const connectionId = ++connectionSequenceRef.current
+    console.debug('ws: connecting', {
+      connectionId,
+      token: token ? getIdTokenDiagnostics(token) : undefined,
+    })
     const ws = new WebSocket(WS_API_URL)
     wsRef.current = ws
 
     ws.onopen = () => {
+      if (wsRef.current !== ws) {
+        console.debug('ws: ignored stale open', { connectionId })
+        ws.close()
+        return
+      }
+
       reconnectAttempts.current = 0
 
       if (token) {
@@ -485,9 +515,14 @@ export const useWebSocket = () => {
     }
 
     ws.onclose = () => {
-      if (!shouldReconnectRef.current || wsRef.current !== ws) return
+      if (wsRef.current !== ws) {
+        console.debug('ws: ignored stale close', { connectionId })
+        return
+      }
+      if (!shouldReconnectRef.current) return
 
       const delay = Math.min(30000, RECONNECT_INTERVAL * 2 ** reconnectAttempts.current)
+      console.debug('ws: reconnect scheduled', { connectionId, delay })
       reconnectAttempts.current++
       reconnectTimeoutRef.current = globalThis.setTimeout(connect, delay)
     }
@@ -497,8 +532,13 @@ export const useWebSocket = () => {
     }
 
     ws.onmessage = (event) => {
+      if (wsRef.current !== ws) {
+        console.debug('ws: ignored stale message', { connectionId })
+        return
+      }
+
       try {
-        handleMessageData(parseJSON(event.data), token, ws)
+        handleMessageData(parseJSON(event.data), token, ws, connectionId)
       } catch {
         // ignore invalid messages
       }
@@ -542,8 +582,8 @@ export const useWebSocket = () => {
     if (previousToken === nextToken) return
 
     console.debug('ws: auth token changed', {
-      hadPreviousToken: Boolean(previousToken),
-      hasNextToken: Boolean(nextToken),
+      next: nextToken ? getIdTokenDiagnostics(nextToken) : undefined,
+      previous: previousToken ? getIdTokenDiagnostics(previousToken) : undefined,
     })
 
     previousTokenRef.current = nextToken
