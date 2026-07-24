@@ -28,6 +28,7 @@ export const reconcileCollection = <T>(
   getId: (item: T) => string = (item) => String((item as T & { id: string | number }).id)
 ): T[] => {
   if (Array.isArray(response)) return response
+  if (response.items.length === 0 && response.deletedIds.length === 0) return existing
 
   const deletedIds = new Set(response.deletedIds)
   const byId = new Map(existing.filter((item) => !deletedIds.has(getId(item))).map((item) => [getId(item), item]))

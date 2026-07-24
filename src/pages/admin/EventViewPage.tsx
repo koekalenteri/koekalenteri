@@ -11,6 +11,7 @@ import { useParams } from 'react-router'
 import { useRecoilState, useRecoilValue } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
+import { reportError } from '../../lib/client/error'
 import {
   GROUP_KEY_CANCELLED,
   getRegistrationClass,
@@ -118,7 +119,18 @@ export default function EventViewPage() {
   }, [eventId, setSelectedEventId])
 
   useEffect(() => {
-    actions.refreshIfStale()
+    const refresh = () => void actions.refreshIfStale().catch(reportError)
+
+    refresh()
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') {
+        refresh()
+      }
+    }
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+
+    return () => document.removeEventListener('visibilitychange', refreshWhenVisible)
   }, [actions.refreshIfStale])
 
   useEffect(() => {

@@ -14,6 +14,11 @@ export const adminEventRegistrationsFetchedAtAtom = atomFamily<Date | undefined,
   key: 'adminEventRegistrationsFetchedAt',
 })
 
+export const adminEventRegistrationsCursorAtom = atomFamily<Date | undefined, string>({
+  default: undefined,
+  key: 'adminEventRegistrationsCursor',
+})
+
 export const adminRegistrationIdAtom = atom<string | undefined>({
   default: undefined,
   effects: [logEffect, localStorageEffect],

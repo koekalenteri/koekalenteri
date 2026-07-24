@@ -1,7 +1,8 @@
 import type { Patch, PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
 import { useSnackbar } from 'notistack'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilCallback, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { createRefund } from '../../../../api/payment'
 import {
   getRegistrations,
@@ -11,26 +12,99 @@ import {
   putRegistrationGroups,
 } from '../../../../api/registration'
 import { reportError } from '../../../../lib/client/error'
-import { reconcileCollection } from '../../../../lib/incremental'
+import { isTestEnv } from '../../../../lib/env'
+import { latestCollectionUpdate, reconcileCollection } from '../../../../lib/incremental'
 import { GROUP_KEY_CANCELLED } from '../../../../lib/registration'
-import { idTokenAtom } from '../../../recoil'
+import { validIdTokenSelector } from '../../../recoil'
 import { showRegistrationSaveConflict } from '../../../recoil/registration/registrationSaveError'
 import { adminEventSelector } from '../events'
-import { adminBackgroundActionsRunningAtom, adminEventRegistrationsFetchedAtAtom } from './atoms'
+import {
+  adminBackgroundActionsRunningAtom,
+  adminEventRegistrationsAtom,
+  adminEventRegistrationsCursorAtom,
+  adminEventRegistrationsFetchedAtAtom,
+} from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
 
 const REGISTRATIONS_REFRESH_GRACE_MS = 5 * 60 * 1000
 
+const registrationDebug = (message: string, details: unknown) => {
+  if (!isTestEnv()) console.debug(message, details)
+}
+
 export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
-  const [eventRegistrationsFetchedAt, setEventRegistrationsFetchedAt] = useRecoilState(
-    adminEventRegistrationsFetchedAtAtom(eventId)
-  )
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const setBackgroundActionsRunning = useSetRecoilState(adminBackgroundActionsRunningAtom)
-  const token = useRecoilValue(idTokenAtom)
+  const token = useRecoilValue(validIdTokenSelector)
+  const refreshInFlightRef = useRef<Promise<void> | undefined>(undefined)
   const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation()
+
+  const refreshIfStale = useRecoilCallback(
+    ({ set, snapshot }) =>
+      async () => {
+        if (!eventId) return
+
+        if (refreshInFlightRef.current) {
+          registrationDebug('registrations: refresh coalesced', { eventId })
+          return refreshInFlightRef.current
+        }
+
+        const refresh = (async () => {
+          const [currentToken, registrations, fetchedAt, storedCursor] = await Promise.all([
+            snapshot.getPromise(validIdTokenSelector),
+            snapshot.getPromise(adminEventRegistrationsAtom(eventId)),
+            snapshot.getPromise(adminEventRegistrationsFetchedAtAtom(eventId)),
+            snapshot.getPromise(adminEventRegistrationsCursorAtom(eventId)),
+          ])
+          if (!currentToken) return
+
+          const now = new Date()
+          const derivedCursor = storedCursor ?? latestCollectionUpdate(registrations)
+          if (!fetchedAt) {
+            set(adminEventRegistrationsFetchedAtAtom(eventId), now)
+            if (derivedCursor) set(adminEventRegistrationsCursorAtom(eventId), derivedCursor)
+            return
+          }
+          if (now.getTime() - fetchedAt.getTime() < REGISTRATIONS_REFRESH_GRACE_MS) return
+
+          const since = derivedCursor ?? fetchedAt
+          const startedAt = Date.now()
+          registrationDebug('registrations: refresh started', {
+            eventId,
+            fetchedAt: fetchedAt.toISOString(),
+            since: since.toISOString(),
+          })
+
+          const response = await getRegistrations(eventId, currentToken, undefined, since)
+          if (Array.isArray(response)) {
+            set(adminEventRegistrationsAtom(eventId), response)
+            const nextCursor = latestCollectionUpdate(response)
+            if (nextCursor) set(adminEventRegistrationsCursorAtom(eventId), nextCursor)
+          } else {
+            set(adminEventRegistrationsCursorAtom(eventId), new Date(response.cursor))
+            set(adminEventRegistrationsAtom(eventId), (current) => reconcileCollection(current, response))
+          }
+          set(adminEventRegistrationsFetchedAtAtom(eventId), new Date())
+          registrationDebug('registrations: refresh completed', {
+            cursor: Array.isArray(response) ? latestCollectionUpdate(response)?.toISOString() : response.cursor,
+            deleted: Array.isArray(response) ? 0 : response.deletedIds.length,
+            durationMs: Date.now() - startedAt,
+            eventId,
+            received: Array.isArray(response) ? response.length : response.items.length,
+          })
+        })().finally(() => {
+          if (refreshInFlightRef.current === refresh) {
+            refreshInFlightRef.current = undefined
+          }
+        })
+
+        refreshInFlightRef.current = refresh
+        return refresh
+      },
+    [eventId]
+  )
 
   const updateAdminRegistration = (saved: Registration) => {
     const regs = [...eventRegistrations]
@@ -155,27 +229,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
       updateAdminRegistration({ ...reg, internalNotes })
     },
 
-    async refreshIfStale() {
-      if (!token || !eventId) return
-      if (!eventRegistrationsFetchedAt) {
-        setEventRegistrationsFetchedAt(new Date())
-        return
-      }
-
-      const now = new Date()
-      if (now.getTime() - eventRegistrationsFetchedAt.getTime() < REGISTRATIONS_REFRESH_GRACE_MS) return
-
-      const response = await getRegistrations(eventId, token, undefined, eventRegistrationsFetchedAt)
-
-      if (Array.isArray(response)) {
-        setEventRegistrations(response)
-        setEventRegistrationsFetchedAt(now)
-        return
-      }
-
-      setEventRegistrationsFetchedAt(new Date(response.cursor))
-      setEventRegistrations(reconcileCollection(eventRegistrations, response))
-    },
+    refreshIfStale,
 
     async refund(reg: Registration, transactionId: string, amount: number, handlingCost: number) {
       if (!token) throw new Error('missing token')

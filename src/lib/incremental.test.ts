@@ -46,4 +46,10 @@ describe('incremental collections', () => {
       )
     ).toEqual([{ eventType: 'A', value: 'new' }])
   })
+
+  it('preserves the existing array when an incremental response has no changes', () => {
+    const existing = [{ id: 'a', value: 'unchanged' }]
+
+    expect(reconcileCollection(existing, { cursor: 123, deletedIds: [], items: [] })).toBe(existing)
+  })
 })
