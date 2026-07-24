@@ -1,8 +1,24 @@
 import { selector } from 'recoil'
-import { getUser } from '../../../api/user'
+import { getCurrentUser } from '../../../lib/client/currentUser'
 import { reportError } from '../../../lib/client/error'
+import { isValidIdToken } from '../../../lib/token'
 import { userHasAdminAccess } from '../../../lib/user'
-import { idTokenAtom, userRefreshAtom } from './atoms'
+import { idTokenAtom, tokenValidityRevisionAtom, userRefreshAtom } from './atoms'
+
+export const validIdTokenSelector = selector<string | undefined>({
+  cachePolicy_UNSTABLE: {
+    eviction: 'most-recent',
+  },
+  get: ({ get }) => {
+    get(tokenValidityRevisionAtom)
+
+    const token = get(idTokenAtom)
+    if (!token) return undefined
+
+    return isValidIdToken(token) ? token : undefined
+  },
+  key: 'idToken/valid',
+})
 
 export const userSelector = selector({
   /**
@@ -22,13 +38,12 @@ export const userSelector = selector({
     eviction: 'most-recent',
   },
   get: async ({ get }) => {
-    try {
-      const token = get(idTokenAtom)
-      // Refresh trigger (intentionally unused except for dependency tracking)
-      get(userRefreshAtom)
-      if (!token) return null
+    const token = get(validIdTokenSelector)
+    const refresh = get(userRefreshAtom)
+    if (!token) return null
 
-      const user = await getUser(token)
+    try {
+      const user = await getCurrentUser(token, refresh)
       return user
     } catch (e) {
       reportError(e)

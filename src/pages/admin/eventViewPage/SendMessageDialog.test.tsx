@@ -16,7 +16,7 @@ import {
 } from '../../../__mockData__/registrations'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-import { flushPromises } from '../../../test-utils/utils'
+import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { idTokenAtom } from '../../recoil'
 import { adminEmailTemplatesAtom, adminEventsAtom } from '../recoil'
 import SendMessageDialog from './SendMessageDialog'
@@ -68,7 +68,7 @@ const createWrapper =
         initializeState={({ set }) => {
           set(adminEmailTemplatesAtom, emailTemplates)
           set(adminEventsAtom, [eventWithStaticDates])
-          set(idTokenAtom, 'id-token')
+          set(idTokenAtom, TEST_ID_TOKEN)
         }}
       >
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>

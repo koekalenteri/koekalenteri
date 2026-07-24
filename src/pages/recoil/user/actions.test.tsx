@@ -6,8 +6,11 @@ import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { RecoilRoot, useRecoilValue } from 'recoil'
 import * as userAPI from '../../../api/user'
 import { Path } from '../../../routeConfig'
+import { TEST_ID_TOKEN } from '../../../test-utils/utils'
 import { useUserActions } from './actions'
 import { idTokenAtom } from './atoms'
+
+const NEW_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.updated-signature'
 
 jest.mock('aws-amplify/auth', () => ({
   fetchAuthSession: async () => ({ tokens: { idToken: { toString: () => 'id-token' } } }),
@@ -16,7 +19,7 @@ jest.mock('aws-amplify/auth', () => ({
 
 function wrapper({ children }: { readonly children: React.ReactNode }) {
   return (
-    <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+    <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
       <SnackbarProvider>
         <MemoryRouter initialEntries={['/current-page']}>
           <Routes>
@@ -57,7 +60,7 @@ describe('useUserActions', () => {
       signOutPromise = result.current.actions.signOut(false)
     })
 
-    expect(result.current.token).toBe('id-token')
+    expect(result.current.token).toBe(TEST_ID_TOKEN)
 
     await act(async () => {
       resolveSignOut?.()
@@ -96,12 +99,12 @@ describe('useUserActions', () => {
     })
 
     await act(async () => {
-      await result.current.actions.signIn('new-id-token')
+      await result.current.actions.signIn(NEW_TEST_ID_TOKEN)
     })
 
-    expect(result.current.token).toBe('new-id-token')
-    expect(getUserSpy).toHaveBeenCalledWith('new-id-token')
-    expect(getUserSpy).not.toHaveBeenCalledWith('id-token')
+    expect(result.current.token).toBe(NEW_TEST_ID_TOKEN)
+    expect(getUserSpy).toHaveBeenCalledWith(NEW_TEST_ID_TOKEN)
+    expect(getUserSpy).not.toHaveBeenCalledWith(TEST_ID_TOKEN)
   })
 
   it('does not navigate back to the login page after sign in', async () => {
@@ -120,7 +123,7 @@ describe('useUserActions', () => {
     )
 
     await act(async () => {
-      await result.current.actions.signIn('new-id-token')
+      await result.current.actions.signIn(NEW_TEST_ID_TOKEN)
     })
 
     expect(result.current.location.pathname).toBe(Path.home)

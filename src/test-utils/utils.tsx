@@ -10,6 +10,8 @@ import { act, useEffect } from 'react'
 import { createMemoryRouter, createRoutesFromElements, RouterProvider } from 'react-router'
 import { useRecoilValue } from 'recoil'
 
+export const TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.signature'
+
 /**
  * Abstraction to avoid re-writing all tests for the time being
  * @see https://github.com/remix-run/react-router/blob/main/packages/react-router/__tests__/data-memory-router-test.tsx

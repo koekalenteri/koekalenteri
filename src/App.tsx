@@ -10,13 +10,14 @@ import { Suspense, useCallback } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { useRecoilValue } from 'recoil'
 import { AWSConfig } from './amplify-env'
+import { useAuthSessionInitialization } from './hooks/useAuthSessionInitialization'
+import { useAuthSessionRefresh } from './hooks/useAuthSessionRefresh'
 import WebSocketProvider from './hooks/WebSocketProvider'
 import { locales, muiLocales } from './i18n'
 import { reportError } from './lib/client/error'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
 import { idTokenAtom, languageAtom } from './pages/recoil'
-import { useAuthSessionRefresh } from './pages/recoil/user/session'
 import routes from './routes'
 
 try {
@@ -30,8 +31,9 @@ const router = createBrowserRouter(routes)
 function App() {
   const language = useRecoilValue(languageAtom)
   const idToken = useRecoilValue(idTokenAtom)
+  const authSessionInitialized = useAuthSessionInitialization(idToken)
   const closeAction = useCallback((snackbarKey: SnackbarKey) => <SnackbarCloseButton snackbarKey={snackbarKey} />, [])
-  useAuthSessionRefresh(idToken)
+  useAuthSessionRefresh(authSessionInitialized ? idToken : undefined)
 
   return (
     <ThemeProvider theme={(outerTheme) => createTheme(outerTheme, muiLocales[language])}>
@@ -54,11 +56,15 @@ function App() {
             }}
           >
             <Authenticator.Provider>
-              <WebSocketProvider>
-                <Suspense fallback={<LoadingPage />}>
-                  <RouterProvider router={router} />
-                </Suspense>
-              </WebSocketProvider>
+              {authSessionInitialized ? (
+                <WebSocketProvider>
+                  <Suspense fallback={<LoadingPage />}>
+                    <RouterProvider router={router} />
+                  </Suspense>
+                </WebSocketProvider>
+              ) : (
+                <LoadingPage />
+              )}
             </Authenticator.Provider>
           </ConfirmProvider>
         </SnackbarProvider>

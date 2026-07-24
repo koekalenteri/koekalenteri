@@ -11,7 +11,8 @@ import { eventWithStaticDates } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
-import { flushPromises } from '../../../test-utils/utils'
+import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { idTokenAtom } from '../../recoil'
 import RegistrationEditDialog from './RegistrationEditDialog'
 
 jest.mock('../../../api/email')
@@ -21,7 +22,7 @@ jest.mock('../../../api/registration')
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (
     <ThemeProvider theme={theme}>
-      <RecoilRoot>
+      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales.fi}>
           <SnackbarProvider>
             <ConfirmProvider>

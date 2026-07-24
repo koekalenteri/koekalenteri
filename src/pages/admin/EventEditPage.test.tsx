@@ -12,7 +12,8 @@ import { eventWithStaticDates } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { locales } from '../../i18n'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { idTokenAtom } from '../recoil'
 import EventEditPage from './EventEditPage'
 
 jest.mock('../../api/user')
@@ -66,7 +67,7 @@ describe('EventEditPage', () => {
     const { container, unmount } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-          <RecoilRoot>
+          <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[Path.admin.editEvent(eventWithStaticDates.id)]} routes={routes} />
@@ -100,7 +101,7 @@ describe('EventEditPage', () => {
     const { unmount } = render(
       <ThemeProvider theme={theme}>
         <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[language]}>
-          <RecoilRoot>
+          <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>
                 <DataMemoryRouter initialEntries={[Path.admin.editEvent(eventWithStaticDates.id)]} routes={routes} />

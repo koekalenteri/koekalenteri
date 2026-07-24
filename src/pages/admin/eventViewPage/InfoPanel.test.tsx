@@ -18,7 +18,8 @@ import {
 import * as eventApi from '../../../api/event'
 import { APIError } from '../../../api/http'
 import { eventRegistrationDateKey } from '../../../lib/event'
-import { renderWithUserEvents } from '../../../test-utils/utils'
+import { renderWithUserEvents, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { idTokenAtom } from '../../recoil'
 import { adminEventsAtom } from '../recoil'
 import InfoPanel from './InfoPanel'
 
@@ -43,11 +44,16 @@ async function openInfoPanel(user: UserEvent) {
 describe('InfoPanel>', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    localStorage.setItem('idToken', JSON.stringify(TEST_ID_TOKEN))
   })
+
+  afterAll(() => localStorage.removeItem('idToken'))
 
   it('renders with no registrations', () => {
     const { container } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
-      wrapper: RecoilRoot,
+      wrapper: ({ children }) => (
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>{children}</RecoilRoot>
+      ),
     })
 
     expect(container).toMatchSnapshot()

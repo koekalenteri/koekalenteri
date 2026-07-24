@@ -7,6 +7,7 @@ import theme from '../assets/Theme'
 import { Path } from '../routeConfig'
 import { DataMemoryRouter } from '../test-utils/utils'
 import { Component as LoginPage } from './LoginPage'
+import { idTokenAtom } from './recoil'
 
 jest.mock('@aws-amplify/ui-react', () => require('./global-mocks/auth/idle'))
 jest.mock('./components/Header', () => () => <>HEADER</>)
@@ -20,7 +21,7 @@ describe('LoginPage', () => {
       },
     ]
     const { container } = render(
-      <RecoilRoot>
+      <RecoilRoot initializeState={({ set }) => set(idTokenAtom, undefined)}>
         <ThemeProvider theme={theme}>
           <SnackbarProvider
             anchorOrigin={{ horizontal: 'right', vertical: 'top' }}

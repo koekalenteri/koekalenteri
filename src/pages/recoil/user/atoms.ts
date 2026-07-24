@@ -1,23 +1,17 @@
 import type { Language } from '../../../types'
-import { fetchAuthSession } from 'aws-amplify/auth'
 import { atom, atomFamily } from 'recoil'
 import { localStorageEffect, logEffect, sessionStorageEffect } from '../effects'
-import { i18nextEffect } from './effects'
-
-const getIdToken = async (): Promise<string | undefined> => {
-  try {
-    const session = await fetchAuthSession()
-    return session.tokens?.idToken?.toString()
-  } catch (e) {
-    console.error('getIdToken', e)
-    return
-  }
-}
+import { i18nextEffect, idTokenLogEffect } from './effects'
 
 export const idTokenAtom = atom<string | undefined>({
-  default: getIdToken(),
-  effects: [logEffect, localStorageEffect],
+  default: undefined,
+  effects: [idTokenLogEffect, localStorageEffect],
   key: 'idToken',
+})
+
+export const tokenValidityRevisionAtom = atom<number>({
+  default: 0,
+  key: 'idToken/validityRevision',
 })
 
 export const languageAtom = atom<Language>({

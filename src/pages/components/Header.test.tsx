@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
 import { getUser } from '../../api/user'
+import { TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
 import Header from './Header'
 
@@ -30,7 +31,7 @@ describe('Header', () => {
 
     try {
       render(
-        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={null}>
               <Header />
@@ -39,7 +40,7 @@ describe('Header', () => {
         </RecoilRoot>
       )
 
-      await waitFor(() => expect(getUser).toHaveBeenCalledWith('id-token'))
+      await waitFor(() => expect(getUser).toHaveBeenCalledWith(TEST_ID_TOKEN))
       expect(consoleErrorSpy).toHaveBeenCalledWith('reportError', error)
       expect(mockSignOut).not.toHaveBeenCalled()
     } finally {

@@ -11,7 +11,8 @@ import {
   eventWithEntryOpenButNoEntries,
 } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
-import { flushPromises, RecoilObserver, renderWithUserEvents } from '../../test-utils/utils'
+import { flushPromises, RecoilObserver, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { idTokenAtom } from '../recoil'
 import EventListPage, { getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 
@@ -30,7 +31,7 @@ describe('EventListPage', () => {
     const onChange = jest.fn()
     const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <RecoilObserver node={adminEventIdAtom} onChange={onChange} />
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>

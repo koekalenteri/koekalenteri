@@ -5,7 +5,8 @@ import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { RecoilRoot } from 'recoil'
 import theme from '../../assets/Theme'
-import { flushPromises, renderWithUserEvents } from '../../test-utils/utils'
+import { flushPromises, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { idTokenAtom } from '../recoil'
 import JudgeListPage from './JudgeListPage'
 
 jest.mock('../../api/judge')
@@ -19,7 +20,7 @@ describe('JudgeListPage', () => {
   it('renders', async () => {
     const { container, user } = renderWithUserEvents(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <MemoryRouter>
             <Suspense fallback={<div>loading...</div>}>
               <SnackbarProvider>

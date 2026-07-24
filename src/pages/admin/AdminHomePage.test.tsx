@@ -6,7 +6,8 @@ import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
 import theme from '../../assets/Theme'
 import { Path } from '../../routeConfig'
-import { DataMemoryRouter, flushPromises } from '../../test-utils/utils'
+import { DataMemoryRouter, flushPromises, TEST_ID_TOKEN } from '../../test-utils/utils'
+import { idTokenAtom } from '../recoil'
 import AdminHomePage from './AdminHomePage'
 
 jest.mock('../../api/user')
@@ -34,7 +35,7 @@ describe('AdminHomePage', () => {
     ]
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>
@@ -69,7 +70,7 @@ describe('AdminHomePage', () => {
     ]
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <RecoilRoot>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
           <SnackbarProvider>
             <Authenticator.Provider>
               <Suspense fallback={<div>loading...</div>}>

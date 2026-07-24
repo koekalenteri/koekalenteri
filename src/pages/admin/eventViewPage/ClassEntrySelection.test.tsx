@@ -7,7 +7,8 @@ import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
 import { eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
 import { registrationWithStaticDates, registrationWithStaticDatesCancelled } from '../../../__mockData__/registrations'
-import { flushPromises } from '../../../test-utils/utils'
+import { flushPromises, TEST_ID_TOKEN } from '../../../test-utils/utils'
+import { idTokenAtom } from '../../recoil'
 import ClassEntrySelection from './ClassEntrySelection'
 
 jest.mock('../../../api/event')
@@ -15,7 +16,7 @@ jest.mock('../../../api/registration')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (
-    <RecoilRoot>
+    <RecoilRoot initializeState={({ set }) => set(idTokenAtom, TEST_ID_TOKEN)}>
       <SnackbarProvider>
         <ConfirmProvider>
           <Suspense fallback={<>loading...</>}>{props.children}</Suspense>

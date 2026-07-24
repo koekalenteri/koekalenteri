@@ -1,6 +1,8 @@
 import type { AtomEffect } from 'recoil'
 import type { Language } from '../../../types'
 import i18n from 'i18next'
+import { isDevEnv } from '../../../lib/env'
+import { getIdTokenDiagnostics } from '../../../lib/token'
 
 export const stringToLang = (str?: string | null): Language => (str === 'en' ? 'en' : 'fi')
 
@@ -20,5 +22,17 @@ export const i18nextEffect: AtomEffect<Language> = ({ onSet, setSelf, trigger })
     if (value !== language) {
       setSelf(language)
     }
+  })
+}
+
+export const idTokenLogEffect: AtomEffect<string | undefined> = ({ onSet }) => {
+  onSet((newValue, oldValue, reset) => {
+    if (!isDevEnv()) return
+
+    console.debug('auth: id token changed', {
+      next: newValue ? getIdTokenDiagnostics(newValue) : undefined,
+      previous: typeof oldValue === 'string' ? getIdTokenDiagnostics(oldValue) : undefined,
+      reset,
+    })
   })
 }
