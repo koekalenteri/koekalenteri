@@ -20,7 +20,7 @@ import TableRow from '@mui/material/TableRow'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
@@ -53,6 +53,52 @@ const sectionSx = {
   overflow: 'hidden',
 }
 const actionButtonSx = { justifyContent: 'flex-start', textAlign: 'left' }
+
+interface InvitationAttachmentRowProps {
+  readonly file?: {
+    readonly href: string
+    readonly name: string
+  }
+  readonly inputId: string
+  readonly label: string
+  readonly onChange: (event: ChangeEvent<HTMLInputElement>) => void
+}
+
+const InvitationAttachmentRow = ({ file, inputId, label, onChange }: InvitationAttachmentRowProps) => (
+  <>
+    <TableRow>
+      <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
+        <Typography variant="caption" fontWeight="bold" ml={2}>
+          {label}
+        </Typography>
+      </TableCell>
+      <TableCell rowSpan={2} sx={{ verticalAlign: 'middle' }}>
+        <input accept="application/pdf" type="file" hidden id={inputId} onChange={onChange} />
+        <label htmlFor={inputId}>
+          <Button component="span" size="small" variant="outlined">
+            {file ? 'Vaihda PDF' : 'Lisää PDF'}
+          </Button>
+        </label>
+      </TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell colSpan={2} sx={{ pt: 0 }}>
+        {file ? (
+          <Box ml={2}>
+            <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
+            <Link href={file.href} rel="noopener" target="_blank" type="application/pdf" variant="caption">
+              {file.name}
+            </Link>
+          </Box>
+        ) : (
+          <Typography variant="caption" fontStyle="italic" ml={2}>
+            Ei tiedostoa
+          </Typography>
+        )}
+      </TableCell>
+    </TableRow>
+  </>
+)
 
 const InfoPanel = ({
   event,
@@ -380,49 +426,19 @@ const InfoPanel = ({
           <TableContainer>
             <Table sx={{ '& .MuiTableCell-root': { overflowWrap: 'anywhere' }, tableLayout: 'fixed' }}>
               <TableBody>
-                <TableRow>
-                  <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
-                    <Typography variant="caption" fontWeight="bold" ml={2}>
-                      Kokeen koekutsun liitetiedosto
-                    </Typography>
-                  </TableCell>
-                  <TableCell rowSpan={2} sx={{ verticalAlign: 'middle' }}>
-                    <input
-                      accept="application/pdf"
-                      type="file"
-                      hidden
-                      id="koekutsu-file"
-                      onChange={handleInvitationUpload()}
-                    />
-                    <label htmlFor="koekutsu-file">
-                      <Button component="span" size="small" variant="outlined">
-                        Liitä kokeelle
-                      </Button>
-                    </label>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={2} sx={{ pt: 0 }}>
-                    {attachmentKey ? (
-                      <Box ml={2}>
-                        <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
-                        <Link
-                          href={Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey })}
-                          rel="noopener"
-                          target="_blank"
-                          type="application/pdf"
-                          variant="caption"
-                        >
-                          {invitationAttachmentFileName({ ...event, invitationAttachment: attachmentKey })}
-                        </Link>
-                      </Box>
-                    ) : (
-                      <Typography variant="caption" fontStyle="italic" ml={2}>
-                        Ei liitettyä tiedostoa
-                      </Typography>
-                    )}
-                  </TableCell>
-                </TableRow>
+                <InvitationAttachmentRow
+                  file={
+                    attachmentKey
+                      ? {
+                          href: Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey }),
+                          name: invitationAttachmentFileName({ ...event, invitationAttachment: attachmentKey }),
+                        }
+                      : undefined
+                  }
+                  inputId="koekutsu-file"
+                  label="Koko koe"
+                  onChange={handleInvitationUpload()}
+                />
                 {eventClasses.map((eventClass) => {
                   const classAttachmentKey = classAttachmentKeys[eventClass]
                   const classEvent = event.classes.find((item) => item.class === eventClass)
@@ -434,51 +450,20 @@ const InfoPanel = ({
                   }
 
                   return (
-                    <Fragment key={`invitation-attachment-${eventClass}`}>
-                      <TableRow key={`invitation-attachment-${eventClass}`}>
-                        <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pb: 0 }}>
-                          <Typography variant="caption" fontWeight="bold" ml={2}>
-                            {eventClass}-luokan koekutsun liitetiedosto
-                          </Typography>
-                        </TableCell>
-                        <TableCell rowSpan={2} sx={{ verticalAlign: 'middle' }}>
-                          <input
-                            accept="application/pdf"
-                            type="file"
-                            hidden
-                            id={`koekutsu-file-${eventClass}`}
-                            onChange={handleInvitationUpload(eventClass)}
-                          />
-                          <label htmlFor={`koekutsu-file-${eventClass}`}>
-                            <Button component="span" size="small" variant="outlined">
-                              Liitä luokalle
-                            </Button>
-                          </label>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow key={`invitation-attachment-file-${eventClass}`}>
-                        <TableCell colSpan={2} sx={{ pt: 0 }}>
-                          {classAttachmentKey ? (
-                            <Box ml={2}>
-                              <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
-                              <Link
-                                href={Path.invitationAttachment(classInvitationEvent)}
-                                rel="noopener"
-                                target="_blank"
-                                type="application/pdf"
-                                variant="caption"
-                              >
-                                {invitationAttachmentFileName(classInvitationEvent)}
-                              </Link>
-                            </Box>
-                          ) : (
-                            <Typography variant="caption" fontStyle="italic" ml={2}>
-                              Ei liitettyä tiedostoa
-                            </Typography>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    </Fragment>
+                    <InvitationAttachmentRow
+                      file={
+                        classAttachmentKey
+                          ? {
+                              href: Path.invitationAttachment(classInvitationEvent),
+                              name: invitationAttachmentFileName(classInvitationEvent),
+                            }
+                          : undefined
+                      }
+                      inputId={`koekutsu-file-${eventClass}`}
+                      key={`invitation-attachment-${eventClass}`}
+                      label={`${eventClass}-luokka`}
+                      onChange={handleInvitationUpload(eventClass)}
+                    />
                   )
                 })}
               </TableBody>
