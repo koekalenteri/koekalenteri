@@ -18,6 +18,7 @@ import RegistrationEditDialog from './RegistrationEditDialog'
 jest.mock('../../../api/email')
 jest.mock('../../../api/event')
 jest.mock('../../../api/registration')
+jest.mock('../../../api/user')
 
 const Wrapper = ({ children }: { readonly children: ReactNode }) => {
   return (

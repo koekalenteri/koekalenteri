@@ -16,7 +16,7 @@ const queryEvents = async (since?: string): Promise<JsonDogEvent[] | undefined> 
     for (let season = startSeason; season <= endSeason; season++) {
       const seasonEvents = await dynamoDB.query<JsonDogEvent>({
         index: 'gsiSeasonUpdatedAt',
-        key: 'season = :season AND updatedAt > :updatedAfter',
+        key: 'season = :season AND updatedAt >= :updatedAfter',
         table: CONFIG.eventTable,
         values: { ':season': season.toString(), ':updatedAfter': updatedAfter },
       })
