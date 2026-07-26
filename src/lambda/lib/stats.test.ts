@@ -127,6 +127,28 @@ describe('lib/stats', () => {
         }
       )
     })
+
+    it('does not increment yearly participation for an edit with unchanged identifiers', async () => {
+      const existingReg = {
+        dog: { breedCode: 'BC', regNo: 'DOG123' },
+        eventType: 'NOME',
+        handler: { email: 'handler@example.com' },
+        owner: { email: 'owner@example.com' },
+      } as unknown as JsonRegistration
+      const updatedReg = { ...existingReg, notes: 'Updated notes' } as JsonRegistration
+      const event = {
+        eventType: 'NOME',
+        id: 'e5',
+        organizer: { id: 'org1' },
+        startDate: '2024-01-01',
+      } as JsonConfirmedEvent
+
+      await updateEventStatsForRegistration(updatedReg, existingReg, event)
+
+      expect(mockUpdate).toHaveBeenCalledTimes(2)
+      expect(mockUpdate).toHaveBeenNthCalledWith(1, { PK: 'ORG#org1', SK: '2024-01-01#e5' }, expect.any(Object))
+      expect(mockUpdate).toHaveBeenNthCalledWith(2, { PK: 'YEARS', SK: '2024' }, expect.any(Object))
+    })
   })
   describe('getOrganizerStats', () => {
     it('queries for specific organizer stats with date filters', async () => {
@@ -567,6 +589,34 @@ describe('lib/stats', () => {
       )
     })
 
+    it('decrements the entity and unique total when its final participation is removed', async () => {
+      // @ts-expect-error partial return value
+      mockUpdate.mockResolvedValueOnce({ Attributes: { count: 1 } })
+
+      await updateEntityStats(2024, 'owner', 'OWNER123', false, -1)
+
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        1,
+        { PK: 'STAT#2024#owner', SK: 'OWNER123' },
+        {
+          add: {
+            count: -1,
+          },
+        },
+        undefined,
+        'UPDATED_OLD'
+      )
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        2,
+        { PK: 'TOTALS#2024', SK: 'owner' },
+        {
+          add: {
+            count: -1,
+          },
+        }
+      )
+    })
+
     it('does nothing when entityId is empty', async () => {
       await updateEntityStats(2024, 'dog', '', false)
 
@@ -670,6 +720,69 @@ describe('lib/stats', () => {
 
       expect(breedCall?.[0].SK).toBe('unknown')
       expect(dogHandlerCall?.[0].SK).toBe(`${hashedRegNo}#${hashedHandlerEmail}`)
+    })
+
+    it('does not update participation stats when identifiers are unchanged', async () => {
+      const existingRegistration = {
+        dog: { breedCode: 'BC', regNo: 'DOG123' },
+        eventType: 'NOME',
+        handler: { email: 'handler@example.com' },
+        owner: { email: 'owner@example.com' },
+      } as unknown as JsonRegistration
+      const updatedRegistration = {
+        ...existingRegistration,
+        notes: 'Updated notes',
+      } as JsonRegistration
+
+      await updateYearlyParticipationStats(updatedRegistration, 2024, existingRegistration)
+
+      expect(mockUpdate).not.toHaveBeenCalled()
+    })
+
+    it('moves participation counts from every changed identifier to its replacement', async () => {
+      const existingRegistration = {
+        dog: { breedCode: 'BC', regNo: 'DOG123' },
+        eventType: 'NOME',
+        handler: { email: 'handler@example.com' },
+        owner: { email: 'owner@example.com' },
+      } as unknown as JsonRegistration
+      const updatedRegistration = {
+        dog: { breedCode: 'LR', regNo: 'DOG456' },
+        eventType: 'NOWT',
+        handler: { email: 'new-handler@example.com' },
+        owner: { email: 'new-owner@example.com' },
+      } as unknown as JsonRegistration
+
+      await updateYearlyParticipationStats(updatedRegistration, 2024, existingRegistration)
+
+      const entityUpdates = mockUpdate.mock.calls
+        .filter(([key]) => key.PK.startsWith('STAT#2024#'))
+        .map(([key, updates]) => ({ count: updates.add?.count, key }))
+
+      const oldDog = hashStatValue(existingRegistration.dog.regNo)
+      const newDog = hashStatValue(updatedRegistration.dog.regNo)
+      const oldHandler = hashStatValue(existingRegistration.handler?.email)
+      const newHandler = hashStatValue(updatedRegistration.handler?.email)
+      const oldOwner = hashStatValue(existingRegistration.owner?.email)
+      const newOwner = hashStatValue(updatedRegistration.owner?.email)
+
+      expect(entityUpdates).toEqual(
+        expect.arrayContaining([
+          { count: -1, key: { PK: 'STAT#2024#breed', SK: 'BC' } },
+          { count: 1, key: { PK: 'STAT#2024#breed', SK: 'LR' } },
+          { count: -1, key: { PK: 'STAT#2024#dog', SK: oldDog } },
+          { count: 1, key: { PK: 'STAT#2024#dog', SK: newDog } },
+          { count: -1, key: { PK: 'STAT#2024#dog#handler', SK: `${oldDog}#${oldHandler}` } },
+          { count: 1, key: { PK: 'STAT#2024#dog#handler', SK: `${newDog}#${newHandler}` } },
+          { count: -1, key: { PK: 'STAT#2024#eventType', SK: 'NOME' } },
+          { count: 1, key: { PK: 'STAT#2024#eventType', SK: 'NOWT' } },
+          { count: -1, key: { PK: 'STAT#2024#handler', SK: oldHandler } },
+          { count: 1, key: { PK: 'STAT#2024#handler', SK: newHandler } },
+          { count: -1, key: { PK: 'STAT#2024#owner', SK: oldOwner } },
+          { count: 1, key: { PK: 'STAT#2024#owner', SK: newOwner } },
+        ])
+      )
+      expect(entityUpdates).toHaveLength(12)
     })
   })
 })

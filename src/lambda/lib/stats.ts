@@ -279,35 +279,37 @@ export async function updateEntityStats(
   year: number,
   type: string,
   entityId: string,
-  isDogHandler: boolean
+  isDogHandler: boolean,
+  delta = 1
 ): Promise<void> {
-  if (!entityId) return
+  if (!entityId || delta === 0) return
 
-  // Step 1: Add per-entity row if not exists (ADD count :incr, ReturnValues: "UPDATED_OLD")
+  // Step 1: Update the per-entity participation count and retrieve its previous value
   const pk = `STAT#${year}#${type}`
   const sk = entityId
-  let oldCount: number | undefined
 
   const updateResult = await dynamoDB.update(
     { PK: pk, SK: sk },
     {
       add: {
-        count: 1,
+        count: delta,
       },
     },
     undefined,
     'UPDATED_OLD'
   )
-  // DynamoDB returns Attributes if the item existed
-  oldCount = updateResult?.Attributes?.count
+  const oldCount = updateResult?.Attributes?.count
+  const previousCount = oldCount ?? 0
+  const newCount = previousCount + delta
 
-  // Step 2: If first occurrence, increment corresponding total
-  if (oldCount === undefined) {
+  // Step 2: Update the unique-entity total when the count crosses zero
+  const totalDelta = previousCount <= 0 && newCount > 0 ? 1 : previousCount > 0 && newCount <= 0 ? -1 : 0
+  if (totalDelta !== 0) {
     await dynamoDB.update(
       { PK: `TOTALS#${year}`, SK: type },
       {
         add: {
-          count: 1,
+          count: totalDelta,
         },
       }
     )
@@ -315,7 +317,6 @@ export async function updateEntityStats(
 
   // Step 3: Update bucket stats for dog#handler
   if (isDogHandler) {
-    const newCount = (oldCount ?? 0) + 1
     await updateBucketStats(year, oldCount, newCount)
   }
 }
@@ -333,16 +334,12 @@ export function hashStatValue(value: string | undefined = ''): string {
   return fullDigest.subarray(0, 12).toString('base64').split('=')[0]
 }
 
-/**
- * Update yearly participation stats for official event types
- */
-export async function updateYearlyParticipationStats(registration: JsonRegistration, year: number): Promise<void> {
-  // Hash email addresses for privacy
+const participationIdentifiers = (registration: JsonRegistration): Record<YearlyStatTypes, string> => {
   const hashedHandlerEmail = hashStatValue(registration.handler?.email)
   const hashedOwnerEmail = hashStatValue(registration.owner?.email)
   const hashedRegNo = hashStatValue(registration.dog?.regNo)
 
-  const identifiers: Record<YearlyStatTypes, string> = {
+  return {
     breed: registration.dog.breedCode ?? 'unknown',
     dog: hashedRegNo,
     'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
@@ -350,8 +347,28 @@ export async function updateYearlyParticipationStats(registration: JsonRegistrat
     handler: hashedHandlerEmail,
     owner: hashedOwnerEmail,
   }
+}
 
-  for (const [type, entityId] of Object.entries(identifiers)) {
+/**
+ * Update yearly participation stats for official event types
+ */
+export async function updateYearlyParticipationStats(
+  registration: JsonRegistration,
+  year: number,
+  existingRegistration?: JsonRegistration
+): Promise<void> {
+  const identifiers = participationIdentifiers(registration)
+  const existingIdentifiers = existingRegistration ? participationIdentifiers(existingRegistration) : undefined
+
+  for (const type of Object.keys(identifiers) as YearlyStatTypes[]) {
+    const entityId = identifiers[type]
+    const existingEntityId = existingIdentifiers?.[type]
+
+    if (entityId === existingEntityId) continue
+
+    if (existingEntityId) {
+      await updateEntityStats(year, type, existingEntityId, type === 'dog#handler', -1)
+    }
     await updateEntityStats(year, type, entityId, type === 'dog#handler')
   }
 }
@@ -382,5 +399,5 @@ export const updateEventStatsForRegistration = async (
     return
   }
 
-  await updateYearlyParticipationStats(registration, year)
+  await updateYearlyParticipationStats(registration, year, existingRegistration)
 }
