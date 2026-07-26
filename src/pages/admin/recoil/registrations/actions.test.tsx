@@ -1,7 +1,7 @@
 import type React from 'react'
 import { act, renderHook } from '@testing-library/react'
 import { SnackbarProvider } from 'notistack'
-import { RecoilRoot, useRecoilValue } from 'recoil'
+import { RecoilRoot, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { eventWithStaticDates } from '../../../../__mockData__/events'
 import { registrationWithStaticDates } from '../../../../__mockData__/registrations'
 import { APIError } from '../../../../api/http'
@@ -14,6 +14,7 @@ import {
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
+  adminPendingRegistrationGroupMovesAtom,
 } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
 
@@ -41,6 +42,35 @@ function wrapper({ children }: { readonly children: React.ReactNode }) {
         set(idTokenAtom, TEST_ID_TOKEN)
         set(adminEventsAtom, [eventWithStaticDates])
         set(adminEventRegistrationsAtom(eventWithStaticDates.id), [registrationWithStaticDates])
+      }}
+    >
+      <SnackbarProvider>{children}</SnackbarProvider>
+    </RecoilRoot>
+  )
+}
+
+const queuedRegistration = { ...registrationWithStaticDates, class: 'AVO' as const, id: 'queued-registration' }
+const groupResponse = {
+  cancelledFailed: [],
+  cancelledOk: [],
+  classes: eventWithStaticDates.classes,
+  entries: eventWithStaticDates.entries,
+  invitedFailed: [],
+  invitedOk: [],
+  items: [registrationWithStaticDates, queuedRegistration],
+  pickedFailed: [],
+  pickedOk: [],
+  reserveFailed: [],
+  reserveOk: [],
+} as Awaited<ReturnType<typeof registrationApi.putRegistrationGroups>>
+
+function groupQueueWrapper({ children }: { readonly children: React.ReactNode }) {
+  return (
+    <RecoilRoot
+      initializeState={({ set }) => {
+        set(idTokenAtom, TEST_ID_TOKEN)
+        set(adminEventsAtom, [eventWithStaticDates])
+        set(adminEventRegistrationsAtom(eventWithStaticDates.id), [registrationWithStaticDates, queuedRegistration])
       }}
     >
       <SnackbarProvider>{children}</SnackbarProvider>
@@ -111,6 +141,35 @@ describe('useAdminRegistrationActions', () => {
     )
   })
 
+  it('does not store pending group placement when updating an unrelated field', () => {
+    const eventId = eventWithStaticDates.id
+    const { result } = renderHook(
+      () => ({
+        base: useRecoilValue(adminEventRegistrationsAtom(eventId)),
+        registrations: useRecoilValue(adminEventRegistrationsSelector(eventId)),
+        setPendingMoves: useSetRecoilState(adminPendingRegistrationGroupMovesAtom(eventId)),
+        setRegistrations: useRecoilState(adminEventRegistrationsSelector(eventId))[1],
+      }),
+      { wrapper }
+    )
+
+    act(() => {
+      result.current.setPendingMoves([
+        { cancelReason: 'test', group: { key: 'cancelled' }, id: registrationWithStaticDates.id },
+      ])
+    })
+    expect(result.current.registrations[0]).toMatchObject({ cancelled: true, group: { key: 'cancelled' } })
+
+    act(() => {
+      result.current.setRegistrations([{ ...result.current.registrations[0], internalNotes: 'updated' }])
+    })
+
+    expect(result.current.base[0]).toMatchObject({ internalNotes: 'updated' })
+    expect(result.current.base[0].group).toBeUndefined()
+    expect(result.current.base[0].cancelled).toBeUndefined()
+    expect(result.current.registrations[0]).toMatchObject({ cancelled: true, group: { key: 'cancelled' } })
+  })
+
   it('coalesces stale refreshes and keeps request freshness separate from the server cursor', async () => {
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
@@ -159,5 +218,66 @@ describe('useAdminRegistrationActions', () => {
     expect(registrationApi.getRegistrations).toHaveBeenCalledTimes(1)
 
     jest.useRealTimers()
+  })
+
+  it('queues group moves by the latest registration classes', async () => {
+    let resolveFirst!: (response: Awaited<ReturnType<typeof registrationApi.putRegistrationGroups>>) => void
+    const firstResponse = new Promise<Awaited<ReturnType<typeof registrationApi.putRegistrationGroups>>>((resolve) => {
+      resolveFirst = resolve
+    })
+    const putGroups = jest
+      .spyOn(registrationApi, 'putRegistrationGroups')
+      .mockReturnValueOnce(firstResponse)
+      .mockResolvedValueOnce(groupResponse)
+
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        registrations: useRecoilValue(adminEventRegistrationsSelector(eventWithStaticDates.id)),
+      }),
+      { wrapper: groupQueueWrapper }
+    )
+    const firstMove = { group: { key: 'reserve' }, id: registrationWithStaticDates.id }
+    const queuedMove = { group: { key: 'reserve' }, id: queuedRegistration.id }
+
+    let firstRequest!: Promise<false | undefined>
+    let queuedRequest!: Promise<false | undefined>
+    await act(async () => {
+      firstRequest = result.current.actions.saveGroups(eventWithStaticDates.id, [firstMove])
+      await Promise.resolve()
+      queuedRequest = result.current.actions.saveGroups(eventWithStaticDates.id, [queuedMove])
+      expect(putGroups).toHaveBeenCalledTimes(1)
+      resolveFirst(groupResponse)
+      await firstRequest
+      await queuedRequest
+    })
+
+    expect(putGroups).toHaveBeenCalledTimes(2)
+    expect(putGroups.mock.calls[1][1]).toEqual([queuedMove])
+  })
+
+  it('refreshes authoritative registrations after a group move failure', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    jest.spyOn(registrationApi, 'putRegistrationGroups').mockRejectedValueOnce(new Error('network failure'))
+    const refresh = jest.spyOn(registrationApi, 'getRegistrations').mockResolvedValueOnce([queuedRegistration] as never)
+    const { result } = renderHook(
+      () => ({
+        actions: useAdminRegistrationActions(eventWithStaticDates.id),
+        registrations: useRecoilValue(adminEventRegistrationsSelector(eventWithStaticDates.id)),
+      }),
+      { wrapper: groupQueueWrapper }
+    )
+
+    let saved: false | undefined
+    await act(async () => {
+      saved = await result.current.actions.saveGroups(eventWithStaticDates.id, [
+        { group: { key: 'reserve' }, id: registrationWithStaticDates.id },
+      ])
+    })
+
+    expect(saved).toBe(false)
+    expect(refresh).toHaveBeenCalledWith(eventWithStaticDates.id, TEST_ID_TOKEN)
+    expect(result.current.registrations).toEqual([queuedRegistration])
+    consoleError.mockRestore()
   })
 })

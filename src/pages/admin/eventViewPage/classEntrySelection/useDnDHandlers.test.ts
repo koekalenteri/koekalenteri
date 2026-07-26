@@ -185,7 +185,9 @@ describe('useDnDHandlers', () => {
 
       await result.current.handleDrop(mockGroup)(mockDragItem)
 
-      expect(mockSaveGroups).toHaveBeenCalledWith('event1', mockChanges)
+      expect(mockSaveGroups).toHaveBeenCalledWith('event1', [
+        { cancelReason: undefined, group: { date: undefined, key: 'group2', time: undefined }, id: 'reg1' },
+      ])
     })
 
     it('should call onCancelOpen when a single cancelled change is returned', async () => {

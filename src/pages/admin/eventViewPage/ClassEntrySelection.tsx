@@ -164,14 +164,11 @@ const ClassEntrySelection = ({
       moveToReserve: async (id: string) => {
         const reg = registrations.find((r) => r.id === id)
         if (!reg) return
-        const reserveRegs = registrations.filter((r) => getRegistrationGroupKey(r) === GROUP_KEY_RESERVE)
         setPendingMoveId(id)
         try {
           await actions.saveGroups(event.id, [
             {
-              cancelled: false,
-              eventId: event.id,
-              group: { key: GROUP_KEY_RESERVE, number: reserveRegs.length + 1 },
+              group: { key: GROUP_KEY_RESERVE },
               id,
             },
           ])
@@ -358,13 +355,7 @@ const ClassEntrySelection = ({
             onMove={async (groupKey) => {
               setPendingMoveId(selectedForAction.id)
               try {
-                const change = buildMoveToGroupChange(
-                  selectedForAction,
-                  groupKey,
-                  event.id,
-                  groups,
-                  registrationsByGroup
-                )
+                const change = buildMoveToGroupChange(selectedForAction, groupKey, groups)
                 if (!change) return
 
                 await actions.saveGroups(event.id, [change])
@@ -382,13 +373,7 @@ const ClassEntrySelection = ({
             onMove={async (position) => {
               setPendingMoveId(selectedForAction.id)
               try {
-                const change = buildMoveToPositionGroupChange(
-                  selectedForAction,
-                  position,
-                  event.id,
-                  groups,
-                  registrationsByGroup
-                )
+                const change = buildMoveToPositionGroupChange(selectedForAction, position, groups, registrationsByGroup)
                 if (!change) return
 
                 await actions.saveGroups(event.id, [change])

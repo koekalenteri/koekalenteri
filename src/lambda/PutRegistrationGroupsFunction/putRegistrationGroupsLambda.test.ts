@@ -6,7 +6,25 @@ import {
   jsonRegistrationsToEventWithALOInvited,
   jsonRegistrationsToEventWithParticipantsInvited,
 } from '../../__mockData__/registrations'
-import { constructAPIGwEvent } from '../test-utils/helpers'
+import { constructAPIGwEvent as constructRawAPIGwEvent } from '../test-utils/helpers'
+
+// Keep existing move fixtures concise while exercising the semantic API
+// contract used by the only client.
+const constructAPIGwEvent = (body: unknown, options?: Parameters<typeof constructRawAPIGwEvent>[1]) =>
+  constructRawAPIGwEvent(
+    Array.isArray(body)
+      ? body.map((move: any) =>
+          move?.eventId
+            ? {
+                cancelReason: move.cancelReason,
+                group: { date: move.group?.date, key: move.group?.key, time: move.group?.time },
+                id: move.id,
+              }
+            : move
+        )
+      : body,
+    options
+  )
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
   getOrigin: jest.fn(),
@@ -92,23 +110,42 @@ describe('putRegistrationGroupsLambda', () => {
     expect(res.statusCode).toEqual(422)
   })
 
-  it('shoud return 422 with groups to not belonging to event', async () => {
-    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-    const mockGroup = {
-      cancelled: false,
-      eventId: 'incorrect-event-id',
-      group: { key: 'reserve', number: 1 },
-      id: 'whatever',
-    }
+  it.each([['bad'], [1]])('returns 422 for primitive move entries', async (groups) => {
     authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
-    mockConsoleError.mockImplementationOnce(() => undefined)
+
+    const res = await putRegistrationGroupsLambda(constructRawAPIGwEvent(groups))
+
+    expect(res.statusCode).toEqual(422)
+  })
+
+  it('returns 422 without applying any move when a batch contains a malformed entry', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
 
     const res = await putRegistrationGroupsLambda(
-      constructAPIGwEvent([mockGroup] as JsonRegistrationGroupInfo[], { pathParameters: { eventId: event.id } })
+      constructRawAPIGwEvent([{ group: { key: 'reserve' }, id: 'valid-id' }, 'malformed'], {
+        pathParameters: { eventId: event.id },
+      })
     )
+
     expect(res.statusCode).toEqual(422)
-    expect(mockConsoleError).toHaveBeenCalledWith(`no groups after filtering by eventId='${event.id}'`, [mockGroup])
-    expect(mockConsoleError).toHaveBeenCalledTimes(1)
+    expect(mockDynamoDB.update).not.toHaveBeenCalled()
+  })
+
+  it('accepts legacy moves containing eventId', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    const mockGroup = { eventId: 'incorrect-event-id', id: 'whatever' }
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+    mockDynamoDB.read.mockResolvedValue(event)
+    mockDynamoDB.query.mockResolvedValueOnce([])
+
+    const res = await putRegistrationGroupsLambda(
+      constructRawAPIGwEvent([{ ...mockGroup, group: { key: 'reserve' } }], {
+        pathParameters: { eventId: event.id },
+      })
+    )
+    expect(res.statusCode).toEqual(409)
+    expect(mockConsoleError).not.toHaveBeenCalledWith('no valid registration group moves', expect.anything())
   })
 
   it('should reject users outside the event organizer before reading registrations', async () => {
@@ -139,6 +176,62 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockDynamoDB.update).not.toHaveBeenCalled()
   })
 
+  it('returns 409 without reading registrations when another move holds the event lock', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.update.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent(
+        [
+          {
+            cancelled: false,
+            eventId: event.id,
+            group: { key: 'reserve', number: 1 },
+            id: 'testInvited6',
+          },
+        ] as JsonRegistrationGroupInfo[],
+        { pathParameters: { eventId: event.id } }
+      )
+    )
+
+    expect(res.statusCode).toBe(409)
+    expect(mockDynamoDB.query).not.toHaveBeenCalled()
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects moves from multiple classes before applying any registration changes', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+
+    const alo = jsonRegistrationsToEventWithParticipantsInvited.find((registration) => registration.class === 'ALO')
+    const avo = jsonRegistrationsToEventWithParticipantsInvited.find((registration) => registration.class === 'AVO')
+    expect(alo).toBeDefined()
+    expect(avo).toBeDefined()
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent(
+        [
+          { group: { key: 'reserve' }, id: alo?.id },
+          { group: { key: 'reserve' }, id: avo?.id },
+        ],
+        { pathParameters: { eventId: event.id } }
+      )
+    )
+
+    expect(res.statusCode).toBe(422)
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDB.update).not.toHaveBeenCalledWith(
+      expect.objectContaining({ eventId: event.id }),
+      expect.anything(),
+      'registration-table-not-found-in-env',
+      expect.anything()
+    )
+  })
+
   it('should move from cancelled to reserve', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
     authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
@@ -164,11 +257,26 @@ describe('putRegistrationGroupsLambda', () => {
         }
       )
     )
-    expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(4)
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
       1,
+      { id: event.id },
+      {
+        set: {
+          registrationGroupsLock: expect.objectContaining({ expiresAt: expect.any(Number), token: expect.any(String) }),
+        },
+      },
+      'event-table-not-found-in-env',
+      undefined,
+      expect.objectContaining({
+        expression: expect.stringContaining('attribute_not_exists(#registrationGroupsLock)'),
+      })
+    )
+    expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
+      2,
       { eventId: 'testInvited', id: 'testInvited5' },
       {
+        remove: ['cancelReason'],
         set: {
           cancelled: false,
           group: { key: 'reserve', number: 3 },
@@ -178,7 +286,7 @@ describe('putRegistrationGroupsLambda', () => {
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      2,
+      3,
       { id: 'testInvited' },
       {
         set: {
@@ -194,7 +302,7 @@ describe('putRegistrationGroupsLambda', () => {
       'event-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      2,
+      3,
       { id: event.id },
       expect.objectContaining({
         set: expect.objectContaining({
@@ -253,9 +361,9 @@ describe('putRegistrationGroupsLambda', () => {
         }
       )
     )
-    expect(mockDynamoDB.update).toHaveBeenCalledTimes(3)
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(5)
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      1,
+      2,
       { eventId: 'testInvited', id: 'testInvited7' },
       {
         set: {
@@ -267,7 +375,7 @@ describe('putRegistrationGroupsLambda', () => {
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      2,
+      3,
       { eventId: 'testInvited', id: 'testInvited6' },
       {
         set: {
@@ -279,7 +387,7 @@ describe('putRegistrationGroupsLambda', () => {
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      3,
+      4,
       { id: 'testInvited' },
       {
         set: {
@@ -468,9 +576,9 @@ describe('putRegistrationGroupsLambda', () => {
         }
       )
     )
-    expect(mockDynamoDB.update).toHaveBeenCalledTimes(2)
+    expect(mockDynamoDB.update).toHaveBeenCalledTimes(4)
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      1,
+      2,
       { eventId: 'testInvited', id: 'testInvited4' },
       {
         set: {
@@ -483,7 +591,7 @@ describe('putRegistrationGroupsLambda', () => {
       'registration-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      2,
+      3,
       { id: 'testInvited' },
       {
         set: {
@@ -499,7 +607,7 @@ describe('putRegistrationGroupsLambda', () => {
       'event-table-not-found-in-env'
     )
     expect(mockDynamoDB.update).toHaveBeenNthCalledWith(
-      2,
+      3,
       { id: event.id },
       expect.objectContaining({
         set: expect.objectContaining({

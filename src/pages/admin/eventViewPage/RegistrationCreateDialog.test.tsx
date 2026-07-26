@@ -1,6 +1,6 @@
 import type { Registration, RegistrationClass } from '../../../types'
 import { render, screen } from '@testing-library/react'
-import { useRecoilState, useResetRecoilState } from 'recoil'
+import { useRecoilState } from 'recoil'
 import { eventWithStaticDates } from '../../../__mockData__/events'
 import { emptyBreeder, emptyDog, emptyPerson } from '../../../lib/data'
 import { adminNewRegistrationAtom } from '../recoil'
@@ -19,9 +19,7 @@ jest.mock('./RegistrationDialogBase', () => {
 
 describe('RegistrationCreateDialog', () => {
   const mockUseRecoilState = useRecoilState as jest.Mock
-  const mockUseResetRecoilState = useResetRecoilState as jest.Mock
   const mockSetRegistration = jest.fn()
-  const mockResetRegistration = jest.fn()
 
   const defaultRegistration: Registration = {
     agreeToTerms: false,
@@ -49,7 +47,6 @@ describe('RegistrationCreateDialog', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseRecoilState.mockReturnValue([defaultRegistration, mockSetRegistration])
-    mockUseResetRecoilState.mockReturnValue(mockResetRegistration)
   })
 
   // 1. Rendering Tests
@@ -72,7 +69,7 @@ describe('RegistrationCreateDialog', () => {
           event: eventWithStaticDates,
           open: true,
           registration: defaultRegistration,
-          resetRegistration: mockResetRegistration,
+          resetRegistration: expect.any(Function),
           setRegistration: mockSetRegistration,
         }),
         expect.anything()
@@ -109,7 +106,6 @@ describe('RegistrationCreateDialog', () => {
       render(<RegistrationCreateDialog event={eventWithStaticDates} open={true} />)
 
       expect(mockUseRecoilState).toHaveBeenCalledWith(adminNewRegistrationAtom)
-      expect(mockUseResetRecoilState).toHaveBeenCalledWith(adminNewRegistrationAtom)
     })
 
     it('should pass registration state to RegistrationDialogBase', () => {
@@ -298,7 +294,7 @@ describe('RegistrationCreateDialog', () => {
           onClose: mockOnClose,
           open: true,
           registration: defaultRegistration,
-          resetRegistration: mockResetRegistration,
+          resetRegistration: expect.any(Function),
           setRegistration: mockSetRegistration,
         }),
         expect.anything()

@@ -90,6 +90,23 @@ export type JsonRegistrationGroupInfo = Pick<
   'eventId' | 'id' | 'group' | 'cancelled' | 'cancelReason'
 >
 
+/**
+ * A placement instruction, expressed relative to a registration rather than a
+ * client-calculated ordinal. This makes the instruction safe to replay after
+ * another client has changed the same event.
+ */
+export type RegistrationGroupMove = {
+  id: string
+  group: {
+    key: string
+    date?: string | Date
+    time?: RegistrationTime
+  }
+  /** Insert before this registration in the destination group; omit to append. */
+  beforeId?: string
+  cancelReason?: string
+}
+
 export interface ManualTestResult extends QualifyingResult {
   id: string
   regNo: string

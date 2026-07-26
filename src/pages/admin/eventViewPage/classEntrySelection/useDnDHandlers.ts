@@ -4,7 +4,7 @@ import type {
   Registration,
   RegistrationDate,
   RegistrationGroup,
-  RegistrationGroupInfo,
+  RegistrationGroupMove,
 } from '../../../../types'
 import type { DragItem } from './types'
 import { useSnackbar } from 'notistack'
@@ -26,8 +26,17 @@ interface UseDnDHandlersArgs {
     cancellationText: string
   }) => Promise<{ confirmed: boolean }>
   setSelectedRegistrationId?: (id: string | undefined) => void
-  saveGroups: (eventId: string, groups: RegistrationGroupInfo[]) => Promise<false | undefined>
+  saveGroups: (eventId: string, groups: RegistrationGroupMove[]) => Promise<false | undefined>
   onCancelOpen: (id: string) => void
+}
+
+const findAnchor = (change: Pick<Registration, 'group' | 'id'>, registrations: Registration[]) => {
+  const number = change.group?.number
+  if (typeof number !== 'number') return undefined
+
+  return registrations.find(
+    (candidate) => candidate.id !== change.id && (candidate.group?.number ?? Infinity) >= Math.ceil(number)
+  )
 }
 
 export const useDnDHandlers = ({
@@ -68,7 +77,23 @@ export const useDnDHandlers = ({
 
     if (save.length) {
       if (save.length === 1 && (save[0] as any).cancelled) onCancelOpen(save[0].id)
-      else await saveGroups(reg.eventId, save)
+      else
+        await saveGroups(
+          reg.eventId,
+          save.map((change) => {
+            const before = findAnchor(change, regs)
+            return {
+              cancelReason: change.cancelReason,
+              group: {
+                date: change.group?.date,
+                key: change.group?.key ?? GROUP_KEY_RESERVE,
+                time: change.group?.time,
+              },
+              id: change.id,
+              ...(before ? { beforeId: before.id } : {}),
+            }
+          })
+        )
     }
   }
 

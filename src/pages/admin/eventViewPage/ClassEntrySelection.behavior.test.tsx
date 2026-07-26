@@ -156,7 +156,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: GROUP_KEY_RESERVE, number: 2 }),
+        group: expect.objectContaining({ key: GROUP_KEY_RESERVE }),
         id: 'target-participant',
       }),
     ])
@@ -209,7 +209,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', time: 'ip' }),
         id: 'participant-1',
       }),
     ])
@@ -222,7 +222,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', time: 'ip' }),
         id: 'reserve-1',
       }),
     ])
@@ -235,7 +235,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', time: 'ip' }),
         id: 'participant-1',
       }),
     ])
@@ -248,7 +248,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     expect(mockSaveGroups).toHaveBeenCalledWith(eventWithStaticDatesAnd3Classes.id, [
       expect.objectContaining({
-        group: expect.objectContaining({ key: '2021-02-10-ip', number: 2.5, time: 'ip' }),
+        group: expect.objectContaining({ key: '2021-02-10-ip', time: 'ip' }),
         id: 'reserve-1',
       }),
     ])

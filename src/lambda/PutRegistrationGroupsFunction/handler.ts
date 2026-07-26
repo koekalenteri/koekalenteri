@@ -1,17 +1,18 @@
-import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonRegistrationGroupInfo, JsonUser } from '../../types'
+import type { EventState, JsonConfirmedEvent, JsonRegistration, JsonUser, RegistrationGroupMove } from '../../types'
 import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getRegistrationGroupKey,
   isParticipantGroup,
 } from '../../lib/registration'
+import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
 import { getOrigin } from '../lib/api-gw'
 import { audit, eventAuditKey, registrationAuditKey } from '../lib/audit'
 import { authorizeWithMemberOf } from '../lib/auth'
-import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
+import { lockRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
 import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
-import { getParam, lambda, response } from '../lib/lambda'
+import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import {
   createRegistrationPatches,
   getCancelAuditMessage,
@@ -59,26 +60,23 @@ const auditSentMessages = async (
   })
 }
 
-const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegistrationGroupInfo[], user: JsonUser) => {
-  // create a new copy of oldItems, so we can update without touching the original ones
-  const updatedItems: JsonRegistration[] = oldItems.map((r) => ({ ...r }))
-
-  // update the items in memory first
-  for (const group of eventGroups) {
-    const reg = updatedItems.find((r) => r.id === group.id)
-    if (reg) {
-      Object.assign(reg, group)
-    }
+const updateItems = async (oldItems: JsonRegistration[], moves: RegistrationGroupMove[], user: JsonUser) => {
+  const { invalid, items: updatedItems } = applyRegistrationGroupMoves(oldItems, moves)
+  if (invalid.length) {
+    throw new LambdaError(409, 'Registration groups have changed. Please refresh and retry.')
   }
-
-  // fix numbering etc, because client might provide outdated / out of bounds info, but do not update db
-  await fixRegistrationGroups(updatedItems, user, false)
 
   // Finally save any changes
   for (const reg of updatedItems) {
     const oldGroup = oldItems.find((r) => r.id === reg.id)?.group
-    if (reg.group?.key !== oldGroup?.key || reg.group?.number !== oldGroup?.number) {
-      const reason = eventGroups.some((g) => g.id === reg.id) ? 'siirto' : 'seuraus'
+    const old = oldItems.find((item) => item.id === reg.id)
+    if (
+      reg.group?.key !== oldGroup?.key ||
+      reg.group?.number !== oldGroup?.number ||
+      reg.cancelled !== old?.cancelled ||
+      reg.cancelReason !== old?.cancelReason
+    ) {
+      const reason = moves.some((move) => move.id === reg.id) ? 'siirto' : 'seuraus'
 
       // update cancellation status, so the counts get right in updateRegistrations
       reg.cancelled = reg.group?.key === GROUP_KEY_CANCELLED
@@ -90,15 +88,34 @@ const updateItems = async (oldItems: JsonRegistration[], eventGroups: JsonRegist
   return updatedItems
 }
 
-const parseGroups = (json: string | null, eventId: string): JsonRegistrationGroupInfo[] => {
+const parseMoves = (json: string | null): RegistrationGroupMove[] => {
   const parsed = parseJSONWithFallback(json, [])
   if (!parsed || !Array.isArray(parsed) || parsed.length === 0) {
     return []
   }
-  const filtered: JsonRegistrationGroupInfo[] = parsed.filter((g) => g.eventId === eventId)
+  // Legacy RegistrationGroupInfo payloads may still contain eventId,
+  // cancelled, and group.number. Accept those extra fields while cached
+  // clients expire; group.number is intentionally ignored, so a legacy item
+  // without beforeId uses the move API's append semantics.
+  // TODO: Reject legacy RegistrationGroupInfo-only fields after cached clients
+  // have expired.
+  const filtered: RegistrationGroupMove[] = parsed.filter((move): move is RegistrationGroupMove =>
+    Boolean(
+      move &&
+        typeof move === 'object' &&
+        // `position` belongs to transient drag state, not the API command.
+        !('position' in move) &&
+        typeof move.id === 'string' &&
+        move.group &&
+        typeof move.group.key === 'string'
+    )
+  )
 
   if (filtered.length === 0) {
-    console.error(`no groups after filtering by eventId='${eventId}'`, parsed)
+    console.error('no valid registration group moves', parsed)
+  } else if (filtered.length !== parsed.length) {
+    console.error('invalid registration group moves', parsed)
+    return []
   }
   return filtered
 }
@@ -110,22 +127,53 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   const origin = getOrigin(event)
   const eventId = getParam(event, 'eventId')
-  const eventGroups = parseGroups(event.body, eventId)
+  const moves = parseMoves(event.body)
 
-  if (eventGroups.length === 0) {
+  if (moves.length === 0) {
     return response(422, 'no groups', event)
   }
 
   await getAuthorizedEvent(user, memberOf, eventId)
 
-  const oldItems = await getReadyRegistrationsByEventId(eventId)
+  // Keep the read, normalization, writes, and count recalculation on one event
+  // snapshot. A concurrent request receives 409 instead of applying stale
+  // ordering over this one.
+  const releaseRegistrationGroupsLock = await lockRegistrationGroups(eventId)
+  let oldItems: JsonRegistration[]
+  let updatedItems: JsonRegistration[]
+  let confirmedEvent: JsonConfirmedEvent
+  let cls: string | null | undefined
+  let oldCancelled: JsonRegistration[]
+  let oldResCan: JsonRegistration[]
 
-  // create a new copy of oldItems, so we can update without touching the original ones
-  const updatedItems = await updateItems(oldItems, eventGroups, user)
+  try {
+    oldItems = await getReadyRegistrationsByEventId(eventId, true)
 
-  // update event counts
-  const confirmedEvent = await updateRegistrations(eventId, updatedItems)
-  const cls = updatedItems.find((item) => item.id === eventGroups[0].id)?.class
+    const affectedClasses = new Set(
+      moves
+        .map((move) => oldItems.find((registration) => registration.id === move.id)?.class)
+        .filter(
+          (registrationClass): registrationClass is NonNullable<JsonRegistration['class']> =>
+            registrationClass !== undefined
+        )
+    )
+    if (affectedClasses.size > 1) {
+      throw new LambdaError(422, 'Registration group moves must belong to one class.')
+    }
+
+    // create a new copy of oldItems, so we can update without touching the original ones
+    updatedItems = await updateItems(oldItems, moves, user)
+
+    // update event counts
+    confirmedEvent = await updateRegistrations(eventId, updatedItems)
+    cls = updatedItems.find((item) => item.id === moves[0].id)?.class
+
+    oldCancelled = oldItems.filter((reg) => getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED)
+    oldResCan =
+      oldItems.filter((reg) => [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE].includes(getRegistrationGroupKey(reg))) ?? []
+  } finally {
+    await releaseRegistrationGroupsLock()
+  }
 
   const emails = {
     cancelledFailed: [],
@@ -137,10 +185,6 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     reserveFailed: [],
     reserveOk: [],
   }
-
-  const oldCancelled = oldItems.filter((reg) => getRegistrationGroupKey(reg) === GROUP_KEY_CANCELLED)
-  const oldResCan =
-    oldItems.filter((reg) => [GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE].includes(getRegistrationGroupKey(reg))) ?? []
 
   const picked = isEventOrClassState(confirmedEvent, cls, 'picked')
   const invited = isEventOrClassState(confirmedEvent, cls, 'invited')

@@ -212,7 +212,11 @@ test('putRegistrationGroups', async () => {
       : Promise.reject(new Error(`${req.method} !== 'POST'`))
   )
 
-  const { items } = await putRegistrationGroups('test-id', [mockRegistration], 'test-token')
+  const { items } = await putRegistrationGroups(
+    'test-id',
+    [{ group: { key: 'reserve' }, id: mockRegistration.id }],
+    'test-token'
+  )
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/reg-groups/test-id`)
   expect(items.length).toEqual(1)

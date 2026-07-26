@@ -401,6 +401,28 @@ describe('sendMessagesLambda', () => {
     })
   })
 
+  it('does not return or broadcast registration workflow state', async () => {
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
+      {
+        ...mockRegistrations[0],
+        creationIdempotencyKey: 'secret',
+        newRegistrationLease: { expiresAt: 123, token: 'lease-token' },
+        newRegistrationPublishedAt: '2026-01-01T00:00:00.000Z',
+      },
+      mockRegistrations[1],
+    ])
+
+    await sendMessagesLambda(event)
+
+    const published = mockPublishRegistrationPatches.mock.calls[0][1] as Array<Record<string, unknown>>
+    const returned = (mockResponse.mock.calls[0][1] as { registrations: Array<Record<string, unknown>> }).registrations
+    for (const registration of [...published, ...returned]) {
+      expect(registration).not.toHaveProperty('creationIdempotencyKey')
+      expect(registration).not.toHaveProperty('newRegistrationLease')
+      expect(registration).not.toHaveProperty('newRegistrationPublishedAt')
+    }
+  })
+
   it('does not mark participants when only one registration ID is provided with invitation template', async () => {
     // Modify the parsed JSON to have only one registration ID
     mockParseJSONWithFallback.mockReturnValueOnce({

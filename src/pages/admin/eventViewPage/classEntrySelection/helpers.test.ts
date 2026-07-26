@@ -390,18 +390,10 @@ describe('helpers', () => {
         id: 'reg1',
       } as Partial<Registration> as Registration
 
-      const result = buildMoveToPositionGroupChange(
-        selectedRegistration,
-        3.5,
-        'event1',
-        mockGroups,
-        registrationsByGroup
-      )
+      const result = buildMoveToPositionGroupChange(selectedRegistration, 3.5, mockGroups, registrationsByGroup)
 
       expect(result).toEqual({
-        cancelled: false,
-        eventId: 'event1',
-        group: { date: mockGroups[1].date, key: 'group2', number: 3.5, time: 'ip' },
+        group: { date: mockGroups[1].date, key: 'group2', time: 'ip' },
         id: 'reg1',
       })
     })
@@ -414,18 +406,31 @@ describe('helpers', () => {
         id: 'reg1',
       } as Partial<Registration> as Registration
 
-      const result = buildMoveToPositionGroupChange(
-        selectedRegistration,
-        2.5,
-        'event1',
-        mockGroups,
-        registrationsByGroup
-      )
+      const result = buildMoveToPositionGroupChange(selectedRegistration, 2.5, mockGroups, registrationsByGroup)
 
       expect(result).toEqual({
-        cancelled: false,
+        group: { date: mockGroups[1].date, key: 'group2', time: 'ip' },
+        id: 'reg1',
+      })
+    })
+
+    it('uses the next registration as a semantic insertion anchor', () => {
+      const selectedRegistration = {
+        dates: allowedDates,
         eventId: 'event1',
-        group: { date: mockGroups[1].date, key: 'group2', number: 2.5, time: 'ip' },
+        group: { key: GROUP_KEY_RESERVE, number: 1 },
+        id: 'reg1',
+      } as Partial<Registration> as Registration
+      const result = buildMoveToPositionGroupChange(selectedRegistration, 2.5, mockGroups, {
+        group2: [
+          { group: { key: 'group2', number: 2 }, id: 'at-two' } as RegistrationWithGroups,
+          { group: { key: 'group2', number: 3 }, id: 'at-three' } as RegistrationWithGroups,
+        ],
+      })
+
+      expect(result).toEqual({
+        beforeId: 'at-three',
+        group: { date: mockGroups[1].date, key: 'group2', time: 'ip' },
         id: 'reg1',
       })
     })
@@ -438,18 +443,10 @@ describe('helpers', () => {
         id: 'reg1',
       } as Partial<Registration> as Registration
 
-      const result = buildMoveToPositionGroupChange(
-        selectedRegistration,
-        2.5,
-        'event1',
-        mockGroups,
-        registrationsByGroup
-      )
+      const result = buildMoveToPositionGroupChange(selectedRegistration, 2.5, mockGroups, registrationsByGroup)
 
       expect(result).toEqual({
-        cancelled: false,
-        eventId: 'event1',
-        group: { key: GROUP_KEY_CANCELLED, number: 2.5 },
+        group: { date: undefined, key: GROUP_KEY_CANCELLED, time: undefined },
         id: 'reg1',
       })
     })
@@ -462,13 +459,7 @@ describe('helpers', () => {
         id: 'reg1',
       } as Partial<Registration> as Registration
 
-      const result = buildMoveToPositionGroupChange(
-        selectedRegistration,
-        4.5,
-        'event1',
-        mockGroups,
-        registrationsByGroup
-      )
+      const result = buildMoveToPositionGroupChange(selectedRegistration, 4.5, mockGroups, registrationsByGroup)
 
       expect(result).toBeUndefined()
     })
@@ -490,12 +481,10 @@ describe('helpers', () => {
         group2: [{ group: { key: 'group2', number: 2 }, id: 'reg2' } as RegistrationWithGroups],
       }
 
-      const result = buildMoveToGroupChange(selectedRegistration, 'group2', 'event1', mockGroups, registrationsByGroup)
+      const result = buildMoveToGroupChange(selectedRegistration, 'group2', mockGroups)
 
       expect(result).toEqual({
-        cancelled: false,
-        eventId: 'event1',
-        group: { date: mockGroups[1].date, key: 'group2', number: 2.5, time: 'ip' },
+        group: { date: mockGroups[1].date, key: 'group2', time: 'ip' },
         id: 'reg1',
       })
     })
@@ -507,12 +496,10 @@ describe('helpers', () => {
         id: 'reg1',
       } as Partial<Registration> as Registration
 
-      const result = buildMoveToGroupChange(selectedRegistration, 'group2', 'event1', mockGroups, {})
+      const result = buildMoveToGroupChange(selectedRegistration, 'group2', mockGroups)
 
       expect(result).toEqual({
-        cancelled: false,
-        eventId: 'event1',
-        group: { date: mockGroups[1].date, key: 'group2', number: 1, time: 'ip' },
+        group: { date: mockGroups[1].date, key: 'group2', time: 'ip' },
         id: 'reg1',
       })
     })
@@ -530,12 +517,10 @@ describe('helpers', () => {
         ],
       }
 
-      const result = buildMoveToGroupChange(selectedRegistration, 'group2', 'event1', mockGroups, registrationsByGroup)
+      const result = buildMoveToGroupChange(selectedRegistration, 'group2', mockGroups)
 
       expect(result).toEqual({
-        cancelled: false,
-        eventId: 'event1',
-        group: { date: mockGroups[1].date, key: 'group2', number: 3.5, time: 'ip' },
+        group: { date: mockGroups[1].date, key: 'group2', time: 'ip' },
         id: 'reg1',
       })
     })
@@ -547,7 +532,7 @@ describe('helpers', () => {
         id: 'reg1',
       } as Partial<Registration> as Registration
 
-      const result = buildMoveToGroupChange(selectedRegistration, 'missing', 'event1', mockGroups, {})
+      const result = buildMoveToGroupChange(selectedRegistration, 'missing', mockGroups)
 
       expect(result).toBeUndefined()
     })

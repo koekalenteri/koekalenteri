@@ -12,12 +12,7 @@ import { useRecoilState, useRecoilValue } from 'recoil'
 import useAdminEventRegistrationInfo from '../../hooks/useAdminEventRegistrationsInfo'
 import { useEventSubscription } from '../../hooks/useEventSubscription'
 import { reportError } from '../../lib/client/error'
-import {
-  GROUP_KEY_CANCELLED,
-  getRegistrationClass,
-  getRegistrationGroupKey,
-  isRegistrationClass,
-} from '../../lib/registration'
+import { getRegistrationClass, isRegistrationClass } from '../../lib/registration'
 import CancelDialog from '../components/CancelDialog'
 import LoadingIndicator from '../components/LoadingIndicator'
 import EventNotFound from './components/EventNotFound'
@@ -103,13 +98,10 @@ export default function EventViewPage() {
   const handleCancel = useCallback(
     async (reason: string) => {
       if (!selectedRegistration) return
-      const regs = allRegistrations.filter(
-        (r) => getRegistrationGroupKey(r) === GROUP_KEY_CANCELLED && r.id !== selectedRegistration.id
-      )
       setCancelOpen(false)
-      await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason, regs.length + 1)
+      await actions.cancel(selectedRegistration.eventId, selectedRegistration.id, reason)
     },
-    [actions, allRegistrations, selectedRegistration]
+    [actions, selectedRegistration]
   )
 
   useEffect(() => {

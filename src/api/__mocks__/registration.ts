@@ -1,4 +1,4 @@
-import type { AuditRecord, ConfirmedEvent, Patch, Registration, RegistrationGroupInfo } from '../../types'
+import type { AuditRecord, ConfirmedEvent, Patch, Registration, RegistrationGroupMove } from '../../types'
 import { parseISO } from 'date-fns'
 import { mockRegistrationData } from '../../__mockData__/registrations'
 import { mockEvents } from './event'
@@ -125,8 +125,9 @@ export async function putAdminRegistration(
 }
 
 export async function putRegistrationGroups(
-  _groups: RegistrationGroupInfo[],
-  _token?: string,
+  _eventId: string,
+  _moves: RegistrationGroupMove[],
+  _token: string,
   _signal?: AbortSignal
 ): Promise<Pick<ConfirmedEvent, 'classes' | 'entries'> & { items: Registration[] }> {
   throw new Error('not implemented')

@@ -1,6 +1,6 @@
-import type { Patch, PublicDogEvent, Registration, RegistrationGroupInfo } from '../../../../types'
+import type { Patch, PublicDogEvent, Registration, RegistrationGroupMove } from '../../../../types'
 import { useSnackbar } from 'notistack'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilCallback, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { createRefund } from '../../../../api/payment'
@@ -23,10 +23,16 @@ import {
   adminEventRegistrationsAtom,
   adminEventRegistrationsCursorAtom,
   adminEventRegistrationsFetchedAtAtom,
+  adminPendingRegistrationGroupMovesAtom,
 } from './atoms'
 import { adminEventRegistrationsSelector } from './selectors'
 
 const REGISTRATIONS_REFRESH_GRACE_MS = 5 * 60 * 1000
+
+type GroupMoveCommand = {
+  move: RegistrationGroupMove
+  resolve: (result: false | undefined) => void
+}
 
 const registrationDebug = (message: string, details: unknown) => {
   if (!isTestEnv()) console.debug(message, details)
@@ -36,10 +42,19 @@ export const useAdminRegistrationActions = (eventId: string) => {
   const [eventRegistrations, setEventRegistrations] = useRecoilState(adminEventRegistrationsSelector(eventId))
   const [event, setEvent] = useRecoilState(adminEventSelector(eventId))
   const setBackgroundActionsRunning = useSetRecoilState(adminBackgroundActionsRunningAtom)
+  const setPendingGroupMoves = useSetRecoilState(adminPendingRegistrationGroupMovesAtom(eventId))
   const token = useRecoilValue(validIdTokenSelector)
   const refreshInFlightRef = useRef<Promise<void> | undefined>(undefined)
+  const groupMoveInFlightRef = useRef<Promise<false | undefined> | undefined>(undefined)
+  const inFlightGroupMovesRef = useRef<GroupMoveCommand[]>([])
+  const queuedGroupMovesRef = useRef<GroupMoveCommand[]>([])
+  const eventRegistrationsRef = useRef(eventRegistrations)
   const { enqueueSnackbar } = useSnackbar()
   const { t } = useTranslation()
+
+  useEffect(() => {
+    eventRegistrationsRef.current = eventRegistrations
+  }, [eventRegistrations])
 
   const refreshIfStale = useRecoilCallback(
     ({ set, snapshot }) =>
@@ -114,105 +129,194 @@ export const useAdminRegistrationActions = (eventId: string) => {
     setEventRegistrations([...regs])
   }
 
-  const saveGroups = async (targetEventId: string, groups: RegistrationGroupInfo[]) => {
-    try {
-      if (!token) throw new Error('missing token')
+  const registrationClassForMove = (move: RegistrationGroupMove) =>
+    eventRegistrationsRef.current.find((registration) => registration.id === move.id)?.class ?? ''
 
-      // early update for respinsiveness
-      const regs = [...eventRegistrations]
-      for (const group of groups) {
-        const index = regs.findIndex((r) => r.id === group.id)
-        if (index === -1) continue
-        const reg = regs[index]
-        regs.splice(index, 1, { ...reg, ...group })
-      }
-      setEventRegistrations([...regs])
-      setBackgroundActionsRunning(true)
-
-      const {
-        items,
-        classes,
-        entries,
-        invitedOk,
-        invitedFailed,
-        pickedOk,
-        pickedFailed,
-        reserveOk,
-        reserveFailed,
-        cancelledOk,
-        cancelledFailed,
-      } = await putRegistrationGroups(targetEventId, groups, token)
-
-      if (pickedOk.length) {
-        enqueueSnackbar(`Koepaikkailmoitus lähetetty onnistuneesti\n\n${pickedOk.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (invitedOk.length) {
-        enqueueSnackbar(`Koekutsu lähetetty onnistuneesti\n\n${invitedOk.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (reserveOk.length) {
-        enqueueSnackbar(`Varasijailmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (cancelledOk.length) {
-        enqueueSnackbar(`Peruutusilmoitus lähetetty onnistuneesti\n\n${cancelledOk.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (pickedFailed.length) {
-        enqueueSnackbar(`Koepaikkailmoituksen lähetys epäonnistui 💩\n\n${pickedFailed.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (invitedFailed.length) {
-        enqueueSnackbar(`Koekutsun lähetys epäonnistui 💩\n\n${invitedFailed.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (pickedFailed.length) {
-        enqueueSnackbar(`Varasijailmoituksen lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      if (cancelledFailed.length) {
-        enqueueSnackbar(`Peruutusilmoituksen lähetys epäonnistui 💩\n\n${cancelledFailed.join('\n')}`, {
-          style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
-          variant: 'success',
-        })
-      }
-      // Defensive against backend returning sparse arrays / null items.
-      // MUI X v7 will crash if `rows` contains nullish entries.
-      setEventRegistrations((items as Array<Registration | null | undefined>).filter(Boolean) as Registration[])
-      if (event) {
-        setEvent({ ...event, classes, entries })
-      }
-      setBackgroundActionsRunning(false)
-    } catch (e) {
-      setBackgroundActionsRunning(false)
-      reportError(e)
-      return false
+  const saveGroups = async (
+    targetEventId: string,
+    groups: RegistrationGroupMove[],
+    commands: GroupMoveCommand[] = []
+  ): Promise<false | undefined> => {
+    // Send the first move immediately. Moves made while it is in flight are
+    // projected locally and sent together as the next request.
+    if (groupMoveInFlightRef.current) {
+      const queued = groups.map(
+        (move) =>
+          new Promise<false | undefined>((resolve) => {
+            queuedGroupMovesRef.current.push({ move, resolve })
+          })
+      )
+      setPendingGroupMoves((current) => [...current, ...groups])
+      const results = await Promise.all(queued)
+      return results.includes(false) ? false : undefined
     }
+
+    setPendingGroupMoves((current) => [...current, ...groups])
+    // The immediate first batch has no waiting callers, but it still needs
+    // command records so completion removes its optimistic projection.
+    inFlightGroupMovesRef.current =
+      commands.length > 0 ? commands : groups.map((move) => ({ move, resolve: () => undefined }))
+
+    let failed = false
+    const run = (async () => {
+      try {
+        if (!token) throw new Error('missing token')
+
+        setBackgroundActionsRunning(true)
+
+        const {
+          items,
+          classes,
+          entries,
+          invitedOk,
+          invitedFailed,
+          pickedOk,
+          pickedFailed,
+          reserveOk,
+          reserveFailed,
+          cancelledOk,
+          cancelledFailed,
+        } = await putRegistrationGroups(targetEventId, groups, token)
+
+        if (pickedOk.length) {
+          enqueueSnackbar(`Koepaikkailmoitus lähetetty onnistuneesti\n\n${pickedOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (invitedOk.length) {
+          enqueueSnackbar(`Koekutsu lähetetty onnistuneesti\n\n${invitedOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (reserveOk.length) {
+          enqueueSnackbar(`Varasijailmoitus lähetetty onnistuneesti\n\n${reserveOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (cancelledOk.length) {
+          enqueueSnackbar(`Peruutusilmoitus lähetetty onnistuneesti\n\n${cancelledOk.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (pickedFailed.length) {
+          enqueueSnackbar(`Koepaikkailmoituksen lähetys epäonnistui 💩\n\n${pickedFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (invitedFailed.length) {
+          enqueueSnackbar(`Koekutsun lähetys epäonnistui 💩\n\n${invitedFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (reserveFailed.length) {
+          enqueueSnackbar(`Varasijailmoituksen lähetys epäonnistui 💩\n\n${reserveFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        if (cancelledFailed.length) {
+          enqueueSnackbar(`Peruutusilmoituksen lähetys epäonnistui 💩\n\n${cancelledFailed.join('\n')}`, {
+            style: { overflowWrap: 'break-word', whiteSpace: 'pre-line' },
+            variant: 'success',
+          })
+        }
+        // Defensive against backend returning sparse arrays / null items.
+        // MUI X v7 will crash if `rows` contains nullish entries.
+        const confirmed = (items as Array<Registration | null | undefined>).filter(Boolean) as Registration[]
+        const completed = new Set(inFlightGroupMovesRef.current.map((command) => command.move))
+        setPendingGroupMoves((current) => current.filter((move) => !completed.has(move)))
+        inFlightGroupMovesRef.current.forEach((command) => {
+          command.resolve(undefined)
+        })
+        setEventRegistrations(confirmed)
+        if (event) {
+          setEvent({ ...event, classes, entries })
+        }
+        setBackgroundActionsRunning(false)
+      } catch (e) {
+        failed = true
+        // A failed request can be ambiguous (for example a dropped response).
+        // Discard every local command as one unit and reload the authoritative
+        // snapshot instead of letting later commands consume the wrong prefix.
+        inFlightGroupMovesRef.current.forEach((command) => {
+          command.resolve(false)
+        })
+        queuedGroupMovesRef.current.splice(0).forEach((command) => {
+          command.resolve(false)
+        })
+        setPendingGroupMoves([])
+        if (token) {
+          try {
+            const latest = await getRegistrations(targetEventId, token)
+            if (Array.isArray(latest)) setEventRegistrations(latest)
+          } catch (refreshError) {
+            console.error('Unable to refresh registrations after group move failure', refreshError)
+          }
+        }
+        setBackgroundActionsRunning(false)
+        reportError(e)
+        return false
+      }
+    })()
+
+    groupMoveInFlightRef.current = run
+    void run
+      .then((result) => {
+        if (result === false) return
+        const queued = queuedGroupMovesRef.current.splice(0)
+        const nextClass = queued[0] ? registrationClassForMove(queued[0].move) : undefined
+        const nextBatch = queued.filter((command) => registrationClassForMove(command.move) === nextClass)
+        queuedGroupMovesRef.current.push(
+          ...queued.filter((command) => registrationClassForMove(command.move) !== nextClass)
+        )
+        if (nextBatch.length) {
+          const nextBatchSet = new Set(nextBatch.map((command) => command.move))
+          setPendingGroupMoves((current) => current.filter((move) => !nextBatchSet.has(move)))
+          groupMoveInFlightRef.current = undefined
+          void saveGroups(
+            targetEventId,
+            nextBatch.map((command) => command.move),
+            nextBatch
+          )
+        }
+      })
+      .finally(() => {
+        if (groupMoveInFlightRef.current !== run) return
+        groupMoveInFlightRef.current = undefined
+
+        // Commands added while the authoritative refresh was in progress were
+        // intentionally not part of the failed batch. Start them once recovery
+        // has completed rather than leaving their optimistic projection stuck.
+        if (failed) {
+          const queued = queuedGroupMovesRef.current.splice(0)
+          if (queued.length) {
+            // saveGroups adds its submitted batch to the pending overlay. Remove
+            // this already-projected copy first so recovery does not duplicate it.
+            const queuedSet = new Set(queued.map((command) => command.move))
+            setPendingGroupMoves((current) => current.filter((move) => !queuedSet.has(move)))
+            void saveGroups(
+              targetEventId,
+              queued.map((command) => command.move),
+              queued
+            )
+          }
+        }
+      })
+    return run
   }
 
   return {
-    async cancel(eventId: string, id: string, cancelReason: string, number: number) {
+    async cancel(eventId: string, id: string, cancelReason: string) {
       const reg = eventRegistrations.find((r) => r.id === id)
       if (!reg) throw new Error('unexpected error occured')
 
-      await saveGroups(eventId, [
-        { cancelled: true, cancelReason, eventId, group: { key: GROUP_KEY_CANCELLED, number }, id },
-      ])
+      await saveGroups(eventId, [{ cancelReason, group: { key: GROUP_KEY_CANCELLED }, id }])
     },
 
     async putInternalNotes(
@@ -257,6 +361,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
         handler: reg.ownerHandles && reg.owner ? { ...reg.owner } : reg.handler,
         payer: reg.ownerPays && reg.owner ? { ...reg.owner } : reg.payer,
       }
+      const creationIdempotencyKey = !reg.id ? reg.creationIdempotencyKey : undefined
       const request = formChanges
         ? {
             ...formChanges,
@@ -266,6 +371,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
             ...('owner' in formChanges || 'ownerPays' in formChanges ? { payer: regWithOverrides.payer } : {}),
           }
         : regWithOverrides
+      if (creationIdempotencyKey) request.creationIdempotencyKey = creationIdempotencyKey
       let saved: Registration
       try {
         saved = await putAdminRegistration(request, token)

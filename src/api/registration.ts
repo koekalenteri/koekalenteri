@@ -6,7 +6,7 @@ import type {
   Patch,
   PublicRegistration,
   Registration,
-  RegistrationGroupInfo,
+  RegistrationGroupMove,
   Transaction,
 } from '../types'
 import http, { withToken } from './http'
@@ -120,12 +120,12 @@ type RegistrationGroupResponse = Pick<ConfirmedEvent, 'classes' | 'entries'> & {
 
 export async function putRegistrationGroups(
   eventId: string,
-  groups: RegistrationGroupInfo[],
+  groups: RegistrationGroupMove[],
   token: string,
   signal?: AbortSignal
 ): Promise<RegistrationGroupResponse> {
   return (
-    await http.post<RegistrationGroupInfo[], RegistrationGroupResponse>(
+    await http.post<RegistrationGroupMove[], RegistrationGroupResponse>(
       `/admin/reg-groups/${eventId}`,
       groups,
       withToken({ signal }, token)

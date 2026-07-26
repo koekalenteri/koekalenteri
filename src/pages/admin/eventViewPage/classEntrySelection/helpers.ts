@@ -1,4 +1,4 @@
-import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupInfo } from '../../../../types'
+import type { CustomCost, DogEvent, Registration, RegistrationGroup, RegistrationGroupMove } from '../../../../types'
 import type { RegistrationWithGroups } from './types'
 import { isSameDay } from 'date-fns'
 import { eventRegistrationDateKey } from '../../../../lib/event'
@@ -123,68 +123,60 @@ export const findMoveToPositionTargetGroup = (
 export const buildMoveToPositionGroupChange = (
   selectedForAction: Registration,
   position: number,
-  eventId: string,
   groups: RegistrationGroup[],
   registrationsByGroup: Record<string, RegistrationWithGroups[]>
-): RegistrationGroupInfo | undefined => {
+): RegistrationGroupMove | undefined => {
   const currentGroupKey = getRegistrationGroupKey(selectedForAction)
 
   if (currentGroupKey === GROUP_KEY_RESERVE || isParticipantGroup(currentGroupKey)) {
     const targetGroup = findMoveToPositionTargetGroup(selectedForAction, position, groups, registrationsByGroup)
     if (!targetGroup) return undefined
+    const before = (registrationsByGroup[targetGroup.key] ?? []).find(
+      (registration) =>
+        registration.id !== selectedForAction.id && (registration.group?.number ?? Infinity) >= Math.ceil(position)
+    )
 
     return {
-      cancelled: false,
-      eventId,
       group: {
         date: targetGroup.date,
         key: targetGroup.key,
-        number: position,
         time: targetGroup.time,
       },
       id: selectedForAction.id,
+      ...(before ? { beforeId: before.id } : {}),
     }
   }
 
   const currentGroup = selectedForAction.group
   if (!currentGroup) return undefined
+  const before = (registrationsByGroup[currentGroup.key] ?? []).find(
+    (registration) =>
+      registration.id !== selectedForAction.id && (registration.group?.number ?? Infinity) >= Math.ceil(position)
+  )
 
   return {
-    cancelled: false,
-    eventId,
     group: {
-      ...currentGroup,
-      number: position,
+      date: currentGroup.date,
+      key: currentGroup.key,
+      time: currentGroup.time,
     },
     id: selectedForAction.id,
+    ...(before ? { beforeId: before.id } : {}),
   }
 }
 
 export const buildMoveToGroupChange = (
   selectedForAction: Registration,
   groupKey: string,
-  eventId: string,
-  groups: RegistrationGroup[],
-  registrationsByGroup: Record<string, RegistrationWithGroups[]>
-): RegistrationGroupInfo | undefined => {
+  groups: RegistrationGroup[]
+): RegistrationGroupMove | undefined => {
   const targetGroup = groups.find((group) => group.key === groupKey)
   if (!targetGroup) return undefined
 
-  const groupRegistrations = (registrationsByGroup[targetGroup.key] ?? registrationsByGroup[groupKey] ?? []).filter(
-    (registration) => registration.id !== selectedForAction.id
-  )
-  const lastNumber = groupRegistrations.reduce((last, registration) => {
-    const number = registration.group?.number
-    return typeof number === 'number' && number > last ? number : last
-  }, 0)
-
   return {
-    cancelled: false,
-    eventId,
     group: {
       date: targetGroup.date,
       key: groupKey,
-      number: lastNumber ? lastNumber + 0.5 : 1,
       time: targetGroup.time,
     },
     id: selectedForAction.id,

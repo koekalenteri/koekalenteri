@@ -1,7 +1,7 @@
 import type { DogEvent, RegistrationClass } from '../../../types'
-import { useEffect } from 'react'
-import { useRecoilState, useResetRecoilState } from 'recoil'
-import { adminNewRegistrationAtom } from '../recoil'
+import { useCallback, useEffect } from 'react'
+import { useRecoilState } from 'recoil'
+import { adminNewRegistrationAtom, createAdminNewRegistration } from '../recoil'
 import RegistrationDialogBase from './RegistrationDialogBase'
 
 interface Props {
@@ -13,7 +13,9 @@ interface Props {
 
 export default function RegistrationCreateDialog({ event, eventClass, open, onClose }: Props) {
   const [registration, setRegistration] = useRecoilState(adminNewRegistrationAtom)
-  const resetRegistration = useResetRecoilState(adminNewRegistrationAtom)
+  const resetRegistration = useCallback(() => {
+    setRegistration(createAdminNewRegistration())
+  }, [setRegistration])
 
   useEffect(() => {
     if (!registration || !open) {

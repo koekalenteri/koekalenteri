@@ -9,6 +9,7 @@ import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
+  createRegistrationPatch,
   findClassesToMark,
   getReadyRegistrationsByEventId,
   groupRegistrationsByClass,
@@ -142,7 +143,11 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     user: user.name,
   })
 
-  await publishRegistrationPatches(eventId, registrations, confirmedEvent.organizer.id)
+  // Registrations are also returned to the admin caller, so use the same
+  // public patch shape for both channels. Workflow markers and the creation
+  // idempotency key must never be exposed to clients.
+  const registrationPatches = registrations.map((registration) => createRegistrationPatch(registration))
+  await publishRegistrationPatches(eventId, registrationPatches, confirmedEvent.organizer.id)
   if (template === 'picked' || template === 'invitation') {
     await publishEventPatch(
       {
@@ -156,7 +161,7 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
   }
 
   const { state, classes, startListPublished } = confirmedEvent
-  return response(200, { classes, failed, ok, registrations, startListPublished, state }, event)
+  return response(200, { classes, failed, ok, registrations: registrationPatches, startListPublished, state }, event)
 })
 
 export default sendMessagesLambda
