@@ -45,6 +45,7 @@ describe('registrationAccess', () => {
   it('drops privileged and workflow metadata from public patches', () => {
     const patch = publicRegistrationPatch(
       {
+        creationIdempotencyKey: 'attacker-controlled-key',
         eventId: 'event',
         group: { key: 'picked', number: 1 },
         id: 'registration',

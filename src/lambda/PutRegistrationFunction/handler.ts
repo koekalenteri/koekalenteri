@@ -14,7 +14,7 @@ import { GROUP_KEY_RESERVE, isParticipantGroup } from '../../lib/registration'
 import { isEntryOpen, isEventOver, isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
-import { audit, registrationAuditKey } from '../lib/audit'
+import { audit, auditStrict, registrationAuditKey } from '../lib/audit'
 import { getUsername } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
@@ -22,18 +22,28 @@ import {
   normalizeRegistrationEmails,
   shouldClearRegistrationEmailDeliveryStatus,
 } from '../lib/emailSuppression'
-import { getEvent, updateRegistrations } from '../lib/event'
+import {
+  fixRegistrationGroups,
+  getEvent,
+  lockRegistrationGroups,
+  lockRegistrationPayments,
+  repairReadyRegistrationGroups,
+  updateRegistrations,
+} from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
   clearRegistrationEmailDeliveryStatus,
   createRegistrationPatch,
+  createRegistrationPatches,
   findExistingRegistrationToEventForDog,
   getCancelAuditMessage,
+  getReadyRegistrationsByEventId,
   getRegistration,
   getRegistrationChanges,
   hasRegistrationChanges,
   patchRegistration,
+  registrationConflictBody,
   saveRegistration,
 } from '../lib/registration'
 import {
@@ -43,8 +53,9 @@ import {
   participantRegistrationResponse,
   publicRegistrationPatch,
 } from '../lib/registrationAccess'
-import { updateEventStatsForRegistration } from '../lib/stats'
-import { publishRegistrationPatches } from '../lib/ws/actions'
+import { claimNewRegistrationPostProcessing, markNewRegistrationPhase } from '../lib/registrationPostProcessing'
+import { applyNewRegistrationStatsOnce, updateEventStatsForRegistration } from '../lib/stats'
+import { publishRegistrationPatches, publishRegistrationPatchesStrict } from '../lib/ws/actions'
 
 const { emailFrom } = CONFIG
 
@@ -140,24 +151,74 @@ const prepareNewRegistration = async (
 
   const alreadyRegistered = await findExistingRegistrationToEventForDog(
     registration.eventId ?? '',
-    registration.dog?.regNo ?? ''
+    registration.dog?.regNo ?? '',
+    registration.creationIdempotencyKey ?? undefined
   )
 
-  if (alreadyRegistered) {
-    return response(
-      409,
-      {
-        cancelled: Boolean(alreadyRegistered.cancelled),
-        message: 'Conflict: Dog already registered to this event',
-      },
-      event
-    )
-  }
+  if (alreadyRegistered) return alreadyRegistered
 
   registration.id = nanoid(10)
   registration.createdAt = timestamp
   registration.createdBy = username
   registration.state = confirmedEvent.paymentTime === 'confirmation' ? 'ready' : 'creating'
+}
+
+const completeNewRegistration = async (
+  registration: JsonRegistration,
+  confirmedEvent: JsonConfirmedEvent,
+  origin: string,
+  username: string,
+  editToken: string,
+  groupPatches: Patch<JsonRegistration>[]
+) => {
+  const claim = await claimNewRegistrationPostProcessing(registration.eventId, registration.id)
+  // A concurrent request with the same creation key may arrive while the
+  // original request is completing these phases. Its owner will finish the
+  // workflow; returning the durable registration makes the retry idempotent.
+  if (!claim) return registration
+
+  const saved = claim.registration
+  try {
+    if (saved.newRegistrationProcessedAt) return saved
+
+    if (!saved.newRegistrationStatsAt) {
+      await applyNewRegistrationStatsOnce(saved, confirmedEvent, claim.token)
+    }
+
+    if (!saved.newRegistrationAuditAt) {
+      await auditStrict(
+        { auditKey: registrationAuditKey(saved), message: 'Ilmoittautui', user: username },
+        saved.createdAt
+      )
+      await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationAuditAt')
+    }
+
+    const context = getEmailContext(false, false, false, false)
+    if (
+      (context || confirmedEvent.paymentTime === 'confirmation') &&
+      saved.handler?.email &&
+      saved.owner?.email &&
+      !saved.newRegistrationEmailSentAt
+    ) {
+      await sendMessages(origin, context, saved, confirmedEvent, undefined, editToken)
+      await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationEmailSentAt')
+    }
+
+    if (!saved.newRegistrationPublishedAt && saved.state === 'ready') {
+      const updatedEvent = await updateRegistrations(saved.eventId)
+      await publishRegistrationPatchesStrict(
+        saved.eventId,
+        [createRegistrationPatch(saved), ...groupPatches.filter((patch) => patch.id !== saved.id)],
+        updatedEvent.organizer.id
+      )
+      await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationPublishedAt')
+    }
+
+    await markNewRegistrationPhase(saved.eventId, saved.id, claim.token, 'newRegistrationProcessedAt')
+    return saved
+  } finally {
+    await claim.release()
+  }
 }
 
 const sendMessages = async (
@@ -244,8 +305,35 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   }
 
   if (!existing) {
-    const errorResponse = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
-    if (errorResponse) return errorResponse
+    const duplicate = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
+    if (duplicate) {
+      if (!('eventId' in duplicate)) return duplicate
+      const groupPatches = await repairReadyRegistrationGroups(duplicate.eventId, { name: username })
+      if (
+        typeof registration.creationIdempotencyKey === 'string' &&
+        registration.creationIdempotencyKey === duplicate.creationIdempotencyKey
+      ) {
+        const editToken = await getRegistrationEditToken(duplicate)
+        // Reconciliation may have persisted consequential renumberings before
+        // the original publication failed. Send the current ready snapshot so
+        // this retry repairs every connected client's ordering, not just this
+        // registration's own patch.
+        const completed = await completeNewRegistration(
+          duplicate,
+          confirmedEvent,
+          origin,
+          username,
+          editToken,
+          groupPatches
+        )
+        return response(200, participantRegistrationResponse(completed, editToken), event)
+      }
+      if (groupPatches.length) {
+        const updatedEvent = await updateRegistrations(duplicate.eventId)
+        await publishRegistrationPatches(duplicate.eventId, groupPatches, updatedEvent.organizer.id)
+      }
+      return response(409, registrationConflictBody(duplicate), event)
+    }
     registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
   }
 
@@ -294,11 +382,75 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     delete data.emailDeliveryStatus
   }
 
+  // A ready registration changes the complete ordering, so make its durable
+  // write and group assignment one locked operation. Retrying the lock before
+  // the write prevents a permanently unassigned ready registration.
+  const releasePaymentLock =
+    !existing && data.state === 'ready' ? await lockRegistrationPayments(data.eventId) : undefined
+  let releaseGroupsLock: (() => Promise<void>) | undefined
+  let groupPatches: ReturnType<typeof createRegistrationPatches> = []
   let savedData = data
-  if (existing) {
-    savedData = await patchRegistration(data.eventId, data.id, existing, data)
-  } else {
-    await saveRegistration(data)
+  try {
+    if (releasePaymentLock) {
+      const concurrent = await findExistingRegistrationToEventForDog(
+        data.eventId,
+        data.dog.regNo,
+        data.creationIdempotencyKey,
+        true
+      )
+      if (concurrent) {
+        if (
+          typeof data.creationIdempotencyKey === 'string' &&
+          concurrent.creationIdempotencyKey === data.creationIdempotencyKey
+        ) {
+          savedData = concurrent
+        } else {
+          return response(409, registrationConflictBody(concurrent), event)
+        }
+      }
+    }
+    releaseGroupsLock = data.state === 'ready' ? await lockRegistrationGroups(data.eventId, 8) : undefined
+    if (savedData !== data) {
+      // The request waited behind an identical create. Resume its durable row
+      // after leaving the lock instead of reporting a transient conflict.
+    } else if (existing) {
+      savedData = await patchRegistration(data.eventId, data.id, existing, data)
+    } else {
+      await saveRegistration(data)
+    }
+
+    if (savedData.state === 'ready') {
+      const readyRegistrations = await getReadyRegistrationsByEventId(savedData.eventId, true)
+      const reconciliationRegistrations = [
+        ...readyRegistrations.filter((registration) => registration.id !== savedData.id),
+        { ...savedData, ...(savedData.group ? { group: { ...savedData.group } } : {}) },
+      ]
+      const beforeReconciliation = reconciliationRegistrations.map((registration) => ({
+        ...registration,
+        ...(registration.group ? { group: { ...registration.group } } : {}),
+      }))
+      const reconciled = await fixRegistrationGroups(reconciliationRegistrations, { name: username })
+      groupPatches = createRegistrationPatches(reconciled, beforeReconciliation)
+      savedData = {
+        ...savedData,
+        group: reconciled.find((registration) => registration.id === savedData.id)?.group ?? savedData.group,
+      }
+    }
+  } finally {
+    if (releaseGroupsLock) await releaseGroupsLock()
+    if (releasePaymentLock) await releasePaymentLock()
+  }
+  if (!existing) {
+    const responseEditToken = savedData.id === registration.id ? editToken : await getRegistrationEditToken(savedData)
+    const completed = await completeNewRegistration(
+      savedData,
+      confirmedEvent,
+      origin,
+      username,
+      responseEditToken,
+      groupPatches
+    )
+    return response(200, participantRegistrationResponse(completed, responseEditToken), event)
   }
   // Update organizer event stats after registration change
   await updateEventStatsForRegistration(savedData, existing, confirmedEvent)
@@ -307,7 +459,7 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     const updatedEvent = await updateRegistrations(savedData.eventId)
     await publishRegistrationPatches(
       savedData.eventId,
-      [createRegistrationPatch(savedData, existing)],
+      [createRegistrationPatch(savedData, existing), ...groupPatches.filter((patch) => patch.id !== savedData.id)],
       updatedEvent.organizer.id
     )
   }

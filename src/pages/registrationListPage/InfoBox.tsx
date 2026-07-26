@@ -44,7 +44,8 @@ interface Props {
 export const InfoBox = ({ event, registration, paymentVerificationInProgress = false }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const needsPayment = Boolean(registration.shouldPay) && !paymentVerificationInProgress
+  const needsPayment =
+    Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
   const paymentStatusText = paymentVerificationInProgress
     ? t('registration.notifications.paymentVerifying')
     : t(getPaymentStatus(registration, event))

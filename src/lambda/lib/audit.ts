@@ -231,6 +231,19 @@ export const audit = async (item: Omit<AuditRecord, 'timestamp'>) => {
   }
 }
 
+/**
+ * Durable workflow phases must not acknowledge an audit that failed to persist
+ * or publish. Callers use this variant when a retry marker follows the audit.
+ */
+export const auditStrict = async (item: Omit<AuditRecord, 'timestamp'>, effectId?: string) => {
+  // auditKey + timestamp is the DynamoDB key. A durable workflow supplies a
+  // stable effect id here, so retrying after publication/marker failure
+  // overwrites the same audit item instead of creating another record.
+  const record = { ...item, timestamp: effectId ?? new Date().toISOString() }
+  await dynamoDB.write(record, auditTable)
+  await publishAuditRecord(record)
+}
+
 export const auditTrail = async (auditKey: string) => {
   try {
     const items = await dynamoDB.query<JsonAuditRecord>({

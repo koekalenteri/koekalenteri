@@ -10,6 +10,7 @@ import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemp
 import { LambdaError } from './lambda'
 import { createPatch } from './patch'
 import { getRegistrationEditToken } from './registrationAccess'
+import { removeRegistrationCreationMetadata } from './registrationMetadata'
 
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
@@ -89,10 +90,12 @@ export const setReserveNotified = async (registrations: JsonRegistration[]) =>
   )
 
 export const createRegistrationPatch = (registration: JsonRegistration, existing?: JsonRegistration) => {
-  if (!existing) return { ...registration }
+  const withoutCreationMetadata = <T extends object>(item: T) => removeRegistrationCreationMetadata({ ...item })
+
+  if (!existing) return withoutCreationMetadata(registration)
 
   const { changes } = createPatch(registration, existing)
-  return { eventId: registration.eventId, id: registration.id, ...changes }
+  return { eventId: registration.eventId, id: registration.id, ...withoutCreationMetadata(changes) }
 }
 
 export const createRegistrationPatches = (
@@ -261,28 +264,66 @@ export const findClassesToMark = (
   return classesToMark
 }
 
-export const getRegistrationsByEventId = async (eventId: string): Promise<JsonRegistration[]> => {
+export const getRegistrationsByEventId = async (
+  eventId: string,
+  consistent: boolean = false
+): Promise<JsonRegistration[]> => {
   const registrations = await dynamoDB.query<JsonRegistration>({
+    ...(consistent ? { consistent: true } : {}),
     key: 'eventId = :eventId',
     values: { ':eventId': eventId },
   })
   return registrations ?? []
 }
 
-export const getReadyRegistrationsByEventId = async (eventId: string): Promise<JsonRegistration[]> => {
-  const registrations = await getRegistrationsByEventId(eventId)
+export const getReadyRegistrationsByEventId = async (
+  eventId: string,
+  consistent: boolean = false
+): Promise<JsonRegistration[]> => {
+  const registrations = await getRegistrationsByEventId(eventId, consistent)
 
   return registrations.filter((r) => r.state === 'ready')
 }
 
+const CREATING_REGISTRATION_RESERVATION_MS = 15 * 60 * 1000
+
+export const registrationConflictBody = (registration: Pick<JsonRegistration, 'cancelled' | 'state'>) =>
+  registration.state === 'creating'
+    ? {
+        error: 'paymentInProgress',
+        message: 'Conflict: A payment for this dog is in progress. Please try again in a few minutes.',
+      }
+    : {
+        cancelled: Boolean(registration.cancelled),
+        message: 'Conflict: Dog already registered to this event',
+      }
+
 export const findExistingRegistrationToEventForDog = async (
   eventId: string,
-  regNo: string
+  regNo: string,
+  creationIdempotencyKey?: string,
+  consistent: boolean = false
 ): Promise<JsonRegistration | undefined> => {
-  const existingRegistrations = await getReadyRegistrationsByEventId(eventId)
-  const alreadyRegistered = existingRegistrations?.find((r) => r.dog.regNo === regNo)
+  const registrationsForDog = (await getRegistrationsByEventId(eventId, consistent)).filter(
+    (registration) => registration.dog.regNo === regNo
+  )
+  const ready = registrationsForDog.find((registration) => registration.state === 'ready')
+  if (ready) return ready
 
-  return alreadyRegistered
+  const creating = registrationsForDog.filter((registration) => registration.state === 'creating')
+  const originalAttempt = creationIdempotencyKey
+    ? creating.find((registration) => registration.creationIdempotencyKey === creationIdempotencyKey)
+    : undefined
+  if (originalAttempt) return originalAttempt
+
+  // A pending payment briefly reserves the dog/event pair against competing
+  // submissions, but an abandoned payment must not block registration for the
+  // rest of the entry period. The original key remains resumable at any age.
+  const reservationStartedAfter = Date.now() - CREATING_REGISTRATION_RESERVATION_MS
+  return creating.find((registration) => {
+    const createdAt = Date.parse(registration.createdAt)
+    return Number.isFinite(createdAt) && createdAt >= reservationStartedAfter
+  })
 }
 
 export const getCancelAuditMessage = (data: JsonRegistration) => {

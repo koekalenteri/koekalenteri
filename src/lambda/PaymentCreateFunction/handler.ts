@@ -98,6 +98,10 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     return response<string>(404, 'Registration not found', event)
   }
 
+  if (registration.paymentStatus === 'DUPLICATE') {
+    return response<string>(409, 'Duplicate payment requires a refund', event)
+  }
+
   // Don't allow payment if event requires payment after confirmation but registration is not picked yet
   if (jsonEvent.paymentTime === 'confirmation' && !isParticipantGroup(registration.group?.key)) {
     return response<string>(403, 'Payment not allowed - registration must be picked first', event)

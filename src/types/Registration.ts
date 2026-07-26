@@ -28,6 +28,8 @@ export interface JsonRegistration extends JsonDbRecord {
   breeder: RegistrationBreeder
   cancelled?: boolean
   cancelReason?: string
+  /** Secret client-generated key allowing only the original create retry to resume. */
+  creationIdempotencyKey?: string
   class?: RegistrationClass | null
   /** registrant has comfirmed participation */
   confirmed?: boolean
@@ -73,6 +75,14 @@ export interface JsonRegistration extends JsonDbRecord {
   shouldPay?: boolean
   totalAmount?: number
   selectedCost?: DogEventCostSegment
+  /** Durable, at-least-once completion markers for a newly created registration. */
+  newRegistrationStatsAt?: string
+  newRegistrationPublishedAt?: string
+  newRegistrationAuditAt?: string
+  newRegistrationEmailSentAt?: string
+  newRegistrationProcessedAt?: string
+  /** Short-lived owner token for serializing new-registration follow-up work. */
+  newRegistrationLease?: { expiresAt: number; token: string }
 }
 
 export interface RegistrationGroup extends Partial<RegistrationDate> {
@@ -187,7 +197,7 @@ export type RegistrationBreeder = Omit<Person, 'email' | 'phone'>
 
 export type ReserveChoise = 'ANY' | 'DAY' | 'WEEK' | 'NO'
 
-export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'PENDING' | 'NEW'
+export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'DUPLICATE' | 'PENDING' | 'NEW'
 
 export interface MinimalRegistrationForMembership {
   handler?: Pick<RegistrationPerson, 'membership'>

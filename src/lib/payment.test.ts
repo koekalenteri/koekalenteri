@@ -16,6 +16,7 @@ describe('payment', () => {
   describe('getPaymentStatus', () => {
     it.each<[PaymentStatus | undefined, string]>([
       ['SUCCESS', 'paymentStatus.success'],
+      ['DUPLICATE', 'paymentStatus.duplicate'],
       ['PENDING', 'paymentStatus.pending'],
       [undefined, 'paymentStatus.missing'],
     ])('When status is %p should return %p', (paymentStatus, expected) => {

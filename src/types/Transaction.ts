@@ -15,6 +15,20 @@ export interface JsonTransaction {
   statusAt?: string
   /** Set atomically with the corresponding registration amount update. */
   registrationAppliedAt?: string
+  /** Captured payment rejected because another registration for the dog won. */
+  duplicatePaymentAt?: string
+  duplicateOfRegistrationId?: string
+  /** Balances captured atomically when this payment was applied, for receipts. */
+  receiptPreviouslyPaid?: number
+  receiptTotalPaid?: number
+  /** Durable, at-least-once completion markers for payment follow-up work. */
+  postPaymentPublishedAt?: string
+  receiptSentAt?: string
+  paymentAuditAt?: string
+  confirmationSentAt?: string
+  postPaymentProcessedAt?: string
+  /** Short-lived owner token for serializing post-payment side effects. */
+  postPaymentLease?: { expiresAt: number; token: string }
   user?: string
 }
 

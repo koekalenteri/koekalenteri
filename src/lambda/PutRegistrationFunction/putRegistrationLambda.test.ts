@@ -17,24 +17,47 @@ jest.unstable_mockModule('@aws-sdk/client-ses', () => ({
 }))
 
 const mockGetEvent = jest.fn<(eventId: string) => Promise<JsonDogEvent>>()
+const mockApplyNewRegistrationStatsOnce = jest.fn()
 const mockUpdateEventStatsForRegistration = jest.fn()
 const mockUpdateRegistrations = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn()
 const mockDynamoDBQuery = jest.fn<any>().mockResolvedValue([])
 const mockDynamoDBWrite = jest.fn()
 const mockDynamoDBUpdate = jest.fn()
+const mockFixRegistrationGroups = jest.fn<any>(async (registrations: JsonRegistration[]) => registrations)
+const mockLockRegistrationGroups = jest.fn<any>().mockResolvedValue(async () => undefined)
+const mockLockRegistrationPayments = jest.fn<any>().mockResolvedValue(async () => undefined)
+const mockGetReadyRegistrationsByEventId = jest.fn<any>().mockResolvedValue([])
+const mockRepairReadyRegistrationGroups = jest.fn<any>().mockResolvedValue([])
+const mockClaimNewRegistrationPostProcessing = jest.fn<any>().mockResolvedValue({
+  registration: registrationWithStaticDates,
+  release: async () => undefined,
+  token: 'test-token',
+})
+const mockMarkNewRegistrationPhase = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/event', () => ({
+  fixRegistrationGroups: mockFixRegistrationGroups,
   getEvent: mockGetEvent,
+  lockRegistrationGroups: mockLockRegistrationGroups,
+  lockRegistrationPayments: mockLockRegistrationPayments,
+  repairReadyRegistrationGroups: mockRepairReadyRegistrationGroups,
   updateRegistrations: mockUpdateRegistrations,
 }))
 
 jest.unstable_mockModule('../lib/stats', () => ({
+  applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
+  publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
+}))
+
+jest.unstable_mockModule('../lib/registrationPostProcessing', () => ({
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -72,6 +95,7 @@ jest.unstable_mockModule('../lib/registrationAccess', () => ({
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
   findExistingRegistrationToEventForDog: mockfindExistingRegistrationToEventForDog,
+  getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
   patchRegistration: mockPatchRegistration,
   saveRegistration: mockSaveRegistration,
@@ -110,6 +134,7 @@ describe('putRegistrationLabmda', () => {
   })
   beforeEach(() => {
     jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockUpdateRegistrations.mockResolvedValue({ organizer: { id: 'org-1' } })
   })
   afterEach(() => {
     jest.clearAllMocks()
@@ -150,7 +175,12 @@ describe('putRegistrationLabmda', () => {
     )
     expect(mockSaveRegistration).toHaveBeenCalledWith(expect.objectContaining({ state: 'creating' }))
     expect(mockSaveRegistration).toHaveBeenCalledTimes(1)
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenCalledTimes(1)
+    expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(
+      registrationWithStaticDates,
+      expect.objectContaining({ id: eventWithStaticDates.id }),
+      'test-token'
+    )
+    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
 
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({ auditKey: expect.any(String), message: 'Ilmoittautui', user: 'anonymous' }),
@@ -159,6 +189,8 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledTimes(1)
 
     expect(mockSES.send).not.toHaveBeenCalled()
+    // Pending-payment registrations are intentionally absent from the admin
+    // registration collection until the payment callback makes them ready.
     expect(mockUpdateRegistrations).not.toHaveBeenCalled()
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
 
@@ -193,6 +225,11 @@ describe('putRegistrationLabmda', () => {
     jest.setSystemTime(eventWithStaticDates.entryStartDate)
     const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' }
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce({
+      registration: { ...registrationWithStaticDates, state: 'ready' },
+      release: async () => undefined,
+      token: 'test-token',
+    })
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 
     expect(mockSaveRegistration).toHaveBeenCalledWith(
@@ -212,8 +249,72 @@ describe('putRegistrationLabmda', () => {
       TemplateData: expect.stringContaining('"subject":"Ilmoittautumisen vahvistus"'),
     })
     expect(mockSES.send).toHaveBeenCalledTimes(1)
+    expect(mockFixRegistrationGroups).toHaveBeenCalledTimes(1)
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      eventWithConfirmationPayment.id,
+      [expect.objectContaining({ id: registrationWithStaticDates.id })],
+      'org-1'
+    )
 
     expect(res.statusCode).toEqual(200)
+  })
+
+  it('rejects a concurrent confirmation-time create that wins after the initial duplicate check', async () => {
+    const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
+    mockfindExistingRegistrationToEventForDog
+      .mockResolvedValueOnce(undefined)
+      .mockResolvedValueOnce({ ...JSON.parse(JSON.stringify(registrationWithStaticDates)), state: 'ready' })
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, creationIdempotencyKey: 'new-key', id: undefined })
+    )
+
+    expect(res.statusCode).toBe(409)
+    expect(mockLockRegistrationPayments).toHaveBeenCalledWith(eventWithStaticDates.id)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockfindExistingRegistrationToEventForDog).toHaveBeenNthCalledWith(
+      2,
+      eventWithStaticDates.id,
+      registrationWithStaticDates.dog.regNo,
+      'new-key',
+      true
+    )
+  })
+
+  it('does not adopt a concurrent keyless registration', async () => {
+    const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const request = { ...registrationWithStaticDates, creationIdempotencyKey: undefined, id: undefined }
+    const winner = {
+      ...JSON.parse(JSON.stringify(request)),
+      creationIdempotencyKey: undefined,
+      id: 'unrelated-registration',
+      state: 'ready',
+    }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce(winner)
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(request))
+
+    expect(res.statusCode).toBe(409)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+  })
+
+  it('resumes a same-key confirmation-time create that wins while waiting for the lock', async () => {
+    const eventWithConfirmationPayment = { ...eventWithStaticDates, paymentTime: 'confirmation' as const }
+    const request = { ...registrationWithStaticDates, creationIdempotencyKey: 'same-key', id: undefined }
+    const winner = { ...JSON.parse(JSON.stringify(request)), id: 'winning-registration', state: 'ready' }
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithConfirmationPayment)))
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce(winner)
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
+
+    const res = await putRegistrationLabmda(constructAPIGwEvent(request))
+
+    expect(res.statusCode).toBe(200)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    const body = JSON.parse(res.body)
+    expect(body.id).toBe(winner.id)
+    expect(body.editToken).toBe(await libRegistrationAccess.getRegistrationEditToken(winner))
   })
 
   it('should reject new registration with suppressed email address', async () => {
@@ -967,7 +1068,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
-  it('should return 409 if dog is already registered to the event', async () => {
+  it('does not expose an existing registration for a duplicate submission', async () => {
     jest.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
     mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(
@@ -977,6 +1078,72 @@ describe('putRegistrationLabmda', () => {
     const res = await putRegistrationLabmda(constructAPIGwEvent({ ...registrationWithStaticDates, id: undefined }))
 
     expect(res.statusCode).toEqual(409)
+    expect(res.body).not.toContain('editToken')
+  })
+
+  it('returns a specific conflict for another creation while payment is in progress', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      creationIdempotencyKey: 'original-key',
+      state: 'creating',
+    })
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        creationIdempotencyKey: 'different-key',
+        id: undefined,
+      })
+    )
+
+    expect(res.statusCode).toEqual(409)
+    expect(JSON.parse(res.body)).toEqual({
+      error: 'paymentInProgress',
+      message: 'Conflict: A payment for this dog is in progress. Please try again in a few minutes.',
+    })
+  })
+
+  it('resumes a duplicate creation only when its idempotency key matches', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      creationIdempotencyKey: 'secret-create-key',
+    })
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        creationIdempotencyKey: 'secret-create-key',
+        id: undefined,
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+  })
+
+  it('returns a concurrent idempotent retry while the original request holds the workflow lease', async () => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce({
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      creationIdempotencyKey: 'secret-create-key',
+    })
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        ...registrationWithStaticDates,
+        creationIdempotencyKey: 'secret-create-key',
+        id: undefined,
+      })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockApplyNewRegistrationStatsOnce).not.toHaveBeenCalled()
+    expect(mockMarkNewRegistrationPhase).not.toHaveBeenCalled()
   })
 
   it('should return 400 for patch registration without eventId and id', async () => {

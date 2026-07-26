@@ -142,6 +142,45 @@ describe('copyEventHandler', () => {
     )
   })
 
+  it('does not copy registration idempotency credentials or post-processing state', async () => {
+    const user = { name: 'Test User' }
+    mockAuthorize.mockResolvedValueOnce(user)
+    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2025-06-12T00:00:00.000Z',
+      id: 'event123',
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+    })
+    mockNanoid.mockReturnValueOnce('newid123')
+    mockQuery.mockResolvedValueOnce([
+      {
+        creationIdempotencyKey: 'source-secret',
+        dates: [{ date: '2025-06-10T00:00:00.000Z' }],
+        eventId: 'event123',
+        id: 'registration123',
+        newRegistrationAuditAt: '2025-06-01T00:00:00.000Z',
+        newRegistrationEmailSentAt: '2025-06-01T00:00:00.000Z',
+        newRegistrationLease: { expiresAt: 123, token: 'source-lease' },
+        newRegistrationProcessedAt: '2025-06-01T00:00:00.000Z',
+        newRegistrationPublishedAt: '2025-06-01T00:00:00.000Z',
+        newRegistrationStatsAt: '2025-06-01T00:00:00.000Z',
+      },
+    ])
+
+    await copyEventHandler(event)
+
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      {
+        dates: [{ date: '2025-07-01T00:00:00.000Z' }],
+        eventId: 'newid123',
+        id: 'registration123',
+      },
+      'registration-table-not-found-in-env'
+    )
+  })
+
   it('returns 500 if getEvent throws', async () => {
     const user = { name: 'Test User' }
     mockAuthorize.mockResolvedValueOnce(user)

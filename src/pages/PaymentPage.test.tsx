@@ -443,8 +443,8 @@ describe('PaymentPage', () => {
     // Create a mock for the reset function
     const mockResetRegistration = jest.fn()
 
-    // Mock the useResetRecoilState hook to return our mock function
-    jest.spyOn(require('recoil'), 'useResetRecoilState').mockReturnValue(mockResetRegistration)
+    // Mock the setter used by the factory-backed reset function.
+    jest.spyOn(require('recoil'), 'useSetRecoilState').mockReturnValue(mockResetRegistration)
 
     mockUseParams.mockImplementation(() => ({
       id: testRegistration.eventId,

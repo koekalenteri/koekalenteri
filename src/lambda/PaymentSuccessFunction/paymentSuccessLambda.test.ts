@@ -8,11 +8,17 @@ const mockUpdateTransactionStatus = jest.fn<any>()
 const mockApplySuccessfulPayment = jest.fn<any>()
 const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
+const mockCreateRegistrationPatches = jest.fn<any>(() => [])
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
+const mockWrite = jest.fn<any>()
 const mockUpdateRegistrations = jest.fn<any>()
+const mockFixRegistrationGroups = jest.fn<any>(async (registrations: any[]) => registrations)
+const mockLockRegistrationGroups = jest.fn<any>().mockResolvedValue(async () => undefined)
+const mockLockRegistrationPayments = jest.fn<any>().mockResolvedValue(async () => undefined)
+const mockGetReadyRegistrationsByEventId = jest.fn<any>().mockResolvedValue([])
 const mockGetFixedT = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockEmailTo = jest.fn<any>()
@@ -21,7 +27,22 @@ const mockRegistrationEmailTemplateData = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
 const mockGetRegistrationEditToken = jest.fn<any>().mockResolvedValue('test-edit-token')
 
+const phaseUpdate = (field: string) => [
+  { transactionId: 'tx123' },
+  { set: { [field]: expect.any(String) } },
+  'transaction-table-not-found-in-env',
+  undefined,
+  expect.objectContaining({ expression: '#postPaymentLease.#token = :token' }),
+]
+
 jest.unstable_mockModule('../lib/lambda', () => ({
+  LambdaError: class LambdaError extends Error {
+    status: number
+    constructor(status: number, message: string) {
+      super(message)
+      this.status = status
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
 }))
@@ -35,11 +56,13 @@ jest.unstable_mockModule('../lib/payment', () => ({
 
 jest.unstable_mockModule('../lib/registration', () => ({
   clearRegistrationEmailDeliveryStatus: mockClearRegistrationEmailDeliveryStatus,
-  createRegistrationPatch: jest.fn((registration: any, existing: any) => ({
+  createRegistrationPatch: jest.fn((registration: any, existing: any = {}) => ({
     eventId: registration.eventId,
     id: registration.id,
     ...Object.fromEntries(Object.entries(registration).filter(([key, value]) => existing[key] !== value)),
   })),
+  createRegistrationPatches: mockCreateRegistrationPatches,
+  getReadyRegistrationsByEventId: mockGetReadyRegistrationsByEventId,
   getRegistration: mockGetRegistration,
 }))
 
@@ -56,10 +79,14 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
     read: mockRead,
     update: mockUpdate,
+    write: mockWrite,
   })),
 }))
 
 jest.unstable_mockModule('../lib/event', () => ({
+  fixRegistrationGroups: mockFixRegistrationGroups,
+  lockRegistrationGroups: mockLockRegistrationGroups,
+  lockRegistrationPayments: mockLockRegistrationPayments,
   updateRegistrations: mockUpdateRegistrations,
 }))
 
@@ -77,7 +104,7 @@ jest.unstable_mockModule('../lib/email', () => ({
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
-  publishRegistrationPatches: mockPublishRegistrationPatches,
+  publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
 }))
 
 const { default: paymentSuccessLambda } = await import('./handler')
@@ -119,6 +146,7 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockGetRegistration.mockResolvedValue({
+      dog: { regNo: 'FI12345' },
       eventId: 'event123',
       id: 'reg456',
       language: 'fi',
@@ -127,6 +155,7 @@ describe('paymentSuccessLambda', () => {
         email: 'test@example.com',
       },
       paymentStatus: 'PENDING',
+      state: 'creating',
     })
 
     mockUpdateTransactionStatus.mockResolvedValue(true)
@@ -173,6 +202,21 @@ describe('paymentSuccessLambda', () => {
 
     // Verify transaction was retrieved
     expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
+    expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' }, 'transaction-table-not-found-in-env', true)
+
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { transactionId: 'tx123' },
+      {
+        set: {
+          postPaymentLease: expect.objectContaining({ expiresAt: expect.any(Number), token: expect.any(String) }),
+        },
+      },
+      'transaction-table-not-found-in-env',
+      undefined,
+      expect.objectContaining({
+        expression: expect.stringContaining('attribute_not_exists(#postPaymentLease)'),
+      })
+    )
 
     // Verify transaction and registration were updated atomically
     expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
@@ -188,13 +232,14 @@ describe('paymentSuccessLambda', () => {
       'reg456',
       'paytrail',
       false,
-      true
+      true,
+      0
     )
 
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    expect(mockUpdate).not.toHaveBeenCalled()
+    expect(mockUpdate.mock.calls).toContainEqual(phaseUpdate('postPaymentProcessedAt'))
 
     // Verify event registrations were updated
     expect(mockUpdateRegistrations).toHaveBeenCalledWith('event123')
@@ -261,7 +306,67 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  it('does not process payment if the transaction was already applied', async () => {
+  it('assigns a group when payment makes a registration ready', async () => {
+    const readyRegistration = {
+      eventId: 'event123',
+      id: 'reg456',
+      language: 'fi',
+      payer: { email: 'test@example.com' },
+      state: 'ready',
+    }
+    const groupedRegistration = { ...readyRegistration, group: { key: 'reserve', number: 1 } }
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([]).mockResolvedValueOnce([readyRegistration])
+    mockFixRegistrationGroups.mockResolvedValueOnce([groupedRegistration])
+
+    await paymentSuccessLambda(event)
+
+    expect(mockFixRegistrationGroups).toHaveBeenCalledWith([readyRegistration], { name: 'payment' })
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      'event123',
+      [expect.objectContaining({ group: { key: 'reserve', number: 1 }, id: 'reg456' })],
+      'org-1'
+    )
+  })
+
+  it('records and acknowledges a captured duplicate payment without applying it', async () => {
+    mockRegistrationAuditKey.mockImplementation(
+      (registration: { eventId: string; id: string }) => `${registration.eventId}:${registration.id}`
+    )
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
+      { dog: { regNo: 'FI12345' }, eventId: 'event123', id: 'other-registration', state: 'ready' },
+    ])
+
+    await paymentSuccessLambda(event)
+
+    expect(mockApplySuccessfulPayment).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
+    expect(mockGetReadyRegistrationsByEventId).toHaveBeenCalledWith('event123', true)
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { transactionId: 'tx123' },
+      expect.objectContaining({
+        set: expect.objectContaining({ duplicateOfRegistrationId: 'other-registration', status: 'ok' }),
+      }),
+      'transaction-table-not-found-in-env'
+    )
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { eventId: 'event123', id: 'reg456' },
+      { set: { paymentStatus: 'DUPLICATE', updatedAt: expect.any(String) } },
+      'registration-table-not-found-in-env'
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ auditKey: 'event123:reg456', message: expect.stringContaining('Päällekkäinen maksu') })
+    )
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        auditKey: 'event123:other-registration',
+        message: expect.stringContaining('maksun ilmoittautuminen: reg456'),
+      })
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
+  })
+
+  it('retries post-payment processing if the transaction was already applied', async () => {
     mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
 
     await paymentSuccessLambda(event)
@@ -270,18 +375,11 @@ describe('paymentSuccessLambda', () => {
 
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
-
-    // Verify event registrations were NOT updated
-    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
-    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
-
-    // Verify receipt email was NOT sent
-    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
-
-    // Verify audit entry was NOT created
-    expect(mockAudit).not.toHaveBeenCalled()
+    expect(mockUpdateRegistrations).toHaveBeenCalledWith('event123')
+    expect(mockPublishRegistrationPatches).toHaveBeenCalled()
+    expect(mockSendTemplatedMail).toHaveBeenCalled()
+    expect(mockAudit).toHaveBeenCalled()
+    expect(mockUpdate.mock.calls).toContainEqual(phaseUpdate('postPaymentProcessedAt'))
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
@@ -341,7 +439,8 @@ describe('paymentSuccessLambda', () => {
       'reg456',
       'paytrail',
       false,
-      false
+      false,
+      0
     )
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
@@ -384,34 +483,107 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).not.toHaveBeenCalled()
   })
 
-  it('handles receipt email sending failure gracefully', async () => {
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  it('fails the callback so a receipt delivery failure is retried', async () => {
     const emailError = new Error('Failed to send email')
     mockSendTemplatedMail.mockRejectedValueOnce(emailError)
 
+    await expect(paymentSuccessLambda(event)).rejects.toThrow(emailError)
+
+    // The completed marker is intentionally absent, so the provider retry
+    // sends the receipt again.
+    expect(mockUpdate.mock.calls).not.toContainEqual(phaseUpdate('receiptSentAt'))
+    expect(mockResponse).not.toHaveBeenCalled()
+  })
+
+  it('retries an interrupted receipt delivery', async () => {
+    mockRead.mockResolvedValue({
+      amount: 5000,
+      receiptPreviouslyPaid: 50,
+      receiptTotalPaid: 100,
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'tx123',
+      user: 'user123',
+    })
+    mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
+
     await paymentSuccessLambda(event)
 
-    // Verify console.error was called with the expected message
-    expect(consoleSpy).toHaveBeenCalledWith('failed to send receipt', emailError)
-
-    // Verify confirmation email was still sent
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
-      'registration',
+      'receipt',
       'fi',
-      expect.any(String), // emailFrom
-      expect.any(Array), // to
-      expect.any(Object), // data
-      expect.any(Array) // tags
+      expect.any(String),
+      expect.any(Array),
+      expect.any(Object),
+      expect.any(Array)
     )
+    expect(mockUpdate.mock.calls).toContainEqual(phaseUpdate('receiptSentAt'))
+  })
 
-    // Verify response was returned
+  it('uses the payment-time receipt balances after later payments changed the registration total', async () => {
+    mockRead.mockResolvedValue({
+      amount: 5000,
+      receiptPreviouslyPaid: 50,
+      receiptTotalPaid: 100,
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'tx123',
+      user: 'user123',
+    })
+    mockGetRegistration.mockResolvedValue({
+      eventId: 'event123',
+      id: 'reg456',
+      language: 'fi',
+      paidAmount: 150,
+      payer: { email: 'test@example.com' },
+      paymentStatus: 'SUCCESS',
+    })
+    mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockSendTemplatedMail).toHaveBeenCalledWith(
+      'receipt',
+      'fi',
+      expect.any(String),
+      expect.any(Array),
+      expect.objectContaining({ previouslyPaid: '50,00 €', totalPaid: '100,00 €' }),
+      expect.any(Array)
+    )
+  })
+
+  it('does not repeat completed post-payment effects', async () => {
+    mockRead.mockResolvedValue({
+      amount: 5000,
+      postPaymentProcessedAt: '2025-01-01T00:00:00.000Z',
+      reference: 'event123:reg456',
+      status: 'pending',
+      transactionId: 'tx123',
+      user: 'user123',
+    })
+    mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  it('acknowledges a concurrent callback while another worker owns the post-payment lease', async () => {
+    mockUpdate.mockReset().mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+
+    await paymentSuccessLambda(event)
+
+    expect(mockRead).toHaveBeenCalledTimes(1)
+    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
+    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
-
-    consoleSpy.mockRestore()
   })
 
   it('adds amount to existing paidAmount if present', async () => {
-    mockGetRegistration.mockResolvedValueOnce({
+    mockGetRegistration.mockResolvedValue({
       eventId: 'event123',
       id: 'reg456',
       language: 'fi',
@@ -430,12 +602,13 @@ describe('paymentSuccessLambda', () => {
       'reg456',
       'paytrail',
       false,
-      true
+      true,
+      20
     )
   })
 
   it('publishes confirmed registration patch when picked registration payment succeeds', async () => {
-    mockGetRegistration.mockResolvedValueOnce({
+    mockGetRegistration.mockResolvedValue({
       eventId: 'event123',
       id: 'reg456',
       language: 'fi',
@@ -455,7 +628,8 @@ describe('paymentSuccessLambda', () => {
       'reg456',
       'paytrail',
       true,
-      true
+      true,
+      0
     )
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',

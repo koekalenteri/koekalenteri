@@ -18,6 +18,9 @@ const mockPatchRegistration = jest.fn<
 const mockAssertRegistrationEmailsNotSuppressed = jest.fn<any>()
 const mockGetReadyRegistrationsByEventId = jest.fn<any>(async () => [])
 const mockFixRegistrationGroups = jest.fn<any>(async (regs: JsonRegistration[]) => regs)
+const mockLockRegistrationGroups = jest.fn<any>().mockResolvedValue(async () => undefined)
+const mockLockRegistrationPayments = jest.fn<any>().mockResolvedValue(async () => undefined)
+const mockRepairReadyRegistrationGroups = jest.fn<any>().mockResolvedValue([])
 const mockUpdateRegistrations = jest.fn<any>(async () => ({
   classes: [{ class: 'ALO', entries: 10 }],
   endDate: '2024-01-02',
@@ -26,8 +29,15 @@ const mockUpdateRegistrations = jest.fn<any>(async () => ({
   organizer: { id: 'org-1' },
   startDate: '2024-01-01',
 }))
+const mockApplyNewRegistrationStatsOnce = jest.fn<any>()
 const mockUpdateEventStatsForRegistration = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
+const mockClaimNewRegistrationPostProcessing = jest.fn<any>().mockResolvedValue({
+  registration: { eventId: 'event123', id: 'reg456', state: 'ready' },
+  release: async () => undefined,
+  token: 'test-token',
+})
+const mockMarkNewRegistrationPhase = jest.fn<any>()
 
 const mockDynamoDB = {
   batchWrite: jest.fn<any>(),
@@ -94,15 +104,25 @@ jest.unstable_mockModule('../lib/registration', () => ({
 jest.unstable_mockModule('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
   getEvent: mockGetEvent,
+  lockRegistrationGroups: mockLockRegistrationGroups,
+  lockRegistrationPayments: mockLockRegistrationPayments,
+  repairReadyRegistrationGroups: mockRepairReadyRegistrationGroups,
   updateRegistrations: mockUpdateRegistrations,
 }))
 
 jest.unstable_mockModule('../lib/stats', () => ({
+  applyNewRegistrationStatsOnce: mockApplyNewRegistrationStatsOnce,
   updateEventStatsForRegistration: mockUpdateEventStatsForRegistration,
 }))
 
 jest.unstable_mockModule('../lib/ws/actions', () => ({
   publishRegistrationPatches: mockPublishRegistrationPatches,
+  publishRegistrationPatchesStrict: mockPublishRegistrationPatches,
+}))
+
+jest.unstable_mockModule('../lib/registrationPostProcessing', () => ({
+  claimNewRegistrationPostProcessing: mockClaimNewRegistrationPostProcessing,
+  markNewRegistrationPhase: mockMarkNewRegistrationPhase,
 }))
 
 const { default: putAdminRegistrationLambda } = await import('./handler')
@@ -246,6 +266,7 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('creates a new registration when id is not provided', async () => {
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([])
     const newEvent = {
       ...event,
       body: JSON.stringify({
@@ -293,8 +314,66 @@ describe('putAdminRegistrationLambda', () => {
       [expect.objectContaining({ eventId: 'event123', state: 'ready' })],
       'org-1'
     )
+    expect(mockFixRegistrationGroups).toHaveBeenCalledTimes(1)
+    expect(mockApplyNewRegistrationStatsOnce).toHaveBeenCalledWith(
+      expect.objectContaining({ eventId: 'event123', id: 'reg456' }),
+      expect.objectContaining({ id: 'event123' }),
+      'test-token'
+    )
+    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
 
     expect(result.statusCode).toBe(200)
+  })
+
+  it('rejects a concurrent create that wins after the initial duplicate check', async () => {
+    const request = JSON.parse(event.body)
+    delete request.id
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce({
+      ...request,
+      creationIdempotencyKey: 'other-create-key',
+      id: 'other-registration',
+      state: 'ready',
+    })
+
+    const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
+
+    expect(result.statusCode).toBe(409)
+    expect(mockLockRegistrationPayments).toHaveBeenCalledWith('event123')
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockfindExistingRegistrationToEventForDog).toHaveBeenNthCalledWith(
+      2,
+      'event123',
+      request.dog.regNo,
+      request.creationIdempotencyKey,
+      true
+    )
+  })
+
+  it('does not adopt a concurrent keyless registration', async () => {
+    const request = JSON.parse(event.body)
+    delete request.id
+    delete request.creationIdempotencyKey
+    const winner = { ...request, id: 'unrelated-registration', state: 'ready' }
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce(winner)
+
+    const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
+
+    expect(result.statusCode).toBe(409)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+  })
+
+  it('resumes a same-key create that wins while waiting for the lock', async () => {
+    const request = JSON.parse(event.body)
+    delete request.id
+    request.creationIdempotencyKey = 'same-key'
+    const winner = { ...request, id: 'winning-registration', state: 'ready' }
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(undefined).mockResolvedValueOnce(winner)
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
+
+    const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
+
+    expect(result.statusCode).toBe(200)
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
   })
 
   it('rejects a new registration with suppressed email address', async () => {
@@ -436,6 +515,31 @@ describe('putAdminRegistrationLambda', () => {
       'org-1'
     )
 
+    expect(result.statusCode).toBe(200)
+  })
+
+  it('does not allow an update to replace the creation idempotency key', async () => {
+    mockGetRegistration.mockResolvedValueOnce({
+      creationIdempotencyKey: 'stored-create-key',
+      eventId: 'event123',
+      id: 'reg456',
+      state: 'draft',
+    })
+
+    const result = await putAdminRegistrationLambda({
+      ...event,
+      body: JSON.stringify({
+        ...JSON.parse(event.body),
+        creationIdempotencyKey: 'attacker-controlled-key',
+      }),
+    })
+
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      'event123',
+      'reg456',
+      expect.objectContaining({ creationIdempotencyKey: 'stored-create-key' }),
+      expect.objectContaining({ creationIdempotencyKey: 'stored-create-key' })
+    )
     expect(result.statusCode).toBe(200)
   })
 
@@ -750,6 +854,31 @@ describe('putAdminRegistrationLambda', () => {
       message: 'Conflict: Dog already registered to this event',
     })
     expect(mockSaveRegistration).not.toHaveBeenCalled()
+  })
+
+  it('returns a concurrent idempotent retry while the original request holds the workflow lease', async () => {
+    const request = JSON.parse(event.body)
+    delete request.id
+    request.creationIdempotencyKey = 'secret-create-key'
+    const existingRegistration = {
+      ...request,
+      agreeToTerms: true,
+      createdAt: '2024-01-01T00:00:00.000Z',
+      createdBy: 'Test User',
+      creationIdempotencyKey: 'secret-create-key',
+      id: 'existing-reg-id',
+      modifiedAt: '2024-01-01T00:00:00.000Z',
+      modifiedBy: 'Test User',
+      state: 'ready',
+    } as JsonRegistration
+    mockfindExistingRegistrationToEventForDog.mockResolvedValueOnce(existingRegistration)
+    mockClaimNewRegistrationPostProcessing.mockResolvedValueOnce(undefined)
+
+    const result = await putAdminRegistrationLambda({ ...event, body: JSON.stringify(request) })
+
+    expect(result.statusCode).toBe(200)
+    expect(mockApplyNewRegistrationStatsOnce).not.toHaveBeenCalled()
+    expect(mockMarkNewRegistrationPhase).not.toHaveBeenCalled()
   })
 
   it('does not send email if owner email is missing', async () => {

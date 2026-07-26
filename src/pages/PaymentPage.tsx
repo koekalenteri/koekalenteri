@@ -4,10 +4,10 @@ import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { Suspense, useEffect } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Await, useLoaderData, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { APIError } from '../api/http'
 import { createPayment } from '../api/payment'
 import { printContactInfo } from '../lib/utils'
@@ -18,7 +18,13 @@ import { PaymentDetails } from './components/PaymentDetails'
 import { RegistrationDetails } from './components/RegistrationDetails'
 import { LoadingPage } from './LoadingPage'
 import { ProviderButton } from './paymentPage/ProviderButton'
-import { languageAtom, newRegistrationAtom, registrationSelector, useConfirmedEvent } from './recoil'
+import {
+  createNewRegistration,
+  languageAtom,
+  newRegistrationAtom,
+  registrationSelector,
+  useConfirmedEvent,
+} from './recoil'
 
 export const loader = async ({ params }: { params: Params<string> }) => {
   const createPaymentWrap = async () => {
@@ -169,7 +175,8 @@ export function Component() {
   const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}:${editToken ?? ''}`))
   const data: { response: Promise<{ errorMessage?: string; response?: CreatePaymentResponse; status: number }> } =
     useLoaderData()
-  const resetRegistration = useResetRecoilState(newRegistrationAtom)
+  const setRegistration = useSetRecoilState(newRegistrationAtom)
+  const resetRegistration = useCallback(() => setRegistration(createNewRegistration()), [setRegistration])
 
   useEffect(() => {
     // Reset the registration form here, to avoid flashing page.

@@ -2,14 +2,14 @@ import type { Registration } from '../types'
 import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
+import { useRecoilState, useRecoilValue } from 'recoil'
 import { rum } from '../lib/client/rum'
 import { hasChanges, isEntryOpen } from '../lib/utils'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import RegistrationEventInfo from './components/RegistrationEventInfo'
 import RegistrationForm from './components/RegistrationForm'
-import { newRegistrationAtom, spaAtom, useConfirmedEvent } from './recoil'
+import { createNewRegistration, newRegistrationAtom, spaAtom, useConfirmedEvent } from './recoil'
 import { useRegistrationActions } from './recoil/registration/actions'
 
 export function Component() {
@@ -19,7 +19,7 @@ export function Component() {
   const params = useParams()
   const event = useConfirmedEvent(params.id)
   const [registration, setRegistration] = useRecoilState(newRegistrationAtom)
-  const resetRegistration = useResetRecoilState(newRegistrationAtom)
+  const resetRegistration = useCallback(() => setRegistration(createNewRegistration()), [setRegistration])
   const spa = useRecoilValue(spaAtom)
   const actions = useRegistrationActions()
 

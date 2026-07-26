@@ -34,6 +34,11 @@ export const showRegistrationSaveConflict = (
     return true
   }
 
+  if (isObject(error.body) && error.body.error === 'paymentInProgress') {
+    enqueueSnackbar(t('registration.notifications.paymentInProgress'), { variant: 'info' })
+    return true
+  }
+
   enqueueSnackbar(
     t('registration.notifications.alreadyRegistered', {
       contact: printContactInfo(event.contactInfo?.secretary),

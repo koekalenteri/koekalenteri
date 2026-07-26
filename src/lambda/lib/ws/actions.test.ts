@@ -51,6 +51,7 @@ const {
   publishAdminEventPatch,
   publishEventPatch,
   publishRegistrationPatches,
+  publishRegistrationPatchesStrict,
   publishAdminDataInvalidation,
   publishEventViewers,
   publishAdminConnectionCount,
@@ -192,6 +193,14 @@ describe('ws/actions', () => {
 
     expect(mockOrganizerAudience).toHaveBeenCalledWith('org-1', 'e1')
     expect(mockBuildRegistrationPatchPayload).toHaveBeenCalledWith('e1', patch)
+  })
+
+  it('strict registration publication rejects failed deliveries', async () => {
+    mockBroadcast.mockResolvedValueOnce({ attempted: 2, failed: 1, gone: 0, sent: 1 })
+
+    await expect(publishRegistrationPatchesStrict('e1', [{ id: 'r1' }] as any, 'org-1')).rejects.toThrow(
+      'Failed to publish registration patches to 1 WebSocket connection(s)'
+    )
   })
 
   it('publishAdminDataInvalidation sends collection names to the admin audience', async () => {

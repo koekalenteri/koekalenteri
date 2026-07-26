@@ -84,6 +84,21 @@ describe('showRegistrationSaveConflict', () => {
     })
   })
 
+  it('shows a temporary self-service message for an active payment reservation', () => {
+    const handled = showRegistrationSaveConflict(conflict({ error: 'paymentInProgress' }), {
+      enqueueSnackbar,
+      event: {},
+      registration,
+      t: translate,
+    })
+
+    expect(handled).toBe(true)
+    expect(t).toHaveBeenCalledWith('registration.notifications.paymentInProgress')
+    expect(enqueueSnackbar).toHaveBeenCalledWith(expect.stringContaining('paymentInProgress'), {
+      variant: 'info',
+    })
+  })
+
   it('returns false for non-conflict errors', () => {
     const handled = showRegistrationSaveConflict(new Error('boom'), {
       enqueueSnackbar,

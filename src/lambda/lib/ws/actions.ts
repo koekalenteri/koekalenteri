@@ -63,6 +63,19 @@ export const publishRegistrationPatches = (eventId: string, patch: Patch<JsonReg
     buildPayload: () => ({ scope: 'admin:event-registrations', ...buildRegistrationPatchPayload(eventId, patch) }),
   })
 
+/** Durable workflows must not mark publication complete after a failed send. */
+export const publishRegistrationPatchesStrict = async (
+  eventId: string,
+  patch: Patch<JsonRegistration>[],
+  organizerId: string
+) => {
+  const counts = await publishRegistrationPatches(eventId, patch, organizerId)
+  if (counts.failed > 0) {
+    throw new Error(`Failed to publish registration patches to ${counts.failed} WebSocket connection(s)`)
+  }
+  return counts
+}
+
 export const publishAdminDataInvalidation = (collections: AdminDataCollection[]) =>
   send({
     audience: adminAudience,

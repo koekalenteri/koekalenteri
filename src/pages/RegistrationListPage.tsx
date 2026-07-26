@@ -52,7 +52,9 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const actions = useRegistrationActions()
   const paymentFlow = new URLSearchParams(location.search).get('payment')
   const paymentVerificationInProgress =
-    paymentFlow === 'verifying' && registration?.paymentStatus !== 'SUCCESS' && reloadCount < 5
+    paymentFlow === 'verifying' &&
+    (!registration?.paymentStatus || ['NEW', 'PENDING'].includes(registration.paymentStatus)) &&
+    reloadCount < 5
   const allDisabled = useMemo(() => !event || !isConfirmedEvent(event) || isPast(event.endDate), [event])
   const cancelDisabled = useMemo(
     () => !event || allDisabled || isPast(subDays(event.startDate, 1)),

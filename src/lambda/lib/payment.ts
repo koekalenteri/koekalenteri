@@ -110,15 +110,24 @@ export const applySuccessfulPayment = async (
   registrationId: string,
   provider: string | undefined,
   confirmed: boolean,
-  transactionExists = true
+  transactionExists = true,
+  previouslyPaid = 0
 ) => {
   const appliedAt = new Date().toISOString()
   const transactionNames: Record<string, string> = { '#status': 'status' }
   const transactionValues: Record<string, any> = {
     ':appliedAt': appliedAt,
     ':ok': 'ok',
+    ':receiptPreviouslyPaid': previouslyPaid,
+    ':receiptTotalPaid': previouslyPaid + transaction.amount / 100,
   }
-  const transactionSet = ['#status = :ok', 'statusAt = :appliedAt', 'registrationAppliedAt = :appliedAt']
+  const transactionSet = [
+    '#status = :ok',
+    'statusAt = :appliedAt',
+    'registrationAppliedAt = :appliedAt',
+    'receiptPreviouslyPaid = :receiptPreviouslyPaid',
+    'receiptTotalPaid = :receiptTotalPaid',
+  ]
   if (provider) {
     transactionSet.push('#provider = :provider')
     transactionNames['#provider'] = 'provider'
@@ -143,6 +152,8 @@ export const applySuccessfulPayment = async (
             ...transaction,
             paymentResponse: undefined,
             provider,
+            receiptPreviouslyPaid: previouslyPaid,
+            receiptTotalPaid: previouslyPaid + transaction.amount / 100,
             registrationAppliedAt: appliedAt,
             status: 'ok',
             statusAt: appliedAt,

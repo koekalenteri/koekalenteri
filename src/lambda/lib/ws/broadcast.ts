@@ -32,8 +32,15 @@ export const broadcast = async <TPayload>({
       batch.map(async (recipient) => {
         const { connectionId } = recipient
         counts.attempted += 1
-        const data = Buffer.from(JSON.stringify(buildPayload(recipients, recipient)))
-        const outcome = await send(connectionId, data)
+        let outcome: SendOutcome
+        try {
+          const data = Buffer.from(JSON.stringify(buildPayload(recipients, recipient)))
+          outcome = await send(connectionId, data)
+        } catch (error) {
+          counts.failed += 1
+          console.error('ws.broadcast.unexpected-error', { connectionId, error })
+          return
+        }
         if (outcome === 'sent') {
           counts.sent += 1
           return

@@ -323,6 +323,7 @@
     "registrationNotFound": "Ilmoittautumista {{registrationId}} ei löydy."
   },
   "paymentStatus": {
+    "duplicate": "Maksu veloitettiin sen jälkeen, kun koiran toinen ilmoittautuminen oli jo maksettu. Ota yhteyttä koesihteeriin maksun palauttamiseksi.",
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
     "success": "Olen maksanut",
@@ -474,6 +475,7 @@
       "alreadyRegistered_cancel": "Koira {{reg.dog.regNo}} {{reg.dog.name}} on jo ilmoitettu tähän tapahtumaan, ja ilmoittautuminen on peruttu. Ota yhteyttä koesihteeriin {{contact}}, jos haluat ilmoittaa koiran uudelleen tapahtumaan.",
       "emailSuppressed": "Sähköpostiosoitetta {{email}} ei voi käyttää ilmoittautumiseen, koska aiempi viesti ei ole mennyt perille. Tarkista osoite tai käytä toista sähköpostiosoitetta.",
       "paymentFailed": "Maksu epäonnistui, ole hyvä ja yritä uudelleen",
+      "paymentInProgress": "Tämän koiran maksu on kesken. Yritä uudelleen muutaman minuutin kuluttua.",
       "paymentVerifying": "Maksu vastaanotettu, vahvistetaan vielä. Tila päivittyy hetken kuluttua.",
       "staleData": "Ilmoittautumista on muokattu muualla sen avaamisen jälkeen. Lataa sivu uudelleen ja tee muutokset uudestaan."
     },

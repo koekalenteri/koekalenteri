@@ -77,4 +77,16 @@ describe('ws/broadcast', () => {
     expect(maxActive).toBe(2)
     expect(result).toEqual({ attempted: 5, failed: 0, gone: 0, sent: 5 })
   })
+
+  it('counts unexpected send rejections as failures', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const result = await broadcast({
+      audience: async () => [{ connectionId: 'a' } as any],
+      buildPayload: () => ({ type: 'test' }),
+      send: jest.fn<any>().mockRejectedValue(new Error('network failure')),
+    })
+
+    expect(result).toEqual({ attempted: 1, failed: 1, gone: 0, sent: 0 })
+    errorSpy.mockRestore()
+  })
 })

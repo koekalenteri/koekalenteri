@@ -89,6 +89,41 @@ describe('registration', () => {
 
       expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo)).toEqual(reg)
     })
+
+    it('should return a payment-pending registration for an idempotent creation retry', async () => {
+      const reg = {
+        ...registrationsToEventWithParticipantsInvited[0],
+        creationIdempotencyKey: 'same-attempt',
+        state: 'creating' as const,
+      }
+      mockDynamoDB.query.mockResolvedValueOnce([reg])
+
+      expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'same-attempt')).toEqual(reg)
+    })
+
+    it('should reserve a recent payment-pending registration against a new attempt', async () => {
+      const reg = {
+        ...registrationsToEventWithParticipantsInvited[0],
+        createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+        creationIdempotencyKey: 'original-attempt',
+        state: 'creating' as const,
+      }
+      mockDynamoDB.query.mockResolvedValueOnce([reg])
+
+      expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'new-attempt')).toEqual(reg)
+    })
+
+    it('should ignore an abandoned payment-pending registration for a new attempt', async () => {
+      const reg = {
+        ...registrationsToEventWithParticipantsInvited[0],
+        createdAt: new Date(Date.now() - 16 * 60 * 1000).toISOString(),
+        creationIdempotencyKey: 'original-attempt',
+        state: 'creating' as const,
+      }
+      mockDynamoDB.query.mockResolvedValueOnce([reg])
+
+      expect(await findExistingRegistrationToEventForDog(reg.eventId, reg.dog.regNo, 'new-attempt')).toBeUndefined()
+    })
   })
 
   describe('getRegistrationsByEventId', () => {

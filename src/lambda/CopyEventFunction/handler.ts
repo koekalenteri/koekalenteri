@@ -6,6 +6,7 @@ import { getEvent, saveEvent } from '../lib/event'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, saveRegistration } from '../lib/registration'
+import { removeRegistrationCreationMetadata } from '../lib/registrationMetadata'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
   const user = await authorize(event)
@@ -46,6 +47,9 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
 
   for (const reg of registrations ?? []) {
     reg.eventId = item.id
+    // These values belong to the source creation attempt and must not be
+    // inherited by a registration in the copied event.
+    removeRegistrationCreationMetadata(reg)
     reg.dates.forEach((d) => {
       d.date = addDays(parseISO(d.date), days).toISOString()
     })

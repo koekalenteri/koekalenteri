@@ -2,6 +2,7 @@ import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type { JsonRegistration, Patch } from '../../types'
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { LambdaError } from './lambda'
+import { removeRegistrationCreationMetadata } from './registrationMetadata'
 import { getRegistrationEditTokenSecret } from './secrets'
 
 export const DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION = 1
@@ -64,6 +65,7 @@ const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<keyof JsonRegistration> = [
   'cancelReason',
   'cancelled',
   'class',
+  'creationIdempotencyKey',
   'dates',
   'dog',
   'eventId',
@@ -87,6 +89,8 @@ const PUBLIC_UPDATE_FIELDS = new Set<keyof JsonRegistration>([...PUBLIC_REGISTRA
 
 // The event type is fixed when the registration is created.
 PUBLIC_UPDATE_FIELDS.delete('eventType')
+// The idempotency secret is immutable once a registration exists.
+PUBLIC_UPDATE_FIELDS.delete('creationIdempotencyKey')
 
 export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: boolean): Patch<JsonRegistration> => {
   const result: Patch<JsonRegistration> = {}
@@ -116,7 +120,7 @@ export const participantRegistrationResponse = <T extends Partial<JsonRegistrati
   registration: T,
   editToken: string
 ) => {
-  const result = { ...registration, editToken }
+  const result = removeRegistrationCreationMetadata({ ...registration, editToken })
   delete result.editTokenVersion
   return result
 }

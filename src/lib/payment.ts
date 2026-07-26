@@ -41,6 +41,7 @@ export const getPaymentStatus = (
   event?: { paymentTime?: 'registration' | 'confirmation' }
 ) => {
   if (registration.paymentStatus === 'SUCCESS') return 'paymentStatus.success'
+  if (registration.paymentStatus === 'DUPLICATE') return 'paymentStatus.duplicate'
   if (registration.paymentStatus === 'PENDING') return 'paymentStatus.pending'
   // If payment is after confirmation and registration is not yet confirmed, show different message
   if (event?.paymentTime === 'confirmation' && !registration.confirmed) {

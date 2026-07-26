@@ -233,6 +233,18 @@ describe('paymentCreateLambda', () => {
     expect(JSON.parse(result.body)).toEqual(createMockPaymentResponse())
   })
 
+  it('does not create another payment after a duplicate payment was captured', async () => {
+    mockRead.mockReset()
+    mockRead.mockResolvedValueOnce(createMockRegistration({ paymentStatus: 'DUPLICATE' }))
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toBe(409)
+    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
+    expect(mockCreatePayment).not.toHaveBeenCalled()
+    expect(mockDocumentTransaction).not.toHaveBeenCalled()
+  })
+
   it('rejects a concurrent payment creation before calling Paytrail', async () => {
     const error = new Error('claim already exists')
     error.name = 'TransactionCanceledException'
