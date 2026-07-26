@@ -18,7 +18,7 @@ export default function RegistrationEditPage() {
   const navigate = useNavigate()
   const params = useParams()
   const event = useConfirmedEvent(params.id)
-  const ids = `${params.id ?? ''}:${params.registrationId ?? ''}`
+  const ids = `${params.id ?? ''}:${params.registrationId ?? ''}:${params.editToken ?? ''}`
   const [savedRegistration, setSavedRegistration] = useRecoilState(registrationByIdsAtom(ids))
   const [registration, setRegistration] = useRecoilState(editableRegistrationByIdsAtom(ids))
   const resetRegistration = useResetRecoilState(editableRegistrationByIdsAtom(ids))

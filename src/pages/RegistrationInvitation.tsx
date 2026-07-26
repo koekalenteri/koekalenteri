@@ -25,13 +25,14 @@ interface DeferredData {
 export const deferredLoader = async (
   id?: string,
   registrationId?: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  editToken?: string
 ): Promise<DeferredData> => {
   if (!id || !registrationId) throw new Error('invalid params')
 
   const [event, registration] = await Promise.all([
     getEvent(id, signal),
-    getRegistration(id, registrationId, undefined, signal),
+    getRegistration(id, registrationId, editToken, signal),
   ]).catch((e) => {
     console.log(e)
     return []
@@ -54,10 +55,10 @@ export const deferredLoader = async (
 }
 
 export const loader = async ({ params, request }: { params: Params<string>; request: Request }) => {
-  const { id, registrationId } = params
+  const { editToken, id, registrationId } = params
 
   return {
-    data: deferredLoader(id, registrationId, request.signal),
+    data: deferredLoader(id, registrationId, request.signal, editToken),
   }
 }
 

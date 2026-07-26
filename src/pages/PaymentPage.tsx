@@ -164,9 +164,9 @@ export const PaymentPageWithData = ({
 }
 
 export function Component() {
-  const { id, registrationId } = useParams()
+  const { editToken, id, registrationId } = useParams()
   const event = useConfirmedEvent(id)
-  const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}`))
+  const registration = useRecoilValue(registrationSelector(`${id ?? ''}:${registrationId ?? ''}:${editToken ?? ''}`))
   const data: { response: Promise<{ errorMessage?: string; response?: CreatePaymentResponse; status: number }> } =
     useLoaderData()
   const resetRegistration = useResetRecoilState(newRegistrationAtom)

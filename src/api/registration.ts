@@ -11,6 +11,19 @@ import type {
 } from '../types'
 import http, { withToken } from './http'
 
+const editTokenStorageKey = (eventId: string, id: string) => `registration-edit-token:${eventId}:${id}`
+
+const rememberEditToken = <T extends Registration | undefined>(registration: T): T => {
+  if (typeof window === 'undefined' || !registration?.editToken) return registration
+  window.sessionStorage.setItem(editTokenStorageKey(registration.eventId, registration.id), registration.editToken)
+  return registration
+}
+
+const storedEditToken = (eventId?: string, id?: string): string | undefined => {
+  if (typeof window === 'undefined') return undefined
+  return eventId && id ? (window.sessionStorage.getItem(editTokenStorageKey(eventId, id)) ?? undefined) : undefined
+}
+
 export async function getRegistrations(eventId: string, token: string, signal?: AbortSignal): Promise<Registration[]>
 export async function getRegistrations(
   eventId: string,
@@ -38,7 +51,9 @@ export async function getRegistration(
   token?: string,
   signal?: AbortSignal
 ): Promise<Registration | undefined> {
-  return http.get<Registration>(`/registration/${eventId}/${id}`, withToken({ signal }, token))
+  const editToken = token ?? storedEditToken(eventId, id)
+  const registration = await http.get<Registration>(`/registration/${eventId}/${id}`, withToken({ signal }, editToken))
+  return rememberEditToken(registration)
 }
 
 export const getRegistrationAuditTrail = async (
@@ -54,10 +69,15 @@ export async function putRegistration(
   token?: string,
   signal?: AbortSignal
 ): Promise<Registration> {
-  const request = withToken({ signal }, token)
-  return registration.id
+  const registrationToken = typeof registration.editToken === 'string' ? registration.editToken : undefined
+  const eventId = typeof registration.eventId === 'string' ? registration.eventId : undefined
+  const id = typeof registration.id === 'string' ? registration.id : undefined
+  const editToken = token ?? registrationToken ?? storedEditToken(eventId, id)
+  const request = withToken({ signal }, editToken)
+  const saved = registration.id
     ? (await http.patch<Patch<Registration>, Registration>('/registration/', registration, request)).data
     : (await http.post<Patch<Registration>, Registration>('/registration/', registration, request)).data
+  return rememberEditToken(saved)
 }
 
 export async function putAdminRegistration(

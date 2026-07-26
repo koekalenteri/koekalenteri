@@ -31,6 +31,10 @@ const routes: RouteObject[] = [
         path: 'p/:id/:registrationId',
       },
       {
+        lazy: () => reloadOnChunkLoadError(() => import('./pages/PaymentPage')),
+        path: 'p/:id/:registrationId/access/:editToken',
+      },
+      {
         element: <>loading...</>,
         loader: paymentResultLoader,
         path: 'p/success',
@@ -45,12 +49,24 @@ const routes: RouteObject[] = [
         path: 'r/:id/:registrationId/cancel',
       },
       {
+        element: <RegistrationListPage cancel />,
+        path: 'r/:id/:registrationId/access/:editToken/cancel',
+      },
+      {
         element: <RegistrationListPage confirm />,
         path: 'r/:id/:registrationId/confirm',
       },
       {
+        element: <RegistrationListPage confirm />,
+        path: 'r/:id/:registrationId/access/:editToken/confirm',
+      },
+      {
         element: <RegistrationEditPage />,
         path: 'r/:id/:registrationId/edit',
+      },
+      {
+        element: <RegistrationEditPage />,
+        path: 'r/:id/:registrationId/access/:editToken/edit',
       },
       {
         element: <RegistrationListPage />,
@@ -58,7 +74,15 @@ const routes: RouteObject[] = [
       },
       {
         element: <RegistrationListPage />,
+        path: 'r/:id/:registrationId/access/:editToken/saved',
+      },
+      {
+        element: <RegistrationListPage />,
         path: 'r/:id/:registrationId',
+      },
+      {
+        element: <RegistrationListPage />,
+        path: 'r/:id/:registrationId/access/:editToken',
       },
     ],
     element: <HomePage />,
@@ -71,6 +95,12 @@ const routes: RouteObject[] = [
     hydrateFallbackElement: <LoadingIndicator />,
     lazy: () => reloadOnChunkLoadError(() => import('./pages/RegistrationInvitation')),
     path: 'r/:id/:registrationId/invitation',
+  },
+  {
+    errorElement: <ErrorPage />,
+    hydrateFallbackElement: <LoadingIndicator />,
+    lazy: () => reloadOnChunkLoadError(() => import('./pages/RegistrationInvitation')),
+    path: 'r/:id/:registrationId/access/:editToken/invitation',
   },
   {
     errorElement: <ErrorPage />,

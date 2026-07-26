@@ -6,9 +6,9 @@ export const remoteRegistrationEffect =
   (param: string): AtomEffect<Registration | undefined | null> =>
   ({ setSelf, trigger }) => {
     if (trigger === 'get') {
-      const [eventId, registrationId] = param.split(':')
+      const [eventId, registrationId, editToken] = param.split(':')
       setSelf(
-        getRegistration(eventId, registrationId)
+        getRegistration(eventId, registrationId, editToken || undefined)
           .then((registration) => registration ?? null)
           .catch(() => null)
       )

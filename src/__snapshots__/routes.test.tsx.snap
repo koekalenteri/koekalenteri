@@ -25,6 +25,10 @@ exports[`routes should match a snapshot 1`] = `
         "path": "p/:id/:registrationId",
       },
       {
+        "lazy": [Function],
+        "path": "p/:id/:registrationId/access/:editToken",
+      },
+      {
         "element": <React.Fragment>
           loading...
         </React.Fragment>,
@@ -46,13 +50,29 @@ exports[`routes should match a snapshot 1`] = `
       },
       {
         "element": <RegistrationListPage
+          cancel={true}
+        />,
+        "path": "r/:id/:registrationId/access/:editToken/cancel",
+      },
+      {
+        "element": <RegistrationListPage
           confirm={true}
         />,
         "path": "r/:id/:registrationId/confirm",
       },
       {
+        "element": <RegistrationListPage
+          confirm={true}
+        />,
+        "path": "r/:id/:registrationId/access/:editToken/confirm",
+      },
+      {
         "element": <RegistrationEditPage />,
         "path": "r/:id/:registrationId/edit",
+      },
+      {
+        "element": <RegistrationEditPage />,
+        "path": "r/:id/:registrationId/access/:editToken/edit",
       },
       {
         "element": <RegistrationListPage />,
@@ -60,7 +80,15 @@ exports[`routes should match a snapshot 1`] = `
       },
       {
         "element": <RegistrationListPage />,
+        "path": "r/:id/:registrationId/access/:editToken/saved",
+      },
+      {
+        "element": <RegistrationListPage />,
         "path": "r/:id/:registrationId",
+      },
+      {
+        "element": <RegistrationListPage />,
+        "path": "r/:id/:registrationId/access/:editToken",
       },
     ],
     "element": <HomePage />,
@@ -73,6 +101,12 @@ exports[`routes should match a snapshot 1`] = `
     "hydrateFallbackElement": <ForwardRef />,
     "lazy": [Function],
     "path": "r/:id/:registrationId/invitation",
+  },
+  {
+    "errorElement": <ErrorPage />,
+    "hydrateFallbackElement": <ForwardRef />,
+    "lazy": [Function],
+    "path": "r/:id/:registrationId/access/:editToken/invitation",
   },
   {
     "errorElement": <ErrorPage />,

@@ -35,6 +35,10 @@ export interface JsonRegistration extends JsonDbRecord {
   dog: JsonDog
   eventId: string
   eventType: string
+  /** Increment to revoke previously issued participant edit tokens. */
+  editTokenVersion?: number
+  /** Raw participant edit token. Only present in participant-facing API responses. */
+  editToken?: string
   group?: JsonRegistrationGroup
   handler?: RegistrationPerson
   emailDeliveryStatus?: JsonEmailDeliveryStatus

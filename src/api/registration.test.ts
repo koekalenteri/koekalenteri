@@ -73,7 +73,10 @@ const mockRegistration: Registration = {
 
 fetchMock.enableMocks()
 
-beforeEach(() => fetchMock.resetMocks())
+beforeEach(() => {
+  fetchMock.resetMocks()
+  sessionStorage.clear()
+})
 
 test('getRegistrations', async () => {
   fetchMock.mockResponse((req) =>
@@ -120,6 +123,16 @@ test('getRegistration', async () => {
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/test-id/test-registration-id`)
 })
 
+test('getRegistration sends participant edit token', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify({ ...mockRegistration, editToken: 'participant-token' }))
+
+  await getRegistration('test-id', 'test-registration-id', 'participant-token')
+
+  expect(fetchMock.mock.calls[0][1]?.headers).toEqual(
+    expect.objectContaining({ Authorization: 'Bearer participant-token' })
+  )
+})
+
 test('putRegistration creates with POST', async () => {
   fetchMock.mockResponse((req) =>
     req.method === 'POST'
@@ -145,6 +158,21 @@ test('putRegistration updates with PATCH', async () => {
   expect(fetchMock.mock.calls.length).toEqual(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/`)
   expect(result.id).not.toBeUndefined()
+})
+
+test('putRegistration sends the edit token returned with the registration', async () => {
+  fetchMock.mockResponseOnce(JSON.stringify({ ...mockRegistration, editToken: 'participant-token' }))
+
+  await putRegistration({
+    editToken: 'participant-token',
+    eventId: mockRegistration.eventId,
+    id: mockRegistration.id,
+    notes: 'patched',
+  })
+
+  expect(fetchMock.mock.calls[0][1]?.headers).toEqual(
+    expect.objectContaining({ Authorization: 'Bearer participant-token' })
+  )
 })
 
 test('putAdminRegistration creates with POST', async () => {

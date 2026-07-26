@@ -37,7 +37,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
   const navigate = useNavigate()
   const event = useConfirmedEvent(params.id)
   const [registration, setRegistration] = useRecoilState(
-    registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}`)
+    registrationSelector(`${params.id ?? ''}:${params.registrationId ?? ''}:${params.editToken ?? ''}`)
   )
   const [language, setLanguage] = useRecoilState(languageAtom)
   const spa = useRecoilValue(spaAtom)

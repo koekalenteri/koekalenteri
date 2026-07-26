@@ -142,9 +142,9 @@ describe('RegistrationInvitation deferredLoader', () => {
 
     const mockSignal = {} as AbortSignal
 
-    await deferredLoader('event123', 'reg123', mockSignal)
+    await deferredLoader('event123', 'reg123', mockSignal, 'route-edit-token')
 
     expect(mockGetEvent).toHaveBeenCalledWith('event123', mockSignal)
-    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg123', undefined, mockSignal)
+    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg123', 'route-edit-token', mockSignal)
   })
 })

@@ -8,6 +8,12 @@ const ADMIN_ROOT = '/admin'
 const ADMIN_EVENTS = `${ADMIN_ROOT}/event`
 
 type RegistrationIds = Pick<Registration, 'eventId' | 'id'>
+type ParticipantRegistration = RegistrationIds & Pick<Registration, 'editToken'>
+
+const participantPath = (prefix: 'p' | 'r', registration: ParticipantRegistration, suffix: string = '') => {
+  const access = registration.editToken ? `/access/${encodeURIComponent(registration.editToken)}` : ''
+  return `/${prefix}/${registration.eventId}/${registration.id}${access}${suffix}`
+}
 type InvitationAttachmentItem = Pick<ConfirmedEvent | Registration, 'eventType' | 'invitationAttachment'> & {
   class?: RegistrationClass | null
   dates?: Array<{ date: Date | string }>
@@ -41,12 +47,12 @@ export const Path = {
     viewEvent: (id: string = ':id') => `${ADMIN_EVENTS}/view/${id}`,
   },
   home: '/',
-  invitation: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/invitation`,
+  invitation: (registration: ParticipantRegistration) => participantPath('r', registration, '/invitation'),
   invitationAttachment: (item: InvitationAttachmentItem) =>
     `${API_BASE_URL}/file/${item.invitationAttachment}/${invitationAttachmentFileName(item)}`,
   login: '/login',
   logout: '/logout',
-  payment: (registration: RegistrationIds) => `/p/${registration.eventId}/${registration.id}`,
+  payment: (registration: ParticipantRegistration) => participantPath('p', registration),
   register: (event: PublicDogEvent, className?: string, classDate?: string) => {
     if (className) {
       return classDate
@@ -55,7 +61,7 @@ export const Path = {
     }
     return `/event/${event.eventType}/${event.id}`
   },
-  registration: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}`,
-  registrationOk: (registration: RegistrationIds) => `/r/${registration.eventId}/${registration.id}/saved`,
+  registration: (registration: ParticipantRegistration) => participantPath('r', registration),
+  registrationOk: (registration: ParticipantRegistration) => participantPath('r', registration, '/saved'),
   startList: (id: string = ':id') => `/startlist/${id}`,
 }
