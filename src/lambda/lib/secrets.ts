@@ -67,7 +67,7 @@ const resolveCachedParams = <T extends Record<string, string>>(
 
 const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>): Promise<void> => {
   const fetchPromise = (async () => {
-    const command = new GetParametersCommand({ Names: names })
+    const command = new GetParametersCommand({ Names: names, WithDecryption: true })
     const response = await ssm.send(command)
     const params = response.Parameters ?? []
 
@@ -131,6 +131,14 @@ export const getPaytrailConfig = async (): Promise<PaytrailConfig> => {
   }
   console.log(`merchantId: ${cfg.PAYTRAIL_MERCHANT_ID}`)
   return cfg
+}
+
+export const getRegistrationEditTokenSecret = async (): Promise<string> => {
+  const secret = process.env.REGISTRATION_EDIT_TOKEN_SECRET
+  if (secret) return secret
+  if (process.env.NODE_ENV === 'test') return 'test-registration-edit-token-secret'
+
+  throw new Error('Missing registration edit-token secret!')
 }
 
 /**

@@ -1,7 +1,9 @@
 import type { JsonRegistration, JsonTransaction, PaymentStatus, PaymentTime, Registration } from '../../types'
 import { jest } from '@jest/globals'
+import { addDays } from 'date-fns'
 import { eventWithParticipantsInvited } from '../../__mockData__/events'
 import { registrationsToEventWithParticipantsInvited } from '../../__mockData__/registrations'
+import { LambdaError } from '../lib/lambda'
 import { constructAPIGwEvent } from '../test-utils/helpers'
 
 const mockEventWithInvitationAttachment = {
@@ -18,6 +20,14 @@ const mockGetRegistration = jest.fn(
 )
 
 import * as libRegistration from '../lib/registration'
+import * as libRegistrationAccess from '../lib/registrationAccess'
+
+const mockAuthorizeRegistrationRead = jest.fn(() => 'test-edit-token')
+
+jest.unstable_mockModule('../lib/registrationAccess', () => ({
+  ...libRegistrationAccess,
+  authorizeRegistrationRead: mockAuthorizeRegistrationRead,
+}))
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
@@ -42,8 +52,17 @@ describe('getRegistration', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)
   const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
+  beforeAll(() => {
+    jest.useFakeTimers()
+  })
+  beforeEach(() => {
+    jest.setSystemTime(new Date(mockEventWithInvitationAttachment.startDate))
+  })
   afterEach(() => {
     jest.clearAllMocks()
+  })
+  afterAll(() => {
+    jest.useRealTimers()
   })
 
   it.each([
@@ -66,6 +85,30 @@ describe('getRegistration', () => {
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toEqual('alo.pdf')
     expect(reg.shouldPay).toBeFalsy()
+  })
+
+  it('does not disclose a registration when edit-token authorization fails', async () => {
+    mockAuthorizeRegistrationRead.mockImplementationOnce(() => {
+      throw new LambdaError(404, 'not found')
+    })
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toBe(404)
+    expect(mockGetEvent).not.toHaveBeenCalled()
+  })
+
+  it('does not disclose registrations after the event has ended', async () => {
+    jest.setSystemTime(addDays(new Date(mockEventWithInvitationAttachment.endDate), 1))
+
+    const res = await getRegistrationLambda(
+      constructAPIGwEvent('test', { pathParameters: { eventId: '123', id: '123' } })
+    )
+
+    expect(res.statusCode).toBe(404)
+    expect(mockGetTransactionsByReference).not.toHaveBeenCalled()
   })
 
   it('falls back to event invitationAttachment when class attachment is missing', async () => {

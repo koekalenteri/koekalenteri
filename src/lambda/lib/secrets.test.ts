@@ -49,7 +49,7 @@ describe('secrets', () => {
       const result = await getSSMParams(['param1', 'param2'])
 
       // Verify the SSM service was called with the correct parameters
-      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1', 'param2'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1', 'param2'], WithDecryption: true })
 
       // Verify the result
       expect(result).toEqual({
@@ -156,7 +156,7 @@ describe('secrets', () => {
       // First call to cache param1
       await getSSMParams(['param1'])
       expect(mockSend).toHaveBeenCalledTimes(1)
-      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'], WithDecryption: true })
 
       // Reset mock call count but keep the implementation
       mockSend.mockClear()
@@ -173,7 +173,7 @@ describe('secrets', () => {
 
       // SSM should be called again, but only for param2
       expect(mockSend).toHaveBeenCalledTimes(1)
-      expect(mockSend).toHaveBeenCalledWith({ Names: ['param2'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param2'], WithDecryption: true })
 
       expect(result).toEqual({
         param1: 'value1',
@@ -198,7 +198,7 @@ describe('secrets', () => {
 
       // SSM should only be called once
       expect(mockSend).toHaveBeenCalledTimes(1)
-      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'], WithDecryption: true })
       expect(result1).toEqual({ param1: 'value1' })
       expect(result2).toEqual({ param1: 'value1' })
     })
@@ -218,7 +218,7 @@ describe('secrets', () => {
       // First call should fetch from SSM
       const result1 = await getSSMParams(['param1'])
       expect(mockSend).toHaveBeenCalledTimes(1)
-      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'], WithDecryption: true })
       expect(result1).toEqual({ param1: 'value1' })
 
       // Second call with the same parameters should use cache
@@ -239,7 +239,7 @@ describe('secrets', () => {
       // Third call should fetch from SSM again because cache expired
       const result3 = await getSSMParams(['param1'])
       expect(mockSend).toHaveBeenCalledTimes(2) // Now 2, fetched again
-      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'] })
+      expect(mockSend).toHaveBeenCalledWith({ Names: ['param1'], WithDecryption: true })
       expect(result3).toEqual({ param1: 'updated-value1' })
     })
   })

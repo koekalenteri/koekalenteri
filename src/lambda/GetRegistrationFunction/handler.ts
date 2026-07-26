@@ -1,8 +1,10 @@
 import { getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
+import { isEventOver } from '../../lib/utils'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
 import { getTransactionsByReference } from '../lib/payment'
 import { getRegistration } from '../lib/registration'
+import { authorizeRegistrationRead, participantRegistrationResponse } from '../lib/registrationAccess'
 
 const getRegistrationLambda = lambda('getRegistration', async (event) => {
   const eventId = getParam(event, 'eventId')
@@ -11,8 +13,13 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
     throw new LambdaError(404, 'not found')
   }
 
-  const registration = await getRegistration(eventId, id)
+  const storedRegistration = await getRegistration(eventId, id)
+  const editToken = await authorizeRegistrationRead(event, storedRegistration)
+  const registration = { ...storedRegistration }
   const dogEvent = await getEvent(eventId)
+  if (isEventOver({ endDate: new Date(dogEvent.endDate) })) {
+    throw new LambdaError(404, 'not found')
+  }
 
   if (isParticipantGroup(registration.group?.key)) {
     registration.invitationAttachment = getSentInvitationAttachment(dogEvent, registration)
@@ -40,7 +47,7 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
   delete registration.group
   delete registration.internalNotes
 
-  return response(200, registration, event)
+  return response(200, participantRegistrationResponse(registration, editToken), event)
 })
 
 export default getRegistrationLambda

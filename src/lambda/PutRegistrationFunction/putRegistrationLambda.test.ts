@@ -1,6 +1,6 @@
 import type { JsonDogEvent, JsonRegistration, Registration } from '../../types'
 import { jest } from '@jest/globals'
-import { addMinutes } from 'date-fns'
+import { addDays, addMinutes } from 'date-fns'
 import { eventWithStaticDates } from '../../__mockData__/events'
 import { registrationWithStaticDates } from '../../__mockData__/registrations'
 import { GROUP_KEY_RESERVE } from '../../lib/registration'
@@ -61,6 +61,13 @@ const mockfindExistingRegistrationToEventForDog = jest.fn<
 >(async () => undefined)
 
 const libRegistration = await import('../lib/registration')
+const libRegistrationAccess = await import('../lib/registrationAccess')
+const mockAuthorizeRegistrationEdit = jest.fn(() => 'test-edit-token')
+
+jest.unstable_mockModule('../lib/registrationAccess', () => ({
+  ...libRegistrationAccess,
+  authorizeRegistrationEdit: mockAuthorizeRegistrationEdit,
+}))
 
 jest.unstable_mockModule('../lib/registration', () => ({
   ...libRegistration,
@@ -100,6 +107,9 @@ describe('putRegistrationLabmda', () => {
 
   beforeAll(() => {
     jest.useFakeTimers()
+  })
+  beforeEach(() => {
+    jest.setSystemTime(eventWithStaticDates.entryStartDate)
   })
   afterEach(() => {
     jest.clearAllMocks()
@@ -153,6 +163,30 @@ describe('putRegistrationLabmda', () => {
     expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
 
     expect(res.statusCode).toEqual(200)
+    const responseRegistration = JSON.parse(res.body)
+    expect(responseRegistration.editToken).toMatch(/^[A-Za-z0-9_-]{43}$/)
+    expect(responseRegistration.editTokenVersion).toBeUndefined()
+  })
+
+  it('rejects an update when edit-token authorization fails', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
+    mockAuthorizeRegistrationEdit.mockImplementationOnce(() => {
+      throw new LambdaError(404, 'not found')
+    })
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        eventId: registrationWithStaticDates.eventId,
+        id: registrationWithStaticDates.id,
+        notes: 'x',
+      })
+    )
+
+    expect(res.statusCode).toBe(404)
+    expect(errorSpy).toHaveBeenCalledTimes(1)
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
   })
 
   it('should send email for new registration when paymentTime is confirmation', async () => {
@@ -292,11 +326,14 @@ describe('putRegistrationLabmda', () => {
     mockGetRegistration.mockResolvedValueOnce(existingJson)
 
     const res = await putRegistrationLabmda(
-      constructAPIGwEvent({
-        ...registrationWithStaticDates,
-        handler: {},
-        notes: 'updated notes',
-      })
+      constructAPIGwEvent(
+        {
+          ...registrationWithStaticDates,
+          handler: null,
+          notes: 'updated notes',
+        },
+        { method: 'PATCH' }
+      )
     )
 
     expect(mockSES.send).not.toHaveBeenCalled()
@@ -909,6 +946,27 @@ describe('putRegistrationLabmda', () => {
     expect(res.statusCode).toEqual(404)
   })
 
+  it('should return 404 when updating a registration after the event has ended', async () => {
+    jest.setSystemTime(addDays(eventWithStaticDates.endDate, 1))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(JSON.parse(JSON.stringify(registrationWithStaticDates)))
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent(
+        {
+          eventId: registrationWithStaticDates.eventId,
+          id: registrationWithStaticDates.id,
+          notes: 'past event edit',
+        },
+        { method: 'PATCH' }
+      )
+    )
+
+    expect(res.statusCode).toBe(404)
+    expect(mockAuthorizeRegistrationEdit).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
   it('should return 409 if dog is already registered to the event', async () => {
     jest.setSystemTime(eventWithStaticDates.entryStartDate)
     mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
@@ -999,7 +1057,7 @@ describe('putRegistrationLabmda', () => {
     // ensure patchRegistration received payment fields preserved from existing, not client-supplied values
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockSaveRegistration).not.toHaveBeenCalled()
-    const savedArg = (mockPatchRegistration as jest.Mock).mock.calls[0][3] as JsonRegistration
+    const savedArg = mockPatchRegistration.mock.calls[0][3]
 
     // allowed field updated
     expect(savedArg.notes).toEqual('legit note change')
@@ -1013,5 +1071,27 @@ describe('putRegistrationLabmda', () => {
     expect(savedArg.paymentStatus).not.toEqual(maliciousUpdate.paymentStatus)
     expect(savedArg.paidAmount).not.toEqual(maliciousUpdate.paidAmount)
     expect(savedArg.paidAt).not.toEqual(maliciousUpdate.paidAt)
+  })
+
+  it('derives qualification on the backend while preserving a valid selected cost', async () => {
+    const existingJson = JSON.parse(JSON.stringify({ ...registrationWithStaticDates, qualifies: false }))
+    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({
+        eventId: registrationWithStaticDates.eventId,
+        id: registrationWithStaticDates.id,
+        notes: 'qualification recalculated',
+        qualifies: false,
+        selectedCost: 'normal',
+      })
+    )
+
+    expect(res.statusCode).toBe(200)
+    const saved = mockPatchRegistration.mock.calls[0][3]
+    expect(saved.qualifies).toBe(true)
+    expect(saved.qualifyingResults).toEqual([])
+    expect(saved.selectedCost).toBe('normal')
   })
 })

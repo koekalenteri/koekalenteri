@@ -2,12 +2,16 @@ import type {
   EmailTemplateId,
   JsonConfirmedEvent,
   JsonRegistration,
+  JsonTestResult,
+  ManualTestResult,
   Patch,
   RegistrationTemplateContext,
+  TestResult,
 } from '../../types'
 import { nanoid } from 'nanoid'
+import { filterRelevantResults } from '../../lib/qualification'
 import { GROUP_KEY_RESERVE, isParticipantGroup } from '../../lib/registration'
-import { isEntryOpen, patchMerge } from '../../lib/utils'
+import { isEntryOpen, isEventOver, isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
@@ -32,24 +36,25 @@ import {
   patchRegistration,
   saveRegistration,
 } from '../lib/registration'
+import {
+  authorizeRegistrationEdit,
+  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
+  getRegistrationEditToken,
+  participantRegistrationResponse,
+  publicRegistrationPatch,
+} from '../lib/registrationAccess'
 import { updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const { emailFrom } = CONFIG
 
 const getData = async (registration: Patch<JsonRegistration>) => {
-  const eventId = registration.eventId as JsonRegistration['eventId']
-  const id = registration.id as JsonRegistration['id'] | undefined
+  const eventId = typeof registration.eventId === 'string' ? registration.eventId : ''
+  const id = typeof registration.id === 'string' ? registration.id : undefined
   const confirmedEvent = await getEvent<JsonConfirmedEvent>(eventId)
   const existing = id ? await getRegistration(eventId, id) : undefined
 
   return { confirmedEvent, existing }
-}
-
-const removeUserControlledPaymentFields = (registration: Patch<JsonRegistration>) => {
-  delete registration.paidAmount
-  delete registration.paidAt
-  delete registration.paymentStatus
 }
 
 const getEmailContext = (update: boolean, cancel: boolean, confirm: boolean, invitation: boolean) => {
@@ -72,6 +77,55 @@ const getAuditMessage = (
 
   return getRegistrationChanges(existing, data)
 }
+
+const toTestResult = (result: JsonTestResult): TestResult => ({ ...result, date: new Date(result.date) })
+
+const toManualTestResult = (
+  result: JsonTestResult & { id: string },
+  registration: JsonRegistration
+): ManualTestResult => ({
+  ...result,
+  date: new Date(result.date),
+  official: false,
+  regNo: registration.dog.regNo,
+})
+
+const resolveQualification = (registration: JsonRegistration, event: JsonConfirmedEvent) => {
+  const qualification = filterRelevantResults(
+    {
+      entryEndDate: event.entryEndDate ? new Date(event.entryEndDate) : undefined,
+      entryOrigEndDate: event.entryOrigEndDate ? new Date(event.entryOrigEndDate) : undefined,
+      eventType: event.eventType,
+      qualificationStartDate: event.qualificationStartDate ? new Date(event.qualificationStartDate) : undefined,
+      startDate: new Date(event.startDate),
+    },
+    registration.class,
+    registration.dog.results?.map(toTestResult),
+    registration.results?.map((result) => toManualTestResult(result, registration))
+  )
+  registration.qualifies = qualification.qualifies
+  registration.qualifyingResults = qualification.relevant.map(({ date, ...result }) => ({
+    ...result,
+    date: date.toISOString(),
+  }))
+}
+
+const isCompleteRegistration = (registration: Patch<JsonRegistration>): registration is JsonRegistration =>
+  typeof registration.agreeToTerms === 'boolean' &&
+  isObject(registration.breeder) &&
+  typeof registration.createdAt === 'string' &&
+  typeof registration.createdBy === 'string' &&
+  Array.isArray(registration.dates) &&
+  isObject(registration.dog) &&
+  typeof registration.eventId === 'string' &&
+  typeof registration.eventType === 'string' &&
+  typeof registration.id === 'string' &&
+  (registration.language === 'fi' || registration.language === 'en') &&
+  typeof registration.modifiedAt === 'string' &&
+  typeof registration.modifiedBy === 'string' &&
+  typeof registration.notes === 'string' &&
+  Array.isArray(registration.qualifyingResults) &&
+  typeof registration.reserve === 'string'
 
 const prepareNewRegistration = async (
   registration: Patch<JsonRegistration>,
@@ -111,11 +165,12 @@ const sendMessages = async (
   context: RegistrationTemplateContext,
   registration: JsonRegistration,
   confirmedEvent: JsonConfirmedEvent,
-  existing?: JsonRegistration
+  existing: JsonRegistration | undefined,
+  editToken: string
 ) => {
   // send update message when registration is updated, confirmed or cancelled
   const to = emailTo(registration)
-  const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context)
+  const templateData = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken)
 
   await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
   delete registration.emailDeliveryStatus
@@ -153,6 +208,7 @@ const sendMessages = async (
           confirmedEvent,
           origin,
           context,
+          editToken,
           '',
           existing?.group
         )
@@ -170,25 +226,39 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const origin = getOrigin(event)
   const patchRequest = isPatchRequest(event)
 
-  const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
+  const parsed: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
+  const registration = publicRegistrationPatch(parsed, Boolean(parsed.id))
   normalizeRegistrationEmails(registration)
 
   if (patchRequest && (!registration.eventId || !registration.id)) {
     return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
   }
 
-  removeUserControlledPaymentFields(registration)
-
   const { confirmedEvent, existing } = await getData(registration)
 
   if (!confirmedEvent) {
+    return response(404, { message: 'Not found' }, event)
+  }
+  if (isEventOver({ endDate: new Date(confirmedEvent.endDate) })) {
     return response(404, { message: 'Not found' }, event)
   }
 
   if (!existing) {
     const errorResponse = await prepareNewRegistration(registration, confirmedEvent, timestamp, username, event)
     if (errorResponse) return errorResponse
+    registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
   }
+
+  if (typeof registration.eventId !== 'string' || typeof registration.id !== 'string') {
+    return response(400, { message: 'Bad request: registration identity is missing' }, event)
+  }
+  const editToken = existing
+    ? await authorizeRegistrationEdit(event, existing)
+    : await getRegistrationEditToken({
+        editTokenVersion: registration.editTokenVersion ?? undefined,
+        eventId: registration.eventId,
+        id: registration.id,
+      })
 
   const update = !!existing
   const cancel = !existing?.cancelled && !!registration.cancelled
@@ -200,11 +270,19 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   registration.modifiedBy = username
   registration.updatedAt = timestamp
 
-  const data: JsonRegistration = existing
-    ? patchRequest
-      ? patchMerge(existing, registration)
-      : ({ ...existing, ...registration } as JsonRegistration)
-    : (registration as JsonRegistration)
+  let data: JsonRegistration
+  if (existing) {
+    data = patchMerge(existing, registration)
+  } else {
+    registration.qualifies = false
+    registration.qualifyingResults = []
+    if (!isCompleteRegistration(registration)) {
+      return response(400, { message: 'Bad request: registration data is incomplete' }, event)
+    }
+    data = registration
+  }
+
+  resolveQualification(data, confirmedEvent)
 
   if (existing && !hasRegistrationChanges(existing, data)) {
     return response(304, undefined, event)
@@ -249,10 +327,10 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
     savedData.handler?.email &&
     savedData.owner?.email
   ) {
-    await sendMessages(origin, context, savedData, confirmedEvent, existing)
+    await sendMessages(origin, context, savedData, confirmedEvent, existing, editToken)
   }
 
-  return response(200, savedData, event)
+  return response(200, participantRegistrationResponse(savedData, editToken), event)
 })
 
 export default putRegistrationLambda
