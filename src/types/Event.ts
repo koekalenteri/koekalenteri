@@ -18,6 +18,10 @@ export type PaymentTime = 'registration' | 'confirmation'
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
 export interface JsonDogEvent extends JsonDbRecord {
+  /** Short-lived server-side lock used while registration groups are reconciled. */
+  registrationGroupsLock?: { expiresAt: number; token: string }
+  /** Short-lived server-side lock used for dog-unique payment transitions. */
+  registrationPaymentsLock?: { expiresAt: number; token: string }
   paymentTime?: PaymentTime
   classes: Array<JsonEventClass>
   contactInfo?: Partial<ContactInfo>
@@ -86,6 +90,8 @@ type NonPublicDogEventProperties =
   | 'secretary'
   | 'createdBy'
   | 'modifiedBy'
+  | 'registrationGroupsLock'
+  | 'registrationPaymentsLock'
 
 export type JsonPublicDogEvent = Omit<JsonDogEvent, NonPublicDogEventProperties>
 export type SanitizedJsonPublicDogEvent = JsonPublicDogEvent & {

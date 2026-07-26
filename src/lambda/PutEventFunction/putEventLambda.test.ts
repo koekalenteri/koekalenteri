@@ -255,6 +255,44 @@ describe('putEventLambda', () => {
     expect(JSON.parse(res.body)).toEqual({ ...mockEvent, eventType: 'TEST' })
   })
 
+  it('does not persist a client-provided registration group lock', async () => {
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce(mockEvent)
+
+    await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        id: 'existing',
+        registrationGroupsLock: { expiresAt: Date.now() + 24 * 60 * 60 * 1000, token: 'client-controlled' },
+      })
+    )
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      mockEvent,
+      expect.not.objectContaining({ registrationGroupsLock: expect.anything() })
+    )
+  })
+
+  it('preserves an existing server-owned registration group lock', async () => {
+    const storedLock = { expiresAt: Date.now() + 60_000, token: 'server-owned' }
+    authorizeMock.mockResolvedValueOnce(mockSecretary)
+    getEventMock.mockResolvedValueOnce({ ...mockEvent, registrationGroupsLock: storedLock })
+
+    const res = await putEventLambda(
+      constructAPIGwEvent<Partial<JsonDogEvent>>({
+        id: 'existing',
+        registrationGroupsLock: { expiresAt: Date.now() + 24 * 60 * 60 * 1000, token: 'client-controlled' },
+      })
+    )
+
+    expect(patchEventMock).toHaveBeenCalledWith(
+      'existing',
+      expect.objectContaining({ registrationGroupsLock: storedLock }),
+      expect.objectContaining({ registrationGroupsLock: storedLock })
+    )
+    expect(JSON.parse(res.body)).not.toHaveProperty('registrationGroupsLock')
+  })
+
   it('should reject an event edit based on stale modification data', async () => {
     authorizeMock.mockResolvedValueOnce(mockSecretary)
     getEventMock.mockResolvedValueOnce({ ...mockEvent, modifiedAt: '2025-03-22T09:00:00.000Z' })

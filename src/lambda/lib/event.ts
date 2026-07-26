@@ -7,18 +7,14 @@ import type {
   JsonRegistration,
   JsonRegistrationGroupInfo,
   JsonUser,
+  Patch,
   Registration,
 } from '../../types'
+import { randomUUID } from 'node:crypto'
 import { addDays } from 'date-fns'
 import { formatDate, zonedStartOfDay } from '../../i18n/dates'
-import {
-  GROUP_KEY_CANCELLED,
-  GROUP_KEY_RESERVE,
-  getRegistrationGroupKey,
-  getRegistrationNumberingGroupKey,
-  hasPriority,
-  sortRegistrationsByDateClassTimeAndNumber,
-} from '../../lib/registration'
+import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, hasPriority } from '../../lib/registration'
+import { normalizeRegistrationGroups } from '../../lib/registrationGroups'
 import { isDefined } from '../../lib/typeGuards'
 import { CONFIG } from '../config'
 import { publishAdminEventPatch, publishEventPatch, publishPublicEvent } from '../lib/ws/actions'
@@ -26,7 +22,7 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
 import { LambdaError } from './lambda'
 import { createPatch } from './patch'
-import { getRegistrationsByEventId } from './registration'
+import { createRegistrationPatches, getReadyRegistrationsByEventId, getRegistrationsByEventId } from './registration'
 
 type EventEntryEndDates = Pick<JsonDogEvent, 'id' | 'entryEndDate' | 'entryOrigEndDate'>
 
@@ -244,6 +240,77 @@ export const updateRegistrations = async (eventId: string, updatedRegistrations?
   return confirmedEvent
 }
 
+const EVENT_WORKFLOW_LOCK_DURATION_MS = 90 * 1000
+
+type EventWorkflowLock = 'registrationGroupsLock' | 'registrationPaymentsLock'
+
+const lockEventWorkflow = async (
+  eventId: string,
+  field: EventWorkflowLock,
+  retries: number,
+  conflictMessage: string
+): Promise<() => Promise<void>> => {
+  const token = randomUUID()
+  const lockName = `#${field}`
+  for (let attempt = 0; ; attempt++) {
+    const now = Date.now()
+    try {
+      await dynamoDB.update(
+        { id: eventId },
+        { set: { [field]: { expiresAt: now + EVENT_WORKFLOW_LOCK_DURATION_MS, token } } },
+        eventTable,
+        undefined,
+        {
+          expression: `attribute_exists(#id) AND (attribute_not_exists(${lockName}) OR ${lockName}.#expiresAt < :now)`,
+          names: { '#expiresAt': 'expiresAt', '#id': 'id', [lockName]: field },
+          values: { ':now': now },
+        }
+      )
+      break
+    } catch (error) {
+      if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
+      if (attempt >= retries) throw new LambdaError(409, conflictMessage)
+      const delayMs = Math.min(100 * 2 ** attempt, 1000)
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs))
+    }
+  }
+
+  return async () => {
+    try {
+      await dynamoDB.update({ id: eventId }, { remove: [field] }, eventTable, undefined, {
+        expression: `${lockName}.#token = :token`,
+        names: { [lockName]: field, '#token': 'token' },
+        values: { ':token': token },
+      })
+    } catch (error) {
+      if ((error as { name?: string }).name !== 'ConditionalCheckFailedException') throw error
+    }
+  }
+}
+
+/**
+ * Serializes manual registration-group moves for one event. A move recalculates
+ * every affected position, so allowing two snapshots to be persisted at once
+ * can otherwise make one move overwrite the other.
+ */
+export const lockRegistrationGroups = async (eventId: string, retries: number = 0): Promise<() => Promise<void>> => {
+  return lockEventWorkflow(
+    eventId,
+    'registrationGroupsLock',
+    retries,
+    'Registration groups are being updated. Please retry.'
+  )
+}
+
+/** Serializes only payment transitions for one event; group moves never block it. */
+export const lockRegistrationPayments = (eventId: string, retries: number = 8) =>
+  lockEventWorkflow(
+    eventId,
+    'registrationPaymentsLock',
+    retries,
+    'Registration payments are being updated. Please retry.'
+  )
+
 export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']): string => {
   if (!group) return ''
 
@@ -258,7 +325,7 @@ export const formatGroupAuditInfo = (group: JsonRegistrationGroupInfo['group']):
 export const saveGroup = async (
   { eventId, id, group }: JsonRegistrationGroupInfo,
   previous: JsonRegistrationGroupInfo['group'],
-  user: JsonUser,
+  user: Pick<JsonUser, 'name'>,
   reason: string = '',
   cancelReason?: string
 ) => {
@@ -287,6 +354,7 @@ export const saveGroup = async (
           group: { ...group }, // https://stackoverflow.com/questions/37006008/typescript-index-signature-is-missing-in-type
           updatedAt,
         },
+        ...(previous?.key === GROUP_KEY_CANCELLED && !cancelled ? { remove: ['cancelReason'] } : {}),
       },
       registrationTable
     )
@@ -301,32 +369,39 @@ export const saveGroup = async (
 
 export const fixRegistrationGroups = async <T extends JsonRegistration>(
   items: T[],
-  user: JsonUser,
+  user: Pick<JsonUser, 'name'>,
   save: boolean = true
 ): Promise<T[]> => {
-  items.sort(sortRegistrationsByDateClassTimeAndNumber)
+  const previousGroups = new Map(items.map((item) => [item, item.group ? { ...item.group } : undefined]))
+  normalizeRegistrationGroups(items)
 
-  const numberingGroups: Record<string, T[]> = {}
-  for (const item of items) {
-    const numberingGroupKey = getRegistrationNumberingGroupKey(item)
-    numberingGroups[numberingGroupKey] = numberingGroups[numberingGroupKey] || [] // make sure the array exists
-    numberingGroups[numberingGroupKey].push(item)
-  }
-
-  for (const regs of Object.values(numberingGroups)) {
-    for (let i = 0; i < regs.length; i++) {
-      const reg = regs[i]
-      const key = getRegistrationGroupKey(reg)
-      const number = i + 1
-      if (reg.group?.key !== key || reg.group?.number !== number) {
-        const oldGroup = reg.group
-        reg.group = { ...reg.group, key, number }
-        if (save) {
-          await saveGroup(reg, oldGroup, user, '(automaattinen sijoitus)')
-        }
+  for (const registration of items) {
+    const previous = previousGroups.get(registration)
+    if (registration.group?.key !== previous?.key || registration.group?.number !== previous?.number) {
+      if (save) {
+        await saveGroup(registration, previous, user, '(automaattinen sijoitus)')
       }
     }
   }
 
   return items
+}
+
+/** Repairs and persists the ready-registration ordering under the event lock. */
+export const repairReadyRegistrationGroups = async (
+  eventId: string,
+  user: Pick<JsonUser, 'name'>
+): Promise<Patch<JsonRegistration>[]> => {
+  const releaseGroupsLock = await lockRegistrationGroups(eventId, 8)
+  try {
+    const readyRegistrations = await getReadyRegistrationsByEventId(eventId, true)
+    const beforeReconciliation = readyRegistrations.map((registration) => ({
+      ...registration,
+      ...(registration.group ? { group: { ...registration.group } } : {}),
+    }))
+    const repairedRegistrations = await fixRegistrationGroups(readyRegistrations, user)
+    return createRegistrationPatches(repairedRegistrations, beforeReconciliation)
+  } finally {
+    await releaseGroupsLock()
+  }
 }

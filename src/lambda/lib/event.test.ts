@@ -69,6 +69,7 @@ const {
   formatGroupAuditInfo,
   getEvent,
   getStateFromTemplate,
+  lockRegistrationGroups,
   markParticipants,
   patchEvent,
   saveEvent,
@@ -81,6 +82,34 @@ const {
 const { LambdaError } = await import('./lambda')
 
 describe('lib/event', () => {
+  describe('lockRegistrationGroups', () => {
+    afterEach(() => {
+      jest.useRealTimers()
+    })
+
+    it('retries acquisition with backoff and ignores release after lease takeover', async () => {
+      jest.useFakeTimers()
+      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' }).mockResolvedValueOnce(undefined)
+
+      const lockPromise = lockRegistrationGroups('event-1', 1)
+      await jest.advanceTimersByTimeAsync(100)
+      const release = await lockPromise
+
+      expect(mockUpdate).toHaveBeenCalledTimes(2)
+      expect(mockUpdate).toHaveBeenNthCalledWith(
+        1,
+        { id: 'event-1' },
+        expect.objectContaining({ set: expect.objectContaining({ registrationGroupsLock: expect.anything() }) }),
+        expect.anything(),
+        undefined,
+        expect.objectContaining({ expression: expect.stringContaining('attribute_not_exists') })
+      )
+
+      mockUpdate.mockRejectedValueOnce({ name: 'ConditionalCheckFailedException' })
+      await expect(release()).resolves.toBeUndefined()
+    })
+  })
+
   describe('formatGroupAuditInfo', () => {
     it('should format properly', () => {
       expect(formatGroupAuditInfo({ key: 'cancelled', number: 5 })).toEqual('Peruneet #5')
@@ -641,6 +670,25 @@ describe('lib/event', () => {
       })
     })
 
+    it('removes cancelReason when moving out of the cancelled group', async () => {
+      const group = { eventId: 'e5', group: { key: 'reserve', number: 1 }, id: 'r2' }
+
+      await saveGroup(group, { key: 'cancelled', number: 1 }, { name: 'admin' } as JsonUser, 'manual assignment')
+
+      expect(mockUpdate).toHaveBeenCalledWith(
+        { eventId: 'e5', id: 'r2' },
+        {
+          remove: ['cancelReason'],
+          set: {
+            cancelled: false,
+            group: { key: 'reserve', number: 1 },
+            updatedAt: expect.any(String),
+          },
+        },
+        expect.anything()
+      )
+    })
+
     it('handles case with no previous group', async () => {
       const group = { eventId: 'e6', group: { key: 'reserve', number: 2 }, id: 'r3' }
       const user = { name: 'secretary' } as JsonUser
@@ -848,18 +896,19 @@ describe('lib/event', () => {
       expect(mockAudit).not.toHaveBeenCalled() // saveGroup should not be called
     })
 
-    it('verifies registrations are sorted before processing', async () => {
+    it('uses shared normalization ordering for missing group numbers', async () => {
       const user = { name: 'user' } as JsonUser
-      mockSortRegistrationsByDateClassTimeAndNumber.mockClear()
+      mockGetRegistrationNumberingGroupKey.mockReturnValue('ALO')
+      mockGetRegistrationGroupKey.mockReturnValue('A')
 
       const regs = [
-        { class: 'ALO', group: { key: 'A', number: 1 } },
-        { class: 'AVO', group: { key: 'B', number: 2 } },
+        { class: 'ALO', group: { key: 'A', number: undefined }, id: 'unassigned' },
+        { class: 'ALO', group: { key: 'A', number: 1000 }, id: 'numbered' },
       ] as JsonRegistration[]
 
-      await fixRegistrationGroups(regs, user, false)
+      const result = await fixRegistrationGroups(regs, user, false)
 
-      expect(mockSortRegistrationsByDateClassTimeAndNumber).toHaveBeenCalled()
+      expect(result.map((registration) => registration.id)).toEqual(['numbered', 'unassigned'])
     })
 
     it('creates group property if it does not exist', async () => {

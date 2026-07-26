@@ -669,6 +669,8 @@ describe('sanitizeDogEvent', () => {
       official: 'official-info',
       publicField1: 'public-value-1',
       publicField2: 'public-value-2',
+      registrationGroupsLock: { expiresAt: Date.now() + 90_000, token: 'secret' },
+      registrationPaymentsLock: { expiresAt: Date.now() + 90_000, token: 'payment-secret' },
       secretary: 'secretary-info',
     }
 
@@ -684,6 +686,8 @@ describe('sanitizeDogEvent', () => {
     expect(sanitized.modifiedBy).toBeUndefined()
     expect(sanitized.secretary).toBeUndefined()
     expect(sanitized.official).toBeUndefined()
+    expect(Object.hasOwn(sanitized, 'registrationGroupsLock')).toBe(false)
+    expect(Object.hasOwn(sanitized, 'registrationPaymentsLock')).toBe(false)
 
     // Check that public fields are preserved
     expect(sanitized.id).toEqual('event-1')

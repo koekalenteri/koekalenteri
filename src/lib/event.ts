@@ -166,6 +166,8 @@ export function sanitizeDogEvent(
     invitationAttachment: _invitationAttachment,
     invitationAttachments: _invitationAttachments,
     modifiedBy: _modifiedBy,
+    registrationGroupsLock: _registrationGroupsLock,
+    registrationPaymentsLock: _registrationPaymentsLock,
     secretary: _secretary,
     official: _official,
     ...publicFields

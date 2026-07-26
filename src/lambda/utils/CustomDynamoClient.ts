@@ -12,7 +12,7 @@ import type {
   TransactWriteCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
-import { inspect } from 'node:util'
+import { inspect, isDeepStrictEqual } from 'node:util'
 import { DynamoDBClient, TransactionCanceledException, TransactWriteItemsCommand } from '@aws-sdk/client-dynamodb'
 import {
   BatchWriteCommand,
@@ -29,6 +29,7 @@ import {
 interface QueryParams {
   key: string
   values: Record<string, any>
+  consistent?: boolean
   table?: string
   index?: string
   names?: Record<string, string>
@@ -41,6 +42,12 @@ type PutWithOptionalTable = Omit<Put, 'TableName'> & { TableName?: string }
 type UpdateWithOptionalTable = Omit<Update, 'TableName'> & { TableName?: string }
 type DeleteWithOptionalTable = Omit<Delete, 'TableName'> & { TableName?: string }
 type ConditionCheckWithOptionalTable = Omit<ConditionCheck, 'TableName'> & { TableName?: string }
+
+type UpdateCondition = {
+  expression: string
+  names?: Record<string, string>
+  values?: Record<string, any>
+}
 
 // Union of the valid stripped operations
 export type TransactWriteItemWithoutTable = {
@@ -260,6 +267,7 @@ export default class CustomDynamoClient {
       return
     }
     const queryParams: QueryCommandInput = {
+      ...(params.consistent ? { ConsistentRead: true } : {}),
       ExpressionAttributeNames: params.names,
       ExpressionAttributeValues: params.values,
       FilterExpression: params.filterExpression,
@@ -353,7 +361,8 @@ export default class CustomDynamoClient {
       remove?: string[]
     },
     table?: string,
-    returnValues?: ReturnValue
+    returnValues?: ReturnValue,
+    condition?: UpdateCondition
   ) {
     const names: Record<string, string> = {}
     const values: Record<string, any> = {}
@@ -381,16 +390,29 @@ export default class CustomDynamoClient {
     }
 
     // Create params object for the update operation
+    const conditionNames = condition?.names ?? {}
+    const conditionValues = condition?.values ?? {}
+    const duplicateName = Object.keys(conditionNames).find((key) => key in names && names[key] !== conditionNames[key])
+    const duplicateValue = Object.keys(conditionValues).find(
+      (key) => key in values && !isDeepStrictEqual(values[key], conditionValues[key])
+    )
+    if (duplicateName || duplicateValue) {
+      throw new Error(`DynamoDB: duplicate condition attribute: ${duplicateName ?? duplicateValue}`)
+    }
+
     const params: UpdateCommandInput = {
-      ExpressionAttributeNames: names,
+      ExpressionAttributeNames: { ...conditionNames, ...names },
       Key: key,
       TableName: table ? fromSamLocalTable(table) : this.table,
       UpdateExpression: expressionParts.join(' '),
     }
 
-    if (Object.keys(values).length > 0) {
-      params.ExpressionAttributeValues = values
+    const expressionAttributeValues = { ...conditionValues, ...values }
+    if (Object.keys(expressionAttributeValues).length > 0) {
+      params.ExpressionAttributeValues = expressionAttributeValues
     }
+
+    if (condition) params.ConditionExpression = condition.expression
 
     // Add ReturnValues if provided
     if (returnValues) {

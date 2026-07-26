@@ -62,3 +62,29 @@
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutAdminRegistrationFunction]]
       RetentionInDays: 30
+
+  PutAdminRegistrationPaymentsLockConflictMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: PutAdminRegistrationPaymentsLockConflict
+      FilterPattern: '"Registration payments are being updated. Please retry."'
+      LogGroupName: !Ref PutAdminRegistrationFunctionLogGroup
+      MetricTransformations:
+        - MetricName: AdminRegistrationPaymentsLockConflict
+          MetricNamespace: KoekalenteriApp
+          MetricValue: '1'
+
+  PutAdminRegistrationPaymentsLockConflictAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+      AlarmDescription: Admin registration creates exhausted the event payment-lock retry budget
+      AlarmName: !Sub '${AWS::StackName}-put-admin-registration-payment-lock-conflict'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      MetricName: AdminRegistrationPaymentsLockConflict
+      Namespace: KoekalenteriApp
+      Period: 60
+      Statistic: Sum
+      Threshold: 1
+      TreatMissingData: notBreaching

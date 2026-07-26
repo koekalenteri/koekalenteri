@@ -54,3 +54,29 @@
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PutRegistrationFunction]]
       RetentionInDays: 30
+
+  PutRegistrationPaymentsLockConflictMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: PutRegistrationPaymentsLockConflict
+      FilterPattern: '"Registration payments are being updated. Please retry."'
+      LogGroupName: !Ref PutRegistrationFunctionLogGroup
+      MetricTransformations:
+        - MetricName: RegistrationPaymentsLockConflict
+          MetricNamespace: KoekalenteriApp
+          MetricValue: '1'
+
+  PutRegistrationPaymentsLockConflictAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+      AlarmDescription: Ready-registration creates exhausted the event payment-lock retry budget
+      AlarmName: !Sub '${AWS::StackName}-put-registration-payment-lock-conflict'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      MetricName: RegistrationPaymentsLockConflict
+      Namespace: KoekalenteriApp
+      Period: 60
+      Statistic: Sum
+      Threshold: 1
+      TreatMissingData: notBreaching

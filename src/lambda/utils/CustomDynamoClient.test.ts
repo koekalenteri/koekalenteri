@@ -237,6 +237,15 @@ describe('CustomDynamoClient', () => {
       expect(result).toBeUndefined()
     })
 
+    it('supports strongly consistent base-table queries', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [] })
+
+      await client.query({ consistent: true, key: 'id = :id', values: { ':id': '1' } })
+
+      expect(mockSend).toHaveBeenCalledWith(expect.objectContaining({ ConsistentRead: true }))
+    })
+
     it('includes all optional parameters', async () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({ Items: [] })
@@ -698,6 +707,34 @@ describe('CustomDynamoClient', () => {
           ReturnValues: 'ALL_NEW',
         })
       )
+    })
+
+    it('allows identical placeholders shared by update and condition expressions', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.update({ id: '1' }, { set: { registrationGroupsLock: { token: 'token' } } }, undefined, undefined, {
+        expression: 'attribute_not_exists(#registrationGroupsLock)',
+        names: { '#registrationGroupsLock': 'registrationGroupsLock' },
+      })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ConditionExpression: 'attribute_not_exists(#registrationGroupsLock)',
+          ExpressionAttributeNames: { '#registrationGroupsLock': 'registrationGroupsLock' },
+        })
+      )
+    })
+
+    it('rejects conflicting placeholders shared by update and condition expressions', async () => {
+      const client = new CustomDynamoClient('TestTable')
+
+      await expect(
+        client.update({ id: '1' }, { set: { registrationGroupsLock: 'locked' } }, undefined, undefined, {
+          expression: 'attribute_not_exists(#registrationGroupsLock)',
+          names: { '#registrationGroupsLock': 'anotherField' },
+        })
+      ).rejects.toThrow('DynamoDB: duplicate condition attribute: #registrationGroupsLock')
     })
 
     it('uses provided table name', async () => {

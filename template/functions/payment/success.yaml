@@ -48,3 +48,29 @@
     Properties:
       LogGroupName: !Join ['/', ['/aws/lambda', !Ref PaymentSuccessFunction]]
       RetentionInDays: 180
+
+  PaymentSuccessRegistrationPaymentsLockConflictMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterName: PaymentSuccessRegistrationPaymentsLockConflict
+      FilterPattern: '"Registration payments are being updated. Please retry."'
+      LogGroupName: !Ref PaymentSuccessFunctionLogGroup
+      MetricTransformations:
+        - MetricName: PaymentSuccessRegistrationPaymentsLockConflict
+          MetricNamespace: KoekalenteriApp
+          MetricValue: '1'
+
+  PaymentSuccessRegistrationPaymentsLockConflictAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      # TODO: Add AlarmActions when the stack has a general operations SNS topic.
+      AlarmDescription: A captured payment exhausted the event payment-lock retry budget and may be unapplied
+      AlarmName: !Sub '${AWS::StackName}-payment-success-payment-lock-conflict'
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 1
+      MetricName: PaymentSuccessRegistrationPaymentsLockConflict
+      Namespace: KoekalenteriApp
+      Period: 60
+      Statistic: Sum
+      Threshold: 1
+      TreatMissingData: notBreaching

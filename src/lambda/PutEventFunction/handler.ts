@@ -76,6 +76,16 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
+  // The registration-group lock is server-owned. Never accept it from an
+  // admin payload, including when the stored event currently has no lock.
+  delete data.registrationGroupsLock
+  if (existing?.registrationGroupsLock) {
+    data.registrationGroupsLock = existing.registrationGroupsLock
+  }
+  delete data.registrationPaymentsLock
+  if (existing?.registrationPaymentsLock) {
+    data.registrationPaymentsLock = existing.registrationPaymentsLock
+  }
   if (data.startDate) {
     data.season = getEventSeason(data.startDate)
   }
@@ -110,7 +120,13 @@ const putEventLambda = lambda('putEvent', async (event) => {
     })
   }
 
-  return response(200, result, event)
+  // Do not expose the server-owned lock or its token in an admin response.
+  const {
+    registrationGroupsLock: _registrationGroupsLock,
+    registrationPaymentsLock: _registrationPaymentsLock,
+    ...responseData
+  } = result
+  return response(200, responseData, event)
 })
 
 export default putEventLambda
