@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { EventClassState, EventState, RegistrationClass } from '../../../types'
 import Box from '@mui/material/Box'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isStartListAvailable } from '../../../lib/event'
 import { Path } from '../../../routeConfig'
@@ -16,9 +17,18 @@ interface Props {
 
 export function EventStateInfo({ id, classes, state, startListPublished, text = null }: Props) {
   const { t } = useTranslation()
+  const [startListLoading, setStartListLoading] = useState(false)
 
   if (isStartListAvailable({ classes, startListPublished, state })) {
-    return <LinkButton to={Path.startList(id)} text={t('viewStartList')} />
+    return (
+      <LinkButton
+        aria-label={startListLoading ? t('loading') : undefined}
+        loading={startListLoading}
+        onClick={() => setStartListLoading(true)}
+        to={Path.startList(id)}
+        text={t('viewStartList')}
+      />
+    )
   }
 
   return (

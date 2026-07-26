@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import theme from '../../../assets/Theme'
 import { locales } from '../../../i18n'
@@ -26,6 +27,17 @@ describe('EventStateInfo', () => {
 
     expect(screen.getByText('viewStartList')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
+  })
+
+  it('shows a loading indicator and prevents another click while the start list is loading', async () => {
+    const user = userEvent.setup()
+    render(<EventStateInfo id={'test-id'} state={'invited'} startListPublished={true} />, { wrapper: Wrapper })
+
+    const startListLink = screen.getByRole('link', { name: 'viewStartList' })
+    await user.click(startListLink)
+
+    expect(screen.getByRole('progressbar', { name: 'loading' })).toBeInTheDocument()
+    expect(startListLink).toHaveAttribute('aria-disabled', 'true')
   })
 
   it('should render start list link when a class-specific start list is published', () => {
