@@ -13,7 +13,9 @@ const mockRegistrationAuditKey = jest.fn<any>()
 const mockDynamoRead = jest.fn<any>()
 const mockDynamoWrite = jest.fn<any>()
 const mockDynamoUpdate = jest.fn<any>()
+const mockDocumentTransaction = jest.fn<any>()
 const mockDynamoClient = jest.fn(() => ({
+  documentTransaction: mockDocumentTransaction,
   read: mockDynamoRead,
   update: mockDynamoUpdate,
   write: mockDynamoWrite,
@@ -328,46 +330,44 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    // Verify transaction was written
-    expect(mockDynamoWrite).toHaveBeenCalledWith({
-      amount: 1000,
-      createdAt: expect.any(String),
-      handlingCost: 500,
-      items: [
-        {
-          amount: 1000,
-          refundReference: 'reg456',
-          refundStamp: 'stamp123',
-          stamp: 'item123',
-        },
-      ],
-      provider: 'paytrail',
-      reference: 'event123:reg456',
-      stamp: 'stamp123',
-      status: 'ok',
-      transactionId: 'refund123',
-      type: 'refund',
-      user: 'Test User',
-    })
-
-    // Verify registration was updated
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
+    expect(mockDocumentTransaction).toHaveBeenCalledWith([
       {
-        set: {
-          refundHandlingCost: 5,
-          refundStatus: 'SUCCESS',
-          updatedAt: expect.any(String),
-        },
+        Put: expect.objectContaining({
+          ConditionExpression: 'attribute_not_exists(transactionId)',
+          Item: expect.objectContaining({
+            amount: 1000,
+            handlingCost: 500,
+            status: 'ok',
+            transactionId: 'refund123',
+            type: 'refund',
+          }),
+        }),
       },
-      expect.any(String)
-    )
+      {
+        Update: expect.objectContaining({
+          ConditionExpression: 'attribute_exists(id)',
+          ExpressionAttributeValues: expect.objectContaining({ ':status': 'SUCCESS' }),
+          Key: { eventId: 'event123', id: 'reg456' },
+        }),
+      },
+    ])
 
     // Verify audit was not called (since status is 'ok')
     expect(mockAudit).not.toHaveBeenCalled()
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, mockRefundResult, event)
+  })
+
+  it('rejects a concurrent refund creation before calling Paytrail', async () => {
+    const error = new Error('claim already exists')
+    error.name = 'TransactionCanceledException'
+    mockDocumentTransaction.mockRejectedValueOnce(error)
+
+    await refundCreateLambda(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(409, 'Refund already in progress', event)
+    expect(mockRefundPayment).not.toHaveBeenCalled()
   })
 
   it('creates a refund transaction without items', async () => {
@@ -401,20 +401,15 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    // Verify transaction was written
-    expect(mockDynamoWrite).toHaveBeenCalledWith({
-      amount: 1000,
-      createdAt: expect.any(String),
-      handlingCost: 500,
-      items: undefined,
-      provider: 'paytrail',
-      reference: 'event123:reg456',
-      stamp: 'stamp123',
-      status: 'ok',
-      transactionId: 'refund123',
-      type: 'refund',
-      user: 'Test User',
-    })
+    expect(mockDocumentTransaction).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          Put: expect.objectContaining({
+            Item: expect.objectContaining({ amount: 1000, items: undefined, transactionId: 'refund123' }),
+          }),
+        },
+      ])
+    )
   })
 
   it('creates audit entry for pending refunds', async () => {
@@ -447,16 +442,14 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
-    // Verify registration was updated with PENDING status
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundStatus: 'PENDING',
-          updatedAt: expect.any(String),
+    expect(mockDocumentTransaction).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          Update: expect.objectContaining({
+            ExpressionAttributeValues: expect.objectContaining({ ':status': 'PENDING' }),
+          }),
         },
-      },
-      expect.any(String)
+      ])
     )
   })
 
@@ -490,16 +483,14 @@ describe('refundCreateLambda', () => {
       user: 'Test User',
     })
 
-    // Verify registration was updated with PENDING status
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundStatus: 'PENDING',
-          updatedAt: expect.any(String),
+    expect(mockDocumentTransaction).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          Update: expect.objectContaining({
+            ExpressionAttributeValues: expect.objectContaining({ ':status': 'PENDING' }),
+          }),
         },
-      },
-      expect.any(String)
+      ])
     )
   })
 
@@ -553,11 +544,14 @@ describe('refundCreateLambda', () => {
       'payer@example.com'
     )
 
-    expect(mockDynamoWrite).toHaveBeenCalledWith(
-      expect.objectContaining({
-        amount: partialRefundAmount,
-        handlingCost: 500,
-      })
+    expect(mockDocumentTransaction).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        {
+          Put: expect.objectContaining({
+            Item: expect.objectContaining({ amount: partialRefundAmount, handlingCost: 500 }),
+          }),
+        },
+      ])
     )
   })
 })

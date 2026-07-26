@@ -11,14 +11,32 @@ import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getTransactionsByReference, paymentDescription, updateTransactionStatus } from '../lib/payment'
 import { createPayment, PaytrailError, parsePaytrailErrorMessage } from '../lib/paytrail'
-import { getRegistration, updateRegistrationField } from '../lib/registration'
+import { getRegistration } from '../lib/registration'
 import { splitName } from '../lib/string'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { getApiHost } from '../utils/proxyEvent'
 
-const { organizerTable, transactionTable } = CONFIG
+const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 const STALE_PENDING_PAYMENT_AGE_MS = 5 * 60 * 1000
+
+const releasePaymentCreation = async (eventId: string, registrationId: string, stamp: string) => {
+  try {
+    await dynamoDB.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: 'paymentCreationStamp = :stamp',
+          ExpressionAttributeValues: { ':stamp': stamp },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: 'REMOVE paymentCreationAt, paymentCreationStamp',
+        },
+      },
+    ])
+  } catch (error) {
+    console.error('Failed to release payment creation claim', error)
+  }
+}
 
 const isStalePendingPayment = (createdAt?: string, statusAt?: string) => {
   const timestamp = statusAt ?? createdAt
@@ -136,6 +154,30 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
+  const paymentCreationAt = new Date().toISOString()
+  try {
+    await dynamoDB.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: 'attribute_not_exists(paymentCreationAt) OR paymentCreationAt < :staleBefore',
+          ExpressionAttributeValues: {
+            ':paymentCreationAt': paymentCreationAt,
+            ':staleBefore': new Date(Date.now() - STALE_PENDING_PAYMENT_AGE_MS).toISOString(),
+            ':stamp': stamp,
+          },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: 'SET paymentCreationAt = :paymentCreationAt, paymentCreationStamp = :stamp',
+        },
+      },
+    ])
+  } catch (error) {
+    if ((error as Error).name === 'TransactionCanceledException') {
+      return response<string>(409, 'Payment already in progress', event)
+    }
+    throw error
+  }
+
   let result: CreatePaymentResponse | undefined | null
   try {
     result = await createPayment({
@@ -149,6 +191,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
       stamp,
     })
   } catch (error: unknown) {
+    await releasePaymentCreation(eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
       return response(error.status, { error: error.error, message: getPaytrailErrorMessage(error) }, event)
     }
@@ -157,6 +200,7 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
   }
 
   if (!result) {
+    await releasePaymentCreation(eventId, registrationId, stamp)
     return response<undefined>(500, undefined, event)
   }
 
@@ -174,9 +218,27 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
     type: 'payment',
     user: user?.name ?? registration.payer?.name,
   }
-  await dynamoDB.write(transaction)
-
-  await updateRegistrationField(eventId, registrationId, 'paymentStatus', 'PENDING')
+  const updatedAt = new Date().toISOString()
+  await dynamoDB.documentTransaction([
+    {
+      Put: {
+        ConditionExpression: 'attribute_not_exists(transactionId)',
+        Item: transaction,
+        TableName: transactionTable,
+      },
+    },
+    {
+      Update: {
+        ConditionExpression: 'attribute_exists(id)',
+        ExpressionAttributeNames: { '#status': 'paymentStatus' },
+        ExpressionAttributeValues: { ':pending': 'PENDING', ':updatedAt': updatedAt },
+        Key: { eventId, id: registrationId },
+        TableName: registrationTable,
+        UpdateExpression:
+          'SET #status = :pending, updatedAt = :updatedAt REMOVE paymentCreationAt, paymentCreationStamp',
+      },
+    },
+  ])
 
   return response<CreatePaymentResponse>(200, result, event)
 })

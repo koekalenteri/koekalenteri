@@ -11,6 +11,7 @@ const mockUpdateTransactionStatus = jest.fn<() => Promise<boolean>>()
 const mockRead = jest.fn<() => Promise<JsonRegistration | Organizer | undefined>>()
 const mockWrite = jest.fn()
 const mockUpdate = jest.fn()
+const mockDocumentTransaction = jest.fn<() => Promise<unknown>>()
 
 class MockPaytrailError extends Error {
   status: number
@@ -55,6 +56,7 @@ jest.unstable_mockModule('../lib/payment', () => ({
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: jest.fn(() => ({
+    documentTransaction: mockDocumentTransaction,
     read: mockRead,
     update: mockUpdate,
     write: mockWrite,
@@ -204,25 +206,42 @@ describe('paymentCreateLambda', () => {
       stamp: expect.any(String),
     })
 
-    expect(mockWrite).toHaveBeenCalledWith(
-      expect.objectContaining({
-        amount: expectedAmount,
-        bankReference: 'ref123',
-        paymentResponse: createMockPaymentResponse(),
-        reference: 'event123:reg456',
-        status: 'new',
-        transactionId: 'tx123',
-        user: 'Test User',
-      })
-    )
-
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      { set: { paymentStatus: 'PENDING', updatedAt: expect.any(String) } }
-    )
+    expect(mockDocumentTransaction).toHaveBeenCalledWith([
+      {
+        Put: expect.objectContaining({
+          ConditionExpression: 'attribute_not_exists(transactionId)',
+          Item: expect.objectContaining({
+            amount: expectedAmount,
+            bankReference: 'ref123',
+            paymentResponse: createMockPaymentResponse(),
+            reference: 'event123:reg456',
+            status: 'new',
+            transactionId: 'tx123',
+            user: 'Test User',
+          }),
+        }),
+      },
+      {
+        Update: expect.objectContaining({
+          ConditionExpression: 'attribute_exists(id)',
+          Key: { eventId: 'event123', id: 'reg456' },
+        }),
+      },
+    ])
 
     expect(result.statusCode).toEqual(200)
     expect(JSON.parse(result.body)).toEqual(createMockPaymentResponse())
+  })
+
+  it('rejects a concurrent payment creation before calling Paytrail', async () => {
+    const error = new Error('claim already exists')
+    error.name = 'TransactionCanceledException'
+    mockDocumentTransaction.mockRejectedValueOnce(error)
+
+    const result = await paymentCreateLambda(event)
+
+    expect(result.statusCode).toBe(409)
+    expect(mockCreatePayment).not.toHaveBeenCalled()
   })
 
   it('creates a payment with regular price for non-member', async () => {
@@ -353,10 +372,10 @@ describe('paymentCreateLambda', () => {
 
     await paymentCreateLambda(event)
 
-    expect(mockWrite).toHaveBeenCalledWith(
-      expect.objectContaining({
-        user: 'Test Payer',
-      })
+    expect(mockDocumentTransaction).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        { Put: expect.objectContaining({ Item: expect.objectContaining({ user: 'Test Payer' }) }) },
+      ])
     )
   })
 

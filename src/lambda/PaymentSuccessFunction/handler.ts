@@ -9,53 +9,45 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { updateRegistrations } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
-import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { applySuccessfulPayment, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, createRegistrationPatch, getRegistration } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
+const { frontendURL, emailFrom, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 const handleSuccessfulPayment = async (
   eventId: string,
   registrationId: string,
-  params: Partial<PaytrailCallbackParams>,
   transaction: JsonTransaction,
-  provider: string | undefined
+  provider: string | undefined,
+  transactionExists: boolean
 ) => {
   const registration = await getRegistration(eventId, registrationId)
   const existingRegistration = { ...registration }
 
   const t = i18n.getFixedT(registration.language)
-  const paidAmount = Number.parseInt(params['checkout-amount'] ?? '0', 10) / 100
+  const paidAmount = transaction.amount / 100
 
   const previouslyPaid = registration.paidAmount ?? 0
+  const confirmed = Boolean(registration.messagesSent?.picked || registration.confirmed)
+  const { applied, appliedAt } = await applySuccessfulPayment(
+    transaction,
+    eventId,
+    registrationId,
+    provider,
+    confirmed,
+    transactionExists
+  )
+  if (!applied) return false
+
   registration.paidAmount = previouslyPaid + paidAmount
-  registration.paidAt = new Date().toISOString()
+  registration.paidAt = appliedAt
   registration.paymentStatus = 'SUCCESS'
   registration.state = 'ready'
   registration.updatedAt = registration.paidAt
-
-  // registration is paid after picked to the event, this also confirms the place.
-  if (registration.messagesSent?.picked) {
-    registration.confirmed = true
-  }
-
-  await dynamoDB.update(
-    { eventId, id: registrationId },
-    {
-      set: {
-        confirmed: registration.confirmed ?? false,
-        paidAmount: registration.paidAmount,
-        paidAt: registration.paidAt,
-        paymentStatus: registration.paymentStatus,
-        state: registration.state,
-        updatedAt: registration.updatedAt,
-      },
-    },
-    registrationTable
-  )
+  if (confirmed) registration.confirmed = true
 
   const confirmedEvent = await updateRegistrations(registration.eventId)
   const registrationPatch =
@@ -136,6 +128,8 @@ const handleSuccessfulPayment = async (
       user: transaction.user ?? 'anonymous',
     })
   }
+
+  return true
 }
 
 /**
@@ -146,13 +140,38 @@ const paymentSuccessLambda = lambda('paymentSuccess', async (event) => {
   const { eventId, provider, registrationId, status, transactionId } = parseParams(params)
 
   await verifyParams(params)
+  if (!transactionId) throw new Error('Missing transaction id')
 
-  const transaction = await dynamoDB.read<JsonTransaction>({ transactionId })
-  if (!transaction) throw new Error(`Transaction with id '${transactionId}' was not found`)
+  const storedTransaction = await dynamoDB.read<JsonTransaction>({ transactionId })
+  const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
+  if (!storedTransaction && status !== 'ok') {
+    throw new Error(`Transaction with id '${transactionId}' was not found`)
+  }
+  if (!Number.isInteger(callbackAmount) || callbackAmount <= 0) {
+    throw new Error(`Transaction '${transactionId}' callback amount is invalid`)
+  }
+  const transaction: JsonTransaction = storedTransaction ?? {
+    amount: callbackAmount,
+    createdAt: new Date().toISOString(),
+    reference: `${eventId}:${registrationId}`,
+    stamp: params['checkout-stamp'] ?? transactionId,
+    status: 'new',
+    transactionId,
+    type: 'payment',
+  }
 
-  const updated = await updateTransactionStatus(transaction, status, provider)
-  if (updated && status === 'ok') {
-    await handleSuccessfulPayment(eventId, registrationId, params, transaction, provider)
+  const reference = `${eventId}:${registrationId}`
+  if (transaction.reference !== reference) {
+    throw new Error(`Transaction '${transactionId}' has reference '${transaction.reference}', expected '${reference}'`)
+  }
+  if (callbackAmount !== transaction.amount) {
+    throw new Error(`Transaction '${transactionId}' callback amount does not match the stored amount`)
+  }
+
+  if (status === 'ok') {
+    await handleSuccessfulPayment(eventId, registrationId, transaction, provider, Boolean(storedTransaction))
+  } else {
+    await updateTransactionStatus(transaction, status, provider)
   }
 
   return response(200, undefined, event)

@@ -8,12 +8,12 @@ import { audit, registrationAuditKey } from '../lib/audit'
 import { registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
-import { parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
+import { applySuccessfulRefund, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration } from '../lib/registration'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
-const { frontendURL, emailFrom, registrationTable, transactionTable } = CONFIG
+const { frontendURL, emailFrom, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
 /**
@@ -29,23 +29,53 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   if (!status) {
     throw new LambdaError(400, 'Bad Request')
   }
+  if (!transactionId) throw new LambdaError(400, 'Missing transaction id')
 
-  const transaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
-  if (!transaction) {
+  const storedTransaction = await dynamoDB.read<JsonRefundTransaction>({ transactionId })
+  const callbackAmount = Number.parseInt(params['checkout-amount'] ?? '', 10)
+  if (!storedTransaction && status !== 'ok') {
     throw new LambdaError(404, `Transaction with id '${transactionId}' was not found`)
   }
+  if (!Number.isInteger(callbackAmount) || callbackAmount <= 0) {
+    throw new LambdaError(400, `Transaction '${transactionId}' callback amount is invalid`)
+  }
+  const transaction: JsonRefundTransaction = storedTransaction ?? {
+    amount: callbackAmount,
+    createdAt: new Date().toISOString(),
+    reference: `${eventId}:${registrationId}`,
+    stamp: params['checkout-stamp'] ?? transactionId,
+    status: 'new',
+    transactionId,
+    type: 'refund',
+    user: 'unknown',
+  }
 
-  if (transaction.statusAt && transaction.status === 'ok') {
+  if (transaction.registrationAppliedAt) {
     console.log('transaction already has status "ok", ignoring request')
     return response(200, undefined, event)
   }
 
+  const reference = `${eventId}:${registrationId}`
+  if (transaction.reference !== reference) {
+    throw new LambdaError(400, `Transaction '${transactionId}' does not belong to registration '${reference}'`)
+  }
+  if (callbackAmount !== transaction.amount) {
+    throw new LambdaError(400, `Transaction '${transactionId}' callback amount does not match the stored amount`)
+  }
+
   const registration = await getRegistration(eventId, registrationId)
 
-  const updated = await updateTransactionStatus(transaction, status)
-  if (updated && status === 'ok') {
+  if (status === 'ok') {
+    const { applied, appliedAt } = await applySuccessfulRefund(
+      transaction,
+      eventId,
+      registrationId,
+      Boolean(storedTransaction)
+    )
+    if (!applied) return response(200, undefined, event)
+
     const t = i18n.getFixedT(registration.language)
-    const amount = Number.parseInt(params['checkout-amount'] ?? '0', 10) / 100
+    const amount = transaction.amount / 100
     const provider = params['checkout-provider']
     const providerName = getProviderName(provider)
 
@@ -53,25 +83,11 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
     const changes: Required<Pick<JsonRegistration, 'refundAmount' | 'refundAt' | 'refundStatus'>> &
       Pick<JsonRegistration, 'refundHandlingCost'> = {
       refundAmount: (registration.refundAmount ?? 0) + amount,
-      refundAt: new Date().toISOString(),
+      refundAt: appliedAt,
       refundHandlingCost: (registration.refundHandlingCost ?? 0) + handlingCost,
       refundStatus: 'SUCCESS',
     }
     const updatedAt = changes.refundAt
-
-    await dynamoDB.update(
-      { eventId, id: registrationId },
-      {
-        set: {
-          refundAmount: changes.refundAmount,
-          refundAt: changes.refundAt,
-          refundHandlingCost: changes.refundHandlingCost,
-          refundStatus: changes.refundStatus,
-          updatedAt,
-        },
-      },
-      registrationTable
-    )
 
     registration.refundAmount = (registration.refundAmount ?? 0) + amount
     registration.refundAt = changes.refundAt
@@ -127,6 +143,8 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
       [{ emailDeliveryStatus: null, eventId, id: registrationId, ...changes, updatedAt }],
       confirmedEvent.organizer.id
     )
+  } else {
+    await updateTransactionStatus(transaction, status)
   }
 
   return response(200, undefined, event)

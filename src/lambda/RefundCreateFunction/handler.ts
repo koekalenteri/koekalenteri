@@ -23,6 +23,25 @@ import { getApiHost } from '../utils/proxyEvent'
 
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
+const STALE_REFUND_CREATION_AGE_MS = 5 * 60 * 1000
+
+const releaseRefundCreation = async (eventId: string, registrationId: string, stamp: string) => {
+  try {
+    await dynamoDB.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: 'refundCreationStamp = :stamp',
+          ExpressionAttributeValues: { ':stamp': stamp },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: 'REMOVE refundCreationAt, refundCreationStamp',
+        },
+      },
+    ])
+  } catch (error) {
+    console.error('Failed to release refund creation claim', error)
+  }
+}
 
 const getData = async (transactionId: string, user: JsonUser, memberOf: string[]) => {
   const paymentTransaction = await dynamoDB.read<JsonPaymentTransaction>({ transactionId }, transactionTable)
@@ -90,6 +109,30 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     },
   ]
 
+  const refundCreationAt = new Date().toISOString()
+  try {
+    await dynamoDB.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: 'attribute_not_exists(refundCreationAt) OR refundCreationAt < :staleBefore',
+          ExpressionAttributeValues: {
+            ':refundCreationAt': refundCreationAt,
+            ':staleBefore': new Date(Date.now() - STALE_REFUND_CREATION_AGE_MS).toISOString(),
+            ':stamp': stamp,
+          },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: 'SET refundCreationAt = :refundCreationAt, refundCreationStamp = :stamp',
+        },
+      },
+    ])
+  } catch (error) {
+    if ((error as Error).name === 'TransactionCanceledException') {
+      return response<string>(409, 'Refund already in progress', event)
+    }
+    throw error
+  }
+
   let result: RefundPaymentResponse | undefined
   try {
     result = await refundPayment(
@@ -103,6 +146,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
       registration?.payer?.email
     )
   } catch (error: unknown) {
+    await releaseRefundCreation(eventId, registrationId, stamp)
     if (error instanceof PaytrailError) {
       const message = getPaytrailErrorMessage(error)
       await audit({
@@ -117,6 +161,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
   }
 
   if (!result) {
+    await releaseRefundCreation(eventId, registrationId, stamp)
     throw new LambdaError(500, 'refundPayment did not return a result')
   }
 
@@ -133,21 +178,27 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     type: 'refund',
     user: user.name,
   }
-  await dynamoDB.write(transaction)
-
-  const refundSucceeded = result.status === 'ok' && result.provider !== 'email refund'
-
-  await dynamoDB.update(
-    { eventId, id: registrationId },
+  const refundStatus = result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS'
+  const updatedAt = new Date().toISOString()
+  await dynamoDB.documentTransaction([
     {
-      set: {
-        refundStatus: result.status === 'pending' || result.provider === 'email refund' ? 'PENDING' : 'SUCCESS',
-        ...(refundSucceeded ? { refundHandlingCost: (registration.refundHandlingCost ?? 0) + handlingCost / 100 } : {}),
-        updatedAt: new Date().toISOString(),
+      Put: {
+        ConditionExpression: 'attribute_not_exists(transactionId)',
+        Item: transaction,
+        TableName: transactionTable,
       },
     },
-    registrationTable
-  )
+    {
+      Update: {
+        ConditionExpression: 'attribute_exists(id)',
+        ExpressionAttributeNames: { '#status': 'refundStatus' },
+        ExpressionAttributeValues: { ':status': refundStatus, ':updatedAt': updatedAt },
+        Key: { eventId, id: registrationId },
+        TableName: registrationTable,
+        UpdateExpression: 'SET #status = :status, updatedAt = :updatedAt REMOVE refundCreationAt, refundCreationStamp',
+      },
+    },
+  ])
 
   if (result.status === 'pending' || result.provider === 'email refund') {
     await audit({

@@ -7,6 +7,7 @@ const mockParseParams = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockUpdateTransactionStatus = jest.fn<any>()
+const mockApplySuccessfulRefund = jest.fn<any>()
 const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockRegistrationEmailTags = jest.fn<any>()
@@ -34,6 +35,7 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
+  applySuccessfulRefund: mockApplySuccessfulRefund,
   getProviderName: mockGetProviderName,
   parseParams: mockParseParams,
   updateTransactionStatus: mockUpdateTransactionStatus,
@@ -83,8 +85,10 @@ describe('refundSuccessLambda', () => {
   } as any
 
   const mockTransaction = {
+    amount: 1000,
     createdAt: '2023-01-01T12:00:00.000Z',
     handlingCost: 500,
+    reference: 'event123:reg456',
     status: 'pending',
     transactionId: 'transaction123',
     type: 'refund',
@@ -125,9 +129,10 @@ describe('refundSuccessLambda', () => {
     })
 
     mockDynamoRead.mockResolvedValue(mockTransaction)
-    mockGetRegistration.mockResolvedValue(mockRegistration)
+    mockGetRegistration.mockImplementation(() => Promise.resolve(structuredClone(mockRegistration)))
     mockGetEvent.mockResolvedValue(mockConfirmedEvent)
     mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockApplySuccessfulRefund.mockResolvedValue({ applied: true, appliedAt: '2023-01-01T12:30:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
     mockSendTemplatedMail.mockResolvedValue(undefined)
     mockGetProviderName.mockReturnValue('Paytrail')
@@ -152,16 +157,29 @@ describe('refundSuccessLambda', () => {
     expect(mockDynamoRead).not.toHaveBeenCalled()
   })
 
-  it('throws error if transaction is not found', async () => {
+  it('reconstructs a missing transaction from a verified success callback', async () => {
     mockDynamoRead.mockResolvedValueOnce(null)
 
-    await expect(refundSuccessLambda(event)).rejects.toThrow("Transaction with id 'transaction123' was not found")
-    expect(mockGetRegistration).not.toHaveBeenCalled()
+    await refundSuccessLambda(event)
+
+    expect(mockApplySuccessfulRefund).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 1000,
+        reference: 'event123:reg456',
+        status: 'new',
+        transactionId: 'transaction123',
+        type: 'refund',
+      }),
+      'event123',
+      'reg456',
+      false
+    )
   })
 
   it('returns early if transaction already has status "ok"', async () => {
     mockDynamoRead.mockResolvedValueOnce({
       ...mockTransaction,
+      registrationAppliedAt: '2023-01-01T12:30:00.000Z',
       status: 'ok',
       statusAt: '2023-01-01T12:30:00.000Z',
     })
@@ -175,13 +193,11 @@ describe('refundSuccessLambda', () => {
 
   it('processes successful refund with status "ok"', async () => {
     const now = new Date()
-    const isoDate = now.toISOString()
     jest.spyOn(global, 'Date').mockImplementation(() => now as any)
 
     await refundSuccessLambda(event)
 
-    // Verify transaction status was updated
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(mockTransaction, 'ok')
+    expect(mockApplySuccessfulRefund).toHaveBeenCalledWith(mockTransaction, 'event123', 'reg456', true)
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',
       [
@@ -196,20 +212,7 @@ describe('refundSuccessLambda', () => {
       'org-1'
     )
 
-    // Verify registration was updated
-    expect(mockDynamoUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          refundAmount: 10,
-          refundAt: isoDate,
-          refundHandlingCost: 5,
-          refundStatus: 'SUCCESS',
-          updatedAt: isoDate,
-        },
-      },
-      expect.any(String)
-    )
+    expect(mockDynamoUpdate).not.toHaveBeenCalled()
 
     // Verify email was sent
     expect(mockSendTemplatedMail).toHaveBeenCalledWith(
@@ -262,8 +265,8 @@ describe('refundSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  it('skips updates if transaction status is not changed', async () => {
-    mockUpdateTransactionStatus.mockResolvedValueOnce(false)
+  it('skips updates if the refund was already applied', async () => {
+    mockApplySuccessfulRefund.mockResolvedValueOnce({ applied: false, appliedAt: '2023-01-01T12:30:00.000Z' })
 
     await refundSuccessLambda(event)
 

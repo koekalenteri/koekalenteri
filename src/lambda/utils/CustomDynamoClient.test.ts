@@ -38,6 +38,7 @@ jest.mock('@aws-sdk/lib-dynamodb', () => ({
   PutCommand: jest.fn().mockImplementation((params) => params),
   QueryCommand: jest.fn().mockImplementation((params) => params),
   ScanCommand: jest.fn().mockImplementation((params) => params),
+  TransactWriteCommand: jest.fn().mockImplementation((params) => params),
   UpdateCommand: jest.fn().mockImplementation((params) => params),
 }))
 
@@ -845,7 +846,7 @@ describe('CustomDynamoClient', () => {
 
       mockSend.mockRejectedValueOnce(error)
 
-      await client.transaction(items)
+      await expect(client.transaction(items)).rejects.toBe(error)
 
       expect(errorSpy).toHaveBeenCalledWith('❌ Transaction was canceled')
       expect(logSpy).toHaveBeenCalledWith('🔹 Operation 1:')
@@ -865,7 +866,7 @@ describe('CustomDynamoClient', () => {
 
       mockSend.mockRejectedValueOnce(error)
 
-      await client.transaction(items)
+      await expect(client.transaction(items)).rejects.toBe(error)
 
       expect(errorSpy).toHaveBeenCalledWith('❌ Transaction was canceled')
       expect(logSpy).toHaveBeenCalledWith('No cancellation reasons returned')
@@ -884,9 +885,47 @@ describe('CustomDynamoClient', () => {
 
       mockSend.mockRejectedValueOnce(error)
 
-      await client.transaction(items)
+      await expect(client.transaction(items)).rejects.toBe(error)
 
       expect(errorSpy).toHaveBeenCalledWith('❗ Unexpected error:', error)
+    })
+  })
+
+  describe('documentTransaction', () => {
+    it('sends native values to operations in different tables', async () => {
+      const client = new CustomDynamoClient('DefaultTable')
+      mockSend.mockResolvedValueOnce({})
+
+      await client.documentTransaction([
+        {
+          Put: {
+            Item: { id: 'tx-1', status: 'new' },
+            TableName: 'TransactionTable',
+          },
+        },
+        {
+          Update: {
+            ExpressionAttributeValues: { ':amount': 50 },
+            Key: { eventId: 'event-1', id: 'registration-1' },
+            TableName: 'RegistrationTable',
+            UpdateExpression: 'ADD paidAmount :amount',
+          },
+        },
+      ])
+
+      expect(mockSend).toHaveBeenCalledWith({
+        TransactItems: [
+          { Put: { Item: { id: 'tx-1', status: 'new' }, TableName: 'transaction-table' } },
+          {
+            Update: {
+              ExpressionAttributeValues: { ':amount': 50 },
+              Key: { eventId: 'event-1', id: 'registration-1' },
+              TableName: 'registration-table',
+              UpdateExpression: 'ADD paidAmount :amount',
+            },
+          },
+        ],
+      })
     })
   })
 })

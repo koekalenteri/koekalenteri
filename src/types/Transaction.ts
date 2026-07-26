@@ -13,6 +13,8 @@ export interface JsonTransaction {
   provider?: string
   createdAt: string
   statusAt?: string
+  /** Set atomically with the corresponding registration amount update. */
+  registrationAppliedAt?: string
   user?: string
 }
 

@@ -5,6 +5,7 @@ const mockResponse = jest.fn<any>()
 const mockParseParams = jest.fn<any>()
 const mockVerifyParams = jest.fn<any>()
 const mockUpdateTransactionStatus = jest.fn<any>()
+const mockApplySuccessfulPayment = jest.fn<any>()
 const mockClearRegistrationEmailDeliveryStatus = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockAudit = jest.fn<any>()
@@ -25,6 +26,7 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 }))
 
 jest.unstable_mockModule('../lib/payment', () => ({
+  applySuccessfulPayment: mockApplySuccessfulPayment,
   parseParams: mockParseParams,
   updateTransactionStatus: mockUpdateTransactionStatus,
   verifyParams: mockVerifyParams,
@@ -123,6 +125,7 @@ describe('paymentSuccessLambda', () => {
     })
 
     mockUpdateTransactionStatus.mockResolvedValue(true)
+    mockApplySuccessfulPayment.mockResolvedValue({ applied: true, appliedAt: '2025-01-01T00:00:00.000Z' })
     mockClearRegistrationEmailDeliveryStatus.mockResolvedValue(undefined)
 
     mockUpdate.mockResolvedValue({})
@@ -166,8 +169,8 @@ describe('paymentSuccessLambda', () => {
     // Verify transaction was retrieved
     expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
 
-    // Verify transaction status was updated
-    expect(mockUpdateTransactionStatus).toHaveBeenCalledWith(
+    // Verify transaction and registration were updated atomically
+    expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
       {
         amount: 5000,
         paymentResponse: { transactionId: 'tx123' },
@@ -176,28 +179,17 @@ describe('paymentSuccessLambda', () => {
         transactionId: 'tx123',
         user: 'user123',
       },
-      'ok',
-      'paytrail'
+      'event123',
+      'reg456',
+      'paytrail',
+      false,
+      true
     )
 
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    // Verify registration payment status was updated
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          confirmed: false,
-          paidAmount: 50, // 5000 / 100
-          paidAt: expect.any(String),
-          paymentStatus: 'SUCCESS',
-          state: 'ready',
-          updatedAt: expect.any(String),
-        },
-      },
-      expect.any(String) // registrationTable
-    )
+    expect(mockUpdate).not.toHaveBeenCalled()
 
     // Verify event registrations were updated
     expect(mockUpdateRegistrations).toHaveBeenCalledWith('event123')
@@ -264,16 +256,14 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  it('does not process payment if transaction status update returns false', async () => {
-    mockUpdateTransactionStatus.mockResolvedValueOnce(false)
+  it('does not process payment if the transaction was already applied', async () => {
+    mockApplySuccessfulPayment.mockResolvedValueOnce({ applied: false, appliedAt: '2025-01-01T00:00:00.000Z' })
 
     await paymentSuccessLambda(event)
 
-    // Verify transaction status was attempted to be updated
-    expect(mockUpdateTransactionStatus).toHaveBeenCalled()
+    expect(mockApplySuccessfulPayment).toHaveBeenCalled()
 
-    // Verify registration was NOT retrieved
-    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
     // Verify registration payment status was NOT updated
     expect(mockUpdate).not.toHaveBeenCalled()
@@ -326,35 +316,29 @@ describe('paymentSuccessLambda', () => {
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
-  it('throws error if transaction is not found', async () => {
+  it('reconstructs a missing transaction from a verified success callback', async () => {
     mockRead.mockResolvedValueOnce(null)
 
-    await expect(paymentSuccessLambda(event)).rejects.toThrow("Transaction with id 'tx123' was not found")
+    await paymentSuccessLambda(event)
 
     // Verify transaction was attempted to be retrieved
     expect(mockRead).toHaveBeenCalledWith({ transactionId: 'tx123' })
 
-    // Verify transaction status was NOT updated
-    expect(mockUpdateTransactionStatus).not.toHaveBeenCalled()
-
-    // Verify registration was NOT retrieved
-    expect(mockGetRegistration).not.toHaveBeenCalled()
-
-    // Verify registration payment status was NOT updated
-    expect(mockUpdate).not.toHaveBeenCalled()
-
-    // Verify event registrations were NOT updated
-    expect(mockUpdateRegistrations).not.toHaveBeenCalled()
-    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
-
-    // Verify receipt email was NOT sent
-    expect(mockSendTemplatedMail).not.toHaveBeenCalled()
-
-    // Verify audit entry was NOT created
-    expect(mockAudit).not.toHaveBeenCalled()
-
-    // Verify response was NOT returned
-    expect(mockResponse).not.toHaveBeenCalled()
+    expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 5000,
+        reference: 'event123:reg456',
+        status: 'new',
+        transactionId: 'tx123',
+        type: 'payment',
+      }),
+      'event123',
+      'reg456',
+      'paytrail',
+      false,
+      false
+    )
+    expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
   it('passes through errors from verifyParams', async () => {
@@ -435,20 +419,13 @@ describe('paymentSuccessLambda', () => {
 
     await paymentSuccessLambda(event)
 
-    // Verify registration payment status was updated with correct paidAmount
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: {
-          confirmed: false,
-          paidAmount: 70, // 20 + (5000 / 100)
-          paidAt: expect.any(String),
-          paymentStatus: 'SUCCESS',
-          state: 'ready',
-          updatedAt: expect.any(String),
-        },
-      },
-      expect.any(String) // registrationTable
+    expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
+      expect.any(Object),
+      'event123',
+      'reg456',
+      'paytrail',
+      false,
+      true
     )
   })
 
@@ -467,17 +444,13 @@ describe('paymentSuccessLambda', () => {
 
     await paymentSuccessLambda(event)
 
-    expect(mockUpdate).toHaveBeenCalledWith(
-      { eventId: 'event123', id: 'reg456' },
-      {
-        set: expect.objectContaining({
-          confirmed: true,
-          paidAmount: 50,
-          paymentStatus: 'SUCCESS',
-          state: 'ready',
-        }),
-      },
-      expect.any(String)
+    expect(mockApplySuccessfulPayment).toHaveBeenCalledWith(
+      expect.any(Object),
+      'event123',
+      'reg456',
+      'paytrail',
+      true,
+      true
     )
     expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
       'event123',

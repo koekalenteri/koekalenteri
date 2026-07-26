@@ -8,6 +8,7 @@ import type {
   PutCommandInput,
   QueryCommandInput,
   ScanCommandInput,
+  TransactWriteCommandInput,
   UpdateCommandInput,
 } from '@aws-sdk/lib-dynamodb'
 import { inspect } from 'node:util'
@@ -20,6 +21,7 @@ import {
   PutCommand,
   QueryCommand,
   ScanCommand,
+  TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
 
@@ -34,17 +36,17 @@ interface QueryParams {
   filterExpression?: string
 }
 
-type PutWithoutTable = Omit<Put, 'TableName'>
-type UpdateWithoutTable = Omit<Update, 'TableName'>
-type DeleteWithoutTable = Omit<Delete, 'TableName'>
-type ConditionCheckWithoutTable = Omit<ConditionCheck, 'TableName'>
+type PutWithOptionalTable = Omit<Put, 'TableName'> & { TableName?: string }
+type UpdateWithOptionalTable = Omit<Update, 'TableName'> & { TableName?: string }
+type DeleteWithOptionalTable = Omit<Delete, 'TableName'> & { TableName?: string }
+type ConditionCheckWithOptionalTable = Omit<ConditionCheck, 'TableName'> & { TableName?: string }
 
 // Union of the valid stripped operations
 export type TransactWriteItemWithoutTable = {
-  Put?: PutWithoutTable
-  Update?: UpdateWithoutTable
-  Delete?: DeleteWithoutTable
-  ConditionCheck?: ConditionCheckWithoutTable
+  Put?: PutWithOptionalTable
+  Update?: UpdateWithOptionalTable
+  Delete?: DeleteWithOptionalTable
+  ConditionCheck?: ConditionCheckWithOptionalTable
 }
 
 /**
@@ -229,7 +231,8 @@ export default class CustomDynamoClient {
 
   async read<T extends object>(
     key: Record<string, number | string | undefined> | null,
-    table?: string
+    table?: string,
+    consistent = false
   ): Promise<T | undefined> {
     if (!key) {
       console.warn('CustomDynamoClient.read: no key provided, returning undefined')
@@ -239,6 +242,7 @@ export default class CustomDynamoClient {
       Key: key,
       TableName: table ? fromSamLocalTable(table) : this.table,
     }
+    if (consistent) params.ConsistentRead = true
     logDb('DB.get', params)
     const data = await this.docClient.send(new GetCommand(params))
     return data.Item as T
@@ -395,12 +399,17 @@ export default class CustomDynamoClient {
   }
 
   async transaction(items: TransactWriteItemWithoutTable[], table?: string) {
-    const tableName = table ? fromSamLocalTable(table) : this.table
+    const defaultTableName = table ? fromSamLocalTable(table) : this.table
+    const withTableName = <T extends { TableName?: string }>(operation: T | undefined) =>
+      operation && {
+        ...operation,
+        TableName: operation.TableName ? fromSamLocalTable(operation.TableName) : defaultTableName,
+      }
     const itemsWithTable: TransactWriteItem[] = items.map((item) => ({
-      ConditionCheck: item.ConditionCheck && { ...item.ConditionCheck, TableName: tableName },
-      Delete: item.Delete && { ...item.Delete, TableName: tableName },
-      Put: item.Put && { ...item.Put, TableName: tableName },
-      Update: item.Update && { ...item.Update, TableName: tableName },
+      ConditionCheck: withTableName(item.ConditionCheck),
+      Delete: withTableName(item.Delete),
+      Put: withTableName(item.Put),
+      Update: withTableName(item.Update),
     }))
     logDb('DB.transaction', itemsWithTable)
 
@@ -429,6 +438,28 @@ export default class CustomDynamoClient {
       } else {
         console.error('❗ Unexpected error:', err)
       }
+      throw err
     }
+  }
+
+  async documentTransaction(items: NonNullable<TransactWriteCommandInput['TransactItems']>) {
+    const transactItems: NonNullable<TransactWriteCommandInput['TransactItems']> = items.map((item) => {
+      const withNormalizedTable = <T extends { TableName?: string }>(
+        operation: T | undefined
+      ): (T & { TableName: string }) | undefined => {
+        if (!operation) return undefined
+        if (!operation.TableName) throw new Error('DynamoDB transaction operation is missing TableName')
+        return { ...operation, TableName: fromSamLocalTable(operation.TableName) }
+      }
+
+      return {
+        ConditionCheck: withNormalizedTable(item.ConditionCheck),
+        Delete: withNormalizedTable(item.Delete),
+        Put: withNormalizedTable(item.Put),
+        Update: withNormalizedTable(item.Update),
+      }
+    })
+    logDb('DB.documentTransaction', transactItems)
+    return this.docClient.send(new TransactWriteCommand({ TransactItems: transactItems }))
   }
 }
