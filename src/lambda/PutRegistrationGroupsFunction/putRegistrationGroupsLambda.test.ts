@@ -71,7 +71,7 @@ const mockUser: JsonUser = {
 describe('putRegistrationGroupsLambda', () => {
   jest.spyOn(console, 'debug').mockImplementation(() => undefined)
   jest.spyOn(console, 'log').mockImplementation(() => undefined)
-  const mockConsoleError = jest.spyOn(console, 'error')
+  const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
 
   afterEach(() => {
     jest.clearAllMocks()
@@ -132,6 +132,9 @@ describe('putRegistrationGroupsLambda', () => {
     )
 
     expect(res.statusCode).toBe(403)
+    expect(mockConsoleError).toHaveBeenCalledWith(
+      expect.objectContaining({ error: 'Forbidden', message: '403 Forbidden', status: 403 })
+    )
     expect(mockDynamoDB.query).not.toHaveBeenCalled()
     expect(mockDynamoDB.update).not.toHaveBeenCalled()
   })

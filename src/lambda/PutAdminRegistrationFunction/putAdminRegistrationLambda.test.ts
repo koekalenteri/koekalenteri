@@ -108,6 +108,7 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const { default: putAdminRegistrationLambda } = await import('./handler')
 
 describe('putAdminRegistrationLambda', () => {
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
   const event = {
     body: JSON.stringify({
       class: 'ALO',
@@ -222,6 +223,9 @@ describe('putAdminRegistrationLambda', () => {
     const result = await putAdminRegistrationLambda(event)
 
     expect(result.statusCode).toBe(403)
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ error: 'Forbidden', message: '403 Forbidden', status: 403 })
+    )
     expect(mockGetEvent).toHaveBeenCalledWith('event123')
     expect(mockGetRegistration).not.toHaveBeenCalled()
     expect(mockSaveRegistration).not.toHaveBeenCalled()
