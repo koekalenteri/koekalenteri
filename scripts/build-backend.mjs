@@ -31,8 +31,8 @@ const layerEntryPoints = layerPaths
   .filter((entry) => !exclude.includes(entry))
   .filter((entry) => !entry.includes('mock') && !entry.includes('lib/client'))
 
-// include config
-layerEntryPoints.push('src/lambda/config.ts')
+// Include root-level modules imported by layer code and the Lambda configuration.
+layerEntryPoints.push('src/rules.ts', 'src/rules_ch.ts', 'src/lambda/config.ts')
 
 const lambdaEntryPoints = lambdaPaths
   .map((path) => getEntryPoints(path, '.ts', lambdaExclude))
