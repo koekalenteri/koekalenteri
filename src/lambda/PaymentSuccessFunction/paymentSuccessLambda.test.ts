@@ -19,6 +19,7 @@ const mockEmailTo = jest.fn<any>()
 const mockRegistrationEmailTags = jest.fn<any>()
 const mockRegistrationEmailTemplateData = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
+const mockGetRegistrationEditToken = jest.fn<any>().mockResolvedValue('test-edit-token')
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   lambda: mockLambda,
@@ -40,6 +41,10 @@ jest.unstable_mockModule('../lib/registration', () => ({
     ...Object.fromEntries(Object.entries(registration).filter(([key, value]) => existing[key] !== value)),
   })),
   getRegistration: mockGetRegistration,
+}))
+
+jest.unstable_mockModule('../lib/registrationAccess', () => ({
+  getRegistrationEditToken: mockGetRegistrationEditToken,
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({

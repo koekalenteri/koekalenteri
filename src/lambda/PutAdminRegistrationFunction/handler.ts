@@ -25,6 +25,11 @@ import {
   patchRegistration,
   saveRegistration,
 } from '../lib/registration'
+import {
+  DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION,
+  getRegistrationEditToken,
+  participantRegistrationResponse,
+} from '../lib/registrationAccess'
 import { updateEventStatsForRegistration } from '../lib/stats'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
@@ -41,6 +46,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
 
   let existing: JsonRegistration | undefined
   const registration: Patch<JsonRegistration> = parseJSONWithFallback(event.body)
+  delete registration.editToken
   const clientModifiedAt = registration.modifiedAt
   normalizeRegistrationEmails(registration)
 
@@ -78,6 +84,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     }
 
     registration.id = nanoid(10)
+    registration.editTokenVersion = DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION
     registration.createdAt = timestamp
     registration.createdBy = user.name
     // registrations created by secretary / admin are initially ready (but unpaid)
@@ -132,9 +139,10 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   }
 
   const context = update ? 'update' : ''
+  const editToken = await getRegistrationEditToken(updatedData)
   if (updatedData.handler?.email && updatedData.owner?.email) {
     const to = emailTo(updatedData)
-    const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, context)
+    const templateData = registrationEmailTemplateData(updatedData, confirmedEvent, origin, context, editToken)
 
     if (!clearEmailDeliveryStatus) {
       await clearRegistrationEmailDeliveryStatus(updatedData.eventId, updatedData.id)
@@ -156,7 +164,7 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
     })
   }
 
-  return response(200, updatedData, event)
+  return response(200, participantRegistrationResponse(updatedData, editToken), event)
 })
 
 function getAuditMessage(data: JsonRegistration, existing?: JsonRegistration): string {

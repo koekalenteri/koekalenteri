@@ -128,7 +128,11 @@ describe('getAdminRegistrationsLambda', () => {
       values: { ':eventId': eventId },
     })
     expect(mockFixRegistrationGroups).toHaveBeenCalledWith(filteredRegistrations, user)
-    expect(mockResponse).toHaveBeenCalledWith(200, registrationsWithGroups, event)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      registrationsWithGroups.map((registration) => ({ ...registration, editToken: expect.any(String) })),
+      event
+    )
   })
 
   it('handles empty query results', async () => {
@@ -237,7 +241,10 @@ describe('getAdminRegistrationsLambda', () => {
       {
         cursor: Date.parse('2026-01-02T10:00:00.000Z'),
         deletedIds: ['reg5'],
-        items: changedRegistrationsWithGroups,
+        items: changedRegistrationsWithGroups.map((registration) => ({
+          ...registration,
+          editToken: expect.any(String),
+        })),
       },
       eventWithSince
     )

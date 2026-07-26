@@ -65,10 +65,20 @@ export function registrationEmailTemplateData(
   confirmedEvent: JsonConfirmedEvent,
   origin: string | undefined,
   context: RegistrationTemplateContext,
+  editToken: string,
   text: string = '',
   previousGroup?: JsonRegistrationGroup
 ) {
   const t = i18n.getFixedT(registration.language)
 
-  return getRegistrationEmailTemplateData(registration, confirmedEvent, origin, context, text, t, previousGroup)
+  return getRegistrationEmailTemplateData(
+    registration,
+    confirmedEvent,
+    origin,
+    context,
+    text,
+    t,
+    previousGroup,
+    editToken
+  )
 }

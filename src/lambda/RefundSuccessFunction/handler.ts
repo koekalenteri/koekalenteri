@@ -10,6 +10,7 @@ import { getEvent } from '../lib/event'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { applySuccessfulRefund, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, getRegistration } from '../lib/registration'
+import { getRegistrationEditToken } from '../lib/registrationAccess'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -64,6 +65,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
   }
 
   const registration = await getRegistration(eventId, registrationId)
+  const editToken = await getRegistrationEditToken(registration)
 
   if (status === 'ok') {
     const { applied, appliedAt } = await applySuccessfulRefund(
@@ -102,7 +104,7 @@ const refundSuccessLambda = lambda('refundSuccess', async (event) => {
       const recipient: string[] = []
       if (registration.payer?.email) recipient.push(registration.payer?.email)
 
-      const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund')
+      const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'refund', editToken)
       await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
       await sendTemplatedMail(
         'refund',

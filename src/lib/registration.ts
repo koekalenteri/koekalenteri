@@ -246,7 +246,8 @@ export const getRegistrationEmailTemplateData = (
   context: RegistrationTemplateContext,
   text: string | undefined,
   t: TFunction,
-  previousGroup?: JsonRegistrationGroup
+  previousGroup?: JsonRegistrationGroup,
+  editToken?: string
 ) => {
   const eventDate = t('dateFormat.datespan', { end: confirmedEvent.endDate, start: confirmedEvent.startDate })
   const reserveText = t(`registration.reserveChoises.${registration.reserve || 'ANY'}`)
@@ -257,8 +258,9 @@ export const getRegistrationEmailTemplateData = (
       return t('dateFormat.short', { date: d.date }) + (timeText ? ` ${timeText}` : '')
     })
     .join(', ')
-  const link = `${origin}/r/${registration.eventId}/${registration.id}`
-  const paymentLink = `${origin}/p/${registration.eventId}/${registration.id}`
+  const accessPath = editToken ? `/access/${encodeURIComponent(editToken)}` : ''
+  const link = `${origin}/r/${registration.eventId}/${registration.id}${accessPath}`
+  const paymentLink = `${origin}/p/${registration.eventId}/${registration.id}${accessPath}`
   const qualifyingResults = registration.qualifyingResults.map((r) => ({
     ...r,
     date: t('dateFormat.date', { date: r.date }),
@@ -271,7 +273,7 @@ export const getRegistrationEmailTemplateData = (
   const groupTime = group?.time ? t(`registration.timeLong.${group.time}`) : ''
   const groupNumber = group?.number ?? '?'
 
-  const invitationLink = `${origin}/r/${registration.eventId}/${registration.id}/invitation`
+  const invitationLink = `${link}/invitation`
   const cancelReason = isPredefinedReason(registration.cancelReason)
     ? t(`registration.cancelReason.${registration.cancelReason}`)
     : (registration.cancelReason ?? '')

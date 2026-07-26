@@ -19,6 +19,7 @@ import {
   sendTemplatedEmailToEventRegistrations,
   updateReserveNotified,
 } from '../lib/registration'
+import { getRegistrationEditToken, participantRegistrationResponse } from '../lib/registrationAccess'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 
 const isEventOrClassState = (event: JsonConfirmedEvent, cls: string | null | undefined, state: EventState): boolean =>
@@ -266,10 +267,15 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
 
   const changedRegistrations = createRegistrationPatches(updatedItems, oldItems)
   await publishRegistrationPatches(eventId, changedRegistrations, confirmedEvent.organizer.id)
+  const responseItems = await Promise.all(
+    updatedItems.map(async (registration) =>
+      participantRegistrationResponse(registration, await getRegistrationEditToken(registration))
+    )
+  )
 
   return response(
     200,
-    { classes: confirmedEvent.classes, entries: confirmedEvent.entries, items: updatedItems, ...emails },
+    { classes: confirmedEvent.classes, entries: confirmedEvent.entries, items: responseItems, ...emails },
     event
   )
 })

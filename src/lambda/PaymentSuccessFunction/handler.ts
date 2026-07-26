@@ -11,6 +11,7 @@ import { updateRegistrations } from '../lib/event'
 import { lambda, response } from '../lib/lambda'
 import { applySuccessfulPayment, parseParams, updateTransactionStatus, verifyParams } from '../lib/payment'
 import { clearRegistrationEmailDeliveryStatus, createRegistrationPatch, getRegistration } from '../lib/registration'
+import { getRegistrationEditToken } from '../lib/registrationAccess'
 import { publishRegistrationPatches } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -25,6 +26,7 @@ const handleSuccessfulPayment = async (
   transactionExists: boolean
 ) => {
   const registration = await getRegistration(eventId, registrationId)
+  const editToken = await getRegistrationEditToken(registration)
   const existingRegistration = { ...registration }
 
   const t = i18n.getFixedT(registration.language)
@@ -59,7 +61,7 @@ const handleSuccessfulPayment = async (
     const receiptTo: string[] = []
     if (registration.payer?.email) receiptTo.push(registration.payer?.email)
 
-    const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt')
+    const templateData = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, 'receipt', editToken)
     const paymentDetails = getRegistrationPaymentDetails(confirmedEvent, registration)
     const memberPrice = paymentDetails.isMember ? ` (${t('costForMembers')})` : ''
     const costSegmentName =
@@ -111,7 +113,7 @@ const handleSuccessfulPayment = async (
   if (confirmedEvent.paymentTime !== 'confirmation') {
     // send confirmation message
     const to = emailTo(registration)
-    const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '')
+    const data = registrationEmailTemplateData(registration, confirmedEvent, frontendURL, '', editToken)
     await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
     await sendTemplatedMail(
       'registration',

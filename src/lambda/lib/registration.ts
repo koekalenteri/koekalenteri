@@ -9,6 +9,7 @@ import { audit, registrationAuditKey } from './audit'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from './email'
 import { LambdaError } from './lambda'
 import { createPatch } from './patch'
+import { getRegistrationEditToken } from './registrationAccess'
 
 const { emailFrom, registrationTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(registrationTable)
@@ -145,8 +146,9 @@ export const sendTemplatedEmailToEventRegistrations = async (
   const ok: string[] = []
   const failed: string[] = []
   for (const registration of registrations) {
+    const editToken = await getRegistrationEditToken(registration)
     const to = emailTo(registration)
-    const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, text)
+    const data = registrationEmailTemplateData(registration, confirmedEvent, origin, context, editToken, text)
     const auditSubject = context ? data.subject : templateName
     try {
       await clearRegistrationEmailDeliveryStatus(registration.eventId, registration.id)
