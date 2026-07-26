@@ -13,6 +13,7 @@ import ClassEntrySelection from './ClassEntrySelection'
 
 jest.mock('../../../api/event')
 jest.mock('../../../api/registration')
+jest.mock('../../../api/user')
 
 function Wrapper(props: { readonly children?: ReactNode }) {
   return (

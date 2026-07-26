@@ -25,6 +25,7 @@ import InfoPanel from './InfoPanel'
 
 // Mock the API calls
 jest.mock('../../../api/event')
+jest.mock('../../../api/user')
 
 // Mock the notistack enqueueSnackbar
 jest.mock('notistack', () => ({
