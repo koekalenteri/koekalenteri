@@ -3,7 +3,7 @@ import { jest } from '@jest/globals'
 
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockGetOrigin = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockSendTemplatedEmailToEventRegistrations = jest.fn<any>()
@@ -32,7 +32,7 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../lib/api-gw', () => ({
@@ -120,9 +120,9 @@ describe('sendMessagesLambda', () => {
     delete (mockEvent as Partial<JsonConfirmedEvent>).startListPublished
 
     // Default mock implementations
-    mockAuthorize.mockResolvedValue({
-      id: 'user123',
-      name: 'Test User',
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org-1'],
+      user: { id: 'user123', name: 'Test User' },
     })
 
     mockGetOrigin.mockReturnValue('https://example.com')
@@ -157,13 +157,21 @@ describe('sendMessagesLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
 
     await sendMessagesLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockQuery).not.toHaveBeenCalled()
+  })
+
+  it('rejects users outside the event organizer before reading registrations or sending messages', async () => {
+    mockRead.mockResolvedValueOnce({ ...mockEvent, organizer: { id: 'org-2' } })
+
+    await expect(sendMessagesLambda(event)).rejects.toMatchObject({ message: 'Forbidden', statusCode: 403 })
+
+    expect(mockGetReadyRegistrationsByEventId).not.toHaveBeenCalled()
+    expect(mockSendTemplatedEmailToEventRegistrations).not.toHaveBeenCalled()
   })
 
   it('returns 400 if not all registrations were found', async () => {

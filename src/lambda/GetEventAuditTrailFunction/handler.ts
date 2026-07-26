@@ -1,19 +1,11 @@
 import { auditTrail, eventAuditKey } from '../lib/audit'
-import { authorizeWithMemberOf } from '../lib/auth'
-import { getEvent } from '../lib/event'
-import { getParam, LambdaError, lambda, response } from '../lib/lambda'
+import { authorizeEvent } from '../lib/eventAuth'
+import { getParam, lambda, response } from '../lib/lambda'
 
 const getEventAuditTrailLambda = lambda('getEventAuditTrail', async (event) => {
-  const { user, memberOf, res } = await authorizeWithMemberOf(event)
+  const { eventId: id, res } = await authorizeEvent(event, () => getParam(event, 'id'))
 
   if (res) return res
-
-  const id = getParam(event, 'id')
-  const item = await getEvent(id)
-
-  if (!user.admin && !memberOf.includes(item.organizer.id)) {
-    throw new LambdaError(403, 'Forbidden')
-  }
 
   const trail = await auditTrail(eventAuditKey({ id }))
 

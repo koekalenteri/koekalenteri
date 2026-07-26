@@ -1,13 +1,12 @@
 import { auditTrail } from '../lib/audit'
-import { authorize } from '../lib/auth'
+import { authorizeEvent } from '../lib/eventAuth'
 import { getParam, lambda, response } from '../lib/lambda'
 
 const getAuditTrailLambda = lambda('getAuditTrail', async (event) => {
-  const user = await authorize(event)
-  if (!user) {
-    return response(401, 'Unauthorized', event)
-  }
-  const eventId = getParam(event, 'eventId')
+  const { eventId, res } = await authorizeEvent(event, () => getParam(event, 'eventId'))
+
+  if (res) return res
+
   const id = getParam(event, 'id')
   const trail = await auditTrail(`${eventId}:${id}`)
 

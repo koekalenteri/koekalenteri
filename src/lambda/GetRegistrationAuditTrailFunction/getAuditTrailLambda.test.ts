@@ -1,19 +1,32 @@
 import { jest } from '@jest/globals'
 
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
+const mockGetEvent = jest.fn<any>()
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockAuditTrail = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
   getParam: mockGetParam,
+  LambdaError: class LambdaError extends Error {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
+      super(message)
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
+}))
+
+jest.unstable_mockModule('../lib/event', () => ({
+  getEvent: mockGetEvent,
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({
@@ -31,16 +44,29 @@ describe('getAuditTrailLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org1'],
+      user: { id: 'user1', name: 'Test User' },
+    })
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org1' } })
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
 
     await getAuditTrailLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).not.toHaveBeenCalled()
+    expect(mockAuditTrail).not.toHaveBeenCalled()
+  })
+
+  it('rejects users outside the event organizer before reading the audit trail', async () => {
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org2' } })
+
+    await expect(getAuditTrailLambda(event)).rejects.toMatchObject({ message: 'Forbidden', statusCode: 403 })
+
     expect(mockAuditTrail).not.toHaveBeenCalled()
   })
 
@@ -53,13 +79,12 @@ describe('getAuditTrailLambda', () => {
       { action: 'update', auditKey: 'event123:reg456', timestamp: '2025-01-02T00:00:00.000Z' },
     ]
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
     mockAuditTrail.mockResolvedValueOnce(auditTrailData)
 
     await getAuditTrailLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockAuditTrail).toHaveBeenCalledWith(`${eventId}:${regId}`)
@@ -72,13 +97,12 @@ describe('getAuditTrailLambda', () => {
     const regId = 'reg456'
     const emptyAuditTrail: any[] = []
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
     mockAuditTrail.mockResolvedValueOnce(emptyAuditTrail)
 
     await getAuditTrailLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockAuditTrail).toHaveBeenCalledWith(`${eventId}:${regId}`)
@@ -91,13 +115,12 @@ describe('getAuditTrailLambda', () => {
     const regId = undefined
     const emptyAuditTrail: any[] = []
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
     mockAuditTrail.mockResolvedValueOnce(emptyAuditTrail)
 
     await getAuditTrailLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockAuditTrail).toHaveBeenCalledWith('undefined:undefined')
@@ -110,7 +133,6 @@ describe('getAuditTrailLambda', () => {
     const regId = 'reg456'
     const emptyAuditTrail: any[] = []
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId).mockReturnValueOnce(regId)
 
     // Simulate an error in auditTrail that's caught and returns an empty array
@@ -123,7 +145,7 @@ describe('getAuditTrailLambda', () => {
 
     await getAuditTrailLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetParam).toHaveBeenCalledWith(event, 'id')
     expect(mockAuditTrail).toHaveBeenCalledWith(`${eventId}:${regId}`)

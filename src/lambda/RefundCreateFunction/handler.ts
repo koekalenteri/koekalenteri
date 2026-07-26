@@ -2,6 +2,7 @@ import type {
   JsonConfirmedEvent,
   JsonPaymentTransaction,
   JsonRefundTransaction,
+  JsonUser,
   Organizer,
   RefundPaymentResponse,
 } from '../../types'
@@ -11,8 +12,8 @@ import { formatMoney } from '../../lib/money'
 import { getProviderName } from '../../lib/payment'
 import { CONFIG } from '../config'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
-import { getEvent } from '../lib/event'
+import { authorizeWithMemberOf } from '../lib/auth'
+import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { LambdaError, lambda, response } from '../lib/lambda'
 import { PaytrailError, parsePaytrailErrorMessage, refundPayment } from '../lib/paytrail'
@@ -23,7 +24,7 @@ import { getApiHost } from '../utils/proxyEvent'
 const { organizerTable, registrationTable, transactionTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(transactionTable)
 
-const getData = async (transactionId: string) => {
+const getData = async (transactionId: string, user: JsonUser, memberOf: string[]) => {
   const paymentTransaction = await dynamoDB.read<JsonPaymentTransaction>({ transactionId }, transactionTable)
 
   if (!paymentTransaction) {
@@ -32,7 +33,8 @@ const getData = async (transactionId: string) => {
 
   const [eventId, registrationId] = paymentTransaction.reference.split(':')
 
-  const jsonEvent = await getEvent<JsonConfirmedEvent>(eventId)
+  const jsonEvent = await getAuthorizedEvent<JsonConfirmedEvent>(user, memberOf, eventId)
+
   const registration = await getRegistration(eventId, registrationId)
 
   const organizer = await dynamoDB.read<Organizer>({ id: jsonEvent?.organizer.id }, organizerTable)
@@ -50,10 +52,9 @@ const getPaytrailErrorMessage = (error: PaytrailError) =>
  * refundCreate is called by client to refund a payment
  */
 const refundCreateLambda = lambda('refundCreate', async (event) => {
-  const user = await authorize(event)
-  if (!user) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { user, memberOf, res } = await authorizeWithMemberOf(event)
+
+  if (res) return res
 
   const {
     transactionId,
@@ -69,7 +70,7 @@ const refundCreateLambda = lambda('refundCreate', async (event) => {
     throw new LambdaError(400, `Invalid amount: '${amount}'`)
   }
 
-  const { paymentTransaction, eventId, registrationId, registration } = await getData(transactionId)
+  const { paymentTransaction, eventId, registrationId, registration } = await getData(transactionId, user, memberOf)
 
   const reference = `${eventId}:${registrationId}`
   const stamp = nanoid()

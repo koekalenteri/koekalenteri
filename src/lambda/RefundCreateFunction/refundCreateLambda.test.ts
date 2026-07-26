@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
 const mockGetApiHost = jest.fn<any>()
 const mockRefundPayment = jest.fn<any>()
@@ -46,7 +46,7 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../lib/json', () => ({
@@ -152,9 +152,9 @@ describe('refundCreateLambda', () => {
     jest.clearAllMocks()
 
     // Default mock implementations
-    mockAuthorize.mockResolvedValue({
-      id: 'user123',
-      name: 'Test User',
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org123'],
+      user: { id: 'user123', name: 'Test User' },
     })
 
     mockParseJSONWithFallback.mockReturnValue({
@@ -190,13 +190,25 @@ describe('refundCreateLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
 
     await refundCreateLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockDynamoRead).not.toHaveBeenCalled()
+  })
+
+  it('rejects users outside the event organizer before loading registration data or refunding', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      memberOf: ['another-organizer'],
+      user: { admin: false, id: 'user123', name: 'Test User' },
+    })
+
+    await expect(refundCreateLambda(event)).rejects.toMatchObject({ message: 'Forbidden', status: 403 })
+
+    expect(mockGetRegistration).not.toHaveBeenCalled()
+    expect(mockRefundPayment).not.toHaveBeenCalled()
+    expect(mockDynamoWrite).not.toHaveBeenCalled()
   })
 
   it('throws error if amount is invalid', async () => {

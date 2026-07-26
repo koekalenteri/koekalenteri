@@ -1,14 +1,15 @@
 import { jest } from '@jest/globals'
 
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockGetParam = jest.fn<any>()
+const mockGetEvent = jest.fn<any>()
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockFixRegistrationGroups = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -33,6 +34,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 jest.unstable_mockModule('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
+  getEvent: mockGetEvent,
 }))
 
 const { default: getAdminRegistrationsLambda } = await import('./handler')
@@ -46,18 +48,54 @@ describe('getAdminRegistrationsLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org1'],
+      user: { id: 'user1', name: 'Test User' },
+    })
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org1' } })
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    const res = { body: 'Unauthorized', statusCode: 401 }
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res })
 
     await getAdminRegistrationsLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).not.toHaveBeenCalled()
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockFixRegistrationGroups).not.toHaveBeenCalled()
+  })
+
+  it('rejects users outside the event organizer before reading registrations', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      memberOf: ['org1'],
+      user: { admin: false, id: 'user1', name: 'Test User' },
+    })
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org2' } })
+
+    await expect(getAdminRegistrationsLambda(event)).rejects.toMatchObject({ message: 'Forbidden', statusCode: 403 })
+
+    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockQuery).not.toHaveBeenCalled()
+    expect(mockFixRegistrationGroups).not.toHaveBeenCalled()
+  })
+
+  it('allows admins to read registrations for any organizer', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      memberOf: [],
+      user: { admin: true, id: 'admin1', name: 'Admin User' },
+    })
+    mockGetParam.mockReturnValueOnce('event123')
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org2' } })
+    mockQuery.mockResolvedValueOnce([])
+    mockFixRegistrationGroups.mockResolvedValueOnce([])
+
+    await getAdminRegistrationsLambda(event)
+
+    expect(mockQuery).toHaveBeenCalled()
+    expect(mockResponse).toHaveBeenCalledWith(200, [], event)
   })
 
   it('returns registrations with fixed groups if authorized', async () => {
@@ -77,14 +115,13 @@ describe('getAdminRegistrationsLambda', () => {
       { class: 'AVO', eventId, group: { key: 'AVO', number: 1 }, id: 'reg3', state: 'ready' },
     ]
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(registrationsWithGroups)
 
     await getAdminRegistrationsLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
@@ -99,14 +136,13 @@ describe('getAdminRegistrationsLambda', () => {
     const eventId = 'event123'
     const emptyRegistrations: any[] = []
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(emptyRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(emptyRegistrations)
 
     await getAdminRegistrationsLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
@@ -121,14 +157,13 @@ describe('getAdminRegistrationsLambda', () => {
     const eventId = 'event123'
     const emptyRegistrations: any[] = []
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(undefined)
     mockFixRegistrationGroups.mockResolvedValueOnce(emptyRegistrations)
 
     await getAdminRegistrationsLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
@@ -148,14 +183,13 @@ describe('getAdminRegistrationsLambda', () => {
     ]
     const filteredRegistrations: any[] = [] // All registrations are filtered out
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(filteredRegistrations)
 
     await getAdminRegistrationsLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
@@ -192,7 +226,6 @@ describe('getAdminRegistrationsLambda', () => {
     }))
     const changedRegistrationsWithGroups = registrationsWithGroups.slice(1)
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockResolvedValueOnce(changedRegistrationsWithGroups)
@@ -215,13 +248,12 @@ describe('getAdminRegistrationsLambda', () => {
     const eventId = 'event123'
     const error = new Error('Database error')
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockRejectedValueOnce(error)
 
     await expect(getAdminRegistrationsLambda(event)).rejects.toThrow(error)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',
@@ -238,14 +270,13 @@ describe('getAdminRegistrationsLambda', () => {
     const filteredRegistrations = [{ class: 'ALO', eventId, id: 'reg1', state: 'ready' }]
     const error = new Error('Group fixing error')
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockGetParam.mockReturnValueOnce(eventId)
     mockQuery.mockResolvedValueOnce(allRegistrations)
     mockFixRegistrationGroups.mockRejectedValueOnce(error)
 
     await expect(getAdminRegistrationsLambda(event)).rejects.toThrow(error)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockQuery).toHaveBeenCalledWith({
       key: 'eventId = :eventId',

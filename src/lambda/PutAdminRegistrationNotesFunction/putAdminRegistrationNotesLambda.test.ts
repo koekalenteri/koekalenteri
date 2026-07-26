@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockAudit = jest.fn<any>()
 const mockRegistrationAuditKey = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
@@ -11,12 +11,20 @@ const mockUpdateRegistrationField = jest.fn<any>()
 const mockPublishRegistrationPatches = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
+  LambdaError: class LambdaError extends Error {
+    constructor(
+      public statusCode: number,
+      message: string
+    ) {
+      super(message)
+    }
+  },
   lambda: mockLambda,
   response: mockResponse,
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../lib/audit', () => ({
@@ -56,9 +64,9 @@ describe('putAdminRegistrationNotesLambda', () => {
     jest.clearAllMocks()
 
     // Default mock implementations
-    mockAuthorize.mockResolvedValue({
-      id: 'user123',
-      name: 'Test User',
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org-1'],
+      user: { admin: false, id: 'user123', name: 'Test User' },
     })
 
     mockParseJSONWithFallback.mockReturnValue({
@@ -74,13 +82,41 @@ describe('putAdminRegistrationNotesLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      res: { body: 'Unauthorized', statusCode: 401 },
+    })
 
     await putAdminRegistrationNotesLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
+    expect(mockParseJSONWithFallback).not.toHaveBeenCalled()
     expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+  })
+
+  it('rejects users outside the event organizer before updating notes', async () => {
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-2' } })
+
+    await expect(putAdminRegistrationNotesLambda(event)).rejects.toMatchObject({
+      message: 'Forbidden',
+      statusCode: 403,
+    })
+
+    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockUpdateRegistrationField).not.toHaveBeenCalled()
+    expect(mockPublishRegistrationPatches).not.toHaveBeenCalled()
+    expect(mockAudit).not.toHaveBeenCalled()
+  })
+
+  it('allows admins to update notes for any organizer', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      memberOf: [],
+      user: { admin: true, id: 'admin1', name: 'Admin User' },
+    })
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-2' } })
+
+    await putAdminRegistrationNotesLambda(event)
+
+    expect(mockUpdateRegistrationField).toHaveBeenCalled()
   })
 
   it('updates registration internal notes successfully', async () => {

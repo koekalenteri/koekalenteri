@@ -14,7 +14,7 @@ jest.unstable_mockModule('../lib/api-gw', () => ({
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: jest.fn(),
+  authorizeWithMemberOf: jest.fn(),
 }))
 
 const mockDynamoDB: jest.Mocked<CustomDynamoClient> = {
@@ -39,8 +39,8 @@ jest.unstable_mockModule('../lib/registration', () => ({
   sendTemplatedEmailToEventRegistrations: mockSend,
 }))
 
-const { authorize } = await import('../lib/auth')
-const authorizeMock = authorize as jest.Mock<typeof authorize>
+const { authorizeWithMemberOf } = await import('../lib/auth')
+const authorizeWithMemberOfMock = authorizeWithMemberOf as jest.Mock<typeof authorizeWithMemberOf>
 
 const mockBroadcast = jest.fn()
 const mockBroadcastAdminEvent = jest.fn()
@@ -58,6 +58,7 @@ jest.unstable_mockModule('../lib/ws/actions', () => ({
 const { default: putRegistrationGroupsLambda } = await import('./handler')
 
 const mockUser: JsonUser = {
+  admin: true,
   createdAt: '',
   createdBy: 'test',
   email: 'test@example.com',
@@ -78,14 +79,14 @@ describe('putRegistrationGroupsLambda', () => {
   })
 
   it('should return 401 if authorization fails', async () => {
-    authorizeMock.mockResolvedValueOnce(null)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
     const res = await putRegistrationGroupsLambda(constructAPIGwEvent('test'))
 
     expect(res.statusCode).toEqual(401)
   })
 
   it.each([undefined, null, [], {}])('should return 422 with invalid groups: %p', async (groups) => {
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
     const res = await putRegistrationGroupsLambda(constructAPIGwEvent(groups))
 
     expect(res.statusCode).toEqual(422)
@@ -99,7 +100,7 @@ describe('putRegistrationGroupsLambda', () => {
       group: { key: 'reserve', number: 1 },
       id: 'whatever',
     }
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
     mockConsoleError.mockImplementationOnce(() => undefined)
 
     const res = await putRegistrationGroupsLambda(
@@ -110,15 +111,40 @@ describe('putRegistrationGroupsLambda', () => {
     expect(mockConsoleError).toHaveBeenCalledTimes(1)
   })
 
+  it('should reject users outside the event organizer before reading registrations', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    const group = {
+      cancelled: false,
+      eventId: event.id,
+      group: { key: 'reserve', number: 1 },
+      id: 'whatever',
+    }
+    authorizeWithMemberOfMock.mockResolvedValueOnce({
+      memberOf: ['another-organizer'],
+      user: { ...mockUser, admin: false },
+    })
+    mockDynamoDB.read.mockResolvedValueOnce(event)
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent([group] as JsonRegistrationGroupInfo[], {
+        pathParameters: { eventId: event.id },
+      })
+    )
+
+    expect(res.statusCode).toBe(403)
+    expect(mockDynamoDB.query).not.toHaveBeenCalled()
+    expect(mockDynamoDB.update).not.toHaveBeenCalled()
+  })
+
   it('should move from cancelled to reserve', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
 
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockResolvedValue(event)
 
     const updated: JsonRegistration[] = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
     const reg = updated[4]
@@ -202,13 +228,13 @@ describe('putRegistrationGroupsLambda', () => {
 
   it('should move to last place', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
 
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockResolvedValue(event)
 
     const updated: JsonRegistration[] = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
     const reg = updated[5]
@@ -271,13 +297,13 @@ describe('putRegistrationGroupsLambda', () => {
 
   it('should not send "reserve" message, when reserve is not notified', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
 
     // stored registrations before update
     mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockResolvedValue(event)
 
     const updated = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
 
@@ -304,7 +330,7 @@ describe('putRegistrationGroupsLambda', () => {
 
   it('should send "reserve" message, when reserve is notified', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
 
     // stored registrations before update
     const storedItems = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({
@@ -314,7 +340,7 @@ describe('putRegistrationGroupsLambda', () => {
     mockDynamoDB.query.mockResolvedValueOnce(storedItems)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockResolvedValue(event)
 
     const updated: JsonRegistration[] = storedItems.map((r) => ({ ...r }))
 
@@ -345,7 +371,7 @@ describe('putRegistrationGroupsLambda', () => {
 
   it('should send "invitation" message, when moved to a class that is invited (and event is only picked)', async () => {
     const event = JSON.parse(JSON.stringify(eventWithALOClassInvited))
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
 
     // stored registrations before update
     const storedItems = jsonRegistrationsToEventWithALOInvited.map((r) => ({
@@ -355,7 +381,7 @@ describe('putRegistrationGroupsLambda', () => {
     mockDynamoDB.query.mockResolvedValueOnce(storedItems)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockResolvedValue(event)
 
     const updated = jsonRegistrationsToEventWithALOInvited.map((r) => ({
       ...r,
@@ -394,7 +420,7 @@ describe('putRegistrationGroupsLambda', () => {
 
   it('should update counts when moved to cancelled', async () => {
     const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
-    authorizeMock.mockResolvedValueOnce(mockUser)
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
     mockSend.mockImplementation(
       (
         template: string,
@@ -421,7 +447,7 @@ describe('putRegistrationGroupsLambda', () => {
     mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
 
     // event
-    mockDynamoDB.read.mockResolvedValueOnce(event)
+    mockDynamoDB.read.mockResolvedValue(event)
 
     const updated: JsonRegistration[] = jsonRegistrationsToEventWithParticipantsInvited.map((r) => ({ ...r }))
     const reg = updated[3]

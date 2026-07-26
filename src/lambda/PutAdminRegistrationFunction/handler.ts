@@ -4,7 +4,7 @@ import { patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, registrationAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
+import { authorizeWithMemberOf } from '../lib/auth'
 import { emailTo, registrationEmailTags, registrationEmailTemplateData, sendTemplatedMail } from '../lib/email'
 import {
   assertRegistrationEmailsNotSuppressed,
@@ -12,6 +12,7 @@ import {
   shouldClearRegistrationEmailDeliveryStatus,
 } from '../lib/emailSuppression'
 import { fixRegistrationGroups, updateRegistrations } from '../lib/event'
+import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { isPatchRequest, lambda, response } from '../lib/lambda'
 import {
@@ -30,10 +31,9 @@ import { publishRegistrationPatches } from '../lib/ws/actions'
 const { emailFrom } = CONFIG
 
 const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) => {
-  const user = await authorize(event)
-  if (!user) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { user, memberOf, res } = await authorizeWithMemberOf(event)
+
+  if (res) return res
 
   const timestamp = new Date().toISOString()
   const origin = getOrigin(event)
@@ -47,6 +47,8 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   if (patchRequest && (!registration.eventId || !registration.id)) {
     return response(400, { message: 'Bad request: PATCH requires eventId and id' }, event)
   }
+
+  await getAuthorizedEvent(user, memberOf, registration.eventId ?? '')
 
   const update = !!registration.id
   if (update) {

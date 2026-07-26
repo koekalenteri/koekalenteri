@@ -2,7 +2,8 @@ import type { JsonRegistration } from '../../types'
 import { jest } from '@jest/globals'
 import { LambdaError } from '../lib/lambda'
 
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
+const mockGetEvent = jest.fn<any>()
 const mockSendTemplatedMail = jest.fn<any>()
 const mockGetRegistration = jest.fn<any>()
 const mockSaveRegistration = jest.fn<any>()
@@ -43,7 +44,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 }))
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 const libEmail = await import('../lib/email')
@@ -92,6 +93,7 @@ jest.unstable_mockModule('../lib/registration', () => ({
 
 jest.unstable_mockModule('../lib/event', () => ({
   fixRegistrationGroups: mockFixRegistrationGroups,
+  getEvent: mockGetEvent,
   updateRegistrations: mockUpdateRegistrations,
 }))
 
@@ -136,10 +138,11 @@ describe('putAdminRegistrationLambda', () => {
     jest.clearAllMocks()
 
     // Default mock implementations
-    mockAuthorize.mockResolvedValue({
-      id: 'user123',
-      name: 'Test User',
+    mockAuthorizeWithMemberOf.mockResolvedValue({
+      memberOf: ['org-1'],
+      user: { admin: false, id: 'user123', name: 'Test User' },
     })
+    mockGetEvent.mockResolvedValue({ organizer: { id: 'org-1' } })
     mockAssertRegistrationEmailsNotSuppressed.mockResolvedValue(undefined)
 
     mockGetRegistration.mockResolvedValue({
@@ -196,13 +199,46 @@ describe('putAdminRegistrationLambda', () => {
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      res: { body: 'Unauthorized', statusCode: 401 },
+    })
+    const malformedPatchEvent = { ...event, body: '{}', httpMethod: 'PATCH' }
+
+    const result = await putAdminRegistrationLambda(malformedPatchEvent)
+
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(malformedPatchEvent)
+    expect(result.statusCode).toBe(401)
+    expect(mockGetEvent).not.toHaveBeenCalled()
+    expect(mockSaveRegistration).not.toHaveBeenCalled()
+  })
+
+  it('rejects users outside the event organizer before reading or writing registration data', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      memberOf: ['org-1'],
+      user: { admin: false, id: 'user123', name: 'Test User' },
+    })
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-2' } })
 
     const result = await putAdminRegistrationLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(result.statusCode).toBe(401)
+    expect(result.statusCode).toBe(403)
+    expect(mockGetEvent).toHaveBeenCalledWith('event123')
+    expect(mockGetRegistration).not.toHaveBeenCalled()
     expect(mockSaveRegistration).not.toHaveBeenCalled()
+    expect(mockPatchRegistration).not.toHaveBeenCalled()
+  })
+
+  it('allows admins to modify registrations for any organizer', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({
+      memberOf: [],
+      user: { admin: true, id: 'admin1', name: 'Admin User' },
+    })
+    mockGetEvent.mockResolvedValueOnce({ organizer: { id: 'org-2' } })
+
+    const result = await putAdminRegistrationLambda(event)
+
+    expect(result.statusCode).toBe(200)
+    expect(mockPatchRegistration).toHaveBeenCalled()
   })
 
   it('creates a new registration when id is not provided', async () => {

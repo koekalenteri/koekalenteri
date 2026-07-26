@@ -7,8 +7,9 @@ import {
 } from '../../lib/registration'
 import { getOrigin } from '../lib/api-gw'
 import { audit, eventAuditKey, registrationAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
+import { authorizeWithMemberOf } from '../lib/auth'
 import { fixRegistrationGroups, saveGroup, updateRegistrations } from '../lib/event'
+import { getAuthorizedEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { getParam, lambda, response } from '../lib/lambda'
 import {
@@ -102,10 +103,10 @@ const parseGroups = (json: string | null, eventId: string): JsonRegistrationGrou
 }
 
 const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event) => {
-  const user = await authorize(event)
-  if (!user) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { user, memberOf, res } = await authorizeWithMemberOf(event)
+
+  if (res) return res
+
   const origin = getOrigin(event)
   const eventId = getParam(event, 'eventId')
   const eventGroups = parseGroups(event.body, eventId)
@@ -113,6 +114,8 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
   if (eventGroups.length === 0) {
     return response(422, 'no groups', event)
   }
+
+  await getAuthorizedEvent(user, memberOf, eventId)
 
   const oldItems = await getReadyRegistrationsByEventId(eventId)
 

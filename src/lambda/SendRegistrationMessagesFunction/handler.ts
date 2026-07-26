@@ -3,8 +3,9 @@ import { isRegistrationClass } from '../../lib/registration'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
 import { audit, eventAuditKey } from '../lib/audit'
-import { authorize } from '../lib/auth'
+import { authorizeWithMemberOf } from '../lib/auth'
 import { getStateFromTemplate, markParticipants } from '../lib/event'
+import { assertEventOrganizerAccess } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import {
@@ -58,13 +59,20 @@ const markClassesAsReceived = async (
 const sendMessagesLambda = lambda('sendMessages', async (event) => {
   const origin = getOrigin(event)
 
-  const user = await authorize(event)
-  if (!user) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { user, memberOf, res } = await authorizeWithMemberOf(event)
+
+  if (res) return res
 
   const message: RegistrationMessage = parseJSONWithFallback(event.body)
   const { template, eventId, contactInfo, registrationIds, text } = message
+
+  let confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
+
+  if (!confirmedEvent) {
+    return response(404, 'Event not found', event)
+  }
+
+  assertEventOrganizerAccess(user, memberOf, confirmedEvent)
 
   const eventRegistrations = await getReadyRegistrationsByEventId(eventId)
 
@@ -72,12 +80,6 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
 
   if (registrations?.length !== registrationIds.length) {
     return response(400, 'Not all registrations were found, aborting!', event)
-  }
-
-  let confirmedEvent = await dynamoDB.read<JsonConfirmedEvent>({ id: eventId }, eventTable)
-
-  if (!confirmedEvent) {
-    return response(404, 'Event not found', event)
   }
 
   const { ok, failed } = await sendTemplatedEmailToEventRegistrations(
