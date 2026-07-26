@@ -3,6 +3,9 @@
     Properties:
       CodeUri: lambda/PutRegistrationFunction
       Handler: handler.default
+      Environment:
+        Variables:
+          REGISTRATION_EDIT_TOKEN_SECRET: !Sub '{{resolve:secretsmanager:${RegistrationEditTokenSecret}:SecretString}}'
       Layers:
         - !Ref CommonLayer
       Tracing: Active

@@ -85,3 +85,19 @@ Parameters:
     NoEcho: true
 
 Resources:
+  # This secret signs every participant registration link. Never attach an
+  # AWS::SecretsManager::RotationSchedule: changing it invalidates all links.
+  # If this stack is recreated, import the retained secret under this logical
+  # ID instead of allowing CloudFormation to generate a replacement.
+  RegistrationEditTokenSecret:
+    Type: AWS::SecretsManager::Secret
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: HMAC secret for participant registration edit tokens
+      GenerateSecretString:
+        ExcludePunctuation: true
+        PasswordLength: 64
+      Tags:
+        - Key: stack
+          Value: !Ref AWS::StackName
