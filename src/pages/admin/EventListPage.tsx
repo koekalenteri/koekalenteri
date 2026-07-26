@@ -38,6 +38,8 @@ import {
 } from './recoil'
 import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 
+export const canViewEvent = (event?: Pick<DogEvent, 'state'>): boolean => isConfirmedEvent(event)
+
 export const getEventDoubleClickPath = (
   event: Pick<DogEvent, 'entryStartDate' | 'id' | 'state'>,
   now = new Date()
@@ -161,7 +163,7 @@ export default function EventListPage() {
         />
         <AutoButton
           startIcon={<FormatListNumberedOutlined />}
-          disabled={!selectedEventID}
+          disabled={!selectedEventID || !canViewEvent(selectedEvent)}
           onClick={viewAction}
           text={t('registrations')}
         />

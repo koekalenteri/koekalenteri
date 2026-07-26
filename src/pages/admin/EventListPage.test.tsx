@@ -13,7 +13,7 @@ import {
 import theme from '../../assets/Theme'
 import { flushPromises, RecoilObserver, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
 import { idTokenAtom } from '../recoil'
-import EventListPage, { getEventDoubleClickPath } from './EventListPage'
+import EventListPage, { canViewEvent, getEventDoubleClickPath } from './EventListPage'
 import { adminEventIdAtom } from './recoil'
 
 jest.mock('../../api/event')
@@ -73,5 +73,10 @@ describe('EventListPage', () => {
     expect(getEventDoubleClickPath({ ...eventWithEntryOpenButNoEntries, state: 'draft' })).toBe(
       '/admin/event/edit/test3'
     )
+  })
+
+  it('only enables the registrations view for confirmed events', () => {
+    expect(canViewEvent(eventWithEntryOpenButNoEntries)).toBe(true)
+    expect(canViewEvent({ ...eventWithEntryOpenButNoEntries, state: 'draft' })).toBe(false)
   })
 })
