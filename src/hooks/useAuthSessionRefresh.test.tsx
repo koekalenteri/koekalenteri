@@ -21,15 +21,18 @@ const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(
 
 describe('auth session refresh', () => {
   const mockReportError = reportError as jest.MockedFunction<typeof reportError>
+  let consoleWarnSpy: jest.SpiedFunction<typeof console.warn>
 
   beforeEach(() => {
     jest.useFakeTimers()
     jest.setSystemTime(new Date('2026-06-29T12:00:00.000Z'))
     jest.clearAllMocks()
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
     localStorage.clear()
   })
 
   afterEach(() => {
+    consoleWarnSpy.mockRestore()
     jest.useRealTimers()
   })
 
@@ -75,7 +78,8 @@ describe('auth session refresh', () => {
 
   it('clears the id token when refresh fails because the auth session is invalid', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
-    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce({ name: 'NotAuthorizedException' })
+    const error = { name: 'NotAuthorizedException' }
+    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
@@ -96,6 +100,10 @@ describe('auth session refresh', () => {
     })
 
     await waitFor(() => expect(result.current).toBeUndefined())
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'auth: session is no longer refreshable',
+      expect.objectContaining({ durationMs: expect.any(Number), error })
+    )
     expect(mockReportError).not.toHaveBeenCalled()
   })
 
@@ -123,6 +131,10 @@ describe('auth session refresh', () => {
     })
 
     await waitFor(() => expect(result.current).toBe(currentToken))
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'auth: session refresh failed transiently',
+      expect.objectContaining({ durationMs: expect.any(Number), error })
+    )
     expect(mockReportError).toHaveBeenCalledWith(error)
   })
 
@@ -149,6 +161,10 @@ describe('auth session refresh', () => {
     })
 
     await waitFor(() => expect(result.current).toBeUndefined())
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'auth: session refresh returned no id token',
+      expect.objectContaining({ durationMs: expect.any(Number) })
+    )
   })
 
   it('keeps an expired raw token while hiding it from authenticated consumers during refresh', async () => {
@@ -183,12 +199,20 @@ describe('auth session refresh', () => {
     expect(fetchAuthSession).toHaveBeenCalledWith({ forceRefresh: true })
     expect(result.current).toEqual({ rawToken: expiredToken, validToken: undefined })
 
-    resolveRefresh({})
+    await act(async () => {
+      resolveRefresh({})
+      await refreshPromise
+    })
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'auth: session refresh returned no id token',
+      expect.objectContaining({ durationMs: expect.any(Number) })
+    )
   })
 
   it('invalidates the valid token when it expires after a transient refresh failure', async () => {
     const currentToken = makeToken({ exp: Date.now() / 1000 + 120 })
-    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce(new TypeError('Failed to fetch'))
+    const error = new TypeError('Failed to fetch')
+    ;(fetchAuthSession as jest.Mock).mockRejectedValueOnce(error)
 
     const wrapper = ({ children }: { readonly children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(idTokenAtom, currentToken)}>{children}</RecoilRoot>
@@ -215,6 +239,10 @@ describe('auth session refresh', () => {
     })
 
     expect(result.current).toEqual({ rawToken: currentToken, validToken: undefined })
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'auth: session refresh failed transiently',
+      expect.objectContaining({ durationMs: expect.any(Number), error })
+    )
   })
 
   it('rechecks token validity and refreshes when a background tab becomes visible', async () => {

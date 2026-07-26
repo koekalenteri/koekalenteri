@@ -20,14 +20,24 @@ describe('recoil/user', () => {
       jest.setSystemTime(new Date('2026-07-24T12:00:00.000Z'))
       const token = makeToken({ exp: Date.now() / 1000 + 60 })
       const initialSnapshot = snapshot_UNSTABLE(({ set }) => set(idTokenAtom, token))
+      const releaseInitialSnapshot = initialSnapshot.retain()
 
-      await expect(initialSnapshot.getPromise(validIdTokenSelector)).resolves.toBe(token)
+      try {
+        await expect(initialSnapshot.getPromise(validIdTokenSelector)).resolves.toBe(token)
 
-      jest.advanceTimersByTime(60_001)
-      const expiredSnapshot = initialSnapshot.map(({ set }) => set(tokenValidityRevisionAtom, 1))
+        jest.advanceTimersByTime(60_001)
+        const expiredSnapshot = initialSnapshot.map(({ set }) => set(tokenValidityRevisionAtom, 1))
+        const releaseExpiredSnapshot = expiredSnapshot.retain()
 
-      await expect(expiredSnapshot.getPromise(idTokenAtom)).resolves.toBe(token)
-      await expect(expiredSnapshot.getPromise(validIdTokenSelector)).resolves.toBeUndefined()
+        try {
+          await expect(expiredSnapshot.getPromise(idTokenAtom)).resolves.toBe(token)
+          await expect(expiredSnapshot.getPromise(validIdTokenSelector)).resolves.toBeUndefined()
+        } finally {
+          releaseExpiredSnapshot()
+        }
+      } finally {
+        releaseInitialSnapshot()
+      }
     })
 
     it.each(['not-a-jwt', makeToken({}), makeToken({ exp: 'tomorrow' })])(
@@ -53,9 +63,14 @@ describe('recoil/user', () => {
       const err = new Error('api error')
       jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
       const reportErrorSpy = jest.spyOn(error, 'reportError').mockImplementation(jest.fn())
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
 
       try {
         await expect(initialSnapshot.getPromise(userSelector)).resolves.toBeNull()
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          'auth: /user request failed',
+          expect.objectContaining({ error: err, refresh: 1, requestId: expect.any(Number) })
+        )
         expect(reportErrorSpy).toHaveBeenCalledWith(err)
         expect(reportErrorSpy).toHaveBeenCalledTimes(1)
       } finally {
@@ -74,9 +89,14 @@ describe('recoil/user', () => {
       const err = new APIError(new Response(null, { status: 408, statusText: 'timeout loading /user' }), {})
       jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(err)
       const reportErrorSpy = jest.spyOn(error, 'reportError').mockImplementation(jest.fn())
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
 
       try {
         await expect(initialSnapshot.getPromise(userSelector)).resolves.toBeNull()
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          'auth: /user request failed',
+          expect.objectContaining({ error: err, refresh: 2, requestId: expect.any(Number) })
+        )
         expect(reportErrorSpy).toHaveBeenCalledWith(err)
         expect(reportErrorSpy).toHaveBeenCalledTimes(1)
       } finally {

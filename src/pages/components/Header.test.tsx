@@ -27,6 +27,7 @@ describe('Header', () => {
   it('does not sign out when user lookup temporarily fails', async () => {
     const error = new Error('temporary user lookup failure')
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
     ;(getUser as jest.Mock).mockRejectedValueOnce(error)
 
     try {
@@ -41,10 +42,15 @@ describe('Header', () => {
       )
 
       await waitFor(() => expect(getUser).toHaveBeenCalledWith(TEST_ID_TOKEN, undefined, 0))
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'auth: /user request failed',
+        expect.objectContaining({ error, refresh: 0, requestId: expect.any(Number) })
+      )
       expect(consoleErrorSpy).toHaveBeenCalledWith('reportError', error)
       expect(mockSignOut).not.toHaveBeenCalled()
     } finally {
       consoleErrorSpy.mockRestore()
+      consoleWarnSpy.mockRestore()
     }
   })
 })
