@@ -2,23 +2,17 @@ import type { ValidationResult, Validators2, WideValidationResult } from '../../
 import type {
   BreedCode,
   Dog,
-  DogEvent,
-  EventRequirement,
-  EventResultRequirement,
-  EventResultRequirements,
-  EventResultRequirementsByDate,
-  ManualTestResult,
   PublicConfirmedEvent,
-  QualifyingResult,
-  QualifyingResults,
   Registration,
   RegistrationBreeder,
   TestResult,
 } from '../../../types'
-import { differenceInMonths, startOfYear } from 'date-fns'
-import { getNextClass, isRegistrationClass } from '../../../lib/registration'
+import { differenceInMonths } from 'date-fns'
+import { filterRelevantResults, objectContains } from '../../../lib/qualification'
 import { validatePerson } from '../../../lib/validation'
-import { getRequirements, REQUIREMENTS } from '../../../rules'
+import { REQUIREMENTS } from '../../../rules'
+
+export { filterRelevantResults, objectContains }
 
 function validateBreeder(breeder: RegistrationBreeder | undefined) {
   return !breeder?.name || !breeder.location
@@ -48,21 +42,9 @@ function validateRegistrationField(
 ): ValidationResult<Registration, 'registration'> {
   const validator = VALIDATORS[field] ?? ((value) => value[field] === undefined || value[field] === '')
   const result = validator(registration, true, event)
-  if (!result) {
-    return false
-  }
-  if (result === true) {
-    return {
-      key: 'choose',
-      opts: { field },
-    }
-  }
-  if (typeof result === 'string') {
-    return {
-      key: result,
-      opts: { field },
-    }
-  }
+  if (!result) return false
+  if (result === true) return { key: 'choose', opts: { field } }
+  if (typeof result === 'string') return { key: result, opts: { field } }
   return result
 }
 
@@ -79,48 +61,29 @@ export function validateRegistration(registration: Registration, event: PublicCo
   const errors = []
   let field: keyof Registration
   for (field in registration) {
-    if (NOT_VALIDATED.has(field)) {
-      continue
-    }
+    if (NOT_VALIDATED.has(field)) continue
     const result = validateRegistrationField(registration, field, event)
-    if (result) {
-      errors.push(result)
-    }
+    if (result) errors.push(result)
   }
   return errors
 }
 
-export const objectContains = (obj: Record<string, any>, req: Record<string, any>) => {
-  for (const key of Object.keys(req)) {
-    if (obj[key] !== req[key]) {
-      return false
-    }
-  }
-  return true
-}
-
-const excludeByYear = (result: Partial<TestResult>, date: Date) => result.date && result.date > startOfYear(date)
-
 const validateDogAge = (event: { eventType: string; startDate: Date }, dog: { dob?: Date }) => {
   const requirements = REQUIREMENTS[event.eventType]
-  const minAge = (requirements as EventRequirement)?.age ?? 0
-  if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) {
-    return minAge
-  }
+  const minAge = requirements && 'age' in requirements ? (requirements.age ?? 0) : 0
+  if (!dog.dob || differenceInMonths(event.startDate, dog.dob) < minAge) return minAge
 }
 
 const validateDogBreed = (event: { eventType: string }, dog: { breedCode?: BreedCode }) => {
   const requirements = REQUIREMENTS[event.eventType]
-  const breeds = (requirements as EventRequirement)?.breedCode ?? []
-  if (breeds.length && (!dog.breedCode || !breeds.includes(dog.breedCode))) {
-    return dog.breedCode || '0'
-  }
+  const breeds = requirements && 'breedCode' in requirements ? (requirements.breedCode ?? []) : []
+  if (breeds.length && (!dog.breedCode || !breeds.includes(dog.breedCode))) return dog.breedCode || '0'
 }
 
 const validateDogForEvent = (event: { eventType: string }, dog: Partial<Dog>) => {
   const requirements = REQUIREMENTS[event.eventType]
-  const validator = (requirements as EventRequirement)?.dog
-  if (validator) return validator(dog)
+  const validator = requirements && 'dog' in requirements ? requirements.dog : undefined
+  return validator?.(dog)
 }
 
 export function validateDog(
@@ -128,10 +91,7 @@ export function validateDog(
   reg: { class?: Registration['class']; dog?: Dog; results?: Partial<TestResult>[] }
 ): WideValidationResult<Registration, 'registration'> {
   const dog = reg.dog
-
-  if (!dog?.regNo || !dog?.name) {
-    return 'required'
-  }
+  if (!dog?.regNo || !dog?.name) return 'required'
 
   const forEvent = validateDogForEvent(event, dog)
   if (forEvent) return { key: forEvent, opts: { field: 'dog' } }
@@ -142,187 +102,6 @@ export function validateDog(
   const minAge = validateDogAge(event, dog)
   if (minAge) return { key: 'dogAge', opts: { field: 'dog', length: minAge } }
 
-  if (!dog?.rfid || !dog.dam?.name || !dog.sire?.name) {
-    return 'required'
-  }
-
+  if (!dog.rfid || !dog.dam?.name || !dog.sire?.name) return 'required'
   return false
-}
-
-const byDate = (a: TestResult, b: TestResult) => new Date(a.date).valueOf() - new Date(b.date).valueOf()
-const CLASS_ORDER: Registration['class'][] = ['ALO', 'AVO', 'VOI']
-
-const isHigherClass = (resultClass: Partial<TestResult>['class'], regClass?: Registration['class']) => {
-  if (!resultClass || !regClass || !isRegistrationClass(resultClass)) {
-    return false
-  }
-
-  return CLASS_ORDER.indexOf(resultClass) > CLASS_ORDER.indexOf(regClass)
-}
-
-const hasSameClassResult = (
-  results: Partial<TestResult>[] | undefined,
-  eventType: string,
-  regClass?: Registration['class']
-) => Boolean(regClass && results?.some((r) => r.type === eventType && r.class === regClass))
-
-const isNOUDisqualifyingResult = (result: Partial<TestResult>, eventType: string, regClass?: Registration['class']) =>
-  eventType === 'NOU' &&
-  !regClass &&
-  !!result.class &&
-  typeof result.type === 'string' &&
-  result.type.startsWith('NOME-')
-
-export function filterRelevantResults(
-  {
-    eventType,
-    startDate,
-    entryEndDate,
-    entryOrigEndDate,
-    qualificationStartDate,
-  }: Pick<DogEvent, 'eventType' | 'startDate' | 'entryEndDate' | 'entryOrigEndDate' | 'qualificationStartDate'>,
-  regClass: Registration['class'],
-  officialResults?: TestResult[],
-  manualResults?: ManualTestResult[]
-): QualifyingResults {
-  const nextClass = getNextClass(regClass)
-  const rules = getRequirements(eventType, regClass, startDate)
-  const nextClassRules = nextClass && getRequirements(eventType, nextClass, startDate)
-  const manualValid = manualResults?.filter((r) => r.type && r.date && r.location && r.judge)
-
-  const test = findDisqualifyingResult(officialResults, manualValid, eventType, regClass)
-  if (test) {
-    return test
-  }
-
-  const usedEntryEndDate = entryOrigEndDate ?? entryEndDate
-
-  const check = checkRequiredResults(
-    rules,
-    officialResults ?? [],
-    manualValid ?? [],
-    usedEntryEndDate,
-    qualificationStartDate
-  )
-  const sameClassQualifies =
-    hasSameClassResult(officialResults, eventType, regClass) || hasSameClassResult(manualValid, eventType, regClass)
-  if (!check.qualifies && sameClassQualifies) {
-    return {
-      qualifies: true,
-      relevant: bestResults(eventType, regClass, officialResults, manualValid, true),
-    }
-  }
-
-  if (check.qualifies && check.relevant.length) {
-    const officialNotThisYear = officialResults?.filter((r) => !excludeByYear(r, startDate))
-    const manulNotThisYear = manualValid?.filter((r) => !excludeByYear(r, startDate))
-    const dis =
-      nextClass &&
-      checkRequiredResults(
-        nextClassRules ?? undefined,
-        officialNotThisYear ?? [],
-        manulNotThisYear ?? [],
-        usedEntryEndDate,
-        qualificationStartDate,
-        false
-      )
-    if (dis?.qualifies) {
-      return {
-        qualifies: false,
-        relevant: check.relevant.concat(dis.relevant).sort(byDate),
-      }
-    } else {
-      check.relevant.push(...bestResults(eventType, regClass, officialResults, manualValid))
-    }
-  }
-  return check
-}
-
-function findDisqualifyingResult(
-  officialResults: TestResult[] | undefined,
-  manualResults: Partial<TestResult>[] | undefined,
-  eventType: string,
-  regClass?: Registration['class']
-): QualifyingResults | undefined {
-  const compare = (r: Partial<TestResult>) =>
-    (r.type === eventType && (isHigherClass(r.class, regClass) || r.result === 'NOU1')) ||
-    isNOUDisqualifyingResult(r, eventType, regClass)
-  if (officialResults?.some(compare)) {
-    // `.some` is used for the existence check; `find` is only used to fetch the value
-    // and is safe here because `some` already guaranteed a match.
-    const officialResult = officialResults.find(compare) as TestResult
-    return { qualifies: false, relevant: [{ ...officialResult, official: true, qualifying: false }] }
-  }
-  if (manualResults?.some(compare)) {
-    const manualResult = manualResults.find(compare) as TestResult
-    return { qualifies: false, relevant: [{ ...manualResult, official: false, qualifying: false }] }
-  }
-}
-
-function checkRequiredResults(
-  requirements: EventResultRequirementsByDate | undefined,
-  officialResults: TestResult[],
-  manualResults: ManualTestResult[],
-  entryEndDate: Date | undefined,
-  qualificationStartDate: Date | undefined,
-  qualifying = true
-): QualifyingResults {
-  if (!requirements) {
-    return { qualifies: qualifying, relevant: [] }
-  }
-
-  const relevant: QualifyingResult[] = []
-  let qualifies = false
-  const counts = new Map()
-  const asArray = (v: EventResultRequirements | EventResultRequirement) => (Array.isArray(v) ? v : [v])
-  const getCount = (r: EventResultRequirement) => {
-    const n = (counts.get(r) || 0) + 1
-    counts.set(r, n)
-    return n
-  }
-  const checkResult = (result: Partial<TestResult>, r: EventResultRequirement, official: boolean) => {
-    const { count, ...resultProps } = r
-    if (objectContains(result, resultProps)) {
-      relevant.push({ ...result, official, qualifying } as QualifyingResult)
-      if (getCount(r) >= count) {
-        qualifies = true
-      }
-    }
-  }
-
-  if (typeof requirements.rules === 'function') {
-    return requirements.rules(officialResults, manualResults, entryEndDate, qualificationStartDate)
-  }
-
-  for (const resultRules of requirements.rules) {
-    for (const rule of asArray(resultRules)) {
-      for (const result of officialResults) {
-        checkResult(result, rule, true)
-      }
-      for (const result of manualResults) {
-        checkResult(result, rule, false)
-      }
-    }
-  }
-
-  return { qualifies, relevant }
-}
-
-function bestResults(
-  eventType: string,
-  regClass: Registration['class'],
-  officialResults: TestResult[] | undefined,
-  manualResults: Partial<TestResult>[] | undefined,
-  sameClassOnly = false
-): QualifyingResult[] {
-  const filter = (r: Partial<TestResult>) =>
-    r.type === eventType && r.class === regClass && (sameClassOnly || r.result?.endsWith('1'))
-  const officialBest: QualifyingResult[] = officialResults?.filter(filter).map((r) => ({ ...r, official: true })) ?? []
-  const manualBest: QualifyingResult[] =
-    manualResults?.filter(filter).map((r) => ({ ...r, official: false }) as QualifyingResult) ?? []
-  return officialBest
-    .concat(manualBest)
-    .sort(byDate)
-    .slice(0, 3)
-    .map((r) => (r.qualifying === false ? { ...r, qualifying: undefined } : r))
 }
