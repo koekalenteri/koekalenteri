@@ -1,4 +1,5 @@
 import { enqueueSnackbar } from 'notistack'
+import { coalesceRequest } from '../lib/client/coalesceRequest'
 import { reportError } from '../lib/client/error'
 import { errorSnackbarOptions } from '../lib/snackbar'
 import { isObject, parseJSON } from '../lib/utils'
@@ -12,7 +13,33 @@ interface HttpResponse<T> {
 }
 
 interface HttpRequestInit extends RequestInit {
+  coalesceRevision?: number | string
   timeoutMs?: number
+}
+
+const getCoalesceKey = (path: string, init: HttpRequestInit | undefined, reviveDates: boolean): string | undefined => {
+  if (init?.signal || init?.body !== undefined || (init?.method && init.method.toUpperCase() !== 'GET'))
+    return undefined
+
+  const { body: _body, headers, method: _method, signal: _signal, ...options } = init ?? {}
+  const optionEntries = Object.entries(options)
+  if (
+    optionEntries.some(([, value]) => {
+      const type = typeof value
+      return value !== null && type !== 'boolean' && type !== 'number' && type !== 'string' && type !== 'undefined'
+    })
+  ) {
+    return undefined
+  }
+
+  const normalizedHeaders: Array<[string, string]> = []
+  new Headers(headers).forEach((value, key) => {
+    normalizedHeaders.push([key, value])
+  })
+  normalizedHeaders.sort(([left], [right]) => left.localeCompare(right))
+  optionEntries.sort(([left], [right]) => left.localeCompare(right))
+
+  return `http:get:${JSON.stringify({ headers: normalizedHeaders, options: optionEntries, path, reviveDates })}`
 }
 
 const getStatusFromBody = (body: Body | undefined, fallback: string = ''): string => {
@@ -77,7 +104,7 @@ async function httpWithTimeout<T>(
   returnStatus: boolean = false
 ): Promise<T | HttpResponse<T>> {
   const url = API_BASE_URL + path
-  const { timeoutMs = 10_000, ...requestInit } = init
+  const { coalesceRevision: _coalesceRevision, timeoutMs = 10_000, ...requestInit } = init
 
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort('timeout'), timeoutMs)
@@ -146,7 +173,9 @@ const HTTP = {
     return http<U>(path, { body: JSON.stringify(body), method: 'DELETE', ...init }, reviveDates) as Promise<U>
   },
   async get<T>(path: string, init?: HttpRequestInit, reviveDates: boolean = true): Promise<T> {
-    return http<T>(path, { method: 'GET', ...init }, reviveDates) as Promise<T>
+    const request = () => http<T>(path, { method: 'GET', ...init }, reviveDates) as Promise<T>
+    const coalesceKey = getCoalesceKey(path, init, reviveDates)
+    return coalesceKey ? coalesceRequest(coalesceKey, request) : request()
   },
   async patch<T, U>(
     path: string,

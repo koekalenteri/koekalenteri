@@ -103,8 +103,8 @@ describe('useUserActions', () => {
     })
 
     expect(result.current.token).toBe(NEW_TEST_ID_TOKEN)
-    expect(getUserSpy).toHaveBeenCalledWith(NEW_TEST_ID_TOKEN)
-    expect(getUserSpy).not.toHaveBeenCalledWith(TEST_ID_TOKEN)
+    expect(getUserSpy).toHaveBeenCalledWith(NEW_TEST_ID_TOKEN, undefined, 0)
+    expect(getUserSpy.mock.calls.some(([token]) => token === TEST_ID_TOKEN)).toBe(false)
   })
 
   it('does not navigate back to the login page after sign in', async () => {

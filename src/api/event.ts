@@ -1,7 +1,6 @@
 import type { AuditRecord, DogEvent, Patch, PublicDogEvent } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
-import { dedupeInFlight } from './dedupeInFlight'
 import http, { withToken } from './http'
 
 const PATH = '/event/'
@@ -18,31 +17,29 @@ function isPublicEventsDeltaResponse(response: PublicEventsResponse): response i
   return !Array.isArray(response)
 }
 
-export const getEvents = dedupeInFlight(
-  (start?: Date, end?: Date, since?: number, _signal?: AbortSignal) =>
-    [start?.getTime() ?? 'none', end?.getTime() ?? 'none', since ?? 'none'].join(':'),
-  async (start?: Date, end?: Date, since?: number, signal?: AbortSignal): Promise<PublicEventsDeltaResponse> => {
-    const params = new URLSearchParams()
+export const getEvents = async (
+  start?: Date,
+  end?: Date,
+  since?: number,
+  signal?: AbortSignal
+): Promise<PublicEventsDeltaResponse> => {
+  const params = new URLSearchParams()
 
-    if (start) params.append('start', start.getTime().toString())
-    if (end) params.append('end', end.getTime().toString())
-    if (since) params.append('since', since.toString())
+  if (start) params.append('start', start.getTime().toString())
+  if (end) params.append('end', end.getTime().toString())
+  if (since) params.append('since', since.toString())
 
-    const query = params.toString()
-    const url = query ? `${PATH}?${query}` : PATH
+  const query = params.toString()
+  const url = query ? `${PATH}?${query}` : PATH
 
-    const response = await http.get<PublicEventsResponse>(url, { signal })
+  const response = await http.get<PublicEventsResponse>(url, { signal })
 
-    if (isPublicEventsDeltaResponse(response)) return response
+  if (isPublicEventsDeltaResponse(response)) return response
 
-    return { events: response, unchangedIds: [] }
-  }
-)
+  return { events: response, unchangedIds: [] }
+}
 
-export const getEvent = dedupeInFlight(
-  (id: string, _signal?: AbortSignal) => id,
-  async (id: string, signal?: AbortSignal) => http.get<DogEvent>(`${PATH}${id}`, { signal })
-)
+export const getEvent = async (id: string, signal?: AbortSignal) => http.get<DogEvent>(`${PATH}${id}`, { signal })
 
 export async function getAdminEvents(token?: string, lastModified?: number, signal?: AbortSignal): Promise<DogEvent[]> {
   const qs = lastModified ? `?since=${lastModified}` : ''

@@ -40,7 +40,7 @@ describe('Header', () => {
         </RecoilRoot>
       )
 
-      await waitFor(() => expect(getUser).toHaveBeenCalledWith(TEST_ID_TOKEN))
+      await waitFor(() => expect(getUser).toHaveBeenCalledWith(TEST_ID_TOKEN, undefined, 0))
       expect(consoleErrorSpy).toHaveBeenCalledWith('reportError', error)
       expect(mockSignOut).not.toHaveBeenCalled()
     } finally {

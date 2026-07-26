@@ -33,6 +33,68 @@ describe('http', () => {
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
+    it('coalesces matching requests only while they are pending', async () => {
+      let resolveFetch: (response: Response) => void = () => undefined
+      fetchMock.mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            resolveFetch = resolve
+          })
+      )
+
+      const first = http.get('/coalesced', { headers: { Authorization: 'Bearer token' } })
+      const concurrent = http.get('/coalesced', { headers: { Authorization: 'Bearer token' } })
+
+      await Promise.resolve()
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+
+      resolveFetch(new Response(JSON.stringify('first response')))
+      await expect(first).resolves.toBe('first response')
+
+      fetchMock.mockResponseOnce(JSON.stringify('second response'))
+      await expect(http.get('/coalesced', { headers: { Authorization: 'Bearer token' } })).resolves.toBe(
+        'second response'
+      )
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it('does not coalesce requests across explicit refresh boundaries', async () => {
+      fetchMock.mockResponse(JSON.stringify('ok'))
+
+      await Promise.all([
+        http.get('/refreshable', { coalesceRevision: 1 }),
+        http.get('/refreshable', { coalesceRevision: 2 }),
+      ])
+
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+    })
+
+    it('returns a rejected promise when request initialization fails', async () => {
+      let request: Promise<unknown> | undefined
+
+      expect(() => {
+        request = http.get('/invalid-headers', { headers: { 'invalid header': 'value' } })
+      }).not.toThrow()
+
+      await expect(request).rejects.toThrow()
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+
+    it('keeps authentication contexts and AbortSignals independent', async () => {
+      fetchMock.mockResponse(JSON.stringify('ok'))
+      const firstController = new AbortController()
+      const secondController = new AbortController()
+
+      await Promise.all([
+        http.get('/secure', { headers: { Authorization: 'Bearer first' } }),
+        http.get('/secure', { headers: { Authorization: 'Bearer second' } }),
+        http.get('/abortable', { signal: firstController.signal }),
+        http.get('/abortable', { signal: secondController.signal }),
+      ])
+
+      expect(fetchMock).toHaveBeenCalledTimes(4)
+    })
+
     it('should throw status + statusText', async () => {
       fetchMock.mockResponse('fail', {
         status: 500,
@@ -133,6 +195,14 @@ describe('http', () => {
       expect(json).toEqual({ data: 'ok', status: 200 })
       expect(fetchMock.mock.calls.length).toEqual(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+    })
+
+    it('does not coalesce mutations', async () => {
+      fetchMock.mockResponse(JSON.stringify('ok'))
+
+      await Promise.all([http.post('/test/', {}), http.post('/test/', {})])
+
+      expect(fetchMock).toHaveBeenCalledTimes(2)
     })
 
     it('should throw status + statusText', async () => {

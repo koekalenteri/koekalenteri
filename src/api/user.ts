@@ -1,8 +1,8 @@
 import type { CollectionResponse, IncrementalCollectionResponse, User, UserRole } from '../types'
 import http, { withToken } from './http'
 
-export const getUser = async (token: string, signal?: AbortSignal) =>
-  http.get<User>('/user', withToken({ signal }, token))
+export const getUser = async (token: string, signal?: AbortSignal, coalesceRevision?: number) =>
+  http.get<User>('/user', withToken({ coalesceRevision, signal }, token))
 
 export function getUsers(token: string, signal?: AbortSignal): Promise<User[]>
 export function getUsers(

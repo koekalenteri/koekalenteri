@@ -1,7 +1,6 @@
 import { snapshot_UNSTABLE } from 'recoil'
 import { APIError } from '../../../api/http'
 import * as userAPI from '../../../api/user'
-import { clearCurrentUserRequestCache } from '../../../lib/client/currentUser'
 import * as error from '../../../lib/client/error'
 import { idTokenAtom, tokenValidityRevisionAtom, userRefreshAtom } from './atoms'
 import { userSelector, validIdTokenSelector } from './selectors'
@@ -11,7 +10,6 @@ const makeToken = (payload: object) => `header.${encodeBase64Url(JSON.stringify(
 
 describe('recoil/user', () => {
   afterEach(() => {
-    clearCurrentUserRequestCache()
     jest.restoreAllMocks()
     jest.useRealTimers()
   })
