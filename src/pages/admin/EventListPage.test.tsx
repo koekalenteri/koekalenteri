@@ -69,5 +69,9 @@ describe('EventListPage', () => {
 
     const justBeforeEntryStarts = new Date(eventWithEntryNotYetOpen.entryStartDate.valueOf() - 1)
     expect(getEventDoubleClickPath(eventWithEntryNotYetOpen, justBeforeEntryStarts)).toBe('/admin/event/edit/test4')
+
+    expect(getEventDoubleClickPath({ ...eventWithEntryOpenButNoEntries, state: 'draft' })).toBe(
+      '/admin/event/edit/test3'
+    )
   })
 })

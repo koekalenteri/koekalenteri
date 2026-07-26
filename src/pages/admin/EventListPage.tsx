@@ -16,6 +16,7 @@ import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil'
 import { formatDistance } from '../../i18n/dates'
 import { isDevEnv } from '../../lib/env'
 import { isEventDeletable } from '../../lib/event'
+import { isConfirmedEvent } from '../../lib/typeGuards'
 import { hasEntryStarted } from '../../lib/utils'
 import { Path } from '../../routeConfig'
 import AutocompleteSingle from '../components/AutocompleteSingle'
@@ -37,8 +38,13 @@ import {
 } from './recoil'
 import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } from './recoil/user'
 
-export const getEventDoubleClickPath = (event: Pick<DogEvent, 'entryStartDate' | 'id'>, now = new Date()): string =>
-  hasEntryStarted(event, now) ? Path.admin.viewEvent(event.id) : Path.admin.editEvent(event.id)
+export const getEventDoubleClickPath = (
+  event: Pick<DogEvent, 'entryStartDate' | 'id' | 'state'>,
+  now = new Date()
+): string =>
+  hasEntryStarted(event, now) && isConfirmedEvent(event)
+    ? Path.admin.viewEvent(event.id)
+    : Path.admin.editEvent(event.id)
 
 export default function EventListPage() {
   const confirm = useConfirm()
