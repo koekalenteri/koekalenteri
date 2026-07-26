@@ -9,8 +9,8 @@ import type {
 } from '../../../types'
 import { differenceInMonths } from 'date-fns'
 import { filterRelevantResults, objectContains } from '../../../lib/qualification'
-import { validatePerson } from '../../../lib/validation'
 import { REQUIREMENTS } from '../../../rules'
+import { validatePerson } from './personValidation'
 
 export { filterRelevantResults, objectContains }
 

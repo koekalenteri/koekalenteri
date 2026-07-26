@@ -1,12 +1,4 @@
-import type { Person } from '../types'
-import { isFinnishRegNo, isModernFinnishRegNo, validatePerson, validateRegNo } from './validation'
-
-const testPerson: Person = {
-  email: 'email@domain.com',
-  location: 'Helsinki',
-  name: 'Matti Meikäläinen',
-  phone: '0401234567',
-}
+import { isFinnishRegNo, isModernFinnishRegNo, validateRegNo } from './validation'
 
 describe('validRegNo', () => {
   it.each([
@@ -111,23 +103,4 @@ describe('isModernFinnishRegNo', () => {
       expect(isModernFinnishRegNo(regNo)).toEqual(false)
     }
   )
-})
-
-describe('validatePerson', () => {
-  it('should require name', () => {
-    expect(validatePerson({ ...testPerson, name: '' })).toEqual('required')
-  })
-
-  it('should require and validate email', () => {
-    expect(validatePerson({ ...testPerson, email: '' })).toEqual('required')
-    expect(validatePerson({ ...testPerson, email: '-@a' })).toEqual('email')
-  })
-
-  it('should require phone', () => {
-    expect(validatePerson({ ...testPerson, phone: '' })).toEqual('required')
-  })
-
-  it('should require locaton', () => {
-    expect(validatePerson({ ...testPerson, location: '' })).toEqual('required')
-  })
 })
