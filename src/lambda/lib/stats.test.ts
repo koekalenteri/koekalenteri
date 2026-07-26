@@ -7,10 +7,12 @@ const mockRead = jest.fn<any>()
 const mockUpdate = jest.fn<CustomDynamoClient['update']>()
 const mockWrite = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
+const mockDocumentTransaction = jest.fn<CustomDynamoClient['documentTransaction']>()
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   __esModule: true,
   default: jest.fn(() => ({
+    documentTransaction: mockDocumentTransaction,
     query: mockQuery,
     read: mockRead,
     readAll: mockReadAll,
@@ -20,6 +22,7 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 }))
 
 const {
+  applyNewRegistrationStatsOnce,
   updateEventStatsForRegistration,
   getOrganizerStats,
   getYearlyTotalStats,
@@ -36,7 +39,123 @@ const {
 } = await import('./stats')
 
 describe('lib/stats', () => {
-  afterEach(() => jest.clearAllMocks())
+  afterEach(() => {
+    jest.clearAllMocks()
+    jest.restoreAllMocks()
+  })
+  describe('applyNewRegistrationStatsOnce', () => {
+    const registration = {
+      cancelled: false,
+      dog: { breedCode: '122', regNo: 'FI12345' },
+      eventId: 'event-1',
+      eventType: 'NOME-B',
+      handler: { email: 'handler@example.com' },
+      id: 'registration-1',
+      owner: { email: 'owner@example.com' },
+    } as JsonRegistration
+    const event = {
+      eventType: 'NOME-B',
+      id: 'event-1',
+      organizer: { id: 'organizer-1' },
+      startDate: '2024-06-01',
+    } as JsonConfirmedEvent
+
+    it('commits counters and the registration marker in one transaction', async () => {
+      mockRead.mockResolvedValue(undefined)
+
+      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(1)
+      const transaction = mockDocumentTransaction.mock.calls[0][0]
+      expect(transaction).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            Update: expect.objectContaining({
+              Key: { PK: 'ORG#organizer-1', SK: '2024-06-01#event-1' },
+              TableName: 'event-stats-table-not-found-in-env',
+            }),
+          }),
+          expect.objectContaining({
+            Update: expect.objectContaining({
+              Key: { PK: 'TOTALS#2024', SK: 'dog' },
+              UpdateExpression: 'ADD #count :delta',
+            }),
+          }),
+          expect.objectContaining({
+            Update: expect.objectContaining({
+              Key: { PK: 'BUCKETS#2024#dog#handler', SK: '1' },
+              UpdateExpression: 'ADD #count :delta',
+            }),
+          }),
+        ])
+      )
+      expect(transaction.at(-1)).toEqual({
+        Update: expect.objectContaining({
+          ConditionExpression:
+            'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
+          ExpressionAttributeValues: expect.objectContaining({ ':leaseToken': 'lease-token' }),
+          Key: { eventId: 'event-1', id: 'registration-1' },
+          TableName: 'registration-table-not-found-in-env',
+          UpdateExpression: 'SET #statsAt = :statsAt',
+        }),
+      })
+    })
+
+    it('treats an already committed marker as success after a cancelled transaction', async () => {
+      mockDocumentTransaction.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
+      mockRead.mockImplementation(async (_key: unknown, table?: string) =>
+        table === 'registration-table-not-found-in-env'
+          ? ({ ...registration, newRegistrationStatsAt: '2024-01-01T00:00:00.000Z' } as JsonRegistration)
+          : undefined
+      )
+
+      await expect(
+        applyNewRegistrationStatsOnce(registration, { ...event, eventType: 'other' }, 'lease-token')
+      ).resolves.toBe(undefined)
+
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(1)
+    })
+
+    it('rebuilds the transaction after an optimistic entity-count conflict', async () => {
+      jest.spyOn(Math, 'random').mockReturnValue(0)
+      mockDocumentTransaction
+        .mockRejectedValueOnce({ name: 'TransactionCanceledException' })
+        .mockResolvedValueOnce(undefined as never)
+      mockRead.mockImplementation(async (_key: unknown, table?: string) =>
+        table === 'registration-table-not-found-in-env'
+          ? ({
+              ...registration,
+              newRegistrationLease: { expiresAt: Date.now() + 1000, token: 'lease-token' },
+            } as JsonRegistration)
+          : undefined
+      )
+
+      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(2)
+    })
+
+    it('survives a burst of optimistic entity-count conflicts', async () => {
+      jest.spyOn(Math, 'random').mockReturnValue(0)
+      for (let attempt = 0; attempt < 8; attempt++) {
+        mockDocumentTransaction.mockRejectedValueOnce({ name: 'TransactionCanceledException' })
+      }
+      mockDocumentTransaction.mockResolvedValueOnce(undefined as never)
+      mockRead.mockImplementation(async (_key: unknown, table?: string) =>
+        table === 'registration-table-not-found-in-env'
+          ? ({
+              ...registration,
+              newRegistrationLease: { expiresAt: Date.now() + 1000, token: 'lease-token' },
+            } as JsonRegistration)
+          : undefined
+      )
+
+      await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
+
+      expect(mockDocumentTransaction).toHaveBeenCalledTimes(9)
+    })
+  })
+
   // Test moved from event.test.ts
   describe('updateEventStatsForRegistration', () => {
     it('calls update with correct keys and values', async () => {

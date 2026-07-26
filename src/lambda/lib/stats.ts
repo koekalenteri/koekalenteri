@@ -1,3 +1,4 @@
+import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type { EventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 import crypto from 'node:crypto'
@@ -7,6 +8,11 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 // Single global client for all DynamoDB operations
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
+const NEW_REGISTRATION_STATS_MAX_ATTEMPTS = 12
+const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
+const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
+
+type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 
 /**
  * Get stats for organizers, optionally filtered by date range
@@ -346,6 +352,219 @@ const participationIdentifiers = (registration: JsonRegistration): Record<Yearly
     eventType: registration.eventType,
     handler: hashedHandlerEmail,
     owner: hashedOwnerEmail,
+  }
+}
+
+type ParticipationSnapshot = {
+  entityId: string
+  isDogHandler: boolean
+  newCount: number
+  previousCount: number
+  type: YearlyStatTypes
+}
+
+const readParticipationSnapshots = async (
+  registration: JsonRegistration,
+  year: number
+): Promise<ParticipationSnapshot[]> => {
+  const identifiers = participationIdentifiers(registration)
+
+  return Promise.all(
+    (Object.keys(identifiers) as YearlyStatTypes[]).map(async (type) => {
+      const entityId = identifiers[type]
+      const current = await dynamoDB.read<{ count?: number }>(
+        { PK: `STAT#${year}#${type}`, SK: entityId },
+        undefined,
+        true
+      )
+      const previousCount = current?.count ?? 0
+
+      return {
+        entityId,
+        isDogHandler: type === 'dog#handler',
+        newCount: previousCount + 1,
+        previousCount,
+        type,
+      }
+    })
+  )
+}
+
+const organizerStatsTransactionItem = (
+  event: JsonConfirmedEvent,
+  deltas: ReturnType<typeof calculateStatDeltas>,
+  updatedAt: string
+): StatsTransactionItem => ({
+  Update: {
+    ExpressionAttributeNames: {
+      '#cancelledRegistrations': 'cancelledRegistrations',
+      '#count': 'count',
+      '#date': 'date',
+      '#organizerId': 'organizerId',
+      '#paidAmount': 'paidAmount',
+      '#paidRegistrations': 'paidRegistrations',
+      '#refundedAmount': 'refundedAmount',
+      '#refundedRegistrations': 'refundedRegistrations',
+      '#updatedAt': 'updatedAt',
+    },
+    ExpressionAttributeValues: {
+      ':cancelledDelta': deltas.cancelledDelta,
+      ':date': event.startDate,
+      ':organizerId': event.organizer.id,
+      ':paidAmountDelta': deltas.paidAmountDelta,
+      ':paidDelta': deltas.paidDelta,
+      ':refundedAmountDelta': deltas.refundedAmountDelta,
+      ':refundedDelta': deltas.refundedDelta,
+      ':totalDelta': deltas.totalDelta,
+      ':updatedAt': updatedAt,
+    },
+    Key: { PK: `ORG#${event.organizer.id}`, SK: `${event.startDate}#${event.id}` },
+    TableName: CONFIG.eventStatsTable,
+    UpdateExpression:
+      'ADD #cancelledRegistrations :cancelledDelta, #count :totalDelta, #paidAmount :paidAmountDelta, #paidRegistrations :paidDelta, #refundedAmount :refundedAmountDelta, #refundedRegistrations :refundedDelta SET #date = :date, #organizerId = :organizerId, #updatedAt = :updatedAt',
+  },
+})
+
+const participationStatsTransactionItems = (
+  snapshots: ParticipationSnapshot[],
+  year: number
+): StatsTransactionItem[] => {
+  const items: StatsTransactionItem[] = []
+
+  for (const snapshot of snapshots) {
+    const countExists = snapshot.previousCount !== 0
+    items.push({
+      Update: {
+        ConditionExpression: countExists ? '#count = :previousCount' : 'attribute_not_exists(#count) OR #count = :zero',
+        ExpressionAttributeNames: { '#count': 'count' },
+        ExpressionAttributeValues: {
+          ':delta': 1,
+          ...(countExists ? { ':previousCount': snapshot.previousCount } : { ':zero': 0 }),
+        },
+        Key: { PK: `STAT#${year}#${snapshot.type}`, SK: snapshot.entityId },
+        TableName: CONFIG.eventStatsTable,
+        UpdateExpression: 'ADD #count :delta',
+      },
+    })
+
+    if (snapshot.previousCount <= 0 && snapshot.newCount > 0) {
+      items.push({
+        Update: {
+          ExpressionAttributeNames: { '#count': 'count' },
+          ExpressionAttributeValues: { ':delta': 1 },
+          Key: { PK: `TOTALS#${year}`, SK: snapshot.type },
+          TableName: CONFIG.eventStatsTable,
+          UpdateExpression: 'ADD #count :delta',
+        },
+      })
+    }
+
+    if (snapshot.isDogHandler) {
+      const oldBucket = bucketForCount(snapshot.previousCount)
+      const newBucket = bucketForCount(snapshot.newCount)
+      if (oldBucket !== newBucket) {
+        for (const [bucket, delta] of [
+          [oldBucket, -1],
+          [newBucket, 1],
+        ] as const) {
+          if (!bucket) continue
+          items.push({
+            Update: {
+              ExpressionAttributeNames: { '#count': 'count' },
+              ExpressionAttributeValues: { ':delta': delta },
+              Key: { PK: `BUCKETS#${year}#dog#handler`, SK: bucket },
+              TableName: CONFIG.eventStatsTable,
+              UpdateExpression: 'ADD #count :delta',
+            },
+          })
+        }
+      }
+    }
+  }
+
+  return items
+}
+
+const isTransactionCancelled = (error: unknown) => (error as { name?: string }).name === 'TransactionCanceledException'
+
+const waitForStatsRetry = (attempt: number) => {
+  const maximumDelay = Math.min(
+    NEW_REGISTRATION_STATS_RETRY_BASE_MS * 2 ** (attempt - 1),
+    NEW_REGISTRATION_STATS_RETRY_MAX_MS
+  )
+  const delay = Math.floor(Math.random() * maximumDelay)
+  return new Promise<void>((resolve) => setTimeout(resolve, delay))
+}
+
+/**
+ * Applies every initial registration statistic and its completion marker in a
+ * single transaction. Optimistic entity-count conditions keep unique totals
+ * and dog-handler buckets correct when registrations are created concurrently.
+ */
+export const applyNewRegistrationStatsOnce = async (
+  registration: JsonRegistration,
+  event: JsonConfirmedEvent,
+  leaseToken: string
+): Promise<void> => {
+  const deltas = calculateStatDeltas(registration, undefined)
+  const year = new Date(event.startDate).getUTCFullYear()
+
+  for (let attempt = 1; attempt <= NEW_REGISTRATION_STATS_MAX_ATTEMPTS; attempt++) {
+    const snapshots = OFFICIAL_EVENT_TYPES.includes(event.eventType)
+      ? await readParticipationSnapshots(registration, year)
+      : []
+    const updatedAt = new Date().toISOString()
+    const transaction: StatsTransactionItem[] = [
+      organizerStatsTransactionItem(event, deltas, updatedAt),
+      {
+        Update: {
+          ExpressionAttributeNames: { '#updatedAt': 'updatedAt' },
+          ExpressionAttributeValues: { ':updatedAt': updatedAt },
+          Key: { PK: 'YEARS', SK: year.toString() },
+          TableName: CONFIG.eventStatsTable,
+          UpdateExpression: 'SET #updatedAt = :updatedAt',
+        },
+      },
+      ...participationStatsTransactionItems(snapshots, year),
+      {
+        Update: {
+          ConditionExpression:
+            'attribute_exists(#id) AND attribute_not_exists(#statsAt) AND #lease.#token = :leaseToken',
+          ExpressionAttributeNames: {
+            '#id': 'id',
+            '#lease': 'newRegistrationLease',
+            '#statsAt': 'newRegistrationStatsAt',
+            '#token': 'token',
+          },
+          ExpressionAttributeValues: { ':leaseToken': leaseToken, ':statsAt': updatedAt },
+          Key: { eventId: registration.eventId, id: registration.id },
+          TableName: CONFIG.registrationTable,
+          UpdateExpression: 'SET #statsAt = :statsAt',
+        },
+      },
+    ]
+
+    try {
+      await dynamoDB.documentTransaction(transaction)
+      return
+    } catch (error) {
+      if (!isTransactionCancelled(error)) throw error
+
+      const saved = await dynamoDB.read<JsonRegistration>(
+        { eventId: registration.eventId, id: registration.id },
+        CONFIG.registrationTable,
+        true
+      )
+      if (saved?.newRegistrationStatsAt) return
+      if (saved?.newRegistrationLease?.token !== leaseToken || attempt === NEW_REGISTRATION_STATS_MAX_ATTEMPTS) {
+        throw error
+      }
+
+      // Shared counters such as eventType and breed are expected to conflict
+      // during registration bursts. Full-jitter exponential backoff prevents
+      // every cancelled transaction from immediately colliding again.
+      await waitForStatsRetry(attempt)
+    }
   }
 }
 
