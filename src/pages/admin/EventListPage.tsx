@@ -41,10 +41,10 @@ import { adminUserEventOrganizersSelector, adminUserFilteredEventsSelector } fro
 export const canViewEvent = (event?: Pick<DogEvent, 'state'>): boolean => isConfirmedEvent(event)
 
 export const getEventDoubleClickPath = (
-  event: Pick<DogEvent, 'entryStartDate' | 'id' | 'state'>,
+  event: Pick<DogEvent, 'entries' | 'entryStartDate' | 'id' | 'state'>,
   now = new Date()
 ): string =>
-  hasEntryStarted(event, now) && isConfirmedEvent(event)
+  canViewEvent(event) && (hasEntryStarted(event, now) || (event.entries ?? 0) > 0)
     ? Path.admin.viewEvent(event.id)
     : Path.admin.editEvent(event.id)
 

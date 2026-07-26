@@ -9,6 +9,7 @@ import {
   eventWithEntryClosed,
   eventWithEntryNotYetOpen,
   eventWithEntryOpenButNoEntries,
+  eventWithParticipantsInvited,
 } from '../../__mockData__/events'
 import theme from '../../assets/Theme'
 import { flushPromises, RecoilObserver, renderWithUserEvents, TEST_ID_TOKEN } from '../../test-utils/utils'
@@ -61,7 +62,7 @@ describe('EventListPage', () => {
     expect(onChange).toHaveBeenCalledWith('testEntryClosed')
   })
 
-  it('selects the double-click destination based on the entry start date', () => {
+  it('selects the double-click destination based on entry start and event state', () => {
     expect(getEventDoubleClickPath(eventWithEntryOpenButNoEntries, eventWithEntryOpenButNoEntries.entryStartDate)).toBe(
       '/admin/event/view/test3'
     )
@@ -69,6 +70,12 @@ describe('EventListPage', () => {
 
     const justBeforeEntryStarts = new Date(eventWithEntryNotYetOpen.entryStartDate.valueOf() - 1)
     expect(getEventDoubleClickPath(eventWithEntryNotYetOpen, justBeforeEntryStarts)).toBe('/admin/event/edit/test4')
+    expect(getEventDoubleClickPath({ ...eventWithEntryNotYetOpen, entries: 1 }, justBeforeEntryStarts)).toBe(
+      '/admin/event/view/test4'
+    )
+    expect(getEventDoubleClickPath(eventWithParticipantsInvited, eventWithParticipantsInvited.entryStartDate)).toBe(
+      '/admin/event/view/testInvited'
+    )
 
     expect(getEventDoubleClickPath({ ...eventWithEntryOpenButNoEntries, state: 'draft' })).toBe(
       '/admin/event/edit/test3'
