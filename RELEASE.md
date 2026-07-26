@@ -114,3 +114,18 @@ The release workflow requires the following secrets to be configured in your Git
 - `AMPLIFY_APP_ID`: The App ID of your AWS Amplify application. This is retrieved from the CloudFormation stack outputs of the `prod` and `test` environments.
 - `DEPLOY_TRIGGER_HOOK`: A webhook URL that triggers a build of the `main` branch in the `dev` environment's Amplify app.
 - `GITHUB_TOKEN`: A GitHub token with permissions to create and push branches. The default `GITHUB_TOKEN` provided by Actions should suffice.
+
+### Registration edit-token secret recovery
+
+`RegistrationEditTokenSecret` is persistent signing state for every participant registration link. CloudFormation generates it in AWS Secrets Manager during the first deployment. Normal stack updates keep the same value, and the resource has both `DeletionPolicy: Retain` and `UpdateReplacePolicy: Retain`.
+
+Retention does not reconnect the secret to a recreated stack. If a stack is deleted and recreated:
+
+1. Locate the retained secret by its `stack` tag from the deleted stack.
+2. Do not let the new stack create a replacement `RegistrationEditTokenSecret`.
+3. Import the retained secret into the new CloudFormation stack using the logical resource ID `RegistrationEditTokenSecret`.
+4. Verify that the registration, payment, refund, and registration-message Lambda environment variables resolve to the imported secret before restoring traffic.
+
+Do not configure automatic Secrets Manager rotation for this resource. Replacing or changing its value invalidates every registration link issued with the previous value. Per-registration revocation should increment `editTokenVersion` instead.
+
+If the signing secret is compromised, changing it is an intentional global revocation. Coordinate that operation with issuing replacement links to all affected participants; do not handle it as routine secret rotation.
