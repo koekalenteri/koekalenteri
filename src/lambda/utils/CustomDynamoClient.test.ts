@@ -263,6 +263,59 @@ describe('CustomDynamoClient', () => {
         TableName: 'custom-table',
       })
     })
+
+    it('continues querying until all pages are read', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend
+        .mockResolvedValueOnce({ Items: [{ id: '1' }], LastEvaluatedKey: { id: '1' } })
+        .mockResolvedValueOnce({ Items: [{ id: '2' }] })
+
+      const result = await client.query({
+        key: 'type = :type',
+        values: { ':type': 'registration' },
+      })
+
+      expect(mockSend).toHaveBeenNthCalledWith(1, {
+        ExpressionAttributeNames: undefined,
+        ExpressionAttributeValues: { ':type': 'registration' },
+        FilterExpression: undefined,
+        IndexName: undefined,
+        KeyConditionExpression: 'type = :type',
+        Limit: undefined,
+        ScanIndexForward: undefined,
+        TableName: 'test-table',
+      })
+      expect(mockSend).toHaveBeenNthCalledWith(2, {
+        ExclusiveStartKey: { id: '1' },
+        ExpressionAttributeNames: undefined,
+        ExpressionAttributeValues: { ':type': 'registration' },
+        FilterExpression: undefined,
+        IndexName: undefined,
+        KeyConditionExpression: 'type = :type',
+        Limit: undefined,
+        ScanIndexForward: undefined,
+        TableName: 'test-table',
+      })
+      expect(result).toEqual([{ id: '1' }, { id: '2' }])
+    })
+
+    it('continues querying empty filtered pages when a limit is provided', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend
+        .mockResolvedValueOnce({ Items: [], LastEvaluatedKey: { id: '1' } })
+        .mockResolvedValueOnce({ Items: [{ id: '2' }], LastEvaluatedKey: { id: '2' } })
+
+      const result = await client.query({
+        filterExpression: 'active = :active',
+        key: 'type = :type',
+        limit: 1,
+        values: { ':active': true, ':type': 'registration' },
+      })
+
+      expect(mockSend).toHaveBeenCalledTimes(2)
+      expect(mockSend).toHaveBeenNthCalledWith(2, expect.objectContaining({ ExclusiveStartKey: { id: '1' }, Limit: 1 }))
+      expect(result).toEqual([{ id: '2' }])
+    })
   })
 
   describe('write', () => {

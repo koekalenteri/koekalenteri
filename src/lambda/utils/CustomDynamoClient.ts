@@ -7,6 +7,7 @@ import type {
   GetCommandInput,
   PutCommandInput,
   QueryCommandInput,
+  QueryCommandOutput,
   ScanCommandInput,
   TransactWriteCommandInput,
   UpdateCommandInput,
@@ -268,9 +269,31 @@ export default class CustomDynamoClient {
       ScanIndexForward: params.forward,
       TableName: params.table ? fromSamLocalTable(params.table) : this.table,
     }
-    logDb('DB.query', queryParams)
-    const data = await this.docClient.send(new QueryCommand(queryParams))
-    return data.Items as T[]
+
+    const items: T[] = []
+    let lastEvaluatedKey: QueryCommandOutput['LastEvaluatedKey']
+
+    do {
+      const remainingLimit = params.limit === undefined ? undefined : params.limit - items.length
+      if (remainingLimit !== undefined && remainingLimit <= 0) break
+
+      const pageParams: QueryCommandInput = {
+        ...queryParams,
+        Limit: remainingLimit,
+        ...(lastEvaluatedKey ? { ExclusiveStartKey: lastEvaluatedKey } : {}),
+      }
+
+      logDb('DB.query', pageParams)
+      const data = await this.docClient.send(new QueryCommand(pageParams))
+
+      if (data.Items) {
+        items.push(...(data.Items as T[]))
+      }
+
+      lastEvaluatedKey = data.LastEvaluatedKey
+    } while (lastEvaluatedKey)
+
+    return items
   }
 
   async write<T extends object>(Item: T, table?: string): Promise<unknown> {
