@@ -3,7 +3,7 @@
 exports[`InfoPanel> renders with event with closed entry and registrations 1`] = `
 <div>
   <button
-    aria-label="Avaa tilannepaneeli"
+    aria-label="Avaa tapahtuman hallinta"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py9kyb-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -31,7 +31,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations 1`] =
 exports[`InfoPanel> renders with event with closed entry and registrations with groups 1`] = `
 <div>
   <button
-    aria-label="Avaa tilannepaneeli"
+    aria-label="Avaa tapahtuman hallinta"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py9kyb-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -59,7 +59,7 @@ exports[`InfoPanel> renders with event with closed entry and registrations with 
 exports[`InfoPanel> renders with no registrations 1`] = `
 <div>
   <button
-    aria-label="Avaa tilannepaneeli"
+    aria-label="Avaa tapahtuman hallinta"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1py9kyb-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"

@@ -296,7 +296,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
     </div>
   </div>
   <button
-    aria-label="Avaa tilannepaneeli"
+    aria-label="Avaa tapahtuman hallinta"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1r1z7vh-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -4947,7 +4947,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
     </div>
   </div>
   <button
-    aria-label="Avaa tilannepaneeli"
+    aria-label="Avaa tapahtuman hallinta"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1r1z7vh-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -11148,7 +11148,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
     </div>
   </div>
   <button
-    aria-label="Avaa tilannepaneeli"
+    aria-label="Avaa tapahtuman hallinta"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1r1z7vh-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"

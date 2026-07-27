@@ -48,7 +48,7 @@ function getGroupKey(r: Registration, i: number) {
 }
 
 async function openInfoPanel(user: UserEvent) {
-  await user.click(screen.getByRole('button', { name: 'Avaa tilannepaneeli' }))
+  await user.click(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' }))
 }
 
 describe('InfoPanel>', () => {
@@ -66,7 +66,7 @@ describe('InfoPanel>', () => {
       ),
     })
 
-    const openButton = screen.getByRole('button', { name: 'Avaa tilannepaneeli' })
+    const openButton = screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })
     expect(openButton).toHaveStyle({ flexDirection: 'row' })
     expect(screen.getByTestId('MenuOpenIcon')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
@@ -206,7 +206,7 @@ describe('InfoPanel>', () => {
     })
 
     // Initially, only the drawer handle should be visible
-    expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })).toBeInTheDocument()
     expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
 
     await openInfoPanel(user)
@@ -214,12 +214,12 @@ describe('InfoPanel>', () => {
     // The opened drawer should show the panel contents
     expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
 
-    const collapseButton = screen.getByRole('button', { name: 'Sulje tilannepaneeli' })
+    const collapseButton = screen.getByRole('button', { name: 'Sulje tapahtuman hallinta' })
     await user.click(collapseButton)
 
     // The drawer should collapse back to the handle
     expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })).toBeInTheDocument()
   })
 
   it('collapses when clicking outside the drawer', async () => {
@@ -236,7 +236,7 @@ describe('InfoPanel>', () => {
     await user.click(backdrop)
 
     expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })).toBeInTheDocument()
   })
 
   it('disables message buttons when there are no participants', async () => {

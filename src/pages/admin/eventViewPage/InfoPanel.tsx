@@ -223,7 +223,7 @@ const InfoPanel = ({
   if (!expanded) {
     return (
       <Button
-        aria-label="Avaa tilannepaneeli"
+        aria-label="Avaa tapahtuman hallinta"
         onClick={toggle}
         startIcon={<MenuOpen fontSize="small" />}
         sx={{
@@ -300,8 +300,8 @@ const InfoPanel = ({
             <Tab label="Muutoshistoria" />
           </Tabs>
           <Box sx={{ pr: 1.5 }}>
-            <Tooltip title="Sulje tilannepaneeli">
-              <IconButton size="small" color={'primary'} onClick={toggle} aria-label="Sulje tilannepaneeli">
+            <Tooltip title="Sulje tapahtuman hallinta">
+              <IconButton size="small" color={'primary'} onClick={toggle} aria-label="Sulje tapahtuman hallinta">
                 <KeyboardArrowRight />
               </IconButton>
             </Tooltip>
