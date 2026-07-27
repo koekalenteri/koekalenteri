@@ -310,7 +310,7 @@ describe('ParticipantList', () => {
       createMockRegistration('AVO', 'Dog 2', 2, new Date('2023-01-01'), 'ap', true),
     ]
 
-    render(<ParticipantList participants={mockParticipants} event={mockEvent} />)
+    render(<ParticipantList participants={mockParticipants} event={mockEvent} showExportActions />)
 
     await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
 
@@ -374,12 +374,19 @@ describe('ParticipantList', () => {
   it('downloads the start list with the event-based file name', async () => {
     const user = userEvent.setup()
 
-    render(<ParticipantList participants={[]} event={mockEvent} />)
+    render(<ParticipantList participants={[]} event={mockEvent} showExportActions />)
 
     await user.click(screen.getByRole('button', { name: 'downloadStartList' }))
 
     expect(mockDownloadXlsx).toHaveBeenCalledWith(
       expect.objectContaining({ fileName: 'starttilista-20230101-Test Event Type.xlsx' })
     )
+  })
+
+  it('hides export actions by default', () => {
+    render(<ParticipantList participants={[]} event={mockEvent} />)
+
+    expect(screen.queryByRole('button', { name: /copy|kopioi/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'downloadStartList' })).not.toBeInTheDocument()
   })
 })

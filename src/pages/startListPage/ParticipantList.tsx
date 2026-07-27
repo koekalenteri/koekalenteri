@@ -26,13 +26,19 @@ interface ParticipantListProps {
   participants: PublicRegistration[]
   event: PublicConfirmedEvent
   includeUnpublished?: boolean
+  showExportActions?: boolean
 }
 
 type StartListItem =
   | { date: Date; order: number; registration: PublicRegistration; type: 'registration' }
   | { date: Date; eventClass: EventClass; order: number; type: 'emptyClass' }
 
-export const ParticipantList = ({ participants, event, includeUnpublished = false }: ParticipantListProps) => {
+export const ParticipantList = ({
+  participants,
+  event,
+  includeUnpublished = false,
+  showExportActions = false,
+}: ParticipantListProps) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copyText = useMemo(() => formatStartList(participants, event, t), [event, participants, t])
@@ -48,34 +54,36 @@ export const ParticipantList = ({ participants, event, includeUnpublished = fals
 
   return (
     <>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-        <Button
-          onClick={() => {
-            void navigator.clipboard?.writeText(copyText).then(() => setCopied(true))
-          }}
-          size="small"
-          startIcon={<ContentCopyOutlined />}
-          variant="outlined"
-        >
-          {copied ? t('startListCopied') : t('copyStartList')}
-        </Button>
-        <Button
-          onClick={() =>
-            downloadXlsx({
-              columnWidths: [12, 14, 10, 8, 12, 28, 18, 14, 24, 24, 24],
-              fileName: startListFileName(event),
-              rows: spreadsheetRows,
-              sheetName: t('startListExport.sheetName'),
-            })
-          }
-          size="small"
-          startIcon={<DownloadOutlined />}
-          sx={{ ml: 1 }}
-          variant="outlined"
-        >
-          {t('downloadStartList')}
-        </Button>
-      </Box>
+      {showExportActions && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+          <Button
+            onClick={() => {
+              void navigator.clipboard?.writeText(copyText).then(() => setCopied(true))
+            }}
+            size="small"
+            startIcon={<ContentCopyOutlined />}
+            variant="outlined"
+          >
+            {copied ? t('startListCopied') : t('copyStartList')}
+          </Button>
+          <Button
+            onClick={() =>
+              downloadXlsx({
+                columnWidths: [12, 14, 10, 8, 12, 28, 18, 14, 24, 24, 24],
+                fileName: startListFileName(event),
+                rows: spreadsheetRows,
+                sheetName: t('startListExport.sheetName'),
+              })
+            }
+            size="small"
+            startIcon={<DownloadOutlined />}
+            sx={{ ml: 1 }}
+            variant="outlined"
+          >
+            {t('downloadStartList')}
+          </Button>
+        </Box>
+      )}
       <Table size="small">
         <TableBody>
           {startListItems.map((item) => {

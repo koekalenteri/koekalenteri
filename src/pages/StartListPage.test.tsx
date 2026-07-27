@@ -13,11 +13,13 @@ jest.mock('react-router', () => ({
 jest.mock('recoil', () => ({
   selectorFamily: jest.fn(() => 'mocked-selector'),
   useRecoilValue: jest.fn(),
+  useRecoilValueLoadable: jest.fn(),
 }))
 
 // Mock the useConfirmedEvent hook
 jest.mock('./recoil', () => ({
   useConfirmedEvent: jest.fn(),
+  userSelector: 'user-selector',
 }))
 
 // Mock components
@@ -26,9 +28,17 @@ jest.mock('./startListPage/EventHeader', () => ({
 }))
 
 jest.mock('./startListPage/ParticipantList', () => ({
-  ParticipantList: ({ participants, event }: { participants: PublicRegistration[]; event: PublicConfirmedEvent }) => (
+  ParticipantList: ({
+    participants,
+    event,
+    showExportActions,
+  }: {
+    participants: PublicRegistration[]
+    event: PublicConfirmedEvent
+    showExportActions: boolean
+  }) => (
     <div data-testid="participant-list">
-      Participants: {participants.length}, Event: {event.name}
+      Participants: {participants.length}, Event: {event.name}, Exports: {String(showExportActions)}
     </div>
   ),
 }))
@@ -41,6 +51,7 @@ jest.mock('./components/LoadingIndicator', () => ({
 describe('StartListPage', () => {
   const mockUseLoaderData = require('react-router').useLoaderData as jest.Mock
   const mockUseParams = require('react-router').useParams as jest.Mock
+  const mockUseRecoilValueLoadable = require('recoil').useRecoilValueLoadable as jest.Mock
   const mockEvent: PublicConfirmedEvent = {
     classes: [],
     cost: 0,
@@ -100,6 +111,7 @@ describe('StartListPage', () => {
   beforeEach(() => {
     mockUseParams.mockReturnValue({ id: 'event-1' })
     mockUseLoaderData.mockReturnValue(mockParticipants)
+    mockUseRecoilValueLoadable.mockReturnValue({ contents: null, state: 'hasValue' })
     ;(require('./recoil').useConfirmedEvent as jest.Mock).mockReturnValue(mockEvent)
   })
 
@@ -113,6 +125,37 @@ describe('StartListPage', () => {
     // Check that ParticipantList is rendered
     expect(screen.getByTestId('participant-list')).toBeInTheDocument()
     expect(screen.getByTestId('participant-list')).toHaveTextContent('Participants: 1, Event: Test Name')
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Exports: false')
+  })
+
+  it('shows export actions to a global admin', () => {
+    mockUseRecoilValueLoadable.mockReturnValue({ contents: { admin: true, roles: {} }, state: 'hasValue' })
+
+    render(<StartListPage />)
+
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Exports: true')
+  })
+
+  it('shows export actions to a user with access to the event organizer', () => {
+    mockUseRecoilValueLoadable.mockReturnValue({
+      contents: { admin: false, roles: { 'org-1': 'secretary' } },
+      state: 'hasValue',
+    })
+
+    render(<StartListPage />)
+
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Exports: true')
+  })
+
+  it('hides export actions from a user with access to another organizer', () => {
+    mockUseRecoilValueLoadable.mockReturnValue({
+      contents: { admin: false, roles: { 'org-2': 'admin' } },
+      state: 'hasValue',
+    })
+
+    render(<StartListPage />)
+
+    expect(screen.getByTestId('participant-list')).toHaveTextContent('Exports: false')
   })
 
   it('shows error message when event is not found', () => {
