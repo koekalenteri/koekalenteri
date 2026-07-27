@@ -15,6 +15,7 @@ import { useAuthSessionRefresh } from './hooks/useAuthSessionRefresh'
 import WebSocketProvider from './hooks/WebSocketProvider'
 import { locales, muiLocales } from './i18n'
 import { reportError } from './lib/client/error'
+import ServiceWorkerUpdateNotifier from './pages/components/ServiceWorkerUpdateNotifier'
 import SnackbarCloseButton from './pages/components/SnackbarCloseButton'
 import { LoadingPage } from './pages/LoadingPage'
 import { idTokenAtom, languageAtom } from './pages/recoil'
@@ -47,6 +48,7 @@ function App() {
           autoHideDuration={8000}
           action={closeAction}
         >
+          <ServiceWorkerUpdateNotifier />
           <ConfirmProvider
             defaultOptions={{
               allowClose: true,

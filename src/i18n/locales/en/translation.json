@@ -2,6 +2,10 @@
   "active": "Active",
   "admin": "Administration",
   "all": "All",
+  "app": {
+    "reload": "Reload",
+    "updateAvailable": "A new version is available. Reload to update."
+  },
   "audit": {
     "after": "after",
     "before": "before",

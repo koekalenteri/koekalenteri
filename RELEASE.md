@@ -129,3 +129,9 @@ Retention does not reconnect the secret to a recreated stack. If a stack is dele
 Do not configure automatic Secrets Manager rotation for this resource. Replacing or changing its value invalidates every registration link issued with the previous value. Per-registration revocation should increment `editTokenVersion` instead.
 
 If the signing secret is compromised, changing it is an intentional global revocation. Coordinate that operation with issuing replacement links to all affected participants; do not handle it as routine secret rotation.
+
+### Service worker rollback
+
+Set `REACT_APP_DISABLE_SERVICE_WORKER=true` in the Amplify environment and deploy a new frontend build to disable the service worker. This build emits a self-destructing `service-worker.js` at the normal URL. On the browser's next service-worker update check, it activates immediately, unregisters every registration for the origin, deletes CacheStorage entries, and reloads open windows. This recovery path does not depend on the cached application bundle starting or on a user accepting an update notification.
+
+Keep the environment variable enabled for at least as long as the previous frontend release may remain open in a browser. Remove it only when service-worker registration should be enabled again.

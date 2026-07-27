@@ -10,6 +10,7 @@ import './i18n'
 import App from './App'
 import theme from './assets/Theme'
 import { isDevEnv } from './lib/env'
+import { registerServiceWorker, unregisterServiceWorker } from './serviceWorkerRegistration'
 
 import './index.css'
 
@@ -37,3 +38,9 @@ root.render(
     </RecoilRoot>
   </StrictMode>
 )
+
+if (process.env.REACT_APP_DISABLE_SERVICE_WORKER === 'true') {
+  void unregisterServiceWorker()
+} else {
+  registerServiceWorker()
+}

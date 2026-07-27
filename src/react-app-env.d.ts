@@ -2,6 +2,7 @@ declare namespace NodeJS {
   interface ProcessEnv {
     readonly NODE_ENV: 'development' | 'production' | 'test'
     readonly PUBLIC_URL: string
+    readonly REACT_APP_DISABLE_SERVICE_WORKER?: string
     readonly REACT_APP_HTTP_TIMEOUT_MS?: string
   }
 }

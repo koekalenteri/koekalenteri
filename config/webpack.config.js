@@ -41,8 +41,36 @@ const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false'
 
 const imageInlineSizeLimit = parseInt(process.env.IMAGE_INLINE_SIZE_LIMIT || '10000')
 
-// Get the path to the uncompiled service worker (if it exists).
-const swSrc = paths.swSrc
+class EmitServiceWorkerPlugin {
+  constructor(swSrc) {
+    this.swSrc = swSrc
+  }
+
+  apply(compiler) {
+    compiler.hooks.thisCompilation.tap('EmitServiceWorkerPlugin', (compilation) => {
+      compilation.fileDependencies.add(this.swSrc)
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'EmitServiceWorkerPlugin',
+          stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+        },
+        () => {
+          compilation.emitAsset('service-worker.js', new webpack.sources.RawSource(fs.readFileSync(this.swSrc)))
+        }
+      )
+    })
+  }
+}
+
+const excludeNonShellAssets = ({ asset, compilation }) => {
+  const entrypoint = compilation.entrypoints.get('main')
+  if (!entrypoint) {
+    throw new Error('InjectManifest: no "main" entrypoint; precache shell would be incomplete')
+  }
+
+  const initialAssets = entrypoint.getFiles()
+  return asset.name !== 'index.html' && !initialAssets.includes(asset.name)
+}
 
 // style files regexes
 const cssRegex = /\.css$/
@@ -576,16 +604,15 @@ module.exports = function (webpackEnv) {
       // Generate a service worker script that will precache, and keep up to date,
       // the HTML & assets that are part of the webpack build.
       isEnvProduction &&
-        fs.existsSync(swSrc) &&
-        new WorkboxWebpackPlugin.InjectManifest({
-          swSrc,
-          dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
-          exclude: [/\.map$/, /asset-manifest\.json$/, /LICENSE/],
-          // Bump up the default maximum size (2mb) that's precached,
-          // to make lazy-loading failure scenarios less likely.
-          // See https://github.com/cra-template/pwa/issues/13#issuecomment-722667270
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        }),
+        (process.env.REACT_APP_DISABLE_SERVICE_WORKER === 'true'
+          ? new EmitServiceWorkerPlugin(paths.swUnregisterSrc)
+          : new WorkboxWebpackPlugin.InjectManifest({
+              swSrc: paths.swSrc,
+              dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
+              // Cache index.html and every initial script/style as one atomic shell.
+              // Lazy route chunks and media continue to load on demand.
+              exclude: [excludeNonShellAssets],
+            })),
       // TypeScript type checking
       new ForkTsCheckerWebpackPlugin({
         async: isEnvDevelopment,
