@@ -132,7 +132,10 @@ describe('useUserActions', () => {
   })
 
   it('navigates away from login even when loading the user fails', async () => {
-    jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(new Error('user lookup failed'))
+    const error = new Error('user lookup failed')
+    const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(error)
     sessionStorage.setItem('loginPath', JSON.stringify(Path.login))
 
     const { result } = renderHook(
@@ -146,5 +149,13 @@ describe('useUserActions', () => {
 
     expect(result.current.location.pathname).toBe(Path.home)
     expect(sessionStorage.getItem('loginPath')).toBeNull()
+    expect(consoleWarn).toHaveBeenCalledWith(
+      'auth: /user request failed',
+      expect.objectContaining({ error, refresh: 0 })
+    )
+    expect(consoleError).toHaveBeenCalledWith('reportError', error)
+
+    consoleWarn.mockRestore()
+    consoleError.mockRestore()
   })
 })

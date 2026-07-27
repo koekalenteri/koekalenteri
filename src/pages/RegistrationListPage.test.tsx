@@ -2,7 +2,7 @@ import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { enqueueSnackbar, SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
@@ -41,8 +41,11 @@ jest.mock('notistack', () => ({
 describe('RegistrationListPage', () => {
   beforeAll(() => jest.useFakeTimers())
 
-  afterEach(() => {
-    jest.runOnlyPendingTimers()
+  afterEach(async () => {
+    await act(async () => {
+      jest.runOnlyPendingTimers()
+      await Promise.resolve()
+    })
     localStorage.clear()
     sessionStorage.clear()
     jest.restoreAllMocks()
