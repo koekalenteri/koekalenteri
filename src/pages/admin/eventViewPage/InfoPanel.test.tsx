@@ -66,6 +66,9 @@ describe('InfoPanel>', () => {
       ),
     })
 
+    const openButton = screen.getByRole('button', { name: 'Avaa tilannepaneeli' })
+    expect(openButton).toHaveStyle({ flexDirection: 'row' })
+    expect(screen.getByTestId('MenuOpenIcon')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
   })
 

@@ -4,6 +4,7 @@ import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
 import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
 import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
+import MenuOpen from '@mui/icons-material/MenuOpen'
 import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -224,11 +225,15 @@ const InfoPanel = ({
       <Button
         aria-label="Avaa tilannepaneeli"
         onClick={toggle}
+        startIcon={<MenuOpen fontSize="small" />}
         sx={{
+          '& .MuiButton-startIcon': { m: 0 },
           alignItems: 'center',
           borderBottomRightRadius: 0,
           borderTopRightRadius: 0,
           boxShadow: 3,
+          flexDirection: 'row',
+          gap: 0.75,
           minWidth: 36,
           position: 'fixed',
           px: 0.75,
