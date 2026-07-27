@@ -96,12 +96,28 @@ describe('InfoPanel>', () => {
 
     expect(screen.getByRole('tab', { name: 'Tapahtuman hallinta' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByText('Toiminnot')).toBeInTheDocument()
-    expect(screen.getByText('Osallistujat')).toBeInTheDocument()
+    expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
+    expect(screen.getByText('Koekutsun lähetys')).toBeInTheDocument()
+    expect(screen.getByText('Starttilistan julkaisu')).toBeInTheDocument()
+    expect(screen.getByText('Varasijalla')).toBeInTheDocument()
+    const reserveRow = screen.getByText('Varasijalla').closest('tr')
+    if (!reserveRow) throw new Error('reserve row not found')
+    const participantRow = reserveRow.previousElementSibling
+    if (!(participantRow instanceof HTMLTableRowElement)) throw new Error('participant row not found')
+    expect(participantRow).toHaveTextContent('NOU')
+    expect((reserveRow.lastElementChild as HTMLTableCellElement).cellIndex).toBe(
+      (participantRow.lastElementChild as HTMLTableCellElement).cellIndex
+    )
     expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
     expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
-    expect(screen.getByText('Koekutsu')).toBeInTheDocument()
-    expect(screen.getByText('Koko koe')).toBeInTheDocument()
+    expect(screen.queryByText('Koko koe')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Lisää PDF' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Lisää PDF' }).closest('td')).toHaveClass('MuiTableCell-alignRight')
+    expect(screen.getByText('Koekutsut voi lähettää koepaikkailmoitusten jälkeen')).toBeInTheDocument()
+    expect(screen.getByTestId('info-panel-content')).toHaveStyle({
+      gridAutoRows: 'max-content',
+      overflowY: 'auto',
+    })
   })
 
   it('shows the audit trail on its own tab', async () => {
@@ -113,7 +129,19 @@ describe('InfoPanel>', () => {
     await user.click(screen.getByRole('tab', { name: 'Muutoshistoria' }))
 
     expect(screen.getByRole('tab', { name: 'Muutoshistoria' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByText('Osallistujat')).not.toBeVisible()
+    expect(screen.getByText('Osallistujien valinta')).not.toBeVisible()
+  })
+
+  it('shows invitation attachments before the send action', async () => {
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    const attachmentButton = screen.getByRole('button', { name: 'Lisää PDF' })
+    const sendButton = screen.getByRole('button', { name: 'Lähetä koekutsu' })
+
+    expect(attachmentButton.compareDocumentPosition(sendButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
   it('runs the moved create registration action', async () => {
@@ -152,10 +180,12 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByRole('link', { name: 'Katso julkinen starttilista' })).toHaveAttribute(
-      'href',
-      `/admin/event/startlist-preview/${eventWithStaticDates.id}`
-    )
+    const publicStartListLink = screen.getByRole('link', { name: 'Katso julkinen starttilista' })
+    expect(publicStartListLink).toHaveAttribute('href', `/admin/event/startlist-preview/${eventWithStaticDates.id}`)
+    expect(
+      screen.getByRole('button', { name: /starttilista/ }).compareDocumentPosition(publicStartListLink) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
   })
 
   it('expands and collapses correctly', async () => {
@@ -165,18 +195,18 @@ describe('InfoPanel>', () => {
 
     // Initially, only the drawer handle should be visible
     expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
-    expect(screen.queryByText('Osallistujat')).not.toBeInTheDocument()
+    expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
 
     await openInfoPanel(user)
 
     // The opened drawer should show the panel contents
-    expect(screen.getByText('Osallistujat')).toBeInTheDocument()
+    expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
 
     const collapseButton = screen.getByRole('button', { name: 'Sulje tilannepaneeli' })
     await user.click(collapseButton)
 
     // The drawer should collapse back to the handle
-    expect(screen.queryByText('Osallistujat')).not.toBeInTheDocument()
+    expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
   })
 
@@ -186,14 +216,14 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByText('Osallistujat')).toBeInTheDocument()
+    expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
 
     const backdrop = document.querySelector('.MuiBackdrop-root')
     if (!backdrop) throw new Error('drawer backdrop not found')
 
     await user.click(backdrop)
 
-    expect(screen.queryByText('Osallistujat')).not.toBeInTheDocument()
+    expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Avaa tilannepaneeli' })).toBeInTheDocument()
   })
 
@@ -285,6 +315,7 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     expect(screen.getByRole('button', { name: 'Lähetä koekutsu' })).toBeDisabled()
+    expect(screen.getByText('Koekutsut voi lähettää ilmoittautumisajan päätyttyä')).toBeInTheDocument()
   })
 
   it('does not allow resending invitations when attachment has not changed', async () => {
@@ -309,8 +340,13 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.queryByRole('button', { name: /Lähetä koekutsu/i })).not.toBeInTheDocument()
+    screen.getAllByRole('button', { name: 'Lähetä koekutsu' }).forEach((button) => {
+      expect(button).toBeDisabled()
+    })
     expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
+    expect(screen.getAllByText('Koekutsut lähetetty')[0].closest('tr')).toContainElement(
+      screen.getAllByRole('button', { name: 'Lähetä koekutsu' })[0]
+    )
   })
 
   it('does not allow sending invitations again in picked state when invitations were already sent', async () => {
@@ -329,7 +365,9 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.queryByRole('button', { name: /Lähetä koekutsu/i })).not.toBeInTheDocument()
+    screen.getAllByRole('button', { name: 'Lähetä koekutsu' }).forEach((button) => {
+      expect(button).toBeDisabled()
+    })
     expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
   })
 
@@ -349,6 +387,20 @@ describe('InfoPanel>', () => {
 
     expect(screen.getAllByText('Varasijailmoitukset lähetetty')).toHaveLength(2)
     expect(screen.queryByRole('button', { name: 'Lähetä varasijailmoitus' })).not.toBeInTheDocument()
+  })
+
+  it('keeps place notification status visible when invitations can be sent', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, state: 'picked' }}
+        registrations={registrationsToEventWithParticipantsInvited}
+      />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getAllByText('Koepaikkailmoitukset lähetetty')).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'Lähetä koekutsu' })).toHaveLength(2)
   })
 
   it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
@@ -535,6 +587,7 @@ describe('InfoPanel>', () => {
 
     expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
     expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toHaveClass('MuiButton-colorPrimary')
 
     await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
 
@@ -611,6 +664,7 @@ describe('InfoPanel>', () => {
 
     expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
     expect(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0]).toBeEnabled()
+    expect(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0]).toHaveClass('MuiButton-colorSecondary')
 
     await user.click(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0])
 
@@ -701,6 +755,39 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('koekutsu-20210210-NOU.pdf')).toBeInTheDocument()
     expect(screen.queryByText('Ei tiedostoa')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Vaihda PDF' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Vaihda PDF' })).toHaveClass('MuiButton-colorSecondary')
+    expect(screen.getByText('koekutsu-20210210-NOU.pdf').closest('td')).not.toBe(
+      screen.getByRole('button', { name: 'Vaihda PDF' }).closest('td')
+    )
+  })
+
+  it('shows a legacy common attachment for the class', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithStaticDatesAndClass, invitationAttachment: 'common-attachment-key' }}
+        registrations={[]}
+      />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('button', { name: 'Vaihda PDF' })).toHaveClass('MuiButton-colorSecondary')
+    expect(screen.queryByRole('button', { name: 'Lisää PDF' })).not.toBeInTheDocument()
+    expect(screen.getByText('koekutsu-20210210-NOME-B-ALO.pdf')).toBeInTheDocument()
+  })
+
+  it('shows a legacy common attachment in every class', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, invitationAttachment: 'common-attachment-key' }}
+        registrations={registrationsToEventWithParticipantsInvited}
+      />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getAllByRole('button', { name: 'Vaihda PDF' })).toHaveLength(2)
+    expect(screen.queryByText('Koko koe')).not.toBeInTheDocument()
   })
 
   it('shows a clear error message when koekutsu upload returns 413', async () => {
@@ -779,7 +866,18 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     expect(screen.getByText('ALO-luokka')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Lisää PDF' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'Lisää PDF' })).toHaveLength(1)
+    screen.getAllByRole('button', { name: 'Lisää PDF' }).forEach((button) => {
+      expect(button).toBeEnabled()
+      expect(button).toHaveClass('MuiButton-colorSecondary')
+      expect(button).toHaveClass('MuiButton-contained')
+    })
+    const classAttachmentButton = document.querySelector('label[for="koekutsu-file-ALO"] [role="button"]')
+    const attachmentCell = classAttachmentButton?.closest('td') as HTMLTableCellElement
+    const sendCell = screen.getByRole('button', { name: 'Lähetä koekutsu' }).closest('td') as HTMLTableCellElement
+    expect(attachmentCell).not.toBe(sendCell)
+    expect(attachmentCell.cellIndex).toBe(sendCell.cellIndex)
+    expect(classAttachmentButton?.closest('tr')).toHaveTextContent('Ei tiedostoa')
 
     const input = document.querySelector('#koekutsu-file-ALO') as HTMLInputElement
     const file = new File(['pdf'], 'alo-kutsu.pdf', { type: 'application/pdf' })
