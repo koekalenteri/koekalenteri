@@ -49,6 +49,7 @@
   "copyTest": "Copy with entries",
   "cost": "Cost",
   "costAdd": "Add cost",
+  "costAddOptional": "Add optional service",
   "costAmount": "Amount",
   "costChoose": "Choose cost to add",
   "costDescription": {
@@ -64,6 +65,14 @@
     "normal": "Participation fee",
     "optionalAdditionalCosts": "Optional additional costs"
   },
+  "costNamesAdd": {
+    "breed": "Breed-specific participation fee",
+    "custom": "Other participation fee",
+    "earlyBird": "Early bird participation fee",
+    "normal": "Participation fee",
+    "optionalAdditionalCosts": "Optional additional costs"
+  },
+  "costOptionalAdd": "Name the optional service to add",
   "costTotal": "Total",
   "create": "Create",
   "createEvent": "Create event",
