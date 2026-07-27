@@ -1,5 +1,6 @@
-import type { ConfirmedEvent, PublicDogEvent, Registration, RegistrationClass } from './types'
-import { formatDate } from './i18n/dates'
+import type { InvitationAttachmentItem } from './lib/fileName'
+import type { PublicDogEvent, Registration } from './types'
+import { invitationAttachmentFileName } from './lib/fileName'
 
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? 'http://127.0.0.1:8080'
 export const WS_API_URL = process.env.REACT_APP_WS_API_URL ?? 'wss://127.0.0.1'
@@ -14,19 +15,6 @@ const participantPath = (prefix: 'p' | 'r', registration: ParticipantRegistratio
   const access = registration.editToken ? `/access/${encodeURIComponent(registration.editToken)}` : ''
   return `/${prefix}/${registration.eventId}/${registration.id}${access}${suffix}`
 }
-type InvitationAttachmentItem = Pick<ConfirmedEvent | Registration, 'eventType' | 'invitationAttachment'> & {
-  class?: RegistrationClass | null
-  dates?: Array<{ date: Date | string }>
-  startDate?: Date | string
-}
-
-export const invitationAttachmentFileName = (item: InvitationAttachmentItem): string => {
-  const date = item.dates?.[0]?.date ?? item.startDate
-  const parts = ['koekutsu', formatDate(date ?? '', 'yyyyMMdd'), item.eventType, item.class].filter(Boolean)
-
-  return `${parts.join('-')}.pdf`
-}
-
 export const Path = {
   admin: {
     editEvent: (id: string = ':id') => `${ADMIN_EVENTS}/edit/${id}`,
