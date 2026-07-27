@@ -579,8 +579,8 @@
   "startListCopied": "List copied",
   "startListExport": {
     "breeder": "Breeder",
-    "cancelled": "Cancelled",
     "class": "Class",
+    "dam": "Dam",
     "date": "Date",
     "dateOfBirth": "Date of birth",
     "dog": "Dog",
@@ -589,7 +589,7 @@
     "owner": "Owner",
     "registrationNumber": "Registration number",
     "sheetName": "Start list",
-    "status": "Status",
+    "sire": "Sire",
     "time": "Time"
   },
   "startListNotPublished": "start list is not published yet",

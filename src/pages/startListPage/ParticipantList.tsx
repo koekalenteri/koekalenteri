@@ -69,7 +69,7 @@ export const ParticipantList = ({
           <Button
             onClick={() =>
               downloadXlsx({
-                columnWidths: [12, 14, 10, 8, 12, 28, 18, 14, 24, 24, 24],
+                columnWidths: [12, 14, 10, 8, 28, 18, 14, 24, 24, 24, 24, 24],
                 fileName: startListFileName(event),
                 rows: spreadsheetRows,
                 sheetName: t('startListExport.sheetName'),

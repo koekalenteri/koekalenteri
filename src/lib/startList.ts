@@ -3,6 +3,7 @@ import type { PublicConfirmedEvent } from '../types/Event'
 import type { PublicRegistration } from '../types/Registration'
 import type { SpreadsheetCell } from './xlsx'
 import { zonedDateString } from '../i18n/dates'
+import { formatDogName } from './dog'
 
 export function startListSpreadsheetRows(
   participants: PublicRegistration[],
@@ -15,10 +16,11 @@ export function startListSpreadsheetRows(
       t('startListExport.time'),
       t('startListExport.class'),
       t('startListExport.number'),
-      t('startListExport.status'),
       t('startListExport.dog'),
       t('startListExport.registrationNumber'),
       t('startListExport.dateOfBirth'),
+      t('startListExport.sire'),
+      t('startListExport.dam'),
       t('startListExport.owner'),
       t('startListExport.handler'),
       t('startListExport.breeder'),
@@ -28,10 +30,11 @@ export function startListSpreadsheetRows(
       registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
       registration.class ?? '',
       registration.group.number,
-      registration.cancelled ? t('startListExport.cancelled') : '',
       [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
       registration.dog.regNo,
       registration.dog.dob ? spreadsheetDate(registration.dog.dob) : '',
+      formatDogName(registration.dog.sire),
+      formatDogName(registration.dog.dam),
       registration.owner,
       registration.ownerHandles ? registration.owner : registration.handler,
       registration.breeder,

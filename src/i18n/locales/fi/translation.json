@@ -579,8 +579,8 @@
   "startListCopied": "Lista kopioitu",
   "startListExport": {
     "breeder": "Kasvattaja",
-    "cancelled": "Peruttu",
     "class": "Luokka",
+    "dam": "Emä",
     "date": "Päivä",
     "dateOfBirth": "Syntymäaika",
     "dog": "Koira",
@@ -589,7 +589,7 @@
     "owner": "Omistaja",
     "registrationNumber": "Rekisterinumero",
     "sheetName": "Starttilista",
-    "status": "Tila",
+    "sire": "Isä",
     "time": "Aika"
   },
   "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
