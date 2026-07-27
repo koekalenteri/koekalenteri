@@ -2,7 +2,7 @@ import { signOut as awsSignOut } from 'aws-amplify/auth'
 import { enqueueSnackbar } from 'notistack'
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import { useRecoilCallback, useRecoilState, useSetRecoilState } from 'recoil'
+import { useRecoilCallback, useSetRecoilState } from 'recoil'
 import { putUserName } from '../../../api/user'
 import { reportError } from '../../../lib/client/error'
 import { Path } from '../../../routeConfig'
@@ -12,9 +12,8 @@ import { userSelector, validIdTokenSelector } from './selectors'
 export const useUserActions = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const setIdToken = useSetRecoilState(idTokenAtom)
   const bumpUserRefresh = useSetRecoilState(userRefreshAtom)
-  const [loginPath, setLoginPath] = useRecoilState(loginPathAtom)
+  const setLoginPath = useSetRecoilState(loginPathAtom)
 
   const login = useCallback(() => {
     const newLoginPath = location.pathname === Path.login ? Path.home : location.pathname
@@ -23,34 +22,38 @@ export const useUserActions = () => {
   }, [location.pathname, navigate, setLoginPath])
 
   const signIn = useRecoilCallback(
-    ({ snapshot }) =>
+    ({ set, snapshot }) =>
       async (idToken: string) => {
-        setIdToken(idToken)
+        set(idTokenAtom, idToken)
         const userSnapshot = snapshot.map(({ set }) => set(idTokenAtom, idToken))
-        const user = await userSnapshot.getPromise(userSelector)
-        const nameOrEmail = user?.name ?? user?.email
-        if (nameOrEmail) {
-          enqueueSnackbar(`Tervetuloa, ${nameOrEmail}!`, { variant: 'info' })
+        const loginPath = await snapshot.getPromise(loginPathAtom)
+        try {
+          const user = await userSnapshot.getPromise(userSelector)
+          const nameOrEmail = user?.name ?? user?.email
+          if (nameOrEmail) {
+            enqueueSnackbar(`Tervetuloa, ${nameOrEmail}!`, { variant: 'info' })
+          }
+        } finally {
+          const targetPath = loginPath && loginPath !== Path.login && loginPath !== Path.logout ? loginPath : Path.home
+          set(loginPathAtom, undefined)
+          navigate(targetPath, { replace: true })
         }
-        const targetPath = loginPath && loginPath !== Path.login && loginPath !== Path.logout ? loginPath : Path.home
-        setLoginPath(undefined)
-        navigate(targetPath, { replace: true })
       },
-    [loginPath, navigate, setIdToken, setLoginPath]
+    [navigate]
   )
 
   const signOut = useRecoilCallback(
     ({ set }) =>
       async (notice: boolean = true) => {
+        set(idTokenAtom, undefined)
+        sessionStorage.clear()
+        navigate(Path.home, { replace: true })
         try {
           await awsSignOut()
-          set(idTokenAtom, undefined)
           // reset(adminEventsAtom)
-          sessionStorage.clear()
           if (notice) {
             enqueueSnackbar('Heippa!', { variant: 'info' })
           }
-          navigate(Path.home, { replace: true })
         } catch (e) {
           reportError(e)
         }

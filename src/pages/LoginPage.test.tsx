@@ -1,6 +1,6 @@
 import { render, waitFor } from '@testing-library/react'
 import { fetchAuthSession } from 'aws-amplify/auth'
-import { Suspense } from 'react'
+import { StrictMode, Suspense } from 'react'
 import { RecoilRoot } from 'recoil'
 import { reportError } from '../lib/client/error'
 import { Component as LoginPage } from './LoginPage'
@@ -82,14 +82,30 @@ describe('LoginPage', () => {
     expect(mockSignIn).toHaveBeenCalledWith('id-token')
   })
 
-  it('does not call signIn when the fetched token is already current', async () => {
+  it('completes sign in when the fetched token is already current after an OAuth redirect', async () => {
     mockFetchAuthSession.mockResolvedValue(authSession('id-token'))
 
     renderLoginPage('id-token')
 
-    await waitFor(() => expect(mockFetchAuthSession).toHaveBeenCalledTimes(1))
+    await waitFor(() => expect(mockSignIn).toHaveBeenCalledWith('id-token'))
+    expect(mockSignIn).toHaveBeenCalledTimes(1)
+  })
 
-    expect(mockSignIn).not.toHaveBeenCalled()
+  it('completes sign in when the OAuth callback effect is restarted in Strict Mode', async () => {
+    mockFetchAuthSession.mockResolvedValue(authSession('id-token'))
+
+    render(
+      <StrictMode>
+        <RecoilRoot initializeState={({ set }) => set(idTokenAtom, 'id-token')}>
+          <Suspense fallback={<div>loading</div>}>
+            <LoginPage />
+          </Suspense>
+        </RecoilRoot>
+      </StrictMode>
+    )
+
+    await waitFor(() => expect(mockSignIn).toHaveBeenCalledWith('id-token'))
+    expect(mockSignIn).toHaveBeenCalledTimes(1)
   })
 
   it('reports auth session lookup failures', async () => {

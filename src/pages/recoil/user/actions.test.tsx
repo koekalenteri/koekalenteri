@@ -11,6 +11,7 @@ import { useUserActions } from './actions'
 import { idTokenAtom } from './atoms'
 
 const NEW_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.updated-signature'
+const FAILED_USER_TEST_ID_TOKEN = 'header.eyJleHAiOjQxMDI0NDQ4MDB9.failed-user-signature'
 
 jest.mock('aws-amplify/auth', () => ({
   fetchAuthSession: async () => ({ tokens: { idToken: { toString: () => 'id-token' } } }),
@@ -41,7 +42,7 @@ describe('useUserActions', () => {
     ;(auth.signOut as jest.Mock).mockResolvedValue(undefined)
   })
 
-  it('clears the id token only after aws sign out resolves', async () => {
+  it('clears the local session immediately while aws sign out completes', async () => {
     let resolveSignOut: (() => void) | undefined
     ;(auth.signOut as jest.Mock).mockImplementation(
       () =>
@@ -60,7 +61,8 @@ describe('useUserActions', () => {
       signOutPromise = result.current.actions.signOut(false)
     })
 
-    expect(result.current.token).toBe(TEST_ID_TOKEN)
+    expect(result.current.token).toBeUndefined()
+    expect(sessionStorage.getItem('loginPath')).toBeNull()
 
     await act(async () => {
       resolveSignOut?.()
@@ -69,7 +71,6 @@ describe('useUserActions', () => {
     await signOutPromise
 
     expect(result.current.token).toBeUndefined()
-    expect(sessionStorage.getItem('loginPath')).toBeNull()
     expect(auth.signOut).toHaveBeenCalledTimes(1)
   })
 
@@ -124,6 +125,23 @@ describe('useUserActions', () => {
 
     await act(async () => {
       await result.current.actions.signIn(NEW_TEST_ID_TOKEN)
+    })
+
+    expect(result.current.location.pathname).toBe(Path.home)
+    expect(sessionStorage.getItem('loginPath')).toBeNull()
+  })
+
+  it('navigates away from login even when loading the user fails', async () => {
+    jest.spyOn(userAPI, 'getUser').mockRejectedValueOnce(new Error('user lookup failed'))
+    sessionStorage.setItem('loginPath', JSON.stringify(Path.login))
+
+    const { result } = renderHook(
+      () => ({ actions: useUserActions(), location: useLocation(), token: useRecoilValue(idTokenAtom) }),
+      { wrapper }
+    )
+
+    await act(async () => {
+      await result.current.actions.signIn(FAILED_USER_TEST_ID_TOKEN)
     })
 
     expect(result.current.location.pathname).toBe(Path.home)

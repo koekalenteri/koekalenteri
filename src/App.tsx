@@ -57,7 +57,7 @@ function App() {
               confirmationButtonProps: { autoFocus: true, variant: 'contained' },
             }}
           >
-            <Authenticator.Provider>
+            <Authenticator.Provider key={idToken ? 'authenticated' : 'anonymous'}>
               {authSessionInitialized ? (
                 <WebSocketProvider>
                   <Suspense fallback={<LoadingPage />}>

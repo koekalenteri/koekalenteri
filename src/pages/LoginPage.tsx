@@ -6,7 +6,7 @@ import { useEffect, useRef } from 'react'
 import { useRecoilValue } from 'recoil'
 import { reportError } from '../lib/client/error'
 import Header from './components/Header'
-import { idTokenAtom, languageAtom } from './recoil'
+import { languageAtom } from './recoil'
 import { useUserActions } from './recoil/user/actions'
 
 import '@aws-amplify/ui-react/styles.css'
@@ -15,7 +15,6 @@ export function Component() {
   const { route } = useAuthenticator((context) => [context.route])
   const { signIn } = useUserActions()
   const language = useRecoilValue(languageAtom)
-  const idToken = useRecoilValue(idTokenAtom)
   const authenticatedHandledRef = useRef(false)
 
   useEffect(() => {
@@ -26,16 +25,21 @@ export function Component() {
 
     if (authenticatedHandledRef.current) return
 
-    authenticatedHandledRef.current = true
     let cancelled = false
 
     fetchAuthSession()
-      .then((session) => {
+      .then(async (session) => {
         if (cancelled) return
 
         const token = session.tokens?.idToken?.toString()
-        if (token && token !== idToken) {
-          signIn(token)
+        if (token) {
+          authenticatedHandledRef.current = true
+          try {
+            await signIn(token)
+          } catch (error: unknown) {
+            authenticatedHandledRef.current = false
+            reportError(error)
+          }
         }
       })
       .catch((error: unknown) => {
@@ -45,7 +49,7 @@ export function Component() {
     return () => {
       cancelled = true
     }
-  }, [idToken, route, signIn])
+  }, [route, signIn])
 
   useEffect(() => {
     I18n.setLanguage(language)
