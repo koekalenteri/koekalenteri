@@ -1,18 +1,23 @@
-import type {
-  Dog,
-  EventClassRequirement,
-  EventRequirement,
-  EventResultRequirementsByDate,
-  Registration,
-  RuleDate,
-} from './types'
+import type { Dog, EventClassRequirement, EventRequirement, EventResultRequirementsByDate, Registration } from './types'
 import { tz } from '@date-fns/tz'
 import { parseISO } from 'date-fns'
 import { TIME_ZONE } from './i18n/dates'
 import { keysOf } from './lib/typeGuards'
 import { isModernFinnishRegNo } from './lib/validation'
 import { NOME_A_CH_requirements, NOME_B_CH_requirements, NOWT_CH_requirements } from './rules_ch'
-import { RULE_DATES } from './types'
+
+export const RULE_DATES = [
+  '1977-01-01',
+  '1986-01-01',
+  '1991-01-01',
+  '1999-01-01',
+  '2006-04-01',
+  '2009-01-01',
+  '2016-04-01',
+  '2023-04-15',
+] as const
+
+export type RuleDate = (typeof RULE_DATES)[number]
 
 export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]> = RULE_DATES): RuleDate {
   if (typeof date === 'string') {
