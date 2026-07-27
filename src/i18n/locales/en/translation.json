@@ -318,11 +318,11 @@
     "missing": "Test payment is still missing",
     "pending": "Waiting for payment processing",
     "success": "I have paid",
-    "waitingForConfirmation": "Payable after confirmation"
+    "waitingForConfirmation": "Payable after participation has been confirmed"
   },
   "paymentTime": "Payment time",
   "paymentTimeOptions": {
-    "confirmation": "Payment after the event place has been confirmed",
+    "confirmation": "Payment after participation has been confirmed",
     "registration": "Payment at the time of registration"
   },
   "places": "Places",
@@ -384,11 +384,11 @@
     "class": "Event class",
     "classesDetails": "Event class details",
     "confirmDialog": {
-      "confirmation": "Do you want to confirm the trial place?",
-      "cta": "Confirm trial place",
-      "done": "Your trial place has been confirmed",
-      "text": "You are confirming the trial place for the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
-      "title": "Confirm trial place"
+      "confirmation": "Do you want to confirm your participation?",
+      "cta": "Confirm participation",
+      "done": "Your participation has been confirmed",
+      "text": "You are confirming participation for the dog {{registration.dog.regNo}} {{registration.dog.name}} in the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Confirm participation"
     },
     "createdAt": "Registration time",
     "cta": {
@@ -482,11 +482,11 @@
       "confirmation": "Do you want to pay and confirm the participation?",
       "cta": "Confirm participation",
       "done": "Your participation has been confirmed",
-      "text": "You are confirming the trial place for the dog {{registration.dog.regNo}} {{registration.dog.name}} for the event {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "text": "Participation for the dog {{registration.dog.regNo}} {{registration.dog.name}} in the event {{event.startDate, date}} {{event.eventType}} {{event.location}} awaits payment.",
       "title": "Pay and confirm"
     },
     "paymentToBePaid": "To be paid: {{amount}}",
-    "paymentToBePaidAfterConfirmation": "{{amount}} payable once your place in the event is confirmed",
+    "paymentToBePaidAfterConfirmation": "{{amount}} payable once you have been offered a place in the event",
     "priority": {
       "hasPriority": "I have priority",
       "noPriority": "I don't have priority"
@@ -530,6 +530,7 @@
       "confirmed": "I have confirmed my participation",
       "confirmedAndInvitationRead": "I have confirmed my participation and acknowledged the invitation",
       "invitationRead": "I have acknowledged the invitation",
+      "placeOffered": "Your participation awaits confirmation",
       "received": "Registration received"
     },
     "terms": "I accept the <2>registration terms</2> and the <6>data protection statement</6>.",

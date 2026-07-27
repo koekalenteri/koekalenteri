@@ -126,11 +126,11 @@
   "editWhat": "Muokkaa {{what}}",
   "emailTemplate": {
     "access": "Lisätty käyttäjäoikeus",
-    "cancel-early": "Peruutusilmoitus",
-    "cancel-picked": "Peruutusilmoitus koepaikalta",
-    "cancel-reserve": "Peruutusilmoitus varasijalta",
+    "cancel-early": "Peruutusilmoitus sihteerille: ennen varasijailmoitusta",
+    "cancel-picked": "Peruutusilmoitus sihteerille: osallistuja",
+    "cancel-reserve": "Peruutusilmoitus sihteerille: varasija",
     "invitation": "Koekutsu",
-    "picked": "Koepaikkailmoitus",
+    "picked": "Paikkailmoitus",
     "receipt": "Kuitti",
     "refund": "Maksun palautus",
     "registration": "Vahvistusviesti",
@@ -327,11 +327,11 @@
     "missing": "Koemaksu puuttuu vielä",
     "pending": "Odottaa maksun käsittelyä",
     "success": "Olen maksanut",
-    "waitingForConfirmation": "Maksetaan paikan vahvistuttua"
+    "waitingForConfirmation": "Maksetaan osallistumisen vahvistuttua"
   },
   "paymentTime": "Maksuajankohta",
   "paymentTimeOptions": {
-    "confirmation": "Maksu vasta koepaikan varmistuttua",
+    "confirmation": "Maksu vasta osallistumisen varmistuttua",
     "registration": "Maksu ilmoittautumisen yhteydessä"
   },
   "places": "Paikkoja",
@@ -393,11 +393,11 @@
     "class": "Koeluokka",
     "classesDetails": "Koeluokan tiedot",
     "confirmDialog": {
-      "confirmation": "Haluatko vahvistaa koepaikan?",
-      "cta": "Vahvista koepaikka",
-      "done": "Koepaikkasi on vahvistettu",
-      "text": "Olet vahvistamassa koiran {{registration.dog.regNo}} {{registration.dog.name}} koepaikkaa kokeeseen {{event.startDate, date}} {{event.eventType}} {{event.location}}",
-      "title": "Vahvista koepaikka"
+      "confirmation": "Haluatko vahvistaa osallistumisesi?",
+      "cta": "Vahvista osallistuminen",
+      "done": "Osallistumisesi on vahvistettu",
+      "text": "Olet vahvistamassa koiran {{registration.dog.regNo}} {{registration.dog.name}} osallistumisen tapahtumaan {{event.startDate, date}} {{event.eventType}} {{event.location}}",
+      "title": "Vahvista osallistuminen"
     },
     "createdAt": "Ilmoittautumisaika",
     "cta": {
@@ -433,13 +433,13 @@
     "email": {
       "subject": "Ilmoittautumisen vahvistus",
       "subject_cancel": "Ilmoittautumisesi on peruttu",
-      "subject_confirm": "Vahvistit vastaanottavasi koepaikan",
+      "subject_confirm": "Vahvistit osallistumisesi",
       "subject_invitation": "Olet kuitannut koekutsun",
       "subject_receipt": "Ilmoittautumisen maksukuitti",
       "subject_update": "Ilmoittautumisesi tietoja on muokattu",
       "title": "Ilmoittautumisesi on otettu vastaan",
       "title_cancel": "Ilmoittautumisesi on peruttu",
-      "title_confirm": "Vahvistit vastaanottavasi koepaikan",
+      "title_confirm": "Vahvistit osallistumisesi",
       "title_invitation": "Olet kuitannut koekutsun",
       "title_receipt": "Kuitti maksusta",
       "title_update": "Ilmoittautumisesi tietoja on muokattu"
@@ -495,7 +495,7 @@
       "title": "Osallistumismaksun maksaminen ja paikan vahvistaminen"
     },
     "paymentToBePaid": "Maksettava: {{amount}}",
-    "paymentToBePaidAfterConfirmation": "Maksettava {{amount}}, kun paikka tapahtumassa on vahvistettu",
+    "paymentToBePaidAfterConfirmation": "Maksettava {{amount}}, kun sinulle on tarjottu osallistumispaikka",
     "priority": {
       "hasPriority": "Olen etusijalla",
       "noPriority": "En ole etusijalla"
@@ -539,6 +539,7 @@
       "confirmed": "Olen vahvistanut osallistumiseni",
       "confirmedAndInvitationRead": "Olen vahvistanut osallistumiseni ja kuitannut koekutsun",
       "invitationRead": "Olen kuitannut koekutsun",
+      "placeOffered": "Osallistumisesi odottaa vahvistustasi",
       "received": "Ilmoittautuminen vastaanotettu"
     },
     "terms": "Hyväksyn <2>ilmoittautumisen ehdot</2> ja <6>tietosuojaselosteen</6>.",

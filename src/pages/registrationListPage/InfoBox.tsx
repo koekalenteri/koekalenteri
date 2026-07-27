@@ -2,7 +2,8 @@ import type { PublicDogEvent, Registration } from '../../types'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
-import { Button } from '@mui/material'
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
@@ -27,6 +28,9 @@ const registrationStatus = (registration: Registration) => {
   if (registration.cancelled) {
     return 'registration.status.cancelled'
   }
+  if (registration.messagesSent?.picked && !registration.confirmed) {
+    return 'registration.status.placeOffered'
+  }
   if (registration.invitationRead) {
     return registration.confirmed
       ? 'registration.status.confirmedAndInvitationRead'
@@ -38,12 +42,14 @@ const registrationStatus = (registration: Registration) => {
 interface Props {
   event: PublicDogEvent
   registration: Registration
+  onConfirm: () => void
   paymentVerificationInProgress?: boolean
 }
 
-export const InfoBox = ({ event, registration, paymentVerificationInProgress = false }: Props) => {
+export const InfoBox = ({ event, registration, onConfirm, paymentVerificationInProgress = false }: Props) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const needsConfirmation = !registration.cancelled && !registration.confirmed && !!registration.messagesSent?.picked
   const needsPayment =
     Boolean(registration.shouldPay) && registration.paymentStatus !== 'DUPLICATE' && !paymentVerificationInProgress
   const paymentStatusText = paymentVerificationInProgress
@@ -66,7 +72,12 @@ export const InfoBox = ({ event, registration, paymentVerificationInProgress = f
           disablePadding
           secondaryAction={
             needsPayment ? (
-              <Button aria-label={t('registration.cta.pay')} onClick={() => navigate(Path.payment(registration))}>
+              <Button
+                aria-label={t('registration.cta.pay')}
+                onClick={() => navigate(Path.payment(registration))}
+                size="small"
+                variant="contained"
+              >
                 {t('registration.cta.pay')}
               </Button>
             ) : null
@@ -83,14 +94,30 @@ export const InfoBox = ({ event, registration, paymentVerificationInProgress = f
             sx={{ pr: needsPayment ? 12 : 0 }}
           />
         </ListItem>
-        <ListItem disablePadding>
+        <ListItem disablePadding sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
           <ListItemIcon sx={{ color: 'primary.main', minWidth: 32 }}>
             <CheckOutlined fontSize="small" />
           </ListItemIcon>
           <ListItemText
             primary={t(registrationStatus(registration))}
             slotProps={{ primary: { fontWeight: 'bold', variant: 'subtitle1' } }}
+            sx={{ minWidth: 0, mr: { sm: 1 } }}
           />
+          {needsConfirmation ? (
+            <Box
+              sx={{ flexBasis: { sm: 'auto', xs: 'calc(100% - 32px)' }, ml: { sm: 0, xs: 4 }, mt: { sm: 0, xs: 1 } }}
+            >
+              <Button
+                aria-label={t('registration.confirmDialog.cta')}
+                onClick={onConfirm}
+                size="small"
+                sx={{ width: { sm: 'auto', xs: '100%' } }}
+                variant="contained"
+              >
+                {t('registration.confirmDialog.cta')}
+              </Button>
+            </Box>
+          ) : null}
         </ListItem>
       </List>
     </Paper>

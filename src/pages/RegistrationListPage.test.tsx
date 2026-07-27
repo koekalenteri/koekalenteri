@@ -164,6 +164,25 @@ describe('RegistrationListPage', () => {
     expect(confirmButton).toBeInTheDocument()
   })
 
+  it('opens confirm dialog from the registration details page when confirmation is pending', async () => {
+    jest.setSystemTime(new Date('2021-02-08'))
+    jest.spyOn(registrationApi, 'getRegistration').mockResolvedValue({
+      ...registrationWithStaticDates,
+      messagesSent: { picked: true },
+    })
+
+    const { user } = renderWithRouter('/r/test1/nou-registration')
+
+    await flushPromises()
+
+    expect(screen.getByText('registration.status.placeOffered')).toBeInTheDocument()
+    const confirmButton = screen.getByRole('button', { name: 'registration.confirmDialog.cta' })
+    await user.click(confirmButton)
+
+    expect(screen.getByRole('dialog', { name: 'registration.confirmDialog.title' })).toBeVisible()
+    await user.click(screen.getByRole('button', { name: 'cancel' }))
+  })
+
   it('shows loading instead of event not found while confirm route event fetch is pending', async () => {
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     jest.spyOn(eventApi, 'getEvent').mockReturnValue(new Promise(() => {}) as never)

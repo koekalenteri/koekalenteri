@@ -261,6 +261,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
             <InfoBox
               event={event}
               registration={registration}
+              onConfirm={() => setConfirmOpen(true)}
               paymentVerificationInProgress={paymentVerificationInProgress}
             />
           </Grid>
