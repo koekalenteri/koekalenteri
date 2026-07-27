@@ -14,6 +14,7 @@ import CollapsibleSection from '../../components/CollapsibleSection'
 
 interface Props {
   auditTrail?: AuditRecord[]
+  readonly fullHeight?: boolean
 }
 
 type AuditChange = NonNullable<AuditRecord['changes']>[number]
@@ -216,28 +217,32 @@ const AuditTrailRow = ({ formatter, onToggle, open, row }: AuditTrailRowProps) =
   )
 }
 
-export const AuditTrail = ({ auditTrail }: Props) => {
+export const AuditTrail = ({ auditTrail, fullHeight = false }: Props) => {
   const formatter = useAuditFormatter()
   const [openRow, setOpenRow] = useState<string>()
 
   if (!auditTrail) return null
 
+  const rows = auditTrail.map((row) => {
+    const rowId = `${row.timestamp.toISOString()}-${row.user}-${row.message}`
+    return (
+      <AuditTrailRow
+        key={rowId}
+        formatter={formatter}
+        onToggle={() => setOpenRow((current) => (current === rowId ? undefined : rowId))}
+        open={openRow === rowId}
+        row={row}
+      />
+    )
+  })
+
+  if (fullHeight) {
+    return <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{rows}</Box>
+  }
+
   return (
     <CollapsibleSection title={formatter.t('audit.title', { count: auditTrail.length })} compact initOpen={false}>
-      <Box sx={{ maxHeight: 8 * 36 + 160, overflowY: 'auto' }}>
-        {auditTrail.map((row) => {
-          const rowId = `${row.timestamp.toISOString()}-${row.user}-${row.message}`
-          return (
-            <AuditTrailRow
-              key={rowId}
-              formatter={formatter}
-              onToggle={() => setOpenRow((current) => (current === rowId ? undefined : rowId))}
-              open={openRow === rowId}
-              row={row}
-            />
-          )
-        })}
-      </Box>
+      <Box sx={{ maxHeight: 8 * 36 + 160, overflowY: 'auto' }}>{rows}</Box>
     </CollapsibleSection>
   )
 }

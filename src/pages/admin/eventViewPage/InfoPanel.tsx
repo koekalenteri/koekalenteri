@@ -8,15 +8,16 @@ import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
-import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Link from '@mui/material/Link'
 import Stack from '@mui/material/Stack'
+import Tab from '@mui/material/Tab'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableRow from '@mui/material/TableRow'
+import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
@@ -31,6 +32,7 @@ import { reportError } from '../../../lib/client/error'
 import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
 import { getParticipantMessageInfo, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
+import { isEntryClosed } from '../../../lib/utils'
 import { invitationAttachmentFileName, Path } from '../../../routeConfig'
 import { validIdTokenSelector } from '../../recoil'
 import { AuditTrail } from '../components/AuditTrail'
@@ -113,6 +115,7 @@ const InfoPanel = ({
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
+  const [activeTab, setActiveTab] = useState(0)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
   useAuditTrailSubscription(`event:${event.id}`, expanded, setAuditTrail)
@@ -265,8 +268,10 @@ const InfoPanel = ({
             border: '1px solid',
             borderColor: 'divider',
             boxShadow: 6,
+            display: 'flex',
+            flexDirection: 'column',
             height: `calc(100% - ${APP_HEADER_HEIGHT}px)`,
-            overflow: 'auto',
+            overflow: 'hidden',
             top: APP_HEADER_HEIGHT,
             width: 'min(480px, calc(100vw - 16px))',
           },
@@ -279,245 +284,292 @@ const InfoPanel = ({
             '& .MuiTableCell-root': { px: 1, py: 0.5 },
             width: '100%',
           },
-          display: 'grid',
-          gap: 1.5,
-          p: 1.5,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          minHeight: 0,
         }}
       >
-        <Grid container alignItems="center">
-          <Grid size="grow">
-            <Typography variant="subtitle1" fontWeight="bold">
-              Tapahtuman hallinta
-            </Typography>
-          </Grid>
-          <Grid size="auto">
+        <Box sx={{ alignItems: 'center', display: 'flex', pl: 1.5 }}>
+          <Tabs
+            aria-label="Tapahtuman hallinnan välilehdet"
+            onChange={(_, value: number) => setActiveTab(value)}
+            sx={{ flex: 1 }}
+            value={activeTab}
+          >
+            <Tab label="Tapahtuman hallinta" />
+            <Tab label="Muutoshistoria" />
+          </Tabs>
+          <Box sx={{ pr: 1.5 }}>
             <Tooltip title="Sulje tilannepaneeli">
               <IconButton size="small" color={'primary'} onClick={toggle} aria-label="Sulje tilannepaneeli">
                 <KeyboardArrowRight />
               </IconButton>
             </Tooltip>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
-        <Box sx={sectionSx}>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-            Tapahtuman tilanne
-          </Typography>
-          <TableContainer>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell colSpan={3}>
-                    <Typography variant="caption" noWrap>
-                      Osallistujat
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-                {Object.entries(numbersByClass).map(([c, nums]) => {
-                  const selected = selectedByClass[c] ?? []
-                  const { canSend, recipients, templateId } = getParticipantMessageInfo(
-                    eventWithCurrentAttachments,
-                    stateByClass[c],
-                    selected
-                  )
-                  const messageLabel = templateId === 'picked' ? 'koepaikkailmoitus' : 'koekutsu'
-                  const invitationsSent = templateId === 'invitation' && selected.length > 0 && recipients.length === 0
-                  const startListPublished = isStartListPublishedForClass(event, c)
-                  const classlessEventRow = event.classes.length === 0 && c === event.eventType
-                  const startListEventClass = isRegistrationClass(c) ? c : undefined
-                  const startListManageable =
-                    Boolean(onSetStartListPublished) &&
-                    (classlessEventRow || Boolean(startListEventClass)) &&
-                    canPublishStartList(stateByClass[c] ?? event.state)
+        <Box
+          sx={{
+            display: activeTab === 0 ? 'grid' : 'none',
+            flex: 1,
+            gap: 1.5,
+            minHeight: 0,
+            overflowY: 'auto',
+            p: 1.5,
+          }}
+        >
+          <Box sx={sectionSx}>
+            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+              Tapahtuman tilanne
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell colSpan={3}>
+                      <Typography variant="caption" noWrap>
+                        Osallistujat
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                  {Object.entries(numbersByClass).map(([c, nums]) => {
+                    const selected = selectedByClass[c] ?? []
+                    const { canSend, recipients, templateId } = getParticipantMessageInfo(
+                      eventWithCurrentAttachments,
+                      stateByClass[c],
+                      selected
+                    )
+                    const messageLabel = templateId === 'picked' ? 'koepaikkailmoitus' : 'koekutsu'
+                    const invitationsSent =
+                      templateId === 'invitation' && selected.length > 0 && recipients.length === 0
+                    const placeConfirmationsBlockedByEntry = templateId === 'picked' && !isEntryClosed(event)
+                    const startListPublished = isStartListPublishedForClass(event, c)
+                    const classlessEventRow = event.classes.length === 0 && c === event.eventType
+                    const startListEventClass = isRegistrationClass(c) ? c : undefined
+                    const startListManageable =
+                      Boolean(onSetStartListPublished) &&
+                      (classlessEventRow || Boolean(startListEventClass)) &&
+                      canPublishStartList(stateByClass[c] ?? event.state)
 
-                  return (
-                    <TableRow key={c}>
-                      <TableCell align="left">
-                        <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                          {c}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography variant="caption" noWrap color={nums.invalid ? 'error' : 'info.dark'}>
-                          {nums.participants} / {nums.places}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Stack alignItems="flex-end" spacing={0.25}>
-                          {invitationsSent ? (
-                            <>
+                    return (
+                      <TableRow key={c}>
+                        <TableCell align="left">
+                          <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                            {c}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography variant="caption" noWrap color={nums.invalid ? 'error' : 'info.dark'}>
+                            {nums.participants} / {nums.places}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Stack alignItems="flex-end" spacing={0.25}>
+                            {invitationsSent ? (
+                              <>
+                                <Typography
+                                  variant="caption"
+                                  color="info.main"
+                                  sx={{ alignItems: 'center', display: 'flex', minHeight: 30 }}
+                                >
+                                  Koekutsut lähetetty
+                                </Typography>
+                                <Button
+                                  size="small"
+                                  disabled={!startListManageable}
+                                  onClick={() => {
+                                    if (classlessEventRow || startListEventClass) {
+                                      handleSetStartListPublished(startListEventClass, !startListPublished)
+                                    }
+                                  }}
+                                  variant="outlined"
+                                >
+                                  {startListPublished ? 'Piilota starttilista' : 'Julkaise starttilista'}
+                                </Button>
+                              </>
+                            ) : placeConfirmationsBlockedByEntry ? (
                               <Typography
                                 variant="caption"
-                                color="info.main"
-                                sx={{ alignItems: 'center', display: 'flex', minHeight: 30 }}
+                                color="text.secondary"
+                                sx={{
+                                  alignItems: 'center',
+                                  display: 'flex',
+                                  justifyContent: 'flex-end',
+                                  minHeight: 30,
+                                }}
                               >
-                                Koekutsut lähetetty
+                                Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä
                               </Typography>
+                            ) : (
                               <Button
                                 size="small"
-                                disabled={!startListManageable}
-                                onClick={() => {
-                                  if (classlessEventRow || startListEventClass) {
-                                    handleSetStartListPublished(startListEventClass, !startListPublished)
-                                  }
-                                }}
+                                disabled={nums.participants === 0 || nums.invalid || !canSend}
+                                onClick={() => onOpenMessageDialog?.(recipients, templateId)}
                                 variant="outlined"
                               >
-                                {startListPublished ? 'Piilota starttilista' : 'Julkaise starttilista'}
+                                Lähetä {messageLabel}
                               </Button>
-                            </>
+                            )}
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                  <TableRow>
+                    <TableCell colSpan={3}>
+                      <Typography variant="caption" noWrap>
+                        Varasijalla
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                  {Object.entries(numbersByClass).map(([c, nums]) => {
+                    const reserves = reserveByClass[c] ?? []
+                    const reserveNotificationsSent =
+                      reserves.length > 0 && reserves.every((registration) => registration.reserveNotified)
+
+                    return (
+                      <TableRow key={c}>
+                        <TableCell align="left">
+                          <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
+                            {c}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Typography variant="caption" noWrap color="info.dark">
+                            {nums.reserve}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          {reserveNotificationsSent ? (
+                            <Typography
+                              variant="caption"
+                              color="info.main"
+                              sx={{ alignItems: 'center', display: 'flex', justifyContent: 'flex-end', minHeight: 30 }}
+                            >
+                              Varasijailmoitukset lähetetty
+                            </Typography>
                           ) : (
                             <Button
                               size="small"
-                              disabled={nums.participants === 0 || nums.invalid || !canSend}
-                              onClick={() => onOpenMessageDialog?.(recipients, templateId)}
+                              disabled={nums.reserve === 0}
+                              onClick={() => onOpenMessageDialog?.(reserves, 'reserve')}
                               variant="outlined"
                             >
-                              Lähetä {messageLabel}
+                              Lähetä varasijailmoitus
                             </Button>
                           )}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-                <TableRow>
-                  <TableCell colSpan={3}>
-                    <Typography variant="caption" noWrap>
-                      Varasijalla
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-                {Object.entries(numbersByClass).map(([c, nums]) => {
-                  return (
-                    <TableRow key={c}>
-                      <TableCell align="left">
-                        <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                          {c}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Typography variant="caption" noWrap color="info.dark">
-                          {nums.reserve}
-                        </Typography>
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button
-                          size="small"
-                          disabled={nums.reserve === 0}
-                          onClick={() => onOpenMessageDialog?.(reserveByClass[c], 'reserve')}
-                          variant="outlined"
-                        >
-                          Lähetä varasijailmoitus
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-        <Box sx={sectionSx}>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-            Koekutsu
-          </Typography>
-          <TableContainer>
-            <Table sx={{ '& .MuiTableCell-root': { overflowWrap: 'anywhere' }, tableLayout: 'fixed' }}>
-              <TableBody>
-                <InvitationAttachmentRow
-                  file={
-                    attachmentKey
-                      ? {
-                          href: Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey }),
-                          name: invitationAttachmentFileName({ ...event, invitationAttachment: attachmentKey }),
+          <Box sx={sectionSx}>
+            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+              Koekutsu
+            </Typography>
+            <TableContainer>
+              <Table sx={{ '& .MuiTableCell-root': { overflowWrap: 'anywhere' }, tableLayout: 'fixed' }}>
+                <TableBody>
+                  <InvitationAttachmentRow
+                    file={
+                      attachmentKey
+                        ? {
+                            href: Path.invitationAttachment({ ...event, invitationAttachment: attachmentKey }),
+                            name: invitationAttachmentFileName({ ...event, invitationAttachment: attachmentKey }),
+                          }
+                        : undefined
+                    }
+                    inputId="koekutsu-file"
+                    label="Koko koe"
+                    onChange={handleInvitationUpload()}
+                  />
+                  {eventClasses.map((eventClass) => {
+                    const classAttachmentKey = classAttachmentKeys[eventClass]
+                    const classEvent = event.classes.find((item) => item.class === eventClass)
+                    const classInvitationEvent = {
+                      ...event,
+                      class: eventClass,
+                      invitationAttachment: classAttachmentKey,
+                      startDate: classEvent?.date ?? event.startDate,
+                    }
+
+                    return (
+                      <InvitationAttachmentRow
+                        file={
+                          classAttachmentKey
+                            ? {
+                                href: Path.invitationAttachment(classInvitationEvent),
+                                name: invitationAttachmentFileName(classInvitationEvent),
+                              }
+                            : undefined
                         }
-                      : undefined
-                  }
-                  inputId="koekutsu-file"
-                  label="Koko koe"
-                  onChange={handleInvitationUpload()}
-                />
-                {eventClasses.map((eventClass) => {
-                  const classAttachmentKey = classAttachmentKeys[eventClass]
-                  const classEvent = event.classes.find((item) => item.class === eventClass)
-                  const classInvitationEvent = {
-                    ...event,
-                    class: eventClass,
-                    invitationAttachment: classAttachmentKey,
-                    startDate: classEvent?.date ?? event.startDate,
-                  }
+                        inputId={`koekutsu-file-${eventClass}`}
+                        key={`invitation-attachment-${eventClass}`}
+                        label={`${eventClass}-luokka`}
+                        onChange={handleInvitationUpload(eventClass)}
+                      />
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-                  return (
-                    <InvitationAttachmentRow
-                      file={
-                        classAttachmentKey
-                          ? {
-                              href: Path.invitationAttachment(classInvitationEvent),
-                              name: invitationAttachmentFileName(classInvitationEvent),
-                            }
-                          : undefined
-                      }
-                      inputId={`koekutsu-file-${eventClass}`}
-                      key={`invitation-attachment-${eventClass}`}
-                      label={`${eventClass}-luokka`}
-                      onChange={handleInvitationUpload(eventClass)}
-                    />
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <Box sx={sectionSx}>
+            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
+              Toiminnot
+            </Typography>
+            <Stack spacing={1} sx={{ p: 1 }}>
+              <Button
+                fullWidth
+                onClick={onOpenDetails}
+                startIcon={<FormatListBulleted />}
+                sx={actionButtonSx}
+                variant="outlined"
+              >
+                Näytä tapahtuman tiedot
+              </Button>
+              <Button
+                fullWidth
+                onClick={onCreateRegistration}
+                startIcon={<AddCircleOutline />}
+                sx={actionButtonSx}
+                variant="outlined"
+              >
+                {t('createRegistration')}
+              </Button>
+              <Button
+                fullWidth
+                href={Path.admin.startList(event.id)}
+                startIcon={<FormatListNumberedOutlined />}
+                sx={actionButtonSx}
+                target="_blank"
+                variant="outlined"
+              >
+                Sihteerin starttilista
+              </Button>
+              <Button
+                fullWidth
+                href={Path.admin.startListPreview(event.id)}
+                startIcon={<FormatListNumberedOutlined />}
+                sx={actionButtonSx}
+                target="_blank"
+                variant="outlined"
+              >
+                Katso julkinen starttilista
+              </Button>
+            </Stack>
+          </Box>
         </Box>
 
-        <Box sx={sectionSx}>
-          <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-            Toiminnot
-          </Typography>
-          <Stack spacing={1} sx={{ p: 1 }}>
-            <Button
-              fullWidth
-              onClick={onOpenDetails}
-              startIcon={<FormatListBulleted />}
-              sx={actionButtonSx}
-              variant="outlined"
-            >
-              Näytä tapahtuman tiedot
-            </Button>
-            <Button
-              fullWidth
-              onClick={onCreateRegistration}
-              startIcon={<AddCircleOutline />}
-              sx={actionButtonSx}
-              variant="outlined"
-            >
-              {t('createRegistration')}
-            </Button>
-            <Button
-              fullWidth
-              href={Path.admin.startList(event.id)}
-              startIcon={<FormatListNumberedOutlined />}
-              sx={actionButtonSx}
-              target="_blank"
-              variant="outlined"
-            >
-              Sihteerin starttilista
-            </Button>
-            <Button
-              fullWidth
-              href={Path.admin.startListPreview(event.id)}
-              startIcon={<FormatListNumberedOutlined />}
-              sx={actionButtonSx}
-              target="_blank"
-              variant="outlined"
-            >
-              Katso julkinen starttilista
-            </Button>
-          </Stack>
+        <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>
+          <AuditTrail auditTrail={auditTrail} fullHeight />
         </Box>
-
-        <AuditTrail auditTrail={auditTrail} />
       </Box>
     </Drawer>
   )

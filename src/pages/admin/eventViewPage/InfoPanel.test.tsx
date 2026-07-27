@@ -94,7 +94,7 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByText('Tapahtuman hallinta')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: 'Tapahtuman hallinta' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.getByText('Toiminnot')).toBeInTheDocument()
     expect(screen.getByText('Osallistujat')).toBeInTheDocument()
     expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
@@ -102,6 +102,18 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('Koekutsu')).toBeInTheDocument()
     expect(screen.getByText('Koko koe')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Lisää PDF' })).toBeInTheDocument()
+  })
+
+  it('shows the audit trail on its own tab', async () => {
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    await user.click(screen.getByRole('tab', { name: 'Muutoshistoria' }))
+
+    expect(screen.getByRole('tab', { name: 'Muutoshistoria' })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByText('Osallistujat')).not.toBeVisible()
   })
 
   it('runs the moved create registration action', async () => {
@@ -228,7 +240,7 @@ describe('InfoPanel>', () => {
     })
   })
 
-  it('disables place confirmation before the registration period is over', async () => {
+  it('explains when place confirmations can be sent before the registration period is over', async () => {
     const event = {
       ...eventWithEntryOpen,
       classes: [{ class: 'VOI' as const, date: eventWithEntryOpen.startDate, places: 3 }],
@@ -248,7 +260,8 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByRole('button', { name: 'Lähetä koepaikkailmoitus' })).toBeDisabled()
+    expect(screen.getByText('Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Lähetä koepaikkailmoitus' })).not.toBeInTheDocument()
   })
 
   it('disables invitations before the registration period is over', async () => {
@@ -318,6 +331,24 @@ describe('InfoPanel>', () => {
 
     expect(screen.queryByRole('button', { name: /Lähetä koekutsu/i })).not.toBeInTheDocument()
     expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
+  })
+
+  it('shows status when reserve notifications have been sent', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={eventWithEntryClosed}
+        registrations={registrationsToEventWithEntryClosed.map((registration, index) => ({
+          ...registration,
+          group: { ...registration.dates[0], key: 'reserve', number: index + 1 },
+          reserveNotified: index + 1,
+        }))}
+      />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getAllByText('Varasijailmoitukset lähetetty')).toHaveLength(2)
+    expect(screen.queryByRole('button', { name: 'Lähetä varasijailmoitus' })).not.toBeInTheDocument()
   })
 
   it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
