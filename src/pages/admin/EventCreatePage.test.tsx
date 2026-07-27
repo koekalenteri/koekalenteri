@@ -27,6 +27,12 @@ describe('EventEditPage', () => {
   afterEach(() => jest.runOnlyPendingTimers())
   afterAll(() => jest.useRealTimers())
 
+  it('initializes a new event with an unpublished start list', async () => {
+    const event = await snapshot_UNSTABLE().getPromise(adminNewEventAtom)
+
+    expect(event.startListPublished).toBe(false)
+  })
+
   it('renders properly when creating a new event', async () => {
     const { i18n } = useTranslation()
     const language = i18n.language as Language

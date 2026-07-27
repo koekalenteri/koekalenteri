@@ -480,6 +480,10 @@ describe('lib/event', () => {
     it('should add "Kopio - " to name', () =>
       expect(copyDogEvent(eventWithParticipantsInvited).name.startsWith('Kopio -')).toBeTruthy())
     it('should set state to draft', () => expect(copyDogEvent(eventWithParticipantsInvited).state).toEqual('draft'))
+    it('should reset start list publishing', () =>
+      expect(copyDogEvent({ ...eventWithParticipantsInvited, startListPublished: true }).startListPublished).toBe(
+        false
+      ))
     it('should reset entries and members', () => {
       const copy = copyDogEvent({ ...eventWithParticipantsInvited, entries: 15, members: 10 })
       expect(copy.entries).toBe(0)

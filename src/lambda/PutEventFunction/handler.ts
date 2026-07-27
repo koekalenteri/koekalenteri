@@ -61,6 +61,7 @@ const putEventLambda = lambda('putEvent', async (event) => {
     item.id = nanoid(10)
     item.createdAt = timestamp
     item.createdBy = user.name
+    item.startListPublished = false
   }
 
   if (

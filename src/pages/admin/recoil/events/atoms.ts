@@ -19,6 +19,7 @@ export const adminNewEventAtom = atom<DogEvent>({
     entryStartDate: newEventEntryStartDate,
     judges: [{ id: 0, name: '', official: true }],
     startDate: newEventStartDate,
+    startListPublished: false,
     state: 'draft',
   } as unknown as DogEvent,
   effects: [logEffect, localStorageEffect],

@@ -230,7 +230,9 @@
       "extended_info": "Jatkettu",
       "invited": "Koekutsut lähetetty",
       "picked": "Osallistujat valittu",
+      "publishStartList": "Julkaise starttilista",
       "started": "Käynnissä",
+      "startListPublished": "Starttilista julkaistu",
       "tentative": "Julkaistu alustavana",
       "tentative_info": "Alustava",
       "tentative_save": "Tapahtuma on julkaistu alustavana"

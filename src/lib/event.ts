@@ -322,6 +322,7 @@ export const copyDogEvent = (event: DogEvent): DogEvent => {
   copy.entryStartDate = newEventEntryStartDate
   copy.entryEndDate = newEventEntryEndDate
   copy.season = String(newEventStartDate.getFullYear())
+  copy.startListPublished = false
 
   delete copy.kcId
   delete copy.entryOrigEndDate

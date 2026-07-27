@@ -211,6 +211,7 @@ describe('putEventLambda', () => {
       id: 'new-id',
       modifiedAt: '2025-03-22T10:45:33.000Z',
       modifiedBy: 'Test User',
+      startListPublished: false,
       updatedAt: '2025-03-22T10:45:33.000Z',
     })
     expect(auditMock).toHaveBeenCalledWith({

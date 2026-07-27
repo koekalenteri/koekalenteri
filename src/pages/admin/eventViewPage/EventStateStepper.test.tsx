@@ -1,6 +1,12 @@
 import type { ConfirmedEventStates } from '../../../types'
 import { render, screen } from '@testing-library/react'
-import { eventWithEntryOpen, eventWithStaticDates, eventWithStaticDatesAnd3Classes } from '../../../__mockData__/events'
+import {
+  eventWithEntryNotYetOpen,
+  eventWithEntryOpen,
+  eventWithParticipantsInvited,
+  eventWithStaticDates,
+  eventWithStaticDatesAnd3Classes,
+} from '../../../__mockData__/events'
 import EventStateStepper from './EventStateStepper'
 
 describe('EventStateStepper', () => {
@@ -26,10 +32,43 @@ describe('EventStateStepper', () => {
   })
 
   it('shows entry as the current phase for a published event', () => {
-    render(<EventStateStepper event={eventWithEntryOpen} />)
+    const { container } = render(<EventStateStepper event={eventWithEntryOpen} />)
 
-    expect(screen.getByText('event.states.confirmed_entryOpen').closest('.Mui-completed')).toBeInTheDocument()
+    const entryStep = screen.getByText('event.states.confirmed_entryOpen').closest('[role="listitem"]')
+
+    expect(entryStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+    expect(entryStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
     expect(screen.getByText('event.states.confirmed').closest('.Mui-completed')).toBeInTheDocument()
+    expect(container.querySelector('.MuiStepIcon-text')).not.toBeInTheDocument()
+  })
+
+  it('does not show entry as started before the entry start date', () => {
+    render(<EventStateStepper event={eventWithEntryNotYetOpen} />)
+
+    expect(screen.getByText('event.states.confirmed').closest('.Mui-completed')).toBeInTheDocument()
+    const entryStep = screen.getByText('entryUpcoming').closest('[role="listitem"]')
+
+    expect(entryStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+    expect(entryStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+  })
+
+  it('does not show start list progress before publishing is available', () => {
+    render(<EventStateStepper event={{ ...eventWithParticipantsInvited, state: 'confirmed' }} />)
+
+    const startListStep = screen.getByText('event.states.publishStartList').closest('[role="listitem"]')
+
+    expect(startListStep).not.toHaveTextContent('event.classProgress')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+  })
+
+  it('shows entry as completed after the entry end date', () => {
+    render(<EventStateStepper event={eventWithStaticDates} />)
+
+    const entryStep = screen.getByText('event.states.confirmed_entryClosed').closest('[role="listitem"]')
+
+    expect(entryStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
+    expect(entryStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
   })
 
   it('shows incomplete actionable phases for a multi-class event', () => {
@@ -55,6 +94,41 @@ describe('EventStateStepper', () => {
     expect(pickedStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
     expect(pickedStep).toHaveTextContent('event.classProgress')
     expect(invitedStep).toHaveTextContent('event.classProgress')
+  })
+
+  it('shows start list publishing as an incomplete actionable phase', () => {
+    render(<EventStateStepper event={{ ...eventWithParticipantsInvited, startListPublished: false }} />)
+
+    const startListStep = screen
+      .getByText(/^event\.states\.publishStartList/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
+  })
+
+  it('shows class progress when only some start lists are published', () => {
+    render(
+      <EventStateStepper event={{ ...eventWithParticipantsInvited, startListPublished: { ALO: true, AVO: false } }} />
+    )
+
+    const startListStep = screen
+      .getByText(/^event\.states\.publishStartList/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(startListStep).toHaveTextContent('event.classProgress')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-active')
+  })
+
+  it('shows start list publishing as completed when all start lists are published', () => {
+    render(<EventStateStepper event={eventWithParticipantsInvited} />)
+
+    const startListStep = screen
+      .getByText(/^event\.states\.startListPublished/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
   })
 
   it('uses the event dates when a historical state was not updated', () => {

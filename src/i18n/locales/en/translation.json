@@ -230,7 +230,9 @@
       "extended_info": "Continued",
       "invited": "Invitations sent",
       "picked": "Participants selected",
+      "publishStartList": "Publish start list",
       "started": "Started",
+      "startListPublished": "Start list published",
       "tentative": "Published tentative",
       "tentative_info": "Tentative",
       "tentative_save": "Event was published as tentative"
