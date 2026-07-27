@@ -185,31 +185,40 @@ describe('http', () => {
 
     it('uses the configured default timeout', async () => {
       jest.useFakeTimers()
-      const timeoutEnv = jest.replaceProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', '60')
+      const originalTimeout = Object.getOwnPropertyDescriptor(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
+      Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', {
+        configurable: true,
+        enumerable: true,
+        value: '60',
+        writable: true,
+      })
 
-      fetchMock.mockImplementationOnce(
-        (_url, init) =>
-          new Promise<Response>((_resolve, reject) => {
-            init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
-          })
-      )
+      try {
+        fetchMock.mockImplementationOnce(
+          (_url, init) =>
+            new Promise<Response>((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+            })
+        )
 
-      const promise = http.get('/test/')
-      await Promise.resolve()
-      const signal = fetchMock.mock.calls[0][1]?.signal
-      const expectation = expect(promise).rejects.toEqual(
-        expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
-      )
+        const promise = http.get('/test/')
+        await Promise.resolve()
+        const signal = fetchMock.mock.calls[0][1]?.signal
+        const expectation = expect(promise).rejects.toEqual(
+          expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
+        )
 
-      await jest.advanceTimersByTimeAsync(59)
-      expect(signal?.aborted).toBe(false)
+        await jest.advanceTimersByTimeAsync(59)
+        expect(signal?.aborted).toBe(false)
 
-      await jest.advanceTimersByTimeAsync(1)
-      await expectation
-
-      timeoutEnv.restore()
-      jest.runOnlyPendingTimers()
-      jest.useRealTimers()
+        await jest.advanceTimersByTimeAsync(1)
+        await expectation
+      } finally {
+        if (originalTimeout) Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', originalTimeout)
+        else Reflect.deleteProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
+        jest.runOnlyPendingTimers()
+        jest.useRealTimers()
+      }
     })
 
     it('supports a per-request timeout override', async () => {
