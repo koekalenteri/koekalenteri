@@ -138,6 +138,7 @@
   "entryTitle_test": "Register to test",
   "entryUpcoming": "Upcoming registration",
   "error": {
+    "connectionInterrupted": "The connection was interrupted. Check your network and try again. If you submitted a form, refresh first to check whether it was saved.",
     "entryNotOpen": "Entry is not open",
     "eventMayHaveBeenDeleted": "The event may have been deleted or access is denied.",
     "eventNotFound": "Event not found.",

@@ -10,7 +10,6 @@ jest.mock('notistack', () => ({
 
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation()
 const mock5SecondFetch = () => new Promise<string>((resolve) => setTimeout(resolve, 5_000))
-const mock20SecondFetch = () => new Promise<string>((resolve) => setTimeout(resolve, 20_000))
 
 describe('http', () => {
   beforeEach(() => {
@@ -33,6 +32,53 @@ describe('http', () => {
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
+    it('retries a failed network request once', async () => {
+      jest.useFakeTimers()
+      fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
+      fetchMock.mockResponseOnce(JSON.stringify('ok'))
+
+      const request = http.get('/retry')
+
+      await Promise.resolve()
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+
+      await jest.advanceTimersByTimeAsync(399)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+
+      await jest.advanceTimersByTimeAsync(1)
+      await expect(request).resolves.toEqual('ok')
+
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+      expect(enqueueSnackbar).not.toHaveBeenCalled()
+
+      jest.runOnlyPendingTimers()
+      jest.useRealTimers()
+    })
+
+    it('retries a failed network request with a non-aborted signal', async () => {
+      fetchMock.mockRejectOnce(new TypeError('Failed to fetch'))
+      fetchMock.mockResponseOnce(JSON.stringify('ok'))
+
+      const controller = new AbortController()
+      await expect(http.get('/retry', { signal: controller.signal })).resolves.toEqual('ok')
+
+      expect(fetchMock).toHaveBeenCalledTimes(2)
+      expect(enqueueSnackbar).not.toHaveBeenCalled()
+    })
+
+    it('does not retry API errors whose message looks like a network error', async () => {
+      fetchMock.mockResponseOnce('network connection unavailable', {
+        status: 503,
+        statusText: 'Network connection unavailable',
+      })
+
+      await expect(http.get('/api-error')).rejects.toEqual(
+        expect.objectContaining({ status: 503, statusText: 'Network connection unavailable' })
+      )
+
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+    })
+
     it('coalesces matching requests only while they are pending', async () => {
       let resolveFetch: (response: Response) => void = () => undefined
       fetchMock.mockImplementationOnce(
@@ -49,7 +95,7 @@ describe('http', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1)
 
       resolveFetch(new Response(JSON.stringify('first response')))
-      await expect(first).resolves.toBe('first response')
+      await expect(Promise.all([first, concurrent])).resolves.toEqual(['first response', 'first response'])
 
       fetchMock.mockResponseOnce(JSON.stringify('second response'))
       await expect(http.get('/coalesced', { headers: { Authorization: 'Bearer token' } })).resolves.toBe(
@@ -114,6 +160,7 @@ describe('http', () => {
       const promise = http.get('/somewhere', { signal: controller.signal })
 
       expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+      expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
     it('should abort on post-aborted signal', async () => {
@@ -136,25 +183,36 @@ describe('http', () => {
       expect(enqueueSnackbar).not.toHaveBeenCalled()
     })
 
-    it('should timeout', async () => {
+    it('uses the configured default timeout', async () => {
       jest.useFakeTimers()
+      const timeoutEnv = jest.replaceProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', '60')
 
-      fetchMock.mockResponseOnce(mock20SecondFetch)
+      fetchMock.mockImplementationOnce(
+        (_url, init) =>
+          new Promise<Response>((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
+          })
+      )
 
       const promise = http.get('/test/')
-
-      jest.advanceTimersByTime(10_000)
-
       await Promise.resolve()
-      expect(promise).rejects.toEqual(
+      const signal = fetchMock.mock.calls[0][1]?.signal
+      const expectation = expect(promise).rejects.toEqual(
         expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
       )
 
+      await jest.advanceTimersByTimeAsync(59)
+      expect(signal?.aborted).toBe(false)
+
+      await jest.advanceTimersByTimeAsync(1)
+      await expectation
+
+      timeoutEnv.restore()
       jest.runOnlyPendingTimers()
       jest.useRealTimers()
     })
 
-    it('should support a longer timeout for slow requests', async () => {
+    it('supports a per-request timeout override', async () => {
       jest.useFakeTimers()
 
       fetchMock.mockImplementationOnce(
@@ -180,6 +238,18 @@ describe('http', () => {
 
       expect(response).rejects.toEqual(expect.objectContaining({ status: 401, statusText: 'access denied' }))
     })
+  })
+
+  it.each([
+    ['POST', () => http.post('/no-retry', {})],
+    ['PATCH', () => http.patch('/no-retry', {})],
+  ])('does not retry a failed %s request', async (_method, request) => {
+    const error = new TypeError('Failed to fetch')
+    fetchMock.mockReject(error)
+
+    await expect(request()).rejects.toThrow(error)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   describe('post', () => {

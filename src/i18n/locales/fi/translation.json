@@ -147,6 +147,7 @@
   "entryTitle_test": "Ilmoittaudu kokeeseen",
   "entryUpcoming": "Ilmoittautuminen tulossa",
   "error": {
+    "connectionInterrupted": "Verkkoyhteys katkesi. Tarkista yhteys ja yritä uudelleen. Jos lähetit lomakkeen, päivitä sivu ensin ja tarkista, tallentuiko se.",
     "entryNotOpen": "Ilmoittautuminen ei ole avoinna",
     "eventMayHaveBeenDeleted": "Tapahtuma on saatettu poistaa tai sinulla ei ole oikeuksia.",
     "eventNotFound": "Tapahtumaa ei löydy.",

@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import { enqueueSnackbar } from 'notistack'
 import { coalesceRequest } from '../lib/client/coalesceRequest'
 import { reportError } from '../lib/client/error'
@@ -15,6 +16,13 @@ interface HttpResponse<T> {
 interface HttpRequestInit extends RequestInit {
   coalesceRevision?: number | string
   timeoutMs?: number
+}
+
+const NETWORK_RETRY_DELAY_MS = 400
+
+const getDefaultHttpTimeoutMs = () => {
+  const configuredHttpTimeoutMs = Number(process.env.REACT_APP_HTTP_TIMEOUT_MS)
+  return Number.isFinite(configuredHttpTimeoutMs) && configuredHttpTimeoutMs > 0 ? configuredHttpTimeoutMs : 10_000
 }
 
 const getCoalesceKey = (path: string, init: HttpRequestInit | undefined, reviveDates: boolean): string | undefined => {
@@ -97,6 +105,12 @@ function anySignal(signals: AbortSignal[]): AbortSignal {
   return controller.signal
 }
 
+const isNetworkError = (error: unknown): boolean => {
+  if (!(error instanceof Error) || error.name === 'AbortError') return false
+
+  return /connection|fetch|internet|load failed|network/i.test(error.message)
+}
+
 async function httpWithTimeout<T>(
   path: string,
   init: HttpRequestInit,
@@ -104,7 +118,7 @@ async function httpWithTimeout<T>(
   returnStatus: boolean = false
 ): Promise<T | HttpResponse<T>> {
   const url = API_BASE_URL + path
-  const { coalesceRevision: _coalesceRevision, timeoutMs = 10_000, ...requestInit } = init
+  const { coalesceRevision: _coalesceRevision, timeoutMs = getDefaultHttpTimeoutMs(), ...requestInit } = init
 
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort('timeout'), timeoutMs)
@@ -158,9 +172,30 @@ async function http<T>(
     const result = await httpWithTimeout<T>(path, init, reviveDates, returnStatus)
 
     return result
-  } catch (err) {
+  } catch (initialError) {
+    let err = initialError
+
+    // A network switch commonly rejects an otherwise safe read request. Retry it once;
+    // mutations are deliberately left to their callers because their outcome may be unknown.
+    if (
+      init.method?.toUpperCase() === 'GET' &&
+      !init.signal?.aborted &&
+      !(err instanceof APIError) &&
+      isNetworkError(err)
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, NETWORK_RETRY_DELAY_MS))
+
+      if (!init.signal?.aborted) {
+        try {
+          return await httpWithTimeout<T>(path, init, reviveDates, returnStatus)
+        } catch (retryError) {
+          err = retryError
+        }
+      }
+    }
+
     if (!(err instanceof APIError)) {
-      enqueueSnackbar(`${err}`, errorSnackbarOptions)
+      enqueueSnackbar(isNetworkError(err) ? i18n.t('error.connectionInterrupted') : `${err}`, errorSnackbarOptions)
     }
 
     reportError(err)

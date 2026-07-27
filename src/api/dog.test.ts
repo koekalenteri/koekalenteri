@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import fetchMock from 'jest-fetch-mock'
 import { enqueueSnackbar } from 'notistack'
 import { API_BASE_URL } from '../routeConfig'
@@ -61,10 +62,13 @@ describe('getDog', () => {
     expect(fetchOptions?.signal?.aborted).toBe(true)
   })
 
-  it('should show snackbar and throw when fetch fails', async () => {
+  it('should show a connection recovery message and throw when fetch fails', async () => {
     const error = new Error('Failed to fetch')
     fetchMock.mockReject(error)
     await expect(getDog('testReg')).rejects.toThrow(error)
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Error: Failed to fetch', { persist: true, variant: 'error' })
+    expect(enqueueSnackbar).toHaveBeenCalledWith(i18n.t('error.connectionInterrupted'), {
+      persist: true,
+      variant: 'error',
+    })
   })
 })
