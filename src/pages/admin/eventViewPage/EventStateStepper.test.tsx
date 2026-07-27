@@ -10,6 +10,12 @@ import {
 import EventStateStepper from './EventStateStepper'
 
 describe('EventStateStepper', () => {
+  it('does not shrink vertically when the event page runs out of space', () => {
+    const { container } = render(<EventStateStepper event={eventWithEntryOpen} />)
+
+    expect(container.firstChild).toHaveStyle({ flexShrink: 0 })
+  })
+
   it.each<Exclude<ConfirmedEventStates, 'confirmed' | 'completed'>>(['picked', 'invited', 'started', 'ended'])(
     'marks %s as completed when the event has reached it',
     (state) => {
@@ -129,6 +135,27 @@ describe('EventStateStepper', () => {
 
     expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
     expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+  })
+
+  it('treats a missing start list field as published for a historical event with a stale state', () => {
+    render(<EventStateStepper event={{ ...eventWithStaticDates, startListPublished: undefined, state: 'picked' }} />)
+
+    const startListStep = screen
+      .getByText(/^event\.states\.startListPublished/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).toHaveClass('Mui-completed')
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-active')
+  })
+
+  it('keeps an explicitly hidden historical start list unpublished', () => {
+    render(<EventStateStepper event={{ ...eventWithStaticDates, startListPublished: false, state: 'picked' }} />)
+
+    const startListStep = screen
+      .getByText(/^event\.states\.publishStartList/, { selector: '.MuiStepLabel-label' })
+      .closest('[role="listitem"]')
+
+    expect(startListStep?.querySelector('.MuiStepIcon-root')).not.toHaveClass('Mui-completed')
   })
 
   it('uses the event dates when a historical state was not updated', () => {

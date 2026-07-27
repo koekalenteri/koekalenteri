@@ -13,7 +13,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
      (test)
   </h5>
   <div
-    class="MuiBox-root css-g2hg04"
+    class="MuiBox-root css-jbranp"
   >
     <div
       aria-label="event.phase"
@@ -174,11 +174,11 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         </span>
       </div>
       <div
-        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel css-1eqxcs7-MuiStep-root"
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
         role="listitem"
       >
         <div
-          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-disabled css-1k81fv-MuiStepConnector-root"
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
         >
           <span
             class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
@@ -188,17 +188,17 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
           class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
         >
           <span
-            class="MuiStepLabel-iconContainer Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root css-1umw9bq-MuiSvgIcon-root"
-              data-testid="RadioButtonUncheckedIcon"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-1umw9bq-MuiSvgIcon-root"
+              data-testid="CheckCircleIcon"
               focusable="false"
               viewBox="0 0 24 24"
             >
               <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
               />
             </svg>
           </span>
@@ -206,9 +206,9 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
             class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
           >
             <span
-              class="MuiStepLabel-label Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
             >
-              event.states.publishStartList
+              event.states.startListPublished
             </span>
           </span>
         </span>
@@ -4649,7 +4649,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
      (test)
   </h5>
   <div
-    class="MuiBox-root css-g2hg04"
+    class="MuiBox-root css-jbranp"
   >
     <div
       aria-label="event.phase"
@@ -4810,11 +4810,11 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         </span>
       </div>
       <div
-        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel css-1eqxcs7-MuiStep-root"
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
         role="listitem"
       >
         <div
-          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-disabled css-1k81fv-MuiStepConnector-root"
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
         >
           <span
             class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
@@ -4824,17 +4824,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
           class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
         >
           <span
-            class="MuiStepLabel-iconContainer Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root css-1umw9bq-MuiSvgIcon-root"
-              data-testid="RadioButtonUncheckedIcon"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-1umw9bq-MuiSvgIcon-root"
+              data-testid="CheckCircleIcon"
               focusable="false"
               viewBox="0 0 24 24"
             >
               <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
               />
             </svg>
           </span>
@@ -4842,9 +4842,9 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
             class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
           >
             <span
-              class="MuiStepLabel-label Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
             >
-              event.states.publishStartList
+              event.states.startListPublished
             </span>
           </span>
         </span>
@@ -10835,7 +10835,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
      (test)
   </h5>
   <div
-    class="MuiBox-root css-g2hg04"
+    class="MuiBox-root css-jbranp"
   >
     <div
       aria-label="event.phase"
@@ -10996,11 +10996,11 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
         </span>
       </div>
       <div
-        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel css-1eqxcs7-MuiStep-root"
+        class="MuiStep-root MuiStep-horizontal MuiStep-alternativeLabel Mui-completed css-1eqxcs7-MuiStep-root"
         role="listitem"
       >
         <div
-          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-disabled css-1k81fv-MuiStepConnector-root"
+          class="MuiStepConnector-root MuiStepConnector-horizontal MuiStepConnector-alternativeLabel Mui-completed Mui-disabled css-1k81fv-MuiStepConnector-root"
         >
           <span
             class="MuiStepConnector-line MuiStepConnector-lineHorizontal css-14ncu80-MuiStepConnector-line"
@@ -11010,17 +11010,17 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
           class="MuiStepLabel-root MuiStepLabel-horizontal Mui-disabled MuiStepLabel-alternativeLabel css-3yr9gi-MuiStepLabel-root"
         >
           <span
-            class="MuiStepLabel-iconContainer Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
+            class="MuiStepLabel-iconContainer Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-1b2ju2j-MuiStepLabel-iconContainer"
           >
             <svg
               aria-hidden="true"
-              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root css-1umw9bq-MuiSvgIcon-root"
-              data-testid="RadioButtonUncheckedIcon"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium MuiStepIcon-root Mui-completed css-1umw9bq-MuiSvgIcon-root"
+              data-testid="CheckCircleIcon"
               focusable="false"
               viewBox="0 0 24 24"
             >
               <path
-                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
               />
             </svg>
           </span>
@@ -11028,9 +11028,9 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
             class="MuiStepLabel-labelContainer MuiStepLabel-alternativeLabel css-p8xe3-MuiStepLabel-labelContainer"
           >
             <span
-              class="MuiStepLabel-label Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
+              class="MuiStepLabel-label Mui-completed Mui-disabled MuiStepLabel-alternativeLabel css-14qj6ht-MuiStepLabel-label"
             >
-              event.states.publishStartList
+              event.states.startListPublished
             </span>
           </span>
         </span>

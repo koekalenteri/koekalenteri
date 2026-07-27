@@ -48,20 +48,22 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
     return { eventClass, phaseIndex: getPhaseIndex(state, entryStarted) }
   })
-  const publishableStartListClasses = startListClasses.filter((eventClass) => {
-    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-    return canPublishStartList(state)
-  })
-  const publishedStartListClasses = publishableStartListClasses.filter((eventClass) =>
-    isStartListPublishedForClass(event, eventClass)
-  )
-  const startListActionable = publishableStartListClasses.length > 0
-  const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
   const temporalPhaseIndex = isEventOver(event)
     ? EVENT_PHASES.indexOf('ended')
     : isEventOngoing(event)
       ? EVENT_PHASES.indexOf('started')
       : -1
+  const legacyStartListPublished =
+    event.startListPublished === undefined && temporalPhaseIndex >= EVENT_PHASES.indexOf('started')
+  const publishableStartListClasses = startListClasses.filter((eventClass) => {
+    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
+    return canPublishStartList(state)
+  })
+  const publishedStartListClasses = legacyStartListPublished
+    ? startListClasses
+    : publishableStartListClasses.filter((eventClass) => isStartListPublishedForClass(event, eventClass))
+  const startListActionable = legacyStartListPublished || publishableStartListClasses.length > 0
+  const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
   const reachedPhaseIndex = Math.max(
     getPhaseIndex(event.state, entryStarted),
     temporalPhaseIndex,
@@ -70,7 +72,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
   const entryOpen = isEntryOpen(event)
 
   return (
-    <Box sx={{ overflowX: 'auto', py: 1, width: '100%' }}>
+    <Box sx={{ flexShrink: 0, overflowX: 'auto', py: 1, width: '100%' }}>
       <Stepper
         activeStep={-1}
         alternativeLabel
