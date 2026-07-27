@@ -8,6 +8,7 @@ import {
   getChanges,
   getPatchChangedIds,
   hasChanges,
+  hasEntryEnded,
   hasEntryStarted,
   isDateOnlyString,
   isDateString,
@@ -316,6 +317,20 @@ describe('utils', () => {
     it('returns false before the entry start date or without one', () => {
       expect(hasEntryStarted({ entryStartDate: new Date('2026-07-17T12:00:00+03:00') }, now)).toBe(false)
       expect(hasEntryStarted({}, now)).toBe(false)
+    })
+  })
+
+  describe('hasEntryEnded', () => {
+    const now = new Date('2026-07-16T12:00:00+03:00')
+
+    it('returns true after the entry end date', () => {
+      expect(hasEntryEnded({ entryEndDate: new Date('2026-07-15T12:00:00+03:00') }, now)).toBe(true)
+    })
+
+    it('returns false during or before the entry end date or without one', () => {
+      expect(hasEntryEnded({ entryEndDate: new Date('2026-07-16T12:00:00+03:00') }, now)).toBe(false)
+      expect(hasEntryEnded({ entryEndDate: new Date('2026-07-17T12:00:00+03:00') }, now)).toBe(false)
+      expect(hasEntryEnded({}, now)).toBe(false)
     })
   })
 

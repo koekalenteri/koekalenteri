@@ -12,12 +12,17 @@ import { flushPromises, renderWithUserEvents } from '../../../test-utils/utils'
 import ClassEntrySelection from './ClassEntrySelection'
 
 const mockSaveGroups = jest.fn().mockResolvedValue(undefined)
+const activeEvent = {
+  ...eventWithStaticDatesAnd3Classes,
+  endDate: new Date('2099-12-31'),
+}
 const mockedGroups: RegistrationDate[] = [
   { date: eventWithStaticDatesAnd3Classes.startDate, key: '2021-02-10-ap', time: 'ap' } as RegistrationDate,
   { date: eventWithStaticDatesAnd3Classes.startDate, key: '2021-02-10-ip', time: 'ip' } as RegistrationDate,
 ]
 
 let mockLastCallbacks: any
+let mockDroppableProps: any[] = []
 
 jest.mock('../../../hooks/useAdminEventRegistrationDates', () => ({
   useAdminEventRegistrationDates: () => mockedGroups,
@@ -62,7 +67,10 @@ jest.mock('./classEntrySelection/useClassEntrySelectionColumns', () => ({
   },
 }))
 
-jest.mock('./classEntrySelection/DroppableDataGrid', () => () => <div data-testid="droppable-grid" />)
+jest.mock('./classEntrySelection/DroppableDataGrid', () => (props: any) => {
+  mockDroppableProps.push(props)
+  return <div data-testid="droppable-grid" />
+})
 jest.mock('../../components/StyledDataGrid', () => () => <div data-testid="header-grid" />)
 jest.mock('./classEntrySelection/UnlockArrange', () => () => <div data-testid="unlock-arrange" />)
 jest.mock('./classEntrySelection/GroupHeader', () => () => <div />)
@@ -112,6 +120,7 @@ describe('ClassEntrySelection behavior coverage', () => {
   beforeEach(() => {
     mockSaveGroups.mockClear()
     mockLastCallbacks = undefined
+    mockDroppableProps = []
   })
 
   afterEach(async () => {
@@ -138,7 +147,7 @@ describe('ClassEntrySelection behavior coverage', () => {
 
     render(
       <ClassEntrySelection
-        event={eventWithStaticDatesAnd3Classes}
+        event={activeEvent}
         eventClass="ALO"
         registrations={registrations}
         setOpen={jest.fn()}
@@ -160,6 +169,52 @@ describe('ClassEntrySelection behavior coverage', () => {
         id: 'target-participant',
       }),
     ])
+  })
+
+  it('prevents moving registrations after the event has ended', async () => {
+    const setOpen = jest.fn()
+    const setCancelOpen = jest.fn()
+    const registration = {
+      ...registrationWithStaticDates,
+      group: { date: mockedGroups[0].date, key: '2021-02-10-ap', number: 1, time: 'ap' } as any,
+      id: 'participant-1',
+    }
+
+    render(
+      <ClassEntrySelection
+        event={{ ...eventWithStaticDatesAnd3Classes, state: 'invited' }}
+        eventClass="ALO"
+        registrations={[registration]}
+        setCancelOpen={setCancelOpen}
+        setOpen={setOpen}
+        state="invited"
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+
+    expect(mockLastCallbacks.movementDisabled).toBe(true)
+    expect(mockLastCallbacks.actionsDisabled).toBe(true)
+    await act(async () => {
+      mockLastCallbacks.openEditDialog(registration.id)
+      mockLastCallbacks.cancelRegistration(registration.id)
+      mockLastCallbacks.sendMessage(registration.id)
+      await mockLastCallbacks.moveToReserve(registration.id)
+      mockLastCallbacks.moveToGroup(registration.id)
+      mockLastCallbacks.moveToPosition(registration.id)
+    })
+
+    expect(mockSaveGroups).not.toHaveBeenCalled()
+    expect(setOpen).not.toHaveBeenCalled()
+    expect(setCancelOpen).not.toHaveBeenCalled()
+    expect(screen.queryByText('send-message-open')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'move-group' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'move-position' })).not.toBeInTheDocument()
+    expect(mockDroppableProps).not.toHaveLength(0)
+    mockDroppableProps.forEach((props) => {
+      expect(props.canDrop({ groupKey: GROUP_KEY_RESERVE })).toBe(false)
+      expect(props.slotProps.row.draggable).toBe(false)
+    })
   })
 
   it('opens dialogs through callbacks and executes group/position move handlers', async () => {
@@ -195,7 +250,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ]
 
     const { user } = renderWithUserEvents(
-      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
+      <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
       { advanceTimers: jest.advanceTimersByTime }
     )
@@ -280,7 +335,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ]
 
     const { user } = renderWithUserEvents(
-      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
+      <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
       { advanceTimers: jest.advanceTimersByTime }
     )
@@ -304,7 +359,7 @@ describe('ClassEntrySelection behavior coverage', () => {
     ]
 
     const { user } = renderWithUserEvents(
-      <ClassEntrySelection event={eventWithStaticDatesAnd3Classes} eventClass="ALO" registrations={registrations} />,
+      <ClassEntrySelection event={activeEvent} eventClass="ALO" registrations={registrations} />,
       { wrapper: Wrapper },
       { advanceTimers: jest.advanceTimersByTime }
     )

@@ -31,6 +31,8 @@ interface RegistrationActionCallbacks {
   moveToParticipants?: (id: string) => void
   sendMessage?: (id: string) => void
   pendingMoveId?: string
+  actionsDisabled?: boolean
+  movementDisabled?: boolean
   canMoveReserveToPosition?: boolean
   canMoveToPosition?: (registration: Registration) => boolean
 }
@@ -59,7 +61,7 @@ const getParticipantMovementActions = ({
     actions.push(
       <GridActionsCellItem
         key="moveToGroup"
-        disabled={isPendingMove}
+        disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
         icon={spinnerOr(<SwapHorizOutlined fontSize="small" />, isPendingMove)}
         label={t('registration.actions.moveToGroup')}
         onClick={() => callbacks?.moveToGroup?.(row.id)}
@@ -71,7 +73,7 @@ const getParticipantMovementActions = ({
   actions.push(
     <GridActionsCellItem
       key="moveToPosition"
-      disabled={isPendingMove || callbacks?.canMoveToPosition?.(row) === false}
+      disabled={isPendingMove || Boolean(callbacks?.movementDisabled) || callbacks?.canMoveToPosition?.(row) === false}
       icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
       label={t('registration.actions.moveToPosition')}
       onClick={() => callbacks?.moveToPosition?.(row.id)}
@@ -79,7 +81,9 @@ const getParticipantMovementActions = ({
     />,
     <GridActionsCellItem
       key="moveToReserve"
-      disabled={isPendingMove || event.state === 'picked' || event.state === 'invited'}
+      disabled={
+        isPendingMove || Boolean(callbacks?.movementDisabled) || event.state === 'picked' || event.state === 'invited'
+      }
       icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
       label={t('registration.actions.moveToReserve')}
       onClick={() => callbacks?.moveToReserve?.(row.id)}
@@ -98,7 +102,7 @@ const getReserveMovementActions = ({
 }: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
   <GridActionsCellItem
     key="moveToParticipants"
-    disabled={isPendingMove}
+    disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
     icon={spinnerOr(<SwapHorizOutlined fontSize="small" />, isPendingMove)}
     label={t('registration.actions.moveToParticipants')}
     onClick={() => callbacks?.moveToParticipants?.(row.id)}
@@ -106,7 +110,7 @@ const getReserveMovementActions = ({
   />,
   <GridActionsCellItem
     key="moveToPosition"
-    disabled={isPendingMove || callbacks?.canMoveReserveToPosition === false}
+    disabled={isPendingMove || Boolean(callbacks?.movementDisabled) || callbacks?.canMoveReserveToPosition === false}
     icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
     label={t('registration.actions.moveToPosition')}
     onClick={() => callbacks?.moveToPosition?.(row.id)}
@@ -122,7 +126,7 @@ const getCancelledMovementActions = ({
 }: RegistrationActionsOptions & { isPendingMove: boolean }): ReactElement[] => [
   <GridActionsCellItem
     key="moveToReserve"
-    disabled={isPendingMove}
+    disabled={isPendingMove || Boolean(callbacks?.movementDisabled)}
     icon={spinnerOr(<LowPriorityOutlined fontSize="small" />, isPendingMove)}
     label={t('registration.actions.moveToReserve')}
     onClick={() => callbacks?.moveToReserve?.(row.id)}
@@ -138,6 +142,7 @@ const getMovementActions = (options: RegistrationActionsOptions & { groupKey: st
 
 const createRegistrationActions = (options: RegistrationActionsOptions): ReactElement[] => {
   const { callbacks, row, t } = options
+  const actionsDisabled = Boolean(callbacks?.actionsDisabled)
   const groupKey = getRegistrationGroupKey(row)
   const isPendingMove = callbacks?.pendingMoveId === row.id
   const actions = getMovementActions({ ...options, groupKey, isPendingMove })
@@ -157,6 +162,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
   actions.push(
     <GridActionsCellItem
       key="edit"
+      disabled={actionsDisabled}
       icon={<EditOutlined fontSize="small" />}
       label={t('registration.actions.edit')}
       onClick={() => callbacks?.openEditDialog?.(row.id)}
@@ -168,6 +174,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
     actions.push(
       <GridActionsCellItem
         key="cancel"
+        disabled={actionsDisabled}
         icon={<EventBusyOutlined fontSize="small" />}
         label={t('registration.actions.cancel')}
         onClick={() => callbacks?.cancelRegistration?.(row.id)}
@@ -179,6 +186,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
   actions.push(
     <GridActionsCellItem
       key="sendMessage"
+      disabled={actionsDisabled}
       icon={<EmailOutlined fontSize="small" />}
       label={t('registration.actions.sendMessage')}
       onClick={() => callbacks?.sendMessage?.(row.id)}

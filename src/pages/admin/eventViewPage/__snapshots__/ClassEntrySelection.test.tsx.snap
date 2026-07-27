@@ -1685,7 +1685,7 @@ exports[`ClassEntrySelection renders 1`] = `
       </h6>
     </div>
     <div
-      class="accept"
+      class=""
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
@@ -2240,7 +2240,7 @@ exports[`ClassEntrySelection renders 1`] = `
       Peruneet
     </h6>
     <div
-      class="accept"
+      class=""
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
@@ -4528,7 +4528,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       </h6>
     </div>
     <div
-      class="accept"
+      class=""
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
@@ -5042,7 +5042,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   data-handler-id="T8"
                   data-id="nou-registration"
                   data-rowindex="0"
-                  draggable="true"
                   role="row"
                   style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                 >
@@ -5379,7 +5378,7 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
       Peruneet
     </h6>
     <div
-      class="accept"
+      class=""
       style="display: flex; flex-grow: 1; width: 100%;"
     >
       <div
@@ -5943,7 +5942,6 @@ exports[`ClassEntrySelection renders with cancelled registration(s) 1`] = `
                   data-handler-id="T10"
                   data-id="cancelled-registration"
                   data-rowindex="0"
-                  draggable="true"
                   role="row"
                   style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                 >

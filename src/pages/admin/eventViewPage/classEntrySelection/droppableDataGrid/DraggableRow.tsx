@@ -9,6 +9,7 @@ import { determinePosition } from './position'
 // augment the props for the row slot
 declare module '@mui/x-data-grid' {
   interface RowPropsOverrides {
+    draggable?: boolean
     groupKey?: string
   }
 }
@@ -17,7 +18,7 @@ interface Props extends GridRowProps {
   readonly groupKey?: string
 }
 
-const DraggableRow = ({ groupKey, ...props }: Props) => {
+const DraggableRow = ({ draggable = true, groupKey, ...props }: Props) => {
   const apiRef = useGridApiContext()
   const manager = useDragDropManager()
   const ref = useRef<HTMLDivElement>(null)
@@ -27,7 +28,7 @@ const DraggableRow = ({ groupKey, ...props }: Props) => {
   // our DnD hooks don't create items with missing ids.
   const rowId = (props.rowId ?? (props.row as any)?.id) as unknown
   const hasRowId = rowId !== null && rowId !== undefined
-  const canDrag = hasRowId && props.row !== null && props.row !== undefined
+  const canDrag = draggable && hasRowId && props.row !== null && props.row !== undefined
 
   // In MUI X v7 during cross-grid moves we can end up rendering a row slot for an
   // id that is temporarily missing from the grid state. The internal `GridRow`

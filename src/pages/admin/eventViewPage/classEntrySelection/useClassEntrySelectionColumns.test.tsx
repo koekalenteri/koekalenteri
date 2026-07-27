@@ -101,6 +101,22 @@ describe('useClassEntrySectionColumns', () => {
     expect(cancelRegistrationMock).toHaveBeenCalledWith('test-id')
   })
 
+  it('disables editing, cancellation, and messaging when event actions are disabled', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        actionsDisabled: true,
+      })
+    )
+    const actionsColumn = result.current.entryColumns.find((column) => column.field === 'actions')
+    const actions = (actionsColumn as any)?.getActions({
+      row: { cancelled: false, group: { key: 'P' }, id: 'test-id' },
+    } as GridRenderCellParams<any, Registration>) as ReactElement[]
+
+    expect(actions.find((action) => action.key === 'edit')?.props.disabled).toBe(true)
+    expect(actions.find((action) => action.key === 'cancel')?.props.disabled).toBe(true)
+    expect(actions.find((action) => action.key === 'sendMessage')?.props.disabled).toBe(true)
+  })
+
   it('should not include cancel action for cancelled registrations', () => {
     const openEditDialogMock = jest.fn()
     const cancelRegistrationMock = jest.fn()
@@ -780,6 +796,33 @@ describe('Action column in detail', () => {
 
     expect(participantActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(true)
     expect(cancelledActions.find((a) => a.key === 'moveToReserve')?.props.disabled).toBe(false)
+  })
+
+  it('should disable all movement actions when movement is locked', () => {
+    const { result } = renderHook(() =>
+      useClassEntrySelectionColumns(mockAvailableDates, eventWithStaticDatesAnd3Classes, {
+        movementDisabled: true,
+      })
+    )
+    const rows = [
+      { group: { key: 'P', number: 1 }, id: 'p-1' },
+      { group: { key: registrationUtils.GROUP_KEY_RESERVE, number: 1 }, id: 'r-1' },
+      { cancelled: true, group: { key: registrationUtils.GROUP_KEY_CANCELLED, number: 1 }, id: 'c-1' },
+    ] as unknown as Registration[]
+    const columns = [result.current.entryColumns, result.current.entryColumns, result.current.cancelledColumns]
+
+    rows.forEach((row, index) => {
+      const actionsColumn = columns[index].find((column) => column.field === 'actions')
+      expect(actionsColumn).toBeDefined()
+      const movementActions = (
+        (actionsColumn as any).getActions({ row } as GridRenderCellParams<any, Registration>) as ReactElement[]
+      ).filter((action) => String(action.key).startsWith('moveTo'))
+
+      expect(movementActions.length).toBeGreaterThan(0)
+      movementActions.forEach((action) => {
+        expect(action.props.disabled).toBe(true)
+      })
+    })
   })
 
   it('should handle missing callback functions', () => {

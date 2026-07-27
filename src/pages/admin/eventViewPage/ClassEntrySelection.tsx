@@ -17,6 +17,7 @@ import { useAdminEventRegistrationGroups } from '../../../hooks/useAdminEventReg
 import { eventRegistrationDateKey } from '../../../lib/event'
 import { GROUP_KEY_CANCELLED, GROUP_KEY_RESERVE, getRegistrationGroupKey } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
+import { isEventOver } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
 import StyledDataGrid from '../../components/StyledDataGrid'
 import { useAdminRegistrationActions } from '../recoil/registrations/actions'
@@ -80,6 +81,8 @@ const ClassEntrySelection = ({
   const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
   const [pendingMoveId, setPendingMoveId] = useState<string>()
   const [selectedForAction, setSelectedForAction] = useState<Registration | undefined>()
+  const actionsDisabled = isEventOver(event) || (state ? ['ended', 'completed'].includes(state) : false)
+  const movementDisabled = actionsDisabled
 
   // Extract entry handlers to dedicated hook
   const { handleOpen, handleCancel, handleRefund, handleSelectionModeChange, handleCellClick, handleDoubleClick } =
@@ -128,6 +131,13 @@ const ClassEntrySelection = ({
     },
     [registrations]
   )
+  const openMoveDialog = useCallback(
+    (id: string, openDialog: Dispatch<SetStateAction<boolean>>) => {
+      if (movementDisabled) return
+      openActionDialog(id, openDialog)
+    },
+    [movementDisabled, openActionDialog]
+  )
 
   const canMoveReserveToPosition = useMemo(() => {
     return groups.some((group) => (registrationsByGroup[group.key]?.length ?? 0) > 0)
@@ -155,13 +165,19 @@ const ClassEntrySelection = ({
   // Callback functions for kebab menu actions
   const callbacks = useMemo(
     () => ({
-      cancelRegistration: handleCancel,
+      actionsDisabled,
+      cancelRegistration: (id: string) => {
+        if (actionsDisabled) return
+        handleCancel(id)
+      },
       canMoveReserveToPosition,
       canMoveToPosition: canMoveParticipantToPosition,
-      moveToGroup: (id: string) => openActionDialog(id, setMoveToGroupDialogOpen),
-      moveToParticipants: (id: string) => openActionDialog(id, setMoveToGroupDialogOpen),
-      moveToPosition: (id: string) => openActionDialog(id, setMoveToPositionDialogOpen),
+      movementDisabled,
+      moveToGroup: (id: string) => openMoveDialog(id, setMoveToGroupDialogOpen),
+      moveToParticipants: (id: string) => openMoveDialog(id, setMoveToGroupDialogOpen),
+      moveToPosition: (id: string) => openMoveDialog(id, setMoveToPositionDialogOpen),
       moveToReserve: async (id: string) => {
+        if (movementDisabled) return
         const reg = registrations.find((r) => r.id === id)
         if (!reg) return
         setPendingMoveId(id)
@@ -180,14 +196,21 @@ const ClassEntrySelection = ({
           setPendingMoveId(undefined)
         }
       },
-      openEditDialog: handleOpen,
+      openEditDialog: (id: string) => {
+        if (actionsDisabled) return
+        handleOpen(id)
+      },
       pendingMoveId,
       refundRegistration: handleRefund,
-      sendMessage: (id: string) => openActionDialog(id, setSendMessageDialogOpen),
+      sendMessage: (id: string) => {
+        if (actionsDisabled) return
+        openActionDialog(id, setSendMessageDialogOpen)
+      },
     }),
     [
       registrations,
       openActionDialog,
+      openMoveDialog,
       handleOpen,
       handleCancel,
       handleRefund,
@@ -197,6 +220,8 @@ const ClassEntrySelection = ({
       canMoveReserveToPosition,
       canMoveParticipantToPosition,
       t,
+      movementDisabled,
+      actionsDisabled,
     ]
   )
 
@@ -206,12 +231,13 @@ const ClassEntrySelection = ({
     () => !registrationsByGroup.reserve.some((r) => r.reserveNotified),
     [registrationsByGroup.reserve]
   )
-  const canArrangeReserve = reserveNotNotified || unlockArrange
+  const canArrangeReserve = !movementDisabled && (reserveNotNotified || unlockArrange)
 
   // Extract DnD handlers to dedicated hook
   const { handleDrop, handleReject } = useDnDHandlers({
     canArrangeReserve,
     confirm,
+    disabled: movementDisabled,
     onCancelOpen: handleCancel,
     registrations,
     saveGroups: actions.saveGroups,
@@ -252,7 +278,7 @@ const ClassEntrySelection = ({
           <Fragment key={group.key}>
             <DroppableDataGrid
               canDrop={(item: DragItem | undefined) => {
-                return state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE
+                return !movementDisabled && (state !== 'started' || item?.groupKey === GROUP_KEY_RESERVE)
               }}
               flex={registrationsByGroup[group.key]?.length}
               key={group.key}
@@ -264,13 +290,14 @@ const ClassEntrySelection = ({
               onRowSelectionModelChange={handleSelectionModeChange}
               rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
               onCellClick={handleCellClick}
-              onRowDoubleClick={handleDoubleClick}
+              onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
               slots={{
                 noRowsOverlay: NoRowsOverlay,
                 toolbar: GroupHeader,
               }}
               slotProps={{
                 row: {
+                  draggable: !movementDisabled,
                   groupKey: group.key,
                 },
                 toolbar: {
@@ -302,17 +329,23 @@ const ClassEntrySelection = ({
 
         <Stack direction="row" justifyContent="space-between" gap={2}>
           <Typography variant="h6">Ilmoittautuneet</Typography>
-          <UnlockArrange checked={unlockArrange} disabled={reserveNotNotified} onChange={setUnlockArrange} />
+          <UnlockArrange
+            checked={unlockArrange}
+            disabled={movementDisabled || reserveNotNotified}
+            onChange={setUnlockArrange}
+          />
         </Stack>
         <DroppableDataGrid
           canDrop={(item: DragItem | undefined) =>
-            (state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
-            item?.groupKey === GROUP_KEY_CANCELLED ||
-            (item?.groupKey === GROUP_KEY_RESERVE && canArrangeReserve)
+            !movementDisabled &&
+            ((state !== 'picked' && item?.groupKey !== GROUP_KEY_RESERVE) ||
+              item?.groupKey === GROUP_KEY_CANCELLED ||
+              (item?.groupKey === GROUP_KEY_RESERVE && canArrangeReserve))
           }
           columns={entryColumns}
           slotProps={{
             row: {
+              draggable: !movementDisabled,
               groupKey: 'reserve',
             },
           }}
@@ -321,16 +354,17 @@ const ClassEntrySelection = ({
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
           onCellClick={handleCellClick}
-          onRowDoubleClick={handleDoubleClick}
+          onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
           onDrop={handleDrop({ key: 'reserve', number: registrationsByGroup.reserve.length + 1 })}
           onReject={handleReject({ key: 'reserve', number: 0 })}
         />
         <Typography variant="h6">Peruneet</Typography>
         <DroppableDataGrid
-          canDrop={(item: DragItem | undefined) => item?.groupKey !== GROUP_KEY_CANCELLED}
+          canDrop={(item: DragItem | undefined) => !movementDisabled && item?.groupKey !== GROUP_KEY_CANCELLED}
           columns={cancelledColumns}
           slotProps={{
             row: {
+              draggable: !movementDisabled,
               groupKey: GROUP_KEY_CANCELLED,
             },
           }}
@@ -339,7 +373,7 @@ const ClassEntrySelection = ({
           onRowSelectionModelChange={handleSelectionModeChange}
           rowSelectionModel={selectedRegistrationId ? [selectedRegistrationId] : []}
           onCellClick={handleCellClick}
-          onRowDoubleClick={handleDoubleClick}
+          onRowDoubleClick={actionsDisabled ? undefined : handleDoubleClick}
           onDrop={handleDrop({ key: GROUP_KEY_CANCELLED, number: registrationsByGroup.cancelled.length + 1 })}
         />
       </ScrollDiv>
@@ -353,6 +387,7 @@ const ClassEntrySelection = ({
             event={event}
             groups={groups}
             onMove={async (groupKey) => {
+              if (movementDisabled) return
               setPendingMoveId(selectedForAction.id)
               try {
                 const change = buildMoveToGroupChange(selectedForAction, groupKey, groups)
@@ -371,6 +406,7 @@ const ClassEntrySelection = ({
             registration={selectedForAction}
             positions={moveToPositionOptions}
             onMove={async (position) => {
+              if (movementDisabled) return
               setPendingMoveId(selectedForAction.id)
               try {
                 const change = buildMoveToPositionGroupChange(selectedForAction, position, groups, registrationsByGroup)

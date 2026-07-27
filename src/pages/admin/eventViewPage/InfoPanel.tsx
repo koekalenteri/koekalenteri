@@ -33,7 +33,7 @@ import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/
 import { invitationAttachmentFileName } from '../../../lib/fileName'
 import { getInvitationRecipients, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
-import { isEntryClosed } from '../../../lib/utils'
+import { hasEntryEnded, isEventOver } from '../../../lib/utils'
 import { Path } from '../../../routeConfig'
 import { validIdTokenSelector } from '../../recoil'
 import { AuditTrail } from '../components/AuditTrail'
@@ -58,6 +58,7 @@ const sectionSx = {
 const actionButtonSx = { justifyContent: 'flex-start', textAlign: 'left' }
 
 interface InvitationAttachmentControlProps {
+  readonly disabled?: boolean
   readonly file?: {
     readonly href: string
     readonly name: string
@@ -80,11 +81,11 @@ const InvitationAttachmentFile = ({ file }: Pick<InvitationAttachmentControlProp
     </Typography>
   )
 
-const InvitationAttachmentControl = ({ file, inputId, onChange }: InvitationAttachmentControlProps) => (
+const InvitationAttachmentControl = ({ disabled, file, inputId, onChange }: InvitationAttachmentControlProps) => (
   <>
-    <input accept="application/pdf" type="file" hidden id={inputId} onChange={onChange} />
+    <input accept="application/pdf" disabled={disabled} type="file" hidden id={inputId} onChange={onChange} />
     <label htmlFor={inputId}>
-      <Button color="secondary" component="span" size="small" variant="contained">
+      <Button color="secondary" component="span" disabled={disabled} size="small" variant="contained">
         {file ? 'Vaihda PDF' : 'Lisää PDF'}
       </Button>
     </label>
@@ -117,11 +118,13 @@ const InfoPanel = ({
     event,
     registrations
   )
+  const entryEnded = hasEntryEnded(event)
+  const eventFinished = isEventOver(event)
   const toggle = useCallback(() => setExpanded((old) => !old), [])
   const handleSetStartListPublished = useCallback(
     async (eventClass: RegistrationClass | undefined, published: boolean) => {
       const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
-      if (!canPublishStartList(state)) {
+      if (eventFinished || !canPublishStartList(state)) {
         return
       }
       if (!onSetStartListPublished) {
@@ -137,11 +140,13 @@ const InfoPanel = ({
         enqueueSnackbar('Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.', errorSnackbarOptions)
       }
     },
-    [event, onSetStartListPublished, stateByClass]
+    [event, eventFinished, onSetStartListPublished, stateByClass]
   )
   const handleInvitationUpload = useCallback(
     (className?: RegistrationClass) => async (e: ChangeEvent<HTMLInputElement>) => {
       const input = e.target
+
+      if (eventFinished) return
 
       if (!input.files) {
         console.log('no files')
@@ -195,7 +200,7 @@ const InfoPanel = ({
         input.value = ''
       }
     },
-    [classAttachmentKeys, event, setEvent, token]
+    [classAttachmentKeys, event, eventFinished, setEvent, token]
   )
 
   useEffect(() => {
@@ -324,15 +329,21 @@ const InfoPanel = ({
                     const selected = selectedByClass[c] ?? []
                     const reserves = reserveByClass[c] ?? []
                     const classState = stateByClass[c] ?? event.state
+                    const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
                     const canSendPlaceNotification =
-                      isEntryClosed(event) && nums.participants > 0 && !nums.invalid && classState === 'confirmed'
+                      entryEnded &&
+                      !classFinished &&
+                      nums.participants > 0 &&
+                      !nums.invalid &&
+                      classState === 'confirmed'
                     const placeNotificationsSent =
                       selected.length > 0 &&
                       (['picked', 'invited'].includes(classState) ||
                         selected.every((registration) => registration.messagesSent?.picked))
-                    const placeConfirmationsBlockedByEntry = !isEntryClosed(event)
+                    const placeConfirmationsBlockedByEntry = !entryEnded && !classFinished
                     const reserveNotificationsSent =
                       reserves.length > 0 && reserves.every((registration) => registration.reserveNotified)
+                    const canSendReserveNotification = !classFinished && nums.reserve > 0
 
                     return (
                       <Fragment key={c}>
@@ -415,10 +426,10 @@ const InfoPanel = ({
                             ) : (
                               <Button
                                 size="small"
-                                disabled={nums.reserve === 0}
+                                disabled={!canSendReserveNotification}
                                 onClick={() => onOpenMessageDialog?.(reserves, 'reserve')}
                                 color="primary"
-                                variant={nums.reserve > 0 ? 'contained' : 'outlined'}
+                                variant={canSendReserveNotification ? 'contained' : 'outlined'}
                               >
                                 Lähetä varasijailmoitus
                               </Button>
@@ -445,8 +456,12 @@ const InfoPanel = ({
                     const recipients = getInvitationRecipients(eventWithCurrentAttachments, selected)
                     const invitationsSent = selected.length > 0 && recipients.length === 0
                     const classState = stateByClass[c] ?? event.state
+                    const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
                     const canSend =
-                      isEntryClosed(event) && ['picked', 'invited'].includes(classState) && recipients.length > 0
+                      entryEnded &&
+                      !classFinished &&
+                      ['picked', 'invited'].includes(classState) &&
+                      recipients.length > 0
                     const eventClass = isRegistrationClass(c) && eventClasses.includes(c) ? c : undefined
                     const classAttachmentKey = eventClass ? classAttachmentKeys[eventClass] : undefined
                     const classEvent = eventClass ? event.classes.find((item) => item.class === eventClass) : undefined
@@ -481,6 +496,7 @@ const InfoPanel = ({
                           </TableCell>
                           <TableCell align="right" sx={{ borderBottom: 0 }}>
                             <InvitationAttachmentControl
+                              disabled={classFinished}
                               file={classAttachmentFile}
                               inputId={eventClass ? `koekutsu-file-${eventClass}` : 'koekutsu-file'}
                               onChange={handleInvitationUpload(eventClass)}
@@ -495,12 +511,12 @@ const InfoPanel = ({
                                   Koekutsut lähetetty
                                 </Typography>
                               )}
-                              {!invitationsSent && classState === 'confirmed' && (
+                              {!invitationsSent && classState === 'confirmed' && !classFinished && (
                                 <Typography variant="caption" color="text.secondary">
                                   Koekutsut voi lähettää koepaikkailmoitusten jälkeen
                                 </Typography>
                               )}
-                              {!invitationsSent && classState !== 'confirmed' && !isEntryClosed(event) && (
+                              {!invitationsSent && classState !== 'confirmed' && !entryEnded && !classFinished && (
                                 <Typography variant="caption" color="text.secondary">
                                   Koekutsut voi lähettää ilmoittautumisajan päätyttyä
                                 </Typography>
@@ -539,11 +555,13 @@ const InfoPanel = ({
                     const invitationsSent =
                       selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
                     const classState = stateByClass[c] ?? event.state
+                    const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
                     const startListPublished = isStartListPublishedForClass(event, c)
                     const classlessEventRow = event.classes.length === 0 && c === event.eventType
                     const startListEventClass = isRegistrationClass(c) ? c : undefined
                     const startListManageable =
                       Boolean(onSetStartListPublished) &&
+                      !classFinished &&
                       (classlessEventRow || Boolean(startListEventClass)) &&
                       canPublishStartList(classState)
                     const canManageStartList = invitationsSent && startListManageable
@@ -605,6 +623,7 @@ const InfoPanel = ({
                 Näytä tapahtuman tiedot
               </Button>
               <Button
+                disabled={eventFinished}
                 fullWidth
                 onClick={onCreateRegistration}
                 startIcon={<AddCircleOutline />}

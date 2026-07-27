@@ -23,6 +23,15 @@ import { idTokenAtom } from '../../recoil'
 import { adminEventsAtom } from '../recoil'
 import InfoPanel from './InfoPanel'
 
+const activeEventWithStaticDates = {
+  ...eventWithStaticDates,
+  endDate: new Date('2099-12-31'),
+}
+const activeEventWithStaticDatesAndClass = {
+  ...eventWithStaticDatesAndClass,
+  endDate: new Date('2099-12-31'),
+}
+
 // Mock the API calls
 jest.mock('../../../api/event')
 jest.mock('../../../api/user')
@@ -89,7 +98,7 @@ describe('InfoPanel>', () => {
   })
 
   it('shows status and task sections when opened', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
     await openInfoPanel(user)
@@ -121,7 +130,7 @@ describe('InfoPanel>', () => {
   })
 
   it('shows the audit trail on its own tab', async () => {
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
     await openInfoPanel(user)
@@ -147,7 +156,7 @@ describe('InfoPanel>', () => {
   it('runs the moved create registration action', async () => {
     const onCreateRegistration = jest.fn()
     const { user } = renderWithUserEvents(
-      <InfoPanel event={eventWithStaticDates} onCreateRegistration={onCreateRegistration} registrations={[]} />,
+      <InfoPanel event={activeEventWithStaticDates} onCreateRegistration={onCreateRegistration} registrations={[]} />,
       {
         wrapper: RecoilRoot,
       }
@@ -292,6 +301,30 @@ describe('InfoPanel>', () => {
 
     expect(screen.getByText('Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Lähetä koepaikkailmoitus' })).not.toBeInTheDocument()
+  })
+
+  it('does not show entry period guidance after the event has ended', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, endDate: new Date(0) }}
+        registrations={registrationsToEventWithParticipantsInvited}
+      />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.queryByText('Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä')).not.toBeInTheDocument()
+    expect(screen.queryByText('Koekutsut voi lähettää ilmoittautumisajan päätyttyä')).not.toBeInTheDocument()
+    screen.getAllByRole('button', { name: /Lähetä (koepaikka|varasija|koekutsu)/ }).forEach((button) => {
+      expect(button).toBeDisabled()
+    })
+    screen.getAllByRole('button', { name: 'Lisää PDF' }).forEach((button) => {
+      expect(button).toHaveAttribute('aria-disabled', 'true')
+    })
+    screen.getAllByRole('button', { name: 'Piilota starttilista' }).forEach((button) => {
+      expect(button).toBeDisabled()
+    })
+    expect(screen.getByRole('button', { name: 'createRegistration' })).toBeDisabled()
   })
 
   it('disables invitations before the registration period is over', async () => {
@@ -676,7 +709,7 @@ describe('InfoPanel>', () => {
   it('shows a publish start list CTA for an event without classes', async () => {
     const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
     const event = {
-      ...eventWithStaticDates,
+      ...activeEventWithStaticDates,
       startListPublished: false,
       state: 'invited' as const,
     }
@@ -709,7 +742,7 @@ describe('InfoPanel>', () => {
   it('shows a hide start list CTA for a published event without classes', async () => {
     const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
     const event = {
-      ...eventWithStaticDates,
+      ...activeEventWithStaticDates,
       startListPublished: true,
       state: 'invited' as const,
     }
@@ -797,7 +830,7 @@ describe('InfoPanel>', () => {
         new APIError(new Response(null, { status: 413, statusText: 'Content Too Large' }), 'Content Too Large')
       )
 
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
     await openInfoPanel(user)
@@ -822,10 +855,12 @@ describe('InfoPanel>', () => {
       .mockResolvedValueOnce('retry-success-key')
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithStaticDates])}>{children}</RecoilRoot>
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDates])}>
+        {children}
+      </RecoilRoot>
     )
 
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDates} registrations={[]} />, {
       wrapper,
     })
     await openInfoPanel(user)
@@ -856,11 +891,11 @@ describe('InfoPanel>', () => {
   it('uploads class-specific invitation attachment', async () => {
     const putInvitationAttachment = jest.spyOn(eventApi, 'putInvitationAttachment').mockResolvedValueOnce('alo-key')
     const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithStaticDatesAndClass])}>
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDatesAndClass])}>
         {children}
       </RecoilRoot>
     )
-    const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDatesAndClass} registrations={[]} />, {
+    const { user } = renderWithUserEvents(<InfoPanel event={activeEventWithStaticDatesAndClass} registrations={[]} />, {
       wrapper,
     })
     await openInfoPanel(user)

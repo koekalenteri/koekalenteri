@@ -16,6 +16,7 @@ import { errorSnackbarOptions } from '../../../../lib/snackbar'
 import { determineChangesFromDrop } from './dnd'
 
 interface UseDnDHandlersArgs {
+  disabled?: boolean
   registrations: Registration[]
   state?: EventClassState | EventState
   canArrangeReserve: boolean
@@ -42,6 +43,7 @@ const findAnchor = (change: Pick<Registration, 'group' | 'id'>, registrations: R
 export const useDnDHandlers = ({
   registrations,
   state,
+  disabled,
   canArrangeReserve,
   confirm,
   setSelectedRegistrationId,
@@ -52,6 +54,8 @@ export const useDnDHandlers = ({
   const { enqueueSnackbar } = useSnackbar()
 
   const handleDrop = (group: RegistrationGroup) => async (item: DragItem) => {
+    if (disabled) return
+
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) return
 
@@ -98,6 +102,8 @@ export const useDnDHandlers = ({
   }
 
   const handleReject = (group: RegistrationGroup) => (item: DragItem) => {
+    if (disabled) return
+
     const reg = registrations.find((r) => r.id === item.id)
     if (!reg) return
 

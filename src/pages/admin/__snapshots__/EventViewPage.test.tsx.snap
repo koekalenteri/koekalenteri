@@ -3172,7 +3172,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         </h6>
       </div>
       <div
-        class="accept"
+        class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
@@ -3686,7 +3686,6 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                     data-handler-id="T24"
                     data-id="nome-b-alo-registration"
                     data-rowindex="0"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -4029,7 +4028,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         Peruneet
       </h6>
       <div
-        class="accept"
+        class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
@@ -7799,7 +7798,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         </h6>
       </div>
       <div
-        class="accept"
+        class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
@@ -8313,7 +8312,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-handler-id="T6"
                     data-id="nou-registration"
                     data-rowindex="0"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -8627,7 +8625,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-handler-id="T8"
                     data-id="unpaid-nou-registration"
                     data-rowindex="1"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -8941,7 +8938,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-handler-id="T10"
                     data-id="unpaid-picked-nou-registration"
                     data-rowindex="2"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -9255,7 +9251,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-handler-id="T12"
                     data-id="paid-and-picked-nou-registration"
                     data-rowindex="3"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -9569,7 +9564,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-handler-id="T14"
                     data-id="unpaid-nome-b-alo-registration"
                     data-rowindex="4"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -9912,7 +9906,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         Peruneet
       </h6>
       <div
-        class="accept"
+        class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
@@ -10476,7 +10470,6 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                     data-handler-id="T16"
                     data-id="cancelled-registration"
                     data-rowindex="0"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -14001,7 +13994,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
         </h6>
       </div>
       <div
-        class="accept"
+        class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
@@ -14515,7 +14508,6 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
                     data-handler-id="T32"
                     data-id="nome-b-alo-registration"
                     data-rowindex="0"
-                    draggable="true"
                     role="row"
                     style="box-sizing: content-box; display: flex; opacity: 1; max-height: 28px; min-height: 28px; --height: 28px;"
                   >
@@ -14858,7 +14850,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
         Peruneet
       </h6>
       <div
-        class="accept"
+        class=""
         style="display: flex; flex-grow: 1; width: 100%;"
       >
         <div
