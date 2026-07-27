@@ -900,7 +900,7 @@ describe('putRegistrationLabmda', () => {
     expect(mockDynamoDBWrite).toHaveBeenCalledWith(
       expect.objectContaining({
         auditKey: `${eventWithStaticDates.id}:${registrationWithStaticDates.id}`,
-        message: 'Email: Vahvistit osallistumisesi, to: handler@example.com, owner@example.com',
+        message: 'Email: Vahvistit vastaanottavasi koepaikan, to: handler@example.com, owner@example.com',
         user: 'anonymous',
       }),
       'audit-table-not-found-in-env'
@@ -915,7 +915,7 @@ describe('putRegistrationLabmda', () => {
       Source: 'koekalenteri@koekalenteri.snj.fi',
       Tags: expect.any(Array),
       Template: 'registration-local-fi',
-      TemplateData: expect.stringContaining('"subject":"Vahvistit osallistumisesi"'),
+      TemplateData: expect.stringContaining('"subject":"Vahvistit vastaanottavasi koepaikan"'),
     })
     expect(mockSES.send).toHaveBeenCalledTimes(1)
 
