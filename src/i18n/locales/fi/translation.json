@@ -120,6 +120,7 @@
     },
     "titles": "Tittelit"
   },
+  "downloadStartList": "Lataa Excel",
   "edit": "Muokkaa",
   "editRegistration": "Muokkaa ilmoittautumista",
   "editRoles": "Muokkaa rooleja",
@@ -571,6 +572,21 @@
     "fi": "Koko suomeksi"
   },
   "startListCopied": "Lista kopioitu",
+  "startListExport": {
+    "breeder": "Kasvattaja",
+    "cancelled": "Peruttu",
+    "class": "Luokka",
+    "date": "Päivä",
+    "dateOfBirth": "Syntymäaika",
+    "dog": "Koira",
+    "handler": "Ohjaaja",
+    "number": "Numero",
+    "owner": "Omistaja",
+    "registrationNumber": "Rekisterinumero",
+    "sheetName": "Starttilista",
+    "status": "Tila",
+    "time": "Aika"
+  },
   "startListNotPublished": "starttilistaa ei ole vielä julkaistu",
   "support": "Tuki",
   "supportContact": "Lähetä palautetta",

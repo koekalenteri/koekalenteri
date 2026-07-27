@@ -1,8 +1,15 @@
+import type { TFunction } from 'i18next'
 import type { PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { startListSpreadsheetRows } from '../../lib/startList'
+import { downloadXlsx } from '../../lib/xlsx'
 import { ParticipantList } from './ParticipantList'
+
+jest.mock('../../lib/xlsx', () => ({ downloadXlsx: jest.fn() }))
+
+const mockDownloadXlsx = jest.mocked(downloadXlsx)
 
 // Mock the child components
 jest.mock('./DateHeader', () => ({
@@ -141,6 +148,7 @@ describe('ParticipantList', () => {
 
   beforeEach(() => {
     mockClipboard()
+    mockDownloadXlsx.mockClear()
   })
 
   it('renders participants list correctly', () => {
@@ -311,5 +319,67 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(i. Sire Dog, e. Dam Dog)'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. PERUTTU'))
+  })
+
+  it('formats the public start list for an Excel spreadsheet', () => {
+    const t = ((key: string) =>
+      ({
+        'registration.timeLong.ap': 'morning',
+        'startListExport.breeder': 'Breeder',
+        'startListExport.cancelled': 'Cancelled',
+        'startListExport.class': 'Class',
+        'startListExport.date': 'Date',
+        'startListExport.dateOfBirth': 'Date of birth',
+        'startListExport.dog': 'Dog',
+        'startListExport.handler': 'Handler',
+        'startListExport.number': 'Number',
+        'startListExport.owner': 'Owner',
+        'startListExport.registrationNumber': 'Registration number',
+        'startListExport.status': 'Status',
+        'startListExport.time': 'Time',
+      })[key] ?? key) as TFunction
+    const participant = createMockRegistration('AVO', 'Dog; One', 1, new Date('2023-01-01'), 'ap')
+    const rows = startListSpreadsheetRows([participant], mockEvent, t)
+
+    expect(rows).toEqual([
+      [
+        'Date',
+        'Time',
+        'Class',
+        'Number',
+        'Status',
+        'Dog',
+        'Registration number',
+        'Date of birth',
+        'Owner',
+        'Handler',
+        'Breeder',
+      ],
+      [
+        new Date(2023, 0, 1, 12),
+        'morning',
+        'AVO',
+        1,
+        '',
+        'CH Dog; One',
+        'REG1',
+        new Date(2020, 0, 1, 12),
+        'Test Owner',
+        'Test Handler',
+        'Test Breeder',
+      ],
+    ])
+  })
+
+  it('downloads the start list with the event-based file name', async () => {
+    const user = userEvent.setup()
+
+    render(<ParticipantList participants={[]} event={mockEvent} />)
+
+    await user.click(screen.getByRole('button', { name: 'downloadStartList' }))
+
+    expect(mockDownloadXlsx).toHaveBeenCalledWith(
+      expect.objectContaining({ fileName: 'starttilista-20230101-Test Event Type.xlsx' })
+    )
   })
 })

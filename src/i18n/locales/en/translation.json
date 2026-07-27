@@ -111,6 +111,7 @@
     },
     "titles": "Title"
   },
+  "downloadStartList": "Download Excel",
   "edit": "Edit",
   "editRegistration": "Edit registration",
   "editRoles": "Edit roles",
@@ -562,6 +563,21 @@
     "fi": "Koko suomeksi"
   },
   "startListCopied": "List copied",
+  "startListExport": {
+    "breeder": "Breeder",
+    "cancelled": "Cancelled",
+    "class": "Class",
+    "date": "Date",
+    "dateOfBirth": "Date of birth",
+    "dog": "Dog",
+    "handler": "Handler",
+    "number": "Number",
+    "owner": "Owner",
+    "registrationNumber": "Registration number",
+    "sheetName": "Start list",
+    "status": "Status",
+    "time": "Time"
+  },
   "startListNotPublished": "start list is not published yet",
   "support": "Support",
   "supportContact": "Send feedback",

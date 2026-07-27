@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import type { EventClass, PublicConfirmedEvent } from '../../types/Event'
 import type { PublicRegistration } from '../../types/Registration'
 import ContentCopyOutlined from '@mui/icons-material/ContentCopyOutlined'
+import DownloadOutlined from '@mui/icons-material/DownloadOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Table from '@mui/material/Table'
@@ -11,7 +12,10 @@ import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
 import { formatDogName } from '../../lib/dog'
 import { eventRegistrationDateKey, isStartListAvailableForClass, isStartListPublishedForClass } from '../../lib/event'
+import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
+import { startListSpreadsheetRows } from '../../lib/startList'
+import { downloadXlsx } from '../../lib/xlsx'
 import { CancelledRegistration } from './CancelledRegistration'
 import { ClassHeader } from './ClassHeader'
 import { DateHeader } from './DateHeader'
@@ -32,6 +36,7 @@ export const ParticipantList = ({ participants, event, includeUnpublished = fals
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
   const copyText = useMemo(() => formatStartList(participants, event, t), [event, participants, t])
+  const spreadsheetRows = useMemo(() => startListSpreadsheetRows(participants, event, t), [event, participants, t])
   const startListItems = useMemo(
     () => getStartListItems(participants, event, includeUnpublished),
     [event, includeUnpublished, participants]
@@ -53,6 +58,22 @@ export const ParticipantList = ({ participants, event, includeUnpublished = fals
           variant="outlined"
         >
           {copied ? t('startListCopied') : t('copyStartList')}
+        </Button>
+        <Button
+          onClick={() =>
+            downloadXlsx({
+              columnWidths: [12, 14, 10, 8, 12, 28, 18, 14, 24, 24, 24],
+              fileName: startListFileName(event),
+              rows: spreadsheetRows,
+              sheetName: t('startListExport.sheetName'),
+            })
+          }
+          size="small"
+          startIcon={<DownloadOutlined />}
+          sx={{ ml: 1 }}
+          variant="outlined"
+        >
+          {t('downloadStartList')}
         </Button>
       </Box>
       <Table size="small">

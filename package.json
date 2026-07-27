@@ -54,7 +54,8 @@
     "remark-parse": "^11.0.0",
     "unified": "^11.0.5",
     "unist-builder": "^4.0.0",
-    "unist-util-visit": "^5.1.0"
+    "unist-util-visit": "^5.1.0",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js' --no-border-checks",

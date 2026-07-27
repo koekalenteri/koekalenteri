@@ -13,3 +13,9 @@ export const invitationAttachmentFileName = (item: InvitationAttachmentItem): st
 
   return `${parts.join('-')}.pdf`
 }
+
+export const startListFileName = (item: Pick<ConfirmedEvent, 'eventType' | 'startDate'>): string => {
+  const parts = ['starttilista', formatDate(item.startDate, 'yyyyMMdd'), item.eventType].filter(Boolean)
+
+  return `${parts.join('-')}.xlsx`
+}

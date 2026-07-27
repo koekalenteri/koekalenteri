@@ -1,0 +1,45 @@
+import type { TFunction } from 'i18next'
+import type { PublicConfirmedEvent } from '../types/Event'
+import type { PublicRegistration } from '../types/Registration'
+import type { SpreadsheetCell } from './xlsx'
+import { zonedDateString } from '../i18n/dates'
+
+export function startListSpreadsheetRows(
+  participants: PublicRegistration[],
+  event: PublicConfirmedEvent,
+  t: TFunction
+): SpreadsheetCell[][] {
+  return [
+    [
+      t('startListExport.date'),
+      t('startListExport.time'),
+      t('startListExport.class'),
+      t('startListExport.number'),
+      t('startListExport.status'),
+      t('startListExport.dog'),
+      t('startListExport.registrationNumber'),
+      t('startListExport.dateOfBirth'),
+      t('startListExport.owner'),
+      t('startListExport.handler'),
+      t('startListExport.breeder'),
+    ],
+    ...participants.map((registration) => [
+      spreadsheetDate(registration.group.date ?? event.startDate),
+      registration.group.time ? t(`registration.timeLong.${registration.group.time}`) : '',
+      registration.class ?? '',
+      registration.group.number,
+      registration.cancelled ? t('startListExport.cancelled') : '',
+      [registration.dog.titles, registration.dog.name].filter(Boolean).join(' '),
+      registration.dog.regNo,
+      registration.dog.dob ? spreadsheetDate(registration.dog.dob) : '',
+      registration.owner,
+      registration.ownerHandles ? registration.owner : registration.handler,
+      registration.breeder,
+    ]),
+  ]
+}
+
+function spreadsheetDate(date: Date): Date {
+  const [year, month, day] = zonedDateString(date).split('-').map(Number)
+  return new Date(year, month - 1, day, 12)
+}
