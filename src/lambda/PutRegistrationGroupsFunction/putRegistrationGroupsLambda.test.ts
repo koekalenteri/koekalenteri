@@ -323,6 +323,7 @@ describe('putRegistrationGroupsLambda', () => {
       expect.arrayContaining([
         {
           cancelled: false,
+          cancelReason: null,
           eventId: event.id,
           group: reg.group,
           id: reg.id,
@@ -404,6 +405,32 @@ describe('putRegistrationGroupsLambda', () => {
     )
 
     expect(res.statusCode).toBe(200)
+  })
+
+  it('publishes group field removals when moving a participant to reserve', async () => {
+    const event = JSON.parse(JSON.stringify(eventWithParticipantsInvited))
+    const registration = jsonRegistrationsToEventWithParticipantsInvited[0]
+    authorizeWithMemberOfMock.mockResolvedValueOnce({ memberOf: [], user: mockUser })
+    mockDynamoDB.query.mockResolvedValueOnce(jsonRegistrationsToEventWithParticipantsInvited)
+    mockDynamoDB.read.mockResolvedValue(event)
+
+    const res = await putRegistrationGroupsLambda(
+      constructAPIGwEvent([{ group: { key: 'reserve' }, id: registration.id }], {
+        pathParameters: { eventId: event.id },
+      })
+    )
+
+    expect(res.statusCode).toBe(200)
+    expect(mockBroadcastEventRegistrations).toHaveBeenCalledWith(
+      event.id,
+      expect.arrayContaining([
+        expect.objectContaining({
+          group: expect.objectContaining({ date: null, key: 'reserve', time: null }),
+          id: registration.id,
+        }),
+      ]),
+      event.organizer.id
+    )
   })
 
   it('should not send "reserve" message, when reserve is not notified', async () => {
@@ -643,7 +670,7 @@ describe('putRegistrationGroupsLambda', () => {
           cancelled: true,
           cancelReason: 'test',
           eventId: event.id,
-          group: reg.group,
+          group: { date: null, key: 'cancelled', number: 1, time: null },
           id: reg.id,
           lastEmail: 'Peruutus 1.1.2026 12:00',
           messagesSent: { registration: true },

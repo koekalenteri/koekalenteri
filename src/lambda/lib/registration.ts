@@ -3,6 +3,7 @@ import { diff } from 'deep-object-diff'
 import { formatDate } from '../../i18n/dates'
 import { i18n } from '../../i18n/lambda'
 import { GROUP_KEY_RESERVE, getRegistrationClass, isParticipantGroup, isPredefinedReason } from '../../lib/registration'
+import { isObject } from '../../lib/utils'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 import { audit, registrationAuditKey } from './audit'
@@ -89,13 +90,29 @@ export const setReserveNotified = async (registrations: JsonRegistration[]) =>
       .map(({ eventId, id, group }) => updateRegistrationField(eventId, id, 'reserveNotified', group?.number ?? 999))
   )
 
+const serializePatchRemovals = (value: unknown): unknown => {
+  if (value === undefined) return null
+  if (value instanceof Date) return value
+  if (Array.isArray(value)) return value.map(serializePatchRemovals)
+  if (isObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [key, serializePatchRemovals(nestedValue)])
+    )
+  }
+  return value
+}
+
 export const createRegistrationPatch = (registration: JsonRegistration, existing?: JsonRegistration) => {
   const withoutCreationMetadata = <T extends object>(item: T) => removeRegistrationCreationMetadata({ ...item })
 
   if (!existing) return withoutCreationMetadata(registration)
 
   const { changes } = createPatch(registration, existing)
-  return { eventId: registration.eventId, id: registration.id, ...withoutCreationMetadata(changes) }
+  return {
+    eventId: registration.eventId,
+    id: registration.id,
+    ...withoutCreationMetadata(serializePatchRemovals(changes) as Record<string, unknown>),
+  }
 }
 
 export const createRegistrationPatches = (
