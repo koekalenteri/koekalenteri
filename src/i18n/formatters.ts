@@ -2,7 +2,8 @@ import type { i18n } from 'i18next'
 import { formatDateSpan, formatDistance, getDateFormatter } from './dates'
 
 export const registerFormatters = (i18n: i18n) => {
-  i18n.services.formatter?.add('dtshort', getDateFormatter('eee d.M. HH:mm'))
+  i18n.services.formatter?.add('dtshort2', getDateFormatter('eeeeee d.M. HH:mm'))
+  i18n.services.formatter?.add('dtshort3', getDateFormatter('eee d.M. HH:mm'))
   i18n.services.formatter?.add('wdshort2', getDateFormatter('eeeeee d.M.'))
   i18n.services.formatter?.add('weekday2', getDateFormatter('eeeeee'))
   i18n.services.formatter?.add('wdshort3', getDateFormatter('eee d.M.'))

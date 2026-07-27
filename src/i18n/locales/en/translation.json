@@ -70,7 +70,7 @@
     "datespan": "{{ start, datespan(end: undefined) }}",
     "distance": "{{ date, distance }}",
     "distanceLeft": "{{ date, distance }} left",
-    "dtshort": "{{ date, dtshort }}",
+    "dtshort": "{{ date, dtshort3 }}",
     "isodate": "{{ date, isodate }}",
     "long": "{{ date, long }}",
     "short": "{{ date, short }}",
