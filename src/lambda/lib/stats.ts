@@ -14,6 +14,15 @@ const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
 
 type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
 
+export type RegistrationStatsInput = Pick<
+  JsonRegistration,
+  'cancelled' | 'eventId' | 'eventType' | 'id' | 'paidAmount' | 'refundAmount'
+> & {
+  dog?: Pick<JsonRegistration['dog'], 'breedCode' | 'regNo'>
+  handler?: Pick<NonNullable<JsonRegistration['handler']>, 'email'>
+  owner?: Pick<NonNullable<JsonRegistration['owner']>, 'email'>
+}
+
 /** Returns the calendar year of an instant in the event timezone. */
 export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
   const season = getEventSeason(startDate)
@@ -184,8 +193,8 @@ export async function getAvailableYears(): Promise<number[]> {
  * Calculate the deltas for various statistics based on registration changes
  */
 export function calculateStatDeltas(
-  registration: JsonRegistration,
-  existingRegistration: JsonRegistration | undefined
+  registration: RegistrationStatsInput,
+  existingRegistration: RegistrationStatsInput | undefined
 ) {
   return {
     cancelledDelta: (registration.cancelled ? 1 : 0) - (existingRegistration?.cancelled ? 1 : 0),
@@ -347,13 +356,13 @@ export function hashStatValue(value: string | undefined = ''): string {
   return fullDigest.subarray(0, 12).toString('base64').split('=')[0]
 }
 
-const participationIdentifiers = (registration: JsonRegistration): Record<YearlyStatTypes, string> => {
+const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
   const hashedHandlerEmail = hashStatValue(registration.handler?.email)
   const hashedOwnerEmail = hashStatValue(registration.owner?.email)
   const hashedRegNo = hashStatValue(registration.dog?.regNo)
 
   return {
-    breed: registration.dog.breedCode ?? 'unknown',
+    breed: registration.dog?.breedCode ?? 'unknown',
     dog: hashedRegNo,
     'dog#handler': `${hashedRegNo}#${hashedHandlerEmail}`,
     eventType: registration.eventType,
@@ -371,7 +380,7 @@ type ParticipationSnapshot = {
 }
 
 const readParticipationSnapshots = async (
-  registration: JsonRegistration,
+  registration: RegistrationStatsInput,
   year: number
 ): Promise<ParticipationSnapshot[]> => {
   const identifiers = participationIdentifiers(registration)
@@ -580,9 +589,9 @@ export const applyNewRegistrationStatsOnce = async (
  * Update yearly participation stats for official event types
  */
 export async function updateYearlyParticipationStats(
-  registration: JsonRegistration,
+  registration: RegistrationStatsInput,
   year: number,
-  existingRegistration?: JsonRegistration
+  existingRegistration?: RegistrationStatsInput
 ): Promise<void> {
   const identifiers = participationIdentifiers(registration)
   const existingIdentifiers = existingRegistration ? participationIdentifiers(existingRegistration) : undefined
@@ -607,8 +616,8 @@ export async function updateYearlyParticipationStats(
  * @param {JsonConfirmedEvent} event - The event object
  */
 export const updateEventStatsForRegistration = async (
-  registration: JsonRegistration,
-  existingRegistration: JsonRegistration | undefined,
+  registration: RegistrationStatsInput,
+  existingRegistration: RegistrationStatsInput | undefined,
   event: JsonConfirmedEvent
 ): Promise<void> => {
   // Validate before any mutation so a retry cannot double-count organizer stats.
