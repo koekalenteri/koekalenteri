@@ -17,7 +17,14 @@ const copyEventLambda = lambda('copyEvent', async (event) => {
   const timestamp = new Date().toISOString()
 
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
+  if (!getEventSeason(startDate)) {
+    return response(400, { message: 'Bad request: startDate must be a valid date' }, event)
+  }
+
   const item = await getEvent(id)
+  if (!getEventSeason(item.startDate) || !getEventSeason(item.endDate)) {
+    return response(400, { message: 'Bad request: source event dates must be valid' }, event)
+  }
 
   item.id = nanoid(10)
   item.name = `Kopio - ${item.name ?? ''}`

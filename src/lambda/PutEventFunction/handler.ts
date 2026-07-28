@@ -77,6 +77,15 @@ const putEventLambda = lambda('putEvent', async (event) => {
   }
 
   const data = existing && patchRequest ? patchMerge(existing, item) : ({ ...existing, ...item } as JsonConfirmedEvent)
+  const invalidDateField = (['startDate', 'endDate'] as const).find((field) => {
+    const date = data[field]
+    if (date === undefined || date === '') return true
+    return typeof date !== 'string' || !getEventSeason(date)
+  })
+  if (invalidDateField) {
+    return response(400, { message: `Bad request: ${invalidDateField} must be a valid date` }, event)
+  }
+
   // The registration-group lock is server-owned. Never accept it from an
   // admin payload, including when the stored event currently has no lock.
   delete data.registrationGroupsLock

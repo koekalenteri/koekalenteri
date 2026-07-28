@@ -59,6 +59,34 @@ describe('copyEventHandler', () => {
     expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
   })
 
+  it('rejects an invalid copy start date before reading the source event', async () => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: 'not-a-date' })
+
+    await copyEventHandler(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(400, { message: 'Bad request: startDate must be a valid date' }, event)
+    expect(mockGetEvent).not.toHaveBeenCalled()
+  })
+
+  it.each(['startDate', 'endDate'] as const)('rejects an invalid source event %s before saving', async (field) => {
+    mockAuthorize.mockResolvedValueOnce({ name: 'Test User' })
+    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockGetEvent.mockResolvedValueOnce({
+      classes: [],
+      endDate: '2025-06-12T00:00:00.000Z',
+      id: 'event123',
+      name: 'Original Event',
+      startDate: '2025-06-10T00:00:00.000Z',
+      [field]: 'not-a-date',
+    })
+
+    await copyEventHandler(event)
+
+    expect(mockResponse).toHaveBeenCalledWith(400, { message: 'Bad request: source event dates must be valid' }, event)
+    expect(mockSaveEvent).not.toHaveBeenCalled()
+  })
+
   it('copies event and returns 200 on success', async () => {
     const user = { name: 'Test User' }
     const input = { id: 'event123', startDate: '2025-07-01T00:00:00.000Z' }
