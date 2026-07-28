@@ -29,6 +29,8 @@
 - Follow existing patterns for consistency
 - Validate types and run tests after changes
 - Backend tests: `npm run test-backend`
+- Fully test every new or changed function in `src/lambda/lib/`, including its
+  normal path, edge cases, and error or invalid-input behavior where applicable.
 - UI changes should follow existing styling conventions
 - In Jest mock assertions, prefer call matchers such as `toHaveBeenCalledWith`,
   `toHaveBeenNthCalledWith`, and `toHaveBeenCalledTimes` over reading
