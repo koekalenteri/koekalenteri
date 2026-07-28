@@ -72,6 +72,26 @@ export const updateRegistrationField = async <F extends keyof JsonRegistration>(
     }
   )
 
+const setInvitationAttachmentSent = async (registration: JsonRegistration, attachment: string) => {
+  const hasUnversionedLegacyRead = registration.invitationRead && !registration.invitationAttachmentRead
+  const legacyReadAttachment = hasUnversionedLegacyRead ? registration.invitationAttachmentSent : undefined
+  const invitationAttachmentRead = registration.invitationAttachmentRead ?? legacyReadAttachment
+  const set: Partial<JsonRegistration> = {
+    invitationAttachmentSent: attachment,
+    updatedAt: new Date().toISOString(),
+  }
+
+  if (invitationAttachmentRead) set.invitationAttachmentRead = invitationAttachmentRead
+  // If an old receipt predates invitationAttachmentSent, its exact attachment
+  // cannot be recovered. Do not let the legacy boolean mark the new attachment read.
+  if (hasUnversionedLegacyRead && !legacyReadAttachment) set.invitationRead = false
+
+  await dynamoDB.update({ eventId: registration.eventId, id: registration.id }, { set })
+  registration.invitationAttachmentSent = attachment
+  if (invitationAttachmentRead) registration.invitationAttachmentRead = invitationAttachmentRead
+  if (set.invitationRead === false) registration.invitationRead = false
+}
+
 export const clearRegistrationEmailDeliveryStatus = async (
   eventId: JsonRegistration['eventId'],
   id: JsonRegistration['id']
@@ -194,13 +214,7 @@ export const sendTemplatedEmailToEventRegistrations = async (
       await updateRegistrationField(registration.eventId, registration.id, 'messagesSent', messagesSent)
 
       if (template === 'invitation' && data.event.invitationAttachment) {
-        await updateRegistrationField(
-          registration.eventId,
-          registration.id,
-          'invitationAttachmentSent',
-          data.event.invitationAttachment as string
-        )
-        registration.invitationAttachmentSent = data.event.invitationAttachment as string
+        await setInvitationAttachmentSent(registration, data.event.invitationAttachment as string)
       }
 
       // Update the in-memory object too

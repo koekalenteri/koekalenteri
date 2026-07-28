@@ -1,28 +1,16 @@
 import type { ChangeEvent } from 'react'
 import type { AuditRecord, ConfirmedEvent, EmailTemplateId, Registration, RegistrationClass } from '../../../types'
-import AddCircleOutline from '@mui/icons-material/AddCircleOutline'
-import FormatListBulleted from '@mui/icons-material/FormatListBulleted'
-import FormatListNumberedOutlined from '@mui/icons-material/FormatListNumberedOutlined'
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight'
 import MenuOpen from '@mui/icons-material/MenuOpen'
-import PictureAsPdfOutlined from '@mui/icons-material/PictureAsPdfOutlined'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
-import Link from '@mui/material/Link'
-import Stack from '@mui/material/Stack'
 import Tab from '@mui/material/Tab'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableRow from '@mui/material/TableRow'
 import Tabs from '@mui/material/Tabs'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { getEventAuditTrail, putInvitationAttachment } from '../../../api/event'
@@ -30,15 +18,16 @@ import { APIError } from '../../../api/http'
 import useAdminEventRegistrationInfo from '../../../hooks/useAdminEventRegistrationsInfo'
 import { mergeAuditTrail, useAuditTrailSubscription } from '../../../hooks/useAuditTrailSubscription'
 import { reportError } from '../../../lib/client/error'
-import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
 import { invitationAttachmentFileName } from '../../../lib/fileName'
-import { getInvitationRecipients, isRegistrationClass } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { hasEntryEnded, isEventOver } from '../../../lib/utils'
-import { Path } from '../../../routeConfig'
 import { validIdTokenSelector } from '../../recoil'
 import { AuditTrail } from '../components/AuditTrail'
 import { adminEventSelector } from '../recoil'
+import EventActions from './infoPanel/EventActions'
+import InvitationDelivery from './infoPanel/InvitationDelivery'
+import ParticipantSelection from './infoPanel/ParticipantSelection'
+import StartListPublishing from './infoPanel/StartListPublishing'
 
 interface Props {
   readonly event: ConfirmedEvent
@@ -50,48 +39,6 @@ interface Props {
 }
 
 const APP_HEADER_HEIGHT = 36
-const sectionSx = {
-  border: '1px solid',
-  borderColor: 'divider',
-  borderRadius: 1,
-  overflow: 'hidden',
-}
-const actionButtonSx = { justifyContent: 'flex-start', textAlign: 'left' }
-
-interface InvitationAttachmentControlProps {
-  readonly disabled?: boolean
-  readonly file?: {
-    readonly href: string
-    readonly name: string
-  }
-  readonly inputId: string
-  readonly onChange: (event: ChangeEvent<HTMLInputElement>) => void
-}
-
-const InvitationAttachmentFile = ({ file }: Pick<InvitationAttachmentControlProps, 'file'>) =>
-  file ? (
-    <Box>
-      <PictureAsPdfOutlined fontSize="small" sx={{ pr: 0.5, verticalAlign: 'middle' }} />
-      <Link href={file.href} rel="noopener" target="_blank" type="application/pdf" variant="caption">
-        {file.name}
-      </Link>
-    </Box>
-  ) : (
-    <Typography variant="caption" fontStyle="italic">
-      Ei tiedostoa
-    </Typography>
-  )
-
-const InvitationAttachmentControl = ({ disabled, file, inputId, onChange }: InvitationAttachmentControlProps) => (
-  <>
-    <input accept="application/pdf" disabled={disabled} type="file" hidden id={inputId} onChange={onChange} />
-    <label htmlFor={inputId}>
-      <Button color="secondary" component="span" disabled={disabled} size="small" variant="contained">
-        {file ? 'Vaihda PDF' : 'Lisää PDF'}
-      </Button>
-    </label>
-  </>
-)
 
 const InfoPanel = ({
   event,
@@ -105,48 +52,27 @@ const InfoPanel = ({
   const token = useRecoilValue(validIdTokenSelector)
   const [attachmentKey, setAttachmentKey] = useState(event.invitationAttachment)
   const [classAttachmentKeys, setClassAttachmentKeys] = useState(event.invitationAttachments ?? {})
+  const [attachmentHistory, setAttachmentHistory] = useState(event.invitationAttachmentHistory ?? {})
   const [auditTrail, setAuditTrail] = useState<AuditRecord[]>([])
   const [activeTab, setActiveTab] = useState(0)
   const setEvent = useSetRecoilState(adminEventSelector(event.id))
   const [expanded, setExpanded] = useState(false)
   useAuditTrailSubscription(`event:${event.id}`, expanded, setAuditTrail)
-  const eventClasses = useMemo(() => [...new Set(event.classes.map((c) => c.class))], [event.classes])
-  const eventWithCurrentAttachments = useMemo(
-    () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
-    [attachmentKey, classAttachmentKeys, event]
-  )
   const { reserveByClass, numbersByClass, selectedByClass, stateByClass } = useAdminEventRegistrationInfo(
     event,
     registrations
   )
   const entryEnded = hasEntryEnded(event)
   const eventFinished = isEventOver(event)
-  const toggle = useCallback(() => setExpanded((old) => !old), [])
-  const handleSetStartListPublished = useCallback(
-    async (eventClass: RegistrationClass | undefined, published: boolean) => {
-      const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
-      if (eventFinished || !canPublishStartList(state)) {
-        return
-      }
-      if (!onSetStartListPublished) {
-        return
-      }
-
-      try {
-        await onSetStartListPublished(eventClass, published)
-        enqueueSnackbar(`${eventClass ? `${eventClass} ` : ''}starttilista ${published ? 'julkaistu' : 'piilotettu'}`, {
-          variant: 'success',
-        })
-      } catch {
-        enqueueSnackbar('Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.', errorSnackbarOptions)
-      }
-    },
-    [event, eventFinished, onSetStartListPublished, stateByClass]
+  const eventWithCurrentAttachments = useMemo(
+    () => ({ ...event, invitationAttachment: attachmentKey, invitationAttachments: classAttachmentKeys }),
+    [attachmentKey, classAttachmentKeys, event]
   )
-  const handleInvitationUpload = useCallback(
-    (className?: RegistrationClass) => async (e: ChangeEvent<HTMLInputElement>) => {
-      const input = e.target
+  const toggle = useCallback(() => setExpanded((old) => !old), [])
 
+  const handleInvitationUpload = useCallback(
+    (className?: RegistrationClass) => async (changeEvent: ChangeEvent<HTMLInputElement>) => {
+      const input = changeEvent.target
       if (eventFinished) return
 
       if (!input.files) {
@@ -155,7 +81,14 @@ const InfoPanel = ({
       }
 
       try {
-        const fileKey = await putInvitationAttachment(event.id, input.files[0], className, token)
+        const { invitationAttachmentHistory, key: fileKey } = await putInvitationAttachment(
+          event.id,
+          input.files[0],
+          className,
+          token
+        )
+        setAttachmentHistory(invitationAttachmentHistory)
+
         if (className) {
           const classEvent = event.classes.find((item) => item.class === className)
           const fileName = invitationAttachmentFileName({
@@ -164,58 +97,55 @@ const InfoPanel = ({
             invitationAttachment: fileKey,
             startDate: classEvent?.date ?? event.startDate,
           })
-          const invitationAttachments = {
-            ...classAttachmentKeys,
-            [className]: fileKey,
-          }
+          const invitationAttachments = { ...classAttachmentKeys, [className]: fileKey }
           setClassAttachmentKeys(invitationAttachments)
-          setEvent({ ...event, invitationAttachments })
+          setEvent({ ...event, invitationAttachmentHistory, invitationAttachments })
           enqueueSnackbar(
-            `${className} koekutsu ${
-              event.invitationAttachments?.[className] ? 'päivitetty' : 'liitetty'
-            }: ${fileName}`,
-            {
-              variant: 'success',
-            }
+            t(
+              event.invitationAttachments?.[className]
+                ? 'eventManagement.upload.classUpdated'
+                : 'eventManagement.upload.classAttached',
+              { eventClass: className, fileName }
+            ),
+            { variant: 'success' }
           )
         } else {
           const update = Boolean(event.invitationAttachment)
           const fileName = invitationAttachmentFileName({ ...event, invitationAttachment: fileKey })
           setAttachmentKey(fileKey)
-          setEvent({ ...event, invitationAttachment: fileKey })
-          enqueueSnackbar(`${update ? 'Koekutsu päivitetty' : 'Koekutsu liitetty'}: ${fileName}`, {
-            variant: 'success',
-          })
+          setEvent({ ...event, invitationAttachment: fileKey, invitationAttachmentHistory })
+          enqueueSnackbar(
+            t(update ? 'eventManagement.upload.updated' : 'eventManagement.upload.attached', { fileName }),
+            {
+              variant: 'success',
+            }
+          )
         }
       } catch (error) {
         if (error instanceof APIError && error.status === 413) {
-          enqueueSnackbar(
-            'Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.',
-            errorSnackbarOptions
-          )
+          enqueueSnackbar(t('eventManagement.upload.attachmentTooLarge'), errorSnackbarOptions)
           return
         }
-
-        enqueueSnackbar('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', errorSnackbarOptions)
+        enqueueSnackbar(t('eventManagement.upload.attachmentFailed'), errorSnackbarOptions)
       } finally {
         input.value = ''
       }
     },
-    [classAttachmentKeys, event, eventFinished, setEvent, token]
+    [classAttachmentKeys, event, eventFinished, setEvent, t, token]
   )
 
   useEffect(() => {
     setAttachmentKey(event.invitationAttachment)
     setClassAttachmentKeys(event.invitationAttachments ?? {})
-  }, [event.invitationAttachment, event.invitationAttachments])
+    setAttachmentHistory(event.invitationAttachmentHistory ?? {})
+  }, [event.invitationAttachment, event.invitationAttachmentHistory, event.invitationAttachments])
 
   useEffect(() => {
     if (!expanded || !token) return
-
     getEventAuditTrail(event.id, token)
-      .then((at) => setAuditTrail((current) => mergeAuditTrail(at ?? [], current)))
-      .catch((e) => {
-        reportError(e)
+      .then((trail) => setAuditTrail((current) => mergeAuditTrail(trail ?? [], current)))
+      .catch((error) => {
+        reportError(error)
         setAuditTrail([])
       })
   }, [event.id, expanded, token])
@@ -223,7 +153,7 @@ const InfoPanel = ({
   if (!expanded) {
     return (
       <Button
-        aria-label="Avaa tapahtuman hallinta"
+        aria-label={t('eventManagement.open')}
         onClick={toggle}
         startIcon={<MenuOpen fontSize="small" />}
         sx={{
@@ -245,7 +175,7 @@ const InfoPanel = ({
         }}
         variant="contained"
       >
-        Tapahtuman hallinta
+        {t('eventManagement.tabs.management')}
       </Button>
     )
   }
@@ -257,11 +187,7 @@ const InfoPanel = ({
       open={expanded}
       variant="temporary"
       slotProps={{
-        backdrop: {
-          sx: {
-            backgroundColor: 'transparent',
-          },
-        },
+        backdrop: { sx: { backgroundColor: 'transparent' } },
         paper: {
           sx: {
             border: '1px solid',
@@ -279,10 +205,7 @@ const InfoPanel = ({
     >
       <Box
         sx={{
-          '& .MuiTableContainer-root': {
-            '& .MuiTableCell-root': { px: 1, py: 0.5 },
-            width: '100%',
-          },
+          '& .MuiTableContainer-root': { '& .MuiTableCell-root': { px: 1, py: 0.5 }, width: '100%' },
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
@@ -291,17 +214,17 @@ const InfoPanel = ({
       >
         <Box sx={{ alignItems: 'center', display: 'flex', pl: 1.5 }}>
           <Tabs
-            aria-label="Tapahtuman hallinnan välilehdet"
+            aria-label={t('eventManagement.tabs.ariaLabel')}
             onChange={(_, value: number) => setActiveTab(value)}
             sx={{ flex: 1 }}
             value={activeTab}
           >
-            <Tab label="Tapahtuman hallinta" />
-            <Tab label="Muutoshistoria" />
+            <Tab label={t('eventManagement.tabs.management')} />
+            <Tab label={t('eventManagement.tabs.auditTrail')} />
           </Tabs>
           <Box sx={{ pr: 1.5 }}>
-            <Tooltip title="Sulje tapahtuman hallinta">
-              <IconButton size="small" color={'primary'} onClick={toggle} aria-label="Sulje tapahtuman hallinta">
+            <Tooltip title={t('eventManagement.close')}>
+              <IconButton size="small" color="primary" onClick={toggle} aria-label={t('eventManagement.close')}>
                 <KeyboardArrowRight />
               </IconButton>
             </Tooltip>
@@ -323,334 +246,45 @@ const InfoPanel = ({
             scrollbarGutter: 'stable',
           }}
         >
-          <Box sx={sectionSx}>
-            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-              Osallistujien valinta
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableBody>
-                  {Object.entries(numbersByClass).map(([c, nums]) => {
-                    const selected = selectedByClass[c] ?? []
-                    const reserves = reserveByClass[c] ?? []
-                    const classState = stateByClass[c] ?? event.state
-                    const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
-                    const canSendPlaceNotification =
-                      entryEnded &&
-                      !classFinished &&
-                      nums.participants > 0 &&
-                      !nums.invalid &&
-                      classState === 'confirmed'
-                    const placeNotificationsSent =
-                      selected.length > 0 &&
-                      (['picked', 'invited'].includes(classState) ||
-                        selected.every((registration) => registration.messagesSent?.picked))
-                    const placeConfirmationsBlockedByEntry = !entryEnded && !classFinished
-                    const reserveNotificationsSent =
-                      reserves.length > 0 && reserves.every((registration) => registration.reserveNotified)
-                    const canSendReserveNotification = !classFinished && nums.reserve > 0
-
-                    return (
-                      <Fragment key={c}>
-                        <TableRow>
-                          <TableCell align="left" sx={{ borderBottom: 0 }}>
-                            <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                              {c}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="right" sx={{ borderBottom: 0 }}>
-                            <Typography variant="caption" noWrap color={nums.invalid ? 'error' : 'info.dark'}>
-                              {nums.participants} / {nums.places}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="right" sx={{ borderBottom: 0 }}>
-                            {placeNotificationsSent ? (
-                              <Typography
-                                variant="caption"
-                                color="info.main"
-                                sx={{
-                                  alignItems: 'center',
-                                  display: 'flex',
-                                  justifyContent: 'flex-end',
-                                  minHeight: 30,
-                                }}
-                              >
-                                Koepaikkailmoitukset lähetetty
-                              </Typography>
-                            ) : placeConfirmationsBlockedByEntry ? (
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                sx={{
-                                  alignItems: 'center',
-                                  display: 'flex',
-                                  justifyContent: 'flex-end',
-                                  minHeight: 30,
-                                }}
-                              >
-                                Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä
-                              </Typography>
-                            ) : (
-                              <Button
-                                size="small"
-                                disabled={!canSendPlaceNotification}
-                                onClick={() => onOpenMessageDialog?.(selected, 'picked')}
-                                color="primary"
-                                variant={canSendPlaceNotification ? 'contained' : 'outlined'}
-                              >
-                                Lähetä koepaikkailmoitus
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell align="left" sx={{ pt: 0 }}>
-                            <Typography variant="caption" noWrap ml={2}>
-                              Varasijalla
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="right" sx={{ pt: 0 }}>
-                            <Typography variant="caption" noWrap color="info.dark">
-                              {nums.reserve}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="right" sx={{ pt: 0 }}>
-                            {reserveNotificationsSent ? (
-                              <Typography
-                                variant="caption"
-                                color="info.main"
-                                sx={{
-                                  alignItems: 'center',
-                                  display: 'flex',
-                                  justifyContent: 'flex-end',
-                                  minHeight: 30,
-                                }}
-                              >
-                                Varasijailmoitukset lähetetty
-                              </Typography>
-                            ) : (
-                              <Button
-                                size="small"
-                                disabled={!canSendReserveNotification}
-                                onClick={() => onOpenMessageDialog?.(reserves, 'reserve')}
-                                color="primary"
-                                variant={canSendReserveNotification ? 'contained' : 'outlined'}
-                              >
-                                Lähetä varasijailmoitus
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      </Fragment>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-
-          <Box sx={sectionSx}>
-            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-              Koekutsun lähetys
-            </Typography>
-            <TableContainer>
-              <Table sx={{ '& .MuiTableCell-root': { overflowWrap: 'anywhere' }, tableLayout: 'fixed' }}>
-                <TableBody>
-                  {Object.entries(numbersByClass).map(([c, nums]) => {
-                    const selected = selectedByClass[c] ?? []
-                    const recipients = getInvitationRecipients(eventWithCurrentAttachments, selected)
-                    const invitationsSent = selected.length > 0 && recipients.length === 0
-                    const classState = stateByClass[c] ?? event.state
-                    const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
-                    const canSend =
-                      entryEnded &&
-                      !classFinished &&
-                      ['picked', 'invited'].includes(classState) &&
-                      recipients.length > 0
-                    const eventClass = isRegistrationClass(c) && eventClasses.includes(c) ? c : undefined
-                    const classAttachmentKey = eventClass ? classAttachmentKeys[eventClass] : undefined
-                    const classEvent = eventClass ? event.classes.find((item) => item.class === eventClass) : undefined
-                    const effectiveAttachmentKey = classAttachmentKey ?? attachmentKey
-                    const classInvitationEvent = {
-                      ...event,
-                      ...(eventClass ? { class: eventClass } : {}),
-                      invitationAttachment: effectiveAttachmentKey,
-                      startDate: classEvent?.date ?? event.startDate,
-                    }
-                    const classAttachmentFile = effectiveAttachmentKey
-                      ? {
-                          href: Path.invitationAttachment(classInvitationEvent),
-                          name: invitationAttachmentFileName(classInvitationEvent),
-                        }
-                      : undefined
-
-                    return (
-                      <Fragment key={c}>
-                        <TableRow>
-                          <TableCell colSpan={3} sx={{ borderBottom: 0, pb: 0 }}>
-                            <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                              {eventClass ? `${eventClass}-luokka` : c}
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell align="left" colSpan={2} sx={{ borderBottom: 0, pt: 0 }}>
-                            <Box ml={2}>
-                              <InvitationAttachmentFile file={classAttachmentFile} />
-                            </Box>
-                          </TableCell>
-                          <TableCell align="right" sx={{ borderBottom: 0 }}>
-                            <InvitationAttachmentControl
-                              disabled={classFinished}
-                              file={classAttachmentFile}
-                              inputId={eventClass ? `koekutsu-file-${eventClass}` : 'koekutsu-file'}
-                              onChange={handleInvitationUpload(eventClass)}
-                            />
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell align="left" colSpan={2} sx={{ pt: eventClass ? 0 : undefined }}>
-                            <Box ml={2}>
-                              {invitationsSent && (
-                                <Typography variant="caption" color="info.main">
-                                  Koekutsut lähetetty
-                                </Typography>
-                              )}
-                              {!invitationsSent && classState === 'confirmed' && !classFinished && (
-                                <Typography variant="caption" color="text.secondary">
-                                  Koekutsut voi lähettää koepaikkailmoitusten jälkeen
-                                </Typography>
-                              )}
-                              {!invitationsSent && classState !== 'confirmed' && !entryEnded && !classFinished && (
-                                <Typography variant="caption" color="text.secondary">
-                                  Koekutsut voi lähettää ilmoittautumisajan päätyttyä
-                                </Typography>
-                              )}
-                            </Box>
-                          </TableCell>
-                          <TableCell align="right">
-                            <Button
-                              size="small"
-                              disabled={nums.participants === 0 || nums.invalid || !canSend}
-                              onClick={() => onOpenMessageDialog?.(recipients, 'invitation')}
-                              color="primary"
-                              variant={canSend && nums.participants > 0 && !nums.invalid ? 'contained' : 'outlined'}
-                            >
-                              Lähetä koekutsu
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      </Fragment>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-
-          <Box sx={sectionSx}>
-            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-              Starttilistan julkaisu
-            </Typography>
-            <TableContainer>
-              <Table>
-                <TableBody>
-                  {Object.entries(numbersByClass).map(([c]) => {
-                    const selected = selectedByClass[c] ?? []
-                    const invitationsSent =
-                      selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
-                    const classState = stateByClass[c] ?? event.state
-                    const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
-                    const startListPublished = isStartListPublishedForClass(event, c)
-                    const classlessEventRow = event.classes.length === 0 && c === event.eventType
-                    const startListEventClass = isRegistrationClass(c) ? c : undefined
-                    const startListManageable =
-                      Boolean(onSetStartListPublished) &&
-                      !classFinished &&
-                      (classlessEventRow || Boolean(startListEventClass)) &&
-                      canPublishStartList(classState)
-                    const canManageStartList = invitationsSent && startListManageable
-
-                    return (
-                      <TableRow key={c}>
-                        <TableCell align="left">
-                          <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                            {c}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Button
-                            size="small"
-                            disabled={!canManageStartList}
-                            onClick={() => {
-                              if (classlessEventRow || startListEventClass) {
-                                handleSetStartListPublished(startListEventClass, !startListPublished)
-                              }
-                            }}
-                            color={startListPublished ? 'secondary' : 'primary'}
-                            variant={canManageStartList ? 'contained' : 'outlined'}
-                          >
-                            {startListPublished ? 'Piilota starttilista' : 'Julkaise starttilista'}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <Box sx={{ pb: 1, pt: 0.5, px: 1 }}>
-              <Button
-                fullWidth
-                href={Path.admin.startListPreview(event.id)}
-                startIcon={<FormatListNumberedOutlined />}
-                sx={actionButtonSx}
-                target="_blank"
-                variant="outlined"
-              >
-                Katso julkinen starttilista
-              </Button>
-            </Box>
-          </Box>
-
-          <Box sx={sectionSx}>
-            <Typography variant="overline" color="text.secondary" sx={{ display: 'block', pt: 1, px: 1.5 }}>
-              Toiminnot
-            </Typography>
-            <Stack spacing={1} sx={{ p: 1 }}>
-              <Button
-                fullWidth
-                onClick={onOpenDetails}
-                startIcon={<FormatListBulleted />}
-                sx={actionButtonSx}
-                variant="outlined"
-              >
-                Näytä tapahtuman tiedot
-              </Button>
-              <Button
-                disabled={eventFinished}
-                fullWidth
-                onClick={onCreateRegistration}
-                startIcon={<AddCircleOutline />}
-                sx={actionButtonSx}
-                variant="outlined"
-              >
-                {t('createRegistration')}
-              </Button>
-              <Button
-                fullWidth
-                href={Path.admin.startList(event.id)}
-                startIcon={<FormatListNumberedOutlined />}
-                sx={actionButtonSx}
-                target="_blank"
-                variant="outlined"
-              >
-                Sihteerin starttilista
-              </Button>
-            </Stack>
-          </Box>
+          <ParticipantSelection
+            entryEnded={entryEnded}
+            event={event}
+            eventFinished={eventFinished}
+            numbersByClass={numbersByClass}
+            onOpenMessageDialog={onOpenMessageDialog}
+            reserveByClass={reserveByClass}
+            selectedByClass={selectedByClass}
+            stateByClass={stateByClass}
+          />
+          <InvitationDelivery
+            attachmentHistory={attachmentHistory}
+            attachmentKey={attachmentKey}
+            classAttachmentKeys={classAttachmentKeys}
+            entryEnded={entryEnded}
+            event={event}
+            eventFinished={eventFinished}
+            numbersByClass={numbersByClass}
+            onOpenMessageDialog={onOpenMessageDialog}
+            onUpload={handleInvitationUpload}
+            selectedByClass={selectedByClass}
+            stateByClass={stateByClass}
+          />
+          <StartListPublishing
+            event={event}
+            eventFinished={eventFinished}
+            eventWithCurrentAttachments={eventWithCurrentAttachments}
+            numbersByClass={numbersByClass}
+            onSetStartListPublished={onSetStartListPublished}
+            selectedByClass={selectedByClass}
+            stateByClass={stateByClass}
+          />
+          <EventActions
+            eventFinished={eventFinished}
+            eventId={event.id}
+            onCreateRegistration={onCreateRegistration}
+            onOpenDetails={onOpenDetails}
+          />
         </Box>
-
         <Box sx={{ display: activeTab === 1 ? 'flex' : 'none', flex: 1, minHeight: 0, p: 1.5 }}>
           <AuditTrail auditTrail={auditTrail} fullHeight />
         </Box>

@@ -199,4 +199,41 @@ describe('RegistrationTooltipContent', () => {
       .find((el) => el.getAttribute('data-text') === 'Karsintapisteet: 10')
     expect(rankingPointsTooltip).toBeInTheDocument()
   })
+
+  it.each([
+    [
+      { invitationAttachmentSent: 'current', invitationRead: false, messagesSent: { invitation: true } },
+      'registration.tooltip.invitation.unread',
+    ],
+    [
+      {
+        invitationAttachmentRead: 'current',
+        invitationAttachmentSent: 'current',
+        messagesSent: { invitation: true },
+      },
+      'registration.tooltip.invitation.read-latest',
+    ],
+    [
+      {
+        invitationAttachmentRead: 'previous',
+        invitationAttachmentSent: 'current',
+        messagesSent: { invitation: true },
+      },
+      'registration.tooltip.invitation.read-previous',
+    ],
+  ])('describes the invitation receipt status', (overrides, expectedText) => {
+    render(
+      <RegistrationTooltipContent
+        event={mockEvent}
+        reg={{ ...mockRegistration, ...overrides }}
+        priority={false}
+        manualResultCount={0}
+        rankingPoints={0}
+      />
+    )
+
+    expect(
+      screen.getAllByTestId('tooltip-icon').find((element) => element.getAttribute('data-text') === expectedText)
+    ).toBeInTheDocument()
+  })
 })

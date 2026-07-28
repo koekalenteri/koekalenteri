@@ -3,13 +3,14 @@ import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
+import MailOutline from '@mui/icons-material/MailOutline'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import Stack from '@mui/material/Stack'
 import { useMemo } from 'react'
-import { hasPriority } from '../../../../lib/registration'
+import { getInvitationReadStatus, hasPriority } from '../../../../lib/registration'
 import { IconsTooltip } from '../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../components/RankingPoints'
@@ -26,6 +27,7 @@ interface RegistrationIconsProps {
 
 const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
   const priority = hasPriority(event, reg)
+  const invitationReadStatus = getInvitationReadStatus(reg)
 
   const manualResultCount = useMemo(
     () => reg.qualifyingResults.filter((r) => !r.official).length,
@@ -56,11 +58,20 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
         <PaymentIcon reg={reg} />
         <StatusIcon condition={(reg.optionalCosts?.length ?? 0) > 0} icon={<AddTaskOutlinedIcon fontSize="small" />} />
         <StatusIcon condition={reg.confirmed} icon={<CheckOutlined fontSize="small" />} />
+        <StatusIcon condition={!!reg.emailDeliveryStatus} icon={<MailOutline color="error" fontSize="small" />} />
         <StatusIcon
-          condition={!!reg.emailDeliveryStatus}
-          icon={<MarkEmailUnreadOutlined color="error" fontSize="small" />}
+          condition={invitationReadStatus !== 'not-sent'}
+          icon={
+            invitationReadStatus === 'unread' ? (
+              <MarkEmailUnreadOutlined fontSize="small" />
+            ) : (
+              <MarkEmailReadOutlined
+                color={invitationReadStatus === 'read-previous' ? 'warning' : 'success'}
+                fontSize="small"
+              />
+            )
+          }
         />
-        <StatusIcon condition={reg.invitationRead} icon={<MarkEmailReadOutlined fontSize="small" />} />
         <StatusIcon condition={manualResultCount > 0} icon={<ErrorOutlineOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.notes.trim()} icon={<CommentOutlined fontSize="small" />} />
         <StatusIcon condition={!!reg.internalNotes?.trim()} icon={<SpeakerNotesOutlined fontSize="small" />} />

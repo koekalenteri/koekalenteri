@@ -46,7 +46,9 @@ export interface JsonRegistration extends JsonDbRecord {
   emailDeliveryStatus?: JsonEmailDeliveryStatus
   internalNotes?: string
   invitationAttachment?: string
+  invitationAttachmentRead?: string
   invitationAttachmentSent?: string
+  invitationAttachmentUpdatedAt?: string
   invitationRead?: boolean
   language: Language
   lastEmail?: string
@@ -126,7 +128,15 @@ export interface ManualTestResult extends QualifyingResult {
 export interface Registration
   extends Omit<
       JsonRegistration,
-      'dates' | 'dog' | 'paidAt' | 'qualifyingResults' | 'refundAt' | 'results' | 'group' | keyof JsonDbRecord
+      | 'dates'
+      | 'dog'
+      | 'invitationAttachmentUpdatedAt'
+      | 'paidAt'
+      | 'qualifyingResults'
+      | 'refundAt'
+      | 'results'
+      | 'group'
+      | keyof JsonDbRecord
     >,
     DbRecord {
   dates: RegistrationDate[]
@@ -136,6 +146,7 @@ export interface Registration
   qualifyingResults: QualifyingResult[]
   results?: Array<ManualTestResult>
   group?: RegistrationGroup
+  invitationAttachmentUpdatedAt?: Date
 }
 
 export interface JsonRegistrationWithGroup extends JsonRegistration {

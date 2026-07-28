@@ -176,8 +176,32 @@ type InvitationAttachmentEvent = Partial<
 >
 type InvitationAttachmentRegistration = Pick<
   JsonRegistration | Registration,
-  'class' | 'eventType' | 'invitationAttachmentSent' | 'messagesSent'
+  'class' | 'eventType' | 'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
 >
+
+export type InvitationReadStatus = 'not-sent' | 'unread' | 'read-latest' | 'read-previous'
+
+export const getInvitationReadStatus = (
+  registration: Pick<
+    JsonRegistration | Registration,
+    'invitationAttachmentRead' | 'invitationAttachmentSent' | 'invitationRead' | 'messagesSent'
+  >
+): InvitationReadStatus => {
+  if (!registration.messagesSent?.invitation && !registration.invitationAttachmentSent) {
+    return registration.invitationRead ? 'read-latest' : 'not-sent'
+  }
+
+  if (registration.invitationAttachmentRead) {
+    return !registration.invitationAttachmentSent ||
+      registration.invitationAttachmentRead === registration.invitationAttachmentSent
+      ? 'read-latest'
+      : 'read-previous'
+  }
+
+  // Before attachment-specific receipts, invitationRead only meant that the
+  // then-current invitation had been acknowledged.
+  return registration.invitationRead ? 'read-latest' : 'unread'
+}
 
 export const getCurrentInvitationAttachment = (
   event: Partial<Pick<ConfirmedEvent | JsonConfirmedEvent, 'invitationAttachment' | 'invitationAttachments'>>,

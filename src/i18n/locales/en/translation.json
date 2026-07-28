@@ -242,6 +242,58 @@
     "viewerBanner_other": "{{names}} are also viewing this event."
   },
   "eventInfo": "Event information",
+  "eventManagement": {
+    "actions": "Actions",
+    "attachment": {
+      "addPdf": "Add PDF",
+      "date": "{{date, dtshort2}}",
+      "noFile": "No file",
+      "previouslySentPdfs": "Previously sent PDFs",
+      "replacePdf": "Replace PDF",
+      "updated": "Updated {{date, dtshort2}}"
+    },
+    "close": "Close event management",
+    "invitation": {
+      "canSendAfterEntry": "Invitations can be sent after the entry period has ended",
+      "canSendAfterPicked": "Invitations can be sent after participant notifications",
+      "class": "{{className}} class",
+      "delivery": "Invitation delivery",
+      "send": "Send invitation",
+      "sent": "Invitations sent"
+    },
+    "open": "Open event management",
+    "participantSelection": {
+      "canSendAfterEntry": "Participant notifications can be sent after the entry period has ended",
+      "placeNotificationsSent": "Participant notifications sent",
+      "reserve": "Reserve list",
+      "reserveNotificationsSent": "Reserve notifications sent",
+      "sendPlaceNotification": "Send participant notification",
+      "sendReserveNotification": "Send reserve notification",
+      "title": "Participant selection"
+    },
+    "showEventDetails": "Show event details",
+    "startList": {
+      "hide": "Hide start list",
+      "preview": "View public start list",
+      "publish": "Publish start list",
+      "publishing": "Start list publishing",
+      "saveFailed": "Saving the start list publication status failed. Try again.",
+      "secretary": "Secretary's start list"
+    },
+    "tabs": {
+      "ariaLabel": "Event management tabs",
+      "auditTrail": "Audit trail",
+      "management": "Event management"
+    },
+    "upload": {
+      "attached": "Invitation attached: {{fileName}}",
+      "attachmentFailed": "Adding the invitation failed. Try again.",
+      "attachmentTooLarge": "The invitation file is too large. Reduce the PDF file size and try again.",
+      "classAttached": "{{eventClass}} invitation attached: {{fileName}}",
+      "classUpdated": "{{eventClass}} invitation updated: {{fileName}}",
+      "updated": "Invitation updated: {{fileName}}"
+    }
+  },
   "events": "Events",
   "eventTime": "Event time",
   "eventType": {
@@ -275,6 +327,7 @@
   "handler": "Handler",
   "id": "ID",
   "invitation": {
+    "attachmentUpdated": "Attachment updated {{date, dtshort2}}",
     "download": "Download invitation",
     "event": "Event",
     "handler": "Handler",
@@ -562,6 +615,11 @@
       "kp": "no groups"
     },
     "tooltip": {
+      "invitation": {
+        "read-latest": "The latest invitation has been acknowledged",
+        "read-previous": "An earlier invitation has been acknowledged; the latest is still awaiting acknowledgement",
+        "unread": "The invitation has not been acknowledged"
+      },
       "refunded": "The entry fee has been refunded. Refunded {{refundAmount}}, paid {{paidAmount}}",
       "refunded_handlingCost": "The entry fee has been refunded. Refunded {{refundAmount}}, handling fee {{handlingCost}}, paid {{paidAmount}}",
       "refundPending": "The refund is being processed. Refunding {{refundAmount}}, paid {{paidAmount}}",

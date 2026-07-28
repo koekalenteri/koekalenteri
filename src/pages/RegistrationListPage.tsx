@@ -270,6 +270,7 @@ export function RegistrationListPage({ cancel, confirm, invitation }: Props) {
           event={event}
           eventClass={getRegistrationClass(registration)}
           invitationAttachment={registration.invitationAttachment}
+          invitationAttachmentUpdatedAt={registration.invitationAttachmentUpdatedAt}
           hideCostInfo
         />
         <RegistrationList

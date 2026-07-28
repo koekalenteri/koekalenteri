@@ -6,6 +6,7 @@ import {
   GROUP_KEY_CANCELLED,
   GROUP_KEY_RESERVE,
   getCurrentInvitationAttachment,
+  getInvitationReadStatus,
   getNextClass,
   getParticipantMessageInfo,
   getRegistrationClass,
@@ -586,6 +587,40 @@ describe('lib/registration', () => {
 
     it('falls back to current attachment when no invitation has been sent', () => {
       expect(getSentInvitationAttachment(event, { class: 'ALO', eventType: 'NOME-B' })).toBe('alo-attachment')
+    })
+
+    it.each([
+      [{}, 'not-sent'],
+      [{ invitationAttachmentSent: 'current', messagesSent: { invitation: true } }, 'unread'],
+      [
+        {
+          invitationAttachmentRead: 'current',
+          invitationAttachmentSent: 'current',
+          messagesSent: { invitation: true },
+        },
+        'read-latest',
+      ],
+      [
+        {
+          invitationAttachmentRead: 'previous',
+          invitationAttachmentSent: 'current',
+          messagesSent: { invitation: true },
+        },
+        'read-previous',
+      ],
+      [
+        {
+          invitationAttachmentRead: 'current',
+          messagesSent: { invitation: true },
+        },
+        'read-latest',
+      ],
+      [
+        { invitationAttachmentSent: 'current', invitationRead: true, messagesSent: { invitation: true } },
+        'read-latest',
+      ],
+    ] as const)('derives invitation read status from attachment receipts', (registration, expected) => {
+      expect(getInvitationReadStatus(registration)).toBe(expected)
     })
   })
 

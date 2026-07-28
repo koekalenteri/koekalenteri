@@ -51,6 +51,11 @@ exports[`RegistrationInvitation renders invitation page when URL is available 1`
         Handler Name
       </p>
     </div>
+    <span
+      class="MuiTypography-root MuiTypography-caption css-aiuu-MuiTypography-root"
+    >
+      invitation.attachmentUpdated date
+    </span>
     <div
       class="MuiStack-root css-i74727-MuiStack-root"
     >

@@ -296,7 +296,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
     </div>
   </div>
   <button
-    aria-label="Avaa tapahtuman hallinta"
+    aria-label="eventManagement.open"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1r1z7vh-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -316,7 +316,7 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
         />
       </svg>
     </span>
-    Tapahtuman hallinta
+    eventManagement.tabs.management
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
@@ -3903,17 +3903,17 @@ exports[`EventViewPage renders properly for event with classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -4947,7 +4947,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
     </div>
   </div>
   <button
-    aria-label="Avaa tapahtuman hallinta"
+    aria-label="eventManagement.open"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1r1z7vh-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -4967,7 +4967,7 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
         />
       </svg>
     </span>
-    Tapahtuman hallinta
+    eventManagement.tabs.management
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
@@ -8544,17 +8544,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -8857,17 +8857,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -9170,17 +9170,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -9483,17 +9483,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -9796,17 +9796,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -10713,17 +10713,17 @@ exports[`EventViewPage renders properly for event without classes 1`] = `
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
@@ -11148,7 +11148,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
     </div>
   </div>
   <button
-    aria-label="Avaa tapahtuman hallinta"
+    aria-label="eventManagement.open"
     class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-1r1z7vh-MuiButtonBase-root-MuiButton-root"
     tabindex="0"
     type="button"
@@ -11168,7 +11168,7 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
         />
       </svg>
     </span>
-    Tapahtuman hallinta
+    eventManagement.tabs.management
   </button>
   <div
     class="MuiStack-root css-1jv2z0n-MuiStack-root"
@@ -14755,17 +14755,17 @@ exports[`EventViewPage uses the route event id instead of stale admin event sele
                         <svg
                           aria-hidden="true"
                           class="MuiSvgIcon-root MuiSvgIcon-colorError MuiSvgIcon-fontSizeSmall css-1wjvu61-MuiSvgIcon-root"
-                          data-testid="MarkEmailUnreadOutlinedIcon"
+                          data-testid="MailOutlineIcon"
                           focusable="false"
                           viewBox="0 0 24 24"
                         >
                           <path
-                            d="M22 8.98V18c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2l.01-12c0-1.1.89-2 1.99-2h10.1c-.06.32-.1.66-.1 1s.04.68.1 1H4l8 5 3.67-2.29c.47.43 1.02.76 1.63.98L12 13 4 8v10h16V9.9c.74-.15 1.42-.48 2-.92M16 5c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3"
+                            d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 14H4V8l8 5 8-5zm-8-7L4 6h16z"
                           />
                         </svg>
                         <svg
                           aria-hidden="true"
-                          class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-1hzbbha-MuiSvgIcon-root"
+                          class="MuiSvgIcon-root MuiSvgIcon-colorSuccess MuiSvgIcon-fontSizeSmall css-8gjn7u-MuiSvgIcon-root"
                           data-testid="MarkEmailReadOutlinedIcon"
                           focusable="false"
                           viewBox="0 0 24 24"

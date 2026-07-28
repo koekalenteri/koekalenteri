@@ -10,7 +10,7 @@ import type {
 } from '../../types'
 import { nanoid } from 'nanoid'
 import { filterRelevantResults } from '../../lib/qualification'
-import { GROUP_KEY_RESERVE, isParticipantGroup } from '../../lib/registration'
+import { GROUP_KEY_RESERVE, getSentInvitationAttachment, isParticipantGroup } from '../../lib/registration'
 import { isEntryOpen, isEventOver, isObject, patchMerge } from '../../lib/utils'
 import { CONFIG } from '../config'
 import { getOrigin } from '../lib/api-gw'
@@ -351,7 +351,15 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
   const update = !!existing
   const cancel = !existing?.cancelled && !!registration.cancelled
   const confirm = !existing?.confirmed && !!registration.confirmed && !existing?.cancelled
-  const invitation = !existing?.invitationRead && !!registration.invitationRead && !existing?.cancelled
+  const invitationAttachment = existing ? getSentInvitationAttachment(confirmedEvent, existing) : undefined
+  const previousInvitationAttachmentRead =
+    existing?.invitationAttachmentRead ??
+    (existing?.invitationRead ? (existing.invitationAttachmentSent ?? invitationAttachment) : undefined)
+  const invitation =
+    !!registration.invitationRead &&
+    !existing?.cancelled &&
+    (!existing?.invitationRead ||
+      Boolean(invitationAttachment && previousInvitationAttachmentRead !== invitationAttachment))
 
   // modification info is always updated
   registration.modifiedAt = timestamp
@@ -368,6 +376,10 @@ const putRegistrationLambda = lambda('putRegistration', async (event) => {
       return response(400, { message: 'Bad request: registration data is incomplete' }, event)
     }
     data = registration
+  }
+
+  if (invitation && invitationAttachment) {
+    data.invitationAttachmentRead = invitationAttachment
   }
 
   resolveQualification(data, confirmedEvent)

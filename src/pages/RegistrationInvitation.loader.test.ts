@@ -72,6 +72,35 @@ describe('RegistrationInvitation deferredLoader', () => {
     expect(mockPutRegistration).not.toHaveBeenCalled()
   })
 
+  it('marks the latest invitation as read when only an earlier attachment was read', async () => {
+    const mockEvent = { id: 'event123', name: 'Test Event' }
+    const mockRegistration = {
+      dog: { name: 'Test Dog' },
+      eventId: 'event123',
+      handler: { name: 'Test Handler' },
+      id: 'reg123',
+      invitationAttachmentRead: 'old-attachment',
+      invitationAttachmentSent: 'new-attachment',
+      invitationRead: true,
+      messagesSent: { invitation: true },
+    }
+
+    mockGetEvent.mockResolvedValueOnce(mockEvent)
+    mockGetRegistration.mockResolvedValueOnce(mockRegistration)
+    mockPutRegistration.mockResolvedValueOnce(undefined)
+
+    await deferredLoader('event123', 'reg123', undefined)
+
+    expect(mockPutRegistration).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'reg123',
+        invitationRead: true,
+      }),
+      undefined,
+      undefined
+    )
+  })
+
   it('returns URL when invitation attachment exists', async () => {
     const mockEvent = { id: 'event123', name: 'Test Event' }
     const mockRegistration = {

@@ -23,6 +23,9 @@ const getRegistrationLambda = lambda('getRegistration', async (event) => {
 
   if (isParticipantGroup(registration.group?.key)) {
     registration.invitationAttachment = getSentInvitationAttachment(dogEvent, registration)
+    registration.invitationAttachmentUpdatedAt = registration.invitationAttachment
+      ? dogEvent.invitationAttachmentHistory?.[registration.invitationAttachment]?.uploadedAt
+      : undefined
   }
 
   if (registration.paymentStatus === 'PENDING') {

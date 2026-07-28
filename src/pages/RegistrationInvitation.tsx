@@ -10,6 +10,7 @@ import { Await, Navigate, useLoaderData } from 'react-router'
 import { getEvent } from '../api/event'
 import { getRegistration, putRegistration } from '../api/registration'
 import { invitationAttachmentFileName } from '../lib/fileName'
+import { getInvitationReadStatus } from '../lib/registration'
 import { Path } from '../routeConfig'
 import LinkButton from './components/LinkButton'
 import { LoadingPage } from './LoadingPage'
@@ -43,7 +44,7 @@ export const deferredLoader = async (
 
   await i18n.changeLanguage(registration.language)
 
-  if (!registration.invitationRead) {
+  if (getInvitationReadStatus(registration) !== 'read-latest') {
     registration.invitationRead = true
     await putRegistration(registration, undefined, signal)
   }
@@ -88,6 +89,11 @@ export const Component = () => {
                 <Typography variant="caption">{t('invitation.handler')}</Typography>
                 <Typography>{registration.handler?.name}</Typography>
               </Paper>
+              {registration.invitationAttachmentUpdatedAt && (
+                <Typography color="text.secondary" sx={{ pt: 1 }} variant="caption">
+                  {t('invitation.attachmentUpdated', { date: registration.invitationAttachmentUpdatedAt })}
+                </Typography>
+              )}
               <Stack alignItems="start" sx={{ py: 1 }} gap={1} direction="row">
                 <LinkButton target="_blank" to={url} text={t('invitation.open')} />
                 <LinkButton

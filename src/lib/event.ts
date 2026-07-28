@@ -164,6 +164,7 @@ export function sanitizeDogEvent(
     headquarters: _headquarters,
     kcId: _kcId,
     invitationAttachment: _invitationAttachment,
+    invitationAttachmentHistory: _invitationAttachmentHistory,
     invitationAttachments: _invitationAttachments,
     modifiedBy: _modifiedBy,
     registrationGroupsLock: _registrationGroupsLock,

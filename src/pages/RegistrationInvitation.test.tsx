@@ -104,7 +104,10 @@ describe('RegistrationInvitation', () => {
         loader: async () => ({
           data: Promise.resolve({
             event: eventWithStaticDates,
-            registration: registrationWithStaticDates,
+            registration: {
+              ...registrationWithStaticDates,
+              invitationAttachmentUpdatedAt: new Date('2026-07-28T10:00:00.000Z'),
+            },
             url: invitationUrl,
           }),
         }),
@@ -140,6 +143,7 @@ describe('RegistrationInvitation', () => {
     // Check that buttons are displayed
     expect(screen.getByText('invitation.open')).toBeInTheDocument()
     expect(screen.getByText('invitation.download')).toBeInTheDocument()
+    expect(screen.getByText('invitation.attachmentUpdated date')).toBeInTheDocument()
 
     // Check that links have correct URLs
     const openButton = screen.getByText('invitation.open').closest('a')

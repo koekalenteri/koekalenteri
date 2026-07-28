@@ -159,14 +159,51 @@ describe('RegistrationIcons component', () => {
 
     render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
 
-    expect(screen.getByTestId('MarkEmailUnreadOutlinedIcon')).toBeInTheDocument()
+    expect(screen.getByTestId('MailOutlineIcon')).toBeInTheDocument()
 
-    await user.hover(screen.getByTestId('MarkEmailUnreadOutlinedIcon').closest('div')!)
+    await user.hover(screen.getByTestId('MailOutlineIcon').closest('div')!)
     act(() => {
       jest.runOnlyPendingTimers()
     })
 
     expect(screen.getByText(/Sähköpostin toimitus epäonnistui: handler@example.com/)).toBeInTheDocument()
+  })
+
+  it.each([
+    [
+      {
+        invitationAttachmentSent: 'current',
+        messagesSent: { invitation: true },
+      },
+      'MarkEmailUnreadOutlinedIcon',
+      undefined,
+    ],
+    [
+      {
+        invitationAttachmentRead: 'current',
+        invitationAttachmentSent: 'current',
+        messagesSent: { invitation: true },
+      },
+      'MarkEmailReadOutlinedIcon',
+      'MuiSvgIcon-colorSuccess',
+    ],
+    [
+      {
+        invitationAttachmentRead: 'previous',
+        invitationAttachmentSent: 'current',
+        messagesSent: { invitation: true },
+      },
+      'MarkEmailReadOutlinedIcon',
+      'MuiSvgIcon-colorWarning',
+    ],
+  ] as const)('shows the invitation receipt status', (overrides, iconTestId, colorClass) => {
+    const mockReg = createMockRegistration(overrides)
+
+    render(<RegistrationIcons event={eventWithStaticDatesAnd3Classes} reg={mockReg} />)
+
+    const icon = screen.getByTestId(iconTestId)
+    expect(icon).toBeInTheDocument()
+    if (colorClass) expect(icon).toHaveClass(colorClass)
   })
 
   it('should correctly calculate manualResultCount', () => {

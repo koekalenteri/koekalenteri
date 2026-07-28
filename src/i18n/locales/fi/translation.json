@@ -242,6 +242,58 @@
     "viewerBanner_other": "Myös {{names}} katsovat tätä tapahtumaa."
   },
   "eventInfo": "Tapahtuman tiedot",
+  "eventManagement": {
+    "actions": "Toiminnot",
+    "attachment": {
+      "addPdf": "Lisää PDF",
+      "date": "{{date, dtshort2}}",
+      "noFile": "Ei tiedostoa",
+      "previouslySentPdfs": "Aiemmin lähetetyt PDF:t",
+      "replacePdf": "Vaihda PDF",
+      "updated": "Päivitetty {{date, dtshort2}}"
+    },
+    "close": "Sulje tapahtuman hallinta",
+    "invitation": {
+      "canSendAfterEntry": "Koekutsut voi lähettää ilmoittautumisajan päätyttyä",
+      "canSendAfterPicked": "Koekutsut voi lähettää koepaikkailmoitusten jälkeen",
+      "class": "{{className}}-luokka",
+      "delivery": "Koekutsun lähetys",
+      "send": "Lähetä koekutsu",
+      "sent": "Koekutsut lähetetty"
+    },
+    "open": "Avaa tapahtuman hallinta",
+    "participantSelection": {
+      "canSendAfterEntry": "Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
+      "placeNotificationsSent": "Koepaikkailmoitukset lähetetty",
+      "reserve": "Varasijalla",
+      "reserveNotificationsSent": "Varasijailmoitukset lähetetty",
+      "sendPlaceNotification": "Lähetä koepaikkailmoitus",
+      "sendReserveNotification": "Lähetä varasijailmoitus",
+      "title": "Osallistujien valinta"
+    },
+    "showEventDetails": "Näytä tapahtuman tiedot",
+    "startList": {
+      "hide": "Piilota starttilista",
+      "preview": "Katso julkinen starttilista",
+      "publish": "Julkaise starttilista",
+      "publishing": "Starttilistan julkaisu",
+      "saveFailed": "Starttilistan julkaisutilan tallennus epäonnistui. Yritä uudelleen.",
+      "secretary": "Sihteerin starttilista"
+    },
+    "tabs": {
+      "ariaLabel": "Tapahtuman hallinnan välilehdet",
+      "auditTrail": "Muutoshistoria",
+      "management": "Tapahtuman hallinta"
+    },
+    "upload": {
+      "attached": "Koekutsu liitetty: {{fileName}}",
+      "attachmentFailed": "Koekutsun liittäminen epäonnistui. Yritä uudelleen.",
+      "attachmentTooLarge": "Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.",
+      "classAttached": "{{eventClass}} koekutsu liitetty: {{fileName}}",
+      "classUpdated": "{{eventClass}} koekutsu päivitetty: {{fileName}}",
+      "updated": "Koekutsu päivitetty: {{fileName}}"
+    }
+  },
   "events": "Tapahtumat",
   "eventTime": "Ajankohta",
   "eventType": {
@@ -275,6 +327,7 @@
   "handler": "Ohjaaja",
   "id": "Tunnus",
   "invitation": {
+    "attachmentUpdated": "Liitetiedosto päivitetty {{date, dtshort2}}",
     "download": "Lataa koekutsu",
     "event": "Tapahtuma",
     "handler": "Ohjaaja",
@@ -562,6 +615,11 @@
       "kp": "ei ryhmiä"
     },
     "tooltip": {
+      "invitation": {
+        "read-latest": "Viimeksi lähetetty koekutsu on kuitattu",
+        "read-previous": "Aiempi koekutsu on kuitattu, viimeisin odottaa kuittausta",
+        "unread": "Koekutsua ei ole kuitattu"
+      },
       "refunded": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, maksoi {{paidAmount}}",
       "refunded_handlingCost": "Ilmoittautumismaksua on palautettu. Palautettu {{refundAmount}}, käsittelykulu {{handlingCost}}, maksoi {{paidAmount}}",
       "refundPending": "Palautuksen käsittely on kesken. Palautetaan {{refundAmount}}, maksoi {{paidAmount}}",

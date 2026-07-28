@@ -536,6 +536,68 @@ describe('registration', () => {
       expect(registration.invitationAttachmentSent).toBe('common-attachment')
     })
 
+    it('preserves a legacy receipt for the previously sent attachment when resending', async () => {
+      const registration = {
+        ...jsonRegistrationsToEventWithALOInvited[0],
+        invitationAttachmentSent: 'old-attachment',
+        invitationRead: true,
+        messagesSent: { invitation: true },
+      }
+
+      await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        { ...JSON.parse(JSON.stringify(eventWithALOClassInvited)), invitationAttachments: { ALO: 'new-attachment' } },
+        [registration],
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        ''
+      )
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        {
+          set: {
+            invitationAttachmentRead: 'old-attachment',
+            invitationAttachmentSent: 'new-attachment',
+            updatedAt: expect.any(String),
+          },
+        }
+      )
+      expect(registration.invitationAttachmentRead).toBe('old-attachment')
+      expect(registration.invitationAttachmentSent).toBe('new-attachment')
+    })
+
+    it('does not treat a newly sent attachment as read when a legacy receipt has no attachment key', async () => {
+      const registration = {
+        ...jsonRegistrationsToEventWithALOInvited[0],
+        invitationRead: true,
+        messagesSent: { invitation: true },
+      }
+
+      await sendTemplatedEmailToEventRegistrations(
+        'invitation',
+        { ...JSON.parse(JSON.stringify(eventWithALOClassInvited)), invitationAttachments: { ALO: 'new-attachment' } },
+        [registration],
+        'https://example.com',
+        'Test message',
+        'admin-user',
+        ''
+      )
+
+      expect(mockDynamoDB.update).toHaveBeenCalledWith(
+        { eventId: registration.eventId, id: registration.id },
+        {
+          set: {
+            invitationAttachmentSent: 'new-attachment',
+            invitationRead: false,
+            updatedAt: expect.any(String),
+          },
+        }
+      )
+      expect(registration.invitationRead).toBe(false)
+    })
+
     it('should handle failed email sending', async () => {
       const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
       // Make the second email fail

@@ -7,6 +7,7 @@ const mockGetParam = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockParsePostFile = jest.fn<any>()
 const mockDeleteFile = jest.fn<any>()
+const mockGetRegistrationsByEventId = jest.fn<any>()
 const mockUploadFile = jest.fn<any>()
 const mockUpdate = jest.fn<any>()
 const mockPublishAdminEventPatch = jest.fn<any>()
@@ -29,6 +30,10 @@ jest.unstable_mockModule('../lib/file', () => ({
   deleteFile: mockDeleteFile,
   parsePostFile: mockParsePostFile,
   uploadFile: mockUploadFile,
+}))
+
+jest.unstable_mockModule('../lib/registration', () => ({
+  getRegistrationsByEventId: mockGetRegistrationsByEventId,
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -74,6 +79,9 @@ describe('putInvitationAttachmentLambda', () => {
     mockGetEvent.mockResolvedValue({
       id: 'event123',
       invitationAttachment: 'old-attachment-key',
+      invitationAttachmentHistory: {
+        'old-attachment-key': { uploadedAt: '2026-07-27T09:00:00.000Z' },
+      },
       invitationAttachments: {
         AVO: 'old-avo-attachment-key',
       },
@@ -91,6 +99,10 @@ describe('putInvitationAttachmentLambda', () => {
     })
 
     mockDeleteFile.mockResolvedValue({})
+    mockGetRegistrationsByEventId.mockResolvedValue([
+      { invitationAttachmentSent: 'old-attachment-key' },
+      { invitationAttachmentRead: 'old-avo-attachment-key' },
+    ])
 
     mockUploadFile.mockResolvedValue({})
 
@@ -169,7 +181,7 @@ describe('putInvitationAttachmentLambda', () => {
     expect(console.error).toHaveBeenCalledWith('no data')
   })
 
-  it('uploads new attachment and deletes old one', async () => {
+  it('uploads new attachment and preserves the old one', async () => {
     await putInvitationAttachmentLambda(event)
 
     // Verify event was retrieved
@@ -178,8 +190,8 @@ describe('putInvitationAttachmentLambda', () => {
     // Verify file was parsed
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
 
-    // Verify old attachment was deleted
-    expect(mockDeleteFile).toHaveBeenCalledWith('old-attachment-key')
+    // Previously sent invitation links must keep working.
+    expect(mockDeleteFile).not.toHaveBeenCalled()
 
     // Verify new file was uploaded
     expect(mockUploadFile).toHaveBeenCalledWith(
@@ -191,44 +203,128 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event123' },
       {
-        set: {
+        set: expect.objectContaining({
           invitationAttachment: expect.any(String),
-        },
+          invitationAttachmentHistory: expect.any(Object),
+        }),
       }
     )
     expect(mockPublishAdminEventPatch).toHaveBeenCalledWith(
-      { eventId: 'event123', invitationAttachment: expect.any(String) },
+      expect.objectContaining({
+        eventId: 'event123',
+        invitationAttachment: expect.any(String),
+        invitationAttachmentHistory: expect.any(Object),
+      }),
       'org789'
     )
+    const set = (
+      mockUpdate.mock.calls[0][1] as {
+        set: { invitationAttachment: string; invitationAttachmentHistory: Record<string, unknown> }
+      }
+    ).set
+    expect(set.invitationAttachmentHistory).toEqual({
+      'old-attachment-key': { uploadedAt: '2026-07-27T09:00:00.000Z' },
+      [set.invitationAttachment]: { uploadedAt: expect.any(String) },
+    })
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(
       200,
-      expect.any(String), // nanoid generated key
+      expect.objectContaining({
+        invitationAttachmentHistory: expect.any(Object),
+        key: expect.any(String),
+        uploadedAt: expect.any(String),
+      }),
       event
     )
   })
 
-  it('uploads class attachment and deletes old class attachment', async () => {
+  it('uploads class attachment and preserves the old class attachment', async () => {
     mockGetParam.mockImplementation((_event: unknown, name: string) =>
       name === 'eventId' ? 'event123' : name === 'className' ? 'AVO' : ''
     )
 
     await putInvitationAttachmentLambda(event)
 
-    expect(mockDeleteFile).toHaveBeenCalledWith('old-avo-attachment-key')
+    expect(mockDeleteFile).not.toHaveBeenCalled()
     expect(mockUploadFile).toHaveBeenCalledWith(expect.any(String), Buffer.from('test-file-content'))
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event123' },
       {
-        set: {
+        set: expect.objectContaining({
+          invitationAttachmentHistory: expect.any(Object),
           invitationAttachments: {
             AVO: expect.any(String),
           },
-        },
+        }),
       }
     )
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(String), event)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        invitationAttachmentHistory: expect.any(Object),
+        key: expect.any(String),
+        uploadedAt: expect.any(String),
+      }),
+      event
+    )
+  })
+
+  it('deletes an old attachment that has never been sent', async () => {
+    mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockDeleteFile).toHaveBeenCalledWith('old-attachment-key')
+    const set = (
+      mockUpdate.mock.calls[0][1] as {
+        set: { invitationAttachment: string; invitationAttachmentHistory: Record<string, unknown> }
+      }
+    ).set
+    expect(set.invitationAttachmentHistory).not.toHaveProperty('old-attachment-key')
+    expect(set.invitationAttachmentHistory).toHaveProperty(set.invitationAttachment)
+  })
+
+  it('preserves an old attachment when a legacy invitation has no recorded attachment key', async () => {
+    mockGetRegistrationsByEventId.mockResolvedValueOnce([{ invitationRead: true, messagesSent: { invitation: true } }])
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockDeleteFile).not.toHaveBeenCalled()
+  })
+
+  it('does not retain a class attachment for a legacy invitation in another class', async () => {
+    mockGetParam.mockImplementation((_event: unknown, name: string) =>
+      name === 'eventId' ? 'event123' : name === 'className' ? 'AVO' : ''
+    )
+    mockGetRegistrationsByEventId.mockResolvedValueOnce([
+      { class: 'ALO', invitationRead: true, messagesSent: { invitation: true } },
+    ])
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockDeleteFile).toHaveBeenCalledWith('old-avo-attachment-key')
+  })
+
+  it('keeps the new attachment active if deleting the unused old file fails', async () => {
+    const error = new Error('delete failed')
+    mockGetRegistrationsByEventId.mockResolvedValueOnce([])
+    mockDeleteFile.mockRejectedValueOnce(error)
+
+    await putInvitationAttachmentLambda(event)
+
+    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockPublishAdminEventPatch).toHaveBeenCalled()
+    expect(console.error).toHaveBeenCalledWith('Failed to delete unused invitation attachment', error)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        invitationAttachmentHistory: expect.any(Object),
+        key: expect.any(String),
+        uploadedAt: expect.any(String),
+      }),
+      event
+    )
   })
 
   it('uploads new attachment when no previous attachment exists', async () => {
@@ -263,16 +359,21 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockUpdate).toHaveBeenCalledWith(
       { id: 'event123' },
       {
-        set: {
+        set: expect.objectContaining({
           invitationAttachment: expect.any(String),
-        },
+          invitationAttachmentHistory: expect.any(Object),
+        }),
       }
     )
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(
       200,
-      expect.any(String), // nanoid generated key
+      expect.objectContaining({
+        invitationAttachmentHistory: expect.any(Object),
+        key: expect.any(String),
+        uploadedAt: expect.any(String),
+      }),
       event
     )
   })
@@ -293,8 +394,7 @@ describe('putInvitationAttachmentLambda', () => {
     // Verify file was parsed
     expect(mockParsePostFile).toHaveBeenCalledWith(event)
 
-    // Verify old attachment was deleted
-    expect(mockDeleteFile).toHaveBeenCalledWith('old-attachment-key')
+    expect(mockDeleteFile).not.toHaveBeenCalled()
 
     // Verify new file was uploaded
     expect(mockUploadFile).toHaveBeenCalled()
@@ -303,6 +403,14 @@ describe('putInvitationAttachmentLambda', () => {
     expect(mockUpdate).toHaveBeenCalled()
 
     // Verify response
-    expect(mockResponse).toHaveBeenCalledWith(200, expect.any(String), event)
+    expect(mockResponse).toHaveBeenCalledWith(
+      200,
+      expect.objectContaining({
+        invitationAttachmentHistory: expect.any(Object),
+        key: expect.any(String),
+        uploadedAt: expect.any(String),
+      }),
+      event
+    )
   })
 })

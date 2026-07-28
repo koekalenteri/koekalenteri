@@ -1023,8 +1023,15 @@ describe('putRegistrationLabmda', () => {
   })
 
   it('should send invitation read email', async () => {
-    const existingJson = JSON.parse(JSON.stringify(registrationWithStaticDates))
-    mockGetEvent.mockResolvedValueOnce(JSON.parse(JSON.stringify(eventWithStaticDates)))
+    const existingJson = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      invitationAttachmentSent: 'sent-attachment',
+      messagesSent: { invitation: true },
+    }
+    mockGetEvent.mockResolvedValueOnce({
+      ...JSON.parse(JSON.stringify(eventWithStaticDates)),
+      invitationAttachment: 'current-attachment',
+    })
     mockGetRegistration.mockResolvedValueOnce(existingJson)
     const res = await putRegistrationLabmda(
       constructAPIGwEvent({ ...registrationWithStaticDates, invitationRead: true })
@@ -1035,6 +1042,42 @@ describe('putRegistrationLabmda', () => {
         Template: 'registration-local-fi',
         TemplateData: expect.stringContaining('"subject":"Olet kuitannut koekutsun"'),
       })
+    )
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      registrationWithStaticDates.eventId,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({
+        invitationAttachmentRead: 'sent-attachment',
+        invitationRead: true,
+      })
+    )
+  })
+
+  it('records a new receipt when a previously read invitation attachment is replaced', async () => {
+    const existingJson = {
+      ...JSON.parse(JSON.stringify(registrationWithStaticDates)),
+      invitationAttachmentRead: 'old-attachment',
+      invitationAttachmentSent: 'new-attachment',
+      invitationRead: true,
+      messagesSent: { invitation: true },
+    }
+    mockGetEvent.mockResolvedValueOnce({
+      ...JSON.parse(JSON.stringify(eventWithStaticDates)),
+      invitationAttachment: 'new-attachment',
+    })
+    mockGetRegistration.mockResolvedValueOnce(existingJson)
+
+    const res = await putRegistrationLabmda(
+      constructAPIGwEvent({ ...registrationWithStaticDates, invitationRead: true })
+    )
+
+    expect(res.statusCode).toEqual(200)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      registrationWithStaticDates.eventId,
+      registrationWithStaticDates.id,
+      existingJson,
+      expect.objectContaining({ invitationAttachmentRead: 'new-attachment' })
     )
   })
 

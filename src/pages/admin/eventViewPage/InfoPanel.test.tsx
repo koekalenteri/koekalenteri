@@ -35,6 +35,9 @@ const activeEventWithStaticDatesAndClass = {
 // Mock the API calls
 jest.mock('../../../api/event')
 jest.mock('../../../api/user')
+jest.mock('../recoil/events/effects', () => ({
+  adminRemoteEventsEffect: () => undefined,
+}))
 
 // Mock the notistack enqueueSnackbar
 jest.mock('notistack', () => ({
@@ -48,7 +51,7 @@ function getGroupKey(r: Registration, i: number) {
 }
 
 async function openInfoPanel(user: UserEvent) {
-  await user.click(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' }))
+  await user.click(screen.getByRole('button', { name: 'eventManagement.open' }))
 }
 
 describe('InfoPanel>', () => {
@@ -66,7 +69,7 @@ describe('InfoPanel>', () => {
       ),
     })
 
-    const openButton = screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })
+    const openButton = screen.getByRole('button', { name: 'eventManagement.open' })
     expect(openButton).toHaveStyle({ flexDirection: 'row' })
     expect(screen.getByTestId('MenuOpenIcon')).toBeInTheDocument()
     expect(container).toMatchSnapshot()
@@ -106,13 +109,16 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByRole('tab', { name: 'Tapahtuman hallinta' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByText('Toiminnot')).toBeInTheDocument()
-    expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
-    expect(screen.getByText('Koekutsun lähetys')).toBeInTheDocument()
-    expect(screen.getByText('Starttilistan julkaisu')).toBeInTheDocument()
-    expect(screen.getByText('Varasijalla')).toBeInTheDocument()
-    const reserveRow = screen.getByText('Varasijalla').closest('tr')
+    expect(screen.getByRole('tab', { name: 'eventManagement.tabs.management' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+    expect(screen.getByText('eventManagement.actions')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.participantSelection.title')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.invitation.delivery')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.startList.publishing')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.participantSelection.reserve')).toBeInTheDocument()
+    const reserveRow = screen.getByText('eventManagement.participantSelection.reserve').closest('tr')
     if (!reserveRow) throw new Error('reserve row not found')
     const participantRow = reserveRow.previousElementSibling
     if (!(participantRow instanceof HTMLTableRowElement)) throw new Error('participant row not found')
@@ -123,9 +129,11 @@ describe('InfoPanel>', () => {
     expect(screen.queryByText('Valmistelu')).not.toBeInTheDocument()
     expect(screen.queryByText('Kokeen tiedot')).not.toBeInTheDocument()
     expect(screen.queryByText('Koko koe')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Lisää PDF' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Lisää PDF' }).closest('td')).toHaveClass('MuiTableCell-alignRight')
-    expect(screen.getByText('Koekutsut voi lähettää koepaikkailmoitusten jälkeen')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' }).closest('td')).toHaveClass(
+      'MuiTableCell-alignRight'
+    )
+    expect(screen.getByText('eventManagement.invitation.canSendAfterPicked')).toBeInTheDocument()
     expect(screen.getByTestId('info-panel-content')).toHaveStyle({
       gridAutoRows: 'max-content',
       overflowY: 'auto',
@@ -138,10 +146,13 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    await user.click(screen.getByRole('tab', { name: 'Muutoshistoria' }))
+    await user.click(screen.getByRole('tab', { name: 'eventManagement.tabs.auditTrail' }))
 
-    expect(screen.getByRole('tab', { name: 'Muutoshistoria' })).toHaveAttribute('aria-selected', 'true')
-    expect(screen.getByText('Osallistujien valinta')).not.toBeVisible()
+    expect(screen.getByRole('tab', { name: 'eventManagement.tabs.auditTrail' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+    expect(screen.getByText('eventManagement.participantSelection.title')).not.toBeVisible()
   })
 
   it('shows invitation attachments before the send action', async () => {
@@ -150,8 +161,8 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    const attachmentButton = screen.getByRole('button', { name: 'Lisää PDF' })
-    const sendButton = screen.getByRole('button', { name: 'Lähetä koekutsu' })
+    const attachmentButton = screen.getByRole('button', { name: 'eventManagement.attachment.addPdf' })
+    const sendButton = screen.getByRole('button', { name: 'eventManagement.invitation.send' })
 
     expect(attachmentButton.compareDocumentPosition(sendButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
@@ -181,7 +192,7 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    await user.click(screen.getByRole('button', { name: /Näytä tapahtuman tiedot/i }))
+    await user.click(screen.getByRole('button', { name: 'eventManagement.showEventDetails' }))
 
     expect(onOpenDetails).toHaveBeenCalledTimes(1)
   })
@@ -192,10 +203,10 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    const publicStartListLink = screen.getByRole('link', { name: 'Katso julkinen starttilista' })
+    const publicStartListLink = screen.getByRole('link', { name: 'eventManagement.startList.preview' })
     expect(publicStartListLink).toHaveAttribute('href', `/admin/event/startlist-preview/${eventWithStaticDates.id}`)
     expect(
-      screen.getByRole('button', { name: /starttilista/ }).compareDocumentPosition(publicStartListLink) &
+      screen.getByText('eventManagement.startList.publishing').compareDocumentPosition(publicStartListLink) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
   })
@@ -206,20 +217,20 @@ describe('InfoPanel>', () => {
     })
 
     // Initially, only the drawer handle should be visible
-    expect(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })).toBeInTheDocument()
-    expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.participantSelection.title')).not.toBeInTheDocument()
 
     await openInfoPanel(user)
 
     // The opened drawer should show the panel contents
-    expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.participantSelection.title')).toBeInTheDocument()
 
-    const collapseButton = screen.getByRole('button', { name: 'Sulje tapahtuman hallinta' })
+    const collapseButton = screen.getByRole('button', { name: 'eventManagement.close' })
     await user.click(collapseButton)
 
     // The drawer should collapse back to the handle
-    expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.participantSelection.title')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
   })
 
   it('collapses when clicking outside the drawer', async () => {
@@ -228,15 +239,15 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByText('Osallistujien valinta')).toBeInTheDocument()
+    expect(screen.getByText('eventManagement.participantSelection.title')).toBeInTheDocument()
 
     const backdrop = document.querySelector('.MuiBackdrop-root')
     if (!backdrop) throw new Error('drawer backdrop not found')
 
     await user.click(backdrop)
 
-    expect(screen.queryByText('Osallistujien valinta')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Avaa tapahtuman hallinta' })).toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.participantSelection.title')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.open' })).toBeInTheDocument()
   })
 
   it('disables message buttons when there are no participants', async () => {
@@ -252,7 +263,9 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     // All message buttons should be disabled
-    const buttons = screen.getAllByRole('button').filter((button) => button.textContent?.includes('Lähetä'))
+    const buttons = screen
+      .getAllByRole('button')
+      .filter((button) => /eventManagement\.(invitation|participantSelection)/.test(button.textContent ?? ''))
 
     buttons.forEach((button) => {
       expect(button).toBeDisabled()
@@ -275,7 +288,9 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     // The message buttons for participants should be disabled
-    const participantButtons = screen.getAllByText(/Lähetä.*koekutsu|Lähetä.*koepaikkailmoitus/i)
+    const participantButtons = screen.getAllByText(
+      /eventManagement\.(invitation\.send|participantSelection\.sendPlaceNotification)/
+    )
 
     participantButtons.forEach((button) => {
       expect(button).toBeDisabled()
@@ -302,8 +317,10 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByText('Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Lähetä koepaikkailmoitus' })).not.toBeInTheDocument()
+    expect(screen.getByText('eventManagement.participantSelection.canSendAfterEntry')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'eventManagement.participantSelection.sendPlaceNotification' })
+    ).not.toBeInTheDocument()
   })
 
   it('does not show entry period guidance after the event has ended', async () => {
@@ -316,15 +333,17 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.queryByText('Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä')).not.toBeInTheDocument()
-    expect(screen.queryByText('Koekutsut voi lähettää ilmoittautumisajan päätyttyä')).not.toBeInTheDocument()
-    screen.getAllByRole('button', { name: /Lähetä (koepaikka|varasija|koekutsu)/ }).forEach((button) => {
-      expect(button).toBeDisabled()
-    })
-    screen.getAllByRole('button', { name: 'Lisää PDF' }).forEach((button) => {
+    expect(screen.queryByText('eventManagement.participantSelection.canSendAfterEntry')).not.toBeInTheDocument()
+    expect(screen.queryByText('eventManagement.invitation.canSendAfterEntry')).not.toBeInTheDocument()
+    screen
+      .getAllByRole('button', { name: /eventManagement\.(invitation\.send|participantSelection\.send)/ })
+      .forEach((button) => {
+        expect(button).toBeDisabled()
+      })
+    screen.getAllByRole('button', { name: 'eventManagement.attachment.addPdf' }).forEach((button) => {
       expect(button).toHaveAttribute('aria-disabled', 'true')
     })
-    screen.getAllByRole('button', { name: 'Piilota starttilista' }).forEach((button) => {
+    screen.getAllByRole('button', { name: 'eventManagement.startList.hide' }).forEach((button) => {
       expect(button).toBeDisabled()
     })
     expect(screen.getByRole('button', { name: 'createRegistration' })).toBeDisabled()
@@ -350,8 +369,8 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByRole('button', { name: 'Lähetä koekutsu' })).toBeDisabled()
-    expect(screen.getByText('Koekutsut voi lähettää ilmoittautumisajan päätyttyä')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.invitation.send' })).toBeDisabled()
+    expect(screen.getByText('eventManagement.invitation.canSendAfterEntry')).toBeInTheDocument()
   })
 
   it('does not allow resending invitations when attachment has not changed', async () => {
@@ -376,12 +395,12 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    screen.getAllByRole('button', { name: 'Lähetä koekutsu' }).forEach((button) => {
+    screen.getAllByRole('button', { name: 'eventManagement.invitation.send' }).forEach((button) => {
       expect(button).toBeDisabled()
     })
-    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
-    expect(screen.getAllByText('Koekutsut lähetetty')[0].closest('tr')).toContainElement(
-      screen.getAllByRole('button', { name: 'Lähetä koekutsu' })[0]
+    expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(2)
+    expect(screen.getAllByText('eventManagement.invitation.sent')[0].closest('tr')).toContainElement(
+      screen.getAllByRole('button', { name: 'eventManagement.invitation.send' })[0]
     )
   })
 
@@ -401,10 +420,10 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    screen.getAllByRole('button', { name: 'Lähetä koekutsu' }).forEach((button) => {
+    screen.getAllByRole('button', { name: 'eventManagement.invitation.send' }).forEach((button) => {
       expect(button).toBeDisabled()
     })
-    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
+    expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(2)
   })
 
   it('shows status when reserve notifications have been sent', async () => {
@@ -421,8 +440,10 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getAllByText('Varasijailmoitukset lähetetty')).toHaveLength(2)
-    expect(screen.queryByRole('button', { name: 'Lähetä varasijailmoitus' })).not.toBeInTheDocument()
+    expect(screen.getAllByText('eventManagement.participantSelection.reserveNotificationsSent')).toHaveLength(2)
+    expect(
+      screen.queryByRole('button', { name: 'eventManagement.participantSelection.sendReserveNotification' })
+    ).not.toBeInTheDocument()
   })
 
   it('keeps place notification status visible when invitations can be sent', async () => {
@@ -435,8 +456,8 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getAllByText('Koepaikkailmoitukset lähetetty')).toHaveLength(2)
-    expect(screen.getAllByRole('button', { name: 'Lähetä koekutsu' })).toHaveLength(2)
+    expect(screen.getAllByText('eventManagement.participantSelection.placeNotificationsSent')).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'eventManagement.invitation.send' })).toHaveLength(2)
   })
 
   it('allows resending class invitations when class attachment is added after common attachment was sent', async () => {
@@ -465,12 +486,12 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     const resendButton = screen
-      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .getAllByRole('button', { name: 'eventManagement.invitation.send' })
       .find((button) => !button.hasAttribute('disabled'))
 
     if (!resendButton) throw new Error('enabled resend button not found')
     expect(resendButton).toBeEnabled()
-    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(1)
+    expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(1)
 
     await user.click(resendButton)
     expect(onOpenMessageDialog).toHaveBeenCalledWith(
@@ -502,7 +523,7 @@ describe('InfoPanel>', () => {
     await openInfoPanel(user)
 
     const resendButton = screen
-      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .getAllByRole('button', { name: 'eventManagement.invitation.send' })
       .find((button) => !button.hasAttribute('disabled'))
 
     if (!resendButton) throw new Error('enabled resend button not found')
@@ -542,7 +563,7 @@ describe('InfoPanel>', () => {
     expect(screen.queryByLabelText('Julkaise starttilista samalla')).not.toBeInTheDocument()
 
     const resendButton = screen
-      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .getAllByRole('button', { name: 'eventManagement.invitation.send' })
       .find((button) => !button.hasAttribute('disabled'))
 
     if (!resendButton) throw new Error('enabled resend button not found')
@@ -581,7 +602,7 @@ describe('InfoPanel>', () => {
     expect(screen.queryByLabelText('Julkaise starttilista samalla')).not.toBeInTheDocument()
 
     const resendButton = screen
-      .getAllByRole('button', { name: 'Lähetä koekutsu' })
+      .getAllByRole('button', { name: 'eventManagement.invitation.send' })
       .find((button) => !button.hasAttribute('disabled'))
 
     if (!resendButton) throw new Error('enabled resend button not found')
@@ -621,11 +642,13 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
-    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
-    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toHaveClass('MuiButton-colorPrimary')
+    expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toHaveClass(
+      'MuiButton-colorPrimary'
+    )
 
-    await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
+    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publish' }))
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', true)
@@ -661,9 +684,9 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toBeEnabled()
 
-    await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
+    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publish' }))
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', true)
@@ -698,11 +721,13 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getAllByText('Koekutsut lähetetty')).toHaveLength(2)
-    expect(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0]).toBeEnabled()
-    expect(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0]).toHaveClass('MuiButton-colorSecondary')
+    expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'eventManagement.startList.hide' })[0]).toBeEnabled()
+    expect(screen.getAllByRole('button', { name: 'eventManagement.startList.hide' })[0]).toHaveClass(
+      'MuiButton-colorSecondary'
+    )
 
-    await user.click(screen.getAllByRole('button', { name: 'Piilota starttilista' })[0])
+    await user.click(screen.getAllByRole('button', { name: 'eventManagement.startList.hide' })[0])
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', false)
@@ -732,10 +757,10 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getByText('Koekutsut lähetetty')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Julkaise starttilista' })).toBeEnabled()
+    expect(screen.getByText('eventManagement.invitation.sent')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toBeEnabled()
 
-    await user.click(screen.getByRole('button', { name: 'Julkaise starttilista' }))
+    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publish' }))
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, true)
@@ -765,10 +790,10 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getByText('Koekutsut lähetetty')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Piilota starttilista' })).toBeEnabled()
+    expect(screen.getByText('eventManagement.invitation.sent')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.startList.hide' })).toBeEnabled()
 
-    await user.click(screen.getByRole('button', { name: 'Piilota starttilista' }))
+    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.hide' }))
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, false)
@@ -780,6 +805,9 @@ describe('InfoPanel>', () => {
     const eventWithAttachment = {
       ...eventWithStaticDates,
       invitationAttachment: 'test-attachment-key',
+      invitationAttachmentHistory: {
+        'test-attachment-key': { uploadedAt: new Date('2026-07-28T10:00:00.000Z') },
+      },
     }
 
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithAttachment} registrations={[]} />, {
@@ -789,11 +817,43 @@ describe('InfoPanel>', () => {
 
     // It should show a link to the attachment
     expect(screen.getByText('koekutsu-20210210-NOU.pdf')).toBeInTheDocument()
-    expect(screen.queryByText('Ei tiedostoa')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Vaihda PDF' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Vaihda PDF' })).toHaveClass('MuiButton-colorSecondary')
+    expect(screen.queryByText('eventManagement.attachment.noFile')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.attachment.replacePdf' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.attachment.replacePdf' })).toHaveClass(
+      'MuiButton-colorSecondary'
+    )
+    expect(screen.getByText('eventManagement.attachment.updated date')).toBeInTheDocument()
     expect(screen.getByText('koekutsu-20210210-NOU.pdf').closest('td')).not.toBe(
-      screen.getByRole('button', { name: 'Vaihda PDF' }).closest('td')
+      screen.getByRole('button', { name: 'eventManagement.attachment.replacePdf' }).closest('td')
+    )
+  })
+
+  it('shows previously sent invitation attachments still referenced by participants', async () => {
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{
+          ...eventWithParticipantsInvited,
+          invitationAttachmentHistory: {
+            'new-alo-key': { className: 'ALO', uploadedAt: new Date('2026-07-28T10:00:00.000Z') },
+            'old-alo-key': { className: 'ALO', uploadedAt: new Date('2026-07-27T09:00:00.000Z') },
+          },
+          invitationAttachments: { ALO: 'new-alo-key' },
+        }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          ...(registration.class === 'ALO'
+            ? { invitationAttachmentSent: 'old-alo-key', messagesSent: { invitation: true } }
+            : {}),
+        }))}
+      />,
+      { wrapper: RecoilRoot }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByText('eventManagement.attachment.previouslySentPdfs')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'eventManagement.attachment.date date' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/file/old-alo-key/')
     )
   })
 
@@ -807,8 +867,10 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getByRole('button', { name: 'Vaihda PDF' })).toHaveClass('MuiButton-colorSecondary')
-    expect(screen.queryByRole('button', { name: 'Lisää PDF' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'eventManagement.attachment.replacePdf' })).toHaveClass(
+      'MuiButton-colorSecondary'
+    )
+    expect(screen.queryByRole('button', { name: 'eventManagement.attachment.addPdf' })).not.toBeInTheDocument()
     expect(screen.getByText('koekutsu-20210210-NOME-B-ALO.pdf')).toBeInTheDocument()
   })
 
@@ -822,7 +884,7 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getAllByRole('button', { name: 'Vaihda PDF' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: 'eventManagement.attachment.replacePdf' })).toHaveLength(2)
     expect(screen.queryByText('Koko koe')).not.toBeInTheDocument()
   })
 
@@ -844,10 +906,10 @@ describe('InfoPanel>', () => {
     await user.upload(input, file)
 
     await waitFor(() => {
-      expect(enqueueSnackbar).toHaveBeenCalledWith(
-        'Koekutsun tiedosto on liian suuri. Pienennä PDF-tiedoston kokoa ja yritä uudelleen.',
-        { persist: true, variant: 'error' }
-      )
+      expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.upload.attachmentTooLarge', {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 
@@ -855,7 +917,11 @@ describe('InfoPanel>', () => {
     const putInvitationAttachment = jest
       .spyOn(eventApi, 'putInvitationAttachment')
       .mockRejectedValueOnce(new Error('upload failed'))
-      .mockResolvedValueOnce('retry-success-key')
+      .mockResolvedValueOnce({
+        invitationAttachmentHistory: {},
+        key: 'retry-success-key',
+        uploadedAt: new Date('2026-07-28T12:00:00.000Z'),
+      })
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDates])}>
@@ -874,7 +940,7 @@ describe('InfoPanel>', () => {
     await user.upload(input, file)
 
     await waitFor(() => {
-      expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsun liittäminen epäonnistui. Yritä uudelleen.', {
+      expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.upload.attachmentFailed', {
         persist: true,
         variant: 'error',
       })
@@ -886,13 +952,17 @@ describe('InfoPanel>', () => {
       expect(putInvitationAttachment).toHaveBeenCalledTimes(2)
     })
 
-    expect(enqueueSnackbar).toHaveBeenCalledWith('Koekutsu liitetty: koekutsu-20210210-NOU.pdf', {
+    expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.upload.attached fileName', {
       variant: 'success',
     })
   })
 
   it('uploads class-specific invitation attachment', async () => {
-    const putInvitationAttachment = jest.spyOn(eventApi, 'putInvitationAttachment').mockResolvedValueOnce('alo-key')
+    const putInvitationAttachment = jest.spyOn(eventApi, 'putInvitationAttachment').mockResolvedValueOnce({
+      invitationAttachmentHistory: {},
+      key: 'alo-key',
+      uploadedAt: new Date('2026-07-28T12:00:00.000Z'),
+    })
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [activeEventWithStaticDatesAndClass])}>
         {children}
@@ -903,19 +973,21 @@ describe('InfoPanel>', () => {
     })
     await openInfoPanel(user)
 
-    expect(screen.getByText('ALO-luokka')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: 'Lisää PDF' })).toHaveLength(1)
-    screen.getAllByRole('button', { name: 'Lisää PDF' }).forEach((button) => {
+    expect(screen.getByText('eventManagement.invitation.class className')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: 'eventManagement.attachment.addPdf' })).toHaveLength(1)
+    screen.getAllByRole('button', { name: 'eventManagement.attachment.addPdf' }).forEach((button) => {
       expect(button).toBeEnabled()
       expect(button).toHaveClass('MuiButton-colorSecondary')
       expect(button).toHaveClass('MuiButton-contained')
     })
     const classAttachmentButton = document.querySelector('label[for="koekutsu-file-ALO"] [role="button"]')
     const attachmentCell = classAttachmentButton?.closest('td') as HTMLTableCellElement
-    const sendCell = screen.getByRole('button', { name: 'Lähetä koekutsu' }).closest('td') as HTMLTableCellElement
+    const sendCell = screen
+      .getByRole('button', { name: 'eventManagement.invitation.send' })
+      .closest('td') as HTMLTableCellElement
     expect(attachmentCell).not.toBe(sendCell)
     expect(attachmentCell.cellIndex).toBe(sendCell.cellIndex)
-    expect(classAttachmentButton?.closest('tr')).toHaveTextContent('Ei tiedostoa')
+    expect(classAttachmentButton?.closest('tr')).toHaveTextContent('eventManagement.attachment.noFile')
 
     const input = document.querySelector('#koekutsu-file-ALO') as HTMLInputElement
     const file = new File(['pdf'], 'alo-kutsu.pdf', { type: 'application/pdf' })
@@ -928,7 +1000,7 @@ describe('InfoPanel>', () => {
       'ALO',
       expect.any(String)
     )
-    expect(enqueueSnackbar).toHaveBeenCalledWith('ALO koekutsu liitetty: koekutsu-20210210-NOME-B-ALO.pdf', {
+    expect(enqueueSnackbar).toHaveBeenCalledWith('eventManagement.upload.classAttached eventClass, fileName', {
       variant: 'success',
     })
   })

@@ -667,6 +667,8 @@ describe('sanitizeDogEvent', () => {
       headquarters: { zipCode: '12345' },
       id: 'event-1',
       invitationAttachment: 'attachment.pdf',
+      invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: new Date() } },
+      invitationAttachments: { ALO: 'attachment.pdf' },
       kcId: 12345,
       modifiedBy: 'user-3',
       name: 'Test Event',
@@ -687,6 +689,8 @@ describe('sanitizeDogEvent', () => {
     expect(sanitized.headquarters).toBeUndefined()
     expect(sanitized.kcId).toBeUndefined()
     expect(sanitized.invitationAttachment).toBeUndefined()
+    expect(sanitized.invitationAttachmentHistory).toBeUndefined()
+    expect(sanitized.invitationAttachments).toBeUndefined()
     expect(sanitized.modifiedBy).toBeUndefined()
     expect(sanitized.secretary).toBeUndefined()
     expect(sanitized.official).toBeUndefined()
@@ -714,6 +718,8 @@ describe('sanitizeDogEvent', () => {
       deletedBy: 'user-2',
       headquarters: { zipCode: '12345' },
       invitationAttachment: 'attachment.pdf',
+      invitationAttachmentHistory: { 'attachment.pdf': { uploadedAt: new Date() } },
+      invitationAttachments: { ALO: 'attachment.pdf' },
       kcId: 12345,
       modifiedBy: 'user-3',
       official: 'official-info',

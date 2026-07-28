@@ -9,6 +9,10 @@ import { constructAPIGwEvent } from '../test-utils/helpers'
 const mockEventWithInvitationAttachment = {
   ...eventWithParticipantsInvited,
   invitationAttachment: 'test.pdf',
+  invitationAttachmentHistory: {
+    'alo.pdf': { className: 'ALO', uploadedAt: '2026-07-28T10:00:00.000Z' },
+    'test.pdf': { uploadedAt: '2026-07-27T09:00:00.000Z' },
+  },
   invitationAttachments: { ALO: 'alo.pdf' },
 }
 
@@ -84,6 +88,7 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toEqual('alo.pdf')
+    expect(reg.invitationAttachmentUpdatedAt).toEqual('2026-07-28T10:00:00.000Z')
     expect(reg.shouldPay).toBeFalsy()
   })
 
@@ -124,6 +129,7 @@ describe('getRegistration', () => {
     expect(res.statusCode).toEqual(200)
     const reg: JsonRegistration = JSON.parse(res.body)
     expect(reg.invitationAttachment).toEqual('test.pdf')
+    expect(reg.invitationAttachmentUpdatedAt).toEqual('2026-07-27T09:00:00.000Z')
   })
 
   it('uses the sent invitation attachment for participant-facing downloads', async () => {

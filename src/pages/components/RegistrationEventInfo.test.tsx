@@ -68,14 +68,23 @@ describe('RegistrationEventInfo', () => {
       state: 'confirmed',
     }
 
-    render(<RegistrationEventInfo event={event} eventClass="ALO" invitationAttachment="alo-attachment" />, {
-      wrapper: Wrapper,
-    })
+    render(
+      <RegistrationEventInfo
+        event={event}
+        eventClass="ALO"
+        invitationAttachment="alo-attachment"
+        invitationAttachmentUpdatedAt={new Date('2026-07-28T10:00:00.000Z')}
+      />,
+      {
+        wrapper: Wrapper,
+      }
+    )
     await flushPromises()
 
     expect(screen.getByText('koekutsu-20210210-NOU-ALO.pdf').closest('a')).toHaveAttribute(
       'href',
       expect.stringContaining('/file/alo-attachment/koekutsu-20210210-NOU-ALO.pdf')
     )
+    expect(screen.getByText('invitation.attachmentUpdated date')).toBeInTheDocument()
   })
 })

@@ -21,6 +21,7 @@ interface Props {
   readonly eventClass?: string
   readonly hideCostInfo?: boolean
   readonly invitationAttachment?: string
+  readonly invitationAttachmentUpdatedAt?: Date
 }
 
 type HeaderProps = Pick<Props, 'event'>
@@ -55,7 +56,13 @@ const Header = ({ event }: HeaderProps) => {
   )
 }
 
-export default function RegistrationEventInfo({ event, eventClass, hideCostInfo, invitationAttachment }: Props) {
+export default function RegistrationEventInfo({
+  event,
+  eventClass,
+  hideCostInfo,
+  invitationAttachment,
+  invitationAttachmentUpdatedAt,
+}: Props) {
   const { t } = useTranslation()
   const judges = useMemo(() => event.judges.map((j) => judgeName(j, t)).join(', '), [event.judges, t])
   const attachmentEvent = invitationAttachment
@@ -110,6 +117,11 @@ export default function RegistrationEventInfo({ event, eventClass, hideCostInfo,
             >
               {invitationAttachmentFileName(attachmentEvent)}
             </Link>
+            {invitationAttachmentUpdatedAt && (
+              <Typography color="text.secondary" display="block" variant="caption">
+                {t('invitation.attachmentUpdated', { date: invitationAttachmentUpdatedAt })}
+              </Typography>
+            )}
           </ItemWithCaption>
         ) : null}
       </Grid>

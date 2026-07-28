@@ -80,6 +80,7 @@ export default function RegistrationEditPage() {
         event={event}
         eventClass={getRegistrationClass(registration)}
         invitationAttachment={registration.invitationAttachment}
+        invitationAttachmentUpdatedAt={registration.invitationAttachmentUpdatedAt}
       />
       {registration.cancelled ? (
         <Typography variant="h5" align="center" color="info.main">

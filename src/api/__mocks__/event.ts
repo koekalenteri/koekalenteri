@@ -1,4 +1,4 @@
-import type { AuditRecord, DogEvent, Patch } from '../../types'
+import type { AuditRecord, DogEvent, InvitationAttachmentVersion, Patch } from '../../types'
 import type { PublicEventsResponse } from '../event'
 import { parseISO } from 'date-fns'
 import { emptyEvent } from '../../__mockData__/emptyEvent'
@@ -98,6 +98,10 @@ export async function putInvitationAttachment(
   _className?: string,
   _token?: string,
   _signal?: AbortSignal
-): Promise<string> {
-  return 'mock-file-id'
+): Promise<{
+  invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>
+  key: string
+  uploadedAt: Date
+}> {
+  return { invitationAttachmentHistory: {}, key: 'mock-file-id', uploadedAt: new Date('2026-07-28T12:00:00.000Z') }
 }

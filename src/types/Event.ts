@@ -17,6 +17,15 @@ import type { DogEventCost } from './Cost'
 export type PaymentTime = 'registration' | 'confirmation'
 export type StartListPublishedState = boolean | Partial<Record<RegistrationClass, boolean>>
 
+export interface JsonInvitationAttachmentVersion {
+  className?: string
+  uploadedAt: string
+}
+
+export interface InvitationAttachmentVersion extends Omit<JsonInvitationAttachmentVersion, 'uploadedAt'> {
+  uploadedAt: Date
+}
+
 export interface JsonDogEvent extends JsonDbRecord {
   /** Short-lived server-side lock used while registration groups are reconciled. */
   registrationGroupsLock?: { expiresAt: number; token: string }
@@ -37,6 +46,7 @@ export interface JsonDogEvent extends JsonDbRecord {
   dates?: JsonRegistrationDate[]
   headquarters?: Partial<Headquarters>
   invitationAttachment?: string
+  invitationAttachmentHistory?: Record<string, JsonInvitationAttachmentVersion>
   invitationAttachments?: Record<string, string>
   judges: Array<PublicJudge>
   kcId?: number
@@ -68,7 +78,11 @@ export type DogEvent = DbRecord &
   Replace<
     Replace<
       ReplaceOptional<
-        ReplaceOptional<Omit<JsonDogEvent, keyof JsonDbRecord>, EventOptionalDates, Date>,
+        ReplaceOptional<
+          Omit<JsonDogEvent, keyof JsonDbRecord | 'invitationAttachmentHistory'>,
+          EventOptionalDates,
+          Date
+        >,
         'dates',
         RegistrationDate[]
       >,
@@ -77,13 +91,16 @@ export type DogEvent = DbRecord &
     >,
     'classes',
     Array<EventClass>
-  >
+  > & {
+    invitationAttachmentHistory?: Record<string, InvitationAttachmentVersion>
+  }
 
 type NonPublicDogEventProperties =
   | 'deletedAt'
   | 'deletedBy'
   | 'headquarters'
   | 'invitationAttachment'
+  | 'invitationAttachmentHistory'
   | 'invitationAttachments'
   | 'kcId'
   | 'official'

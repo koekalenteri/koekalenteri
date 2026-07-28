@@ -4,6 +4,7 @@ import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined'
 import EuroOutlined from '@mui/icons-material/EuroOutlined'
+import MailOutline from '@mui/icons-material/MailOutline'
 import MarkEmailReadOutlined from '@mui/icons-material/MarkEmailReadOutlined'
 import MarkEmailUnreadOutlined from '@mui/icons-material/MarkEmailUnreadOutlined'
 import PersonOutline from '@mui/icons-material/PersonOutline'
@@ -11,7 +12,7 @@ import SavingsOutlined from '@mui/icons-material/SavingsOutlined'
 import SpeakerNotesOutlined from '@mui/icons-material/SpeakerNotesOutlined'
 import { useTranslation } from 'react-i18next'
 import { formatMoney } from '../../../../../lib/money'
-import { priorityDescriptionKey } from '../../../../../lib/registration'
+import { getInvitationReadStatus, priorityDescriptionKey } from '../../../../../lib/registration'
 import { TooltipIcon } from '../../../../components/IconsTooltip'
 import { PriorityIcon } from '../../../../components/icons/PriorityIcon'
 import RankingPoints from '../../../../components/RankingPoints'
@@ -36,7 +37,7 @@ export const hasRegistrationTooltipContent = ({
   if ((reg.optionalCosts ?? []).length > 0) return true
   if (reg.confirmed) return true
   if (reg.emailDeliveryStatus) return true
-  if (reg.invitationRead) return true
+  if (getInvitationReadStatus(reg) !== 'not-sent') return true
   if (manualResultCount > 0) return true
   if (reg.notes.trim()) return true
   if (reg.internalNotes?.trim()) return true
@@ -73,6 +74,9 @@ const RegistrationTooltipContent = ({
   const info50 = priority === 0.5 ? halfInfo : ''
   const priorityText = `Ilmoittautuja on etusijalla: ${descr} ${info50}`.trim()
   const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
+  const invitationReadStatus = getInvitationReadStatus(reg)
+  const invitationReadText =
+    invitationReadStatus === 'not-sent' ? '' : t(`registration.tooltip.invitation.${invitationReadStatus}`)
   const optionalCosts =
     reg.optionalCosts
       ?.map((i) => additionalCosts[i]?.description.fi)
@@ -138,14 +142,23 @@ const RegistrationTooltipContent = ({
       <TooltipIcon
         key="email-delivery-status"
         condition={!!reg.emailDeliveryStatus}
-        icon={<MarkEmailUnreadOutlined fontSize="small" />}
+        icon={<MailOutline fontSize="small" />}
         text={`Sähköpostin toimitus epäonnistui: ${reg.emailDeliveryStatus?.email}${formatEmailDeliveryReason(reg.emailDeliveryStatus?.reason)}`}
       />
       <TooltipIcon
         key="invitation-read"
-        condition={!!reg.invitationRead}
-        icon={<MarkEmailReadOutlined fontSize="small" />}
-        text="Ilmoittautuja on kuitannut koekutsun"
+        condition={invitationReadStatus !== 'not-sent'}
+        icon={
+          invitationReadStatus === 'unread' ? (
+            <MarkEmailUnreadOutlined fontSize="small" />
+          ) : (
+            <MarkEmailReadOutlined
+              color={invitationReadStatus === 'read-previous' ? 'warning' : 'success'}
+              fontSize="small"
+            />
+          )
+        }
+        text={invitationReadText}
       />
       <TooltipIcon
         key="manual-results"

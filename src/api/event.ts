@@ -1,4 +1,4 @@
-import type { AuditRecord, DogEvent, Patch, PublicDogEvent } from '../types'
+import type { AuditRecord, DogEvent, InvitationAttachmentVersion, Patch, PublicDogEvent } from '../types'
 import { addDays, nextSaturday } from 'date-fns'
 import { zonedStartOfDay } from '../i18n/dates'
 import http, { withToken } from './http'
@@ -70,7 +70,11 @@ export async function putInvitationAttachment(
   className?: string,
   token?: string,
   signal?: AbortSignal
-): Promise<string> {
+): Promise<{
+  invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>
+  key: string
+  uploadedAt: Date
+}> {
   const data = new FormData()
   data.append('file', file, file.name)
 
@@ -78,7 +82,10 @@ export async function putInvitationAttachment(
     ? `/admin/file/invitation/${eventId}/${encodeURIComponent(className)}`
     : `/admin/file/invitation/${eventId}`
 
-  return http.postRaw<FormData, string>(path, data, withToken({ signal }, token))
+  return http.postRaw<
+    FormData,
+    { invitationAttachmentHistory: Record<string, InvitationAttachmentVersion>; key: string; uploadedAt: Date }
+  >(path, data, withToken({ signal }, token))
 }
 
 export async function copyEventWithRegistrations(eventId: string, token?: string, signal?: AbortSignal) {
