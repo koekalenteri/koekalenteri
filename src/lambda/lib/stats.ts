@@ -2,7 +2,7 @@ import type { TransactWriteCommandInput } from '@aws-sdk/lib-dynamodb'
 import type { JsonConfirmedEvent, JsonRegistration } from '../../types'
 import type { EventStatsItem, YearlyStatTypes, YearlyTotalStat } from '../../types/Stats'
 import crypto from 'node:crypto'
-import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
+import { getEventSeason, OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -13,6 +13,12 @@ const NEW_REGISTRATION_STATS_RETRY_BASE_MS = 10
 const NEW_REGISTRATION_STATS_RETRY_MAX_MS = 500
 
 type StatsTransactionItem = NonNullable<TransactWriteCommandInput['TransactItems']>[number]
+
+/** Returns the calendar year of an instant in the event timezone. */
+export function eventStatsYear({ startDate }: { startDate: string }): number | undefined {
+  const season = getEventSeason(startDate)
+  return /^\d{4}$/.test(season) ? Number(season) : undefined
+}
 
 /**
  * Get stats for organizers, optionally filtered by date range
@@ -508,7 +514,8 @@ export const applyNewRegistrationStatsOnce = async (
   leaseToken: string
 ): Promise<void> => {
   const deltas = calculateStatDeltas(registration, undefined)
-  const year = new Date(event.startDate).getUTCFullYear()
+  const year = eventStatsYear(event)
+  if (year === undefined) throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
 
   for (let attempt = 1; attempt <= NEW_REGISTRATION_STATS_MAX_ATTEMPTS; attempt++) {
     const snapshots = OFFICIAL_EVENT_TYPES.includes(event.eventType)
@@ -604,17 +611,18 @@ export const updateEventStatsForRegistration = async (
   existingRegistration: JsonRegistration | undefined,
   event: JsonConfirmedEvent
 ): Promise<void> => {
-  // Step 1: Calculate deltas for statistics
-  const deltas = calculateStatDeltas(registration, existingRegistration)
+  // Validate before any mutation so a retry cannot double-count organizer stats.
+  const year = eventStatsYear(event)
+  if (year === undefined) throw new Error(`Cannot derive stats year from event start date: ${event.startDate}`)
 
-  // Step 2: Update organizer event stats
+  // Step 1: Calculate deltas for statistics and update organizer event stats.
+  const deltas = calculateStatDeltas(registration, existingRegistration)
   await updateOrganizerEventStats(event, deltas)
 
-  // Step 3: Add year to a separate record for easy querying
-  const year = new Date(event.startDate).getUTCFullYear()
+  // Step 2: Add year to a separate record for easy querying in the event timezone.
   await updateYearRecord(year)
 
-  // Step 4: Update yearly participation stats (only for official event types)
+  // Step 3: Update yearly participation stats (only for official event types)
   if (!OFFICIAL_EVENT_TYPES.includes(event.eventType)) {
     return
   }

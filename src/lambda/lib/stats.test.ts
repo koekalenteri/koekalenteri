@@ -46,6 +46,7 @@ const {
   updateEntityStats,
   updateYearlyParticipationStats,
   hashStatValue,
+  eventStatsYear,
 } = await import('./stats')
 
 describe('lib/stats', () => {
@@ -55,6 +56,21 @@ describe('lib/stats', () => {
     jest.clearAllMocks()
     jest.restoreAllMocks()
   })
+
+  describe('eventStatsYear', () => {
+    it('derives the year for a regular event date', () => {
+      expect(eventStatsYear({ startDate: '2025-06-01' })).toBe(2025)
+    })
+
+    it('derives the year in the Finnish timezone', () => {
+      expect(eventStatsYear({ startDate: '2025-12-31T23:30:00Z' })).toBe(2026)
+    })
+
+    it('returns undefined for an invalid date', () => {
+      expect(eventStatsYear({ startDate: 'not-a-date' })).toBeUndefined()
+    })
+  })
+
   describe('applyNewRegistrationStatsOnce', () => {
     const registration = {
       cancelled: false,
@@ -214,6 +230,22 @@ describe('lib/stats', () => {
           },
         }
       )
+    })
+
+    it('validates the event year before writing organizer stats', async () => {
+      const reg = { cancelled: false, paidAmount: 10, refundAmount: 0 } as JsonRegistration
+      const invalidEvent = {
+        endDate: '2024-01-02',
+        id: 'e5',
+        organizer: { id: 'org1' },
+        startDate: 'not-a-date',
+      } as JsonConfirmedEvent
+
+      await expect(updateEventStatsForRegistration(reg, undefined, invalidEvent)).rejects.toThrow(
+        'Cannot derive stats year from event start date: not-a-date'
+      )
+
+      expect(mockUpdate).not.toHaveBeenCalled()
     })
 
     it('handles updates with existing registration', async () => {
