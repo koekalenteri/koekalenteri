@@ -12,6 +12,8 @@
         - DynamoDBCrudPolicy:
             TableName: !Ref EventTable
         - DynamoDBReadPolicy:
+            TableName: !Ref EventRegistrationTable
+        - DynamoDBReadPolicy:
             TableName: !Ref UserTable
         - DynamoDBReadPolicy:
             TableName: !Ref UserLinkTable
