@@ -8,7 +8,7 @@ const auditRecordId = (record: AuditRecord) => `${record.auditKey}:${record.time
 export const mergeAuditTrail = (current: AuditRecord[], incoming: AuditRecord[]) => {
   const records = new Map(current.map((record) => [auditRecordId(record), record]))
   for (const record of incoming) records.set(auditRecordId(record), record)
-  return [...records.values()].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+  return [...records.values()].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
 }
 
 export const useAuditTrailSubscription = (

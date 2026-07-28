@@ -13,6 +13,6 @@ describe('mergeAuditTrail', () => {
     const newer = record('2026-07-14T12:01:00.000Z', 'newer')
     const older = record('2026-07-14T12:00:00.000Z', 'older')
 
-    expect(mergeAuditTrail([newer], [older, newer])).toEqual([older, newer])
+    expect(mergeAuditTrail([newer], [older, newer])).toEqual([newer, older])
   })
 })
