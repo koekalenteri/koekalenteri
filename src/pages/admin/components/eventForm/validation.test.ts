@@ -528,7 +528,7 @@ describe('validation', () => {
       const event = { ...emptyEvent, eventType: 'SOME' as any, official: undefined, state: 'confirmed' as const } as any
       const errors = validateEvent(event)
 
-      expect(errors.length).toBe(3)
+      expect(errors).toHaveLength(3)
       expect(consoleSpy).toHaveBeenCalledTimes(3)
     })
   })

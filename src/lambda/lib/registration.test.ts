@@ -80,7 +80,7 @@ describe('registration', () => {
     it('should return undefined when dog is not found in existing registrations', async () => {
       mockDynamoDB.query.mockResolvedValueOnce([])
 
-      expect(await findExistingRegistrationToEventForDog('event-id', 'reg-no')).toEqual(undefined)
+      expect(await findExistingRegistrationToEventForDog('event-id', 'reg-no')).toBeUndefined()
     })
 
     it('should return the existing registration when dong is already registered', async () => {
@@ -211,8 +211,8 @@ describe('registration', () => {
       const result = groupRegistrationsByClass(registrations)
 
       expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
-      expect(result.ALO.length).toBe(2)
-      expect(result.AVO.length).toBe(1)
+      expect(result.ALO).toHaveLength(2)
+      expect(result.AVO).toHaveLength(1)
       expect(result.ALO).toContainEqual(expect.objectContaining({ id: '1' }))
       expect(result.ALO).toContainEqual(expect.objectContaining({ id: '3' }))
       expect(result.AVO).toContainEqual(expect.objectContaining({ id: '2' }))
@@ -228,8 +228,8 @@ describe('registration', () => {
       const result = groupRegistrationsByClass(registrations)
 
       expect(Object.keys(result)).toEqual(['NOME', 'AVO'])
-      expect(result.NOME.length).toBe(2)
-      expect(result.AVO.length).toBe(1)
+      expect(result.NOME).toHaveLength(2)
+      expect(result.AVO).toHaveLength(1)
     })
 
     it('should handle empty array', () => {
@@ -254,8 +254,8 @@ describe('registration', () => {
       expect(Object.keys(result)).toEqual(['ALO', 'AVO'])
       expect(Object.keys(result.ALO)).toEqual(['group1', 'group2'])
       expect(Object.keys(result.AVO)).toEqual(['group3'])
-      expect(result.ALO.group1.length).toBe(2)
-      expect(result.ALO.group2.length).toBe(1)
+      expect(result.ALO.group1).toHaveLength(2)
+      expect(result.ALO.group2).toHaveLength(1)
     })
 
     it('should skip registrations that are not in participant groups', () => {
@@ -271,7 +271,7 @@ describe('registration', () => {
       const result = groupRegistrationsByClassAndGroup(registrationsByClass)
 
       expect(Object.keys(result.ALO)).toEqual(['group1'])
-      expect(result.ALO.group1.length).toBe(1)
+      expect(result.ALO.group1).toHaveLength(1)
     })
 
     it('should handle empty input', () => {
@@ -632,7 +632,7 @@ describe('registration', () => {
       const messagesSentUpdates = mockDynamoDB.update.mock.calls.filter(
         (call) => call[0].id === 'reg-2' && call[1].set && call[1].set.messagesSent
       )
-      expect(messagesSentUpdates.length).toBe(0)
+      expect(messagesSentUpdates).toHaveLength(0)
       expect(errorSpy).toHaveBeenCalledTimes(1)
     })
 

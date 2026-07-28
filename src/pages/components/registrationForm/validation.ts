@@ -88,7 +88,7 @@ const validateDogForEvent = (event: { eventType: string }, dog: Partial<Dog>) =>
 
 export function validateDog(
   event: { eventType: string; startDate: Date },
-  reg: { class?: Registration['class']; dog?: Dog; results?: Partial<TestResult>[] }
+  reg: { class?: Exclude<Registration['class'], undefined>; dog?: Dog; results?: Partial<TestResult>[] }
 ): WideValidationResult<Registration, 'registration'> {
   const dog = reg.dog
   if (!dog?.regNo || !dog?.name) return 'required'

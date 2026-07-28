@@ -186,11 +186,10 @@ const putAdminRegistrationLambda = lambda('putAdminRegistration', async (event) 
   registration.modifiedBy = user.name
   registration.updatedAt = timestamp
 
-  const data: JsonRegistration = existing
-    ? patchRequest
-      ? patchMerge(existing, registration)
-      : ({ ...existing, ...registration } as JsonRegistration)
-    : (registration as JsonRegistration)
+  let data = registration as JsonRegistration
+  if (existing) {
+    data = patchRequest ? patchMerge(existing, registration) : ({ ...existing, ...registration } as JsonRegistration)
+  }
   await assertRegistrationEmailsNotSuppressed(data)
   const clearEmailDeliveryStatus = shouldClearRegistrationEmailDeliveryStatus(existing, data)
   if (clearEmailDeliveryStatus) {

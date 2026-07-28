@@ -24,6 +24,20 @@ const sortSnapshot = (a: GroupedRegistration, b: GroupedRegistration) =>
   (a.group?.time ?? '').localeCompare(b.group?.time ?? '') ||
   (a.group?.number ?? Number.MAX_SAFE_INTEGER) - (b.group?.number ?? Number.MAX_SAFE_INTEGER)
 
+const isInvalidMoveAnchor = <T extends GroupedRegistration>(
+  move: RegistrationGroupMove,
+  item: T,
+  before: T | undefined,
+  targetNumberingGroupKey: string
+) =>
+  !!move.beforeId &&
+  (!before ||
+    before.id === item.id ||
+    getRegistrationNumberingGroupKey(before) !== targetNumberingGroupKey ||
+    getRegistrationGroupKey(before) !== move.group.key ||
+    compareGroupValue(before.group?.date) !== compareGroupValue(move.group.date) ||
+    before.group?.time !== move.group.time)
+
 /** Sorts and renumbers a complete registration snapshot in place. */
 export const normalizeRegistrationGroups = <T extends GroupedRegistration>(items: T[]): T[] => {
   items.sort(sortSnapshot)
@@ -75,15 +89,7 @@ export const applyRegistrationGroupMoves = <T extends GroupedRegistration>(
       cancelled: move.group.key === GROUP_KEY_CANCELLED,
       group: move.group,
     })
-    if (
-      move.beforeId &&
-      (!before ||
-        before.id === item.id ||
-        getRegistrationNumberingGroupKey(before) !== targetNumberingGroupKey ||
-        getRegistrationGroupKey(before) !== move.group.key ||
-        compareGroupValue(before.group?.date) !== compareGroupValue(move.group.date) ||
-        before.group?.time !== move.group.time)
-    ) {
+    if (isInvalidMoveAnchor(move, item, before, targetNumberingGroupKey)) {
       invalid.push(move)
       continue
     }

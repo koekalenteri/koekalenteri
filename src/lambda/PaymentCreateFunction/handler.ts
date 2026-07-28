@@ -85,6 +85,30 @@ const inspectExistingTransactions = async (reference: string) => {
 const getPaytrailErrorMessage = (error: PaytrailError) =>
   `Maksun luonti epäonnistui Paytrailissa (${error.status}): ${parsePaytrailErrorMessage(error.error)}`
 
+const claimPaymentCreation = async (eventId: string, registrationId: string, stamp: string) => {
+  try {
+    await dynamoDB.documentTransaction([
+      {
+        Update: {
+          ConditionExpression: 'attribute_not_exists(paymentCreationAt) OR paymentCreationAt < :staleBefore',
+          ExpressionAttributeValues: {
+            ':paymentCreationAt': new Date().toISOString(),
+            ':staleBefore': new Date(Date.now() - STALE_PENDING_PAYMENT_AGE_MS).toISOString(),
+            ':stamp': stamp,
+          },
+          Key: { eventId, id: registrationId },
+          TableName: registrationTable,
+          UpdateExpression: 'SET paymentCreationAt = :paymentCreationAt, paymentCreationStamp = :stamp',
+        },
+      },
+    ])
+    return true
+  } catch (error) {
+    if ((error as Error).name === 'TransactionCanceledException') return false
+    throw error
+  }
+}
+
 /**
  * paymentCreate is called by client to start the payment process
  */
@@ -158,28 +182,8 @@ const paymentCreateLambda = lambda('paymentCreate', async (event) => {
 
   const language = registration.language === 'en' ? 'EN' : 'FI'
 
-  const paymentCreationAt = new Date().toISOString()
-  try {
-    await dynamoDB.documentTransaction([
-      {
-        Update: {
-          ConditionExpression: 'attribute_not_exists(paymentCreationAt) OR paymentCreationAt < :staleBefore',
-          ExpressionAttributeValues: {
-            ':paymentCreationAt': paymentCreationAt,
-            ':staleBefore': new Date(Date.now() - STALE_PENDING_PAYMENT_AGE_MS).toISOString(),
-            ':stamp': stamp,
-          },
-          Key: { eventId, id: registrationId },
-          TableName: registrationTable,
-          UpdateExpression: 'SET paymentCreationAt = :paymentCreationAt, paymentCreationStamp = :stamp',
-        },
-      },
-    ])
-  } catch (error) {
-    if ((error as Error).name === 'TransactionCanceledException') {
-      return response<string>(409, 'Payment already in progress', event)
-    }
-    throw error
+  if (!(await claimPaymentCreation(eventId, registrationId, stamp))) {
+    return response<string>(409, 'Payment already in progress', event)
   }
 
   let result: CreatePaymentResponse | undefined | null

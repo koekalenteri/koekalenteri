@@ -71,6 +71,31 @@ const ParticipantSelection = ({
               const reserveNotificationsSent =
                 reserves.length > 0 && reserves.every((registration) => registration.reserveNotified)
               const canSendReserveNotification = !classFinished && numbers.reserve > 0
+              let placeNotificationContent = (
+                <Button
+                  size="small"
+                  disabled={!canSendPlaceNotification}
+                  onClick={() => onOpenMessageDialog?.(selected, 'picked')}
+                  color="primary"
+                  variant={canSendPlaceNotification ? 'contained' : 'outlined'}
+                >
+                  {t('eventManagement.participantSelection.sendPlaceNotification')}
+                </Button>
+              )
+              if (placeConfirmationsBlockedByEntry) {
+                placeNotificationContent = (
+                  <Typography variant="caption" color="text.secondary" sx={statusSx}>
+                    {t('eventManagement.participantSelection.canSendAfterEntry')}
+                  </Typography>
+                )
+              }
+              if (placeNotificationsSent) {
+                placeNotificationContent = (
+                  <Typography variant="caption" color="info.main" sx={statusSx}>
+                    {t('eventManagement.participantSelection.placeNotificationsSent')}
+                  </Typography>
+                )
+              }
 
               return (
                 <Fragment key={eventClass}>
@@ -86,25 +111,7 @@ const ParticipantSelection = ({
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ borderBottom: 0 }}>
-                      {placeNotificationsSent ? (
-                        <Typography variant="caption" color="info.main" sx={statusSx}>
-                          {t('eventManagement.participantSelection.placeNotificationsSent')}
-                        </Typography>
-                      ) : placeConfirmationsBlockedByEntry ? (
-                        <Typography variant="caption" color="text.secondary" sx={statusSx}>
-                          {t('eventManagement.participantSelection.canSendAfterEntry')}
-                        </Typography>
-                      ) : (
-                        <Button
-                          size="small"
-                          disabled={!canSendPlaceNotification}
-                          onClick={() => onOpenMessageDialog?.(selected, 'picked')}
-                          color="primary"
-                          variant={canSendPlaceNotification ? 'contained' : 'outlined'}
-                        >
-                          {t('eventManagement.participantSelection.sendPlaceNotification')}
-                        </Button>
-                      )}
+                      {placeNotificationContent}
                     </TableCell>
                   </TableRow>
                   <TableRow>

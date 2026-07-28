@@ -598,7 +598,7 @@ describe('DOG_EVENT_COST_KEYS', () => {
     expect(DOG_EVENT_COST_KEYS).toContain('breed')
     expect(DOG_EVENT_COST_KEYS).toContain('custom')
     expect(DOG_EVENT_COST_KEYS).toContain('optionalAdditionalCosts')
-    expect(DOG_EVENT_COST_KEYS.length).toBe(5)
+    expect(DOG_EVENT_COST_KEYS).toHaveLength(5)
   })
 })
 

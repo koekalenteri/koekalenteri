@@ -23,7 +23,7 @@ describe('GroupColors', () => {
     if (d.length === 0) {
       // When no dates are available, we should just have the tooltip wrapper
       const boxes = container.querySelectorAll('[class*="MuiBox-root"]')
-      expect(boxes.length).toBe(0)
+      expect(boxes).toHaveLength(0)
       return
     }
 
@@ -33,7 +33,7 @@ describe('GroupColors', () => {
 
     if (stack) {
       const colorBoxes = stack.querySelectorAll(':scope > [class*="MuiBox-root"]')
-      expect(colorBoxes.length).toBe(d.length)
+      expect(colorBoxes).toHaveLength(d.length)
 
       // Check that selected dates have the correct colors
       d.forEach((date, index) => {

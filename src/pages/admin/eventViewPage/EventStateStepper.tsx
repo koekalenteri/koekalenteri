@@ -1,4 +1,5 @@
 import type { StepIconProps } from '@mui/material/StepIcon'
+import type { TFunction } from 'i18next'
 import type { ConfirmedEvent, ConfirmedEventStates } from '../../../types'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Circle from '@mui/icons-material/Circle'
@@ -22,15 +23,29 @@ const EVENT_PHASES: readonly EventPhase[] = [
   'started',
   'ended',
 ]
-const CLASS_PROGRESS_PHASES: readonly EventPhase[] = ['picked', 'invited']
+const CLASS_PROGRESS_PHASES = new Set<EventPhase>(['picked', 'invited'])
 
 const PhaseStepIcon = ({ active, className, completed }: StepIconProps) => {
-  const Icon = completed ? CheckCircle : active ? Circle : RadioButtonUnchecked
+  let Icon = RadioButtonUnchecked
+  if (completed) Icon = CheckCircle
+  else if (active) Icon = Circle
   const stateClasses = [className, 'MuiStepIcon-root', active && 'Mui-active', completed && 'Mui-completed']
     .filter(Boolean)
     .join(' ')
 
   return <Icon className={stateClasses} />
+}
+
+const getTemporalPhaseIndex = (event: ConfirmedEvent): number => {
+  if (isEventOver(event)) return EVENT_PHASES.indexOf('ended')
+  if (isEventOngoing(event)) return EVENT_PHASES.indexOf('started')
+  return -1
+}
+
+const getEntryPhaseLabel = (entryCompleted: boolean, entryOpen: boolean, t: TFunction) => {
+  if (entryCompleted) return t('event.states.confirmed_entryClosed')
+  if (entryOpen) return t('event.states.confirmed_entryOpen')
+  return t('entryUpcoming')
 }
 
 const getPhaseIndex = (state: ConfirmedEventStates, entryStarted: boolean): number => {
@@ -48,11 +63,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
     return { eventClass, phaseIndex: getPhaseIndex(state, entryStarted) }
   })
-  const temporalPhaseIndex = isEventOver(event)
-    ? EVENT_PHASES.indexOf('ended')
-    : isEventOngoing(event)
-      ? EVENT_PHASES.indexOf('started')
-      : -1
+  const temporalPhaseIndex = getTemporalPhaseIndex(event)
   const legacyStartListPublished =
     event.startListPublished === undefined && temporalPhaseIndex >= EVENT_PHASES.indexOf('started')
   const publishableStartListClasses = startListClasses.filter((eventClass) => {
@@ -105,54 +116,48 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
           const showClassProgress =
             eventClasses.length > 1 &&
             temporalPhaseIndex <= EVENT_PHASES.indexOf('invited') &&
-            CLASS_PROGRESS_PHASES.includes(phase)
-          const completedClasses = CLASS_PROGRESS_PHASES.includes(phase)
+            CLASS_PROGRESS_PHASES.has(phase)
+          const completedClasses = CLASS_PROGRESS_PHASES.has(phase)
             ? classPhases.filter(({ phaseIndex }) => phaseIndex >= index)
             : []
           const entryCompleted =
             phase === 'confirmed_entryOpen' && (reachedPhaseIndex > index || (entryStarted && !entryOpen))
-          const completed =
-            phase === 'confirmed_entryOpen'
-              ? entryCompleted
-              : phase === 'startListPublished'
-                ? startListCompleted
-                : showClassProgress
-                  ? completedClasses.length === eventClasses.length
-                  : index <= reachedPhaseIndex
+          let completed = index <= reachedPhaseIndex
+          if (phase === 'confirmed_entryOpen') completed = entryCompleted
+          else if (phase === 'startListPublished') completed = startListCompleted
+          else if (showClassProgress) completed = completedClasses.length === eventClasses.length
           const active =
             (phase === 'confirmed_entryOpen' && entryOpen && !entryCompleted) ||
             (phase === 'startListPublished' && startListActionable && !startListCompleted) ||
             (showClassProgress && completedClasses.length > 0 && completedClasses.length < eventClasses.length)
-          const label =
-            phase === 'confirmed_entryOpen'
-              ? entryCompleted
-                ? t('event.states.confirmed_entryClosed')
-                : entryOpen
-                  ? t('event.states.confirmed_entryOpen')
-                  : t('entryUpcoming')
-              : phase === 'startListPublished'
-                ? t(`event.states.${startListCompleted ? 'startListPublished' : 'publishStartList'}`)
-                : t(`event.states.${phase}`)
+          let label = t(`event.states.${phase}`)
+          if (phase === 'confirmed_entryOpen') {
+            label = getEntryPhaseLabel(entryCompleted, entryOpen, t)
+          } else if (phase === 'startListPublished') {
+            label = t(`event.states.${startListCompleted ? 'startListPublished' : 'publishStartList'}`)
+          }
+          let progressText = ''
+          if (phase === 'startListPublished' && startListActionable && startListClasses.length > 1) {
+            progressText = ` (${t('event.classProgress', {
+              classes: publishedStartListClasses.length ? `: ${publishedStartListClasses.join(', ')}` : '',
+              completed: publishedStartListClasses.length,
+              total: startListClasses.length,
+            })})`
+          } else if (showClassProgress) {
+            progressText = ` (${t('event.classProgress', {
+              classes: completedClasses.length
+                ? `: ${completedClasses.map(({ eventClass }) => eventClass).join(', ')}`
+                : '',
+              completed: completedClasses.length,
+              total: eventClasses.length,
+            })})`
+          }
 
           return (
             <Step active={active} completed={completed} key={phase} role="listitem">
               <StepLabel slots={{ stepIcon: PhaseStepIcon }}>
                 {label}
-                {phase === 'startListPublished' && startListActionable && startListClasses.length > 1
-                  ? ` (${t('event.classProgress', {
-                      classes: publishedStartListClasses.length ? `: ${publishedStartListClasses.join(', ')}` : '',
-                      completed: publishedStartListClasses.length,
-                      total: startListClasses.length,
-                    })})`
-                  : showClassProgress
-                    ? ` (${t('event.classProgress', {
-                        classes: completedClasses.length
-                          ? `: ${completedClasses.map(({ eventClass }) => eventClass).join(', ')}`
-                          : '',
-                        completed: completedClasses.length,
-                        total: eventClasses.length,
-                      })})`
-                    : ''}
+                {progressText}
               </StepLabel>
             </Step>
           )

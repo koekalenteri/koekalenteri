@@ -6,8 +6,9 @@ export const latestCollectionUpdate = <T>(items: T[]): Date | undefined => {
   const latest = items.reduce((max, item) => {
     const { modifiedAt, updatedAt } = item as T & TimestampedItem
     const value = updatedAt ?? modifiedAt
-    const timestamp =
-      value instanceof Date ? value.getTime() : typeof value === 'string' ? Date.parse(value) : Number.NaN
+    let timestamp = Number.NaN
+    if (value instanceof Date) timestamp = value.getTime()
+    else if (typeof value === 'string') timestamp = Date.parse(value)
     return Number.isNaN(timestamp) ? max : Math.max(max, timestamp)
   }, Number.NEGATIVE_INFINITY)
 

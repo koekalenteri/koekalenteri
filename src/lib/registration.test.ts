@@ -143,7 +143,7 @@ describe('lib/registration', () => {
 
   describe('priorityDescriptionKey', () => {
     it('should return undefined when nobody is priorized', () => {
-      expect(priorityDescriptionKey({}, {})).toEqual(undefined)
+      expect(priorityDescriptionKey({}, {})).toBeUndefined()
     })
 
     describe('membership priority', () => {
@@ -180,8 +180,8 @@ describe('lib/registration', () => {
         expect(priorityDescriptionKey(event, { priorityByInvitation: true })).toEqual(PRIORITY_INVITED)
       })
       it('should return undefined when not invited', () => {
-        expect(priorityDescriptionKey(event, { priorityByInvitation: false })).toEqual(undefined)
-        expect(priorityDescriptionKey(event, {})).toEqual(undefined)
+        expect(priorityDescriptionKey(event, { priorityByInvitation: false })).toBeUndefined()
+        expect(priorityDescriptionKey(event, {})).toBeUndefined()
       })
     })
 
@@ -192,8 +192,8 @@ describe('lib/registration', () => {
           'breed'
         )
 
-        expect(priorityDescriptionKey({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toEqual(undefined)
-        expect(priorityDescriptionKey({ priority: [breedCode] }, {})).toEqual(undefined)
+        expect(priorityDescriptionKey({ priority: [breedCode] }, { dog: { breedCode: '1' } })).toBeUndefined()
+        expect(priorityDescriptionKey({ priority: [breedCode] }, {})).toBeUndefined()
       })
     })
 
@@ -227,7 +227,7 @@ describe('lib/registration', () => {
         [NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_NEW],
         JSON.parse(JSON.stringify([NOME_B_VOI1, NOME_B_VOI1, NOME_B_KVA_NEW])),
       ])('should return undefined when not prirized', (...qualifyingResults) => {
-        expect(priorityDescriptionKey({ eventType: 'NOME-B SM' }, { qualifyingResults })).toEqual(undefined)
+        expect(priorityDescriptionKey({ eventType: 'NOME-B SM' }, { qualifyingResults })).toBeUndefined()
       })
 
       it('should return "b-sm.3" with 3xVOI1', () => {

@@ -70,7 +70,7 @@ describe('DayPlacesTable', () => {
     await flushPromises()
 
     const inputs = screen.getAllByRole('textbox')
-    expect(inputs.length).toEqual(3) // 2 days + total
+    expect(inputs).toHaveLength(3) // 2 days + total
 
     // Change the first day places
     await user.clear(inputs[0])

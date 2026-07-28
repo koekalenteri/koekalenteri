@@ -61,7 +61,7 @@ describe('EventFormPlaces', () => {
       const inputs: HTMLInputElement[] = screen.getAllByRole('textbox')
 
       expect(check).not.toBeChecked()
-      expect(inputs.length).toEqual(3) // 2 classes + total
+      expect(inputs).toHaveLength(3) // 2 classes + total
 
       const [class1, class2, total] = inputs
       expect(class1).toBeDisabled()
@@ -127,7 +127,7 @@ describe('EventFormPlaces', () => {
       const inputs = screen.getAllByRole('textbox')
 
       expect(check).not.toBeChecked()
-      expect(inputs.length).toEqual(3) // 2 days + total
+      expect(inputs).toHaveLength(3) // 2 days + total
 
       const [day1, day2, total] = inputs
       expect(day1).toBeDisabled()

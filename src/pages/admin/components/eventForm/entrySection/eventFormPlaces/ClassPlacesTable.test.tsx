@@ -60,7 +60,7 @@ describe('ClassPlacesTable', () => {
     await flushPromises()
 
     const inputs = screen.getAllByRole('textbox')
-    expect(inputs.length).toEqual(3) // 2 classes + total
+    expect(inputs).toHaveLength(3) // 2 classes + total
 
     // Change the first class places
     await user.clear(inputs[0])

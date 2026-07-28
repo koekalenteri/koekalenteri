@@ -122,7 +122,7 @@ describe('PaymentPage', () => {
     it('should show error message when event is not found', async () => {
       const { container } = render(
         <RecoilRoot>
-          <PaymentPageWithData id="test-id" registrationId="test-reg-id" event={null} registration={testRegistration} />
+          <PaymentPageWithData registrationId="test-reg-id" event={null} registration={testRegistration} />
         </RecoilRoot>
       )
 
@@ -134,12 +134,7 @@ describe('PaymentPage', () => {
     it('should show error message when registration is not found', async () => {
       const { container } = render(
         <RecoilRoot>
-          <PaymentPageWithData
-            id="test-id"
-            registrationId="test-reg-id"
-            event={{ id: 'test-id' } as any}
-            registration={null}
-          />
+          <PaymentPageWithData registrationId="test-reg-id" event={{ id: 'test-id' } as any} registration={null} />
         </RecoilRoot>
       )
 
@@ -164,7 +159,6 @@ describe('PaymentPage', () => {
         {
           element: (
             <PaymentPageWithData
-              id="test-id"
               registrationId="test-reg-id"
               event={event as any}
               registration={registration as any}
@@ -191,7 +185,6 @@ describe('PaymentPage', () => {
       const { container } = render(
         <RecoilRoot>
           <PaymentPageWithData
-            id="test-id"
             registrationId="test-reg-id"
             event={{ id: 'test-id' } as any}
             registration={testRegistration}
@@ -221,7 +214,6 @@ describe('PaymentPage', () => {
         {
           element: (
             <PaymentPageWithData
-              id="test-id"
               registrationId="test-reg-id"
               event={event as any}
               registration={registration as any}
@@ -266,7 +258,6 @@ describe('PaymentPage', () => {
         {
           element: (
             <PaymentPageWithData
-              id="test-id"
               registrationId="test-reg-id"
               event={event as any}
               registration={registration as any}
@@ -315,7 +306,6 @@ describe('PaymentPage', () => {
         {
           element: (
             <PaymentPageWithData
-              id="test-id"
               registrationId="test-reg-id"
               event={event as any}
               registration={registration as any}
@@ -365,7 +355,6 @@ describe('PaymentPage', () => {
         {
           element: (
             <PaymentPageWithData
-              id="test-id"
               registrationId="test-reg-id"
               event={event as any}
               registration={registration as any}
@@ -407,7 +396,6 @@ describe('PaymentPage', () => {
         {
           element: (
             <PaymentPageWithData
-              id="test-id"
               registrationId="test-reg-id"
               event={event as any}
               registration={registration as any}

@@ -213,5 +213,5 @@ export type PaymentStatus = 'SUCCESS' | 'CANCEL' | 'DUPLICATE' | 'PENDING' | 'NE
 export interface MinimalRegistrationForMembership {
   handler?: Pick<RegistrationPerson, 'membership'>
   owner?: Pick<RegistrationPerson, 'membership'>
-  ownerHandles?: Registration['ownerHandles']
+  ownerHandles?: NonNullable<Registration['ownerHandles']>
 }

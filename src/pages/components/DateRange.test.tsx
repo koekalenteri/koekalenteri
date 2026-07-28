@@ -31,8 +31,8 @@ describe('DateRange', () => {
       startLabel: 'Start Label',
     })
 
-    expect(screen.getAllByText('Start Label').length).toEqual(2)
-    expect(screen.getAllByText('End Label').length).toEqual(2)
+    expect(screen.getAllByText('Start Label')).toHaveLength(2)
+    expect(screen.getAllByText('End Label')).toHaveLength(2)
   })
 
   it('should render labels when required', () => {
@@ -45,9 +45,9 @@ describe('DateRange', () => {
       startLabel: 'Start Label',
     })
 
-    expect(screen.getAllByText('Start Label').length).toEqual(1)
-    expect(screen.getAllByText('End Label').length).toEqual(1)
-    expect(screen.getAllByText('*').length).toEqual(2)
+    expect(screen.getAllByText('Start Label')).toHaveLength(1)
+    expect(screen.getAllByText('End Label')).toHaveLength(1)
+    expect(screen.getAllByText('*')).toHaveLength(2)
   })
 
   describe('interactions', () => {

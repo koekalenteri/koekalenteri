@@ -7,6 +7,8 @@ import { getRegistrationEditTokenSecret } from './secrets'
 
 export const DEFAULT_REGISTRATION_EDIT_TOKEN_VERSION = 1
 
+type PublicRegistrationField = keyof JsonRegistration
+
 export const deriveRegistrationEditToken = (
   registration: Pick<JsonRegistration, 'editTokenVersion' | 'eventId' | 'id'>,
   secret: string
@@ -23,7 +25,7 @@ export const getRegistrationEditToken = async (
 
 const getBearerToken = (event: Pick<APIGatewayProxyEvent, 'headers'>): string => {
   const authorization = event.headers.Authorization ?? event.headers.authorization ?? ''
-  const match = /^Bearer\s+(.+)$/i.exec(authorization)
+  const match = /^Bearer\s+(\S+)$/i.exec(authorization)
   return match?.[1] ?? ''
 }
 
@@ -59,7 +61,7 @@ export const authorizeRegistrationRead = async (
   return authorizeRegistrationEdit(event, registration)
 }
 
-const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<keyof JsonRegistration> = [
+const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<PublicRegistrationField> = [
   'agreeToTerms',
   'breeder',
   'cancelReason',
@@ -85,7 +87,7 @@ const PUBLIC_REGISTRATION_FIELDS: ReadonlyArray<keyof JsonRegistration> = [
   'selectedCost',
 ]
 
-const PUBLIC_UPDATE_FIELDS = new Set<keyof JsonRegistration>([...PUBLIC_REGISTRATION_FIELDS, 'id'])
+const PUBLIC_UPDATE_FIELDS = new Set<PublicRegistrationField>([...PUBLIC_REGISTRATION_FIELDS, 'id'])
 
 // The event type is fixed when the registration is created.
 PUBLIC_UPDATE_FIELDS.delete('eventType')
@@ -94,7 +96,7 @@ PUBLIC_UPDATE_FIELDS.delete('creationIdempotencyKey')
 
 export const publicRegistrationPatch = (input: Patch<JsonRegistration>, update: boolean): Patch<JsonRegistration> => {
   const result: Patch<JsonRegistration> = {}
-  const fields: ReadonlyArray<keyof JsonRegistration> = update ? [...PUBLIC_UPDATE_FIELDS] : PUBLIC_REGISTRATION_FIELDS
+  const fields: ReadonlyArray<PublicRegistrationField> = update ? [...PUBLIC_UPDATE_FIELDS] : PUBLIC_REGISTRATION_FIELDS
   for (const field of fields) {
     if (Object.hasOwn(input, field)) Object.assign(result, { [field]: input[field] })
   }

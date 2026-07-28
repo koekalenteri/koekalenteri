@@ -309,7 +309,9 @@ export async function updateEntityStats(
   const newCount = previousCount + delta
 
   // Step 2: Update the unique-entity total when the count crosses zero
-  const totalDelta = previousCount <= 0 && newCount > 0 ? 1 : previousCount > 0 && newCount <= 0 ? -1 : 0
+  let totalDelta = 0
+  if (previousCount <= 0 && newCount > 0) totalDelta = 1
+  else if (previousCount > 0 && newCount <= 0) totalDelta = -1
   if (totalDelta !== 0) {
     await dynamoDB.update(
       { PK: `TOTALS#${year}`, SK: type },

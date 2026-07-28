@@ -2,7 +2,7 @@ import type { RouteObject } from 'react-router'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider } from 'notistack'
 import { Suspense } from 'react'
@@ -180,7 +180,6 @@ describe('EventViewPage', () => {
     )
 
     await flushPromises()
-    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument())
-    expect(screen.getByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
+    expect(await screen.findByRole('alert')).toHaveTextContent('event.viewerBanner_one count, names')
   })
 })

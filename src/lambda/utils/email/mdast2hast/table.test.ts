@@ -145,7 +145,7 @@ describe('table.ts', () => {
       const result = wrap(nodes, true)
 
       // Should have newlines at start, between nodes, and at end
-      expect(result.length).toBe(5)
+      expect(result).toHaveLength(5)
       expect(result[0].type).toBe('text')
       expect((result[0] as any).value).toBe('\n')
       expect(result[2].type).toBe('text')
@@ -163,7 +163,7 @@ describe('table.ts', () => {
       const result = wrap(nodes, false)
 
       // Should only have a newline between nodes
-      expect(result.length).toBe(3)
+      expect(result).toHaveLength(3)
       expect(result[0].type).toBe('element')
       expect(result[1].type).toBe('text')
       expect((result[1] as any).value).toBe('\n')
@@ -172,12 +172,12 @@ describe('table.ts', () => {
 
     it('should handle empty nodes array', () => {
       const result = wrap([], true)
-      expect(result.length).toBe(1) // Just the initial newline
+      expect(result).toHaveLength(1) // Just the initial newline
       expect(result[0].type).toBe('text')
       expect((result[0] as any).value).toBe('\n')
 
       const result2 = wrap([], false)
-      expect(result2.length).toBe(0) // No nodes, no newlines
+      expect(result2).toHaveLength(0) // No nodes, no newlines
     })
   })
 
@@ -193,7 +193,7 @@ describe('table.ts', () => {
 
       const result = all(mockState, parent)
 
-      expect(result.length).toBe(2)
+      expect(result).toHaveLength(2)
       expect(result[0].type).toBe('text')
       expect((result[0] as any).value).toBe('Hello')
       expect(result[1].type).toBe('text')
@@ -217,7 +217,7 @@ describe('table.ts', () => {
 
       const result = all(mockState, parent)
 
-      expect(result.length).toBe(2)
+      expect(result).toHaveLength(2)
       expect(result[1].type).toBe('text')
       expect((result[1] as any).value).toBe('Hello') // Whitespace removed
     })
@@ -237,7 +237,7 @@ describe('table.ts', () => {
 
       const result = all(mockState, parent)
 
-      expect(result.length).toBe(2)
+      expect(result).toHaveLength(2)
       expect(result[1].type).toBe('element')
       const element = result[1] as Element
       expect(element.children[0].type).toBe('text')
@@ -265,7 +265,7 @@ describe('table.ts', () => {
 
       const result = all(customMockState, parent)
 
-      expect(result.length).toBe(2) // Only 2 items, the null result is skipped
+      expect(result).toHaveLength(2) // Only 2 items, the null result is skipped
       expect(result[0].type).toBe('text')
       expect((result[0] as any).value).toBe('Hello')
       expect(result[1].type).toBe('text')
@@ -296,7 +296,7 @@ describe('table.ts', () => {
 
       const result = all(customMockState, parent)
 
-      expect(result.length).toBe(4) // 1 + 2 + 1 = 4 items
+      expect(result).toHaveLength(4) // 1 + 2 + 1 = 4 items
       expect((result[0] as any).value).toBe('Before')
       expect((result[1] as any).value).toBe('Item 1')
       expect((result[2] as any).value).toBe('Item 2')
@@ -385,7 +385,7 @@ describe('table.ts', () => {
       // The tableHandler function puts the first row in a separate thead element
       // and only includes subsequent rows in the tbody
       const rows = tbody.children.filter((child: any) => child.type === 'element' && child.tagName === 'tr')
-      expect(rows.length).toBe(1) // Only the second row is in tbody
+      expect(rows).toHaveLength(1) // Only the second row is in tbody
 
       // Verify the second row exists
       const secondRow = rows[0]

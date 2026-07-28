@@ -503,7 +503,7 @@ describe('lib/event', () => {
     })
     it('should update classes', () => {
       const copy = copyDogEvent(eventWithParticipantsInvited)
-      expect(copy.classes.length).toBe(2)
+      expect(copy.classes).toHaveLength(2)
       for (let i = 0; i < 2; i++) {
         expect(copy.classes[i].places).toBe(eventWithParticipantsInvited.classes[i].places)
         expect(copy.classes[i].entries).toBe(0)
@@ -532,7 +532,7 @@ describe('lib/event', () => {
         ],
       })
 
-      expect(copy.dates?.length).toBe(2)
+      expect(copy.dates).toHaveLength(2)
       expect(copy.dates?.[0].date).toEqual(copy.startDate)
       expect(copy.dates?.[1].date).toEqual(copy.endDate)
     })
@@ -560,7 +560,7 @@ describe('lib/event', () => {
 
       // Verify placesPerDay was copied and dates were adjusted
       expect(copy.placesPerDay).toBeDefined()
-      expect(Object.keys(copy.placesPerDay!).length).toBe(2)
+      expect(Object.keys(copy.placesPerDay!)).toHaveLength(2)
       expect(copy.placesPerDay?.[expectedFirstDate]).toBe(10)
       expect(copy.placesPerDay?.[expectedSecondDate]).toBe(15)
     })

@@ -19,6 +19,11 @@ import { actionButtonSx, sectionSx } from './styles'
 
 type RegistrationInfo = ReturnType<typeof useAdminEventRegistrationInfo>
 
+const getStartListAuditMessageKey = (eventClass: RegistrationClass | undefined, published: boolean) => {
+  if (eventClass) return published ? 'audit.messages.classStartListPublished' : 'audit.messages.classStartListHidden'
+  return published ? 'audit.messages.startListPublished' : 'audit.messages.startListHidden'
+}
+
 interface Props {
   readonly event: ConfirmedEvent
   readonly eventFinished: boolean
@@ -46,19 +51,7 @@ const StartListPublishing = ({
 
     try {
       await onSetStartListPublished(eventClass, published)
-      enqueueSnackbar(
-        t(
-          eventClass
-            ? published
-              ? 'audit.messages.classStartListPublished'
-              : 'audit.messages.classStartListHidden'
-            : published
-              ? 'audit.messages.startListPublished'
-              : 'audit.messages.startListHidden',
-          { eventClass }
-        ),
-        { variant: 'success' }
-      )
+      enqueueSnackbar(t(getStartListAuditMessageKey(eventClass, published), { eventClass }), { variant: 'success' })
     } catch {
       enqueueSnackbar(t('eventManagement.startList.saveFailed'), errorSnackbarOptions)
     }

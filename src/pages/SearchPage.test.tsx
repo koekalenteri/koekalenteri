@@ -62,14 +62,14 @@ describe('SearchPage', () => {
   it('renders', async () => {
     renderPage('', locales.fi)
     await flushPage()
-    expect(screen.getAllByRole('article').length).toEqual(5)
+    expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by date/start', async () => {
     renderPage('/?s=2021-03-01', locales.fi)
     await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.03.2021')
-    expect(screen.getAllByRole('article').length).toEqual(5)
+    expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by date/end', async () => {
@@ -77,7 +77,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?s=2021-01-01&e=2021-03-01', locales.fi)
     await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
-    expect(screen.getAllByRole('article').length).toEqual(4)
+    expect(screen.getAllByRole('article')).toHaveLength(4)
     expect(container).toMatchSnapshot()
   })
 
@@ -86,7 +86,7 @@ describe('SearchPage', () => {
     await flushPage()
     expect(screen.getByRole('textbox', { name: 'daterangeStart' })).toHaveValue('01.01.2021')
     expect(screen.getByRole('textbox', { name: 'daterangeEnd' })).toHaveValue('01.03.2021')
-    expect(screen.getAllByRole('article').length).toEqual(4)
+    expect(screen.getAllByRole('article')).toHaveLength(4)
     expect(container).toMatchSnapshot()
   })
 
@@ -104,7 +104,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?s=2021-01-01&t=NOME-B', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'NOME-B' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(5)
+    expect(screen.getAllByRole('article')).toHaveLength(5)
     expect(container).toMatchSnapshot()
   })
 
@@ -113,7 +113,7 @@ describe('SearchPage', () => {
     const { container } = renderPage('/?s=2021-01-01&c=AVO', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'AVO' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(5)
+    expect(screen.getAllByRole('article')).toHaveLength(5)
     expect(container).toMatchSnapshot()
   })
 
@@ -123,7 +123,7 @@ describe('SearchPage', () => {
     await flushPage()
     expect(screen.getByRole('button', { name: 'Järjestäjä 2' })).toBeInTheDocument()
     expect(screen.getByText(/filter.results count/i)).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(1)
+    expect(screen.getAllByRole('article')).toHaveLength(1)
     expect(container).toMatchSnapshot()
   })
 
@@ -131,14 +131,14 @@ describe('SearchPage', () => {
     renderPage('/?j=Tuomari%202', locales.fi)
     await flushPage()
     expect(screen.getByRole('button', { name: 'Tuomari 2' })).toBeInTheDocument()
-    expect(screen.getAllByRole('article').length).toEqual(5)
+    expect(screen.getAllByRole('article')).toHaveLength(5)
   })
 
   it('filters by entryUpcoming', async () => {
     renderPage('/?b=u', locales.fi)
     await flushPage()
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
-    expect(screen.getAllByRole('article').length).toEqual(1)
+    expect(screen.getAllByRole('article')).toHaveLength(1)
   })
 
   it('filters by entryOpen', async () => {
@@ -166,7 +166,7 @@ describe('SearchPage', () => {
         })
       }
 
-      expect(articles.length).toEqual(2)
+      expect(articles).toHaveLength(2)
       expect(consoleLog).not.toHaveBeenCalled()
     } finally {
       consoleLog.mockRestore()
@@ -178,6 +178,6 @@ describe('SearchPage', () => {
     await flushPage()
     expect(screen.getByRole('switch', { name: 'entryUpcoming' })).toBeChecked()
     expect(screen.getByRole('switch', { name: 'entryOpen' })).toBeChecked()
-    expect(screen.getAllByRole('article').length).toEqual(3)
+    expect(screen.getAllByRole('article')).toHaveLength(3)
   })
 })

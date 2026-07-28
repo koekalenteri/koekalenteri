@@ -30,7 +30,7 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         .filter((reg) => reg.group.date && !reg.cancelled)
         .filter((reg) => {
           const eventClasses = confirmedEvent.classes?.filter((eventClass) => eventClass.class === reg.class) ?? []
-          if (!eventClasses.length) return !confirmedEvent.classes?.length && startListAvailable
+          if (!eventClasses.length) return !confirmedEvent.classes?.length
           if (preview) return true
 
           return eventClasses.some((eventClass) => isStartListAvailableForClass(confirmedEvent, eventClass))

@@ -128,7 +128,7 @@ describe('utils', () => {
         endDate: new Date(2020, 1, 2),
         startDate: new Date(2020, 1, 1),
       } as PublicDogEvent
-      expect(registrationDates(event, ['ap', 'ip']).length).toEqual(4)
+      expect(registrationDates(event, ['ap', 'ip'])).toHaveLength(4)
     })
 
     it('should return each possible registration date for event with classes', () => {
@@ -142,7 +142,7 @@ describe('utils', () => {
         endDate: new Date(2020, 1, 3),
         startDate: new Date(2020, 1, 1),
       } as PublicDogEvent
-      expect(registrationDates(event, ['ap', 'ip']).length).toEqual(2)
+      expect(registrationDates(event, ['ap', 'ip'])).toHaveLength(2)
     })
 
     it('should return each possible registration date for event with classes, for a class', () => {
@@ -168,8 +168,8 @@ describe('utils', () => {
         endDate: new Date(2020, 1, 3),
         startDate: new Date(2020, 1, 1),
       } as PublicDogEvent
-      expect(registrationDates(event, ['ap', 'ip'], 'ALO').length).toEqual(6)
-      expect(registrationDates(event, ['ap', 'ip'], 'VOI').length).toEqual(2)
+      expect(registrationDates(event, ['ap', 'ip'], 'ALO')).toHaveLength(6)
+      expect(registrationDates(event, ['ap', 'ip'], 'VOI')).toHaveLength(2)
     })
   })
 
@@ -476,10 +476,10 @@ describe('utils', () => {
       const base = { a: 1 }
 
       // @ts-expect-error Testing with non-object patch
-      expect(patchMerge(base, null)).toEqual(null)
+      expect(patchMerge(base, null)).toBeNull()
 
       // @ts-expect-error Testing with non-object patch
-      expect(patchMerge(base, undefined)).toEqual(undefined)
+      expect(patchMerge(base, undefined)).toBeUndefined()
 
       // @ts-expect-error Testing with non-object patch
       expect(patchMerge(base, 'string')).toEqual('string')

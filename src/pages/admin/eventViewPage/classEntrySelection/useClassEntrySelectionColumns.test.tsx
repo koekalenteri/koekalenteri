@@ -592,7 +592,7 @@ describe('Action column in detail', () => {
       })
 
       // Check that no unexpected actions are present
-      expect(actionKeys.length).toBe(testCase.expectedActions.length)
+      expect(actionKeys).toHaveLength(testCase.expectedActions.length)
     })
 
     canRefundSpy.mockRestore()

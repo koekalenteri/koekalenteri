@@ -11,7 +11,7 @@ const getJwtPayload = (token: string): JwtPayload | undefined => {
   const payload = parts[1]
 
   try {
-    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const normalized = payload.replaceAll('-', '+').replaceAll('_', '/')
     const decoded = atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '='))
     const parsed = JSON.parse(decoded) as unknown
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as JwtPayload) : undefined
@@ -23,7 +23,7 @@ const getJwtPayload = (token: string): JwtPayload | undefined => {
 const tokenFingerprint = (token: string): string => {
   let hash = 0x811c9dc5
   for (let i = 0; i < token.length; i++) {
-    hash ^= token.charCodeAt(i)
+    hash ^= token.codePointAt(i)!
     hash = Math.imul(hash, 0x01000193)
   }
   return (hash >>> 0).toString(16).padStart(8, '0')

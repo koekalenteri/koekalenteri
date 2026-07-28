@@ -150,12 +150,12 @@ describe('JudgeSection', () => {
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
 
     expect(changeHandler).toHaveBeenCalledTimes(1)
-    expect(testEvent.judges.length).toBe(1)
+    expect(testEvent.judges).toHaveLength(1)
     expect(testEvent.judges[0]).toEqual(expect.objectContaining({ id: 3, name: 'Test Judge 3', official: true }))
 
     fireEvent.click(screen.getByText(/Lisää tuomari/i))
     expect(changeHandler).toHaveBeenCalledTimes(2)
-    expect(testEvent.judges.length).toBe(2)
+    expect(testEvent.judges).toHaveLength(2)
     expect(testEvent.judges[1]).toEqual(expect.objectContaining({ id: 0, name: '', official: true }))
 
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
@@ -169,12 +169,12 @@ describe('JudgeSection', () => {
     rerender(<JudgesSection event={testEvent} judges={JUDGES} onChange={changeHandler} selectedEventType={eventType} />)
 
     const buttons = screen.getAllByText(/Poista Tuomari/i)
-    expect(buttons.length).toBe(2)
+    expect(buttons).toHaveLength(2)
 
     fireEvent.click(buttons[1])
 
     expect(changeHandler).toHaveBeenCalledTimes(4)
-    expect(testEvent.judges.length).toBe(1)
+    expect(testEvent.judges).toHaveLength(1)
     expect(testEvent.judges[0]).toEqual(expect.objectContaining({ id: 3, name: 'Test Judge 3', official: true }))
   })
 })

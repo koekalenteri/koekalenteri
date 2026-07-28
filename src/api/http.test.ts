@@ -28,7 +28,7 @@ describe('http', () => {
       const json = await http.get('/test/')
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls).toHaveLength(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
@@ -159,7 +159,7 @@ describe('http', () => {
 
       const promise = http.get('/somewhere', { signal: controller.signal })
 
-      expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+      await expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
       expect(fetchMock).toHaveBeenCalledTimes(1)
     })
 
@@ -171,7 +171,7 @@ describe('http', () => {
       const promise = http.get('/somewhere', { signal: controller.signal })
       controller.abort('because')
 
-      expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+      await expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
     })
 
     it.each([401, 404])('should not show a snackbar with status %p', async (status) => {
@@ -245,7 +245,7 @@ describe('http', () => {
 
       const response = http.get('/secure', { headers: { Authorization: 'asdf' } })
 
-      expect(response).rejects.toEqual(expect.objectContaining({ status: 401, statusText: 'access denied' }))
+      await expect(response).rejects.toEqual(expect.objectContaining({ status: 401, statusText: 'access denied' }))
     })
   })
 
@@ -272,7 +272,7 @@ describe('http', () => {
       const json = await http.post('/test/', {})
 
       expect(json).toEqual({ data: 'ok', status: 200 })
-      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls).toHaveLength(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
@@ -306,7 +306,7 @@ describe('http', () => {
       const json = await http.postRaw('/test/', 'body')
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls).toHaveLength(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
@@ -333,7 +333,7 @@ describe('http', () => {
       const json = await http.put('/test/', {})
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls).toHaveLength(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
@@ -359,7 +359,7 @@ describe('http', () => {
       const json = await http.patch('/test/', {})
 
       expect(json).toEqual({ data: 'ok', status: 200 })
-      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls).toHaveLength(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 
@@ -385,7 +385,7 @@ describe('http', () => {
       const json = await http.delete('/test/', {})
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls.length).toEqual(1)
+      expect(fetchMock.mock.calls).toHaveLength(1)
       expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
     })
 

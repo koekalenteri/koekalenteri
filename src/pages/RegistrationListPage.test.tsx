@@ -114,7 +114,7 @@ describe('RegistrationListPage', () => {
   it('renders the page with all components', async () => {
     renderWithRouter('/r/test1/nou-registration')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -127,7 +127,7 @@ describe('RegistrationListPage', () => {
     jest.setSystemTime(new Date('2021-02-08T23:55:00.000+02:00')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -137,14 +137,14 @@ describe('RegistrationListPage', () => {
       screen.queryByText('registration.cancelDialog.lateText contact, event, registration')
     ).not.toBeInTheDocument()
     expect(screen.getByLabelText('registration.cancelDialog.reason')).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'registration.cancelDialog.cta' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'registration.cancelDialog.cta' })).toBeInTheDocument()
   })
 
   it('opens cancel dialog when on cancel route (late)', async () => {
     jest.setSystemTime(new Date('2021-02-08T23:59:59.000+02:00')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -159,7 +159,7 @@ describe('RegistrationListPage', () => {
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -192,7 +192,7 @@ describe('RegistrationListPage', () => {
 
     renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
 
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
@@ -205,7 +205,7 @@ describe('RegistrationListPage', () => {
 
     const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -243,7 +243,7 @@ describe('RegistrationListPage', () => {
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -277,7 +277,7 @@ describe('RegistrationListPage', () => {
     jest.setSystemTime(new Date('2021-02-08'))
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -301,7 +301,7 @@ describe('RegistrationListPage', () => {
     jest.setSystemTime(new Date('2021-02-08')) // must be before event.endDate
     renderWithRouter('/r/test1/nou-registration/invitation')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -339,7 +339,7 @@ describe('RegistrationListPage', () => {
       </ThemeProvider>
     )
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -355,7 +355,7 @@ describe('RegistrationListPage', () => {
   it('closes cancel dialog when close button is clicked', async () => {
     const { user } = renderWithRouter('/r/test1/nou-registration/cancel')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -375,7 +375,7 @@ describe('RegistrationListPage', () => {
 
     const { user } = renderWithRouter('/r/test1/nou-registration/confirm')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -394,7 +394,7 @@ describe('RegistrationListPage', () => {
   it('opens payment dialog automatically', async () => {
     renderWithRouter('/r/test1/unpaid-picked-nou-registration')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -416,7 +416,7 @@ describe('RegistrationListPage', () => {
 
     renderWithRouter('/r/test1/unpaid-nou-registration')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     jest.runOnlyPendingTimers()
     await flushPromises(false)
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
@@ -444,7 +444,7 @@ describe('RegistrationListPage', () => {
 
     renderWithRouter('/r/test1/unpaid-nou-registration/saved?payment=verifying')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     jest.runOnlyPendingTimers()
     await flushPromises(false)
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
@@ -495,7 +495,7 @@ describe('RegistrationListPage', () => {
       </ThemeProvider>
     )
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 
@@ -511,7 +511,7 @@ describe('RegistrationListPage', () => {
   it('redirects to invitation attachment', async () => {
     renderWithRouter('/r/testInvited/invitation-attachment-registration/invitation')
 
-    expect(screen.queryByText('loading...')).toBeInTheDocument()
+    expect(screen.getByText('loading...')).toBeInTheDocument()
     await flushPromises()
     expect(screen.queryByText('loading...')).not.toBeInTheDocument()
 

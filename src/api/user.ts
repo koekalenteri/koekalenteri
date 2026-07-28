@@ -11,10 +11,8 @@ export function getUsers(
   since: Date
 ): Promise<IncrementalCollectionResponse<User>>
 export function getUsers(token: string, signal?: AbortSignal, since?: Date): Promise<CollectionResponse<User>> {
-  return http.get<CollectionResponse<User>>(
-    `/admin/user${since ? `?since=${since.getTime()}` : ''}`,
-    withToken({ signal }, token)
-  )
+  const query = since ? `?since=${since.getTime()}` : ''
+  return http.get<CollectionResponse<User>>(`/admin/user${query}`, withToken({ signal }, token))
 }
 
 export const putUser = async (user: User, token?: string, signal?: AbortSignal): Promise<User> =>

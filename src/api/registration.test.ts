@@ -87,8 +87,8 @@ test('getRegistrations', async () => {
 
   const result = await getRegistrations('test-id', 'test-token')
 
-  expect(result.length).toEqual(1)
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(result).toHaveLength(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/test-id`)
 })
 
@@ -105,7 +105,7 @@ test('getRegistrations with since', async () => {
   expect(result.items).toEqual([mockRegistration])
   expect(result.deletedIds).toEqual(['deleted-id'])
   expect(result.cursor).toEqual(456)
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/test-id?since=${since.getTime()}`)
 })
 
@@ -119,7 +119,7 @@ test('getRegistration', async () => {
   const result = await getRegistration('test-id', 'test-registration-id')
 
   expect(result).toMatchObject(mockRegistration)
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/test-id/test-registration-id`)
 })
 
@@ -142,7 +142,7 @@ test('putRegistration creates with POST', async () => {
 
   const { id: _id, ...registration } = mockRegistration
   const result = await putRegistration(registration)
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/`)
   expect(result.id).not.toBeUndefined()
 })
@@ -155,7 +155,7 @@ test('putRegistration updates with PATCH', async () => {
   )
 
   const result = await putRegistration({ eventId: mockRegistration.eventId, id: mockRegistration.id, notes: 'patched' })
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/registration/`)
   expect(result.id).not.toBeUndefined()
 })
@@ -184,7 +184,7 @@ test('putAdminRegistration creates with POST', async () => {
 
   const { id: _id, ...registration } = mockRegistration
   const result = await putAdminRegistration(registration, 'test-token')
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/`)
   expect(result.id).not.toBeUndefined()
 })
@@ -200,7 +200,7 @@ test('putAdminRegistration updates with PATCH', async () => {
     { eventId: mockRegistration.eventId, id: mockRegistration.id, notes: 'patched' },
     'test-token'
   )
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/registration/`)
   expect(result.id).not.toBeUndefined()
 })
@@ -217,21 +217,21 @@ test('putRegistrationGroups', async () => {
     [{ group: { key: 'reserve' }, id: mockRegistration.id }],
     'test-token'
   )
-  expect(fetchMock.mock.calls.length).toEqual(1)
+  expect(fetchMock.mock.calls).toHaveLength(1)
   expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/reg-groups/test-id`)
-  expect(items.length).toEqual(1)
+  expect(items).toHaveLength(1)
 })
 
 describe('getStartList', () => {
   it('should call correct endpoint', async () => {
     await getStartList('test-id')
-    expect(fetchMock.mock.calls.length).toEqual(1)
+    expect(fetchMock.mock.calls).toHaveLength(1)
     expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/startlist/test-id`)
   })
 
   it('should call authenticated preview endpoint', async () => {
     await getStartListPreview('test-id', 'test-token')
-    expect(fetchMock.mock.calls.length).toEqual(1)
+    expect(fetchMock.mock.calls).toHaveLength(1)
     expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/startlist/test-id`)
     expect(fetchMock.mock.calls[0][1]?.headers).toEqual(expect.objectContaining({ Authorization: 'Bearer test-token' }))
   })

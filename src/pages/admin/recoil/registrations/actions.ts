@@ -313,8 +313,7 @@ export const useAdminRegistrationActions = (eventId: string) => {
 
   return {
     async cancel(eventId: string, id: string, cancelReason: string) {
-      const reg = eventRegistrations.find((r) => r.id === id)
-      if (!reg) throw new Error('unexpected error occured')
+      if (!eventRegistrations.some((r) => r.id === id)) throw new Error('unexpected error occured')
 
       await saveGroups(eventId, [{ cancelReason, group: { key: GROUP_KEY_CANCELLED }, id }])
     },

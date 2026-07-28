@@ -242,6 +242,8 @@ const handleSuccessfulPayment = async (
       const optionalCosts = paymentDetails.optionalCosts
         .map((o) => `${o.description[registration.language] || o.description.fi}${memberPrice} ${formatMoney(o.cost)}`)
         .join(', ')
+      const workflowPreviouslyPaid = workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0)
+      const totalPaid = workflow.receiptTotalPaid ?? (appliedPayment ? previouslyPaid + paidAmount : previouslyPaid)
       await clearRegistrationEmailDeliveryStatus(eventId, registrationId)
       await sendTemplatedMail(
         'receipt',
@@ -254,15 +256,10 @@ const handleSuccessfulPayment = async (
           amount: formatMoney(paidAmount),
           createdAt: t('dateFormat.long', { date: transaction.createdAt }),
           optionalCosts,
-          previouslyPaid:
-            (workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0))
-              ? formatMoney(workflow.receiptPreviouslyPaid ?? (appliedPayment ? previouslyPaid : 0))
-              : undefined,
+          previouslyPaid: workflowPreviouslyPaid ? formatMoney(workflowPreviouslyPaid) : undefined,
           registrationCost,
           registrationCostName,
-          totalPaid: formatMoney(
-            workflow.receiptTotalPaid ?? (appliedPayment ? previouslyPaid + paidAmount : previouslyPaid)
-          ),
+          totalPaid: formatMoney(totalPaid),
         },
         registrationEmailTags(registration, 'receipt')
       )

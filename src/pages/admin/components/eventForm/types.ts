@@ -12,10 +12,10 @@ export interface PartialEvent
   judges: DogEvent['judges']
   official?: Partial<DogEvent['official']>
   secretary?: Partial<DogEvent['secretary']>
-  dates?: DogEvent['dates']
+  dates?: NonNullable<DogEvent['dates']>
 
   cost?: DogEvent['cost']
-  costMember?: DogEvent['costMember']
+  costMember?: NonNullable<DogEvent['costMember']>
 }
 
 type RequiredFieldState = Partial<{

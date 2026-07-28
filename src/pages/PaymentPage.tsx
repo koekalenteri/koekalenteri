@@ -46,7 +46,6 @@ export const loader = async ({ params }: { params: Params<string> }) => {
 }
 
 interface Props {
-  readonly id?: string
   readonly registrationId?: string
   readonly event?: PublicConfirmedEvent | null
   readonly registration?: Registration | null
@@ -194,7 +193,6 @@ export function Component() {
         <Await resolve={data.response} errorElement={<ErrorInfo />}>
           {(response) => (
             <PaymentPageWithData
-              id={id}
               registrationId={registrationId}
               event={event}
               registration={registration}

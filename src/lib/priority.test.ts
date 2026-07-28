@@ -4,7 +4,7 @@ describe('lib/priority', () => {
   describe('PRIORITY', () => {
     it('should match snapshot and length', () => {
       expect(PRIORITY).toMatchSnapshot()
-      expect(PRIORITY.length).toEqual(8)
+      expect(PRIORITY).toHaveLength(8)
     })
   })
 

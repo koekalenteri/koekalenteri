@@ -133,27 +133,27 @@ describe('lib/event', () => {
         values: { ':entryEndDate': '2025-03-22T17:00:00.000Z', ':eventType': 'NOME-B SM' },
       })
     })
-    it.each([undefined, [], [{}], [1, 2]])('should return undefined when query returns %p', (result) => {
+    it.each([undefined, [], [{}], [1, 2]])('should return undefined when query returns %p', async (result) => {
       mockQuery.mockResolvedValueOnce(result)
-      expect(
+      await expect(
         findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
       ).resolves.toBeUndefined()
     })
 
-    it('should return start of next day from the entryEndDate', () => {
+    it('should return start of next day from the entryEndDate', async () => {
       mockQuery.mockResolvedValueOnce([{ entryEndDate: '2024-08-20T23:59:59.999+03:00' }])
-      expect(findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())).resolves.toEqual(
-        '2024-08-21T00:00:00.000+03:00'
-      )
+      await expect(
+        findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
+      ).resolves.toEqual('2024-08-21T00:00:00.000+03:00')
     })
 
-    it('should prefer entryOrigEndDate when available ', () => {
+    it('should prefer entryOrigEndDate when available ', async () => {
       mockQuery.mockResolvedValueOnce([
         { entryEndDate: '2024-08-20T23:59:59.999+03:00', entryOrigEndDate: '2024-08-15T23:59:59.999+03:00' },
       ])
-      expect(findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())).resolves.toEqual(
-        '2024-08-16T00:00:00.000+03:00'
-      )
+      await expect(
+        findQualificationStartDate('NOME-B SM', new Date('2025-03-22T17:00:00Z').toISOString())
+      ).resolves.toEqual('2024-08-16T00:00:00.000+03:00')
     })
   })
 
