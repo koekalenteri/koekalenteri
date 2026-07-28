@@ -26,7 +26,7 @@ const getJudgesLambda = lambda('getJudges', async (event) => {
     }
 
     const klapi = new KLAPI(getKLAPIConfig)
-    const allEventTypes = await dynamoDB.readAll<EventType>(eventTypeTable)
+    const allEventTypes = await dynamoDB.readAll<EventType>({ table: eventTypeTable })
     const eventTypes = allEventTypes?.filter((et) => et.official && et.active) || []
     const judges = await fetchJudgesForEventTypes(
       klapi,

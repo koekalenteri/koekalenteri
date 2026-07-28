@@ -54,7 +54,7 @@ export const fetchOfficialsForEventTypes = async (
 export const updateOfficials = async (dynamoDB: CustomDynamoClient, officials: Official[]): Promise<void> => {
   if (!officials.length) return
 
-  const existingOfficials = (await dynamoDB.readAll<JsonOfficial>(officialTable)) ?? []
+  const existingOfficials = (await dynamoDB.readAll<JsonOfficial>({ table: officialTable })) ?? []
   const newOfficials = officials.filter((o) => !existingOfficials.some((ej) => ej.id === o.id))
   const deletedOfficials = existingOfficials.filter((eo) => !eo.deletedAt && !officials.some((j) => j.id === eo.id))
 

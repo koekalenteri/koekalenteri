@@ -18,7 +18,7 @@ function dataVersionFromItems(items: VersionRecord[]): DataVersion {
 }
 
 async function getTableDataVersion(table: string): Promise<DataVersion> {
-  const items = (await client.readAll<VersionRecord>(table)) ?? []
+  const items = (await client.readAll<VersionRecord>({ table })) ?? []
   return dataVersionFromItems(items)
 }
 

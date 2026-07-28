@@ -323,16 +323,15 @@ describe('lib/stats', () => {
       const result = await getOrganizerStats(undefined, from, to)
 
       // Verify readAll is called with the correct filter parameters
-      expect(mockReadAll).toHaveBeenCalledWith(
-        undefined,
-        'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
-        {
+      expect(mockReadAll).toHaveBeenCalledWith({
+        filter: 'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
+        names: { '#pk': 'PK' },
+        values: {
           ':from': from,
           ':orgPrefix': 'ORG#',
           ':to': to,
         },
-        { '#pk': 'PK' }
-      )
+      })
 
       expect(result).toHaveLength(1)
       expect(result[0].organizerId).toBe('org1')

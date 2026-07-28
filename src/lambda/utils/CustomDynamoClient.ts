@@ -38,6 +38,14 @@ interface QueryParams {
   filterExpression?: string
 }
 
+interface ReadAllOptions {
+  filter?: string
+  names?: Record<string, string>
+  projection?: string
+  table?: string
+  values?: Record<string, any>
+}
+
 type PutWithOptionalTable = Omit<Put, 'TableName'> & { TableName?: string }
 type UpdateWithOptionalTable = Omit<Update, 'TableName'> & { TableName?: string }
 type DeleteWithOptionalTable = Omit<Delete, 'TableName'> & { TableName?: string }
@@ -186,12 +194,13 @@ export default class CustomDynamoClient {
     })
   }
 
-  async readAll<T extends object>(
-    table?: string,
-    filterExpression?: string,
-    expressionAttributeValues?: Record<string, any>,
-    expressionAttributeNames?: Record<string, string>
-  ): Promise<T[] | undefined> {
+  async readAll<T extends object>({
+    table,
+    filter,
+    values,
+    names,
+    projection,
+  }: ReadAllOptions = {}): Promise<T[] | undefined> {
     const params: ScanCommandInput = {
       TableName: table ? fromSamLocalTable(table) : this.table,
     }
@@ -199,20 +208,24 @@ export default class CustomDynamoClient {
     // Create or extend filter expression to filter out deleted items
     let finalFilterExpression = 'attribute_not_exists(deletedAt)'
 
-    if (filterExpression) {
-      finalFilterExpression = `(${finalFilterExpression}) AND (${filterExpression})`
+    if (filter) {
+      finalFilterExpression = `(${finalFilterExpression}) AND (${filter})`
     }
 
     params.FilterExpression = finalFilterExpression
 
+    if (projection) {
+      params.ProjectionExpression = projection
+    }
+
     // Add expression attribute values if provided
-    if (expressionAttributeValues) {
-      params.ExpressionAttributeValues = expressionAttributeValues
+    if (values) {
+      params.ExpressionAttributeValues = values
     }
 
     // Add expression attribute names if provided
-    if (expressionAttributeNames) {
-      params.ExpressionAttributeNames = expressionAttributeNames
+    if (names) {
+      params.ExpressionAttributeNames = names
     }
 
     const items: T[] = []

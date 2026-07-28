@@ -220,7 +220,7 @@ describe('judge', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('judge-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -272,7 +272,7 @@ describe('judge', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('judge-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -315,7 +315,7 @@ describe('judge', () => {
       await updateJudges(mockDB, [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('judge-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -355,7 +355,7 @@ describe('judge', () => {
       await updateJudges(mockDB, [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('judge-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'judge-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [

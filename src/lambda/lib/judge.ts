@@ -68,7 +68,7 @@ export const partializeJudge = (judge: JsonJudge): RequireAllKeys<PartialJsonJud
 export const updateJudges = async (dynamoDB: CustomDynamoClient, judges: PartialJsonJudge[]): Promise<void> => {
   if (!judges.length) return
 
-  const existingJudges = (await dynamoDB.readAll<JsonJudge>(judgeTable)) ?? []
+  const existingJudges = (await dynamoDB.readAll<JsonJudge>({ table: judgeTable })) ?? []
   const newJudges = judges.filter((j) => !existingJudges.some((ej) => ej.id === j.id))
   const deletedJudges = existingJudges.filter((ej) => !ej.deletedAt && !judges.some((j) => j.id === ej.id))
 

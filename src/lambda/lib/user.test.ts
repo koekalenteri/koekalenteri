@@ -39,10 +39,9 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
       this.table = tableName
     }
 
-    readAll = (table?: string) => {
+    readAll = ({ table }: { table?: string } = {}) => {
       if (table?.includes('event')) return mockEventReadAll(table)
       if (table?.includes('user-link')) return mockUserLinkReadAll(table)
-      if (table?.includes('event')) return mockEventReadAll(table)
       return Promise.resolve([])
     }
 
@@ -566,7 +565,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'officer')
 
-      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'user-table-not-found-in-env' })
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
@@ -726,7 +725,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges(mockDB, [added1, added2], 'judge')
 
-      expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'user-table-not-found-in-env' })
       expect(mockReadAll).toHaveBeenCalledTimes(1)
       const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)

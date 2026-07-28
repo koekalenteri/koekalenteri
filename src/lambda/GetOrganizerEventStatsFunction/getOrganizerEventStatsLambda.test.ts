@@ -67,12 +67,11 @@ describe('getOrganizerEventStatsLambda', () => {
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
-    expect(mockReadAll).toHaveBeenCalledWith(
-      undefined,
-      'begins_with(#pk, :orgPrefix)',
-      { ':orgPrefix': 'ORG#' },
-      { '#pk': 'PK' }
-    )
+    expect(mockReadAll).toHaveBeenCalledWith({
+      filter: 'begins_with(#pk, :orgPrefix)',
+      names: { '#pk': 'PK' },
+      values: { ':orgPrefix': 'ORG#' },
+    })
     expect(JSON.parse(result.body)).toEqual(statsWithPK)
     expect(result.statusCode).toBe(200)
   })
@@ -116,16 +115,15 @@ describe('getOrganizerEventStatsLambda', () => {
     const event = constructAPIGwEvent({}, { query: { from: '2024-02-01', to: '2024-02-28' } })
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
-    expect(mockReadAll).toHaveBeenCalledWith(
-      undefined,
-      'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
-      {
+    expect(mockReadAll).toHaveBeenCalledWith({
+      filter: 'begins_with(#pk, :orgPrefix) AND SK >= :from AND SK <= :to',
+      names: { '#pk': 'PK' },
+      values: {
         ':from': '2024-02-01',
         ':orgPrefix': 'ORG#',
         ':to': '2024-02-28',
       },
-      { '#pk': 'PK' }
-    )
+    })
 
     // The result should only include the item that matches the date filters
     expect(JSON.parse(result.body)).toEqual(expectedResult)
@@ -149,12 +147,11 @@ describe('getOrganizerEventStatsLambda', () => {
     const event = constructAPIGwEvent({}, {})
     const result = (await getOrganizerEventStatsLambda(event)) as APIGatewayProxyResult
 
-    expect(mockReadAll).toHaveBeenCalledWith(
-      undefined,
-      'begins_with(#pk, :orgPrefix)',
-      { ':orgPrefix': 'ORG#' },
-      { '#pk': 'PK' }
-    )
+    expect(mockReadAll).toHaveBeenCalledWith({
+      filter: 'begins_with(#pk, :orgPrefix)',
+      names: { '#pk': 'PK' },
+      values: { ':orgPrefix': 'ORG#' },
+    })
     expect(JSON.parse(result.body)).toEqual([])
     expect(result.statusCode).toBe(200)
   })

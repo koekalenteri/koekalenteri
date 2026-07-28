@@ -114,12 +114,17 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({ Items: [{ id: '1' }] })
 
-      await client.readAll(undefined, 'attribute = :value', { ':value': 'test' })
+      await client.readAll({
+        filter: '#attribute = :value',
+        names: { '#attribute': 'attribute' },
+        values: { ':value': 'test' },
+      })
 
       expect(mockSend).toHaveBeenCalledWith({
         ExclusiveStartKey: undefined,
+        ExpressionAttributeNames: { '#attribute': 'attribute' },
         ExpressionAttributeValues: { ':value': 'test' },
-        FilterExpression: '(attribute_not_exists(deletedAt)) AND (attribute = :value)',
+        FilterExpression: '(attribute_not_exists(deletedAt)) AND (#attribute = :value)',
         TableName: 'test-table',
       })
     })
@@ -128,7 +133,7 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('DefaultTable')
       mockSend.mockResolvedValueOnce({ Items: [] })
 
-      await client.readAll('CustomTable')
+      await client.readAll({ table: 'CustomTable' })
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -142,12 +147,29 @@ describe('CustomDynamoClient', () => {
       const client = new CustomDynamoClient('TestTable')
       mockSend.mockResolvedValueOnce({ Items: [] })
 
-      await client.readAll(undefined, '#attr = :value', { ':value': 'test' }, { '#attr': 'attribute' })
+      await client.readAll({
+        filter: '#attr = :value',
+        names: { '#attr': 'attribute' },
+        values: { ':value': 'test' },
+      })
 
       expect(mockSend).toHaveBeenCalledWith(
         expect.objectContaining({
           ExclusiveStartKey: undefined,
           ExpressionAttributeNames: { '#attr': 'attribute' },
+        })
+      )
+    })
+
+    it('includes a projection expression when provided', async () => {
+      const client = new CustomDynamoClient('TestTable')
+      mockSend.mockResolvedValueOnce({ Items: [{ PK: 'STAT#2025', SK: 'dog' }] })
+
+      await client.readAll({ projection: 'PK, SK' })
+
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ProjectionExpression: 'PK, SK',
         })
       )
     })

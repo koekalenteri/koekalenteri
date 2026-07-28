@@ -87,12 +87,11 @@ async function queryAllOrganizerStats(from?: string, to?: string): Promise<Requi
   const filterExpression = filterExpressions.join(' AND ')
 
   // Use readAll with filtering
-  const items = await dynamoDB.readAll<Required<EventStatsItem>>(
-    undefined,
-    filterExpression,
-    expressionValues,
-    expressionNames
-  )
+  const items = await dynamoDB.readAll<Required<EventStatsItem>>({
+    filter: filterExpression,
+    names: expressionNames,
+    values: expressionValues,
+  })
 
   return items || []
 }

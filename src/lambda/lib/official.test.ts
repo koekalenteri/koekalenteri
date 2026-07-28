@@ -155,7 +155,7 @@ describe('official', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('official-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -203,7 +203,7 @@ describe('official', () => {
       ])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('official-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -244,7 +244,7 @@ describe('official', () => {
       await updateOfficials(mockDB, [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('official-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [
@@ -282,7 +282,7 @@ describe('official', () => {
       await updateOfficials(mockDB, [added])
 
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      expect(mockReadAll).toHaveBeenCalledWith('official-table-not-found-in-env')
+      expect(mockReadAll).toHaveBeenCalledWith({ table: 'official-table-not-found-in-env' })
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(mockBatchWrite).toHaveBeenCalledWith(
         [

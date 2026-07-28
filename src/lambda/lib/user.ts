@@ -84,7 +84,7 @@ export const filterRelevantUsers = (users: JsonUser[], user: JsonUser, orgs: str
 }
 
 export const getAllUsers = async (): Promise<JsonUser[]> => {
-  const users = await dynamoDB.readAll<JsonUser>(userTable)
+  const users = await dynamoDB.readAll<JsonUser>({ table: userTable })
 
   return users ?? []
 }
@@ -412,7 +412,7 @@ const updateEventReferences = async (
   for (const u of allUsers) mergedUserMap.set(u.id, u)
   for (const u of mergeWrites) mergedUserMap.set(u.id, u)
 
-  const events = (await dynamoDB.readAll<JsonDogEvent>(eventTable)) ?? []
+  const events = (await dynamoDB.readAll<JsonDogEvent>({ table: eventTable })) ?? []
 
   const mapEventUserRefs = (evt: JsonDogEvent) => {
     const oldOfficialId = normalizeUserId(evt.official?.id)
@@ -501,11 +501,11 @@ const loadSyncContext = async (
   items: Official[] | PartialJsonJudge[]
 ): Promise<UserSyncContext> => {
   const dateString = new Date().toISOString()
-  const allUsers = (await dynamoDB.readAll<JsonUser>(userTable)) ?? []
+  const allUsers = (await dynamoDB.readAll<JsonUser>({ table: userTable })) ?? []
 
   // Prefer keeping user records that have actually been used to log in.
   const userLinksDb = new CustomDynamoClient(userLinkTable)
-  const userLinks = (await userLinksDb.readAll<UserLink>(userLinkTable)) ?? []
+  const userLinks = (await userLinksDb.readAll<UserLink>({ table: userLinkTable })) ?? []
   const linkedUserIds = new Set<string>(userLinks.map((l) => String(l.userId)))
 
   const itemsWithEmail = normalizeItemsWithEmail(items)
