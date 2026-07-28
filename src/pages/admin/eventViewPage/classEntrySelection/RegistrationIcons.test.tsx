@@ -185,7 +185,7 @@ describe('RegistrationIcons component', () => {
         messagesSent: { invitation: true },
       },
       'MarkEmailReadOutlinedIcon',
-      'MuiSvgIcon-colorSuccess',
+      undefined,
     ],
     [
       {

@@ -66,7 +66,7 @@ const RegistrationIcons = ({ event, reg }: RegistrationIconsProps) => {
               <MarkEmailUnreadOutlined fontSize="small" />
             ) : (
               <MarkEmailReadOutlined
-                color={invitationReadStatus === 'read-previous' ? 'warning' : 'success'}
+                color={invitationReadStatus === 'read-previous' ? 'warning' : undefined}
                 fontSize="small"
               />
             )
