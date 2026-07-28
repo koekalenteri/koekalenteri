@@ -21,8 +21,8 @@ test('getEvents', async () => {
   const events = await getEvents()
 
   expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/event/`, expect.any(Object))
 })
 
 test('getEvents with start and end uses timestamps in query params', async () => {
@@ -37,8 +37,11 @@ test('getEvents with start and end uses timestamps in query params', async () =>
 
   await getEvents(start, end)
 
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?start=${start.getTime()}&end=${end.getTime()}`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(
+    `${API_BASE_URL}/event/?start=${start.getTime()}&end=${end.getTime()}`,
+    expect.any(Object)
+  )
 })
 
 describe('getEvents with since', () => {
@@ -53,8 +56,8 @@ describe('getEvents with since', () => {
     const events = await getEvents(undefined, undefined, since)
 
     expect(events).toEqual({ events: [emptyEvent], unchangedIds: ['event-1'] })
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?since=123`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/event/?since=123`, expect.any(Object))
   })
 
   test('supports legacy array response by normalizing it to delta response', async () => {
@@ -68,8 +71,8 @@ describe('getEvents with since', () => {
     const events = await getEvents(undefined, undefined, since)
 
     expect(events).toEqual({ events: [emptyEvent], unchangedIds: [] })
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/?since=123`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/event/?since=123`, expect.any(Object))
   })
 })
 
@@ -83,8 +86,8 @@ test('getEvent', async () => {
   const testEvent = await getEvent('TestEventID')
 
   expect(testEvent).toMatchObject(emptyEvent)
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/event/TestEventID`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/event/TestEventID`, expect.any(Object))
 })
 
 test('getEventAuditTrail', async () => {
@@ -95,8 +98,8 @@ test('getEventAuditTrail', async () => {
   const auditTrail = await getEventAuditTrail('TestEventID', 'token')
 
   expect(auditTrail).toEqual([])
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/audit/TestEventID`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/event/audit/TestEventID`, expect.any(Object))
 })
 
 test('getAdminEvents sends the incremental cursor', async () => {
@@ -104,7 +107,8 @@ test('getAdminEvents sends the incremental cursor', async () => {
 
   await getAdminEvents('token', 123)
 
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/?since=123`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/event/?since=123`, expect.any(Object))
 })
 
 test('putEvent creates with POST', async () => {
@@ -115,8 +119,8 @@ test('putEvent creates with POST', async () => {
   )
 
   const newEvent = await putEvent({ eventType: 'TestEventType' })
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/event/`, expect.any(Object))
   expect(newEvent.id).not.toBeUndefined()
 })
 
@@ -128,8 +132,8 @@ test('putEvent updates with PATCH', async () => {
   )
 
   const updatedEvent = await putEvent({ eventType: 'TestEventType', id: 'TestEventID' })
-  expect(fetchMock.mock.calls).toHaveLength(1)
-  expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/event/`)
+  expect(fetchMock).toHaveBeenCalledTimes(1)
+  expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/event/`, expect.any(Object))
   expect(updatedEvent.id).not.toBeUndefined()
 })
 

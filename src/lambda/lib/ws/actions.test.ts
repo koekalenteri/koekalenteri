@@ -1,6 +1,10 @@
 import { jest } from '@jest/globals'
 
-const mockBroadcast = jest.fn<any>().mockResolvedValue({ attempted: 0, failed: 0, gone: 0, sent: 0 })
+const broadcastConfigurations: unknown[] = []
+const mockBroadcast = jest.fn<any>((configuration: unknown) => {
+  broadcastConfigurations.push(configuration)
+  return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
+})
 const mockDisconnectWebSocket = jest.fn<any>().mockResolvedValue(undefined)
 const mockEventAudience = jest.fn<any>().mockReturnValue([])
 const mockOrganizerAudience = jest.fn<any>().mockReturnValue([])
@@ -65,6 +69,7 @@ const {
 
 describe('ws/actions', () => {
   beforeEach(() => {
+    broadcastConfigurations.length = 0
     mockBroadcast.mockClear()
     mockDisconnectWebSocket.mockClear()
     mockEventAudience.mockClear()
@@ -86,7 +91,7 @@ describe('ws/actions', () => {
     await publishPublicEvent({ entries: 5, eventId: 'e1' })
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -105,9 +110,7 @@ describe('ws/actions', () => {
 
     await publishPublicEvent({ entries: 5, eventId: 'e1' }, ['c2'])
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as
-      | { audience: () => Promise<Array<{ connectionId: string }>> }
-      | undefined
+    const call = broadcastConfigurations[0] as { audience: () => Promise<Array<{ connectionId: string }>> } | undefined
     expect(call).toBeTruthy()
     if (!call) throw new Error('missing broadcast call')
 
@@ -125,7 +128,7 @@ describe('ws/actions', () => {
         onGoneConnection: expect.any(Function),
       })
     )
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -148,7 +151,7 @@ describe('ws/actions', () => {
   it('publishes null removal markers in admin patches', async () => {
     await publishEventPatch({ eventId: 'e1', kcId: null }, 'org-1')
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as { buildPayload: () => unknown } | undefined
+    const call = broadcastConfigurations[0] as { buildPayload: () => unknown } | undefined
     expect(call?.buildPayload()).toEqual({ eventId: 'e1', kcId: null, scope: 'admin:event-patch' })
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
   })
@@ -161,7 +164,7 @@ describe('ws/actions', () => {
 
     expect(mockBroadcast).toHaveBeenCalledTimes(2)
 
-    const publicCall = mockBroadcast.mock.calls[1]?.[0] as
+    const publicCall = broadcastConfigurations[1] as
       | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: () => unknown }
       | undefined
     expect(publicCall).toBeTruthy()
@@ -182,7 +185,7 @@ describe('ws/actions', () => {
     await publishRegistrationPatches('e1', patch as any, 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -206,7 +209,7 @@ describe('ws/actions', () => {
   it('publishAdminDataInvalidation sends collection names to the admin audience', async () => {
     await publishAdminDataInvalidation(['users', 'organizers'])
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: () => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -232,7 +235,7 @@ describe('ws/actions', () => {
     await publishEventViewers('e1', 'org-1')
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | {
           audience: () => Promise<Array<{ connectionId: string; userId: string }>>
           buildPayload: (audience: Array<{ connectionId: string; userId: string }>) => unknown
@@ -266,7 +269,7 @@ describe('ws/actions', () => {
 
     await publishEventViewers('e1', 'org-1')
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | {
           audience: () => Promise<Array<{ connectionId: string; userId: string }>>
           buildPayload: (audience: Array<{ connectionId: string; userId: string }>) => unknown
@@ -291,7 +294,7 @@ describe('ws/actions', () => {
     await publishPublicConnectionCount()
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -309,7 +312,7 @@ describe('ws/actions', () => {
     await publishPublicConnectionCount(['c2'])
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: (audience: unknown[]) => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -328,7 +331,7 @@ describe('ws/actions', () => {
     await publishAdminConnectionCount()
 
     expect(mockBroadcast).toHaveBeenCalledTimes(1)
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<unknown[]>; buildPayload: (audience: unknown[]) => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -345,7 +348,7 @@ describe('ws/actions', () => {
 
     await publishAdminConnectionCount(['a2'])
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as
+    const call = broadcastConfigurations[0] as
       | { audience: () => Promise<Array<{ connectionId: string }>>; buildPayload: (audience: unknown[]) => unknown }
       | undefined
     expect(call).toBeTruthy()
@@ -397,7 +400,7 @@ describe('ws/actions', () => {
   it('send uses onGoneConnection handler to disconnect gone connection', async () => {
     await publishPublicConnectionCount()
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as { onGoneConnection: (id: string) => Promise<void> } | undefined
+    const call = broadcastConfigurations[0] as { onGoneConnection: (id: string) => Promise<void> } | undefined
     expect(call).toBeTruthy()
     if (!call) throw new Error('missing broadcast call')
 

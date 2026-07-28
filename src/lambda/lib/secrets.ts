@@ -71,7 +71,11 @@ const fetchAndUpdateParams = (names: string[], resolved: Record<string, string>)
     const response = await ssm.send(command)
     const params = response.Parameters ?? []
 
-    const paramMap = Object.fromEntries(params.map((p: Parameter) => [p.Name!, p.Value!]))
+    const paramMap = Object.fromEntries(
+      params.flatMap((parameter: Parameter) =>
+        parameter.Name === undefined || parameter.Value === undefined ? [] : [[parameter.Name, parameter.Value]]
+      )
+    )
 
     for (const name of names) {
       // Use empty string for missing parameters instead of undefined

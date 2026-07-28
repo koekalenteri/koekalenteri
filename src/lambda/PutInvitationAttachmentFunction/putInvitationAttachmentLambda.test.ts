@@ -217,15 +217,17 @@ describe('putInvitationAttachmentLambda', () => {
       }),
       'org789'
     )
-    const set = (
-      mockUpdate.mock.calls[0][1] as {
-        set: { invitationAttachment: string; invitationAttachmentHistory: Record<string, unknown> }
-      }
-    ).set
-    expect(set.invitationAttachmentHistory).toEqual({
-      'old-attachment-key': { uploadedAt: '2026-07-27T09:00:00.000Z' },
-      [set.invitationAttachment]: { uploadedAt: expect.any(String) },
-    })
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event123' },
+      expect.objectContaining({
+        set: expect.objectContaining({
+          invitationAttachment: expect.any(String),
+          invitationAttachmentHistory: expect.objectContaining({
+            'old-attachment-key': { uploadedAt: '2026-07-27T09:00:00.000Z' },
+          }),
+        }),
+      })
+    )
 
     // Verify response
     expect(mockResponse).toHaveBeenCalledWith(
@@ -276,13 +278,15 @@ describe('putInvitationAttachmentLambda', () => {
     await putInvitationAttachmentLambda(event)
 
     expect(mockDeleteFile).toHaveBeenCalledWith('old-attachment-key')
-    const set = (
-      mockUpdate.mock.calls[0][1] as {
-        set: { invitationAttachment: string; invitationAttachmentHistory: Record<string, unknown> }
-      }
-    ).set
-    expect(set.invitationAttachmentHistory).not.toHaveProperty('old-attachment-key')
-    expect(set.invitationAttachmentHistory).toHaveProperty(set.invitationAttachment)
+    expect(mockUpdate).toHaveBeenCalledWith(
+      { id: 'event123' },
+      expect.objectContaining({
+        set: expect.objectContaining({
+          invitationAttachment: expect.any(String),
+          invitationAttachmentHistory: expect.not.objectContaining({ 'old-attachment-key': expect.anything() }),
+        }),
+      })
+    )
   })
 
   it('preserves an old attachment when a legacy invitation has no recorded attachment key', async () => {

@@ -261,15 +261,14 @@ describe('RefundDialog', () => {
       // Check that the snackbar was called
       expect(enqueueSnackbarMock).toHaveBeenCalled()
 
-      // Check that the snackbar was called with an error message about refund balance
-      const firstArg = enqueueSnackbarMock.mock.calls[0][0]
-      expect(typeof firstArg).toBe('string')
-      expect(firstArg.includes('Palautettava määrä ylittää')).toBe(true)
-      expect(firstArg.includes('Palauttamatta:')).toBe(true)
-
-      // Check the second argument has the correct variant
-      const secondArg = enqueueSnackbarMock.mock.calls[0][1]
-      expect(secondArg).toEqual({ persist: true, variant: 'error' })
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringContaining('Palautettava määrä ylittää'), {
+        persist: true,
+        variant: 'error',
+      })
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith(expect.stringContaining('Palauttamatta:'), {
+        persist: true,
+        variant: 'error',
+      })
     })
   })
 

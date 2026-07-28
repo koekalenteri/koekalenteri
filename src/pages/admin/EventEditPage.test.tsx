@@ -80,10 +80,11 @@ describe('EventEditPage', () => {
     await flushPromises()
     expect(container).toMatchSnapshot()
     unmount()
-    expect(consoleDebug.mock.calls).toEqual([
-      ['ws:event-subscription mount', { eventId: eventWithStaticDates.id }],
-      ['ws:event-subscription cleanup', { eventId: eventWithStaticDates.id }],
-    ])
+    expect(consoleDebug).toHaveBeenCalledTimes(2)
+    expect(consoleDebug).toHaveBeenNthCalledWith(1, 'ws:event-subscription mount', { eventId: eventWithStaticDates.id })
+    expect(consoleDebug).toHaveBeenNthCalledWith(2, 'ws:event-subscription cleanup', {
+      eventId: eventWithStaticDates.id,
+    })
   })
 
   it('subscribes to event viewers and shows viewer notification', async () => {
@@ -119,9 +120,10 @@ describe('EventEditPage', () => {
     unmount()
 
     expect(mockUnsubscribeEvent).toHaveBeenCalledTimes(1)
-    expect(consoleDebug.mock.calls).toEqual([
-      ['ws:event-subscription mount', { eventId: eventWithStaticDates.id }],
-      ['ws:event-subscription cleanup', { eventId: eventWithStaticDates.id }],
-    ])
+    expect(consoleDebug).toHaveBeenCalledTimes(2)
+    expect(consoleDebug).toHaveBeenNthCalledWith(1, 'ws:event-subscription mount', { eventId: eventWithStaticDates.id })
+    expect(consoleDebug).toHaveBeenNthCalledWith(2, 'ws:event-subscription cleanup', {
+      eventId: eventWithStaticDates.id,
+    })
   })
 })

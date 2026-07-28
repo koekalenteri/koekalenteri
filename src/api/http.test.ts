@@ -28,8 +28,8 @@ describe('http', () => {
       const json = await http.get('/test/')
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls).toHaveLength(1)
-      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
     it('retries a failed network request once', async () => {
@@ -185,6 +185,7 @@ describe('http', () => {
 
     it('uses the configured default timeout', async () => {
       jest.useFakeTimers()
+      let fetchSignal: AbortSignal | null | undefined
       const originalTimeout = Object.getOwnPropertyDescriptor(process.env, 'REACT_APP_HTTP_TIMEOUT_MS')
       Object.defineProperty(process.env, 'REACT_APP_HTTP_TIMEOUT_MS', {
         configurable: true,
@@ -197,19 +198,19 @@ describe('http', () => {
         fetchMock.mockImplementationOnce(
           (_url, init) =>
             new Promise<Response>((_resolve, reject) => {
+              fetchSignal = init?.signal
               init?.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')))
             })
         )
 
         const promise = http.get('/test/')
         await Promise.resolve()
-        const signal = fetchMock.mock.calls[0][1]?.signal
         const expectation = expect(promise).rejects.toEqual(
           expect.objectContaining({ status: 408, statusText: `timeout loading ${API_BASE_URL}/test/` })
         )
 
         await jest.advanceTimersByTimeAsync(59)
-        expect(signal?.aborted).toBe(false)
+        expect(fetchSignal?.aborted).toBe(false)
 
         await jest.advanceTimersByTimeAsync(1)
         await expectation
@@ -272,8 +273,8 @@ describe('http', () => {
       const json = await http.post('/test/', {})
 
       expect(json).toEqual({ data: 'ok', status: 200 })
-      expect(fetchMock.mock.calls).toHaveLength(1)
-      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
     it('does not coalesce mutations', async () => {
@@ -306,8 +307,8 @@ describe('http', () => {
       const json = await http.postRaw('/test/', 'body')
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls).toHaveLength(1)
-      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
     it('should throw status + statusText', async () => {
@@ -333,8 +334,8 @@ describe('http', () => {
       const json = await http.put('/test/', {})
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls).toHaveLength(1)
-      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
     it('should throw status + statusText', async () => {
@@ -359,8 +360,8 @@ describe('http', () => {
       const json = await http.patch('/test/', {})
 
       expect(json).toEqual({ data: 'ok', status: 200 })
-      expect(fetchMock.mock.calls).toHaveLength(1)
-      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
     it('should throw status + statusText', async () => {
@@ -385,8 +386,8 @@ describe('http', () => {
       const json = await http.delete('/test/', {})
 
       expect(json).toEqual('ok')
-      expect(fetchMock.mock.calls).toHaveLength(1)
-      expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/test/`)
+      expect(fetchMock).toHaveBeenCalledTimes(1)
+      expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/test/`, expect.any(Object))
     })
 
     it('should throw status + statusText', async () => {

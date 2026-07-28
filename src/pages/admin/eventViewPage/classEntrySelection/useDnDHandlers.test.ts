@@ -107,11 +107,12 @@ describe('useDnDHandlers', () => {
 
       await result.current.handleDrop(mockGroup)(dragItem)
 
-      expect(mockConfirmWithStructure).toHaveBeenCalled()
-      expect(mockConfirmWithStructure.mock.calls[0][0]).toMatchObject({
-        description: expect.stringContaining('TestDog'),
-        title: expect.stringContaining('TestDog'),
-      })
+      expect(mockConfirmWithStructure).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: expect.stringContaining('TestDog'),
+          title: expect.stringContaining('TestDog'),
+        })
+      )
     })
 
     it('should not proceed if confirmation is cancelled', async () => {
@@ -155,8 +156,9 @@ describe('useDnDHandlers', () => {
 
       await result.current.handleDrop(mockGroup)(dragItem)
 
-      expect(mockConfirmWithStructure).toHaveBeenCalled()
-      expect(mockConfirmWithStructure.mock.calls[0][0].description).toContain('koekutsu')
+      expect(mockConfirmWithStructure).toHaveBeenCalledWith(
+        expect.objectContaining({ description: expect.stringContaining('koekutsu') })
+      )
     })
 
     it('should set selected registration ID', async () => {

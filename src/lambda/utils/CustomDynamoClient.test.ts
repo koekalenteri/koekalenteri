@@ -2,7 +2,11 @@ import type { TransactWriteItemWithoutTable } from './CustomDynamoClient'
 import { jest } from '@jest/globals'
 
 // Mock AWS SDK v3
-const mockSend = jest.fn<any>()
+let sentCommand: Record<string, any> | undefined
+const mockSend = jest.fn<any>((command: Record<string, any>) => {
+  sentCommand = command
+  return Promise.resolve({})
+})
 const mockDynamoDBClient = jest.fn().mockImplementation(() => ({
   send: mockSend,
 }))
@@ -56,7 +60,12 @@ describe('CustomDynamoClient', () => {
     jest.spyOn(console, 'info').mockImplementation(() => {})
     jest.spyOn(console, 'warn').mockImplementation(() => {})
     // Reset mockSend for each test
-    mockSend.mockReset()
+    mockSend.mockClear()
+    sentCommand = undefined
+    mockSend.mockImplementation((command: Record<string, any>) => {
+      sentCommand = command
+      return Promise.resolve({})
+    })
     mockDynamoDBClient.mockClear()
     mockFrom.mockClear()
   })
@@ -330,7 +339,10 @@ describe('CustomDynamoClient', () => {
   describe('write', () => {
     it('puts an item into the table', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockSend.mockResolvedValueOnce({})
+      mockSend.mockImplementationOnce((command: Record<string, any>) => {
+        sentCommand = command
+        return Promise.resolve({})
+      })
 
       const item = { id: '1', name: 'Test' }
       await client.write(item)
@@ -343,7 +355,10 @@ describe('CustomDynamoClient', () => {
 
     it('uses provided table name', async () => {
       const client = new CustomDynamoClient('DefaultTable')
-      mockSend.mockResolvedValueOnce({})
+      mockSend.mockImplementationOnce((command: Record<string, any>) => {
+        sentCommand = command
+        return Promise.resolve({})
+      })
 
       await client.write({ id: '1' }, 'CustomTable')
 
@@ -411,7 +426,9 @@ describe('CustomDynamoClient', () => {
           UpdateExpression: 'REMOVE #contactInfo.#secretary.#phone',
         })
       )
-      expect(mockSend.mock.calls[0]?.[0]).not.toHaveProperty('ExpressionAttributeValues')
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.not.objectContaining({ ExpressionAttributeValues: expect.anything() })
+      )
     })
 
     it('supports nested dot-path REMOVE operations with array index segments', async () => {
@@ -429,16 +446,22 @@ describe('CustomDynamoClient', () => {
           UpdateExpression: 'REMOVE #classes[0].#judge[0]',
         })
       )
-      expect(mockSend.mock.calls[0]?.[0]).not.toHaveProperty('ExpressionAttributeValues')
+      expect(mockSend).toHaveBeenCalledWith(
+        expect.not.objectContaining({ ExpressionAttributeValues: expect.anything() })
+      )
     })
 
     it('supports nested dot-path SET operations with date-string keys (regression: #2026-08-22 is invalid)', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockSend.mockResolvedValueOnce({})
+      mockSend.mockImplementationOnce((command: Record<string, any>) => {
+        sentCommand = command
+        return Promise.resolve({})
+      })
 
       await client.update({ id: '1' }, { set: { 'placesPerDay.2026-08-22': 1 } })
 
-      const call = mockSend.mock.calls[0]?.[0] as Record<string, any>
+      expect(mockSend).toHaveBeenCalledWith(expect.any(Object))
+      const call = sentCommand as Record<string, any>
       // All ExpressionAttributeNames keys must start with a letter or underscore after '#'
       for (const key of Object.keys(call.ExpressionAttributeNames ?? {})) {
         expect(key).toMatch(/^#[a-zA-Z_]/)
@@ -647,7 +670,10 @@ describe('CustomDynamoClient', () => {
 
     it('does not include unused duplicate-key entries in ExpressionAttributeNames (regression)', async () => {
       const client = new CustomDynamoClient('TestTable')
-      mockSend.mockResolvedValueOnce({})
+      mockSend.mockImplementationOnce((command: Record<string, any>) => {
+        sentCommand = command
+        return Promise.resolve({})
+      })
 
       // Mirrors a real update payload that previously triggered:
       //   "Value provided in ExpressionAttributeNames unused in expressions:
@@ -680,7 +706,8 @@ describe('CustomDynamoClient', () => {
         }
       )
 
-      const call = mockSend.mock.calls[0]?.[0] as Record<string, any>
+      expect(mockSend).toHaveBeenCalledWith(expect.any(Object))
+      const call = sentCommand as Record<string, any>
       const updateExpression: string = call.UpdateExpression
       const names: Record<string, string> = call.ExpressionAttributeNames
 

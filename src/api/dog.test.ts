@@ -24,42 +24,49 @@ describe('getDog', () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
     const dog = await getDog('testReg')
     expect(dog.regNo).toEqual('testReg')
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/testReg`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/dog/testReg`, expect.any(Object))
   })
 
   it('should fetch dog with refresh', async () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
     const dog = await getDog('testReg2', true)
     expect(dog.regNo).toEqual('testReg')
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/testReg2?refresh`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/dog/testReg2?refresh`, expect.any(Object))
   })
 
   it('should encode regNo', async () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
     await getDog('test/Reg')
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/test~Reg`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/dog/test~Reg`, expect.any(Object))
   })
 
   it('should encode regNo with multiple slashes', async () => {
     fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
     await getDog('test/Reg/2')
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/dog/test~Reg~2`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/dog/test~Reg~2`, expect.any(Object))
   })
 
   it('should pass signal to fetch', async () => {
-    fetchMock.mockResponse(JSON.stringify({ regNo: 'testReg' }))
+    let fetchSignal: AbortSignal | null | undefined
+    fetchMock.mockImplementationOnce((_url, init) => {
+      fetchSignal = init?.signal
+      return Promise.resolve(new Response(JSON.stringify({ regNo: 'testReg' })))
+    })
     const controller = new AbortController()
     await getDog('testReg', false, controller.signal)
-    expect(fetchMock.mock.calls).toHaveLength(1)
-    const fetchOptions = fetchMock.mock.calls[0][1]
-    expect(fetchOptions?.signal).toBeDefined()
-    expect(fetchOptions?.signal?.aborted).toBe(false)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_BASE_URL}/dog/testReg`,
+      expect.objectContaining({ signal: expect.any(AbortSignal) })
+    )
+    expect(fetchSignal).toBeDefined()
+    expect(fetchSignal?.aborted).toBe(false)
     controller.abort()
-    expect(fetchOptions?.signal?.aborted).toBe(true)
+    expect(fetchSignal?.aborted).toBe(true)
   })
 
   it('should show a connection recovery message and throw when fetch fails', async () => {

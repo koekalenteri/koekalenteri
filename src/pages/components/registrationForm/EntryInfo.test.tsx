@@ -334,8 +334,8 @@ describe('EntryInfo', () => {
     await flushPromises()
 
     // eventWithStaticDatesAnd3Classes has ALO/AVO/VOI in this project mock data
-    expect(changeHandler).toHaveBeenCalledWith(expect.objectContaining({ class: expect.any(String) }))
-    const calledWith = changeHandler.mock.calls.find((c) => c[0]?.class)?.[0]
-    expect(['ALO', 'AVO', 'VOI']).toContain(calledWith.class)
+    expect(changeHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ class: expect.stringMatching(/^(ALO|AVO|VOI)$/) })
+    )
   })
 })

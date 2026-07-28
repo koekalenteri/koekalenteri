@@ -30,3 +30,11 @@
 - Validate types and run tests after changes
 - Backend tests: `npm run test-backend`
 - UI changes should follow existing styling conventions
+- In Jest mock assertions, prefer call matchers such as `toHaveBeenCalledWith`,
+  `toHaveBeenNthCalledWith`, and `toHaveBeenCalledTimes` over reading
+  `mock.calls` directly.
+- Do not use type assertions (especially `as any` or `as unknown as`) to silence
+  errors in production or test code. Model values and mocks with their real
+  signatures, narrow unknown values safely, or express behavior directly with
+  Jest matchers. Any unavoidable boundary conversion needs a specific comment
+  explaining why it is safe.

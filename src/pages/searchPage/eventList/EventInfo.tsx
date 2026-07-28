@@ -51,7 +51,7 @@ export const EventInfo = ({ event }: Props) => {
       <ItemWithCaption label={t('entryTime')} order={{ xs: 1 }}>
         {t('dateFormat.datespan', { end: event.entryEndDate, start: event.entryStartDate })}
         <EntryStatus event={event} />
-        {isEntryOpen(event) ? <TimeLeft date={zonedEndOfDay(event.entryEndDate!)} /> : ''}
+        {isEntryOpen(event) && event.entryEndDate ? <TimeLeft date={zonedEndOfDay(event.entryEndDate)} /> : ''}
       </ItemWithCaption>
       {classes.length ? (
         <ItemWithCaption

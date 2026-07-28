@@ -239,7 +239,7 @@ describe('paymentSuccessLambda', () => {
     // Verify registration was retrieved
     expect(mockGetRegistration).toHaveBeenCalledWith('event123', 'reg456')
 
-    expect(mockUpdate.mock.calls).toContainEqual(phaseUpdate('postPaymentProcessedAt'))
+    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
 
     // Verify event registrations were updated
     expect(mockUpdateRegistrations).toHaveBeenCalledWith('event123')
@@ -379,7 +379,7 @@ describe('paymentSuccessLambda', () => {
     expect(mockPublishRegistrationPatches).toHaveBeenCalled()
     expect(mockSendTemplatedMail).toHaveBeenCalled()
     expect(mockAudit).toHaveBeenCalled()
-    expect(mockUpdate.mock.calls).toContainEqual(phaseUpdate('postPaymentProcessedAt'))
+    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('postPaymentProcessedAt'))
 
     // Verify response was returned
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
@@ -491,7 +491,7 @@ describe('paymentSuccessLambda', () => {
 
     // The completed marker is intentionally absent, so the provider retry
     // sends the receipt again.
-    expect(mockUpdate.mock.calls).not.toContainEqual(phaseUpdate('receiptSentAt'))
+    expect(mockUpdate).not.toHaveBeenCalledWith(...phaseUpdate('receiptSentAt'))
     expect(mockResponse).not.toHaveBeenCalled()
   })
 
@@ -517,7 +517,7 @@ describe('paymentSuccessLambda', () => {
       expect.any(Object),
       expect.any(Array)
     )
-    expect(mockUpdate.mock.calls).toContainEqual(phaseUpdate('receiptSentAt'))
+    expect(mockUpdate).toHaveBeenCalledWith(...phaseUpdate('receiptSentAt'))
   })
 
   it('uses the payment-time receipt balances after later payments changed the registration total', async () => {

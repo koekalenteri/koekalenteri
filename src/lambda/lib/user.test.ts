@@ -529,7 +529,11 @@ describe('lib/user', () => {
 
   describe('updateUsersFromOfficialsOrJudges', () => {
     const mockReadAll = jest.fn<CustomDynamoClient['readAll']>().mockResolvedValue([])
-    const mockBatchWrite = jest.fn<CustomDynamoClient['batchWrite']>()
+    let batchWriteArguments: Parameters<CustomDynamoClient['batchWrite']> | undefined
+    const mockBatchWrite = jest.fn<CustomDynamoClient['batchWrite']>((...args) => {
+      batchWriteArguments = args
+      return Promise.resolve(undefined)
+    })
     const mockDB = {
       batchWrite: mockBatchWrite,
       readAll: mockReadAll,
@@ -564,7 +568,7 @@ describe('lib/user', () => {
 
       expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      const written = mockBatchWrite.mock.calls[0]?.[0] as JsonUser[]
+      const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
       expect(written.map((u) => u.kcId).sort()).toEqual([222, 333])
       expect(written.find((u) => u.kcId === 222)).toEqual(
@@ -587,7 +591,7 @@ describe('lib/user', () => {
           phone: 'phone',
         })
       )
-      expect(mockBatchWrite.mock.calls[0]?.[1]).toBe('user-table-not-found-in-env')
+      expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(logSpy).toHaveBeenCalledWith('creating user from item: surname firstname, email: other@example.com')
     })
@@ -724,7 +728,7 @@ describe('lib/user', () => {
 
       expect(mockReadAll).toHaveBeenCalledWith('user-table-not-found-in-env')
       expect(mockReadAll).toHaveBeenCalledTimes(1)
-      const written = mockBatchWrite.mock.calls[0]?.[0] as JsonUser[]
+      const written = batchWriteArguments?.[0] as JsonUser[]
       expect(written).toHaveLength(2)
       expect(written.map((u) => u.kcId).sort()).toEqual([222, 333])
       expect(written.find((u) => u.kcId === 222)).toEqual(
@@ -748,7 +752,7 @@ describe('lib/user', () => {
           phone: 'phone',
         })
       )
-      expect(mockBatchWrite.mock.calls[0]?.[1]).toBe('user-table-not-found-in-env')
+      expect(batchWriteArguments?.[1]).toBe('user-table-not-found-in-env')
       expect(mockBatchWrite).toHaveBeenCalledTimes(1)
       expect(logSpy).toHaveBeenCalledWith('creating user from item: surname firstname, email: other@example.com')
     })
@@ -863,7 +867,7 @@ describe('lib/user', () => {
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
 
       // Users are written back: canonical merged + updated, dupe cleared.
-      const writeItems = mockBatchWrite.mock.calls[0]?.[0] as JsonUser[]
+      const writeItems = batchWriteArguments?.[0] as JsonUser[]
       // Canonical selection is based on scoring (roles/admin/officer/judge/etc),
       // so don't hardcode which of the two becomes canonical.
       const writtenCanonical = writeItems.find((u) => u.id === 'dupe')
@@ -906,7 +910,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
 
-      const writeItems = mockBatchWrite.mock.calls[0]?.[0] as JsonUser[]
+      const writeItems = batchWriteArguments?.[0] as JsonUser[]
       expect(writeItems).toHaveLength(1)
       expect(writeItems[0]).toEqual(
         expect.objectContaining({
@@ -975,7 +979,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges(mockDB, [official], 'officer')
 
-      const writeItems = mockBatchWrite.mock.calls[0]?.[0] as JsonUser[]
+      const writeItems = batchWriteArguments?.[0] as JsonUser[]
       expect(writeItems).toHaveLength(1)
       expect(writeItems[0].id).toBe('by-email')
       expect(writeItems[0].kcId).toBe(333)
@@ -1034,13 +1038,15 @@ describe('lib/user', () => {
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
 
       expect(mockEventUpdate).toHaveBeenCalledTimes(1)
-      const [, updateSpec] = mockEventUpdate.mock.calls[0] as any
-      expect(updateSpec.set.official.id).toBeDefined()
-      expect(updateSpec.set.secretary).toEqual(
+      expect(mockEventUpdate).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
-          id: expect.any(String),
-          name: 'Official Person',
-        })
+          set: expect.objectContaining({
+            official: expect.objectContaining({ id: expect.any(String) }),
+            secretary: expect.objectContaining({ id: expect.any(String), name: 'Official Person' }),
+          }),
+        }),
+        expect.any(String)
       )
     })
 
@@ -1096,15 +1102,16 @@ describe('lib/user', () => {
       await updateUsersFromOfficialsOrJudges(mockDB, [fromKl], 'officer')
 
       expect(mockEventUpdate).toHaveBeenCalledTimes(1)
-      const [, updateSpec] = mockEventUpdate.mock.calls[0] as any
-      expect(updateSpec.set.official).toEqual(
+      expect(mockEventUpdate).toHaveBeenCalledWith(
+        expect.anything(),
         expect.objectContaining({
-          id: expect.any(String),
-          name: 'Official Person',
-        })
+          set: expect.objectContaining({
+            official: expect.objectContaining({ id: 'dupe', name: 'Official Person' }),
+            secretary: undefined,
+          }),
+        }),
+        expect.any(String)
       )
-      expect(updateSpec.set.official.id).toBe('dupe')
-      expect(updateSpec.set.secretary).toBeUndefined()
     })
 
     it('keeps flow stable when only secretary candidate would be remapped', async () => {
@@ -1214,7 +1221,7 @@ describe('lib/user', () => {
 
       await updateUsersFromOfficialsOrJudges(mockDB, [invalidNew, validExistingMatch], 'officer')
 
-      const writeItems = mockBatchWrite.mock.calls[0]?.[0] as JsonUser[]
+      const writeItems = batchWriteArguments?.[0] as JsonUser[]
       expect(writeItems).toHaveLength(1)
       expect(writeItems[0]).toEqual(
         expect.objectContaining({

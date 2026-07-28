@@ -51,7 +51,10 @@ describe('DayPlacesTable', () => {
   })
 
   it('should call handleDayPlacesChange when day places are changed', async () => {
-    const handleDayPlacesChange = jest.fn()
+    let changedDate: Date | undefined
+    const handleDayPlacesChange = jest.fn((date) => {
+      changedDate = date
+    })
     const handlePlacesChange = jest.fn()
 
     const { user } = renderWithUserEvents(
@@ -77,8 +80,11 @@ describe('DayPlacesTable', () => {
     await user.type(inputs[0], '8')
     await flushPromises()
 
-    expect(handleDayPlacesChange).toHaveBeenCalledWith(expect.any(Date), 8)
-    expect(handleDayPlacesChange.mock.calls[0][0].toISOString().split('T')[0]).toBe('2021-02-10')
+    expect(handleDayPlacesChange).toHaveBeenCalledWith(
+      expect.objectContaining({ toISOString: expect.any(Function) }),
+      8
+    )
+    expect(changedDate?.toISOString().split('T')[0]).toBe('2021-02-10')
   })
 
   it('should call handlePlacesChange when total places are changed', async () => {

@@ -253,7 +253,7 @@ describe('useAdminRegistrationActions', () => {
     })
 
     expect(putGroups).toHaveBeenCalledTimes(2)
-    expect(putGroups.mock.calls[1][1]).toEqual([queuedMove])
+    expect(putGroups).toHaveBeenNthCalledWith(2, expect.any(String), [queuedMove], expect.anything())
   })
 
   it('refreshes authoritative registrations after a group move failure', async () => {

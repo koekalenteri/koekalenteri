@@ -4,10 +4,20 @@ import { jest } from '@jest/globals'
 
 const mockQuery = jest.fn<any>()
 const mockRead = jest.fn<any>()
-const mockUpdate = jest.fn<CustomDynamoClient['update']>()
+const updateResult: Awaited<ReturnType<CustomDynamoClient['update']>> = { $metadata: {} }
+const updateCalls: Parameters<CustomDynamoClient['update']>[] = []
+const mockUpdate = jest.fn<CustomDynamoClient['update']>((...args) => {
+  updateCalls.push(args)
+  return Promise.resolve(updateResult)
+})
 const mockWrite = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
-const mockDocumentTransaction = jest.fn<CustomDynamoClient['documentTransaction']>()
+const transactionResult: Awaited<ReturnType<CustomDynamoClient['documentTransaction']>> = { $metadata: {} }
+let documentTransaction: Parameters<CustomDynamoClient['documentTransaction']>[0] | undefined
+const mockDocumentTransaction = jest.fn<CustomDynamoClient['documentTransaction']>((transaction) => {
+  documentTransaction = transaction
+  return Promise.resolve(transactionResult)
+})
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   __esModule: true,
@@ -40,6 +50,8 @@ const {
 
 describe('lib/stats', () => {
   afterEach(() => {
+    documentTransaction = undefined
+    updateCalls.length = 0
     jest.clearAllMocks()
     jest.restoreAllMocks()
   })
@@ -66,7 +78,9 @@ describe('lib/stats', () => {
       await applyNewRegistrationStatsOnce(registration, event, 'lease-token')
 
       expect(mockDocumentTransaction).toHaveBeenCalledTimes(1)
-      const transaction = mockDocumentTransaction.mock.calls[0][0]
+      expect(mockDocumentTransaction).toHaveBeenCalledWith(expect.any(Array))
+      if (!documentTransaction) throw new Error('Expected a transaction')
+      const transaction = documentTransaction
       expect(transaction).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -797,7 +811,7 @@ describe('lib/stats', () => {
       expect(mockUpdate).toHaveBeenCalledTimes(13) // 6 entity types * 2 calls per type (entity + total) + handler#dog
 
       // Verify calls for each entity type
-      const pkCalls = mockUpdate.mock.calls.map((call) => call[0].PK)
+      const pkCalls = updateCalls.map((call) => call[0].PK)
 
       expect(pkCalls).toContain('STAT#2024#eventType')
       expect(pkCalls).toContain('STAT#2024#dog')
@@ -807,7 +821,7 @@ describe('lib/stats', () => {
       expect(pkCalls).toContain('STAT#2024#dog#handler')
 
       // Verify the SK values for each entity type
-      const skValues = mockUpdate.mock.calls.map((call) => call[0].SK)
+      const skValues = updateCalls.map((call) => call[0].SK)
 
       expect(skValues).toContain('NOME')
       expect(skValues).toContain(hashedRegNo)
@@ -832,10 +846,10 @@ describe('lib/stats', () => {
       await updateYearlyParticipationStats(registration, 2024)
 
       // Find the call for breed
-      const breedCall = mockUpdate.mock.calls.find((call) => call[0].PK === 'STAT#2024#breed')
+      const breedCall = updateCalls.find((call) => call[0].PK === 'STAT#2024#breed')
 
       // Find the call for dog#handler to verify hashed email is used
-      const dogHandlerCall = mockUpdate.mock.calls.find((call) => call[0].PK === 'STAT#2024#dog#handler')
+      const dogHandlerCall = updateCalls.find((call) => call[0].PK === 'STAT#2024#dog#handler')
 
       expect(breedCall?.[0].SK).toBe('unknown')
       expect(dogHandlerCall?.[0].SK).toBe(`${hashedRegNo}#${hashedHandlerEmail}`)
@@ -874,7 +888,7 @@ describe('lib/stats', () => {
 
       await updateYearlyParticipationStats(updatedRegistration, 2024, existingRegistration)
 
-      const entityUpdates = mockUpdate.mock.calls
+      const entityUpdates = updateCalls
         .filter(([key]) => key.PK.startsWith('STAT#2024#'))
         .map(([key, updates]) => ({ count: updates.add?.count, key }))
 

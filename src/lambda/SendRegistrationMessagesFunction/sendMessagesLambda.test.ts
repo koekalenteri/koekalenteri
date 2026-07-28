@@ -402,6 +402,14 @@ describe('sendMessagesLambda', () => {
   })
 
   it('does not return or broadcast registration workflow state', async () => {
+    let published: Array<Record<string, unknown>> = []
+    let returned: Array<Record<string, unknown>> = []
+    mockPublishRegistrationPatches.mockImplementation((_eventId: string, patches: Array<Record<string, unknown>>) => {
+      published = patches
+    })
+    mockResponse.mockImplementation((_status: number, body: { registrations: Array<Record<string, unknown>> }) => {
+      returned = body.registrations
+    })
     mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
       {
         ...mockRegistrations[0],
@@ -414,8 +422,12 @@ describe('sendMessagesLambda', () => {
 
     await sendMessagesLambda(event)
 
-    const published = mockPublishRegistrationPatches.mock.calls[0][1] as Array<Record<string, unknown>>
-    const returned = (mockResponse.mock.calls[0][1] as { registrations: Array<Record<string, unknown>> }).registrations
+    expect(mockPublishRegistrationPatches).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Array),
+      expect.any(String)
+    )
+    expect(mockResponse).toHaveBeenCalledWith(expect.any(Number), expect.any(Object), expect.anything())
     for (const registration of [...published, ...returned]) {
       expect(registration).not.toHaveProperty('creationIdempotencyKey')
       expect(registration).not.toHaveProperty('newRegistrationLease')

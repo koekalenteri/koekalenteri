@@ -40,8 +40,14 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
     })
     Object.defineProperty(navigator, 'serviceWorker', { configurable: true, value: serviceWorker })
 
-    const enqueueSnackbar = jest.fn()
-    mockUseSnackbar.mockReturnValue({ closeSnackbar: jest.fn(), enqueueSnackbar })
+    let snackbarOptions: { action?: unknown } | undefined
+    const enqueueSnackbar = jest.fn((_message, options) => {
+      snackbarOptions = options
+    })
+    mockUseSnackbar.mockReturnValue({
+      closeSnackbar: jest.fn(),
+      enqueueSnackbar: enqueueSnackbar as unknown as ReturnType<typeof useSnackbar>['enqueueSnackbar'],
+    })
     mockUseTranslation.mockReturnValue({ t: (key: string) => key } as ReturnType<typeof useTranslation>)
 
     render(<ServiceWorkerUpdateNotifier />)
@@ -50,10 +56,9 @@ describe('ServiceWorkerUpdateNotifier integration', () => {
 
     await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalledWith('app.updateAvailable', expect.any(Object)))
 
-    const options = enqueueSnackbar.mock.calls[0][1]
-    if (typeof options?.action !== 'function') throw new Error('Expected the update snackbar to have an action')
+    if (typeof snackbarOptions?.action !== 'function') throw new Error('Expected the update snackbar to have an action')
 
-    render(<>{options.action('service-worker-update')}</>)
+    render(<>{snackbarOptions.action('service-worker-update')}</>)
     fireEvent.click(screen.getByRole('button', { name: 'app.reload' }))
 
     expect(waitingWorker.postMessage).toHaveBeenCalledWith({ type: 'SKIP_WAITING' })

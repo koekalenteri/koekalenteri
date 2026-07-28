@@ -31,7 +31,10 @@ const makeEffect = (fetch = jest.fn<any>()) => {
     cacheKey: 'judges',
     fetch,
   })
-  const setSelf = jest.fn<any>()
+  let promise: Promise<string[]> | undefined
+  const setSelf = jest.fn<any>((value: Promise<string[]>) => {
+    promise = value
+  })
   const getPromise = jest.fn<any>((recoilValue: unknown) => {
     if (recoilValue === validIdTokenSelector) return Promise.resolve('token')
     if (recoilValue === userSelector) {
@@ -51,7 +54,8 @@ const makeEffect = (fetch = jest.fn<any>()) => {
 
   effect({ getPromise, setSelf, trigger: 'get' } as any)
 
-  return { fetch, promise: setSelf.mock.calls[0][0] as Promise<string[]>, setSelf }
+  expect(setSelf).toHaveBeenCalledWith(expect.any(Promise))
+  return { fetch, promise: promise as Promise<string[]>, setSelf }
 }
 
 describe('createCachedRemoteCollectionEffect', () => {

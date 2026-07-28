@@ -23,18 +23,18 @@ describe('incremental admin collections', () => {
     await getEventTypes('token', false, undefined, since)
     await getEmailTemplates('token', undefined, since)
 
-    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
-      `${API_BASE_URL}/admin/user?since=123`,
-      `${API_BASE_URL}/admin/judge/?since=123`,
-      `${API_BASE_URL}/admin/official/?since=123`,
-      `${API_BASE_URL}/admin/eventType/?since=123`,
-      `${API_BASE_URL}/admin/email-templates?since=123`,
-    ])
+    expect(fetchMock).toHaveBeenCalledTimes(5)
+    expect(fetchMock).toHaveBeenNthCalledWith(1, `${API_BASE_URL}/admin/user?since=123`, expect.any(Object))
+    expect(fetchMock).toHaveBeenNthCalledWith(2, `${API_BASE_URL}/admin/judge/?since=123`, expect.any(Object))
+    expect(fetchMock).toHaveBeenNthCalledWith(3, `${API_BASE_URL}/admin/official/?since=123`, expect.any(Object))
+    expect(fetchMock).toHaveBeenNthCalledWith(4, `${API_BASE_URL}/admin/eventType/?since=123`, expect.any(Object))
+    expect(fetchMock).toHaveBeenNthCalledWith(5, `${API_BASE_URL}/admin/email-templates?since=123`, expect.any(Object))
   })
 
   it('combines refresh and since parameters', async () => {
     await getJudges('token', true, undefined, new Date(123))
 
-    expect(fetchMock.mock.calls[0][0]).toEqual(`${API_BASE_URL}/admin/judge/?refresh&since=123`)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(`${API_BASE_URL}/admin/judge/?refresh&since=123`, expect.any(Object))
   })
 })

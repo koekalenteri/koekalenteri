@@ -1,6 +1,10 @@
 import { jest } from '@jest/globals'
 
-const mockBroadcast = jest.fn<any>().mockResolvedValue({ attempted: 0, failed: 0, gone: 0, sent: 0 })
+let broadcastConfiguration: unknown
+const mockBroadcast = jest.fn<any>((configuration: unknown) => {
+  broadcastConfiguration = configuration
+  return Promise.resolve({ attempted: 0, failed: 0, gone: 0, sent: 0 })
+})
 const mockRemoveConnection = jest.fn<any>()
 const mockEventSubscriberAudience = jest.fn<any>().mockResolvedValue([])
 
@@ -11,7 +15,10 @@ jest.unstable_mockModule('./connectionSelectors', () => ({ eventSubscriberAudien
 const { publishAuditRecord } = await import('./auditPublisher')
 
 describe('ws/auditPublisher', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => {
+    broadcastConfiguration = undefined
+    jest.clearAllMocks()
+  })
 
   it.each([
     ['event:event-1', 'event-1'],
@@ -21,7 +28,10 @@ describe('ws/auditPublisher', () => {
 
     await publishAuditRecord(record)
 
-    const call = mockBroadcast.mock.calls[0]?.[0] as {
+    expect(mockBroadcast).toHaveBeenCalledWith(
+      expect.objectContaining({ audience: expect.any(Function), buildPayload: expect.any(Function) })
+    )
+    const call = broadcastConfiguration as {
       audience: () => Promise<unknown[]>
       buildPayload: () => unknown
     }

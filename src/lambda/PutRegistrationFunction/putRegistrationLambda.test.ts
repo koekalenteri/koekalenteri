@@ -1267,20 +1267,17 @@ describe('putRegistrationLabmda', () => {
     // ensure patchRegistration received payment fields preserved from existing, not client-supplied values
     expect(mockPatchRegistration).toHaveBeenCalledTimes(1)
     expect(mockSaveRegistration).not.toHaveBeenCalled()
-    const savedArg = mockPatchRegistration.mock.calls[0][3]
-
-    // allowed field updated
-    expect(savedArg.notes).toEqual('legit note change')
-
-    // payment fields preserved
-    expect(savedArg.paymentStatus).toEqual(existingJson.paymentStatus)
-    expect(savedArg.paidAmount).toEqual(existingJson.paidAmount)
-    expect(savedArg.paidAt).toEqual(existingJson.paidAt)
-
-    // and not equal to client-supplied values
-    expect(savedArg.paymentStatus).not.toEqual(maliciousUpdate.paymentStatus)
-    expect(savedArg.paidAmount).not.toEqual(maliciousUpdate.paidAmount)
-    expect(savedArg.paidAt).not.toEqual(maliciousUpdate.paidAt)
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({
+        notes: 'legit note change',
+        paidAmount: existingJson.paidAmount,
+        paidAt: existingJson.paidAt,
+        paymentStatus: existingJson.paymentStatus,
+      })
+    )
   })
 
   it('derives qualification on the backend while preserving a valid selected cost', async () => {
@@ -1299,9 +1296,11 @@ describe('putRegistrationLabmda', () => {
     )
 
     expect(res.statusCode).toBe(200)
-    const saved = mockPatchRegistration.mock.calls[0][3]
-    expect(saved.qualifies).toBe(true)
-    expect(saved.qualifyingResults).toEqual([])
-    expect(saved.selectedCost).toBe('normal')
+    expect(mockPatchRegistration).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ qualifies: true, qualifyingResults: [], selectedCost: 'normal' })
+    )
   })
 })

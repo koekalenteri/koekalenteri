@@ -23,7 +23,9 @@ const getJwtPayload = (token: string): JwtPayload | undefined => {
 const tokenFingerprint = (token: string): string => {
   let hash = 0x811c9dc5
   for (let i = 0; i < token.length; i++) {
-    hash ^= token.codePointAt(i)!
+    const codePoint = token.codePointAt(i)
+    if (codePoint === undefined) continue
+    hash ^= codePoint
     hash = Math.imul(hash, 0x01000193)
   }
   return (hash >>> 0).toString(16).padStart(8, '0')

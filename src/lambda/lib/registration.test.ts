@@ -629,10 +629,10 @@ describe('registration', () => {
       })
 
       // Check that messagesSent was not updated for the failed email
-      const messagesSentUpdates = mockDynamoDB.update.mock.calls.filter(
-        (call) => call[0].id === 'reg-2' && call[1].set && call[1].set.messagesSent
+      expect(mockDynamoDB.update).not.toHaveBeenCalledWith(
+        { id: 'reg-2' },
+        expect.objectContaining({ set: expect.objectContaining({ messagesSent: expect.anything() }) })
       )
-      expect(messagesSentUpdates).toHaveLength(0)
       expect(errorSpy).toHaveBeenCalledTimes(1)
     })
 

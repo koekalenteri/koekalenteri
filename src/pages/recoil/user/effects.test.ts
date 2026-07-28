@@ -16,11 +16,14 @@ describe('user/effects', () => {
   })
 
   it('logs id token changes without exposing either token', () => {
-    const onSet = jest.fn()
+    let callback: (next: string, previous: string, reset: boolean) => void = () => undefined
+    const onSet = jest.fn((value) => {
+      callback = value
+    })
     const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => undefined)
     jest.spyOn(envLib, 'isDevEnv').mockReturnValue(true)
     idTokenLogEffect({ onSet } as never)
-    const callback = onSet.mock.calls[0][0]
+    expect(onSet).toHaveBeenCalledWith(expect.any(Function))
 
     callback('new-token', 'old-token', false)
 
@@ -29,7 +32,9 @@ describe('user/effects', () => {
       previous: expect.objectContaining({ fingerprint: expect.any(String) }),
       reset: false,
     })
-    expect(JSON.stringify(debugSpy.mock.calls.at(-1))).not.toContain('new-token')
-    expect(JSON.stringify(debugSpy.mock.calls.at(-1))).not.toContain('old-token')
+    expect(debugSpy).toHaveBeenCalledWith(
+      'auth: id token changed',
+      expect.not.objectContaining({ next: 'new-token', previous: 'old-token' })
+    )
   })
 })

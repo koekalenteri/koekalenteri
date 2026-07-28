@@ -38,7 +38,10 @@ describe('adminRemoteEventsEffect', () => {
     )
     jest.mocked(getAdminEvents).mockResolvedValueOnce([added])
 
-    const setSelf = jest.fn()
+    let setSelfValue: Promise<DogEvent[]> | undefined
+    const setSelf = jest.fn((value) => {
+      setSelfValue = value
+    })
     const getPromise = jest.fn((value) => {
       if (value === validIdTokenSelector) return Promise.resolve('token')
       if (value === userSelector) return Promise.resolve(user)
@@ -46,7 +49,8 @@ describe('adminRemoteEventsEffect', () => {
     })
     adminRemoteEventsEffect({ getPromise, node: { key: 'adminEvents' }, setSelf, trigger: 'get' } as never)
 
-    await expect(setSelf.mock.calls[0][0]).resolves.toEqual([added, cached])
+    expect(setSelf).toHaveBeenCalledWith(expect.any(Promise))
+    await expect(setSelfValue).resolves.toEqual([added, cached])
     expect(getAdminEvents).toHaveBeenCalledWith('token', Date.parse('2026-01-02T00:00:00.000Z'))
   })
 
@@ -55,7 +59,10 @@ describe('adminRemoteEventsEffect', () => {
     sessionStorage.setItem('adminEvents:scope', JSON.stringify({ admin: false, id: 'another-user', roles: [] }))
     jest.mocked(getAdminEvents).mockResolvedValueOnce([])
 
-    const setSelf = jest.fn()
+    let setSelfValue: Promise<DogEvent[]> | undefined
+    const setSelf = jest.fn((value) => {
+      setSelfValue = value
+    })
     const getPromise = jest.fn((value) => {
       if (value === validIdTokenSelector) return Promise.resolve('token')
       if (value === userSelector) return Promise.resolve({ admin: true, id: 'user-1' })
@@ -63,7 +70,8 @@ describe('adminRemoteEventsEffect', () => {
     })
     adminRemoteEventsEffect({ getPromise, node: { key: 'adminEvents' }, setSelf, trigger: 'get' } as never)
 
-    await expect(setSelf.mock.calls[0][0]).resolves.toEqual([])
+    expect(setSelf).toHaveBeenCalledWith(expect.any(Promise))
+    await expect(setSelfValue).resolves.toEqual([])
     expect(getAdminEvents).toHaveBeenCalledWith('token', undefined)
   })
 })

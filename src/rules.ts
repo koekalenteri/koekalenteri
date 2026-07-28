@@ -29,7 +29,9 @@ export function getRuleDate(date: Date | string, available: Readonly<RuleDate[]>
       return available[i - 1]
     }
   }
-  return available.at(-1)!
+  const latestRuleDate = available.at(-1)
+  if (!latestRuleDate) throw new Error('At least one rule date is required')
+  return latestRuleDate
 }
 
 const validateDogForSM = (dog: Partial<Dog>) =>

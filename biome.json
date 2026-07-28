@@ -36,7 +36,22 @@
       "correctness": {
         "noUnusedImports": "error"
       },
-      "preset": "recommended"
+      "preset": "recommended",
+      "style": {
+        "noNonNullAssertion": "error"
+      }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.test.ts", "**/*.test.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noNonNullAssertion": "off"
+          }
+        }
+      }
+    }
+  ]
 }
