@@ -277,6 +277,7 @@
       "hide": "Hide start list",
       "preview": "View public start list",
       "publish": "Publish start list",
+      "published": "Start list published",
       "publishing": "Start list publishing",
       "saveFailed": "Saving the start list publication status failed. Try again.",
       "secretary": "Secretary's start list"

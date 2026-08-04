@@ -84,9 +84,16 @@ const StartListPublishing = ({
               return (
                 <TableRow key={className}>
                   <TableCell align="left">
-                    <Typography variant="caption" noWrap fontWeight="bold" ml={2}>
-                      {className}
-                    </Typography>
+                    <Box ml={2}>
+                      <Typography variant="caption" noWrap fontWeight="bold">
+                        {className}
+                      </Typography>
+                      {startListPublished && (
+                        <Typography variant="caption" color="info.main" display="block">
+                          {t('eventManagement.startList.published')}
+                        </Typography>
+                      )}
+                    </Box>
                   </TableCell>
                   <TableCell align="right">
                     <Button
