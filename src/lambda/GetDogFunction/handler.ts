@@ -84,7 +84,12 @@ const readParentFromKlapi = async (klapi: KLAPI, id: number): Promise<{ name: st
     true
   )
   if (parent.status === 200 && parent.json?.rekisterinumero) {
-    return { name: `${parent.json.tittelit} ${parent.json.nimi}` }
+    return {
+      name: [parent.json.tittelit, parent.json.nimi]
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .join(' '),
+    }
   }
   return undefined
 }

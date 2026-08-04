@@ -531,17 +531,17 @@ describe('getDogHandler', () => {
       })
       .mockResolvedValueOnce({
         json: {
-          nimi: 'Sire Name',
+          nimi: ' Sire Name ',
           rekisterinumero: 'FI99999/20',
-          tittelit: 'CH',
+          tittelit: ' CH ',
         } as KLKoira,
         status: 200,
       })
       .mockResolvedValueOnce({
         json: {
-          nimi: 'Dam Name',
+          nimi: ' Dam Name ',
           rekisterinumero: 'FI88888/19',
-          tittelit: 'INT CH',
+          tittelit: ' ',
         } as KLKoira,
         status: 200,
       })
@@ -550,7 +550,7 @@ describe('getDogHandler', () => {
 
     const refreshedDog = {
       breedCode: '122',
-      dam: { name: 'INT CH Dam Name' },
+      dam: { name: 'Dam Name' },
       dob: '2021-01-01T00:00:00',
       gender: 'F',
       kcId: 123,
