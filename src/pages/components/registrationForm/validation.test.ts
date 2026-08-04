@@ -24,12 +24,22 @@ describe('validation', () => {
       const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, rfid: '' } })).toEqual('required')
+      expect(validateDog(testEvent, { dog: { ...testDog, rfid: '   ' } })).toEqual('required')
     })
 
     it('should validate name', () => {
       const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
       expect(validateDog(testEvent, { dog: testDog })).toEqual(false)
       expect(validateDog(testEvent, { dog: { ...testDog, name: '' } })).toEqual('required')
+    })
+
+    it.each(['dam', 'sire'] as const)('should reject a %s name containing only whitespace', (parent) => {
+      const testEvent = { eventType: 'NOU', startDate: new Date('2020-10-15') }
+      expect(
+        validateDog(testEvent, {
+          dog: { ...testDog, [parent]: { name: '   ' } },
+        })
+      ).toEqual('required')
     })
 
     it.each<BreedCode>(['110', '111', '121', '122', '263', '312'])(

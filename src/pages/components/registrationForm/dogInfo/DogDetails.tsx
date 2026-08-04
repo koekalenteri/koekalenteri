@@ -59,7 +59,7 @@ export const DogDetails = ({
           fullWidth
           label={t('dog.rfid')}
           value={formValues.rfid ?? ''}
-          error={!rfidDisabled && !formValues.rfid}
+          error={!rfidDisabled && !formValues.rfid.trim()}
           onChange={(e) => updateField('rfid', e.target.value)}
         />
       </Grid>
@@ -135,7 +135,7 @@ export const DogDetails = ({
           id={'sire'}
           label={t('dog.sire.name')}
           onChange={(e) => updateField('sire', e.target.value)}
-          error={!sireDamDisabled && !formValues.sire}
+          error={!sireDamDisabled && !formValues.sire.trim()}
           value={formValues.sire}
         />
       </Grid>
@@ -146,7 +146,7 @@ export const DogDetails = ({
           id={'dam'}
           label={t('dog.dam.name')}
           onChange={(e) => updateField('dam', e.target.value)}
-          error={!sireDamDisabled && !formValues.dam}
+          error={!sireDamDisabled && !formValues.dam.trim()}
           value={formValues.dam}
         />
       </Grid>

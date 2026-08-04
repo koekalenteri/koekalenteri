@@ -102,6 +102,6 @@ export function validateDog(
   const minAge = validateDogAge(event, dog)
   if (minAge) return { key: 'dogAge', opts: { field: 'dog', length: minAge } }
 
-  if (!dog.rfid || !dog.dam?.name || !dog.sire?.name) return 'required'
+  if (!dog.rfid?.trim() || !dog.dam?.name?.trim() || !dog.sire?.name?.trim()) return 'required'
   return false
 }
