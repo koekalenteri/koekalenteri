@@ -19,6 +19,7 @@
     },
     "hideDetails": "Hide audit details",
     "messages": {
+      "classEmailSent": "{{template}} sent to {{eventClass}} class: succeeded {{ok}}, failed {{failed}}",
       "classStartListHidden": "{{eventClass}} start list hidden",
       "classStartListPublished": "{{eventClass}} start list published",
       "emailSent": "{{template}} sent: succeeded {{ok}}, failed {{failed}}",

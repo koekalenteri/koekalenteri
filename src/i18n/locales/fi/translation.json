@@ -19,6 +19,7 @@
     },
     "hideDetails": "Piilota audit-lisätiedot",
     "messages": {
+      "classEmailSent": "{{template}} luokkaan {{eventClass}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",
       "classStartListHidden": "{{eventClass}} starttilista piilotettu",
       "classStartListPublished": "{{eventClass}} starttilista julkaistu",
       "emailSent": "{{template}} lähetetty: onnistui {{ok}}, epäonnistui {{failed}}",

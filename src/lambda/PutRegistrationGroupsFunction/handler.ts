@@ -4,6 +4,7 @@ import {
   GROUP_KEY_RESERVE,
   getRegistrationGroupKey,
   isParticipantGroup,
+  isRegistrationClass,
 } from '../../lib/registration'
 import { applyRegistrationGroupMoves } from '../../lib/registrationGroups'
 import { getOrigin } from '../lib/api-gw'
@@ -35,11 +36,17 @@ const auditSentMessages = async (
   confirmedEvent: JsonConfirmedEvent,
   label: string,
   labelKey: string,
+  registrations: JsonRegistration[],
   ok: string[],
   failed: string[],
   user: JsonUser
 ) => {
   if (!ok.length && !failed.length) return
+
+  const messageClasses = [
+    ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
+  ]
+  const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
 
   await audit({
     auditKey: eventAuditKey(confirmedEvent),
@@ -53,9 +60,15 @@ const auditSentMessages = async (
           ],
         }
       : {}),
-    message: `${label} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
-    messageKey: 'audit.messages.emailSent',
-    messageParams: { failed: failed.length, ok: ok.length, template: label, templateKey: labelKey },
+    message: `${label}${messageClass ? ` luokkaan ${messageClass}` : ''} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
+    messageParams: {
+      ...(messageClass ? { eventClass: messageClass } : {}),
+      failed: failed.length,
+      ok: ok.length,
+      template: label,
+      templateKey: labelKey,
+    },
     user: user.name,
   })
 }
@@ -211,7 +224,15 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user.name,
       ''
     )
-    await auditSentMessages(confirmedEvent, 'Koepaikkailmoitus', 'emailTemplate.picked', pickedOk, pickedFailed, user)
+    await auditSentMessages(
+      confirmedEvent,
+      'Koepaikkailmoitus',
+      'emailTemplate.picked',
+      newParticipants,
+      pickedOk,
+      pickedFailed,
+      user
+    )
 
     const { ok: invitedOk, failed: invitedFailed } = invited
       ? await sendTemplatedEmailToEventRegistrations(
@@ -224,7 +245,15 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
           ''
         )
       : { failed: [], ok: [] }
-    await auditSentMessages(confirmedEvent, 'Koekutsu', 'emailTemplate.invitation', invitedOk, invitedFailed, user)
+    await auditSentMessages(
+      confirmedEvent,
+      'Koekutsu',
+      'emailTemplate.invitation',
+      newParticipants,
+      invitedOk,
+      invitedFailed,
+      user
+    )
 
     /**
      * Registrations in reserve group that moved up from previous 'reserve' email, receive updated 'reserve' email
@@ -253,7 +282,15 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
       user.name,
       ''
     )
-    await auditSentMessages(confirmedEvent, 'Varasijailmoitus', 'emailTemplate.reserve', reserveOk, reserveFailed, user)
+    await auditSentMessages(
+      confirmedEvent,
+      'Varasijailmoitus',
+      'emailTemplate.reserve',
+      movedReserve,
+      reserveOk,
+      reserveFailed,
+      user
+    )
 
     await updateReserveNotified(movedReserve)
 
@@ -292,6 +329,7 @@ const putRegistrationGroupsLambda = lambda('putRegistrationGroups', async (event
     confirmedEvent,
     'Peruutusilmoitus',
     'emailTemplate.cancel-early',
+    cancelled,
     cancelledOk,
     cancelledFailed,
     user

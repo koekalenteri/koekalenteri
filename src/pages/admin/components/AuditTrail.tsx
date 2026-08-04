@@ -23,6 +23,7 @@ type AuditDetail = NonNullable<AuditRecord['details']>[number]
 
 const auditMessageKeys: Partial<Record<string, ParseKeys<'translation'>>> = {
   'audit.changed': 'audit.changed',
+  'audit.messages.classEmailSent': 'audit.messages.classEmailSent',
   'audit.messages.classStartListHidden': 'audit.messages.classStartListHidden',
   'audit.messages.classStartListPublished': 'audit.messages.classStartListPublished',
   'audit.messages.emailSent': 'audit.messages.emailSent',

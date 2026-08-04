@@ -120,6 +120,11 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
     confirmedEvent = await markClassesAsReceived(confirmedEvent, classesToMark, template)
   }
 
+  const messageClasses = [
+    ...new Set(registrations.map((registration) => registration.class).filter(isRegistrationClass)),
+  ]
+  const messageClass = messageClasses.length === 1 ? messageClasses[0] : undefined
+
   await audit({
     auditKey: eventAuditKey(confirmedEvent),
     ...(failed.length
@@ -132,9 +137,10 @@ const sendMessagesLambda = lambda('sendMessages', async (event) => {
           ],
         }
       : {}),
-    message: `${templateAuditLabels[template] ?? template} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
-    messageKey: 'audit.messages.emailSent',
+    message: `${templateAuditLabels[template] ?? template}${messageClass ? ` luokkaan ${messageClass}` : ''} lähetetty: onnistui ${ok.length}, epäonnistui ${failed.length}`,
+    messageKey: messageClass ? 'audit.messages.classEmailSent' : 'audit.messages.emailSent',
     messageParams: {
+      ...(messageClass ? { eventClass: messageClass } : {}),
       failed: failed.length,
       ok: ok.length,
       template: templateAuditLabels[template] ?? template,

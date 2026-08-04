@@ -227,9 +227,10 @@ describe('sendMessagesLambda', () => {
     )
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:event123',
-      message: 'Koekutsu lähetetty: onnistui 1, epäonnistui 0',
-      messageKey: 'audit.messages.emailSent',
+      message: 'Koekutsu luokkaan ALO lähetetty: onnistui 1, epäonnistui 0',
+      messageKey: 'audit.messages.classEmailSent',
       messageParams: {
+        eventClass: 'ALO',
         failed: 0,
         ok: 1,
         template: 'Koekutsu',
@@ -251,6 +252,30 @@ describe('sendMessagesLambda', () => {
         state: mockEvent.state,
       },
       'org-1'
+    )
+  })
+
+  it('does not add a class to the audit record when invitations span multiple classes', async () => {
+    mockParseJSONWithFallback.mockReturnValueOnce({
+      contactInfo: { email: 'contact@example.com' },
+      eventId: 'event123',
+      registrationIds: ['reg456', 'reg789', 'reg012'],
+      template: 'invitation',
+      text: 'Test message',
+    })
+    mockGetReadyRegistrationsByEventId.mockResolvedValueOnce([
+      ...mockRegistrations,
+      { class: 'AVO', eventId: 'event123', id: 'reg012', state: 'ready' },
+    ])
+
+    await sendMessagesLambda(event)
+
+    expect(mockAudit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Koekutsu lähetetty: onnistui 1, epäonnistui 0',
+        messageKey: 'audit.messages.emailSent',
+        messageParams: expect.not.objectContaining({ eventClass: expect.anything() }),
+      })
     )
   })
 
@@ -281,9 +306,10 @@ describe('sendMessagesLambda', () => {
     expect(mockUpdate).not.toHaveBeenCalled()
     expect(mockAudit).toHaveBeenCalledWith({
       auditKey: 'event:event123',
-      message: 'Koepaikkailmoitus lähetetty: onnistui 1, epäonnistui 0',
-      messageKey: 'audit.messages.emailSent',
+      message: 'Koepaikkailmoitus luokkaan ALO lähetetty: onnistui 1, epäonnistui 0',
+      messageKey: 'audit.messages.classEmailSent',
       messageParams: {
+        eventClass: 'ALO',
         failed: 0,
         ok: 1,
         template: 'Koepaikkailmoitus',
@@ -389,9 +415,10 @@ describe('sendMessagesLambda', () => {
           detailParams: { recipients: 'recipient@example.com' },
         },
       ],
-      message: 'Koekutsu lähetetty: onnistui 0, epäonnistui 1',
-      messageKey: 'audit.messages.emailSent',
+      message: 'Koekutsu luokkaan ALO lähetetty: onnistui 0, epäonnistui 1',
+      messageKey: 'audit.messages.classEmailSent',
       messageParams: {
+        eventClass: 'ALO',
         failed: 1,
         ok: 0,
         template: 'Koekutsu',
