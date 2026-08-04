@@ -44,6 +44,10 @@ const StartListPublishing = ({
   stateByClass,
 }: Props) => {
   const { t } = useTranslation()
+  const startListFullyPublished =
+    event.classes.length === 0
+      ? isStartListPublishedForClass(event, event.eventType)
+      : event.classes.every((eventClass) => isStartListPublishedForClass(event, eventClass.class))
 
   const handleSetStartListPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
     const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
@@ -125,7 +129,11 @@ const StartListPublishing = ({
           target="_blank"
           variant="outlined"
         >
-          {t('eventManagement.startList.preview')}
+          {t(
+            startListFullyPublished
+              ? 'eventManagement.startList.preview'
+              : 'eventManagement.startList.previewUnpublished'
+          )}
         </Button>
       </Box>
     </Box>

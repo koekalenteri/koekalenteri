@@ -276,6 +276,7 @@
     "startList": {
       "hide": "Piilota starttilista",
       "preview": "Katso julkinen starttilista",
+      "previewUnpublished": "Katso starttilistan esikatselu",
       "publish": "Julkaise starttilista",
       "published": "Starttilista julkaistu",
       "publishing": "Starttilistan julkaisu",

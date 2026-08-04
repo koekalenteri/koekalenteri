@@ -111,6 +111,8 @@ const isNetworkError = (error: unknown): boolean => {
   return /connection|fetch|internet|load failed|network/i.test(error.message)
 }
 
+const isAbortError = (error: unknown): boolean => error instanceof Error && error.name === 'AbortError'
+
 async function httpWithTimeout<T>(
   path: string,
   init: HttpRequestInit,
@@ -194,11 +196,14 @@ async function http<T>(
       }
     }
 
-    if (!(err instanceof APIError)) {
+    if (!(err instanceof APIError) && !isAbortError(err)) {
       enqueueSnackbar(isNetworkError(err) ? i18n.t('error.connectionInterrupted') : `${err}`, errorSnackbarOptions)
     }
 
-    reportError(err)
+    if (!isAbortError(err)) {
+      reportError(err)
+    }
+
     throw err
   }
 }

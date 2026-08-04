@@ -126,6 +126,7 @@ export const ParticipantList = ({
                     classValue={reg.class}
                     event={event}
                     lastDate={lastDate}
+                    published={isStartListPublishedForClass(event, reg.class)}
                   />
                 )
               }

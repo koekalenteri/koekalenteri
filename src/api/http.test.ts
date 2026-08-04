@@ -172,6 +172,8 @@ describe('http', () => {
       controller.abort('because')
 
       await expect(promise).rejects.toEqual(expect.objectContaining({ name: 'AbortError' }))
+      expect(enqueueSnackbar).not.toHaveBeenCalled()
+      expect(mockConsoleError).not.toHaveBeenCalled()
     })
 
     it.each([401, 404])('should not show a snackbar with status %p', async (status) => {

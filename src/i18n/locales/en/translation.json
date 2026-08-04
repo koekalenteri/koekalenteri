@@ -276,6 +276,7 @@
     "startList": {
       "hide": "Hide start list",
       "preview": "View public start list",
+      "previewUnpublished": "Preview start list",
       "publish": "Publish start list",
       "published": "Start list published",
       "publishing": "Start list publishing",

@@ -85,6 +85,7 @@ describe('InfoPanel>', () => {
 
     expect(screen.getAllByText('eventManagement.invitation.sent')).toHaveLength(2)
     expect(screen.getByText('eventManagement.startList.published')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toBeEnabled()
     expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toHaveClass(
       'MuiButton-colorPrimary'
@@ -240,5 +241,26 @@ describe('InfoPanel>', () => {
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith(undefined, false)
     })
+  })
+
+  it('shows a public start list CTA when every class start list is published', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithParticipantsInvited])}>
+        {children}
+      </RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(
+      <InfoPanel
+        event={{ ...eventWithParticipantsInvited, startListPublished: true }}
+        registrations={registrationsToEventWithParticipantsInvited.map((registration) => ({
+          ...registration,
+          messagesSent: { invitation: true },
+        }))}
+      />,
+      { wrapper }
+    )
+    await openInfoPanel(user)
+
+    expect(screen.getByRole('link', { name: 'eventManagement.startList.preview' })).toBeInTheDocument()
   })
 })

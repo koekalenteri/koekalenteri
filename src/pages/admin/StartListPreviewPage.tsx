@@ -28,7 +28,11 @@ export default function StartListPreviewPage() {
     if (!hasAccess || !token || !id) return
 
     const controller = new AbortController()
-    void getStartListPreview(id, token, controller.signal).then(setParticipants).catch(setError)
+    void getStartListPreview(id, token, controller.signal)
+      .then(setParticipants)
+      .catch((requestError: unknown) => {
+        if (!controller.signal.aborted) setError(requestError)
+      })
     return () => controller.abort()
   }, [hasAccess, id, token])
 
