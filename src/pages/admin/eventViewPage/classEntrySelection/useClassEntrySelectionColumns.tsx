@@ -1,6 +1,6 @@
 import type { GridColDef } from '@mui/x-data-grid'
 import type { ReactElement } from 'react'
-import type { PublicDogEvent, Registration, RegistrationDate } from '../../../../types'
+import type { DogEvent, Registration, RegistrationDate } from '../../../../types'
 import DragIndicatorOutlined from '@mui/icons-material/DragIndicatorOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
 import EmailOutlined from '@mui/icons-material/EmailOutlined'
@@ -40,7 +40,7 @@ interface RegistrationActionCallbacks {
 interface RegistrationActionsOptions {
   available: RegistrationDate[]
   callbacks?: RegistrationActionCallbacks
-  event: PublicDogEvent
+  event: DogEvent
   row: Registration
   t: (key: string) => any
 }
@@ -199,7 +199,7 @@ const createRegistrationActions = (options: RegistrationActionsOptions): ReactEl
 
 export function useClassEntrySelectionColumns(
   available: RegistrationDate[],
-  event: PublicDogEvent,
+  event: DogEvent,
   callbacks?: RegistrationActionCallbacks
 ) {
   const { t } = useTranslation()

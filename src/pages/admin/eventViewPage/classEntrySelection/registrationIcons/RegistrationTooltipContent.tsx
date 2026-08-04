@@ -1,4 +1,4 @@
-import type { PublicDogEvent, Registration } from '../../../../../types'
+import type { DogEvent, Registration } from '../../../../../types'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -48,7 +48,7 @@ export const hasRegistrationTooltipContent = ({
 
 // Props for the RegistrationTooltipContent component
 interface RegistrationTooltipContentProps {
-  event: PublicDogEvent
+  event: DogEvent
   reg: Registration
   priority: boolean | 0.5
   manualResultCount: number
@@ -75,8 +75,22 @@ const RegistrationTooltipContent = ({
   const priorityText = `Ilmoittautuja on etusijalla: ${descr} ${info50}`.trim()
   const additionalCosts = event.cost && typeof event.cost !== 'number' ? (event.cost.optionalAdditionalCosts ?? []) : []
   const invitationReadStatus = getInvitationReadStatus(reg)
-  const invitationReadText =
-    invitationReadStatus === 'not-sent' ? '' : t(`registration.tooltip.invitation.${invitationReadStatus}`)
+  const invitationReadText = (() => {
+    switch (invitationReadStatus) {
+      case 'not-sent':
+        return ''
+      case 'read-latest':
+        return t(
+          Object.keys(event.invitationAttachmentHistory ?? {}).length <= 1
+            ? 'registration.tooltip.invitation.read'
+            : 'registration.tooltip.invitation.read-latest'
+        )
+      case 'read-previous':
+        return t('registration.tooltip.invitation.read-previous')
+      case 'unread':
+        return t('registration.tooltip.invitation.unread')
+    }
+  })()
   const optionalCosts =
     reg.optionalCosts
       ?.map((i) => additionalCosts[i]?.description.fi)

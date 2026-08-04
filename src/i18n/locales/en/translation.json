@@ -617,6 +617,7 @@
     },
     "tooltip": {
       "invitation": {
+        "read": "The invitation has been acknowledged",
         "read-latest": "The latest invitation has been acknowledged",
         "read-previous": "An earlier invitation has been acknowledged; the latest is still awaiting acknowledgement",
         "unread": "The invitation has not been acknowledged"

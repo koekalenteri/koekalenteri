@@ -211,7 +211,7 @@ describe('RegistrationTooltipContent', () => {
         invitationAttachmentSent: 'current',
         messagesSent: { invitation: true },
       },
-      'registration.tooltip.invitation.read-latest',
+      'registration.tooltip.invitation.read',
     ],
     [
       {
@@ -234,6 +234,35 @@ describe('RegistrationTooltipContent', () => {
 
     expect(
       screen.getAllByTestId('tooltip-icon').find((element) => element.getAttribute('data-text') === expectedText)
+    ).toBeInTheDocument()
+  })
+
+  it('describes the acknowledgement as the latest when multiple invitations have been sent', () => {
+    render(
+      <RegistrationTooltipContent
+        event={{
+          ...mockEvent,
+          invitationAttachmentHistory: {
+            current: { uploadedAt: new Date() },
+            previous: { uploadedAt: new Date() },
+          },
+        }}
+        reg={{
+          ...mockRegistration,
+          invitationAttachmentRead: 'current',
+          invitationAttachmentSent: 'current',
+          messagesSent: { invitation: true },
+        }}
+        priority={false}
+        manualResultCount={0}
+        rankingPoints={0}
+      />
+    )
+
+    expect(
+      screen
+        .getAllByTestId('tooltip-icon')
+        .find((element) => element.getAttribute('data-text') === 'registration.tooltip.invitation.read-latest')
     ).toBeInTheDocument()
   })
 })

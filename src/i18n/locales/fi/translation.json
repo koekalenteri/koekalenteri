@@ -617,6 +617,7 @@
     },
     "tooltip": {
       "invitation": {
+        "read": "Koekutsu on kuitattu",
         "read-latest": "Viimeksi lähetetty koekutsu on kuitattu",
         "read-previous": "Aiempi koekutsu on kuitattu, viimeisin odottaa kuittausta",
         "unread": "Koekutsua ei ole kuitattu"

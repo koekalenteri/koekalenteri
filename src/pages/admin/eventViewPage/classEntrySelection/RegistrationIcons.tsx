@@ -1,4 +1,4 @@
-import type { PublicDogEvent, Registration } from '../../../../types'
+import type { DogEvent, Registration } from '../../../../types'
 import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined'
 import CheckOutlined from '@mui/icons-material/CheckOutlined'
 import CommentOutlined from '@mui/icons-material/CommentOutlined'
@@ -21,7 +21,7 @@ import RegistrationTooltipContent, {
 import StatusIcon from './registrationIcons/StatusIcon'
 
 interface RegistrationIconsProps {
-  event: PublicDogEvent
+  event: DogEvent
   reg: Registration
 }
 
