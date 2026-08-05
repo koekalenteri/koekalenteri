@@ -1,13 +1,13 @@
-import type { updateEventStatsForRegistration } from '../lib/stats'
 import type CustomDynamoClient from '../utils/CustomDynamoClient'
 import { jest } from '@jest/globals'
 
+const mockBatchWrite = jest.fn<CustomDynamoClient['batchWrite']>()
 const mockDelete = jest.fn<CustomDynamoClient['delete']>()
 const mockReadAll = jest.fn<CustomDynamoClient['readAll']>()
-const mockUpdateEventStatsForRegistration = jest.fn<typeof updateEventStatsForRegistration>()
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
   default: class {
+    batchWrite = mockBatchWrite
     delete = mockDelete
     readAll = mockReadAll
   },
@@ -21,16 +21,25 @@ jest.unstable_mockModule('../config', () => ({
   },
 }))
 
-const { createHandler, getEventStatsRecordYear } = await import('./handler')
-const handler = createHandler(mockUpdateEventStatsForRegistration)
+const { buildStatsRecords, createHandler, getEventStatsRecordYear } = await import('./handler')
+const handler = createHandler()
 
-const event = (id: string, startDate: string) => ({
+const event = (id: string, startDate: string, eventType = 'NOU') => ({
+  eventType,
   id,
   organizer: { id: `organizer-${id}` },
   startDate,
 })
 
-const registration = (id: string, eventId: string) => ({ eventId, id })
+const registration = (id: string, eventId: string, overrides = {}) => ({
+  cancelled: false,
+  eventId,
+  eventType: 'NOU',
+  id,
+  paidAmount: 0,
+  refundAmount: 0,
+  ...overrides,
+})
 
 describe('BackfillEventStatsFunction', () => {
   const mockLog = jest.spyOn(console, 'log').mockImplementation(() => undefined)
@@ -38,6 +47,7 @@ describe('BackfillEventStatsFunction', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockDelete.mockResolvedValue(true)
+    mockBatchWrite.mockResolvedValue(undefined)
   })
 
   it.each([
@@ -62,20 +72,23 @@ describe('BackfillEventStatsFunction', () => {
 
     expect(mockReadAll).toHaveBeenCalledTimes(3)
     expect(mockDelete).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 
-  it('clears live and orphaned years with one stats-table scan, then replays by ascending year', async () => {
+  it('calculates final stats once, then clears and bulk writes each year in ascending order', async () => {
     const event2025 = event('event-2025', '2025-05-01')
-    const event2026 = event('event-2026', '2026-05-01')
-    const registration2025 = registration('registration-2025', event2025.id)
-    const registration2026 = registration('registration-2026', event2026.id)
+    const event2026 = event('event-2026', '2026-05-01', 'other')
+    const registration2025 = registration('registration-2025', event2025.id, {
+      cancelled: true,
+      dog: { breedCode: 'LAB', regNo: 'FI123' },
+      handler: { email: 'handler@example.com' },
+      owner: { email: 'owner@example.com' },
+      paidAmount: 30,
+      refundAmount: 5,
+    })
+    const registration2026 = registration('registration-2026', event2026.id, { paidAmount: 20 })
     const stats = [
-      { PK: 'STAT#2025#dog#handler', SK: 'dog' },
       { PK: 'TOTALS#2025', SK: 'dog' },
-      { PK: 'BUCKETS#2025#dog#handler', SK: '0-1' },
-      { PK: 'YEARS', SK: '2025' },
-      { PK: 'ORG#organizer', SK: '2025-05-01#event-2025' },
       { PK: 'TOTALS#2024', SK: 'dog' },
     ]
     mockReadAll
@@ -85,8 +98,10 @@ describe('BackfillEventStatsFunction', () => {
 
     await handler()
 
-    expect(mockReadAll).toHaveBeenCalledTimes(3)
-    expect(mockReadAll).toHaveBeenNthCalledWith(1, { table: 'event-table' })
+    expect(mockReadAll).toHaveBeenNthCalledWith(1, {
+      projection: 'id, organizer, startDate, eventType',
+      table: 'event-table',
+    })
     expect(mockReadAll).toHaveBeenNthCalledWith(2, {
       names: { '#handler': 'handler', '#owner': 'owner' },
       projection:
@@ -94,22 +109,57 @@ describe('BackfillEventStatsFunction', () => {
       table: 'registration-table',
     })
     expect(mockReadAll).toHaveBeenNthCalledWith(3, { projection: 'PK, SK' })
-    expect(mockDelete).toHaveBeenCalledTimes(stats.length)
-    for (const stat of stats) expect(mockDelete).toHaveBeenCalledWith(stat)
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenNthCalledWith(1, registration2025, undefined, event2025)
-    expect(mockUpdateEventStatsForRegistration).toHaveBeenNthCalledWith(2, registration2026, undefined, event2026)
+    expect(mockDelete).toHaveBeenNthCalledWith(1, stats[1])
+    expect(mockDelete).toHaveBeenNthCalledWith(2, stats[0])
+    expect(mockBatchWrite).toHaveBeenCalledTimes(2)
+    expect(mockBatchWrite).toHaveBeenNthCalledWith(
+      1,
+      expect.arrayContaining([
+        expect.objectContaining({
+          cancelledRegistrations: 1,
+          count: 1,
+          PK: 'ORG#organizer-event-2025',
+          paidAmount: 30,
+          paidRegistrations: 1,
+          refundedAmount: 5,
+          refundedRegistrations: 1,
+          SK: '2025-05-01#event-2025',
+        }),
+        { count: 1, PK: 'TOTALS#2025', SK: 'dog' },
+        { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '1' },
+        expect.objectContaining({ PK: 'YEARS', SK: '2025' }),
+      ])
+    )
+    expect(mockBatchWrite).toHaveBeenNthCalledWith(
+      2,
+      expect.arrayContaining([
+        expect.objectContaining({ count: 1, PK: 'ORG#organizer-event-2026', SK: '2026-05-01#event-2026' }),
+        expect.objectContaining({ PK: 'YEARS', SK: '2026' }),
+      ])
+    )
   })
 
-  it('clears a discovered year even when it has no registrations', async () => {
-    mockReadAll
-      .mockResolvedValueOnce([event('event-2025', '2025-05-01')])
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([{ PK: 'YEARS', SK: '2025' }])
+  it('counts repeated participants and derives unique totals and dog-handler buckets', () => {
+    const testEvent = event('event-2025', '2025-05-01')
+    const { records, skippedCount } = buildStatsRecords(
+      [
+        registration('one', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
+        registration('two', testEvent.id, { dog: { regNo: 'FI1' }, handler: { email: 'a@example.com' } }),
+        registration('three', testEvent.id, { dog: { regNo: 'FI2' }, handler: { email: 'b@example.com' } }),
+      ],
+      new Map([[testEvent.id, testEvent]]),
+      '2025-01-01T00:00:00.000Z'
+    )
 
-    await handler()
-
-    expect(mockDelete).toHaveBeenCalledWith({ PK: 'YEARS', SK: '2025' })
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(skippedCount).toBe(0)
+    expect(records).toEqual(
+      expect.arrayContaining([
+        { count: 2, PK: 'TOTALS#2025', SK: 'dog' },
+        { count: 2, PK: 'TOTALS#2025', SK: 'dog#handler' },
+        { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '1' },
+        { count: 1, PK: 'BUCKETS#2025#dog#handler', SK: '2' },
+      ])
+    )
   })
 
   it('skips registrations whose events are missing or have invalid start dates', async () => {
@@ -125,9 +175,9 @@ describe('BackfillEventStatsFunction', () => {
     await handler()
 
     expect(mockDelete).not.toHaveBeenCalled()
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
+    expect(mockBatchWrite).not.toHaveBeenCalled()
     expect(mockLog).toHaveBeenLastCalledWith(
-      'Event stats regeneration completed. Years: 0, Skipped: 2, Unclassified stats: 0'
+      'Event stats regeneration completed. Records: 0, Skipped: 2, Unclassified stats: 0'
     )
   })
 
@@ -141,27 +191,18 @@ describe('BackfillEventStatsFunction', () => {
 
     expect(mockDelete).not.toHaveBeenCalled()
     expect(mockLog).toHaveBeenLastCalledWith(
-      'Event stats regeneration completed. Years: 0, Skipped: 0, Unclassified stats: 1'
+      'Event stats regeneration completed. Records: 0, Skipped: 0, Unclassified stats: 1'
     )
   })
 
-  it('fails instead of reporting success when year cleanup fails', async () => {
+  it('fails instead of reporting success when cleanup fails', async () => {
     mockReadAll
-      .mockResolvedValueOnce([event('event-2025', '2025-05-01')])
+      .mockResolvedValueOnce([])
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ PK: 'TOTALS#2025', SK: 'dog' }])
     mockDelete.mockResolvedValueOnce(false)
 
     await expect(handler()).rejects.toThrow('Failed to delete stats record TOTALS#2025/dog')
-    expect(mockUpdateEventStatsForRegistration).not.toHaveBeenCalled()
-  })
-
-  it('fails when replaying a registration fails', async () => {
-    const testEvent = event('event-2025', '2025-05-01')
-    const testRegistration = registration('registration-2025', testEvent.id)
-    mockReadAll.mockResolvedValueOnce([testEvent]).mockResolvedValueOnce([testRegistration]).mockResolvedValueOnce([])
-    mockUpdateEventStatsForRegistration.mockRejectedValueOnce(new Error('Write failed'))
-
-    await expect(handler()).rejects.toThrow('Write failed')
+    expect(mockBatchWrite).not.toHaveBeenCalled()
   })
 })

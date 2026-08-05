@@ -1,8 +1,10 @@
-// Despite its deployed name, this manual function regenerates stats by deleting and replaying them.
+// Despite its deployed name, this manual function regenerates all statistics from registrations.
 import type { JsonConfirmedEvent } from '../../types'
+import type { EventStatsItem, YearlyStatTypes } from '../../types/Stats'
 import type { RegistrationStatsInput } from '../lib/stats'
+import { OFFICIAL_EVENT_TYPES } from '../../lib/event'
 import { CONFIG } from '../config'
-import { eventStatsYear, updateEventStatsForRegistration } from '../lib/stats'
+import { bucketForCount, eventStatsYear, hashStatValue } from '../lib/stats'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
 interface EventStatKey {
@@ -10,39 +12,12 @@ interface EventStatKey {
   SK: string
 }
 
-interface RegistrationWithEvent {
-  event: JsonConfirmedEvent
-  registration: RegistrationStatsInput
-}
+type EventStatsEvent = Pick<JsonConfirmedEvent, 'eventType' | 'id' | 'startDate'> & { organizer: { id: string } }
 
-const DELETE_CONCURRENCY = 10
-const REPLAY_CONCURRENCY = 10
 const REGISTRATION_STATS_PROJECTION_NAMES = { '#handler': 'handler', '#owner': 'owner' }
-type RegistrationStatsScalarField = Exclude<keyof RegistrationStatsInput, 'dog' | 'handler' | 'owner'>
-type RegistrationStatsNestedField<Field extends 'dog' | 'handler' | 'owner'> =
-  `${Field}.${keyof NonNullable<RegistrationStatsInput[Field]> & string}`
-type RegistrationStatsProjectionField =
-  | RegistrationStatsScalarField
-  | RegistrationStatsNestedField<'dog'>
-  | RegistrationStatsNestedField<'handler'>
-  | RegistrationStatsNestedField<'owner'>
-
-const REGISTRATION_STATS_PROJECTION_FIELDS = [
-  'eventId',
-  'id',
-  'cancelled',
-  'paidAmount',
-  'refundAmount',
-  'eventType',
-  'dog.regNo',
-  'dog.breedCode',
-  'handler.email',
-  'owner.email',
-] as const satisfies readonly RegistrationStatsProjectionField[]
-
-const REGISTRATION_STATS_PROJECTION = REGISTRATION_STATS_PROJECTION_FIELDS.map((field) =>
-  field.replace(/^(handler|owner)(?=\.)/, '#$1')
-).join(', ')
+const REGISTRATION_STATS_PROJECTION =
+  'eventId, id, cancelled, paidAmount, refundAmount, eventType, dog.regNo, dog.breedCode, #handler.email, #owner.email'
+const PARTICIPATION_TYPES: YearlyStatTypes[] = ['eventType', 'dog', 'breed', 'handler', 'owner', 'dog#handler']
 
 const dynamoDB = new CustomDynamoClient(CONFIG.eventStatsTable)
 
@@ -60,100 +35,174 @@ export function getEventStatsRecordYear({ PK, SK }: EventStatKey): number | unde
   return undefined
 }
 
-async function deleteStatsRecords(stats: EventStatKey[]): Promise<void> {
-  for (let start = 0; start < stats.length; start += DELETE_CONCURRENCY) {
-    await Promise.all(
-      stats.slice(start, start + DELETE_CONCURRENCY).map(async (stat) => {
-        if (!(await dynamoDB.delete({ PK: stat.PK, SK: stat.SK }))) {
-          throw new Error(`Failed to delete stats record ${stat.PK}/${stat.SK}`)
+const participationIdentifiers = (registration: RegistrationStatsInput): Record<YearlyStatTypes, string> => {
+  const handlerEmail = hashStatValue(registration.handler?.email)
+  const dog = hashStatValue(registration.dog?.regNo)
+
+  return {
+    breed: registration.dog?.breedCode ?? 'unknown',
+    dog,
+    'dog#handler': `${dog}#${handlerEmail}`,
+    eventType: registration.eventType,
+    handler: handlerEmail,
+    owner: hashStatValue(registration.owner?.email),
+  }
+}
+
+const increment = (counts: Map<string, number>, key: string, amount = 1) => {
+  counts.set(key, (counts.get(key) ?? 0) + amount)
+}
+
+const countsForType = (countsByType: Map<YearlyStatTypes, Map<string, number>>, type: YearlyStatTypes) => {
+  const counts = countsByType.get(type)
+  if (!counts) throw new Error(`Missing counts for statistic type ${type}`)
+  return counts
+}
+
+const eventStatsKey = (event: EventStatsEvent): EventStatKey => ({
+  PK: `ORG#${event.organizer.id}`,
+  SK: `${event.startDate}#${event.id}`,
+})
+
+/** Builds the complete desired stats-table contents without making DynamoDB writes. */
+export function buildStatsRecords(
+  registrations: RegistrationStatsInput[],
+  eventsById: Map<string, EventStatsEvent>,
+  updatedAt: string
+): { records: EventStatsItem[]; skippedCount: number } {
+  const organizerStats = new Map<string, EventStatsItem>()
+  const yearlyStats = new Map<number, Map<YearlyStatTypes, Map<string, number>>>()
+  const years = new Set<number>()
+  let skippedCount = 0
+
+  for (const registration of registrations) {
+    const event = eventsById.get(registration.eventId)
+    const year = event && eventStatsYear(event)
+    if (!event || year === undefined) {
+      console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
+      skippedCount++
+      continue
+    }
+    years.add(year)
+
+    const key = eventStatsKey(event)
+    const existingOrganizerStats = organizerStats.get(`${key.PK}/${key.SK}`)
+    const stats = existingOrganizerStats ?? {
+      ...key,
+      cancelledRegistrations: 0,
+      count: 0,
+      date: event.startDate,
+      organizerId: event.organizer.id,
+      paidAmount: 0,
+      paidRegistrations: 0,
+      refundedAmount: 0,
+      refundedRegistrations: 0,
+      updatedAt,
+    }
+    stats.count = (stats.count ?? 0) + 1
+    stats.cancelledRegistrations = (stats.cancelledRegistrations ?? 0) + (registration.cancelled ? 1 : 0)
+    stats.paidAmount = (stats.paidAmount ?? 0) + (registration.paidAmount ?? 0)
+    stats.paidRegistrations = (stats.paidRegistrations ?? 0) + (registration.paidAmount ? 1 : 0)
+    stats.refundedAmount = (stats.refundedAmount ?? 0) + (registration.refundAmount ?? 0)
+    stats.refundedRegistrations = (stats.refundedRegistrations ?? 0) + (registration.refundAmount ? 1 : 0)
+    organizerStats.set(`${key.PK}/${key.SK}`, stats)
+
+    if (!OFFICIAL_EVENT_TYPES.includes(event.eventType)) continue
+
+    let yearlyCounts = yearlyStats.get(year)
+    if (!yearlyCounts) {
+      yearlyCounts = new Map(PARTICIPATION_TYPES.map((type) => [type, new Map<string, number>()]))
+      yearlyStats.set(year, yearlyCounts)
+    }
+    const identifiers = participationIdentifiers(registration)
+    for (const type of PARTICIPATION_TYPES) increment(countsForType(yearlyCounts, type), identifiers[type])
+  }
+
+  const records: EventStatsItem[] = [...organizerStats.values()]
+
+  for (const [year, countsByType] of yearlyStats) {
+    for (const type of PARTICIPATION_TYPES) {
+      const counts = countsForType(countsByType, type)
+      records.push({ count: counts.size, PK: `TOTALS#${year}`, SK: type })
+      for (const [entityId, count] of counts) records.push({ count, PK: `STAT#${year}#${type}`, SK: entityId })
+
+      if (type === 'dog#handler') {
+        const buckets = new Map<string, number>()
+        for (const count of counts.values()) {
+          const bucket = bucketForCount(count)
+          if (bucket) increment(buckets, bucket)
         }
-      })
-    )
+        for (const [bucket, count] of buckets) records.push({ count, PK: `BUCKETS#${year}#dog#handler`, SK: bucket })
+      }
+    }
+  }
+
+  for (const year of years) records.push({ PK: 'YEARS', SK: year.toString(), updatedAt })
+  return { records, skippedCount }
+}
+
+async function deleteStatsRecords(stats: EventStatKey[]): Promise<void> {
+  for (const stat of stats) {
+    if (!(await dynamoDB.delete({ PK: stat.PK, SK: stat.SK }))) {
+      throw new Error(`Failed to delete stats record ${stat.PK}/${stat.SK}`)
+    }
   }
 }
 
-async function replayRegistrations(
-  registrations: RegistrationWithEvent[],
-  updateStats: typeof updateEventStatsForRegistration
-): Promise<void> {
-  for (let start = 0; start < registrations.length; start += REPLAY_CONCURRENCY) {
-    await Promise.all(
-      registrations.slice(start, start + REPLAY_CONCURRENCY).map(({ event, registration }) => {
-        return updateStats(registration, undefined, event)
-      })
-    )
+const groupStatsByYear = <T extends EventStatKey>(records: T[]) => {
+  const recordsByYear = new Map<number, T[]>()
+  for (const record of records) {
+    const year = getEventStatsRecordYear(record)
+    if (year === undefined) continue
+    const recordsForYear = recordsByYear.get(year) ?? []
+    recordsForYear.push(record)
+    recordsByYear.set(year, recordsForYear)
   }
+  return recordsByYear
 }
 
-export function createHandler(updateStats: typeof updateEventStatsForRegistration = updateEventStatsForRegistration) {
+export function createHandler() {
   return async function handler(): Promise<void> {
     console.log('Starting event stats regeneration...')
 
-    const allEvents = (await dynamoDB.readAll<JsonConfirmedEvent>({ table: CONFIG.eventTable })) || []
-    const registrations =
-      (await dynamoDB.readAll<RegistrationStatsInput>({
+    const [allEvents, registrations, allStatKeys] = await Promise.all([
+      dynamoDB.readAll<JsonConfirmedEvent>({
+        projection: 'id, organizer, startDate, eventType',
+        table: CONFIG.eventTable,
+      }),
+      dynamoDB.readAll<RegistrationStatsInput>({
         names: REGISTRATION_STATS_PROJECTION_NAMES,
         projection: REGISTRATION_STATS_PROJECTION,
         table: CONFIG.registrationTable,
-      })) || []
-    const allStatKeys = (await dynamoDB.readAll<EventStatKey>({ projection: 'PK, SK' })) || []
-    const eventsById = new Map(allEvents.map((event) => [event.id, event]))
-    const statsByYear = new Map<number, EventStatKey[]>()
-    const registrationsByYear = new Map<number, RegistrationWithEvent[]>()
-    const years = new Set<number>()
-    let skippedCount = 0
-    let unclassifiedStatsCount = 0
+      }),
+      dynamoDB.readAll<EventStatKey>({ projection: 'PK, SK' }),
+    ])
+    const events = allEvents || []
+    const registrationRecords = registrations || []
+    const statKeys = allStatKeys || []
+    const eventsById = new Map(events.map((event) => [event.id, event]))
+    const { records, skippedCount } = buildStatsRecords(registrationRecords, eventsById, new Date().toISOString())
+    const existingStatsByYear = groupStatsByYear(statKeys)
+    const recordsByYear = groupStatsByYear(records)
+    const unclassifiedStatsCount = statKeys.length - [...existingStatsByYear.values()].flat().length
+    const years = [...new Set([...existingStatsByYear.keys(), ...recordsByYear.keys()])].sort((a, b) => a - b)
 
-    for (const event of allEvents) {
-      const year = eventStatsYear(event)
-      if (year === undefined) continue
-      years.add(year)
-    }
-
-    for (const stat of allStatKeys) {
-      const year = getEventStatsRecordYear(stat)
-      if (year === undefined) {
-        unclassifiedStatsCount++
-        continue
-      }
-      years.add(year)
-      const stats = statsByYear.get(year) || []
-      stats.push(stat)
-      statsByYear.set(year, stats)
-    }
-
-    for (const registration of registrations) {
-      const event = eventsById.get(registration.eventId)
-      const year = event && eventStatsYear(event)
-      if (!event || year === undefined) {
-        console.log(`Skipping registration ${registration.id}: event is missing or has an invalid start date`)
-        skippedCount++
-        continue
-      }
-
-      const registrationsForYear = registrationsByYear.get(year) || []
-      registrationsForYear.push({ event, registration })
-      registrationsByYear.set(year, registrationsForYear)
-    }
-
-    const sortedYears = [...years].sort((a, b) => a - b)
     console.log(
-      `Found ${allEvents.length} events, ${registrations.length} registrations, ${allStatKeys.length} stats records, and ${sortedYears.length} years`
+      `Found ${events.length} events, ${registrationRecords.length} registrations, ${statKeys.length} stats records, rebuilding ${records.length} records`
     )
-
-    for (const year of sortedYears) {
-      // This regeneration is delete-then-replay: if it fails, invoke it again to completion.
-      const statsForYear = statsByYear.get(year) || []
-      await deleteStatsRecords(statsForYear)
-      const registrationsForYear = registrationsByYear.get(year) || []
-      await replayRegistrations(registrationsForYear, updateStats)
+    for (const year of years) {
+      const oldRecords = existingStatsByYear.get(year) ?? []
+      const newRecords = recordsByYear.get(year) ?? []
+      // Keep each year independently regenerable if a manual run fails midway.
+      await deleteStatsRecords(oldRecords)
+      if (newRecords.length > 0) await dynamoDB.batchWrite(newRecords)
       console.log(
-        `Regenerated ${year}: removed ${statsForYear.length} existing stats and processed ${registrationsForYear.length} registrations`
+        `Regenerated ${year}: removed ${oldRecords.length} existing stats and wrote ${newRecords.length} records`
       )
     }
 
     console.log(
-      `Event stats regeneration completed. Years: ${sortedYears.length}, Skipped: ${skippedCount}, Unclassified stats: ${unclassifiedStatsCount}`
+      `Event stats regeneration completed. Records: ${records.length}, Skipped: ${skippedCount}, Unclassified stats: ${unclassifiedStatsCount}`
     )
   }
 }
