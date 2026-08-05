@@ -27,7 +27,9 @@ const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => null)
 const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => null)
 
 const { findUserByEmail, updateUser, userIsMemberOf } = await import('./user')
-const { authorize, authorizeWithMemberOf, getAndUpdateUserByEmail, getUsername } = await import('./auth')
+const { authorize, authorizeAdmin, authorizeWithMemberOf, getAndUpdateUserByEmail, getUsername } = await import(
+  './auth'
+)
 
 describe('auth', () => {
   afterEach(() => {
@@ -537,6 +539,49 @@ describe('auth', () => {
       const result = await authorizeWithMemberOf(event)
 
       expect(result).toEqual({ memberOf: ['org-1'], user: existingUser })
+    })
+  })
+
+  describe('authorizeAdmin', () => {
+    const event = {
+      headers: {},
+      requestContext: {
+        authorizer: { claims: { email: 'test@example.com', name: 'test-user', sub: 'cognito-user' } },
+      },
+    } as any
+    const link = { cognitoUser: 'cognito-user', userId: 'test-id' }
+    const user = {
+      createdAt: '2023-11-30T20:00:00.000Z',
+      createdBy: 'system',
+      email: 'test@example.com',
+      id: 'test-id',
+      modifiedAt: '2023-11-30T20:00:00.000Z',
+      modifiedBy: 'system',
+      name: 'test-user',
+    }
+
+    it('returns Unauthorized when the user cannot be resolved', async () => {
+      const result = await authorizeAdmin({ headers: {}, requestContext: { authorizer: { claims: null } } } as any)
+
+      expect(result).toEqual({ res: expect.objectContaining({ statusCode: 401 }) })
+    })
+
+    it('returns Forbidden for an authenticated non-admin', async () => {
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(user)
+
+      const result = await authorizeAdmin(event)
+
+      expect(result.res).toEqual(expect.objectContaining({ statusCode: 403 }))
+      expect(result.user).toEqual(user)
+    })
+
+    it('returns the authenticated admin user', async () => {
+      const admin = { ...user, admin: true }
+      mockRead.mockResolvedValueOnce(link)
+      mockRead.mockResolvedValueOnce(admin)
+
+      await expect(authorizeAdmin(event)).resolves.toEqual({ user: admin })
     })
   })
 })

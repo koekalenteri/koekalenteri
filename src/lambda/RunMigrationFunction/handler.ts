@@ -1,7 +1,7 @@
 import type { JsonDogEvent } from '../../types'
 import { getEventSeason } from '../../lib/event'
 import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorizeAdmin } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
 
@@ -45,10 +45,8 @@ const migrations: EventMigration[] = [
 ]
 
 const runMigrationLambda = lambda('runMigration', async (event) => {
-  const user = await authorize(event)
-  if (!user?.admin) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { res } = await authorizeAdmin(event)
+  if (res) return res
 
   const events = (await dynamoDB.readAll<JsonDogEvent>()) ?? []
 

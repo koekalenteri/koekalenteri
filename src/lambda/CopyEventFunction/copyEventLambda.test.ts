@@ -1,6 +1,7 @@
 import { jest } from '@jest/globals'
 
 const mockAuthorize = jest.fn<any>()
+const mockAuthorizeEvent = jest.fn<any>()
 const mockGetEvent = jest.fn<any>()
 const mockSaveEvent = jest.fn<any>()
 const mockParseJSONWithFallback = jest.fn<any>()
@@ -9,8 +10,8 @@ const mockWrite = jest.fn<any>()
 const mockResponse = jest.fn<any>()
 const mockLambda = jest.fn((_name, fn) => fn)
 
-jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+jest.unstable_mockModule('../lib/eventAuth', () => ({
+  authorizeEvent: mockAuthorizeEvent,
 }))
 jest.unstable_mockModule('../lib/event', () => ({
   getEvent: mockGetEvent,
@@ -51,12 +52,26 @@ describe('copyEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockQuery.mockResolvedValue([])
+    mockAuthorizeEvent.mockImplementation(async (_event: unknown, eventId: string) => ({
+      item: await mockGetEvent(eventId),
+      user: { name: 'Test User' },
+    }))
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
-    await copyEventHandler(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockAuthorizeEvent.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
+    await expect(copyEventHandler(event)).resolves.toEqual({ body: 'Unauthorized', statusCode: 401 })
+  })
+
+  it('does not copy an event when organizer authorization fails', async () => {
+    mockParseJSONWithFallback.mockReturnValueOnce({ id: 'event123', startDate: '2025-07-01T00:00:00.000Z' })
+    mockAuthorizeEvent.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
+
+    await expect(copyEventHandler(event)).resolves.toEqual({ body: 'Forbidden', statusCode: 403 })
+
+    expect(mockSaveEvent).not.toHaveBeenCalled()
+    expect(mockWrite).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid copy start date before reading the source event', async () => {

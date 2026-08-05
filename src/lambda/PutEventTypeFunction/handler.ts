@@ -1,6 +1,6 @@
 import type { EventType, JsonEventType, JsonJudge, JsonOfficial } from '../../types'
 import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorizeAdmin } from '../lib/auth'
 import { lambda, response } from '../lib/lambda'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
 import CustomDynamoClient from '../utils/CustomDynamoClient'
@@ -10,10 +10,8 @@ const { eventTypeTable, judgeTable, officialTable } = CONFIG
 const dynamoDB = new CustomDynamoClient(eventTypeTable)
 
 const putEventTypeLambda = lambda('putEventType', async (event) => {
-  const user = await authorize(event)
-  if (!user?.admin) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { res, user } = await authorizeAdmin(event)
+  if (res) return res
 
   const timestamp = new Date().toISOString()
 

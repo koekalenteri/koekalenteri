@@ -1,7 +1,7 @@
 import type { Organizer } from '../../types'
 import { nanoid } from 'nanoid'
 import { CONFIG } from '../config'
-import { authorize } from '../lib/auth'
+import { authorizeAdmin } from '../lib/auth'
 import KLAPI from '../lib/KLAPI'
 import { lambda, response } from '../lib/lambda'
 import { getKLAPIConfig } from '../lib/secrets'
@@ -12,10 +12,8 @@ import CustomDynamoClient from '../utils/CustomDynamoClient'
 const dynamoDB = new CustomDynamoClient(CONFIG.organizerTable)
 
 const refreshOrganizersLambda = lambda('refreshOrganizers', async (event) => {
-  const user = await authorize(event)
-  if (!user?.admin) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { res } = await authorizeAdmin(event)
+  if (res) return res
 
   const klapi = new KLAPI(getKLAPIConfig)
   const { status, json } = await klapi.lueYhdistykset({ Rajaus: KLYhdistysRajaus.Koejärjestätä })

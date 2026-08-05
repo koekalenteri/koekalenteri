@@ -13,6 +13,12 @@ jest.unstable_mockModule('../lib/lambda', () => ({
 
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
+  authorizeAdmin: async (event: any) => {
+    const user = await mockAuthorize(event)
+    if (!user) return { res: mockResponse(401, 'Unauthorized', event) ?? { statusCode: 401 } }
+    if (!user.admin) return { res: mockResponse(403, 'Forbidden', event) ?? { statusCode: 403 }, user }
+    return { user }
+  },
 }))
 
 jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
@@ -66,7 +72,7 @@ describe('runMigrationLambda', () => {
     mockWrite.mockResolvedValue({})
   })
 
-  it('returns 401 if not authorized as admin', async () => {
+  it('returns 403 if authenticated user is not an admin', async () => {
     mockAuthorize.mockResolvedValueOnce({
       admin: false,
       id: 'user123',
@@ -76,7 +82,7 @@ describe('runMigrationLambda', () => {
     await runMigrationLambda(event)
 
     expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', event)
     expect(mockReadAll).not.toHaveBeenCalled()
   })
 

@@ -1,27 +1,24 @@
 import { addDays, differenceInDays, parseISO } from 'date-fns'
 import { nanoid } from 'nanoid'
 import { getEventSeason } from '../../lib/event'
-import { authorize } from '../lib/auth'
-import { getEvent, saveEvent } from '../lib/event'
+import { saveEvent } from '../lib/event'
+import { authorizeEvent } from '../lib/eventAuth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { getRegistrationsByEventId, saveRegistration } from '../lib/registration'
 import { removeRegistrationCreationMetadata } from '../lib/registrationMetadata'
 
 const copyEventLambda = lambda('copyEvent', async (event) => {
-  const user = await authorize(event)
-  if (!user) {
-    return response(401, 'Unauthorized', event)
-  }
-
-  const timestamp = new Date().toISOString()
-
   const { id, startDate }: { id: string; startDate: string } = parseJSONWithFallback(event.body)
   if (!getEventSeason(startDate)) {
     return response(400, { message: 'Bad request: startDate must be a valid date' }, event)
   }
 
-  const item = await getEvent(id)
+  const { item, res, user } = await authorizeEvent(event, id)
+  if (res) return res
+
+  const timestamp = new Date().toISOString()
+
   if (!getEventSeason(item.startDate) || !getEventSeason(item.endDate)) {
     return response(400, { message: 'Bad request: source event dates must be valid' }, event)
   }

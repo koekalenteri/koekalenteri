@@ -40,6 +40,12 @@ jest.unstable_mockModule('../utils/CustomDynamoClient', () => ({
 
 jest.unstable_mockModule('../lib/auth', () => ({
   authorize: mockAuthorize,
+  authorizeAdmin: async (event: any) => {
+    const user = await mockAuthorize(event)
+    if (!user) return { res: mockResponse(401, 'Unauthorized', event) ?? { statusCode: 401 } }
+    if (!user.admin) return { res: mockResponse(403, 'Forbidden', event) ?? { statusCode: 403 }, user }
+    return { user }
+  },
 }))
 
 jest.unstable_mockModule('nanoid', () => ({
@@ -150,7 +156,7 @@ describe('getOrganizersLambda', () => {
     )
   })
 
-  it('returns 401 in refresh mode if user is not admin', async () => {
+  it('returns 403 in refresh mode if user is not admin', async () => {
     const eventWithRefresh = {
       ...event,
       queryStringParameters: { refresh: '' },
@@ -163,7 +169,7 @@ describe('getOrganizersLambda', () => {
     await getOrganizersLambda(eventWithRefresh)
 
     expect(mockAuthorize).toHaveBeenCalledWith(eventWithRefresh)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', eventWithRefresh)
+    expect(mockResponse).toHaveBeenCalledWith(403, 'Forbidden', eventWithRefresh)
     expect(mockLueYhdistykset).not.toHaveBeenCalled()
     expect(mockReadAll).not.toHaveBeenCalled()
   })

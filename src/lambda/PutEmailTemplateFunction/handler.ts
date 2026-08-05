@@ -7,7 +7,7 @@ import {
   UpdateTemplateCommand,
 } from '@aws-sdk/client-ses'
 import { CONFIG } from '../config'
-import { authorize, getUsername } from '../lib/auth'
+import { authorizeAdmin, getUsername } from '../lib/auth'
 import { parseJSONWithFallback } from '../lib/json'
 import { lambda, response } from '../lib/lambda'
 import { publishAdminDataInvalidation } from '../lib/ws/actions'
@@ -42,10 +42,8 @@ const updateOrCreateTemplate = async (template: Template) => {
 }
 
 const putEmailTemplateLambda = lambda('putEmailTemplate', async (event) => {
-  const user = await authorize(event)
-  if (!user?.admin) {
-    return response(401, 'Unauthorized', event)
-  }
+  const { res } = await authorizeAdmin(event)
+  if (res) return res
 
   const timestamp = new Date().toISOString()
   const username = await getUsername(event)

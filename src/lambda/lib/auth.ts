@@ -231,6 +231,18 @@ export async function getUsername(event: Partial<APIGatewayProxyEvent>) {
   return user?.name ?? 'anonymous'
 }
 
+export const authorizeAdmin = async (event: APIGatewayProxyEvent) => {
+  const user = await authorize(event)
+  if (!user) {
+    return { res: response(401, 'Unauthorized', event) }
+  }
+  if (!user.admin) {
+    return { res: response(403, 'Forbidden', event), user }
+  }
+
+  return { user }
+}
+
 export const authorizeWithMemberOf = async (event: APIGatewayProxyEvent) => {
   const user = await authorize(event)
   if (!user) {

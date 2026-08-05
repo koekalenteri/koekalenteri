@@ -1,12 +1,12 @@
 import { jest } from '@jest/globals'
 
-const mockAuthorize = jest.fn<any>()
+const mockAuthorizeWithMemberOf = jest.fn<any>()
 const mockLambda = jest.fn((_name, fn) => fn)
 const mockResponse = jest.fn<any>()
 const mockReadAll = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/auth', () => ({
-  authorize: mockAuthorize,
+  authorizeWithMemberOf: mockAuthorizeWithMemberOf,
 }))
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -30,45 +30,50 @@ describe('getEmailTemplatesLambda', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockAuthorizeWithMemberOf.mockResolvedValue({ memberOf: ['org1'], user: { id: 'user1', name: 'Test User' } })
   })
 
   it('returns 401 if not authorized', async () => {
-    mockAuthorize.mockResolvedValueOnce(null)
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Unauthorized', statusCode: 401 } })
 
     await getEmailTemplatesLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
-    expect(mockResponse).toHaveBeenCalledWith(401, 'Unauthorized', event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
+    expect(mockReadAll).not.toHaveBeenCalled()
+  })
+
+  it('returns 403 if the user is neither an admin nor an organizer member', async () => {
+    mockAuthorizeWithMemberOf.mockResolvedValueOnce({ res: { body: 'Forbidden', statusCode: 403 } })
+
+    await getEmailTemplatesLambda(event)
+
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockReadAll).not.toHaveBeenCalled()
   })
 
   it('returns all email templates if authorized', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const templates = [
       { body: 'Body 1', id: 'template1', name: 'Template 1', subject: 'Subject 1' },
       { body: 'Body 2', id: 'template2', name: 'Template 2', subject: 'Subject 2' },
     ]
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockResolvedValueOnce(templates)
 
     await getEmailTemplatesLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
   })
 
   it('returns empty array if no templates found', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const templates: any[] = []
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockResolvedValueOnce(templates)
 
     await getEmailTemplatesLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, templates, event)
   })
@@ -79,7 +84,6 @@ describe('getEmailTemplatesLambda', () => {
       { id: 'old', modifiedAt: '2024-01-01T00:00:00.000Z' },
       { id: 'new', modifiedAt: '2024-01-03T00:00:00.000Z' },
     ]
-    mockAuthorize.mockResolvedValueOnce({ id: 'user1' })
     mockReadAll.mockResolvedValueOnce(templates)
 
     await getEmailTemplatesLambda(incrementalEvent)
@@ -96,28 +100,23 @@ describe('getEmailTemplatesLambda', () => {
   })
 
   it('returns undefined if readAll returns undefined', async () => {
-    const user = { id: 'user1', name: 'Test User' }
-
-    mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockResolvedValueOnce(undefined)
 
     await getEmailTemplatesLambda(event)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(200, undefined, event)
   })
 
   it('passes through errors from readAll', async () => {
-    const user = { id: 'user1', name: 'Test User' }
     const error = new Error('Database error')
 
-    mockAuthorize.mockResolvedValueOnce(user)
     mockReadAll.mockRejectedValueOnce(error)
 
     await expect(getEmailTemplatesLambda(event)).rejects.toThrow(error)
 
-    expect(mockAuthorize).toHaveBeenCalledWith(event)
+    expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(event)
     expect(mockReadAll).toHaveBeenCalled()
     expect(mockResponse).not.toHaveBeenCalled()
   })
