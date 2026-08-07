@@ -267,6 +267,7 @@
       "canSendAfterEntry": "Participant notifications can be sent after the entry period has ended",
       "placeNotificationsSent": "Participant notifications sent",
       "reserve": "Reserve list",
+      "reserveCanSendAfterEntry": "Reserve notifications can be sent after the entry period has ended",
       "reserveNotificationsSent": "Reserve notifications sent",
       "sendPlaceNotification": "Send participant notification",
       "sendReserveNotification": "Send reserve notification",

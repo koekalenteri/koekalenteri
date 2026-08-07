@@ -267,6 +267,7 @@
       "canSendAfterEntry": "Koepaikkailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
       "placeNotificationsSent": "Koepaikkailmoitukset lähetetty",
       "reserve": "Varasijalla",
+      "reserveCanSendAfterEntry": "Varasijailmoitukset voi lähettää ilmoittautumisajan päätyttyä",
       "reserveNotificationsSent": "Varasijailmoitukset lähetetty",
       "sendPlaceNotification": "Lähetä koepaikkailmoitus",
       "sendReserveNotification": "Lähetä varasijailmoitus",

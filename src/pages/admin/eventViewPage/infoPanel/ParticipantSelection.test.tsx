@@ -147,6 +147,48 @@ describe('InfoPanel>', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('explains when reserve notifications can be sent before the registration period is over', async () => {
+    const event = {
+      ...eventWithEntryOpen,
+      classes: [{ class: 'VOI' as const, date: eventWithEntryOpen.startDate, places: 3 }],
+      state: 'confirmed' as const,
+    }
+    const registrations = [
+      {
+        ...registrationWithStaticDates,
+        class: 'VOI' as const,
+        eventId: event.id,
+        eventType: event.eventType,
+      },
+    ]
+    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    expect(screen.getByText('eventManagement.participantSelection.reserveCanSendAfterEntry')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'eventManagement.participantSelection.sendReserveNotification' })
+    ).not.toBeInTheDocument()
+  })
+
+  it('allows sending reserve notifications after the registration period is over', async () => {
+    const event = {
+      ...eventWithEntryClosed,
+      classes: eventWithEntryClosed.classes.filter((eventClass) => eventClass.class === 'ALO'),
+    }
+    const registrations = [registrationsToEventWithEntryClosed[0]]
+    const { user } = renderWithUserEvents(<InfoPanel event={event} registrations={registrations} />, {
+      wrapper: RecoilRoot,
+    })
+    await openInfoPanel(user)
+
+    expect(
+      screen.getByRole('button', { name: 'eventManagement.participantSelection.sendReserveNotification' })
+    ).toBeEnabled()
+    expect(screen.queryByText('eventManagement.participantSelection.reserveCanSendAfterEntry')).not.toBeInTheDocument()
+  })
+
   it('does not allow resending invitations when attachment has not changed', async () => {
     const { user } = renderWithUserEvents(
       <InfoPanel

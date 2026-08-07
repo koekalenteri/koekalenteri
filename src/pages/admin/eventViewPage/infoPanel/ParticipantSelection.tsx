@@ -70,7 +70,8 @@ const ParticipantSelection = ({
               const placeConfirmationsBlockedByEntry = !entryEnded && !classFinished
               const reserveNotificationsSent =
                 reserves.length > 0 && reserves.every((registration) => registration.reserveNotified)
-              const canSendReserveNotification = !classFinished && numbers.reserve > 0
+              const reserveNotificationsBlockedByEntry = !entryEnded && !classFinished
+              const canSendReserveNotification = entryEnded && !classFinished && numbers.reserve > 0
               let placeNotificationContent = (
                 <Button
                   size="small"
@@ -129,6 +130,10 @@ const ParticipantSelection = ({
                       {reserveNotificationsSent ? (
                         <Typography variant="caption" color="info.main" sx={statusSx}>
                           {t('eventManagement.participantSelection.reserveNotificationsSent')}
+                        </Typography>
+                      ) : reserveNotificationsBlockedByEntry ? (
+                        <Typography variant="caption" color="text.secondary" sx={statusSx}>
+                          {t('eventManagement.participantSelection.reserveCanSendAfterEntry')}
                         </Typography>
                       ) : (
                         <Button
