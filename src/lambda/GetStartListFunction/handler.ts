@@ -1,5 +1,5 @@
 import type { JsonPublicRegistration, JsonRegistrationWithGroup } from '../../types'
-import { isStartListAvailable, isStartListAvailableForClass } from '../../lib/event'
+import { isStartListAvailable, isStartListAvailableForRegistration } from '../../lib/event'
 import { authorizeWithMemberOf } from '../lib/auth'
 import { getEvent } from '../lib/event'
 import { getParam, LambdaError, lambda, response } from '../lib/lambda'
@@ -29,11 +29,11 @@ const getStartListLambda = lambda('getStartList', async (event) => {
         ?.filter<JsonRegistrationWithGroup>((reg): reg is JsonRegistrationWithGroup => !!reg.group)
         .filter((reg) => reg.group.date && !reg.cancelled)
         .filter((reg) => {
-          const eventClasses = confirmedEvent.classes?.filter((eventClass) => eventClass.class === reg.class) ?? []
-          if (!eventClasses.length) return !confirmedEvent.classes?.length
+          // Keep preview limited to event classes even though it bypasses publication checks.
+          const hasEventClass = confirmedEvent.classes?.some((eventClass) => eventClass.class === reg.class)
+          if (!hasEventClass && confirmedEvent.classes?.length) return false
           if (preview) return true
-
-          return eventClasses.some((eventClass) => isStartListAvailableForClass(confirmedEvent, eventClass))
+          return isStartListAvailableForRegistration(confirmedEvent, reg)
         })
         .map<JsonPublicRegistration>((reg) => ({
           breeder: reg.breeder?.name,

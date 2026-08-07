@@ -82,6 +82,29 @@ export const isStartListAvailableForClass = (
   eventClass: Pick<JsonDogEvent['classes'][number], 'class' | 'state'>
 ) => canPublishStartList(eventClass.state ?? event.state) && isStartListPublishedForClass(event, eventClass.class)
 
+export const isStartListAvailableForRegistration = (
+  event: Pick<JsonDogEvent, 'state' | 'startListPublished'> & {
+    classes?: Array<Pick<JsonDogEvent['classes'][number], 'class' | 'state'> & { date?: Date | string }>
+    startDate: Date | string
+  },
+  registration: { class?: string | null; group: { date?: Date | string } }
+) => {
+  const classes = event.classes ?? []
+  if (!registration.class || classes.length === 0) return classes.length === 0
+
+  const registrationDate = startListAvailabilityDateKey(registration.group.date ?? event.startDate)
+  const eventClasses = classes.filter((eventClass) => eventClass.class === registration.class)
+  const eventClass = eventClasses.find(
+    (item) => startListAvailabilityDateKey(item.date ?? event.startDate) === registrationDate
+  )
+
+  if (eventClass) return isStartListAvailableForClass(event, eventClass)
+  if (eventClasses.length === 1) return isStartListAvailableForClass(event, eventClasses[0])
+  return false
+}
+
+const startListAvailabilityDateKey = (date: Date | string) => formatDate(date, 'yyyy-MM-dd')
+
 export const isStartListPublishedForClass = (event: Pick<JsonDogEvent, 'startListPublished'>, eventClass: string) =>
   isStartListPublishedClassMap(event.startListPublished)
     ? event.startListPublished[eventClass as RegistrationClass] === true

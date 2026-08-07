@@ -11,7 +11,11 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { zonedDateString } from '../../i18n/dates'
 import { formatDogName } from '../../lib/dog'
-import { eventRegistrationDateKey, isStartListAvailableForClass, isStartListPublishedForClass } from '../../lib/event'
+import {
+  eventRegistrationDateKey,
+  isStartListAvailableForClass,
+  isStartListAvailableForRegistration,
+} from '../../lib/event'
 import { startListFileName } from '../../lib/fileName'
 import { judgeName } from '../../lib/judge'
 import { startListSpreadsheetRows } from '../../lib/startList'
@@ -41,12 +45,16 @@ export const ParticipantList = ({
 }: ParticipantListProps) => {
   const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
-  const copyText = useMemo(() => formatStartList(participants, event, t), [event, participants, t])
-  const spreadsheetRows = useMemo(() => startListSpreadsheetRows(participants, event, t), [event, participants, t])
-  const startListItems = useMemo(
-    () => getStartListItems(participants, event, includeUnpublished),
+  const visibleParticipants = useMemo(
+    () => getVisibleStartListParticipants(participants, event, includeUnpublished),
     [event, includeUnpublished, participants]
   )
+  const copyText = useMemo(() => formatStartList(visibleParticipants, event, t), [event, t, visibleParticipants])
+  const spreadsheetRows = useMemo(
+    () => startListSpreadsheetRows(visibleParticipants, event, t),
+    [event, t, visibleParticipants]
+  )
+  const startListItems = useMemo(() => getStartListItems(visibleParticipants, event), [event, visibleParticipants])
   let lastDate: Date | undefined
   let lastClass: PublicRegistration['class']
   let lastGroup: string | undefined
@@ -106,7 +114,7 @@ export const ParticipantList = ({
                   classValue={item.eventClass.class}
                   event={event}
                   lastDate={item.date}
-                  published={isStartListPublishedForClass(event, item.eventClass.class)}
+                  published={isStartListAvailableForClass(event, item.eventClass)}
                 />
               )
               lastClass = item.eventClass.class
@@ -126,7 +134,7 @@ export const ParticipantList = ({
                     classValue={reg.class}
                     event={event}
                     lastDate={lastDate}
-                    published={isStartListPublishedForClass(event, reg.class)}
+                    published={isStartListAvailableForRegistration(event, reg)}
                   />
                 )
               }
@@ -186,7 +194,7 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
 
     if (item.type === 'emptyClass') {
       const judges = formatClassJudges(event, item.eventClass.class, item.date, t)
-      const note = isStartListPublishedForClass(event, item.eventClass.class) ? '' : `(${t('startListNotPublished')})`
+      const note = isStartListAvailableForClass(event, item.eventClass) ? '' : `(${t('startListNotPublished')})`
       lines.push([item.eventClass.class, judges, note].filter(Boolean).join(' '))
       lastClass = item.eventClass.class
       lastGroup = undefined
@@ -198,7 +206,8 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
     if (lastClass !== reg.class) {
       if (reg.class) {
         const judges = formatClassJudges(event, reg.class, date, t)
-        lines.push([reg.class, judges].filter(Boolean).join(' '))
+        const note = isStartListAvailableForRegistration(event, reg) ? '' : `(${t('startListNotPublished')})`
+        lines.push([reg.class, judges, note].filter(Boolean).join(' '))
       }
       lastClass = reg.class
     }
@@ -215,11 +224,7 @@ function formatStartList(participants: PublicRegistration[], event: PublicConfir
   return lines.join('\n')
 }
 
-function getStartListItems(
-  participants: PublicRegistration[],
-  event: PublicConfirmedEvent,
-  includeUnpublished: boolean = false
-): StartListItem[] {
+function getStartListItems(participants: PublicRegistration[], event: PublicConfirmedEvent): StartListItem[] {
   const participantClassDates = new Set(
     participants.map((reg) => classDateKey(reg.class, reg.group.date ?? event.startDate))
   )
@@ -233,11 +238,9 @@ function getStartListItems(
   const emptyClasses = event.classes.flatMap<StartListItem>((eventClass, order) => {
     const date = eventClass.date ?? event.startDate
     const key = classDateKey(eventClass.class, date)
-    if (
-      includedClasses.has(key) ||
-      participantClassDates.has(key) ||
-      (!includeUnpublished && !isStartListAvailableForClass(event, eventClass))
-    ) {
+    // Keep unpublished classes visible as headers on a partially published public start list.
+    // Their registrations are filtered out above, so no groups or participant details are shown.
+    if (includedClasses.has(key) || participantClassDates.has(key)) {
       return []
     }
     includedClasses.add(key)
@@ -257,6 +260,15 @@ function getStartListItems(
     const numberDiff = startListItemNumber(a) - startListItemNumber(b)
     return numberDiff || a.order - b.order
   })
+}
+
+function getVisibleStartListParticipants(
+  participants: PublicRegistration[],
+  event: PublicConfirmedEvent,
+  includeUnpublished: boolean
+): PublicRegistration[] {
+  if (includeUnpublished) return participants
+  return participants.filter((registration) => isStartListAvailableForRegistration(event, registration))
 }
 
 function startListItemClass(item: StartListItem): string {

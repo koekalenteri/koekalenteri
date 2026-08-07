@@ -23,6 +23,7 @@ import {
   isEventDeletable,
   isStartListAvailable,
   isStartListAvailableForClass,
+  isStartListAvailableForRegistration,
   isStartListPublishedForClass,
   newEventEntryEndDate,
   newEventEntryStartDate,
@@ -203,6 +204,85 @@ describe('lib/event', () => {
           { class: 'AVO', state: 'picked' }
         )
       ).toEqual(false)
+    })
+
+    it('uses the matching event class date for registration availability', () => {
+      const event = {
+        classes: [
+          { class: 'AVO' as const, date: '2025-01-01', state: 'started' as const },
+          { class: 'AVO' as const, date: '2025-01-02', state: 'picked' as const },
+        ],
+        startDate: '2025-01-01',
+        startListPublished: { AVO: true },
+        state: 'confirmed' as const,
+      }
+
+      expect(isStartListAvailableForRegistration(event, { class: 'AVO', group: { date: '2025-01-01' } })).toBe(true)
+      expect(isStartListAvailableForRegistration(event, { class: 'AVO', group: { date: '2025-01-02' } })).toBe(false)
+    })
+
+    it('normalizes ISO timestamps to the same event calendar day', () => {
+      const event = {
+        classes: [
+          { class: 'AVO' as const, date: '2025-01-01T22:30:00.000Z', state: 'started' as const },
+          { class: 'AVO' as const, date: '2025-01-03T10:00:00.000Z', state: 'picked' as const },
+        ],
+        startDate: '2025-01-01T22:30:00.000Z',
+        startListPublished: { AVO: true },
+        state: 'confirmed' as const,
+      }
+
+      expect(
+        isStartListAvailableForRegistration(event, { class: 'AVO', group: { date: '2025-01-02T12:00:00.000Z' } })
+      ).toBe(true)
+    })
+
+    it('uses the only matching class when a registration date differs', () => {
+      const event = {
+        classes: [{ class: 'AVO' as const, date: '2025-01-01', state: 'started' as const }],
+        startDate: '2025-01-01',
+        startListPublished: { AVO: true },
+        state: 'confirmed' as const,
+      }
+
+      expect(isStartListAvailableForRegistration(event, { class: 'AVO', group: { date: '2025-01-02' } })).toBe(true)
+    })
+
+    it('handles legacy events without classes', () => {
+      expect(
+        isStartListAvailableForRegistration(
+          { classes: undefined, startDate: '2025-01-01', startListPublished: true, state: 'invited' },
+          { class: 'AVO', group: { date: '2025-01-01' } }
+        )
+      ).toBe(true)
+    })
+
+    it('does not expose a classless registration for an event with classes', () => {
+      expect(
+        isStartListAvailableForRegistration(
+          {
+            classes: [{ class: 'AVO', date: '2025-01-01', state: 'started' }],
+            startDate: '2025-01-01',
+            startListPublished: { AVO: true },
+            state: 'confirmed',
+          },
+          { group: { date: '2025-01-01' } }
+        )
+      ).toBe(false)
+    })
+
+    it('fails closed when a registration date cannot be matched to an ambiguous class', () => {
+      const event = {
+        classes: [
+          { class: 'AVO' as const, date: '2025-01-01', state: 'started' as const },
+          { class: 'AVO' as const, date: '2025-01-02', state: 'picked' as const },
+        ],
+        startDate: '2025-01-01',
+        startListPublished: { AVO: true },
+        state: 'confirmed' as const,
+      }
+
+      expect(isStartListAvailableForRegistration(event, { class: 'AVO', group: { date: '2025-01-03' } })).toBe(false)
     })
 
     it('uses the event-level value when class-specific publishing is not configured', () => {

@@ -212,7 +212,15 @@ describe('ParticipantList', () => {
     expect(screen.getAllByTestId('registration-details')).toHaveLength(2)
   })
 
-  it('does not render unpublished event classes missing from the public start list', () => {
+  it('renders participants with a class for a classless event', () => {
+    const participant = createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap')
+
+    render(<ParticipantList participants={[participant]} event={{ ...mockEvent, classes: [] }} />)
+
+    expect(screen.getByText('Dog 1 (index: 0)')).toBeInTheDocument()
+  })
+
+  it('renders an unpublished event class as a header on the public start list', () => {
     const mockParticipants: PublicRegistration[] = [
       createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
     ]
@@ -224,7 +232,76 @@ describe('ParticipantList', () => {
       />
     )
 
-    expect(screen.queryByText('VOI unpublished')).not.toBeInTheDocument()
+    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+  })
+
+  it('does not render groups or participants for an unpublished class on the public start list', () => {
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'AVO Dog', 1, new Date('2023-01-01'), 'ap'),
+      createMockRegistration('VOI', 'VOI Dog', 2, new Date('2023-01-01'), 'ip'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: true, VOI: false } }}
+      />
+    )
+
+    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+    expect(screen.queryByText('VOI Dog (index: 0)')).not.toBeInTheDocument()
+    expect(screen.getAllByTestId('time-header')).toHaveLength(1)
+  })
+
+  it('does not show a later unpublished class date when the same class is published on another date', () => {
+    const firstDate = new Date('2023-01-01')
+    const secondDate = new Date('2023-01-02')
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Day 1 Dog', 1, firstDate, 'ap'),
+      createMockRegistration('AVO', 'Day 2 Dog', 2, secondDate, 'ip'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{
+          ...mockEvent,
+          classes: [
+            { class: 'AVO', date: firstDate, state: 'started' },
+            { class: 'AVO', date: secondDate, state: 'picked' },
+          ],
+          startListPublished: { AVO: true },
+        }}
+      />
+    )
+
+    expect(screen.getByText('Day 1 Dog (index: 0)')).toBeInTheDocument()
+    expect(screen.queryByText(/Day 2 Dog/)).not.toBeInTheDocument()
+    expect(screen.getAllByTestId('class-header').map((header) => header.textContent)).toEqual([
+      'AVO',
+      'AVO unpublished',
+    ])
+    expect(screen.getAllByTestId('time-header')).toHaveLength(1)
+  })
+
+  it('uses the matching class state when a registration date is missing from the event classes', () => {
+    const eventDate = new Date('2023-01-01')
+    const registrationDate = new Date('2023-01-02')
+    const participant = createMockRegistration('AVO', 'Dog 1', 1, registrationDate, 'ap')
+
+    render(
+      <ParticipantList
+        participants={[participant]}
+        event={{
+          ...mockEvent,
+          classes: [{ class: 'AVO', date: eventDate, state: 'picked' }],
+          startListPublished: { AVO: true },
+        }}
+      />
+    )
+
+    expect(screen.queryByText('Dog 1 (index: 0)')).not.toBeInTheDocument()
+    expect(screen.getByText('AVO unpublished')).toBeInTheDocument()
   })
 
   it('renders unpublished empty classes in preview mode', () => {
@@ -335,6 +412,63 @@ describe('ParticipantList', () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('Dog 1'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('(i. Sire Dog, e. Dam Dog)'))
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining('2. PERUTTU'))
+  })
+
+  it('copies unpublished participants and their publication status in preview mode', async () => {
+    const user = userEvent.setup()
+    mockClipboard()
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'Dog 1', 1, new Date('2023-01-01'), 'ap'),
+      createMockRegistration('VOI', 'Dog 2', 2, new Date('2023-01-01'), 'ip'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{
+          ...mockEvent,
+          classes: mockEvent.classes.map((eventClass) =>
+            eventClass.class === 'VOI' ? { ...eventClass, state: 'picked' } : eventClass
+          ),
+          startListPublished: { AVO: true, VOI: true },
+        }}
+        includeUnpublished
+        showExportActions
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: /copy|kopioi/i }))
+
+    expect(screen.getByText('VOI unpublished')).toBeInTheDocument()
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining('VOI Judge Two, Judge Three (startListNotPublished)')
+    )
+    expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/\n2\..*Dog 2 REG2 s\./))
+  })
+
+  it('does not export unpublished participants from the public start list', async () => {
+    const user = userEvent.setup()
+    const mockParticipants: PublicRegistration[] = [
+      createMockRegistration('AVO', 'AVO Dog', 1, new Date('2023-01-01'), 'ap'),
+      createMockRegistration('VOI', 'VOI Dog', 2, new Date('2023-01-01'), 'ip'),
+    ]
+
+    render(
+      <ParticipantList
+        participants={mockParticipants}
+        event={{ ...mockEvent, startListPublished: { AVO: true, VOI: false } }}
+        showExportActions
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: 'downloadStartList' }))
+
+    expect(mockDownloadXlsx).toHaveBeenCalledWith(
+      expect.objectContaining({ rows: expect.arrayContaining([expect.arrayContaining(['CH AVO Dog'])]) })
+    )
+    expect(mockDownloadXlsx).toHaveBeenCalledWith(
+      expect.objectContaining({ rows: expect.not.arrayContaining([expect.arrayContaining(['CH VOI Dog'])]) })
+    )
   })
 
   it('formats the public start list for an Excel spreadsheet', () => {

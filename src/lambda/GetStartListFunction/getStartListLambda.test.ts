@@ -8,7 +8,7 @@ const mockGetEvent = jest.fn<any>()
 const mockQuery = jest.fn<any>()
 const mockGetStartListPublishedClassMap = jest.fn<any>()
 const mockIsStartListAvailable = jest.fn<any>()
-const mockIsStartListAvailableForClass = jest.fn<any>()
+const mockIsStartListAvailableForRegistration = jest.fn<any>()
 const mockIsStartListPublishedClassMap = jest.fn<any>()
 
 jest.unstable_mockModule('../lib/lambda', () => ({
@@ -36,7 +36,7 @@ jest.unstable_mockModule('../lib/auth', () => ({
 jest.unstable_mockModule('../../lib/event', () => ({
   getStartListPublishedClassMap: mockGetStartListPublishedClassMap,
   isStartListAvailable: mockIsStartListAvailable,
-  isStartListAvailableForClass: mockIsStartListAvailableForClass,
+  isStartListAvailableForRegistration: mockIsStartListAvailableForRegistration,
   isStartListPublishedClassMap: mockIsStartListPublishedClassMap,
 }))
 
@@ -61,7 +61,7 @@ describe('getStartListLambda', () => {
       memberOf: ['org123'],
       user: { id: 'user123', roles: { org123: 'secretary' } },
     })
-    mockIsStartListAvailableForClass.mockReturnValue(true)
+    mockIsStartListAvailableForRegistration.mockReturnValue(true)
   })
 
   it('returns unpublished registrations through the authenticated preview route', async () => {
@@ -99,7 +99,7 @@ describe('getStartListLambda', () => {
 
     expect(mockAuthorizeWithMemberOf).toHaveBeenCalledWith(previewEvent)
     expect(mockIsStartListAvailable).not.toHaveBeenCalled()
-    expect(mockIsStartListAvailableForClass).not.toHaveBeenCalled()
+    expect(mockIsStartListAvailableForRegistration).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(
       200,
       [
@@ -151,7 +151,7 @@ describe('getStartListLambda', () => {
     expect(mockGetParam).toHaveBeenCalledWith(event, 'eventId')
     expect(mockGetEvent).toHaveBeenCalledWith(eventId)
     expect(mockIsStartListAvailable).toHaveBeenCalledWith(confirmedEvent)
-    expect(mockIsStartListAvailableForClass).not.toHaveBeenCalled()
+    expect(mockIsStartListAvailableForRegistration).not.toHaveBeenCalled()
     expect(mockQuery).not.toHaveBeenCalled()
     expect(mockResponse).toHaveBeenCalledWith(404, [], event)
   })
@@ -275,67 +275,8 @@ describe('getStartListLambda', () => {
     mockGetParam.mockReturnValueOnce(eventId)
     mockGetEvent.mockResolvedValueOnce(confirmedEvent)
     mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockIsStartListAvailableForClass.mockImplementation(
-      (_event: unknown, eventClass: { class: string }) => eventClass.class === 'ALO'
-    )
-    mockQuery.mockResolvedValueOnce(registrations)
-
-    await getStartListLambda(event)
-
-    expect(mockResponse).toHaveBeenCalledWith(
-      200,
-      [
-        {
-          breeder: undefined,
-          class: 'ALO',
-          dog: { name: 'Dog 1', regNo: 'REG1' },
-          group: { date: '2025-01-01', key: 'ALO', number: 1 },
-          handler: 'Handler 1',
-          owner: 'Owner 1',
-          ownerHandles: undefined,
-        },
-      ],
-      event
-    )
-  })
-
-  it('returns registrations for a published invited class even if the event is only confirmed', async () => {
-    const eventId = 'event123'
-    const confirmedEvent = {
-      classes: [
-        { class: 'ALO', state: 'invited' },
-        { class: 'AVO', state: 'picked' },
-      ],
-      id: eventId,
-      startListPublished: { ALO: true, AVO: true },
-      state: 'confirmed',
-    }
-    const registrations = [
-      {
-        cancelled: false,
-        class: 'ALO',
-        dog: { name: 'Dog 1', regNo: 'REG1' },
-        eventId,
-        group: { date: '2025-01-01', key: 'ALO', number: 1 },
-        handler: { name: 'Handler 1' },
-        owner: { name: 'Owner 1' },
-      },
-      {
-        cancelled: false,
-        class: 'AVO',
-        dog: { name: 'Dog 2', regNo: 'REG2' },
-        eventId,
-        group: { date: '2025-01-01', key: 'AVO', number: 2 },
-        handler: { name: 'Handler 2' },
-        owner: { name: 'Owner 2' },
-      },
-    ]
-
-    mockGetParam.mockReturnValueOnce(eventId)
-    mockGetEvent.mockResolvedValueOnce(confirmedEvent)
-    mockIsStartListAvailable.mockReturnValueOnce(true)
-    mockIsStartListAvailableForClass.mockImplementation(
-      (_event: unknown, eventClass: { state?: string }) => eventClass.state === 'invited'
+    mockIsStartListAvailableForRegistration.mockImplementation(
+      (_event: unknown, registration: { class: string }) => registration.class === 'ALO'
     )
     mockQuery.mockResolvedValueOnce(registrations)
 
