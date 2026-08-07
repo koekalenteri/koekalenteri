@@ -78,13 +78,14 @@ export function EntryInfo({
 
   // Helper function to determine initial filter dates
   const getInitialFilterDates = useCallback(() => {
-    const selectedDates = reg?.dates?.filter((rd) => dates.some((d) => isSameDay(d, rd.date))) ?? []
+    const selectedDates =
+      reg.eventId === event.id ? (reg.dates?.filter((rd) => dates.some((d) => isSameDay(d, rd.date))) ?? []) : []
     const tmpDates = selectedDates.length ? selectedDates.map((rd) => rd.date) : dates
 
     return uniqueDate(
       classDate ? regDates.filter((d) => format(d.date, 'dd.MM.') === classDate).map((rd) => rd.date) : tmpDates
     )
-  }, [classDate, dates, reg?.dates, regDates])
+  }, [classDate, dates, event.id, reg.dates, reg.eventId, regDates])
 
   // Local state for form fields with debounced updates
   const [selectedClass, setSelectedClass] = useLocalState<RegistrationClass | null | undefined>(reg.class, (value) => {

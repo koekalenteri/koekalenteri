@@ -174,6 +174,50 @@ describe('EntryInfo', () => {
     )
   })
 
+  it('should reset groups when switching from NOME-B to NOWT', async () => {
+    const reg = merge(registrationWithStaticDatesAndClass, {})
+    const changeHandler = jest.fn((props) => Object.assign(reg, props))
+    const nowtEvent = {
+      ...eventWithStaticDatesAndClass,
+      eventType: 'NOWT',
+      id: 'nowt-event',
+    }
+
+    const { rerender } = render(
+      <EntryInfo
+        key={eventWithStaticDatesAndClass.id}
+        reg={reg}
+        event={eventWithStaticDatesAndClass}
+        errorStates={{}}
+        helperTexts={{}}
+        onChange={changeHandler}
+      />,
+      { wrapper: Wrapper }
+    )
+    await flushPromises()
+    changeHandler.mockClear()
+
+    rerender(
+      <EntryInfo
+        key={nowtEvent.id}
+        reg={reg}
+        event={nowtEvent}
+        errorStates={{}}
+        helperTexts={{}}
+        onChange={changeHandler}
+      />
+    )
+    await flushPromises()
+
+    expect(changeHandler).toHaveBeenCalledTimes(1)
+    expect(changeHandler).toHaveBeenNthCalledWith(1, {
+      dates: [
+        { date: eventWithStaticDatesAndClass.startDate, time: 'kp' },
+        { date: eventWithStaticDatesAndClass.endDate, time: 'kp' },
+      ],
+    })
+  })
+
   it('should show error states when provided', async () => {
     render(
       <EntryInfo

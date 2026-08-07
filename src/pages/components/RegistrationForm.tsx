@@ -258,6 +258,7 @@ export default function RegistrationForm({
         }}
       >
         <EntryInfo
+          key={event.id}
           reg={registration}
           event={event}
           classDate={classDate}
