@@ -68,8 +68,6 @@ const EVENT_PROGRESS_PHASE_INDEX: Record<EventProgressPhase | 'completed', numbe
   started: 5,
 }
 
-export const getEventProgressPhaseIndex = (phase: EventProgressPhase): number => EVENT_PROGRESS_PHASE_INDEX[phase]
-
 const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: boolean): number => {
   if (state === 'confirmed') return entryStarted ? EVENT_PROGRESS_PHASE_INDEX.confirmed_entryOpen : 0
   return EVENT_PROGRESS_PHASE_INDEX[state]
@@ -78,13 +76,13 @@ const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: b
 export const getEventProgressPhase = (event: ConfirmedEvent, now = new Date()): EventProgressPhase => {
   const entryStarted = hasEntryStarted(event, now)
   const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
-  const statePhaseIndex = Math.max(
-    getStateProgressPhaseIndex(event.state, entryStarted),
-    ...eventClasses.map((eventClass) => {
-      const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-      return getStateProgressPhaseIndex(state, entryStarted)
-    })
-  )
+  const classPhaseIndexes = eventClasses.map((eventClass) => {
+    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
+    return getStateProgressPhaseIndex(state, entryStarted)
+  })
+  const statePhaseIndex = classPhaseIndexes.length
+    ? Math.min(...classPhaseIndexes)
+    : getStateProgressPhaseIndex(event.state, entryStarted)
   const temporalPhaseIndex = isEventOver(event, now)
     ? EVENT_PROGRESS_PHASE_INDEX.ended
     : isEventOngoing(event, now)

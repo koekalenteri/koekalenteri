@@ -92,7 +92,7 @@ describe('lib/event', () => {
       ).toBe(`event.states.${state}`)
     })
 
-    it('uses the furthest class phase shown by the event state indicator', () => {
+    it('uses the least advanced class phase', () => {
       expect(
         getEventTitle(
           event({
@@ -109,7 +109,7 @@ describe('lib/event', () => {
           t,
           now
         )
-      ).toBe('event.states.invited')
+      ).toBe('event.states.picked')
     })
   })
 

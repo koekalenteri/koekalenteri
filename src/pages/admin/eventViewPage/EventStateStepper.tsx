@@ -9,12 +9,7 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
-import {
-  canPublishStartList,
-  getEventProgressPhase,
-  getEventProgressPhaseIndex,
-  isStartListPublishedForClass,
-} from '../../../lib/event'
+import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
 import { hasEntryStarted, isEntryOpen, isEventOngoing, isEventOver } from '../../../lib/utils'
 
 type EventPhase = Exclude<ConfirmedEventStates, 'completed'> | 'confirmed_entryOpen' | 'startListPublished'
@@ -78,7 +73,11 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     : publishableStartListClasses.filter((eventClass) => isStartListPublishedForClass(event, eventClass))
   const startListActionable = legacyStartListPublished || publishableStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
-  const reachedPhaseIndex = getEventProgressPhaseIndex(getEventProgressPhase(event))
+  const reachedPhaseIndex = Math.max(
+    getPhaseIndex(event.state, entryStarted),
+    temporalPhaseIndex,
+    ...classPhases.map(({ phaseIndex }) => phaseIndex)
+  )
   const entryOpen = isEntryOpen(event)
 
   return (
