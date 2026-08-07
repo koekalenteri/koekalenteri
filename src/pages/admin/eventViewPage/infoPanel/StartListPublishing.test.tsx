@@ -3,6 +3,7 @@ import type { Registration } from '../../../../types'
 import { screen, waitFor } from '@testing-library/react'
 import { RecoilRoot } from 'recoil'
 import {
+  eventWithEntryOpen,
   eventWithParticipantsInvited,
   eventWithStaticDates,
   eventWithStaticDatesAndClass,
@@ -54,6 +55,17 @@ describe('InfoPanel>', () => {
   })
 
   afterAll(() => localStorage.removeItem('idToken'))
+
+  it('does not show an untracked legacy start list as published while entry is open', async () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <RecoilRoot initializeState={({ set }) => set(adminEventsAtom, [eventWithEntryOpen])}>{children}</RecoilRoot>
+    )
+    const { user } = renderWithUserEvents(<InfoPanel event={eventWithEntryOpen} registrations={[]} />, { wrapper })
+    await openInfoPanel(user)
+
+    expect(screen.queryByText('eventManagement.startList.published')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })).toBeInTheDocument()
+  })
 
   it('shows a publish start list CTA when invitations are sent but the class start list is not published', async () => {
     const onSetStartListPublished = jest.fn().mockResolvedValue(undefined)
@@ -127,9 +139,13 @@ describe('InfoPanel>', () => {
     )
     await openInfoPanel(user)
 
-    expect(screen.getByRole('button', { name: 'eventManagement.startList.publish' })).toBeEnabled()
+    const publishButton = screen
+      .getAllByRole('button', { name: 'eventManagement.startList.publish' })
+      .find((button) => !button.hasAttribute('disabled'))
+    if (!publishButton) throw new Error('enabled publish button not found')
+    expect(publishButton).toBeEnabled()
 
-    await user.click(screen.getByRole('button', { name: 'eventManagement.startList.publish' }))
+    await user.click(publishButton)
 
     await waitFor(() => {
       expect(onSetStartListPublished).toHaveBeenCalledWith('ALO', true)

@@ -136,13 +136,13 @@ describe('InfoPanel>', () => {
     expect(screen.getByText('eventManagement.participantSelection.title')).not.toBeVisible()
   })
 
-  it('links to the authenticated public start list preview', async () => {
+  it('links to the authenticated unpublished start list preview when the start list is unavailable', async () => {
     const { user } = renderWithUserEvents(<InfoPanel event={eventWithStaticDates} registrations={[]} />, {
       wrapper: RecoilRoot,
     })
     await openInfoPanel(user)
 
-    const publicStartListLink = screen.getByRole('link', { name: 'eventManagement.startList.preview' })
+    const publicStartListLink = screen.getByRole('link', { name: 'eventManagement.startList.previewUnpublished' })
     expect(publicStartListLink).toHaveAttribute('href', `/admin/event/startlist-preview/${eventWithStaticDates.id}`)
     expect(
       screen.getByText('eventManagement.startList.publishing').compareDocumentPosition(publicStartListLink) &

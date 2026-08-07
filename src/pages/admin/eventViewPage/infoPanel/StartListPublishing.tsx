@@ -11,7 +11,7 @@ import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 import { enqueueSnackbar } from 'notistack'
 import { useTranslation } from 'react-i18next'
-import { canPublishStartList, isStartListPublishedForClass } from '../../../../lib/event'
+import { canPublishStartList, isStartListAvailable, isStartListAvailableForClass } from '../../../../lib/event'
 import { getInvitationRecipients, isRegistrationClass } from '../../../../lib/registration'
 import { errorSnackbarOptions } from '../../../../lib/snackbar'
 import { Path } from '../../../../routeConfig'
@@ -44,10 +44,14 @@ const StartListPublishing = ({
   stateByClass,
 }: Props) => {
   const { t } = useTranslation()
+  const isStartListPublished = (eventClass?: ConfirmedEvent['classes'][number]) =>
+    eventClass
+      ? isStartListAvailableForClass(event, eventClass)
+      : event.classes.length === 0 && isStartListAvailable(event)
   const startListFullyPublished =
     event.classes.length === 0
-      ? isStartListPublishedForClass(event, event.eventType)
-      : event.classes.every((eventClass) => isStartListPublishedForClass(event, eventClass.class))
+      ? isStartListPublished()
+      : event.classes.every((eventClass) => isStartListPublished(eventClass))
 
   const handleSetStartListPublished = async (eventClass: RegistrationClass | undefined, published: boolean) => {
     const state = eventClass ? (stateByClass[eventClass] ?? event.state) : event.state
@@ -75,7 +79,9 @@ const StartListPublishing = ({
                 selected.length > 0 && getInvitationRecipients(eventWithCurrentAttachments, selected).length === 0
               const classState = stateByClass[className] ?? event.state
               const classFinished = eventFinished || ['ended', 'completed'].includes(classState)
-              const startListPublished = isStartListPublishedForClass(event, className)
+              const startListPublished = isStartListPublished(
+                event.classes.find((eventClass) => eventClass.class === className)
+              )
               const classlessEventRow = event.classes.length === 0 && className === event.eventType
               const startListEventClass = isRegistrationClass(className) ? className : undefined
               const startListManageable =
