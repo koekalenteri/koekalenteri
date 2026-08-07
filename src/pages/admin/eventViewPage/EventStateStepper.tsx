@@ -9,7 +9,12 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
-import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
+import {
+  canPublishStartList,
+  getEventProgressPhase,
+  getEventProgressPhaseIndex,
+  isStartListPublishedForClass,
+} from '../../../lib/event'
 import { hasEntryStarted, isEntryOpen, isEventOngoing, isEventOver } from '../../../lib/utils'
 
 type EventPhase = Exclude<ConfirmedEventStates, 'completed'> | 'confirmed_entryOpen' | 'startListPublished'
@@ -36,12 +41,6 @@ const PhaseStepIcon = ({ active, className, completed }: StepIconProps) => {
   return <Icon className={stateClasses} />
 }
 
-const getTemporalPhaseIndex = (event: ConfirmedEvent): number => {
-  if (isEventOver(event)) return EVENT_PHASES.indexOf('ended')
-  if (isEventOngoing(event)) return EVENT_PHASES.indexOf('started')
-  return -1
-}
-
 const getEntryPhaseLabel = (entryCompleted: boolean, entryOpen: boolean, t: TFunction) => {
   if (entryCompleted) return t('event.states.confirmed_entryClosed')
   if (entryOpen) return t('event.states.confirmed_entryOpen')
@@ -63,7 +62,11 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
     return { eventClass, phaseIndex: getPhaseIndex(state, entryStarted) }
   })
-  const temporalPhaseIndex = getTemporalPhaseIndex(event)
+  const temporalPhaseIndex = isEventOver(event)
+    ? EVENT_PHASES.indexOf('ended')
+    : isEventOngoing(event)
+      ? EVENT_PHASES.indexOf('started')
+      : -1
   const legacyStartListPublished =
     event.startListPublished === undefined && temporalPhaseIndex >= EVENT_PHASES.indexOf('started')
   const publishableStartListClasses = startListClasses.filter((eventClass) => {
@@ -75,11 +78,7 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
     : publishableStartListClasses.filter((eventClass) => isStartListPublishedForClass(event, eventClass))
   const startListActionable = legacyStartListPublished || publishableStartListClasses.length > 0
   const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
-  const reachedPhaseIndex = Math.max(
-    getPhaseIndex(event.state, entryStarted),
-    temporalPhaseIndex,
-    ...classPhases.map(({ phaseIndex }) => phaseIndex)
-  )
+  const reachedPhaseIndex = getEventProgressPhaseIndex(getEventProgressPhase(event))
   const entryOpen = isEntryOpen(event)
 
   return (

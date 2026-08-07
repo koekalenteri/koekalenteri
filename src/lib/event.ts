@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next'
 import type {
   ConfirmedEvent,
+  ConfirmedEventStates,
   DogEvent,
   JsonDogEvent,
   Patch,
@@ -15,7 +16,7 @@ import { tz } from '@date-fns/tz'
 import { addDays, differenceInDays, eachDayOfInterval, isSameDay, isValid, nextSaturday, parseISO, sub } from 'date-fns'
 import { formatDate, TIME_ZONE, zonedDateString, zonedStartOfDay } from '../i18n/dates'
 import { isConfirmedEvent } from './typeGuards'
-import { isEntryClosed, isEntryOpen, isEventOngoing, isEventOver, unique } from './utils'
+import { hasEntryStarted, isEntryOpen, isEventOngoing, isEventOver, unique } from './utils'
 
 export const OFFICIAL_EVENT_TYPES = ['NOU', 'NOME-B', 'NOME-B SM', 'NOME-A', 'NOME-A SM', 'NOWT', 'NOWT SM', 'NKM']
 
@@ -51,20 +52,59 @@ export const isStartListAvailable = ({
 export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
 
-export function getEventTitle(event: DogEvent, t: TFunction<'translation'>): string {
+export type EventProgressPhase =
+  | Exclude<ConfirmedEventStates, 'completed'>
+  | 'confirmed_entryOpen'
+  | 'confirmed_entryClosed'
+
+const EVENT_PROGRESS_PHASE_INDEX: Record<EventProgressPhase | 'completed', number> = {
+  completed: 6,
+  confirmed: 0,
+  confirmed_entryClosed: 1,
+  confirmed_entryOpen: 1,
+  ended: 6,
+  invited: 3,
+  picked: 2,
+  started: 5,
+}
+
+export const getEventProgressPhaseIndex = (phase: EventProgressPhase): number => EVENT_PROGRESS_PHASE_INDEX[phase]
+
+const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: boolean): number => {
+  if (state === 'confirmed') return entryStarted ? EVENT_PROGRESS_PHASE_INDEX.confirmed_entryOpen : 0
+  return EVENT_PROGRESS_PHASE_INDEX[state]
+}
+
+export const getEventProgressPhase = (event: ConfirmedEvent, now = new Date()): EventProgressPhase => {
+  const entryStarted = hasEntryStarted(event, now)
+  const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
+  const statePhaseIndex = Math.max(
+    getStateProgressPhaseIndex(event.state, entryStarted),
+    ...eventClasses.map((eventClass) => {
+      const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
+      return getStateProgressPhaseIndex(state, entryStarted)
+    })
+  )
+  const temporalPhaseIndex = isEventOver(event, now)
+    ? EVENT_PROGRESS_PHASE_INDEX.ended
+    : isEventOngoing(event, now)
+      ? EVENT_PROGRESS_PHASE_INDEX.started
+      : -1
+  const phaseIndex = Math.max(statePhaseIndex, temporalPhaseIndex)
+
+  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.ended) return 'ended'
+  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.started) return 'started'
+  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.invited) return 'invited'
+  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.picked) return 'picked'
+  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.confirmed_entryOpen) {
+    return isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
+  }
+  return 'confirmed'
+}
+
+export function getEventTitle(event: DogEvent, t: TFunction<'translation'>, now = new Date()): string {
   if (isConfirmedEvent(event)) {
-    if (isEventOver(event)) {
-      return t('event.states.confirmed_eventOver')
-    }
-    if (isEntryOpen(event)) {
-      return t('event.states.confirmed_entryOpen')
-    }
-    if (isEntryClosed(event)) {
-      return t('event.states.confirmed_entryClosed')
-    }
-    if (isEventOngoing(event)) {
-      return t('event.states.confirmed_eventOngoing')
-    }
+    return t(`event.states.${getEventProgressPhase(event, now)}`)
   }
 
   return t(`event.states.${event.state || 'draft'}`)

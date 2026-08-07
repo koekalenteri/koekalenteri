@@ -39,7 +39,7 @@ describe('lib/event', () => {
 
     it.each([
       {
-        expected: 'event.states.confirmed_eventOver',
+        expected: 'event.states.ended',
         overrides: { endDate: addDays(now, -1), state: 'confirmed' as const },
       },
       {
@@ -63,7 +63,7 @@ describe('lib/event', () => {
         },
       },
       {
-        expected: 'event.states.confirmed_eventOngoing',
+        expected: 'event.states.started',
         overrides: {
           endDate: addDays(now, 1),
           entryEndDate: addDays(now, -2),
@@ -73,7 +73,7 @@ describe('lib/event', () => {
         },
       },
     ])('returns $expected for the matching event phase', ({ expected, overrides }) => {
-      expect(getEventTitle(event(overrides), t)).toBe(expected)
+      expect(getEventTitle(event(overrides), t, now)).toBe(expected)
     })
 
     it.each<EventState>(['draft', 'confirmed'])('falls back to the %s state title', (state) => {
@@ -86,9 +86,30 @@ describe('lib/event', () => {
             startDate: addDays(now, 2),
             state,
           }),
-          t
+          t,
+          now
         )
       ).toBe(`event.states.${state}`)
+    })
+
+    it('uses the furthest class phase shown by the event state indicator', () => {
+      expect(
+        getEventTitle(
+          event({
+            classes: [
+              { class: 'ALO', date: addDays(now, 2), state: 'picked' },
+              { class: 'AVO', date: addDays(now, 2), state: 'invited' },
+            ],
+            endDate: addDays(now, 3),
+            entryEndDate: addDays(now, -1),
+            entryStartDate: addDays(now, -3),
+            startDate: addDays(now, 2),
+            state: 'confirmed',
+          }),
+          t,
+          now
+        )
+      ).toBe('event.states.invited')
     })
   })
 
