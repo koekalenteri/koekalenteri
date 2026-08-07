@@ -340,6 +340,7 @@ describe('lib/registration', () => {
     })
     it('should return false if fully refunded', () => {
       expect(canRefund({ cancelled: true, paidAmount: 10, refundAmount: 10 })).toEqual(false)
+      expect(canRefund({ cancelled: true, paidAmount: 10, refundAmount: 5, refundHandlingCost: 5 })).toEqual(false)
       expect(canRefund({ paidAmount: 10, refundAmount: 10 })).toEqual(false)
       expect(canRefund({ paidAmount: 10, refundAmount: 20 })).toEqual(false)
     })

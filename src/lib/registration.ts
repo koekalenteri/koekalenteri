@@ -154,8 +154,10 @@ export const isParticipantGroup = (group?: string): boolean =>
   Boolean(group) && group !== GROUP_KEY_RESERVE && group !== GROUP_KEY_CANCELLED
 
 export const canRefund = <T extends JsonRegistration | Registration>(
-  reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount'>
-): boolean => (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) && REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
+  reg: Pick<T, 'cancelled' | 'group' | 'paidAmount' | 'refundAmount' | 'refundHandlingCost'>
+): boolean =>
+  (reg.paidAmount ?? 0) > (reg.refundAmount ?? 0) + (reg.refundHandlingCost ?? 0) &&
+  REFUNDABLE_GROUP_KEYS.has(getRegistrationGroupKey(reg))
 
 export const getSelectedAdditionalCosts = (
   event: MinimalEventForCost,

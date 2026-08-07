@@ -3,7 +3,7 @@ import type { Transaction } from '../../../types'
 import { ThemeProvider } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { ConfirmProvider } from 'material-ui-confirm'
 import { SnackbarProvider, useSnackbar } from 'notistack'
 import { Suspense } from 'react'
@@ -30,7 +30,7 @@ jest.mock('notistack', () => ({
 }))
 
 // Mock transaction data
-const mockTransactions: Transaction[] = [
+const defaultMockTransactions: Transaction[] = [
   {
     amount: 5000, // 50€
     createdAt: new Date('2024-01-01T12:00:00Z'),
@@ -64,6 +64,7 @@ const mockTransactions: Transaction[] = [
     user: 'admin',
   },
 ]
+let mockTransactions = defaultMockTransactions
 
 // Mock refund implementation for different test scenarios
 let mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
@@ -90,6 +91,7 @@ describe('RefundDialog', () => {
     jest.useFakeTimers()
   })
   beforeEach(() => {
+    mockTransactions = defaultMockTransactions
     ;(useSnackbar as jest.Mock).mockReturnValue({
       enqueueSnackbar: enqueueSnackbarMock,
     })
@@ -125,11 +127,16 @@ describe('RefundDialog', () => {
     expect(screen.getByText('50,00 €')).toBeInTheDocument()
   })
 
-  it('handles successful refund with default provider', async () => {
+  it('does not charge a handling cost by default for a reserve registration', async () => {
     mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
 
+    const registration = {
+      ...registrationWithStaticDates,
+      cancelled: true,
+      group: { key: 'reserve', number: 1 },
+    }
     const onCloseMock = jest.fn()
-    render(<RefundDialog registration={registrationWithStaticDates} open={true} onClose={onCloseMock} />, {
+    render(<RefundDialog registration={registration} open={true} onClose={onCloseMock} />, {
       wrapper: Wrapper,
     })
     await flushPromises()
@@ -139,16 +146,16 @@ describe('RefundDialog', () => {
     await waitFor(() => {
       expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
     })
-    expect(mockRefundImplementation).toHaveBeenCalledWith(registrationWithStaticDates, 'payment-123', 2500, 500)
+    expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 3000, 0)
     expect(onCloseMock).toHaveBeenCalled()
   })
 
-  it('uses stored handling cost when refund dialog is reopened', async () => {
+  it('charges the default handling cost for a non-reserve registration', async () => {
     mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
 
     const registration = {
       ...registrationWithStaticDates,
-      refundHandlingCost: 7,
+      group: { key: '2024-01-01-ALO-ap', number: 1 },
     }
     render(<RefundDialog registration={registration} open={true} />, {
       wrapper: Wrapper,
@@ -159,7 +166,102 @@ describe('RefundDialog', () => {
     await waitFor(() => {
       expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
     })
-    expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 2300, 700)
+    expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 2500, 500)
+  })
+
+  it('does not charge another handling cost for a partial refund', async () => {
+    mockRefundImplementation = jest.fn().mockResolvedValue({ status: 'ok' })
+
+    const registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'cancelled', number: 1 },
+      refundHandlingCost: 7,
+    }
+    render(<RefundDialog registration={registration} open={true} />, {
+      wrapper: Wrapper,
+    })
+    await flushPromises()
+
+    expect(screen.getByText('registration.refundDialog.previouslyChargedHandlingCost:')).toBeInTheDocument()
+    expect(screen.getByText('7,00 €')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByText('refund'))
+    await waitFor(() => {
+      expect(enqueueSnackbarMock).toHaveBeenCalledWith('Maksu palautettu', { variant: 'success' })
+    })
+    expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 3000, 0)
+  })
+
+  it('preserves an explicitly waived handling cost for a partial refund', async () => {
+    const registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'cancelled', number: 1 },
+      refundHandlingCost: 0,
+    }
+
+    render(<RefundDialog registration={registration} open={true} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    fireEvent.click(screen.getByText('refund'))
+    await waitFor(() => {
+      expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-123', 3000, 0)
+    })
+  })
+
+  it('does not offer a previously charged handling cost for refund again', async () => {
+    mockTransactions = [
+      { ...defaultMockTransactions[0], amount: 3000 },
+      { ...defaultMockTransactions[1], amount: 2500, handlingCost: 500 },
+    ]
+    const registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'cancelled', number: 1 },
+      paidAmount: 30,
+      refundAmount: 25,
+      refundHandlingCost: 5,
+    }
+
+    render(<RefundDialog registration={registration} open={true} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    expect(screen.getByRole('button', { name: 'refund' })).toBeDisabled()
+    expect(screen.getByText('0,00 €')).toBeInTheDocument()
+  })
+
+  it('refunds a second payment in full without charging another handling cost', async () => {
+    mockTransactions = [
+      { ...defaultMockTransactions[0], amount: 3000 },
+      {
+        ...defaultMockTransactions[0],
+        amount: 2000,
+        createdAt: new Date('2024-01-02T12:00:00Z'),
+        transactionId: 'payment-456',
+      },
+      {
+        ...defaultMockTransactions[1],
+        amount: 2500,
+        createdAt: new Date('2024-01-03T12:00:00Z'),
+        handlingCost: 500,
+      },
+    ]
+    const registration = {
+      ...registrationWithStaticDates,
+      group: { key: 'cancelled', number: 1 },
+      paidAmount: 50,
+      refundAmount: 25,
+      refundHandlingCost: 5,
+    }
+
+    render(<RefundDialog registration={registration} open={true} />, { wrapper: Wrapper })
+    await flushPromises()
+
+    const secondPaymentRow = screen.getByRole('row', { name: /Maksu 20,00/ })
+    fireEvent.click(within(secondPaymentRow).getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: 'refund' }))
+
+    await waitFor(() => {
+      expect(mockRefundImplementation).toHaveBeenCalledWith(registration, 'payment-456', 2000, 0)
+    })
   })
 
   it('handles successful refund with email provider', async () => {

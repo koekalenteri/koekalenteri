@@ -34,6 +34,8 @@ export interface JsonTransaction {
 
 export interface Transaction extends Omit<JsonTransaction, 'createdAt' | 'statusAt'> {
   createdAt: Date
+  /** Handling fee in cents. Only present on refund transactions. */
+  handlingCost?: number
   statusAt?: Date
 }
 

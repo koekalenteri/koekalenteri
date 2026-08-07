@@ -581,6 +581,7 @@
       },
       "costsText": "If a handling fee is charged for the refund, enter the amount in the designated field.",
       "noCostsText": "The selected payment was made in a version of Koekalenteri prior to the refund feature. Such a payment can only be refunded in full through Koekalenteri.",
+      "previouslyChargedHandlingCost": "Previously charged handling fee",
       "text": "Select the payment to be refunded.",
       "title": "Refund, {{regNo}} / {{payer}}"
     },

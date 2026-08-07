@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { APIError } from '../../../api/http'
 import useDebouncedCallback from '../../../hooks/useDebouncedCallback'
 import { formatMoney } from '../../../lib/money'
+import { GROUP_KEY_RESERVE } from '../../../lib/registration'
 import { errorSnackbarOptions } from '../../../lib/snackbar'
 import { isObject } from '../../../lib/utils'
 import { NullComponent } from '../../components/NullComponent'
@@ -48,8 +49,12 @@ interface Props {
   readonly onClose?: () => void
 }
 
-const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * t.amount : t.amount)
+const transactionAmount = (t: Transaction) => (t.type === 'refund' ? -1 * (t.amount + (t.handlingCost ?? 0)) : t.amount)
 const DEFAULT_HANDLING_COST = 500
+const defaultHandlingCost = (registration: Registration) =>
+  (registration.group?.key ?? GROUP_KEY_RESERVE) !== GROUP_KEY_RESERVE && registration.refundHandlingCost === undefined
+    ? DEFAULT_HANDLING_COST
+    : 0
 
 export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const { t } = useTranslation()
@@ -58,11 +63,7 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
   const [loadedId, setLoadedId] = useState<string>('')
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [selection, setSelection] = useState<GridRowSelectionModel>()
-  const [handlingCost, setHandlingCost] = useState<number>(
-    registration.refundHandlingCost === undefined
-      ? DEFAULT_HANDLING_COST
-      : Math.round(registration.refundHandlingCost * 100)
-  )
+  const [handlingCost, setHandlingCost] = useState<number>(defaultHandlingCost(registration))
   const [internalNotes, setInternalNotes] = useState(registration.internalNotes ?? '')
   const actions = useAdminRegistrationActions(registration.eventId)
   const columns = useRefundColumns()
@@ -126,12 +127,8 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset local edits when switching registrations
   useEffect(() => {
-    setHandlingCost(
-      registration.refundHandlingCost === undefined
-        ? DEFAULT_HANDLING_COST
-        : Math.round(registration.refundHandlingCost * 100)
-    )
-  }, [registration.id, registration.refundHandlingCost])
+    setHandlingCost(defaultHandlingCost(registration))
+  }, [registration.id, registration.refundHandlingCost, registration.group?.key])
 
   const dispatchNotesChange = useDebouncedCallback(async (notes: string) => {
     await actions.putInternalNotes(registration.eventId, registration.id, notes)
@@ -334,6 +331,12 @@ export const RefundDailog = ({ open, registration, onClose }: Props) => {
             },
           }}
         ></StyledDataGrid>
+        {(registration.refundHandlingCost ?? 0) > 0 && (
+          <DialogContentText sx={{ my: 1 }}>
+            <span>{t('registration.refundDialog.previouslyChargedHandlingCost')}:</span>{' '}
+            <strong>{formatMoney(registration.refundHandlingCost ?? 0)}</strong>
+          </DialogContentText>
+        )}
         <DialogContentText sx={{ my: 1 }} display={selectedTransactions.length ? undefined : 'none'}>
           {t(canHaveHandlingCosts ? 'registration.refundDialog.costsText' : 'registration.refundDialog.noCostsText')}
         </DialogContentText>

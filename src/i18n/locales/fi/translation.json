@@ -581,6 +581,7 @@
       },
       "costsText": "Jos palautuksesta peritään käsittelykulu, täytä kulun määrä sille varattuun kohtaan.",
       "noCostsText": "Valittu maksu on tehty koekalenterin maksupalautuksia edeltävässä versiossa. Tällaisen maksun voi palauttaa ainoastaan kokonaisena koekalenterin kautta.",
+      "previouslyChargedHandlingCost": "Aiemmin veloitettu käsittelykulu",
       "text": "Valitse palautettava maksu.",
       "title": "Maksun palautus, {{regNo}} / {{payer}}"
     },
