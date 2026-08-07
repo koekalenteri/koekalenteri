@@ -111,6 +111,54 @@ describe('lib/event', () => {
         )
       ).toBe('event.states.picked')
     })
+
+    it.each([
+      {
+        expected: 'event.states.startListPublished',
+        startListPublished: { ALO: true, AVO: true },
+      },
+      {
+        expected: 'event.states.picked',
+        startListPublished: { ALO: true, AVO: false },
+      },
+    ])('returns $expected based on class start list publishing', ({ expected, startListPublished }) => {
+      expect(
+        getEventTitle(
+          event({
+            classes: [
+              { class: 'ALO', date: addDays(now, 2), state: 'picked' },
+              { class: 'AVO', date: addDays(now, 2), state: 'invited' },
+            ],
+            endDate: addDays(now, 3),
+            entryEndDate: addDays(now, -1),
+            entryStartDate: addDays(now, -3),
+            startDate: addDays(now, 2),
+            startListPublished,
+            state: 'invited',
+          }),
+          t,
+          now
+        )
+      ).toBe(expected)
+    })
+
+    it('shows a published start list phase for an event without classes', () => {
+      expect(
+        getEventTitle(
+          event({
+            classes: [],
+            endDate: addDays(now, 3),
+            entryEndDate: addDays(now, -1),
+            entryStartDate: addDays(now, -3),
+            startDate: addDays(now, 2),
+            startListPublished: true,
+            state: 'invited',
+          }),
+          t,
+          now
+        )
+      ).toBe('event.states.startListPublished')
+    })
   })
 
   describe('getEventStateForClass', () => {

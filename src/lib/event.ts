@@ -52,53 +52,104 @@ export const isStartListAvailable = ({
 export const canPublishStartList = (state: JsonDogEvent['state'] | JsonDogEvent['classes'][number]['state']) =>
   state === 'invited' || state === 'started' || state === 'ended' || state === 'completed'
 
-export type EventProgressPhase =
+export type EventProgressStep =
   | Exclude<ConfirmedEventStates, 'completed'>
   | 'confirmed_entryOpen'
-  | 'confirmed_entryClosed'
+  | 'startListPublished'
+export type EventProgressPhase = EventProgressStep | 'confirmed_entryClosed'
 
-const EVENT_PROGRESS_PHASE_INDEX: Record<EventProgressPhase | 'completed', number> = {
-  completed: 6,
-  confirmed: 0,
-  confirmed_entryClosed: 1,
-  confirmed_entryOpen: 1,
-  ended: 6,
-  invited: 3,
-  picked: 2,
-  started: 5,
+export const EVENT_PROGRESS_PHASES: readonly EventProgressStep[] = [
+  'confirmed',
+  'confirmed_entryOpen',
+  'picked',
+  'invited',
+  'startListPublished',
+  'started',
+  'ended',
+]
+
+const getProgressPhaseIndex = (phase: EventProgressPhase | 'completed'): number => {
+  if (phase === 'completed') return EVENT_PROGRESS_PHASES.indexOf('ended')
+  if (phase === 'confirmed_entryClosed') return EVENT_PROGRESS_PHASES.indexOf('confirmed_entryOpen')
+  return EVENT_PROGRESS_PHASES.indexOf(phase)
 }
 
 const getStateProgressPhaseIndex = (state: ConfirmedEventStates, entryStarted: boolean): number => {
-  if (state === 'confirmed') return entryStarted ? EVENT_PROGRESS_PHASE_INDEX.confirmed_entryOpen : 0
-  return EVENT_PROGRESS_PHASE_INDEX[state]
+  if (state === 'confirmed') return getProgressPhaseIndex(entryStarted ? 'confirmed_entryOpen' : 'confirmed')
+  return getProgressPhaseIndex(state)
 }
 
-export const getEventProgressPhase = (event: ConfirmedEvent, now = new Date()): EventProgressPhase => {
+export const getEventProgress = (event: ConfirmedEvent, now = new Date()) => {
   const entryStarted = hasEntryStarted(event, now)
   const eventClasses = [...new Set(event.classes.map(({ class: eventClass }) => eventClass))]
-  const classPhaseIndexes = eventClasses.map((eventClass) => {
+  const classPhases = eventClasses.map((eventClass) => {
     const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-    return getStateProgressPhaseIndex(state, entryStarted)
+    return { eventClass, phaseIndex: getStateProgressPhaseIndex(state, entryStarted) }
   })
-  const statePhaseIndex = classPhaseIndexes.length
-    ? Math.min(...classPhaseIndexes)
+  const statePhaseIndex = classPhases.length
+    ? Math.min(...classPhases.map(({ phaseIndex }) => phaseIndex))
     : getStateProgressPhaseIndex(event.state, entryStarted)
+  const startListClasses = eventClasses.length ? eventClasses : [event.eventType]
   const temporalPhaseIndex = isEventOver(event, now)
-    ? EVENT_PROGRESS_PHASE_INDEX.ended
+    ? getProgressPhaseIndex('ended')
     : isEventOngoing(event, now)
-      ? EVENT_PROGRESS_PHASE_INDEX.started
+      ? getProgressPhaseIndex('started')
       : -1
-  const phaseIndex = Math.max(statePhaseIndex, temporalPhaseIndex)
+  const legacyStartListPublished =
+    event.startListPublished === undefined && temporalPhaseIndex >= getProgressPhaseIndex('started')
+  const publishableStartListClasses = startListClasses.filter((eventClass) => {
+    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
+    return canPublishStartList(state)
+  })
+  const publishedStartListClasses = legacyStartListPublished
+    ? startListClasses
+    : startListClasses.filter((eventClass) => {
+        const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
+        const published = isStartListPublishedForClass(event, eventClass)
+        const explicitlyPublished =
+          event.startListPublished === true || isStartListPublishedClassMap(event.startListPublished)
+        return published && (explicitlyPublished || canPublishStartList(state))
+      })
+  const startListActionable =
+    legacyStartListPublished || publishableStartListClasses.length > 0 || publishedStartListClasses.length > 0
+  const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
+  const phaseIndex = Math.max(
+    statePhaseIndex,
+    startListCompleted ? getProgressPhaseIndex('startListPublished') : -1,
+    temporalPhaseIndex
+  )
+  const reachedPhaseIndex = Math.max(
+    getStateProgressPhaseIndex(event.state, entryStarted),
+    temporalPhaseIndex,
+    ...classPhases.map(({ phaseIndex }) => phaseIndex)
+  )
 
-  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.ended) return 'ended'
-  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.started) return 'started'
-  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.invited) return 'invited'
-  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.picked) return 'picked'
-  if (phaseIndex >= EVENT_PROGRESS_PHASE_INDEX.confirmed_entryOpen) {
-    return isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
+  let phase: EventProgressPhase = 'confirmed'
+  if (phaseIndex >= getProgressPhaseIndex('ended')) phase = 'ended'
+  else if (phaseIndex >= getProgressPhaseIndex('started')) phase = 'started'
+  else if (phaseIndex >= getProgressPhaseIndex('startListPublished')) phase = 'startListPublished'
+  else if (phaseIndex >= getProgressPhaseIndex('invited')) phase = 'invited'
+  else if (phaseIndex >= getProgressPhaseIndex('picked')) phase = 'picked'
+  else if (phaseIndex >= getProgressPhaseIndex('confirmed_entryOpen')) {
+    phase = isEntryOpen(event, now) ? 'confirmed_entryOpen' : 'confirmed_entryClosed'
   }
-  return 'confirmed'
+
+  return {
+    classPhases,
+    entryStarted,
+    eventClasses,
+    phase,
+    publishedStartListClasses,
+    reachedPhaseIndex,
+    startListActionable,
+    startListClasses,
+    startListCompleted,
+    temporalPhaseIndex,
+  }
 }
+
+export const getEventProgressPhase = (event: ConfirmedEvent, now = new Date()): EventProgressPhase =>
+  getEventProgress(event, now).phase
 
 export function getEventTitle(event: DogEvent, t: TFunction<'translation'>, now = new Date()): string {
   if (isConfirmedEvent(event)) {

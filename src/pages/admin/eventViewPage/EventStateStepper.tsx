@@ -1,6 +1,7 @@
 import type { StepIconProps } from '@mui/material/StepIcon'
 import type { TFunction } from 'i18next'
-import type { ConfirmedEvent, ConfirmedEventStates } from '../../../types'
+import type { EventProgressStep } from '../../../lib/event'
+import type { ConfirmedEvent } from '../../../types'
 import CheckCircle from '@mui/icons-material/CheckCircle'
 import Circle from '@mui/icons-material/Circle'
 import RadioButtonUnchecked from '@mui/icons-material/RadioButtonUnchecked'
@@ -9,21 +10,10 @@ import Step from '@mui/material/Step'
 import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { useTranslation } from 'react-i18next'
-import { canPublishStartList, isStartListPublishedForClass } from '../../../lib/event'
-import { hasEntryStarted, isEntryOpen, isEventOngoing, isEventOver } from '../../../lib/utils'
+import { EVENT_PROGRESS_PHASES, getEventProgress } from '../../../lib/event'
+import { isEntryOpen } from '../../../lib/utils'
 
-type EventPhase = Exclude<ConfirmedEventStates, 'completed'> | 'confirmed_entryOpen' | 'startListPublished'
-
-const EVENT_PHASES: readonly EventPhase[] = [
-  'confirmed',
-  'confirmed_entryOpen',
-  'picked',
-  'invited',
-  'startListPublished',
-  'started',
-  'ended',
-]
-const CLASS_PROGRESS_PHASES = new Set<EventPhase>(['picked', 'invited'])
+const CLASS_PROGRESS_PHASES = new Set<EventProgressStep>(['picked', 'invited'])
 
 const PhaseStepIcon = ({ active, className, completed }: StepIconProps) => {
   let Icon = RadioButtonUnchecked
@@ -42,42 +32,19 @@ const getEntryPhaseLabel = (entryCompleted: boolean, entryOpen: boolean, t: TFun
   return t('entryUpcoming')
 }
 
-const getPhaseIndex = (state: ConfirmedEventStates, entryStarted: boolean): number => {
-  if (state === 'completed') return EVENT_PHASES.indexOf('ended')
-  if (state === 'confirmed') return EVENT_PHASES.indexOf(entryStarted ? 'confirmed_entryOpen' : 'confirmed')
-  return EVENT_PHASES.indexOf(state)
-}
-
 export default function EventStateStepper({ event }: { readonly event: ConfirmedEvent }) {
   const { t } = useTranslation()
-  const entryStarted = hasEntryStarted(event)
-  const eventClasses = [...new Set(event.classes.map((eventClass) => eventClass.class))]
-  const startListClasses = eventClasses.length ? eventClasses : [event.eventType]
-  const classPhases = eventClasses.map((eventClass) => {
-    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-    return { eventClass, phaseIndex: getPhaseIndex(state, entryStarted) }
-  })
-  const temporalPhaseIndex = isEventOver(event)
-    ? EVENT_PHASES.indexOf('ended')
-    : isEventOngoing(event)
-      ? EVENT_PHASES.indexOf('started')
-      : -1
-  const legacyStartListPublished =
-    event.startListPublished === undefined && temporalPhaseIndex >= EVENT_PHASES.indexOf('started')
-  const publishableStartListClasses = startListClasses.filter((eventClass) => {
-    const state = event.classes.find((item) => item.class === eventClass)?.state ?? event.state
-    return canPublishStartList(state)
-  })
-  const publishedStartListClasses = legacyStartListPublished
-    ? startListClasses
-    : publishableStartListClasses.filter((eventClass) => isStartListPublishedForClass(event, eventClass))
-  const startListActionable = legacyStartListPublished || publishableStartListClasses.length > 0
-  const startListCompleted = startListActionable && publishedStartListClasses.length === startListClasses.length
-  const reachedPhaseIndex = Math.max(
-    getPhaseIndex(event.state, entryStarted),
+  const {
+    classPhases,
+    entryStarted,
+    eventClasses,
+    publishedStartListClasses,
+    reachedPhaseIndex,
+    startListActionable,
+    startListClasses,
+    startListCompleted,
     temporalPhaseIndex,
-    ...classPhases.map(({ phaseIndex }) => phaseIndex)
-  )
+  } = getEventProgress(event)
   const entryOpen = isEntryOpen(event)
 
   return (
@@ -110,10 +77,10 @@ export default function EventStateStepper({ event }: { readonly event: Confirmed
           minWidth: 760,
         }}
       >
-        {EVENT_PHASES.map((phase, index) => {
+        {EVENT_PROGRESS_PHASES.map((phase, index) => {
           const showClassProgress =
             eventClasses.length > 1 &&
-            temporalPhaseIndex <= EVENT_PHASES.indexOf('invited') &&
+            temporalPhaseIndex <= EVENT_PROGRESS_PHASES.indexOf('invited') &&
             CLASS_PROGRESS_PHASES.has(phase)
           const completedClasses = CLASS_PROGRESS_PHASES.has(phase)
             ? classPhases.filter(({ phaseIndex }) => phaseIndex >= index)
