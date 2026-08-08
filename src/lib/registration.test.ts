@@ -12,6 +12,7 @@ import {
   getRegistrationClass,
   getRegistrationEmailTemplateData,
   getRegistrationGroupKey,
+  getRegistrationGroupTime,
   getRegistrationNumberingGroupKey,
   getSentInvitationAttachment,
   hasPriority,
@@ -251,6 +252,59 @@ describe('lib/registration', () => {
   })
 
   describe('sortRegistrationsByDateClassTimeAndNumber', () => {
+    it('sorts hydrated registrations and leaves reserves last', () => {
+      const firstDate = new Date('2026-08-08T00:00:00.000Z')
+      const secondDate = new Date('2026-08-09T00:00:00.000Z')
+      const regs: Array<SortableRegistration & { id: string }> = [
+        { class: 'AVO', eventType: 'NOME-B', group: { key: 'reserve', number: 1 }, id: 'reserve' },
+        {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          group: { date: firstDate, key: 'first-ip', number: 2, time: 'ip' },
+          id: 'first-ip-2',
+        },
+        {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          group: { date: firstDate, key: 'first-ap', number: 3, time: 'ap' },
+          id: 'first-ap-3',
+        },
+        {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          group: { date: firstDate, key: 'first-ap', number: 1, time: 'ap' },
+          id: 'first-ap-1',
+        },
+        {
+          class: 'AVO',
+          eventType: 'NOME-B',
+          group: { date: firstDate, key: 'first-ap', number: 4, time: 'ap' },
+          id: 'first-avo',
+        },
+        {
+          class: 'ALO',
+          eventType: 'NOME-B',
+          group: { date: secondDate, key: 'second-ap', number: 5, time: 'ap' },
+          id: 'second',
+        },
+      ]
+
+      regs.sort(sortRegistrationsByDateClassTimeAndNumber)
+
+      expect(regs.map(({ id }) => id)).toEqual([
+        'first-ap-1',
+        'first-ap-3',
+        'first-ip-2',
+        'first-avo',
+        'second',
+        'reserve',
+      ])
+    })
+
+    it('uses the whole-day group when time is missing', () => {
+      expect(getRegistrationGroupTime({ group: { key: 'reserve', number: 1 } })).toBe('kp')
+    })
+
     it('should sort registrations properly', () => {
       const regs: SortableRegistration[] = [
         { group: { date: '2024-08-02T21:00:00.000Z', key: '2024-08-02-ip', number: 19, time: 'ip' } },

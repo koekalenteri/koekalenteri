@@ -16,6 +16,7 @@ import type {
   RegistrationClass,
   RegistrationPerson,
   RegistrationTemplateContext,
+  RegistrationTime,
 } from '../types'
 import { PRIORITY_INVITED, PRIORITY_MEMBER } from './priority'
 import { isDefined } from './typeGuards'
@@ -113,20 +114,32 @@ export const priorityDescriptionKey: PriorityCheckFn<
   if (nomeBSMPriority) return nomeBSMPriority
 }
 
-export type SortableRegistration = Pick<JsonRegistration, 'class' | 'group'>
+export type SortableRegistration = {
+  class?: JsonRegistration['class']
+  eventType?: JsonRegistration['eventType']
+  group?: JsonRegistration['group'] | Registration['group']
+}
+
+const sortableDate = (date: string | Date | undefined): string =>
+  date instanceof Date ? date.toISOString() : (date ?? '\uffff')
+
+export const getRegistrationGroupTime = (registration: SortableRegistration): RegistrationTime =>
+  registration.group?.time ?? 'kp'
 
 const byTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  a.group?.time === b.group?.time
-    ? (a.group?.number ?? 999) - (b.group?.number ?? 999)
-    : (a.group?.time ?? '').localeCompare(b.group?.time ?? '')
+  getRegistrationGroupTime(a) === getRegistrationGroupTime(b)
+    ? (a.group?.number ?? Number.MAX_SAFE_INTEGER) - (b.group?.number ?? Number.MAX_SAFE_INTEGER)
+    : getRegistrationGroupTime(a).localeCompare(getRegistrationGroupTime(b))
 
 const byClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  (a.class ?? '') === (b.class ?? '') ? byTimeAndNumber(a, b) : (a.class ?? '').localeCompare(b.class ?? '')
+  getRegistrationClass(a) === getRegistrationClass(b)
+    ? byTimeAndNumber(a, b)
+    : (getRegistrationClass(a) ?? '').localeCompare(getRegistrationClass(b) ?? '')
 
 export const sortRegistrationsByDateClassTimeAndNumber = <T extends SortableRegistration>(a: T, b: T): number =>
-  a.group?.date === b.group?.date
+  sortableDate(a.group?.date) === sortableDate(b.group?.date)
     ? byClassTimeAndNumber(a, b)
-    : (a.group?.date ?? '').localeCompare(b.group?.date ?? '')
+    : sortableDate(a.group?.date).localeCompare(sortableDate(b.group?.date))
 
 export const getRegistrationNumberingGroupKey = <T extends JsonRegistration | Registration>(
   reg: Pick<T, 'cancelled' | 'class' | 'eventType' | 'group'>

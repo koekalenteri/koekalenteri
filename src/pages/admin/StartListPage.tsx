@@ -11,7 +11,11 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { useRecoilValue } from 'recoil'
-import { getRegistrationClass } from '../../lib/registration'
+import {
+  getRegistrationClass,
+  getRegistrationGroupTime,
+  sortRegistrationsByDateClassTimeAndNumber,
+} from '../../lib/registration'
 import { keysOf } from '../../lib/typeGuards'
 import { hasAdminAccessSelector, useUserActions } from '../recoil'
 import { adminEventRegistrationsAtom } from './recoil'
@@ -26,12 +30,12 @@ export default function StartListPage() {
   const params = useParams()
   const eventId = params.id ?? ''
   const allRegistrations = useRecoilValue(adminEventRegistrationsAtom(eventId))
-  const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled)
+  const regsToPrint = allRegistrations.filter((reg) => !reg.cancelled).sort(sortRegistrationsByDateClassTimeAndNumber)
   const nameLen = regsToPrint.reduce((acc, reg) => Math.min(38, Math.max(acc, reg.dog.name?.length ?? 0)), 0)
   const grouped = regsToPrint.reduce<GroupedRegs>((acc, reg) => {
     const date = reg.group?.date ? `${reg.group.date.valueOf()}` : 'varalla'
     const eventClass = getRegistrationClass(reg)
-    const time: RegistrationTime = reg.group?.time ?? 'kp'
+    const time = getRegistrationGroupTime(reg)
     acc[date] = acc[date] ?? {}
     acc[date][eventClass] = acc[date][eventClass] ?? {}
     acc[date][eventClass][time] = acc[date][eventClass][time] ?? []
@@ -39,7 +43,11 @@ export default function StartListPage() {
     return acc
   }, {})
   const groupKeys = Object.keys(grouped)
-  groupKeys.sort((a, b) => a.localeCompare(b))
+  groupKeys.sort((a, b) => {
+    if (a === 'varalla') return 1
+    if (b === 'varalla') return -1
+    return Number(a) - Number(b)
+  })
 
   useEffect(() => {
     if (!hasAccess) actions.login()
